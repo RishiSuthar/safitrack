@@ -13,7 +13,8 @@ let currentView = 'log-visit';
 let widgetLayout = [];
 let checkInRadius = 100; // meters
 let visitTags = [];
-let chartInstances = {}; // ✅ ADD THIS: Store chart instances
+let chartInstances = {}; // Store chart instances
+let selectedRepId = null; // Track selected rep for manager view
 
 // DOM Elements
 const loadingScreen = document.getElementById('loading-screen');
@@ -493,6 +494,8 @@ async function initApp() {
   if (isManager) {
     managerViewBtn.style.display = 'flex';
     adminViewBtn.style.display = 'flex';
+    // Hide log visit for managers
+    document.querySelector('[data-view="log-visit"]').style.display = 'none';
   } else {
     document.querySelector('[data-view="log-visit"]').style.display = 'flex';
   }
@@ -560,7 +563,7 @@ async function loadView(viewName) {
   currentView = viewName;
   updateBreadcrumb(viewName);
 
-  // ✅ DESTROY ALL CHART INSTANCES WHEN SWITCHING VIEWS
+  // DESTROY ALL CHART INSTANCES WHEN SWITCHING VIEWS
   Object.keys(chartInstances).forEach(chartId => {
     if (chartInstances[chartId]) {
       chartInstances[chartId].destroy();
@@ -931,7 +934,7 @@ function renderLogVisitView() {
         // Add user location marker
         userMarker = L.marker([userLat, userLng], {
           icon: L.icon({
-            iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMyIgZmlsbD0iIzEwYjk4MSIvPgo8cGF0aCBkPSJNMjEgMTBjMCA3LTkgMTMtOSAxM3MtOS02LTktMTNhOSA5IDAgMCAxIDE4IDB6IiBzdHJva2U9IiMxMGI5ODEiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPgo8L3N2Zz4=',
+            iconUrl: '',
             iconSize: [24, 24],
             iconAnchor: [12, 24]
           })
@@ -949,7 +952,7 @@ function renderLogVisitView() {
         // Add target location marker
         targetMarker = L.marker([location.lat, location.lng], {
           icon: L.icon({
-            iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMyIgZmlsbD0iIzI1NjNiZSIvPgo8cGF0aCBkPSJNMjEgMTBjMCA3LTkgMTMtOSAxM3MtOS02LTktMTNhOSA5IDAgMCAxIDE4IDB6IiBzdHJva2U9IiMyNTYzYmUiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPgo8L3N2Zz4=',
+            iconUrl: '',
             iconSize: [24, 24],
             iconAnchor: [12, 24]
           })
@@ -1126,7 +1129,7 @@ async function renderMyActivityView() {
     `;
   } else {
     for (const visit of visits) {
-      const date = formatDate(visit.created_at);
+      const date = formatDateWithTime(visit.created_at);
       const hasFlag = visit.ai_summary?.includes('urgent') || visit.ai_summary?.includes('priority');
       const leadScoreBadge = visit.lead_score ? getLeadScoreBadge(visit.lead_score) : '';
       
@@ -1378,26 +1381,25 @@ async function renderTeamDashboardView() {
         </button>
       </div>
       
-      <!-- Sales Rep Selector -->
+      <!-- Search for Sales Rep -->
       <div class="card" style="margin-bottom: 2rem;">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-          <label style="font-weight: 600;">Select Sales Rep:</label>
-          <select id="rep-selector" class="btn secondary" style="flex: 1; max-width: 300px;">
-            <option value="">All Team Members</option>
-            ${salesReps.map(rep => `
-              <option value="${rep.id}">${rep.first_name} ${rep.last_name}</option>
-            `).join('')}
-          </select>
-          <button id="clear-rep-filter" class="btn secondary small" style="display: none;">
-            Clear Filter
-          </button>
+        <div class="search-container">
+          <svg class="search-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+          <input type="text" id="rep-search-input" class="search-input" placeholder="Search for a sales representative...">
+          <div id="rep-search-results" class="search-results" style="display: none;"></div>
         </div>
       </div>
       
       <!-- Selected Rep's Visits (Initially Hidden) -->
       <div id="selected-rep-visits" style="display: none;">
         <div class="card" style="margin-bottom: 2rem;">
-          <h3 id="rep-visits-title">Sales Rep Visits</h3>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 id="rep-visits-title">Sales Rep Visits</h3>
+            <button id="clear-rep-filter" class="btn secondary small">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              Clear
+            </button>
+          </div>
           <div id="rep-visits-container">
             <!-- Visits will be rendered here -->
           </div>
@@ -1483,26 +1485,29 @@ async function renderTeamDashboardView() {
   viewContainer.innerHTML = html;
 
   // Get DOM elements
-  const repSelector = document.getElementById('rep-selector');
+  const repSearchInput = document.getElementById('rep-search-input');
+  const repSearchResults = document.getElementById('rep-search-results');
   const clearRepFilter = document.getElementById('clear-rep-filter');
   const selectedRepVisits = document.getElementById('selected-rep-visits');
   const repVisitsTitle = document.getElementById('rep-visits-title');
   const repVisitsContainer = document.getElementById('rep-visits-container');
   const teamVisitsContainer = document.getElementById('team-visits-container');
 
-  // Function to format date as day/month/year
-  function formatDate(dateString) {
+  // Function to format date with time
+  function formatDateWithTime(dateString) {
     const date = new Date(dateString);
-    return date.toLocaleDateString('en-GB', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric'
+    return date.toLocaleDateString('en-US', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
   }
 
   // Function to render a single visit card
   function renderVisitCard(visit) {
-    const date = formatDate(visit.created_at);
+    const date = formatDateWithTime(visit.created_at);
     const hasFlag = visit.ai_summary?.includes('urgent') || visit.ai_summary?.includes('priority');
     const leadScoreBadge = visit.lead_score ? getLeadScoreBadge(visit.lead_score) : '';
     const repName = visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : 'Unknown';
@@ -1583,7 +1588,7 @@ async function renderTeamDashboardView() {
     }
     
     selectedRepVisits.style.display = 'block';
-    clearRepFilter.style.display = 'inline-flex';
+    selectedRepId = repId;
   }
 
   // Function to render all team visits
@@ -1597,21 +1602,49 @@ async function renderTeamDashboardView() {
     }
   }
 
-  // Event listeners
-  repSelector.addEventListener('change', (e) => {
-    const repId = e.target.value;
-    if (repId) {
-      renderRepVisits(repId);
-    } else {
-      selectedRepVisits.style.display = 'none';
-      clearRepFilter.style.display = 'none';
+  // Setup search functionality
+  repSearchInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    
+    if (query.length === 0) {
+      repSearchResults.style.display = 'none';
+      return;
     }
+    
+    const filteredReps = salesReps.filter(rep => 
+      rep.first_name.toLowerCase().includes(query) || 
+      rep.last_name.toLowerCase().includes(query) ||
+      rep.email.toLowerCase().includes(query)
+    );
+    
+    if (filteredReps.length === 0) {
+      repSearchResults.innerHTML = '<div class="search-result-item">No sales reps found</div>';
+    } else {
+      repSearchResults.innerHTML = filteredReps.map(rep => `
+        <div class="search-result-item" onclick="selectRep('${rep.id}')">
+          <div class="search-result-avatar">${rep.first_name.charAt(0)}${rep.last_name.charAt(0)}</div>
+          <div class="search-result-info">
+            <div class="search-result-name">${rep.first_name} ${rep.last_name}</div>
+            <div class="search-result-role">${rep.email}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    repSearchResults.style.display = 'block';
   });
+  
+  // Global function for selecting a rep
+  window.selectRep = function(repId) {
+    renderRepVisits(repId);
+    repSearchResults.style.display = 'none';
+    repSearchInput.value = '';
+  };
 
+  // Clear filter button
   clearRepFilter.addEventListener('click', () => {
-    repSelector.value = '';
     selectedRepVisits.style.display = 'none';
-    clearRepFilter.style.display = 'none';
+    selectedRepId = null;
   });
 
   // Initial render
@@ -1935,7 +1968,7 @@ function initPerformanceChart(users) {
   const canvas = document.getElementById('performanceChart');
   if (!canvas) return;
   
-  // ✅ DESTROY EXISTING CHART IF IT EXISTS
+  // DESTROY EXISTING CHART IF IT EXISTS
   if (chartInstances['performanceChart']) {
     chartInstances['performanceChart'].destroy();
     delete chartInstances['performanceChart'];
@@ -1958,7 +1991,7 @@ function initPerformanceChart(users) {
     return 'rgba(245, 158, 11, 0.7)';
   });
 
-  // ✅ STORE THE CHART INSTANCE
+  // STORE THE CHART INSTANCE
   chartInstances['performanceChart'] = new Chart(ctx, {
     type: 'bar',
     data: {
@@ -2097,6 +2130,17 @@ function triggerConfetti() {
   });
 }
 
+// Format date with time
+function formatDateWithTime(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
 
 window.addEventListener('DOMContentLoaded', () => {
   const savedTheme = localStorage.getItem('theme') || (
@@ -2141,5 +2185,3 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
-
-// In app.js

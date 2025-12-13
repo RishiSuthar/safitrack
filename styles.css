@@ -8,13 +8,18 @@
   --text-secondary: #64748b;
   --text-muted: #94a3b8;
   --border-color: #e2e8f0;
-  --accent: #2563eb;
-  --accent-hover: #1d4ed8;
+  --accent: #4361ee;
+  --accent-hover: #3a56d4;
+  --accent-light: #eef2ff;
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
   --card-shadow: 0 4px 20px rgba(0,0,0,0.08);
   --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  --radius: 12px;
+  --radius-lg: 16px;
+  --gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --gradient-2: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
 }
 
 [data-theme="dark"] {
@@ -26,6 +31,7 @@
   --text-muted: #94a3b8;
   --border-color: #334155;
   --card-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  --accent-light: rgba(67, 97, 238, 0.1);
 }
 
 /* ===== BASE STYLES ===== */
@@ -36,7 +42,7 @@
 }
 
 body {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   background: var(--bg-secondary);
   color: var(--text-primary);
   line-height: 1.6;
@@ -49,7 +55,7 @@ body {
   width: 100%;
   max-width: 400px;
   background: var(--bg-primary);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 2rem;
   margin-bottom: 1rem;
 }
@@ -60,7 +66,7 @@ body {
   background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--border-color) 50%, var(--bg-tertiary) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
-  border-radius: 4px;
+  border-radius: var(--radius);
   margin-bottom: 1rem;
 }
 
@@ -70,7 +76,7 @@ body {
   background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--border-color) 50%, var(--bg-tertiary) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
-  border-radius: 4px;
+  border-radius: var(--radius);
   margin-bottom: 0.5rem;
 }
 
@@ -96,7 +102,7 @@ body {
 .skeleton-card {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
 }
 
@@ -106,7 +112,7 @@ body {
   background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--border-color) 50%, var(--bg-tertiary) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
-  border-radius: 4px;
+  border-radius: var(--radius);
   margin-bottom: 1rem;
 }
 
@@ -116,7 +122,7 @@ body {
   background: linear-gradient(90deg, var(--bg-tertiary) 25%, var(--border-color) 50%, var(--bg-tertiary) 75%);
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite;
-  border-radius: 4px;
+  border-radius: var(--radius);
   margin-bottom: 0.5rem;
 }
 
@@ -209,13 +215,26 @@ h5 { font-size: 1rem; font-weight: 600; }
   background: var(--bg-primary);
   backdrop-filter: blur(10px);
   border: 1px solid var(--border-color);
-  border-radius: 16px;
+  border-radius: var(--radius-lg);
   padding: 2.5rem;
   box-shadow: var(--card-shadow);
   width: 100%;
   max-width: 420px;
   transition: var(--transition);
+  position: relative;
+  overflow: hidden;
 }
+
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient);
+}
+
 .glass-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 30px rgba(0,0,0,0.12);
@@ -256,7 +275,7 @@ h5 { font-size: 1rem; font-weight: 600; }
 /* ===== BUTTONS ===== */
 .btn {
   padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius);
   font-weight: 500;
   cursor: pointer;
   border: none;
@@ -266,14 +285,30 @@ h5 { font-size: 1rem; font-weight: 600; }
   justify-content: center;
   gap: 0.5rem;
   font-size: 0.95rem;
+  position: relative;
+  overflow: hidden;
+}
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.1);
+  transition: left 0.3s ease;
+}
+.btn:hover::before {
+  left: 100%;
 }
 .btn.primary {
-  background: var(--accent);
+  background: var(--gradient-2);
   color: white;
+  box-shadow: 0 4px 14px 0 rgba(67, 97, 238, 0.3);
 }
 .btn.primary:hover {
-  background: var(--accent-hover);
   transform: translateY(-1px);
+  box-shadow: 0 6px 20px 0 rgba(67, 97, 238, 0.4);
 }
 .btn.secondary {
   background: var(--bg-tertiary);
@@ -312,7 +347,7 @@ h5 { font-size: 1rem; font-weight: 600; }
   border: none;
   cursor: pointer;
   padding: 0.5rem;
-  border-radius: 6px;
+  border-radius: var(--radius);
   color: var(--text-secondary);
   transition: var(--transition);
 }
@@ -346,7 +381,7 @@ h5 { font-size: 1rem; font-weight: 600; }
   max-width: 600px;
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: slideDown 0.3s ease;
   overflow: hidden;
@@ -434,7 +469,7 @@ h5 { font-size: 1rem; font-weight: 600; }
   color: var(--text-muted);
   background: var(--bg-tertiary);
   padding: 0.25rem 0.5rem;
-  border-radius: 4px;
+  border-radius: var(--radius);
 }
 
 /* ===== MODALS ===== */
@@ -461,7 +496,7 @@ h5 { font-size: 1rem; font-weight: 600; }
   max-width: 500px;
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   box-shadow: var(--card-shadow);
   animation: slideDown 0.3s ease;
 }
@@ -495,7 +530,7 @@ input, select, textarea {
   padding: 0.75rem;
   margin: 0.5rem 0;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius);
   background: var(--bg-primary);
   color: var(--text-primary);
   font-family: inherit;
@@ -505,7 +540,7 @@ input, select, textarea {
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
 }
 .password-wrapper {
   position: relative;
@@ -526,7 +561,7 @@ input:focus, select:focus, textarea:focus {
   display: flex;
   margin-bottom: 1.5rem;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius);
   overflow: hidden;
 }
 .tab-btn {
@@ -574,7 +609,7 @@ input:focus, select:focus, textarea:focus {
   gap: 0.5rem;
   padding: 0.5rem;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius);
   background: var(--bg-primary);
   min-height: 44px;
   align-items: center;
@@ -736,11 +771,29 @@ input:focus, select:focus, textarea:focus {
 .card {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   box-shadow: var(--card-shadow);
   transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card:hover::before {
+  opacity: 1;
 }
 
 .card.draggable {
@@ -762,11 +815,22 @@ input:focus, select:focus, textarea:focus {
 .widget {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
   box-shadow: var(--card-shadow);
   transition: var(--transition);
   position: relative;
+  overflow: hidden;
+}
+
+.widget::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient);
 }
 
 .widget.draggable {
@@ -830,11 +894,29 @@ input:focus, select:focus, textarea:focus {
 .funnel-stage {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
   margin-bottom: 1rem;
   transition: var(--transition);
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.funnel-stage::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--gradient);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.funnel-stage:hover::before {
+  opacity: 1;
 }
 
 .funnel-stage:hover {
@@ -871,7 +953,7 @@ input:focus, select:focus, textarea:focus {
 
 .funnel-stage-progress {
   height: 100%;
-  background: var(--accent);
+  background: var(--gradient);
   transition: width 0.3s ease;
 }
 
@@ -908,7 +990,7 @@ input:focus, select:focus, textarea:focus {
   transform: translateX(-50%) translateY(-100%);
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: 0 0 12px 12px;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
   padding: 1rem 2rem;
   box-shadow: var(--card-shadow);
   display: flex;
@@ -956,7 +1038,7 @@ input:focus, select:focus, textarea:focus {
   background: linear-gradient(135deg, #fef3c7, #fffbeb);
   border-left: 4px solid #f59e0b;
   padding: 1.25rem;
-  border-radius: 0 8px 8px 0;
+  border-radius: 0 var(--radius) var(--radius) 0;
   margin: 1.5rem 0;
   position: relative;
 }
@@ -980,7 +1062,7 @@ input:focus, select:focus, textarea:focus {
   right: 1rem;
   background: rgba(255,255,255,0.5);
   border: none;
-  border-radius: 4px;
+  border-radius: var(--radius);
   padding: 0.25rem;
   cursor: pointer;
   opacity: 0;
@@ -997,12 +1079,26 @@ input:focus, select:focus, textarea:focus {
 .visit-card {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
   margin: 1rem 0;
   transition: var(--transition);
   position: relative;
   overflow: hidden;
+}
+.visit-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--gradient);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.visit-card:hover::before {
+  opacity: 1;
 }
 .visit-card:hover {
   transform: translateY(-2px);
@@ -1034,7 +1130,7 @@ input:focus, select:focus, textarea:focus {
 .chart-container {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
   margin: 2rem 0;
 }
@@ -1059,7 +1155,7 @@ input:focus, select:focus, textarea:focus {
 .location-map {
   height: 200px;
   margin-top: 0.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius);
   overflow: hidden;
   border: 1px solid var(--border-color);
 }
@@ -1075,13 +1171,31 @@ input:focus, select:focus, textarea:focus {
 .stat-card {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
   display: flex;
   align-items: center;
   gap: 1rem;
   box-shadow: var(--card-shadow);
   transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--gradient);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.stat-card:hover::before {
+  opacity: 1;
 }
 
 .stat-card:hover {
@@ -1121,7 +1235,7 @@ input:focus, select:focus, textarea:focus {
 .view-toggle {
   display: flex;
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: var(--radius);
   overflow: hidden;
 }
 
@@ -1152,10 +1266,28 @@ input:focus, select:focus, textarea:focus {
 .rep-card {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
-  border-radius: 12px;
+  border-radius: var(--radius-lg);
   padding: 1.5rem;
   box-shadow: var(--card-shadow);
   transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.rep-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: var(--gradient);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.rep-card:hover::before {
+  opacity: 1;
 }
 
 .rep-card:hover {
@@ -1174,7 +1306,7 @@ input:focus, select:focus, textarea:focus {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: var(--accent);
+  background: var(--gradient);
   color: white;
   display: flex;
   align-items: center;
@@ -1238,7 +1370,7 @@ input:focus, select:focus, textarea:focus {
 
 .visit-item {
   background: var(--bg-tertiary);
-  border-radius: 8px;
+  border-radius: var(--radius);
   padding: 1rem;
 }
 
@@ -1277,6 +1409,93 @@ input:focus, select:focus, textarea:focus {
 .visit-ai-insight h5 {
   font-size: 0.9rem;
   margin-bottom: 0.25rem;
+}
+
+/* ===== SEARCH COMPONENT ===== */
+.search-container {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.search-input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 3rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 1rem;
+  transition: var(--transition);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+}
+
+.search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--card-shadow);
+  margin-top: 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 10;
+}
+
+.search-result-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  transition: var(--transition);
+}
+
+.search-result-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.search-result-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--gradient);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.search-result-info {
+  flex: 1;
+}
+
+.search-result-name {
+  font-weight: 500;
+}
+
+.search-result-role {
+  font-size: 0.8rem;
+  color: var(--text-muted);
 }
 
 /* ===== AI CONTENT STYLING ===== */
@@ -1339,7 +1558,7 @@ input:focus, select:focus, textarea:focus {
   background: var(--bg-primary);
   color: var(--text-primary);
   padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  border-radius: var(--radius);
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   display: flex;
   align-items: center;

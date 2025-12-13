@@ -67,6 +67,18 @@ function formatDate(dateString) {
   return date.toLocaleDateString();
 }
 
+// Format date with time
+function formatDateWithTime(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
 // GENERATE RANDOM COLOR
 function generateColor(seed) {
   const colors = [
