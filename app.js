@@ -362,8 +362,8 @@ async function exportToPDF(visits, fromDate, toDate) {
       doc.text(`Contact: ${visit.contact_name}`, 25, yPos);
       yPos += 7;
     }
-    if (visit.location) {
-      doc.text(`Location: ${visit.location}`, 25, yPos);
+    if (visit.location_name) {
+      doc.text(`Location: ${visit.location_name}`, 25, yPos);
       yPos += 7;
     }
     
@@ -381,7 +381,7 @@ async function exportToExcel(visits, fromDate, toDate) {
     'Company': visit.company_name,
     'Contact': visit.contact_name || '',
     'Sales Rep': visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : '',
-    'Location': visit.location || '',
+    'Location': visit.location_name || '',
     'Notes': visit.notes,
     'AI Summary': visit.ai_summary || '',
     'Tags': visit.tags ? visit.tags.join(', ') : ''
@@ -401,7 +401,7 @@ async function exportToCSV(visits, fromDate, toDate) {
     visit.company_name,
     visit.contact_name || '',
     visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : '',
-    visit.location || '',
+    visit.location_name || '',
     visit.notes,
     visit.ai_summary || '',
     visit.tags ? visit.tags.join('; ') : ''
@@ -556,10 +556,6 @@ function setupParallax() {
 // VIEW ROUTER
 // ======================
 
-// ======================
-// VIEW ROUTER
-// ======================
-
 async function loadView(viewName) {
   currentView = viewName;
   updateBreadcrumb(viewName);
@@ -644,305 +640,414 @@ function updateBreadcrumb(viewName) {
 // ======================
 
 function renderLogVisitView() {
-  const html = `
-    <div class="view active" id="log-visit-view">
-      <div class="card">
-        <h2>📍 Log New Field Visit</h2>
-        <p>Record your visit details and get a concise AI summary.</p>
-        
-        <div class="form-group">
-          <label>Company Name *</label>
-          <input type="text" id="company-name" placeholder="e.g., Acme Corp" required />
-        </div>
-        
-        <div class="form-group">
-          <label>Contact Person at Client</label>
-          <input type="text" id="contact-name" placeholder="e.g., Sarah Chen (Client Contact)" />
-        </div>
-        
-        <div class="form-group">
-          <label>Visit Type</label>
-          <select id="visit-type">
-            <option value="new_lead">New Lead</option>
-            <option value="follow_up">Follow-up</option>
-            <option value="demo">Product Demo</option>
-            <option value="closing">Closing</option>
-            <option value="support">Customer Support</option>
-          </select>
-        </div>
-        
-        <div class="form-group">
-          <label>Visit Notes *</label>
-          <textarea id="notes" placeholder="What happened? Key takeaways? Objections? Next steps..." rows="6" required></textarea>
-          <div class="char-counter"><span id="char-count">0</span>/1000</div>
-        </div>
+  // First, fetch locations
+  supabase
+    .from('locations')
+    .select('*')
+    .order('name', { ascending: true })
+    .then(({ data: locations, error }) => {
+      if (error) {
+        console.error('Error fetching locations:', error);
+      }
+      
+      const html = `
+        <div class="view active" id="log-visit-view">
+          <div class="card">
+            <h2>📍 Log New Field Visit</h2>
+            <p>Record your visit details and get a concise AI summary.</p>
+            
+            <div class="form-group">
+              <label>Company Name *</label>
+              <input type="text" id="company-name" placeholder="e.g., Acme Corp" required />
+            </div>
+            
+            <div class="form-group">
+              <label>Contact Person at Client</label>
+              <input type="text" id="contact-name" placeholder="e.g., Sarah Chen (Client Contact)" />
+            </div>
+            
+            <div class="form-group">
+              <label>Visit Location *</label>
+              <select id="location-select" required>
+                <option value="">Select a location...</option>
+                ${locations ? locations.map(loc => `
+                  <option value="${loc.id}" data-lat="${loc.latitude}" data-lng="${loc.longitude}" data-radius="${loc.radius || 200}">
+                    ${loc.name} - ${loc.address}
+                  </option>
+                `).join('') : '<option value="">No locations available</option>'}
+              </select>
+              <small style="color: var(--text-muted);">Select from predefined locations. Your GPS will verify you're at the location.</small>
+            </div>
+            
+            <div class="form-group">
+              <label>Visit Type</label>
+              <select id="visit-type">
+                <option value="new_lead">New Lead</option>
+                <option value="follow_up">Follow-up</option>
+                <option value="demo">Product Demo</option>
+                <option value="closing">Closing</option>
+                <option value="support">Customer Support</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>Visit Notes *</label>
+              <textarea id="notes" placeholder="What happened? Key takeaways? Objections? Next steps..." rows="6" required></textarea>
+              <div class="char-counter"><span id="char-count">0</span>/1000</div>
+            </div>
 
-        <div class="form-group">
-          <label>Tags & Categories</label>
-          <div class="tags-input-container" id="tags-container">
-            <input type="text" class="tags-input" id="tags-input" placeholder="Add tags...">
+            <div class="form-group">
+              <label>Tags & Categories</label>
+              <div class="tags-input-container" id="tags-container">
+                <input type="text" class="tags-input" id="tags-input" placeholder="Add tags...">
+              </div>
+              <div class="tag-suggestions">
+                <button class="tag-suggestion" onclick="addTag('urgent')">urgent</button>
+                <button class="tag-suggestion" onclick="addTag('high-value')">high-value</button>
+                <button class="tag-suggestion" onclick="addTag('decision-maker')">decision-maker</button>
+                <button class="tag-suggestion" onclick="addTag('follow-up')">follow-up</button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Visit Photo</label>
+              <div class="photo-upload-container">
+                <input type="file" id="visit-photo" accept="image/*" style="display: none;" />
+                <button id="photo-btn" class="btn secondary">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                  Take Photo
+                </button>
+                <div id="photo-preview" class="photo-preview"></div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Location Verification *</label>
+              <div id="location-container">
+                <button id="verify-location" class="btn secondary" disabled>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                  Verify Location
+                </button>
+                <div id="location-status" class="location-status"></div>
+                <div id="location-map" class="location-map"></div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Travel Time to This Visit</label>
+              <input type="number" id="travel-time" placeholder="Minutes" min="0" />
+            </div>
+
+            <div class="button-group" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+              <button id="submit-visit" class="btn primary" style="flex: 1;" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                Save Visit
+              </button>
+            </div>
           </div>
-          <div class="tag-suggestions">
-            <button class="tag-suggestion" onclick="addTag('urgent')">urgent</button>
-            <button class="tag-suggestion" onclick="addTag('high-value')">high-value</button>
-            <button class="tag-suggestion" onclick="addTag('decision-maker')">decision-maker</button>
-            <button class="tag-suggestion" onclick="addTag('follow-up')">follow-up</button>
-          </div>
         </div>
+      `;
+      
+      viewContainer.innerHTML = html;
+      
+      // CHAR COUNTER
+      const notesEl = document.getElementById('notes');
+      const charCountEl = document.getElementById('char-count');
+      notesEl.addEventListener('input', () => {
+        charCountEl.textContent = notesEl.value.length;
+      });
 
-        <div class="form-group">
-          <label>Visit Photo</label>
-          <div class="photo-upload-container">
-            <input type="file" id="visit-photo" accept="image/*" style="display: none;" />
-            <button id="photo-btn" class="btn secondary">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
-              Take Photo
-            </button>
-            <div id="photo-preview" class="photo-preview"></div>
-          </div>
-        </div>
+      // TAGS INPUT
+      visitTags = [];
+      const tagsInput = document.getElementById('tags-input');
+      tagsInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && tagsInput.value.trim()) {
+          e.preventDefault();
+          addTag(tagsInput.value.trim());
+          tagsInput.value = '';
+        }
+      });
 
-        <div class="form-group">
-          <label>Location Verification *</label>
-          <div id="location-container">
-            <button id="add-location" class="btn secondary">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-              Detect My Location
-            </button>
-            <div id="location-status" class="location-status"></div>
-            <div id="location-map" class="location-map"></div>
-          </div>
-        </div>
+      // PHOTO CAPTURE
+      const photoBtn = document.getElementById('photo-btn');
+      const photoInput = document.getElementById('visit-photo');
+      const photoPreview = document.getElementById('photo-preview');
+      
+      photoBtn.addEventListener('click', () => {
+        photoInput.click();
+      });
+      
+      photoInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            photoPreview.innerHTML = `<img src="${e.target.result}" alt="Visit photo" style="max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 0.5rem;">`;
+          };
+          reader.readAsDataURL(file);
+        }
+      });
 
-        <div class="form-group">
-          <label>Travel Time to This Visit</label>
-          <input type="number" id="travel-time" placeholder="Minutes" min="0" />
-        </div>
+      // LOCATION SELECTION AND VERIFICATION
+      const locationSelect = document.getElementById('location-select');
+      const verifyLocationBtn = document.getElementById('verify-location');
+      const locationStatus = document.getElementById('location-status');
+      const locationMap = document.getElementById('location-map');
+      const submitBtn = document.getElementById('submit-visit');
+      
+      let selectedLocation = null;
+      let locationVerified = false;
+      let map = null;
+      let userMarker = null;
+      let targetMarker = null;
+      let radiusCircle = null;
 
-        <div class="button-group" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
-          <button id="submit-visit" class="btn primary" style="flex: 1;" disabled>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-            Save Visit
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
-  viewContainer.innerHTML = html;
+      // Enable verify button when location is selected
+      locationSelect.addEventListener('change', (e) => {
+        const option = e.target.options[e.target.selectedIndex];
+        if (option.value) {
+          selectedLocation = {
+            id: option.value,
+            name: option.text.split(' - ')[0],
+            address: option.text.split(' - ')[1],
+            lat: parseFloat(option.dataset.lat),
+            lng: parseFloat(option.dataset.lng),
+            radius: parseInt(option.dataset.radius) || 200
+          };
+          verifyLocationBtn.disabled = false;
+          locationStatus.innerHTML = '';
+          locationVerified = false;
+          submitBtn.disabled = true;
+        } else {
+          selectedLocation = null;
+          verifyLocationBtn.disabled = true;
+          locationStatus.innerHTML = '';
+          locationVerified = false;
+          submitBtn.disabled = true;
+        }
+      });
 
-  // CHAR COUNTER
-  const notesEl = document.getElementById('notes');
-  const charCountEl = document.getElementById('char-count');
-  notesEl.addEventListener('input', () => {
-    charCountEl.textContent = notesEl.value.length;
-  });
-
-  // TAGS INPUT
-  visitTags = [];
-  const tagsInput = document.getElementById('tags-input');
-  tagsInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && tagsInput.value.trim()) {
-      e.preventDefault();
-      addTag(tagsInput.value.trim());
-      tagsInput.value = '';
-    }
-  });
-
-  // PHOTO CAPTURE
-  const photoBtn = document.getElementById('photo-btn');
-  const photoInput = document.getElementById('visit-photo');
-  const photoPreview = document.getElementById('photo-preview');
-  
-  photoBtn.addEventListener('click', () => {
-    photoInput.click();
-  });
-  
-  photoInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        photoPreview.innerHTML = `<img src="${e.target.result}" alt="Visit photo" style="max-width: 100%; max-height: 200px; border-radius: 8px; margin-top: 0.5rem;">`;
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-
-  // LOCATION CAPTURE WITH RADIUS VERIFICATION
-  const locationBtn = document.getElementById('add-location');
-  const locationStatus = document.getElementById('location-status');
-  const locationMap = document.getElementById('location-map');
-  const submitBtn = document.getElementById('submit-visit');
-  let locationCaptured = false;
-  let map = null;
-  let marker = null;
-  let radiusCircle = null;
-
-  locationBtn.addEventListener('click', () => {
-    if (!navigator.geolocation) {
-      showToast('Geolocation not supported by your browser.', 'error');
-      return;
-    }
-    
-    locationStatus.innerHTML = '<div class="spinner" style="width: 16px; height: 16px; border-width: 2px; margin-right: 8px;"></div>Detecting location...';
-    
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        const accuracy = position.coords.accuracy;
-        const coords = `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-        
-        // Verify location accuracy
-        if (accuracy > checkInRadius) {
-          locationStatus.innerHTML = `⚠️ Location accuracy (${accuracy.toFixed(0)}m) exceeds required radius (${checkInRadius}m)`;
-          showToast('Location not accurate enough. Please try again.', 'warning');
+      // VERIFY LOCATION BUTTON
+      verifyLocationBtn.addEventListener('click', () => {
+        if (!selectedLocation) {
+          showToast('Please select a location first', 'error');
           return;
         }
         
-        locationStatus.innerHTML = `✅ Location verified: ${coords} (±${accuracy.toFixed(0)}m)`;
-        window.tempLocation = { lat, lng, coords, accuracy };
-        locationCaptured = true;
-        submitBtn.disabled = false;
-        
-        initializeMap(lat, lng, accuracy);
-      },
-      (error) => {
-        let errorMsg = 'Unable to retrieve location.';
-        switch(error.code) {
-          case error.PERMISSION_DENIED:
-            errorMsg = 'Location permission denied. Please enable GPS.';
-            break;
-          case error.POSITION_UNAVAILABLE:
-            errorMsg = 'Location information unavailable.';
-            break;
-          case error.TIMEOUT:
-            errorMsg = 'Location request timed out.';
-            break;
+        if (!navigator.geolocation) {
+          showToast('Geolocation not supported by your browser.', 'error');
+          return;
         }
-        locationStatus.innerHTML = `❌ ${errorMsg}`;
-        showToast(errorMsg, 'error');
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0
-      }
-    );
-  });
-  
-  function initializeMap(lat, lng, accuracy) {
-    if (!map) {
-      map = L.map('location-map').setView([lat, lng], 16);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-      }).addTo(map);
-    }
-    
-    if (marker) marker.remove();
-    if (radiusCircle) radiusCircle.remove();
-    
-    marker = L.marker([lat, lng]).addTo(map);
-    marker.bindPopup('Your location').openPopup();
-    
-    radiusCircle = L.circle([lat, lng], {
-      radius: accuracy,
-      color: '#10b981',
-      fillColor: '#10b981',
-      fillOpacity: 0.2
-    }).addTo(map);
-    
-    map.fitBounds(radiusCircle.getBounds());
-  }
-
-  // SUBMIT HANDLER
-  submitBtn.addEventListener('click', async () => {
-    if (!locationCaptured) {
-      showToast('Please detect your location before submitting.', 'error');
-      return;
-    }
-    
-    const company = document.getElementById('company-name').value.trim();
-    const contact = document.getElementById('contact-name').value.trim();
-    const visitType = document.getElementById('visit-type').value;
-    const notes = document.getElementById('notes').value.trim();
-    const travelTime = document.getElementById('travel-time').value;
-    const photoFile = document.getElementById('visit-photo').files[0];
-
-    if (!company || !notes) {
-      showToast('Company and Notes are required.', 'error');
-      return;
-    }
-
-    const originalText = submitBtn.innerHTML;
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<div class="spinner" style="width: 16px; height: 16px; border-width: 2px; margin-right: 8px;"></div>Processing...';
-
-    try {
-      let photoUrl = null;
-      
-      if (photoFile) {
-        const photoPath = `visit-photos/${currentUser.id}/${Date.now()}-${photoFile.name}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('safitrack')
-          .upload(photoPath, photoFile);
-          
-        if (uploadError) throw uploadError;
         
-        const { data: urlData } = supabase.storage
-          .from('safitrack')
-          .getPublicUrl(photoPath);
+        verifyLocationBtn.disabled = true;
+        verifyLocationBtn.innerHTML = '<div class="spinner" style="width: 16px; height: 16px; border-width: 2px; margin-right: 8px;"></div>Detecting...';
+        locationStatus.innerHTML = '<div class="spinner" style="width: 16px; height: 16px; border-width: 2px; margin-right: 8px;"></div>Detecting your location...';
+        
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const userLat = position.coords.latitude;
+            const userLng = position.coords.longitude;
+            const accuracy = position.coords.accuracy;
+            
+            // Calculate distance between user and selected location
+            const distance = calculateDistance(
+              userLat, userLng,
+              selectedLocation.lat, selectedLocation.lng
+            );
+            
+            // Check if user is within the grace radius
+            const isWithinRadius = distance <= (selectedLocation.radius + accuracy);
+            
+            if (isWithinRadius) {
+              locationStatus.innerHTML = `✅ Location verified: You are ${distance.toFixed(0)}m from ${selectedLocation.name}`;
+              locationVerified = true;
+              submitBtn.disabled = false;
+              
+              // Show map with both locations
+              initializeVerificationMap(userLat, userLng, selectedLocation);
+            } else {
+              locationStatus.innerHTML = `❌ You are too far from ${selectedLocation.name}. You are ${distance.toFixed(0)}m away, but need to be within ${selectedLocation.radius}m.`;
+              locationVerified = false;
+              submitBtn.disabled = true;
+            }
+            
+            verifyLocationBtn.disabled = false;
+            verifyLocationBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Verify Location';
+          },
+          (error) => {
+            let errorMsg = 'Unable to retrieve location.';
+            switch(error.code) {
+              case error.PERMISSION_DENIED:
+                errorMsg = 'Location permission denied. Please enable GPS.';
+                break;
+              case error.POSITION_UNAVAILABLE:
+                errorMsg = 'Location information unavailable.';
+                break;
+              case error.TIMEOUT:
+                errorMsg = 'Location request timed out.';
+                break;
+            }
+            locationStatus.innerHTML = `❌ ${errorMsg}`;
+            verifyLocationBtn.disabled = false;
+            verifyLocationBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg> Verify Location';
+            showToast(errorMsg, 'error');
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0
+          }
+        );
+      });
+      
+      function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371e3; // Earth's radius in meters
+        const φ1 = lat1 * Math.PI/180;
+        const φ2 = lat2 * Math.PI/180;
+        const Δφ = (lat2-lat1) * Math.PI/180;
+        const Δλ = (lon2-lon1) * Math.PI/180;
+        
+        const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
+                  Math.cos(φ1) * Math.cos(φ2) *
+                  Math.sin(Δλ/2) * Math.sin(Δλ/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        
+        return R * c; // Distance in meters
+      }
+      
+      function initializeVerificationMap(userLat, userLng, location) {
+        if (!map) {
+          map = L.map('location-map').setView([userLat, userLng], 16);
+          L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+          }).addTo(map);
+        }
+        
+        // Clear existing markers
+        if (userMarker) userMarker.remove();
+        if (targetMarker) targetMarker.remove();
+        if (radiusCircle) radiusCircle.remove();
+        
+        // Add user location marker
+        userMarker = L.marker([userLat, userLng], {
+          icon: L.icon({
+            iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMyIgZmlsbD0iIzEwYjk4MSIvPgo8cGF0aCBkPSJNMjEgMTBjMCA3LTkgMTMtOSAxM3MtOS02LTktMTNhOSA5IDAgMCAxIDE4IDB6IiBzdHJva2U9IiMxMGI5ODEiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPgo8L3N2Zz4=',
+            iconSize: [24, 24],
+            iconAnchor: [12, 24]
+          })
+        }).addTo(map);
+        userMarker.bindPopup('Your location').openPopup();
+        
+        // Add target location circle
+        radiusCircle = L.circle([location.lat, location.lng], {
+          radius: location.radius,
+          color: '#2563eb',
+          fillColor: '#2563eb',
+          fillOpacity: 0.1
+        }).addTo(map);
+        
+        // Add target location marker
+        targetMarker = L.marker([location.lat, location.lng], {
+          icon: L.icon({
+            iconUrl: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTIiIGN5PSIxMCIgcj0iMyIgZmlsbD0iIzI1NjNiZSIvPgo8cGF0aCBkPSJNMjEgMTBjMCA3LTkgMTMtOSAxM3MtOS02LTktMTNhOSA5IDAgMCAxIDE4IDB6IiBzdHJva2U9IiMyNTYzYmUiIHN0cm9rZS13aWR0aD0iMiIgZmlsbD0ibm9uZSIvPgo8L3N2Zz4=',
+            iconSize: [24, 24],
+            iconAnchor: [12, 24]
+          })
+        }).addTo(map).bindPopup(location.name);
+        
+        // Fit map to show both locations
+        const group = new L.featureGroup([userMarker, radiusCircle]);
+        map.fitBounds(group.getBounds().pad(0.1));
+      }
+
+      // SUBMIT HANDLER
+      submitBtn.addEventListener('click', async () => {
+        if (!locationVerified) {
+          showToast('Please verify your location before submitting.', 'error');
+          return;
+        }
+        
+        const company = document.getElementById('company-name').value.trim();
+        const contact = document.getElementById('contact-name').value.trim();
+        const visitType = document.getElementById('visit-type').value;
+        const notes = document.getElementById('notes').value.trim();
+        const travelTime = document.getElementById('travel-time').value;
+        const photoFile = document.getElementById('visit-photo').files[0];
+
+        if (!company || !notes) {
+          showToast('Company and Notes are required.', 'error');
+          return;
+        }
+
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<div class="spinner" style="width: 16px; height: 16px; border-width: 2px; margin-right: 8px;"></div>Processing...';
+
+        try {
+          let photoUrl = null;
           
-        photoUrl = urlData.publicUrl;
-      }
+          if (photoFile) {
+            const photoPath = `visit-photos/${currentUser.id}/${Date.now()}-${photoFile.name}`;
+            const { data: uploadData, error: uploadError } = await supabase.storage
+              .from('safitrack')
+              .upload(photoPath, photoFile);
+              
+            if (uploadError) throw uploadError;
+            
+            const { data: urlData } = supabase.storage
+              .from('safitrack')
+              .getPublicUrl(photoPath);
+              
+            photoUrl = urlData.publicUrl;
+          }
 
-      // Generate AI summary and lead score
-      const aiSummary = await generateConciseVisitSummary(company, contact, notes);
-      const leadScore = await predictLeadScore(company, contact, notes, visitType);
+          // Generate AI summary and lead score
+          const aiSummary = await generateConciseVisitSummary(company, contact, notes);
+          const leadScore = await predictLeadScore(company, contact, notes, visitType);
 
-      const visitData = {
-        user_id: currentUser.id,
-        company_name: company,
-        contact_name: contact || null,
-        visit_type: visitType,
-        notes: notes,
-        ai_summary: aiSummary,
-        lead_score: leadScore,
-        location: window.tempLocation.coords,
-        latitude: window.tempLocation.lat,
-        longitude: window.tempLocation.lng,
-        location_accuracy: window.tempLocation.accuracy,
-        photo_url: photoUrl,
-        travel_time: travelTime ? parseInt(travelTime) : null,
-        tags: visitTags,
-        created_at: new Date().toISOString()
-      };
+          const visitData = {
+            user_id: currentUser.id,
+            company_name: company,
+            contact_name: contact || null,
+            visit_type: visitType,
+            notes: notes,
+            ai_summary: aiSummary,
+            lead_score: leadScore,
+            location_name: selectedLocation.name,
+            location_address: selectedLocation.address,
+            latitude: selectedLocation.lat,
+            longitude: selectedLocation.lng,
+            location_accuracy: null, // Not storing user's exact location for privacy
+            photo_url: photoUrl,
+            travel_time: travelTime ? parseInt(travelTime) : null,
+            tags: visitTags,
+            created_at: new Date().toISOString()
+          };
 
-      const { error } = await supabase
-        .from('visits')
-        .insert([visitData]);
+          const { error } = await supabase
+            .from('visits')
+            .insert([visitData]);
 
-      if (error) throw error;
+          if (error) throw error;
 
-      showToast('✅ Visit logged successfully!', 'success');
-      
-      // Trigger confetti for high-value visits
-      if (leadScore >= 70 || visitTags.includes('high-value')) {
-        triggerConfetti();
-      }
-      
-      window.tempLocation = null;
-      visitTags = [];
-      loadView('my-activity');
+          showToast('✅ Visit logged successfully!', 'success');
+          
+          // Trigger confetti for high-value visits
+          if (leadScore >= 70 || visitTags.includes('high-value')) {
+            triggerConfetti();
+          }
+          
+          loadView('my-activity');
 
-    } catch (err) {
-      console.error('Error saving visit:', err);
-      showToast('Failed to save visit: ' + (err.message || 'Unknown error'), 'error');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = originalText;
-    }
-  });
+        } catch (err) {
+          console.error('Error saving visit:', err);
+          showToast('Failed to save visit: ' + (err.message || 'Unknown error'), 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalText;
+        }
+      });
+    });
 }
 
 function addTag(tag) {
@@ -1021,7 +1126,7 @@ async function renderMyActivityView() {
     `;
   } else {
     for (const visit of visits) {
-      const date = new Date(visit.created_at).toLocaleString();
+      const date = formatDate(visit.created_at);
       const hasFlag = visit.ai_summary?.includes('urgent') || visit.ai_summary?.includes('priority');
       const leadScoreBadge = visit.lead_score ? getLeadScoreBadge(visit.lead_score) : '';
       
@@ -1032,7 +1137,7 @@ async function renderMyActivityView() {
               <h3>${visit.company_name}</h3>
               ${leadScoreBadge}
             </div>
-            ${visit.location ? `<span class="text-sm" style="color: var(--text-muted);">📍 ${visit.location}</span>` : ''}
+            ${visit.location_name ? `<span class="text-sm" style="color: var(--text-muted);">📍 ${visit.location_name}</span>` : ''}
           </div>
           
           ${visit.contact_name ? `<p><strong>Contact:</strong> ${visit.contact_name}</p>` : ''}
@@ -1211,18 +1316,28 @@ function getLeadScoreBadge(score) {
 async function renderTeamDashboardView() {
   showSkeletonLoading(true);
 
-  const { data: visits, error } = await supabase
-    .from('visits')
-    .select(`
-      *,
-      user:profiles(first_name, last_name, email, role)
-    `)
-    .order('created_at', { ascending: false });
+  // Fetch both visits and locations
+  const [visitsResult, locationsResult] = await Promise.all([
+    supabase
+      .from('visits')
+      .select(`
+        *,
+        user:profiles(first_name, last_name, email, role)
+      `)
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('locations')
+      .select('*')
+      .order('name', { ascending: true })
+  ]);
+
+  const { data: visits, error: visitsError } = visitsResult;
+  const { data: locations, error: locationsError } = locationsResult;
 
   showSkeletonLoading(false);
 
-  if (error) {
-    viewContainer.innerHTML = `<div class="card"><h2>❌ Error</h2><p>${error.message}</p></div>`;
+  if (visitsError) {
+    viewContainer.innerHTML = `<div class="card"><h2>❌ Error</h2><p>${visitsError.message}</p></div>`;
     return;
   }
 
@@ -1257,17 +1372,35 @@ async function renderTeamDashboardView() {
     <div class="view active" id="team-dashboard-view">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
         <h2>👥 Team Performance Dashboard</h2>
-        <div style="display: flex; gap: 0.5rem;">
-          <select id="rep-filter" class="btn secondary small">
-            <option value="all">All Reps</option>
-            ${salesReps.map(rep => `<option value="${rep.id}">${rep.first_name} ${rep.last_name}</option>`).join('')}
+        <button class="btn secondary small" onclick="showManageLocationsModal()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          Manage Locations
+        </button>
+      </div>
+      
+      <!-- Sales Rep Selector -->
+      <div class="card" style="margin-bottom: 2rem;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <label style="font-weight: 600;">Select Sales Rep:</label>
+          <select id="rep-selector" class="btn secondary" style="flex: 1; max-width: 300px;">
+            <option value="">All Team Members</option>
+            ${salesReps.map(rep => `
+              <option value="${rep.id}">${rep.first_name} ${rep.last_name}</option>
+            `).join('')}
           </select>
-          <select id="date-filter" class="btn secondary small">
-            <option value="all">All Time</option>
-            <option value="today">Today</option>
-            <option value="week">This Week</option>
-            <option value="month">This Month</option>
-          </select>
+          <button id="clear-rep-filter" class="btn secondary small" style="display: none;">
+            Clear Filter
+          </button>
+        </div>
+      </div>
+      
+      <!-- Selected Rep's Visits (Initially Hidden) -->
+      <div id="selected-rep-visits" style="display: none;">
+        <div class="card" style="margin-bottom: 2rem;">
+          <h3 id="rep-visits-title">Sales Rep Visits</h3>
+          <div id="rep-visits-container">
+            <!-- Visits will be rendered here -->
+          </div>
         </div>
       </div>
       
@@ -1337,11 +1470,11 @@ async function renderTeamDashboardView() {
         <h3>🔍 Team Activity</h3>
       </div>
       
-      <!-- Visits Details Section -->
+      <!-- Team Visits Section -->
       <div class="card" style="margin-top: 2rem;">
-        <h3>📍 Recent Visits</h3>
-        <div id="visits-container" style="margin-top: 1rem;">
-          <!-- Visits will be rendered here -->
+        <h3>📍 Recent Team Visits</h3>
+        <div id="team-visits-container" style="margin-top: 1rem;">
+          <!-- Team visits will be rendered here -->
         </div>
       </div>
     </div>
@@ -1349,121 +1482,140 @@ async function renderTeamDashboardView() {
 
   viewContainer.innerHTML = html;
 
-  // Initialize filters
-  const repFilter = document.getElementById('rep-filter');
-  const dateFilter = document.getElementById('date-filter');
-  const visitsContainer = document.getElementById('visits-container');
+  // Get DOM elements
+  const repSelector = document.getElementById('rep-selector');
+  const clearRepFilter = document.getElementById('clear-rep-filter');
+  const selectedRepVisits = document.getElementById('selected-rep-visits');
+  const repVisitsTitle = document.getElementById('rep-visits-title');
+  const repVisitsContainer = document.getElementById('rep-visits-container');
+  const teamVisitsContainer = document.getElementById('team-visits-container');
 
-  // Function to filter and render visits
-  function renderFilteredVisits() {
-    const repId = repFilter.value;
-    const dateRange = dateFilter.value;
-    
-    let filteredVisits = [...visits];
-    
-    // Filter by rep
-    if (repId !== 'all') {
-      filteredVisits = filteredVisits.filter(v => v.user_id === repId);
-    }
-    
-    // Filter by date range
-    const now = new Date();
-    if (dateRange === 'today') {
-      filteredVisits = filteredVisits.filter(v => {
-        const visitDate = new Date(v.created_at).toDateString();
-        return visitDate === now.toDateString();
-      });
-    } else if (dateRange === 'week') {
-      const weekAgo = new Date();
-      weekAgo.setDate(weekAgo.getDate() - 7);
-      filteredVisits = filteredVisits.filter(v => new Date(v.created_at) >= weekAgo);
-    } else if (dateRange === 'month') {
-      const monthAgo = new Date();
-      monthAgo.setMonth(monthAgo.getMonth() - 1);
-      filteredVisits = filteredVisits.filter(v => new Date(v.created_at) >= monthAgo);
-    }
-    
-    // Render the filtered visits
-    let visitsHtml = '';
-    if (filteredVisits.length === 0) {
-      visitsHtml = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">No visits match the selected filters.</p>';
-    } else {
-      filteredVisits.forEach(visit => {
-        const date = new Date(visit.created_at).toLocaleString();
-        const hasFlag = visit.ai_summary?.includes('urgent') || visit.ai_summary?.includes('priority');
-        const leadScoreBadge = visit.lead_score ? getLeadScoreBadge(visit.lead_score) : '';
-        const repName = visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : 'Unknown';
-        
-        visitsHtml += `
-          <div class="visit-card" style="margin-bottom: 1.5rem;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
-              <div>
-                <h3>${visit.company_name}</h3>
-                <p style="font-size: 0.9rem; color: var(--text-secondary);">Logged by: ${repName}</p>
-                ${leadScoreBadge}
-              </div>
-              ${visit.location ? `<span class="text-sm" style="color: var(--text-muted);">📍 ${visit.location}</span>` : ''}
-            </div>
-            
-            ${visit.contact_name ? `<p><strong>Contact:</strong> ${visit.contact_name}</p>` : ''}
-            <p><strong>Date:</strong> ${date}</p>
-            ${visit.visit_type ? `<p><strong>Type:</strong> ${visit.visit_type.replace('_', ' ')}</p>` : ''}
-            ${visit.travel_time ? `<p><strong>Travel Time:</strong> ${visit.travel_time} minutes</p>` : ''}
-            
-            ${visit.tags && visit.tags.length > 0 ? `
-              <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.5rem 0;">
-                ${visit.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-              </div>
-            ` : ''}
-            
-            ${visit.photo_url ? `
-              <div style="margin: 1rem 0;">
-                <img src="${visit.photo_url}" alt="Visit photo" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
-              </div>
-            ` : ''}
-            
-            ${visit.latitude && visit.longitude ? `
-              <div style="margin: 1rem 0;">
-                <button class="btn secondary small" onclick="viewLocationOnMap(${visit.latitude}, ${visit.longitude})">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                  View Location
-                </button>
-              </div>
-            ` : ''}
-            
-            <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
-              <p><strong>Notes:</strong></p>
-              <p>${visit.notes}</p>
-            </div>
-            
-            ${visit.ai_summary ? `
-              <div class="ai-insight">
-                <h4>🤖 AI Summary</h4>
-                <div class="ai-content">${parseMarkdown(visit.ai_summary)}</div>
-                <button class="copy-btn" onclick="copyToClipboard(this.parentElement)">📋 Copy</button>
-              </div>
-            ` : ''}
-            
-            ${hasFlag ? `
-              <div class="ai-flag" style="margin-top: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border-radius: 6px; display: flex; align-items: center; gap: 0.5rem;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--danger)"><polygon points="12 2 22 22 2 22"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                <strong>High Priority Follow-up Needed</strong>
-              </div>
-            ` : ''}
-          </div>
-        `;
-      });
-    }
-    
-    visitsContainer.innerHTML = visitsHtml;
+  // Function to format date as day/month/year
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    });
   }
 
-  // Add event listeners for filters
-  repFilter.addEventListener('change', renderFilteredVisits);
-  dateFilter.addEventListener('change', renderFilteredVisits);
+  // Function to render a single visit card
+  function renderVisitCard(visit) {
+    const date = formatDate(visit.created_at);
+    const hasFlag = visit.ai_summary?.includes('urgent') || visit.ai_summary?.includes('priority');
+    const leadScoreBadge = visit.lead_score ? getLeadScoreBadge(visit.lead_score) : '';
+    const repName = visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : 'Unknown';
+    
+    return `
+      <div class="visit-card" style="margin-bottom: 1.5rem;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+          <div>
+            <h3>${visit.company_name}</h3>
+            <p style="font-size: 0.9rem; color: var(--text-secondary);">Logged by: ${repName}</p>
+            ${leadScoreBadge}
+          </div>
+          ${visit.location_name ? `<span class="text-sm" style="color: var(--text-muted);">📍 ${visit.location_name}</span>` : ''}
+        </div>
+        
+        ${visit.contact_name ? `<p><strong>Contact:</strong> ${visit.contact_name}</p>` : ''}
+        <p><strong>Date:</strong> ${date}</p>
+        ${visit.visit_type ? `<p><strong>Type:</strong> ${visit.visit_type.replace('_', ' ')}</p>` : ''}
+        ${visit.travel_time ? `<p><strong>Travel Time:</strong> ${visit.travel_time} minutes</p>` : ''}
+        
+        ${visit.tags && visit.tags.length > 0 ? `
+          <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 0.5rem 0;">
+            ${visit.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+          </div>
+        ` : ''}
+        
+        ${visit.photo_url ? `
+          <div style="margin: 1rem 0;">
+            <img src="${visit.photo_url}" alt="Visit photo" style="max-width: 100%; max-height: 200px; border-radius: 8px;">
+          </div>
+        ` : ''}
+        
+        ${visit.latitude && visit.longitude ? `
+          <div style="margin: 1rem 0;">
+            <button class="btn secondary small" onclick="viewLocationOnMap(${visit.latitude}, ${visit.longitude})">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              View Location
+            </button>
+          </div>
+        ` : ''}
+        
+        <div style="background: var(--bg-tertiary); padding: 1rem; border-radius: 8px; margin: 1rem 0;">
+          <p><strong>Notes:</strong></p>
+          <p>${visit.notes}</p>
+        </div>
+        
+        ${visit.ai_summary ? `
+          <div class="ai-insight">
+            <h4>🤖 AI Summary</h4>
+            <div class="ai-content">${parseMarkdown(visit.ai_summary)}</div>
+            <button class="copy-btn" onclick="copyToClipboard(this.parentElement)">📋 Copy</button>
+          </div>
+        ` : ''}
+        
+        ${hasFlag ? `
+          <div class="ai-flag" style="margin-top: 1rem; padding: 0.75rem; background: rgba(239, 68, 68, 0.1); border-radius: 6px; display: flex; align-items: center; gap: 0.5rem;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--danger)"><polygon points="12 2 22 22 2 22"></polygon><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <strong>High Priority Follow-up Needed</strong>
+          </div>
+        ` : ''}
+      </div>
+    `;
+  }
+
+  // Function to render visits for a specific rep
+  function renderRepVisits(repId) {
+    const rep = salesReps.find(r => r.id === repId);
+    if (!rep) return;
+
+    const repVisits = users[repId]?.visits || [];
+    
+    repVisitsTitle.textContent = `${rep.first_name} ${rep.last_name}'s Visits (${repVisits.length})`;
+    
+    if (repVisits.length === 0) {
+      repVisitsContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">No visits logged yet.</p>';
+    } else {
+      repVisitsContainer.innerHTML = repVisits.map(visit => renderVisitCard(visit)).join('');
+    }
+    
+    selectedRepVisits.style.display = 'block';
+    clearRepFilter.style.display = 'inline-flex';
+  }
+
+  // Function to render all team visits
+  function renderTeamVisits() {
+    const recentVisits = visits.slice(0, 10); // Show last 10 visits
+    
+    if (recentVisits.length === 0) {
+      teamVisitsContainer.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 2rem;">No visits logged yet.</p>';
+    } else {
+      teamVisitsContainer.innerHTML = recentVisits.map(visit => renderVisitCard(visit)).join('');
+    }
+  }
+
+  // Event listeners
+  repSelector.addEventListener('change', (e) => {
+    const repId = e.target.value;
+    if (repId) {
+      renderRepVisits(repId);
+    } else {
+      selectedRepVisits.style.display = 'none';
+      clearRepFilter.style.display = 'none';
+    }
+  });
+
+  clearRepFilter.addEventListener('click', () => {
+    repSelector.value = '';
+    selectedRepVisits.style.display = 'none';
+    clearRepFilter.style.display = 'none';
+  });
 
   // Initial render
-  renderFilteredVisits();
+  renderTeamVisits();
 
   // Initialize chart and widgets
   setTimeout(() => {
@@ -1472,7 +1624,167 @@ async function renderTeamDashboardView() {
   }, 100);
 }
 
-// Add this function to view location on map
+// ======================
+// LOCATION MANAGEMENT MODAL
+// ======================
+
+// Function to show the manage locations modal
+function showManageLocationsModal() {
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.style.display = 'flex';
+  modal.innerHTML = `
+    <div class="modal-backdrop" onclick="closeManageLocationsModal()"></div>
+    <div class="modal-container" style="max-width: 800px;">
+      <div class="modal-header">
+        <h3>📍 Manage Locations</h3>
+        <button class="icon-btn" onclick="closeManageLocationsModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+          <h4>Add New Location</h4>
+        </div>
+        <div class="form-group">
+          <label>Location Name</label>
+          <input type="text" id="new-location-name" placeholder="e.g., IKEA Vaughan">
+        </div>
+        <div class="form-group">
+          <label>Address</label>
+          <input type="text" id="new-location-address" placeholder="e.g., 1 IKEA Way, Vaughan, ON L4L 9C3">
+        </div>
+        <div style="display: flex; gap: 1rem;">
+          <div class="form-group" style="flex: 1;">
+            <label>Latitude</label>
+            <input type="number" id="new-location-lat" step="0.000001" placeholder="e.g., 43.8227">
+          </div>
+          <div class="form-group" style="flex: 1;">
+            <label>Longitude</label>
+            <input type="number" id="new-location-lng" step="0.000001" placeholder="e.g., -79.5316">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Grace Radius (meters)</label>
+          <input type="number" id="new-location-radius" value="200" min="50" max="1000">
+          <small style="color: var(--text-muted);">How far from the exact location is acceptable (default: 200m)</small>
+        </div>
+        <button class="btn primary" onclick="addNewLocation()">Add Location</button>
+        
+        <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border-color);">
+        
+        <h4>Existing Locations</h4>
+        <div id="locations-list" style="margin-top: 1rem;">
+          <!-- Locations will be loaded here -->
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  loadLocationsList();
+}
+
+// Function to close the manage locations modal
+function closeManageLocationsModal() {
+  const modal = document.querySelector('.modal');
+  if (modal) modal.remove();
+}
+
+// Function to load and display existing locations
+async function loadLocationsList() {
+  const { data: locations, error } = await supabase
+    .from('locations')
+    .select('*')
+    .order('name', { ascending: true });
+  
+  const locationsList = document.getElementById('locations-list');
+  
+  if (error) {
+    locationsList.innerHTML = `<p style="color: var(--danger);">Error loading locations: ${error.message}</p>`;
+    return;
+  }
+  
+  if (locations.length === 0) {
+    locationsList.innerHTML = '<p style="color: var(--text-muted);">No locations added yet.</p>';
+    return;
+  }
+  
+  locationsList.innerHTML = locations.map(location => `
+    <div class="card" style="margin-bottom: 1rem;">
+      <div style="display: flex; justify-content: space-between; align-items: start;">
+        <div style="flex: 1;">
+          <h5>${location.name}</h5>
+          <p style="color: var(--text-secondary); margin: 0.25rem 0;">${location.address}</p>
+          <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0.25rem 0;">
+            📍 ${location.latitude.toFixed(4)}, ${location.longitude.toFixed(4)} 
+            (±${location.radius || 200}m)
+          </p>
+        </div>
+        <button class="btn danger small" onclick="deleteLocation('${location.id}')">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Function to add a new location
+async function addNewLocation() {
+  const name = document.getElementById('new-location-name').value.trim();
+  const address = document.getElementById('new-location-address').value.trim();
+  const lat = parseFloat(document.getElementById('new-location-lat').value);
+  const lng = parseFloat(document.getElementById('new-location-lng').value);
+  const radius = parseInt(document.getElementById('new-location-radius').value) || 200;
+  
+  if (!name || !address || isNaN(lat) || isNaN(lng)) {
+    showToast('Please fill in all fields with valid values', 'error');
+    return;
+  }
+  
+  const { error } = await supabase
+    .from('locations')
+    .insert([{
+      name,
+      address,
+      latitude: lat,
+      longitude: lng,
+      radius
+    }]);
+  
+  if (error) {
+    showToast('Error adding location: ' + error.message, 'error');
+    return;
+  }
+  
+  showToast('✅ Location added successfully!', 'success');
+  
+  // Clear form
+  document.getElementById('new-location-name').value = '';
+  document.getElementById('new-location-address').value = '';
+  document.getElementById('new-location-lat').value = '';
+  document.getElementById('new-location-lng').value = '';
+  document.getElementById('new-location-radius').value = '200';
+  
+  // Reload list
+  loadLocationsList();
+}
+
+// Function to delete a location
+async function deleteLocation(locationId) {
+  if (!confirm('Are you sure you want to delete this location?')) return;
+  
+  const { error } = await supabase
+    .from('locations')
+    .delete()
+    .eq('id', locationId);
+  
+  if (error) {
+    showToast('Error deleting location: ' + error.message, 'error');
+    return;
+  }
+  
+  showToast('✅ Location deleted successfully!', 'success');
+  loadLocationsList();
+}
+
+// Function to view location on map
 function viewLocationOnMap(lat, lng) {
   // Create a modal to show the map
   const modal = document.createElement('div');
@@ -1503,45 +1815,6 @@ function viewLocationOnMap(lat, lng) {
     const marker = L.marker([lat, lng]).addTo(map);
     marker.bindPopup('Visit Location').openPopup();
   }, 100);
-}
-// ======================
-// WIDGET DRAG & DROP
-// ======================
-
-let widgetEditMode = false;
-
-function toggleWidgetEdit() {
-  widgetEditMode = !widgetEditMode;
-  const widgets = document.querySelectorAll('.widget');
-  
-  if (widgetEditMode) {
-    widgets.forEach(w => w.style.cursor = 'move');
-    showToast('Drag widgets to reorder', 'info');
-  } else {
-    widgets.forEach(w => w.style.cursor = 'default');
-    saveWidgetLayout();
-  }
-}
-
-function initWidgetDragDrop() {
-  const container = document.getElementById('dashboard-widgets');
-  if (!container) return;
-  
-  new Sortable(container, {
-    animation: 150,
-    handle: '.widget-drag-handle',
-    ghostClass: 'dragging',
-    onEnd: function() {
-      saveWidgetLayout();
-    }
-  });
-}
-
-function saveWidgetLayout() {
-  const widgets = Array.from(document.querySelectorAll('.widget'));
-  const layout = widgets.map(w => w.dataset.widget);
-  localStorage.setItem('widgetLayout', JSON.stringify(layout));
-  showToast('✅ Layout saved', 'success');
 }
 
 // ======================
@@ -1589,7 +1862,7 @@ async function renderUserManagementView() {
 
   users.forEach(user => {
     const fullName = `${user.first_name} ${user.last_name}`;
-    const joinedDate = new Date(user.created_at).toLocaleDateString();
+    const joinedDate = formatDate(user.created_at);
     const roleBadge = user.role === 'manager' 
       ? '<span style="background: var(--accent); color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">Manager</span>'
       : '<span style="background: var(--bg-tertiary); color: var(--text-primary); padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">Sales Rep</span>';
@@ -1653,10 +1926,6 @@ async function deleteUser(userId, userName) {
     showToast('Failed to delete user: ' + err.message, 'error');
   }
 }
-
-// ======================
-// CHART.JS INTEGRATION
-// ======================
 
 // ======================
 // CHART.JS INTEGRATION
@@ -1732,6 +2001,46 @@ function initPerformanceChart(users) {
 }
 
 // ======================
+// WIDGET DRAG & DROP
+// ======================
+
+let widgetEditMode = false;
+
+function toggleWidgetEdit() {
+  widgetEditMode = !widgetEditMode;
+  const widgets = document.querySelectorAll('.widget');
+  
+  if (widgetEditMode) {
+    widgets.forEach(w => w.style.cursor = 'move');
+    showToast('Drag widgets to reorder', 'info');
+  } else {
+    widgets.forEach(w => w.style.cursor = 'default');
+    saveWidgetLayout();
+  }
+}
+
+function initWidgetDragDrop() {
+  const container = document.getElementById('dashboard-widgets');
+  if (!container) return;
+  
+  new Sortable(container, {
+    animation: 150,
+    handle: '.widget-drag-handle',
+    ghostClass: 'dragging',
+    onEnd: function() {
+      saveWidgetLayout();
+    }
+  });
+}
+
+function saveWidgetLayout() {
+  const widgets = Array.from(document.querySelectorAll('.widget'));
+  const layout = widgets.map(w => w.dataset.widget);
+  localStorage.setItem('widgetLayout', JSON.stringify(layout));
+  showToast('✅ Layout saved', 'success');
+}
+
+// ======================
 // UTILITY FUNCTIONS
 // ======================
 
@@ -1788,9 +2097,6 @@ function triggerConfetti() {
   });
 }
 
-// ======================
-// ON PAGE LOAD
-// ======================
 
 window.addEventListener('DOMContentLoaded', () => {
   const savedTheme = localStorage.getItem('theme') || (
@@ -1835,3 +2141,5 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+// In app.js
