@@ -691,6 +691,19 @@ body {
   cursor: pointer;
 }
 
+
+/* Add this to your CSS */
+@media (max-width: 767px) {
+  .sidebar-close {
+    width: 40px; /* Even larger for better tap target */
+    height: 40px; /* Even larger for better tap target */
+    font-size: 1.25rem; /* Make the icon bigger */
+    background: var(--bg-tertiary); /* Add a background for better visibility */
+  }
+}
+
+
+
 .sidebar-close:hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
