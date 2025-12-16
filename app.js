@@ -80,19 +80,6 @@ function initAuth() {
 
 function initEventListeners() {
   // Auth form toggles
-  document.getElementById('toggle-login').addEventListener('click', () => {
-    document.getElementById('login-form').style.display = 'flex';
-    document.getElementById('signup-form').style.display = 'none';
-    document.getElementById('toggle-login').classList.add('active');
-    document.getElementById('toggle-signup').classList.remove('active');
-  });
-
-  document.getElementById('toggle-signup').addEventListener('click', () => {
-    document.getElementById('signup-form').style.display = 'flex';
-    document.getElementById('login-form').style.display = 'none';
-    document.getElementById('toggle-signup').classList.add('active');
-    document.getElementById('toggle-login').classList.remove('active');
-  });
 
   // Password toggles
   document.querySelectorAll('.toggle-password').forEach(btn => {
@@ -113,9 +100,6 @@ function initEventListeners() {
 
   // Login form
   document.getElementById('login-form').addEventListener('submit', handleLogin);
-
-  // Signup form
-  document.getElementById('signup-form').addEventListener('submit', handleSignup);
 
   // Logout
   logoutBtn.addEventListener('click', handleLogout);
@@ -197,47 +181,7 @@ async function handleLogin(e) {
   submitBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
 }
 
-async function handleSignup(e) {
-  e.preventDefault();
-  const name = document.getElementById('signup-name').value;
-  const email = document.getElementById('signup-email').value;
-  const password = document.getElementById('signup-password').value;
-  const role = document.getElementById('signup-role').value;
-  const submitBtn = e.target.querySelector('button[type="submit"]');
 
-  submitBtn.disabled = true;
-  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
-
-  const { data, error } = await supabase.auth.signUp({
-    email,
-    password,
-    options: {
-      data: { full_name: name, role: role }
-    }
-  });
-
-  if (error) {
-    showToast(error.message, 'error');
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = '<span>Create Account</span><i class="fas fa-arrow-right"></i>';
-    return;
-  }
-
-  // Create profile
-  await supabase.from('profiles').insert([{
-    id: data.user.id,
-    first_name: name.split(' ')[0],
-    last_name: name.split(' ').slice(1).join(' ') || '',
-    email: email,
-    role: role
-  }]);
-
-  showToast('Account created! Please check your email for confirmation.', 'success');
-  triggerConfetti();
-  
-  submitBtn.disabled = false;
-  submitBtn.innerHTML = '<span>Create Account</span><i class="fas fa-arrow-right"></i>';
-}
 
 async function handleLogout() {
   await supabase.auth.signOut();
