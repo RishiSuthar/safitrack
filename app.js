@@ -900,10 +900,25 @@ async function renderSalesFunnelView() {
 // ======================
 
 async function renderTeamDashboardView() {
+  console.log('Loading Team Dashboard for user:', currentUser.id); // Debug log
+  
+  // First, try to get all profiles separately to ensure we have access
+  const { data: allProfiles, error: profilesError } = await supabase
+    .from('profiles')
+    .select('*')
+    .order('first_name', { ascending: true });
+
+
+  if (profilesError) {
+    viewContainer.innerHTML = renderError('Unable to load team data. Please check your permissions: ' + profilesError.message);
+    return;
+  }
+
+  // Then get visits
   const [visitsResult, locationsResult] = await Promise.all([
     supabase
       .from('visits')
-      .select(`*, user:profiles(id, first_name, last_name, email, role)`)
+      .select('*')
       .order('created_at', { ascending: false }),
     supabase
       .from('locations')
@@ -911,39 +926,60 @@ async function renderTeamDashboardView() {
       .order('name', { ascending: true })
   ]);
 
-  const { data: visits, error } = visitsResult;
+  const { data: visits, error: visitsError } = visitsResult;
   const { data: locations } = locationsResult;
 
-  if (error) {
-    viewContainer.innerHTML = renderError(error.message);
+
+
+  if (visitsError) {
+    viewContainer.innerHTML = renderError(visitsError.message);
     return;
   }
 
-  // Group visits by user
+  // Manually join visits with profiles
+  const visitsWithProfiles = visits.map(visit => {
+    const userProfile = allProfiles.find(p => p.id === visit.user_id);
+    return {
+      ...visit,
+      user: userProfile || { id: visit.user_id, first_name: 'Unknown', last_name: 'User', email: '', role: 'sales_rep' }
+    };
+  });
+
+  // Group visits by user - include all profiles even if they have no visits
   const users = {};
-  visits.forEach(visit => {
-    const userId = visit.user_id;
-    if (!users[userId]) {
-      users[userId] = {
-        ...visit.user,
+  
+  // First, initialize all profiles
+  allProfiles.forEach(profile => {
+    if (profile.role === 'sales_rep') {
+      users[profile.id] = {
+        ...profile,
         visits: []
       };
     }
-    users[userId].visits.push(visit);
+  });
+  
+  // Then add visits to each user
+  visitsWithProfiles.forEach(visit => {
+    const userId = visit.user_id;
+    if (users[userId]) {
+      users[userId].visits.push(visit);
+    }
   });
 
-  const salesReps = Object.values(users).filter(u => u.role === 'sales_rep');
-  const totalVisits = visits.length;
+  const salesReps = Object.values(users);
+  const totalVisits = visitsWithProfiles.length;
+  
+
   const totalReps = salesReps.length;
   const avgVisitsPerRep = totalReps > 0 ? (totalVisits / totalReps).toFixed(1) : 0;
   
-  const todayVisits = visits.filter(v => {
+  const todayVisits = visitsWithProfiles.filter(v => {
     const visitDate = new Date(v.created_at).toDateString();
     return visitDate === new Date().toDateString();
   }).length;
 
-  const avgLeadScore = visits.filter(v => v.lead_score).length > 0
-    ? (visits.reduce((sum, v) => sum + (v.lead_score || 0), 0) / visits.filter(v => v.lead_score).length).toFixed(0)
+  const avgLeadScore = visitsWithProfiles.filter(v => v.lead_score).length > 0
+    ? (visitsWithProfiles.reduce((sum, v) => sum + (v.lead_score || 0), 0) / visitsWithProfiles.filter(v => v.lead_score).length).toFixed(0)
     : 0;
 
   let html = `
@@ -1023,7 +1059,7 @@ async function renderTeamDashboardView() {
   initRepSearch(salesReps, users);
 
   // Render recent visits
-  renderTeamVisits(visits.slice(0, 10));
+  renderTeamVisits(visitsWithProfiles.slice(0, 10));
 
   // Initialize chart
   setTimeout(() => initPerformanceChart(salesReps), 100);
