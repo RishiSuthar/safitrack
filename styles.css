@@ -196,7 +196,7 @@ body {
   display: none;
   position: relative;
   flex: 1;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #112548 0%, #10172b 100%);
   color: white;
   overflow: hidden;
 }
@@ -208,17 +208,9 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  padding: 3rem;
-  text-align: center;
+  padding-left: 6rem;
 }
 
-.auth-hero-content h1 {
-  font-size: 3rem;
-  font-weight: 800;
-  margin: 1.5rem 0 0.5rem;
-  letter-spacing: -0.02em;
-}
 
 .auth-hero-content p {
   font-size: 1.25rem;
@@ -329,7 +321,7 @@ body {
 
 .toggle-password {
   position: absolute;
-  right: 0.75rem;
+  right: 2rem;
   background: none;
   border: none;
   color: var(--text-muted);
@@ -359,6 +351,15 @@ body {
   flex: 1;
   height: 1px;
   background: var(--border-color);
+}
+
+
+.auth-card img {
+  max-width: 250px;
+  padding-bottom: 20px;
+  display: block;
+  margin: 0 auto;
+
 }
 
 /* ===== BUTTONS ===== */
@@ -435,15 +436,6 @@ body {
   width: 100%;
 }
 
-.btn-google {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  border: 1px solid var(--border-color);
-}
-
-.btn-google:hover {
-  background: var(--bg-tertiary);
-}
 
 /* ===== APP LAYOUT ===== */
 .main-app {
@@ -549,7 +541,7 @@ body {
   justify-content: center;
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, var(--color-primary), #7c3aed);
+  background: var(--color-primary);
   color: white;
   font-size: 0.875rem;
   font-weight: 600;
