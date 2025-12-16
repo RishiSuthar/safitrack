@@ -1,11 +1,7 @@
-// ======================
-// GLOBAL STATE
-// ======================
-
 const SUPABASE_URL = 'https://ndrkncirkekpqjjkasiy.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kcmtuY2lya2VrcHFqamthc2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2MDU2MTEsImV4cCI6MjA4MTE4MTYxMX0.SGVLqU6-u1ALj_P1nsyytYe7cNbAyxCVbV6kjAaiGU4';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
 let isManager = false;
@@ -52,7 +48,7 @@ function initTheme() {
 }
 
 function initAuth() {
-  supabase.auth.getSession().then(({ data: { session } }) => {
+  supabaseClient.auth.getSession().then(({ data: { session } }) => {
     setTimeout(() => {
       if (session) {
         currentUser = session.user;
@@ -65,7 +61,7 @@ function initAuth() {
     }, 1500);
   });
 
-  supabase.auth.onAuthStateChange((event, session) => {
+  supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN') {
       currentUser = session.user;
       authScreen.style.display = 'none';
@@ -168,7 +164,7 @@ async function handleLogin(e) {
   submitBtn.disabled = true;
   submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
 
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
   if (error) {
     showToast(error.message, 'error');
@@ -184,7 +180,7 @@ async function handleLogin(e) {
 
 
 async function handleLogout() {
-  await supabase.auth.signOut();
+  await supabaseClient.auth.signOut();
   location.reload();
 }
 
@@ -196,7 +192,7 @@ async function initApp() {
   authScreen.style.display = 'none';
   mainApp.style.display = 'flex';
 
-  const { data: profile, error } = await supabase
+  const { data: profile, error } = await supabaseClient
     .from('profiles')
     .select('role, first_name, last_name, email')
     .eq('id', currentUser.id)
@@ -327,7 +323,7 @@ async function loadView(viewName) {
 // ======================
 
 async function renderLogVisitView() {
-  const { data: locations } = await supabase
+  const { data: locations } = await supabaseClient
     .from('locations')
     .select('*')
     .order('name', { ascending: true });
@@ -599,12 +595,12 @@ function initLogVisitForm(locations) {
 
       if (photoFile) {
         const photoPath = `visit-photos/${currentUser.id}/${Date.now()}-${photoFile.name}`;
-        const { error: uploadError } = await supabase.storage
+        const { error: uploadError } = await supabaseClient.storage
           .from('safitrack')
           .upload(photoPath, photoFile);
 
         if (!uploadError) {
-          const { data: urlData } = supabase.storage.from('safitrack').getPublicUrl(photoPath);
+          const { data: urlData } = supabaseClient.storage.from('safitrack').getPublicUrl(photoPath);
           photoUrl = urlData.publicUrl;
         }
       }
@@ -634,7 +630,7 @@ function initLogVisitForm(locations) {
         created_at: new Date().toISOString()
       };
 
-      const { error } = await supabase.from('visits').insert([visitData]);
+      const { error } = await supabaseClient.from('visits').insert([visitData]);
 
       if (error) throw error;
 
@@ -658,7 +654,7 @@ function initLogVisitForm(locations) {
 // ======================
 
 async function renderMyActivityView() {
-  const { data: visits, error } = await supabase
+  const { data: visits, error } = await supabaseClient
     .from('visits')
     .select('*')
     .eq('user_id', currentUser.id)
@@ -752,7 +748,7 @@ function renderVisitCard(visit, showRepName = false) {
 // ======================
 
 async function renderSalesFunnelView() {
-  const { data: visits, error } = await supabase
+  const { data: visits, error } = await supabaseClient
     .from('visits')
     .select('*')
     .eq('user_id', currentUser.id)
@@ -847,7 +843,7 @@ async function renderTeamDashboardView() {
   console.log('Loading Team Dashboard for user:', currentUser.id); // Debug log
   
   // First, try to get all profiles separately to ensure we have access
-  const { data: allProfiles, error: profilesError } = await supabase
+  const { data: allProfiles, error: profilesError } = await supabaseClient
     .from('profiles')
     .select('*')
     .order('first_name', { ascending: true });
@@ -860,11 +856,11 @@ async function renderTeamDashboardView() {
 
   // Then get visits
   const [visitsResult, locationsResult] = await Promise.all([
-    supabase
+    supabaseClient
       .from('visits')
       .select('*')
       .order('created_at', { ascending: false }),
-    supabase
+    supabaseClient
       .from('locations')
       .select('*')
       .order('name', { ascending: true })
@@ -1131,7 +1127,7 @@ function initPerformanceChart(users) {
 // ======================
 
 async function renderUserManagementView() {
-  const { data: users, error } = await supabase
+  const { data: users, error } = await supabaseClient
     .from('profiles')
     .select('*')
     .order('created_at', { ascending: false });
@@ -1177,7 +1173,7 @@ async function renderUserManagementView() {
 window.deleteUser = async function(userId, userName) {
   if (!confirm(`Are you sure you want to delete ${userName}?`)) return;
 
-  const { error } = await supabase.from('profiles').delete().eq('id', userId);
+  const { error } = await supabaseClient.from('profiles').delete().eq('id', userId);
 
   if (error) {
     showToast('Failed to delete user: ' + error.message, 'error');
@@ -1246,7 +1242,7 @@ window.showManageLocationsModal = async function() {
 };
 
 async function loadLocationsList() {
-  const { data: locations, error } = await supabase
+  const { data: locations, error } = await supabaseClient
     .from('locations')
     .select('*')
     .order('name', { ascending: true });
@@ -1288,7 +1284,7 @@ window.addNewLocation = async function() {
     return;
   }
 
-  const { error } = await supabase.from('locations').insert([{
+  const { error } = await supabaseClient.from('locations').insert([{
     name, address, latitude: lat, longitude: lng, radius
   }]);
 
@@ -1308,7 +1304,7 @@ window.addNewLocation = async function() {
 window.deleteLocation = async function(id) {
   if (!confirm('Delete this location?')) return;
 
-  const { error } = await supabase.from('locations').delete().eq('id', id);
+  const { error } = await supabaseClient.from('locations').delete().eq('id', id);
 
   if (error) {
     showToast('Error: ' + error.message, 'error');
@@ -1445,7 +1441,7 @@ window.executeExport = async function() {
   showToast('Preparing export...', 'info');
 
   try {
-    const { data: visits, error } = await supabase
+    const { data: visits, error } = await supabaseClient
       .from('visits')
       .select(`*, user:profiles(first_name, last_name, email)`)
       .gte('created_at', fromDate)
