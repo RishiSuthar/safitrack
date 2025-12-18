@@ -306,6 +306,16 @@ async function loadView(viewName) {
         viewContainer.innerHTML = renderAccessDenied();
       }
       break;
+    case 'route-planning':
+      if (isManager) {
+        await renderRoutePlanningView();
+      } else {
+        viewContainer.innerHTML = renderAccessDenied();
+      }
+      break;
+    case 'my-routes':
+      await renderMyRoutesView();
+      break;
     case 'user-management':
       if (isManager) {
         await renderUserManagementView();
@@ -1441,9 +1451,10 @@ window.executeExport = async function() {
   showToast('Preparing export...', 'info');
 
   try {
+    // FIX: Specify the relationship to avoid ambiguity
     const { data: visits, error } = await supabaseClient
       .from('visits')
-      .select(`*, user:profiles(first_name, last_name, email)`)
+      .select(`*, user:profiles!inner(first_name, last_name, email)`)
       .gte('created_at', fromDate)
       .lte('created_at', toDate)
       .order('created_at', { ascending: false });
@@ -1739,4 +1750,912 @@ function renderTags() {
       newInput.value = '';
     }
   });
+}
+
+
+// ======================
+// ROUTE PLANNING VIEW
+// ======================
+
+async function renderRoutePlanningView() {
+  // Fetch existing routes and locations
+  const [routesResult, locationsResult, profilesResult] = await Promise.all([
+    supabaseClient
+      .from('routes')
+      // FIX: Specify the relationship to avoid ambiguity
+      .select(`*, assigned_to:profiles!routes_assigned_to_fkey(first_name, last_name)`)
+      .eq('created_by', currentUser.id)
+      .order('created_at', { ascending: false }),
+    supabaseClient
+      .from('locations')
+      .select('*')
+      .order('name', { ascending: true }),
+    supabaseClient
+      .from('profiles')
+      .select('*')
+      .eq('role', 'sales_rep')
+      .order('first_name', { ascending: true })
+  ]);
+
+  const { data: routes, error: routesError } = routesResult;
+  const { data: locations, error: locationsError } = locationsResult;
+  const { data: salesReps, error: profilesError } = profilesResult;
+
+  if (routesError || locationsError || profilesError) {
+    // Log specific errors to console for debugging
+    if (routesError) console.error('Routes Error:', routesError);
+    if (locationsError) console.error('Locations Error:', locationsError);
+    if (profilesError) console.error('Profiles Error:', profilesError);
+    
+    viewContainer.innerHTML = renderError('Error loading data');
+    return;
+  }
+
+  let html = `
+    <div class="page-header">
+      <h1 class="page-title">Route Planning</h1>
+      <p class="page-subtitle">Create and manage routes for your team</p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Create New Route</h3>
+        <button class="btn btn-primary" id="create-route-btn">
+          <i class="fas fa-plus"></i> Create Route
+        </button>
+      </div>
+      
+      <div id="route-creator" style="display: none;">
+        <div class="form-field">
+          <label for="route-name">Route Name</label>
+          <input type="text" id="route-name" placeholder="e.g., Downtown Client Route">
+        </div>
+        
+        <div class="form-field">
+          <label for="route-rep">Assign to Sales Rep</label>
+          <select id="route-rep">
+            <option value="">Select a sales rep...</option>
+            ${salesReps.map(rep => `
+              <option value="${rep.id}">${rep.first_name} ${rep.last_name}</option>
+            `).join('')}
+          </select>
+        </div>
+        
+        <div class="form-field">
+          <label>Select Locations</label>
+          <div id="locations-selector" class="locations-grid">
+            ${locations.map(loc => `
+              <div class="location-card" data-id="${loc.id}" data-lat="${loc.latitude}" data-lng="${loc.longitude}">
+                <div class="location-checkbox">
+                  <input type="checkbox" id="loc-${loc.id}" value="${loc.id}">
+                  <label for="loc-${loc.id}"></label>
+                </div>
+                <div class="location-info">
+                  <h4>${loc.name}</h4>
+                  <p>${loc.address}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        
+        <div class="form-field">
+          <button id="optimize-route-btn" class="btn btn-secondary" disabled>
+            <i class="fas fa-magic"></i> Optimize Route
+          </button>
+          <button id="save-route-btn" class="btn btn-primary" style="display: none;">
+            <i class="fas fa-save"></i> Save Route
+          </button>
+        </div>
+        
+        <div id="route-map" class="route-map" style="display: none;"></div>
+        
+        <div id="route-order" class="route-order" style="display: none;">
+          <h4>Route Order</h4>
+          <div id="sortable-route" class="sortable-container"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header">
+        <h3 class="card-title">Existing Routes</h3>
+      </div>
+      <div class="routes-list">
+        ${routes.length === 0 ? 
+          '<p class="text-muted text-center" style="padding: 2rem;">No routes created yet</p>' :
+          routes.map(route => `
+            <div class="route-item" data-id="${route.id}">
+              <div class="route-info">
+                <h4>${route.name}</h4>
+                <p>Assigned to: ${route.assigned_to ? `${route.assigned_to.first_name} ${route.assigned_to.last_name}` : 'Unassigned'}</p>
+                <p>Created: ${formatDate(route.created_at)}</p>
+                ${route.estimated_duration ? `<p>Est. duration: ${route.estimated_duration} min</p>` : ''}
+              </div>
+              <div class="route-actions">
+                <button class="btn btn-sm btn-ghost view-route-btn" data-id="${route.id}">
+                  <i class="fas fa-eye"></i>
+                </button>
+                <button class="btn btn-sm btn-ghost edit-route-btn" data-id="${route.id}">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="btn btn-sm btn-ghost delete-route-btn" data-id="${route.id}">
+                  <i class="fas fa-trash text-danger"></i>
+                </button>
+              </div>
+            </div>
+          `).join('')
+        }
+      </div>
+    </div>
+  `;
+
+  viewContainer.innerHTML = html;
+  
+  // Initialize route creator functionality
+  initRouteCreator(locations);
+  
+  // Initialize route list functionality
+  initRouteList();
+}
+
+function initRouteCreator(locations) {
+  const createBtn = document.getElementById('create-route-btn');
+  const routeCreator = document.getElementById('route-creator');
+  const optimizeBtn = document.getElementById('optimize-route-btn');
+  const saveBtn = document.getElementById('save-route-btn');
+  const routeMap = document.getElementById('route-map');
+  const routeOrder = document.getElementById('route-order');
+  const sortableRoute = document.getElementById('sortable-route');
+  
+  let selectedLocations = [];
+  let optimizedRoute = [];
+  let map = null;
+  let markers = [];
+  let routeLine = null;
+  
+  // Show/hide route creator
+  createBtn.addEventListener('click', () => {
+    if (routeCreator.style.display === 'none') {
+      routeCreator.style.display = 'block';
+      createBtn.innerHTML = '<i class="fas fa-times"></i> Cancel';
+    } else {
+      routeCreator.style.display = 'none';
+      createBtn.innerHTML = '<i class="fas fa-plus"></i> Create Route';
+      resetRouteCreator();
+    }
+  });
+  
+  // Handle location selection
+  document.querySelectorAll('.location-card input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+      const locationId = checkbox.value;
+      const locationCard = checkbox.closest('.location-card');
+      
+      if (checkbox.checked) {
+        selectedLocations.push(locations.find(loc => loc.id === locationId));
+        locationCard.classList.add('selected');
+      } else {
+        selectedLocations = selectedLocations.filter(loc => loc.id !== locationId);
+        locationCard.classList.remove('selected');
+      }
+      
+      optimizeBtn.disabled = selectedLocations.length < 2;
+    });
+  });
+  
+  // Optimize route
+  optimizeBtn.addEventListener('click', () => {
+    if (selectedLocations.length < 2) return;
+    
+    // Show loading state
+    optimizeBtn.disabled = true;
+    optimizeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Optimizing...';
+    
+    // Simple nearest neighbor algorithm for route optimization
+    optimizedRoute = optimizeRoute(selectedLocations);
+    
+    // Display the route on map
+    displayRouteOnMap(optimizedRoute);
+    
+    // Show route order
+    displayRouteOrder(optimizedRoute);
+    
+    // Show save button
+    saveBtn.style.display = 'inline-flex';
+    
+    // Reset button state
+    optimizeBtn.disabled = false;
+    optimizeBtn.innerHTML = '<i class="fas fa-magic"></i> Optimize Route';
+  });
+  
+  // Save route
+  saveBtn.addEventListener('click', async () => {
+    const routeName = document.getElementById('route-name').value.trim();
+    const assignedTo = document.getElementById('route-rep').value;
+    
+    if (!routeName) {
+      showToast('Please enter a route name', 'error');
+      return;
+    }
+    
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    
+    try {
+      // Calculate total distance and estimated duration
+      let totalDistance = 0;
+      for (let i = 0; i < optimizedRoute.length - 1; i++) {
+        totalDistance += calculateDistance(
+          optimizedRoute[i].latitude, 
+          optimizedRoute[i].longitude,
+          optimizedRoute[i+1].latitude, 
+          optimizedRoute[i+1].longitude
+        );
+      }
+      
+      // Estimate duration (assuming average speed of 40 km/h in city)
+      const estimatedDuration = Math.round((totalDistance / 1000 / 40) * 60);
+      
+      // Create route
+      const { data: route, error: routeError } = await supabaseClient
+        .from('routes')
+        .insert([{
+          name: routeName,
+          created_by: currentUser.id,
+          assigned_to: assignedTo || null,
+          estimated_duration: estimatedDuration,
+          total_distance: Math.round(totalDistance)
+        }])
+        .select();
+      
+      if (routeError) throw routeError;
+      
+      // Add route locations
+      const routeLocations = optimizedRoute.map((location, index) => ({
+        route_id: route[0].id,
+        location_id: location.id,
+        position: index + 1
+      }));
+      
+      const { error: locationsError } = await supabaseClient
+        .from('route_locations')
+        .insert(routeLocations);
+      
+      if (locationsError) throw locationsError;
+      
+      showToast('Route created successfully!', 'success');
+      renderRoutePlanningView(); // Refresh the view
+    } catch (error) {
+      showToast('Error creating route: ' + error.message, 'error');
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Route';
+    }
+  });
+  
+  // Helper functions
+  function resetRouteCreator() {
+    document.getElementById('route-name').value = '';
+    document.getElementById('route-rep').value = '';
+    document.querySelectorAll('.location-card input[type="checkbox"]').forEach(cb => {
+      cb.checked = false;
+      cb.closest('.location-card').classList.remove('selected');
+    });
+    selectedLocations = [];
+    optimizedRoute = [];
+    optimizeBtn.disabled = true;
+    saveBtn.style.display = 'none';
+    routeMap.style.display = 'none';
+    routeOrder.style.display = 'none';
+    if (map) {
+      map.remove();
+      map = null;
+    }
+  }
+  
+  function optimizeRoute(locations) {
+    if (locations.length <= 1) return locations;
+    
+    // Simple nearest neighbor algorithm
+    const route = [locations[0]];
+    const remaining = [...locations.slice(1)];
+    
+    while (remaining.length > 0) {
+      const current = route[route.length - 1];
+      let nearestIndex = 0;
+      let nearestDistance = Infinity;
+      
+      remaining.forEach((location, index) => {
+        const distance = calculateDistance(
+          current.latitude, current.longitude,
+          location.latitude, location.longitude
+        );
+        
+        if (distance < nearestDistance) {
+          nearestDistance = distance;
+          nearestIndex = index;
+        }
+      });
+      
+      route.push(remaining[nearestIndex]);
+      remaining.splice(nearestIndex, 1);
+    }
+    
+    return route;
+  }
+  
+  function displayRouteOnMap(route) {
+    routeMap.style.display = 'block';
+    
+    // Initialize map if not already done
+    if (!map) {
+      map = L.map('route-map').setView([route[0].latitude, route[0].longitude], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+    } else {
+      // Clear existing markers and route line
+      markers.forEach(marker => map.removeLayer(marker));
+      if (routeLine) map.removeLayer(routeLine);
+      markers = [];
+    }
+    
+    // Add markers for each location
+    route.forEach((location, index) => {
+      const marker = L.marker([location.latitude, location.longitude])
+        .bindPopup(`<b>${index + 1}. ${location.name}</b><br>${location.address}`)
+        .addTo(map);
+      
+      markers.push(marker);
+    });
+    
+    // Draw route line
+    const latlngs = route.map(loc => [loc.latitude, loc.longitude]);
+    routeLine = L.polyline(latlngs, { color: '#4f46e5', weight: 4 }).addTo(map);
+    
+    // Fit map to show entire route
+    const group = new L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.1));
+  }
+  
+  function displayRouteOrder(route) {
+    routeOrder.style.display = 'block';
+    
+    sortableRoute.innerHTML = route.map((location, index) => `
+      <div class="sortable-item" data-id="${location.id}">
+        <div class="sortable-handle">
+          <i class="fas fa-grip-vertical"></i>
+        </div>
+        <div class="sortable-number">${index + 1}</div>
+        <div class="sortable-content">
+          <h4>${location.name}</h4>
+          <p>${location.address}</p>
+        </div>
+      </div>
+    `).join('');
+    
+    // Make the list sortable
+    new Sortable(sortableRoute, {
+      handle: '.sortable-handle',
+      animation: 150,
+      onEnd: function(evt) {
+        // Update the optimizedRoute array based on new order
+        const newOrder = Array.from(sortableRoute.children).map(item => {
+          const locationId = item.getAttribute('data-id');
+          return route.find(loc => loc.id === locationId);
+        });
+        
+        optimizedRoute = newOrder;
+        displayRouteOnMap(optimizedRoute);
+      }
+    });
+  }
+}
+
+function initRouteList() {
+  // View route details
+  document.querySelectorAll('.view-route-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const routeId = btn.getAttribute('data-id');
+      await viewRouteDetails(routeId);
+    });
+  });
+  
+  // Edit route
+  document.querySelectorAll('.edit-route-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const routeId = btn.getAttribute('data-id');
+      await editRoute(routeId);
+    });
+  });
+  
+  // Delete route
+  document.querySelectorAll('.delete-route-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const routeId = btn.getAttribute('data-id');
+      const routeItem = btn.closest('.route-item');
+      const routeName = routeItem.querySelector('h4').textContent;
+      
+      if (confirm(`Are you sure you want to delete the route "${routeName}"?`)) {
+        try {
+          const { error } = await supabaseClient
+            .from('routes')
+            .delete()
+            .eq('id', routeId);
+          
+          if (error) throw error;
+          
+          showToast('Route deleted successfully', 'success');
+          routeItem.remove();
+        } catch (error) {
+          showToast('Error deleting route: ' + error.message, 'error');
+        }
+      }
+    });
+  });
+}
+
+async function viewRouteDetails(routeId) {
+  // Fetch route details
+  // FIX: Specify the relationship to avoid ambiguity
+  const { data: route, error: routeError } = await supabaseClient
+    .from('routes')
+    .select(`*, 
+      route_locations(
+        position, 
+        location:locations(id, name, address, latitude, longitude)
+      ),
+      assigned_to:profiles!routes_assigned_to_fkey(first_name, last_name)
+    `)
+    .eq('id', routeId)
+    .single();
+  
+  if (routeError) {
+    showToast('Error loading route details: ' + routeError.message, 'error');
+    return;
+  }
+  
+  // Sort locations by position
+  const locations = route.route_locations
+    .sort((a, b) => a.position - b.position)
+    .map(item => item.location);
+  
+  // Create modal to show route details
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.style.display = 'flex';
+  modal.id = 'route-details-modal';
+  modal.innerHTML = `
+    <div class="modal-backdrop" onclick="closeModal('route-details-modal')"></div>
+    <div class="modal-container" style="max-width: 800px;">
+      <div class="modal-header">
+        <h3><i class="fas fa-route"></i> ${route.name}</h3>
+        <button class="modal-close" onclick="closeModal('route-details-modal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="route-details">
+          <div class="route-info">
+            <p><strong>Assigned to:</strong> ${route.assigned_to ? `${route.assigned_to.first_name} ${route.assigned_to.last_name}` : 'Unassigned'}</p>
+            <p><strong>Created:</strong> ${formatDate(route.created_at)}</p>
+            ${route.estimated_duration ? `<p><strong>Est. duration:</strong> ${route.estimated_duration} min</p>` : ''}
+            ${route.total_distance ? `<p><strong>Total distance:</strong> ${(route.total_distance / 1000).toFixed(2)} km</p>` : ''}
+          </div>
+          
+          <div class="route-map" id="route-details-map" style="height: 300px; margin: 1rem 0;"></div>
+          
+          <h4>Route Stops</h4>
+          <ol class="route-stops">
+            ${locations.map((location, index) => `
+              <li>
+                <strong>${location.name}</strong><br>
+                ${location.address}
+              </li>
+            `).join('')}
+          </ol>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Initialize map
+  setTimeout(() => {
+    const map = L.map('route-details-map').setView([locations[0].latitude, locations[0].longitude], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+    
+    // Add markers for each location
+    const markers = locations.map((location, index) => {
+      return L.marker([location.latitude, location.longitude])
+        .bindPopup(`<b>${index + 1}. ${location.name}</b><br>${location.address}`)
+        .addTo(map);
+    });
+    
+    // Draw route line
+    const latlngs = locations.map(loc => [loc.latitude, loc.longitude]);
+    L.polyline(latlngs, { color: '#4f46e5', weight: 4 }).addTo(map);
+    
+    // Fit map to show entire route
+    const group = new L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.1));
+  }, 100);
+}
+
+async function editRoute(routeId) {
+  // Similar to viewRouteDetails but with editing capabilities
+  // This would allow managers to modify the route order or locations
+  // Implementation would be similar to creating a new route but with pre-filled data
+  showToast('Edit route functionality to be implemented', 'info');
+}
+
+
+// ======================
+// MY ROUTES VIEW
+// ======================
+
+async function renderMyRoutesView() {
+  // FIX: No ambiguity here, but keeping it consistent is good practice
+  const { data: routes, error } = await supabaseClient
+    .from('routes')
+    .select(`*, 
+      route_locations(
+        position, 
+        location:locations(id, name, address, latitude, longitude)
+      )
+    `)
+    .eq('assigned_to', currentUser.id)
+    .eq('is_active', true)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    viewContainer.innerHTML = renderError(error.message);
+    return;
+  }
+
+  let html = `
+    <div class="page-header">
+      <h1 class="page-title">My Routes</h1>
+      <p class="page-subtitle">${routes.length} assigned routes</p>
+    </div>
+  `;
+
+  if (routes.length === 0) {
+    html += `
+      <div class="card">
+        <div class="empty-state">
+          <i class="fas fa-route empty-state-icon"></i>
+          <h3 class="empty-state-title">No routes assigned</h3>
+          <p class="empty-state-description">Your manager will assign routes to you here.</p>
+        </div>
+      </div>
+    `;
+  } else {
+    routes.forEach(route => {
+      // Sort locations by position
+      const locations = route.route_locations
+        .sort((a, b) => a.position - b.position)
+        .map(item => item.location);
+
+      html += `
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">${route.name}</h3>
+            <button class="btn btn-primary start-route-btn" data-id="${route.id}">
+              <i class="fas fa-play"></i> Start Route
+            </button>
+          </div>
+          
+          <div class="route-summary">
+            <p><strong>Created:</strong> ${formatDate(route.created_at)}</p>
+            ${route.estimated_duration ? `<p><strong>Est. duration:</strong> ${route.estimated_duration} min</p>` : ''}
+            ${route.total_distance ? `<p><strong>Total distance:</strong> ${(route.total_distance / 1000).toFixed(2)} km</p>` : ''}
+          </div>
+          
+          <div class="route-map" id="route-preview-${route.id}" style="height: 200px; margin: 1rem 0;"></div>
+          
+          <h4>Route Stops</h4>
+          <ol class="route-stops">
+            ${locations.map((location, index) => `
+              <li>
+                <strong>${location.name}</strong><br>
+                ${location.address}
+              </li>
+            `).join('')}
+          </ol>
+        </div>
+      `;
+    });
+  }
+
+  viewContainer.innerHTML = html;
+
+  // Initialize maps for each route
+  routes.forEach(route => {
+    const locations = route.route_locations
+      .sort((a, b) => a.position - b.position)
+      .map(item => item.location);
+
+    setTimeout(() => {
+      const mapId = `route-preview-${route.id}`;
+      const mapElement = document.getElementById(mapId);
+      
+      if (!mapElement) return;
+      
+      const map = L.map(mapId).setView([locations[0].latitude, locations[0].longitude], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(map);
+      
+      // Add markers for each location
+      const markers = locations.map((location, index) => {
+        return L.marker([location.latitude, location.longitude])
+          .bindPopup(`<b>${index + 1}. ${location.name}</b><br>${location.address}`)
+          .addTo(map);
+      });
+      
+      // Draw route line
+      const latlngs = locations.map(loc => [loc.latitude, loc.longitude]);
+      L.polyline(latlngs, { color: '#4f46e5', weight: 4 }).addTo(map);
+      
+      // Fit map to show entire route
+      const group = new L.featureGroup(markers);
+      map.fitBounds(group.getBounds().pad(0.1));
+    }, 100);
+  });
+
+  // Initialize start route buttons
+  document.querySelectorAll('.start-route-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const routeId = btn.getAttribute('data-id');
+      startRoute(routeId);
+    });
+  });
+}
+
+function startRoute(routeId) {
+  startRouteNavigation(routeId);
+}
+
+// ======================
+// ROUTE NAVIGATION
+// ======================
+
+async function startRouteNavigation(routeId) {
+  // Fetch route details
+  // FIX: No ambiguity here, but keeping it consistent is good practice
+  const { data: route, error: routeError } = await supabaseClient
+    .from('routes')
+    .select(`*, 
+      route_locations(
+        position, 
+        location:locations(id, name, address, latitude, longitude)
+      )
+    `)
+    .eq('id', routeId)
+    .single();
+  
+  if (routeError) {
+    showToast('Error loading route: ' + routeError.message, 'error');
+    return;
+  }
+  
+  // Sort locations by position
+  const locations = route.route_locations
+    .sort((a, b) => a.position - b.position)
+    .map(item => item.location);
+  
+  // Create navigation view
+  let html = `
+    <div class="route-navigation">
+      <div class="route-navigation-header">
+        <button class="btn btn-ghost" onclick="loadView('my-routes')">
+          <i class="fas fa-arrow-left"></i> Back
+        </button>
+        <h2>${route.name}</h2>
+        <button class="btn btn-secondary" id="complete-route-btn">
+          <i class="fas fa-check"></i> Complete
+        </button>
+      </div>
+      
+      <div class="route-navigation-map" id="navigation-map"></div>
+      
+      <div class="route-navigation-info">
+        <div class="current-stop" id="current-stop">
+          <h3>Current Stop</h3>
+          <div class="stop-info">
+            <h4 id="current-stop-name">${locations[0].name}</h4>
+            <p id="current-stop-address">${locations[0].address}</p>
+            <div class="stop-actions">
+              <button class="btn btn-primary" id="arrived-btn">
+                <i class="fas fa-check-circle"></i> I've Arrived
+              </button>
+              <button class="btn btn-secondary" id="get-directions-btn">
+                <i class="fas fa-directions"></i> Get Directions
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="next-stops">
+          <h3>Upcoming Stops</h3>
+          <div class="stops-list" id="stops-list">
+            ${locations.slice(1).map((location, index) => `
+              <div class="stop-item" data-index="${index + 1}">
+                <div class="stop-number">${index + 2}</div>
+                <div class="stop-details">
+                  <h4>${location.name}</h4>
+                  <p>${location.address}</p>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  viewContainer.innerHTML = html;  
+  // Initialize navigation
+  let currentStopIndex = 0;
+  let map = null;
+  let userMarker = null;
+  let routeLine = null;
+  let stopMarkers = [];
+  
+  // Initialize map
+  setTimeout(() => {
+    map = L.map('navigation-map').setView([locations[0].latitude, locations[0].longitude], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+    
+    // Add markers for each location
+    locations.forEach((location, index) => {
+      const isCurrentStop = index === currentStopIndex;
+      const isCompletedStop = index < currentStopIndex;
+      
+      const marker = L.marker([location.latitude, location.longitude], {
+        icon: L.divIcon({
+          className: 'route-marker',
+          html: `<div class="route-marker-icon ${isCurrentStop ? 'current' : ''} ${isCompletedStop ? 'completed' : ''}">${index + 1}</div>`,
+          iconSize: [30, 30],
+          iconAnchor: [15, 15]
+        })
+      })
+        .bindPopup(`<b>${index + 1}. ${location.name}</b><br>${location.address}`)
+        .addTo(map);
+      
+      stopMarkers.push(marker);
+    });
+    
+    // Draw route line
+    const latlngs = locations.map(loc => [loc.latitude, loc.longitude]);
+    routeLine = L.polyline(latlngs, { color: '#4f46e5', weight: 4, opacity: 0.7 }).addTo(map);
+    
+    // Fit map to show entire route
+    const group = new L.featureGroup(stopMarkers);
+    map.fitBounds(group.getBounds().pad(0.1));
+    
+    // Try to get user's location
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          
+          // Update or create user marker
+          if (userMarker) {
+            userMarker.setLatLng([latitude, longitude]);
+          } else {
+            userMarker = L.marker([latitude, longitude], {
+              icon: L.divIcon({
+                className: 'user-marker',
+                html: '<div class="user-marker-icon"><i class="fas fa-user"></i></div>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+              })
+            }).addTo(map);
+          }
+          
+          // Check if user is near the current stop
+          const currentLocation = locations[currentStopIndex];
+          const distance = calculateDistance(
+            latitude, longitude,
+            currentLocation.latitude, currentLocation.longitude
+          );
+          
+          // If within 100 meters, show notification
+          if (distance < 100) {
+            document.getElementById('arrived-btn').classList.add('pulse');
+          }
+        },
+        (error) => {
+          console.error('Error getting location:', error);
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+      );
+    }
+  }, 100);
+  
+  // Handle button clicks
+  document.getElementById('arrived-btn').addEventListener('click', () => {
+    // Mark current stop as completed
+    currentStopIndex++;
+    
+    // If there are more stops, update UI
+    if (currentStopIndex < locations.length) {
+      // Update current stop
+      document.getElementById('current-stop-name').textContent = locations[currentStopIndex].name;
+      document.getElementById('current-stop-address').textContent = locations[currentStopIndex].address;
+      
+      // Update stops list
+      const firstStop = document.querySelector('.stop-item');
+      if (firstStop) {
+        firstStop.remove();
+      }
+      
+      // Update map markers
+      if (stopMarkers[currentStopIndex - 1]) {
+        stopMarkers[currentStopIndex - 1].setIcon(
+          L.divIcon({
+            className: 'route-marker',
+            html: `<div class="route-marker-icon completed">${currentStopIndex}</div>`,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+          })
+        );
+      }
+      
+      if (stopMarkers[currentStopIndex]) {
+        stopMarkers[currentStopIndex].setIcon(
+          L.divIcon({
+            className: 'route-marker',
+            html: `<div class="route-marker-icon current">${currentStopIndex + 1}</div>`,
+            iconSize: [30, 30],
+            iconAnchor: [15, 15]
+          })
+        );
+      }
+      
+      // Center map on new current stop
+      map.setView([locations[currentStopIndex].latitude, locations[currentStopIndex].longitude], 15);
+      
+      showToast(`Proceeding to stop ${currentStopIndex + 1}`, 'info');
+    } else {
+      // Route completed
+      completeRoute(routeId);
+    }
+  });
+  
+  document.getElementById('get-directions-btn').addEventListener('click', () => {
+    const currentLocation = locations[currentStopIndex];
+    // Open in Google Maps or other navigation app
+    window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLocation.latitude},${currentLocation.longitude}`, '_blank');
+  });
+  
+  document.getElementById('complete-route-btn').addEventListener('click', () => {
+    if (confirm('Are you sure you want to mark this route as completed?')) {
+      completeRoute(routeId);
+    }
+  });
+}
+
+async function completeRoute(routeId) {
+  try {
+    // Mark route as completed
+    const { error } = await supabaseClient
+      .from('routes')
+      .update({ is_active: false })
+      .eq('id', routeId);
+    
+    if (error) throw error;
+    
+    showToast('Route completed successfully!', 'success');
+    loadView('my-routes');
+  } catch (error) {
+    showToast('Error completing route: ' + error.message, 'error');
+  }
 }
