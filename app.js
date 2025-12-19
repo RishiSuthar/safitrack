@@ -1282,7 +1282,11 @@ window.showManageLocationsModal = async function() {
         
         <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border-color);">
         
-        <h4 style="margin-bottom: 1rem;">Existing Locations</h4>
+        <h4 style="margin-bottom: 1rem;">Search Existing Locations</h4>
+        <div class="location-search-container">
+          <input type="text" id="location-search-input" placeholder="Search locations by name or address...">
+        </div>
+        
         <div id="locations-list"></div>
       </div>
     </div>
@@ -1290,6 +1294,13 @@ window.showManageLocationsModal = async function() {
 
   document.body.appendChild(modal);
   loadLocationsList();
+  
+  // Initialize location search
+  const locationSearchInput = document.getElementById('location-search-input');
+  locationSearchInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    filterLocationsList(query);
+  });
 };
 
 async function loadLocationsList() {
@@ -1310,8 +1321,11 @@ async function loadLocationsList() {
     return;
   }
 
+  // Store locations for filtering
+  window.allLocations = locations;
+
   container.innerHTML = locations.map(loc => `
-    <div class="flex items-center justify-between" style="padding: 0.75rem; background: var(--bg-tertiary); border-radius: var(--radius-md); margin-bottom: 0.5rem;">
+    <div class="flex items-center justify-between location-item" data-id="${loc.id}" data-name="${loc.name.toLowerCase()}" data-address="${loc.address.toLowerCase()}">
       <div>
         <strong>${loc.name}</strong>
         <div class="text-muted" style="font-size: 0.8125rem;">${loc.address}</div>
@@ -1321,6 +1335,29 @@ async function loadLocationsList() {
       </button>
     </div>
   `).join('');
+}
+
+function filterLocationsList(query) {
+  const container = document.getElementById('locations-list');
+  const locationItems = container.querySelectorAll('.location-item');
+  
+  if (!query) {
+    locationItems.forEach(item => {
+      item.style.display = 'flex';
+    });
+    return;
+  }
+  
+  locationItems.forEach(item => {
+    const name = item.getAttribute('data-name');
+    const address = item.getAttribute('data-address');
+    
+    if (name.includes(query) || address.includes(query)) {
+      item.style.display = 'flex';
+    } else {
+      item.style.display = 'none';
+    }
+  });
 }
 
 window.addNewLocation = async function() {
@@ -1880,13 +1917,27 @@ async function renderRoutePlanningView() {
         </div>
         
         <div class="form-field">
-          <label for="route-rep">Assign to Sales Rep</label>
-          <select id="route-rep">
-            <option value="">Select a sales rep...</option>
-            ${salesReps.map(rep => `
-              <option value="${rep.id}">${rep.first_name} ${rep.last_name}</option>
-            `).join('')}
-          </select>
+          <label for="route-rep">Assign to Sales Reps</label>
+          <div class="multi-select-container">
+            <div class="multi-select-display empty" id="rep-multi-select">
+              <span>Select sales reps...</span>
+            </div>
+            <div class="multi-select-dropdown" id="rep-dropdown">
+              ${salesReps.map(rep => `
+                <div class="multi-select-option" data-id="${rep.id}">
+                  <input type="checkbox" id="rep-${rep.id}" value="${rep.id}">
+                  <label for="rep-${rep.id}">${rep.first_name} ${rep.last_name}</label>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-field">
+          <label>Search Locations</label>
+          <div class="location-search-container">
+            <input type="text" id="location-search" placeholder="Search for locations by name or address...">
+          </div>
         </div>
         
         <div class="form-field">
@@ -1905,6 +1956,13 @@ async function renderRoutePlanningView() {
               </div>
             `).join('')}
           </div>
+        </div>
+        
+        <div class="ai-recommendation" id="ai-recommendation" style="display: none;">
+          <div class="ai-recommendation-header">
+            <i class="fas fa-lightbulb"></i> AI Recommendation
+          </div>
+          <div class="ai-recommendation-content" id="ai-recommendation-content"></div>
         </div>
         
         <div class="form-field">
@@ -1961,13 +2019,13 @@ async function renderRoutePlanningView() {
   viewContainer.innerHTML = html;
   
   // Initialize route creator functionality
-  initRouteCreator(locations);
+  initRouteCreator(locations, salesReps);
   
   // Initialize route list functionality
   initRouteList();
 }
 
-function initRouteCreator(locations) {
+function initRouteCreator(locations, salesReps) {
   const createBtn = document.getElementById('create-route-btn');
   const routeCreator = document.getElementById('route-creator');
   const optimizeBtn = document.getElementById('optimize-route-btn');
@@ -1975,12 +2033,19 @@ function initRouteCreator(locations) {
   const routeMap = document.getElementById('route-map');
   const routeOrder = document.getElementById('route-order');
   const sortableRoute = document.getElementById('sortable-route');
+  const locationSearch = document.getElementById('location-search');
+  const aiRecommendation = document.getElementById('ai-recommendation');
+  const aiRecommendationContent = document.getElementById('ai-recommendation-content');
   
   let selectedLocations = [];
   let optimizedRoute = [];
+  let selectedReps = [];
   let map = null;
   let markers = [];
   let routeLine = null;
+  
+  // Store for global access
+  window.allLocationsData = locations;
   
   // Show/hide route creator
   createBtn.addEventListener('click', () => {
@@ -1994,6 +2059,83 @@ function initRouteCreator(locations) {
     }
   });
   
+  // Initialize multi-select for reps
+  const repMultiSelect = document.getElementById('rep-multi-select');
+  const repDropdown = document.getElementById('rep-dropdown');
+  
+  repMultiSelect.addEventListener('click', () => {
+    repDropdown.classList.toggle('show');
+  });
+  
+  // Handle rep selection
+  document.querySelectorAll('.multi-select-option input').forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+      const repId = checkbox.value;
+      const repName = checkbox.nextElementSibling.textContent;
+      
+      if (checkbox.checked) {
+        selectedReps.push({ id: repId, name: repName });
+      } else {
+        selectedReps = selectedReps.filter(rep => rep.id !== repId);
+      }
+      
+      updateMultiSelectDisplay();
+    });
+  });
+  
+  function updateMultiSelectDisplay() {
+    if (selectedReps.length === 0) {
+      repMultiSelect.innerHTML = '<span>Select sales reps...</span>';
+      repMultiSelect.classList.add('empty');
+    } else {
+      repMultiSelect.innerHTML = selectedReps.map(rep => `
+        <span class="multi-select-tag">
+          ${rep.name}
+          <span class="remove" data-id="${rep.id}">×</span>
+        </span>
+      `).join('');
+      repMultiSelect.classList.remove('empty');
+      
+      // Add event listeners to remove buttons
+      repMultiSelect.querySelectorAll('.remove').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const repId = btn.getAttribute('data-id');
+          document.querySelector(`#rep-${repId}`).checked = false;
+          selectedReps = selectedReps.filter(rep => rep.id !== repId);
+          updateMultiSelectDisplay();
+        });
+      });
+    }
+  }
+  
+  // Location search functionality
+  locationSearch.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    const locationCards = document.querySelectorAll('.location-card');
+    
+    if (query.length === 0) {
+      locationCards.forEach(card => {
+        card.style.display = 'flex';
+      });
+      return;
+    }
+    
+    locationCards.forEach(card => {
+      const locationId = card.getAttribute('data-id');
+      const location = locations.find(loc => loc.id === locationId);
+      
+      if (location && (
+        location.name.toLowerCase().includes(query) ||
+        location.address.toLowerCase().includes(query)
+      )) {
+        card.style.display = 'flex';
+      } else {
+        card.style.display = 'none';
+      }
+    });
+  });
+  
   // Handle location selection
   document.querySelectorAll('.location-card input[type="checkbox"]').forEach(checkbox => {
     checkbox.addEventListener('change', () => {
@@ -2003,17 +2145,83 @@ function initRouteCreator(locations) {
       if (checkbox.checked) {
         selectedLocations.push(locations.find(loc => loc.id === locationId));
         locationCard.classList.add('selected');
+        
+        // Check if we should show a recommendation
+        if (selectedLocations.length >= 1) {
+          showNearestLocationRecommendation(selectedLocations);
+        }
       } else {
         selectedLocations = selectedLocations.filter(loc => loc.id !== locationId);
         locationCard.classList.remove('selected');
+        
+        // Update recommendations
+        if (selectedLocations.length >= 1) {
+          showNearestLocationRecommendation(selectedLocations);
+        } else {
+          aiRecommendation.style.display = 'none';
+        }
       }
       
       optimizeBtn.disabled = selectedLocations.length < 2;
     });
   });
   
+  // Function to show nearest location recommendation
+  function showNearestLocationRecommendation(selected) {
+    if (selected.length === 0) {
+      aiRecommendation.style.display = 'none';
+      return;
+    }
+    
+    // Get the last selected location
+    const lastSelected = selected[selected.length - 1];
+    
+    // Find the nearest unselected location
+    let nearestLocation = null;
+    let shortestDistance = Infinity;
+    
+    locations.forEach(location => {
+      // Skip if already selected
+      if (selected.some(loc => loc.id === location.id)) return;
+      
+      // Calculate distance from last selected location
+      const distance = calculateDistance(
+        parseFloat(lastSelected.latitude),
+        parseFloat(lastSelected.longitude),
+        parseFloat(location.latitude),
+        parseFloat(location.longitude)
+      );
+      
+      if (distance < shortestDistance) {
+        shortestDistance = distance;
+        nearestLocation = location;
+      }
+    });
+    
+    if (nearestLocation) {
+      // Show recommendation
+      aiRecommendation.style.display = 'block';
+      aiRecommendationContent.innerHTML = `
+        <p>Based on your selection of <strong>${lastSelected.name}</strong>, the nearest location is <strong>${nearestLocation.name}</strong> (${(shortestDistance/1000).toFixed(2)} km away).</p>
+        <button class="btn btn-sm btn-primary" onclick="selectRecommendedLocation('${nearestLocation.id}')">
+          <i class="fas fa-plus"></i> Add to Route
+        </button>
+      `;
+      
+      // Highlight the recommended location
+      document.querySelectorAll('.location-card').forEach(card => {
+        card.classList.remove('recommended');
+        if (card.getAttribute('data-id') === nearestLocation.id) {
+          card.classList.add('recommended');
+        }
+      });
+    } else {
+      aiRecommendation.style.display = 'none';
+    }
+  }
+  
   // Optimize route
-  optimizeBtn.addEventListener('click', () => {
+  optimizeBtn.addEventListener('click', async () => {
     if (selectedLocations.length < 2) return;
     
     // Show loading state
@@ -2040,10 +2248,14 @@ function initRouteCreator(locations) {
   // Save route
   saveBtn.addEventListener('click', async () => {
     const routeName = document.getElementById('route-name').value.trim();
-    const assignedTo = document.getElementById('route-rep').value;
     
     if (!routeName) {
       showToast('Please enter a route name', 'error');
+      return;
+    }
+    
+    if (selectedReps.length === 0) {
+      showToast('Please select at least one sales rep', 'error');
       return;
     }
     
@@ -2071,7 +2283,7 @@ function initRouteCreator(locations) {
         .insert([{
           name: routeName,
           created_by: currentUser.id,
-          assigned_to: assignedTo || null,
+          assigned_to: selectedReps[0].id, // Primary assignment
           estimated_duration: estimatedDuration,
           total_distance: Math.round(totalDistance)
         }])
@@ -2092,7 +2304,20 @@ function initRouteCreator(locations) {
       
       if (locationsError) throw locationsError;
       
-      showToast('Route created successfully!', 'success');
+      // Create route assignments for each selected rep
+      const routeAssignments = selectedReps.map(rep => ({
+        route_id: route[0].id,
+        rep_id: rep.id,
+        assigned_by: currentUser.id
+      }));
+      
+      const { error: assignmentsError } = await supabaseClient
+        .from('route_assignments')
+        .insert(routeAssignments);
+      
+      if (assignmentsError) throw assignmentsError;
+      
+      showToast('Route created and assigned successfully!', 'success');
       renderRoutePlanningView(); // Refresh the view
     } catch (error) {
       showToast('Error creating route: ' + error.message, 'error');
@@ -2104,10 +2329,14 @@ function initRouteCreator(locations) {
   // Helper functions
   function resetRouteCreator() {
     document.getElementById('route-name').value = '';
-    document.getElementById('route-rep').value = '';
+    document.querySelectorAll('.multi-select-option input').forEach(cb => {
+      cb.checked = false;
+    });
+    selectedReps = [];
+    updateMultiSelectDisplay();
     document.querySelectorAll('.location-card input[type="checkbox"]').forEach(cb => {
       cb.checked = false;
-      cb.closest('.location-card').classList.remove('selected');
+      cb.closest('.location-card').classList.remove('selected', 'recommended');
     });
     selectedLocations = [];
     optimizedRoute = [];
@@ -2115,6 +2344,7 @@ function initRouteCreator(locations) {
     saveBtn.style.display = 'none';
     routeMap.style.display = 'none';
     routeOrder.style.display = 'none';
+    aiRecommendation.style.display = 'none';
     if (map) {
       map.remove();
       map = null;
@@ -2219,6 +2449,15 @@ function initRouteCreator(locations) {
     });
   }
 }
+
+// Global function to select recommended location
+window.selectRecommendedLocation = function(locationId) {
+  const checkbox = document.querySelector(`#loc-${locationId}`);
+  if (checkbox && !checkbox.checked) {
+    checkbox.checked = true;
+    checkbox.dispatchEvent(new Event('change'));
+  }
+};
 
 function initRouteList() {
   // View route details
