@@ -1224,11 +1224,11 @@ window.showManageLocationsModal = async function() {
         <div class="flex gap-2">
           <div class="form-field" style="flex: 1;">
             <label>Latitude</label>
-            <input type="number" id="new-location-lat" step="0.000001" placeholder="e.g., 40.7128">
+            <input type="number" id="new-location-lat" step="0.000001" placeholder="Auto-filled" readonly />
           </div>
           <div class="form-field" style="flex: 1;">
             <label>Longitude</label>
-            <input type="number" id="new-location-lng" step="0.000001" placeholder="e.g., -74.0060">
+            <input type="number" id="new-location-lng" step="0.000001" placeholder="Auto-filled" readonly />
           </div>
         </div>
         <div class="form-field">
@@ -1292,20 +1292,26 @@ window.addNewLocation = async function() {
     return;
   }
 
-  // Show loading state
   const btn = document.querySelector('#locations-modal .btn-primary');
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Geocoding...';
 
   try {
-    // Auto-geocode the address
+    // ✅ Auto-geocode address
     const geo = await geocodeAddress(address);
 
-    // Auto-fill lat/lng fields (optional, for user visibility)
+    // ✅ Auto-fill (for confirmation)
     document.getElementById('new-location-lat').value = geo.latitude.toFixed(6);
     document.getElementById('new-location-lng').value = geo.longitude.toFixed(6);
 
-    // Save to DB
+    // Optional: Show confirmation to user
+    if (!confirm(`📍 Found: "${geo.displayName}"\n\nLatitude: ${geo.latitude.toFixed(6)}\nLongitude: ${geo.longitude.toFixed(6)}\n\nUse this location?`)) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-plus"></i> Add Location';
+      return;
+    }
+
+    // ✅ Save to DB
     const { error } = await supabaseClient.from('locations').insert([{
       name,
       address,
@@ -1316,15 +1322,16 @@ window.addNewLocation = async function() {
 
     if (error) throw error;
 
-    showToast(`✅ Location added! (${geo.displayName})`, 'success');
-    
-    // Reset & reload
+    showToast(`✅ Location added!`, 'success');
+    // Reset form
     document.getElementById('new-location-name').value = '';
     document.getElementById('new-location-address').value = '';
+    document.getElementById('new-location-lat').value = '';
+    document.getElementById('new-location-lng').value = '';
     loadLocationsList();
 
   } catch (err) {
-    showToast(`Geocoding failed: ${err.message}`, 'error');
+    showToast(`❌ ${err.message}`, 'error');
   } finally {
     btn.disabled = false;
     btn.innerHTML = '<i class="fas fa-plus"></i> Add Location';
