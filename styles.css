@@ -2850,3 +2850,36 @@ select {
   }
 }
 
+
+.pipeline-stage.drag-over {
+  background: var(--color-primary-bg);
+  border: 2px dashed var(--color-primary);
+}
+
+.opportunity-list.valid-drop {
+  min-height: 100px;
+  background: rgba(79, 70, 229, 0.05);
+  border-radius: var(--radius-md);
+}
+
+.opportunity-card.dragging {
+  box-shadow: var(--shadow-xl);
+  z-index: 1000;
+}
+
+.opportunity-card.dragging-active {
+  opacity: 0.8;
+}
+
+@media (min-width: 768px) {
+  .opportunity-list {
+    min-height: 100px;
+    transition: all 0.3s ease;
+  }
+  
+  .opportunity-list:hover {
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: var(--radius-md);
+  }
+}
+

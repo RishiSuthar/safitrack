@@ -34,6 +34,7 @@ const logoutBtn = document.getElementById('logout-btn');
 // INITIALIZATION
 // ======================
 
+
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initAuth();
@@ -2972,7 +2973,6 @@ async function completeRoute(routeId) {
   }
 }
 
-
 async function renderOpportunityPipelineView() {
   const { data: opportunities, error } = await supabaseClient
     .from('opportunities')
@@ -3141,15 +3141,16 @@ async function renderOpportunityPipelineView() {
 
   viewContainer.innerHTML = html;
 
-  // Initialize drag and drop
-  initPipelineDragAndDrop();
-
-  // Initialize event listeners
-  initOpportunityEventListeners(opportunities);
-
-  // Initialize filters
-  initPipelineFilters();
+  // Initialize drag and drop with a small delay to ensure DOM is ready
+  setTimeout(() => {
+    initPipelineDragAndDrop();
+    initOpportunityEventListeners(opportunities);
+    initPipelineFilters();
+  }, 100);
 }
+
+
+
 
 function initPipelineDragAndDrop() {
   const opportunityLists = document.querySelectorAll('.opportunity-list');
@@ -3159,33 +3160,111 @@ function initPipelineDragAndDrop() {
       group: 'pipeline',
       animation: 150,
       ghostClass: 'dragging',
+      dragClass: 'dragging-active',
+      forceFallback: false, // Use HTML5 drag/drop
+      fallbackOnBody: true,
+      swapThreshold: 0.65,
+      onStart: function(evt) {
+        // Add dragging class to the item
+        evt.item.classList.add('dragging');
+        
+        // Add visual feedback to all lists
+        opportunityLists.forEach(l => {
+          l.classList.add('drag-over');
+        });
+      },
       onEnd: async function(evt) {
+        // Remove dragging classes
+        evt.item.classList.remove('dragging');
+        opportunityLists.forEach(l => {
+          l.classList.remove('drag-over');
+        });
+        
         const opportunityId = evt.item.dataset.id;
         const newStage = evt.to.closest('.pipeline-stage').dataset.stage;
+        const oldStage = evt.from.closest('.pipeline-stage').dataset.stage;
         
-        // Update opportunity stage in database
-        const { error } = await supabaseClient
-          .from('opportunities')
-          .update({ stage: newStage })
-          .eq('id', opportunityId);
-        
-        if (error) {
-          showToast('Error updating opportunity: ' + error.message, 'error');
-          // Refresh view to restore original state
-          renderOpportunityPipelineView();
-          return;
+        // Only update if stage actually changed
+        if (newStage !== oldStage) {
+          try {
+            // Update opportunity stage in database
+            const { error } = await supabaseClient
+              .from('opportunities')
+              .update({ stage: newStage, updated_at: new Date().toISOString() })
+              .eq('id', opportunityId);
+            
+            if (error) throw error;
+            
+            showToast('Opportunity moved successfully', 'success');
+            
+            // If moved to closed-won, trigger confetti
+            if (newStage === 'closed-won') {
+              triggerConfetti();
+            }
+            
+            // Update stage counts and values
+            updatePipelineStageCounts();
+            
+            // If moved to closed-lost or closed-won, remove from active stages
+            if (newStage === 'closed-lost' || newStage === 'closed-won') {
+              setTimeout(() => {
+                evt.item.style.opacity = '0.5';
+                evt.item.style.pointerEvents = 'none';
+              }, 500);
+            }
+            
+          } catch (error) {
+            showToast('Error updating opportunity: ' + error.message, 'error');
+            // Refresh view to restore original state
+            setTimeout(() => {
+              renderOpportunityPipelineView();
+            }, 1000);
+          }
         }
+      },
+      onMove: function(evt) {
+        // Visual feedback for valid drop zones
+        const toList = evt.to;
+        const fromList = evt.from;
         
-        showToast('Opportunity moved successfully', 'success');
-        
-        // If moved to closed-won, trigger confetti
-        if (newStage === 'closed-won') {
-          triggerConfetti();
+        if (toList !== fromList) {
+          toList.classList.add('valid-drop');
         }
       }
     });
   });
 }
+
+
+function updatePipelineStageCounts() {
+  document.querySelectorAll('.pipeline-stage').forEach(stage => {
+    const stageId = stage.dataset.stage;
+    const opportunities = stage.querySelectorAll('.opportunity-card:not([style*="opacity: 0.5"])');
+    const count = opportunities.length;
+    
+    // Update count badge
+    const countBadge = stage.querySelector('.pipeline-stage-count');
+    if (countBadge) {
+      countBadge.textContent = count;
+    }
+    
+    // Calculate and update total value
+    let totalValue = 0;
+    opportunities.forEach(card => {
+      const valueText = card.querySelector('.opportunity-value')?.textContent;
+      if (valueText) {
+        totalValue += parseFloat(valueText.replace(/[$,]/g, ''));
+      }
+    });
+    
+    const valueElement = stage.querySelector('.pipeline-stage-value');
+    if (valueElement) {
+      valueElement.textContent = `$${totalValue.toLocaleString()}`;
+    }
+  });
+}
+
+
 
 function initOpportunityEventListeners(opportunities) {
   // Add opportunity button
@@ -3548,5 +3627,6 @@ function checkDueReminders() {
   
   localStorage.setItem('opportunityReminders', JSON.stringify(reminders));
 }
+
 
 
