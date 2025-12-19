@@ -3056,7 +3056,7 @@ async function renderOpportunityPipelineView() {
     <div class="pipeline-summary">
       <div class="pipeline-summary-card">
         <div class="pipeline-summary-title">Total Pipeline Value</div>
-        <div class="pipeline-summary-value">$${totalValue.toLocaleString()}</div>
+        <div class="pipeline-summary-value">Ksh ${totalValue.toLocaleString()}</div>
         <div class="pipeline-summary-change">
           <i class="fas fa-arrow-up"></i> 12% from last month
         </div>
@@ -3077,7 +3077,7 @@ async function renderOpportunityPipelineView() {
       </div>
       <div class="pipeline-summary-card">
         <div class="pipeline-summary-title">Won This Month</div>
-        <div class="pipeline-summary-value">$${wonValue.toLocaleString()}</div>
+        <div class="pipeline-summary-value">Ksh ${wonValue.toLocaleString()}</div>
         <div class="pipeline-summary-change">
           <i class="fas fa-arrow-up"></i> 8% from last month
         </div>
@@ -3087,15 +3087,15 @@ async function renderOpportunityPipelineView() {
     <div class="pipeline-header">
       <div class="pipeline-filters">
         <button class="pipeline-filter active" data-filter="all">All Opportunities</button>
-        <button class="pipeline-filter" data-filter="high-value">High Value ($10k+)</button>
+        <button class="pipeline-filter" data-filter="high-value">High Value (Ksh 100k+)</button>
         <button class="pipeline-filter" data-filter="high-probability">High Probability (70%+)</button>
         <button class="pipeline-filter" data-filter="next-step-due">Next Step Due</button>
         ${isManager ? `
-          <button class="pipeline-filter" data-filter="my-reps">My Reps Only</button>
+          <button class="pipeline-filter" data-filter="my-reps">My Only</button>
         ` : ''}
       </div>
       <button class="btn btn-primary" id="add-opportunity-btn">
-        <i class="fas fa-plus"></i> Add Opportunity
+        <i class="fas fa-plus"></i> Add 
       </button>
     </div>
 
@@ -3111,7 +3111,7 @@ async function renderOpportunityPipelineView() {
           <div class="pipeline-stage-title">${stage.title}</div>
           <div class="pipeline-stage-count">${stageData.opportunities.length}</div>
         </div>
-        <div class="pipeline-stage-value">$${stageData.totalValue.toLocaleString()}</div>
+        <div class="pipeline-stage-value">Ksh ${stageData.totalValue.toLocaleString()}</div>
         <div class="opportunity-list" id="opportunities-${stage.id}">
     `;
 
@@ -3137,7 +3137,7 @@ async function renderOpportunityPipelineView() {
               <i class="fas fa-user"></i> ${ownerName}
             </div>
           ` : ''}
-          <div class="opportunity-value">$${parseFloat(opp.value || 0).toLocaleString()}</div>
+          <div class="opportunity-value">Ksh ${parseFloat(opp.value || 0).toLocaleString()}</div>
           
           <div class="opportunity-probability">
             <div class="probability-bar">
@@ -3378,7 +3378,7 @@ function initPipelineFilters() {
         } else if (filter === 'high-value') {
           const valueText = card.querySelector('.opportunity-value').textContent;
           const value = parseFloat(valueText.replace(/[$,]/g, ''));
-          show = value >= 10000;
+          show = value >= 100000;
         } else if (filter === 'high-probability') {
           const probText = card.querySelector('.probability-text').textContent;
           const probability = parseInt(probText.replace('%', ''));
@@ -3497,7 +3497,7 @@ function initOpportunityModalListeners(opportunity) {
     } else {
       companySearchResults.innerHTML = locations.map(loc => `
         <div class="search-result-item" onclick="selectOpportunityCompany('${loc.name}')">
-          <div class="search-result-icon"><i class="fas fa-building"></i></div>
+          <div class="search-result-icon"></div>
           <div>
             <div class="search-result-name">${loc.name}</div>
             <div class="search-result-role">${loc.address}</div>
