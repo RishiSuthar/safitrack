@@ -1285,30 +1285,50 @@ async function loadLocationsList() {
 window.addNewLocation = async function() {
   const name = document.getElementById('new-location-name').value.trim();
   const address = document.getElementById('new-location-address').value.trim();
-  const lat = parseFloat(document.getElementById('new-location-lat').value);
-  const lng = parseFloat(document.getElementById('new-location-lng').value);
   const radius = parseInt(document.getElementById('new-location-radius').value) || 200;
 
-  if (!name || !address || isNaN(lat) || isNaN(lng)) {
-    showToast('Please fill in all fields', 'error');
+  if (!name || !address) {
+    showToast('Please enter location name and address', 'error');
     return;
   }
 
-  const { error } = await supabaseClient.from('locations').insert([{
-    name, address, latitude: lat, longitude: lng, radius
-  }]);
+  // Show loading state
+  const btn = document.querySelector('#locations-modal .btn-primary');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Geocoding...';
 
-  if (error) {
-    showToast('Error: ' + error.message, 'error');
-    return;
+  try {
+    // Auto-geocode the address
+    const geo = await geocodeAddress(address);
+
+    // Auto-fill lat/lng fields (optional, for user visibility)
+    document.getElementById('new-location-lat').value = geo.latitude.toFixed(6);
+    document.getElementById('new-location-lng').value = geo.longitude.toFixed(6);
+
+    // Save to DB
+    const { error } = await supabaseClient.from('locations').insert([{
+      name,
+      address,
+      latitude: geo.latitude,
+      longitude: geo.longitude,
+      radius
+    }]);
+
+    if (error) throw error;
+
+    showToast(`✅ Location added! (${geo.displayName})`, 'success');
+    
+    // Reset & reload
+    document.getElementById('new-location-name').value = '';
+    document.getElementById('new-location-address').value = '';
+    loadLocationsList();
+
+  } catch (err) {
+    showToast(`Geocoding failed: ${err.message}`, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fas fa-plus"></i> Add Location';
   }
-
-  showToast('Location added!', 'success');
-  document.getElementById('new-location-name').value = '';
-  document.getElementById('new-location-address').value = '';
-  document.getElementById('new-location-lat').value = '';
-  document.getElementById('new-location-lng').value = '';
-  loadLocationsList();
 };
 
 window.deleteLocation = async function(id) {

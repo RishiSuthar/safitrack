@@ -121,3 +121,46 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
 
   return R * c; // Distance in meters
 }
+
+
+// GEOCODE ADDRESS → LAT/LNG using OpenStreetMap (Nominatim)
+async function geocodeAddress(address) {
+  if (!address || typeof address !== 'string' || address.trim() === '') {
+    throw new Error('Address is required');
+  }
+
+  const query = encodeURIComponent(address.trim());
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`;
+
+  try {
+    const response = await fetch(url, {
+      headers: {
+        // 🔐 Required by Nominatim's ToS — customize this!
+        'User-Agent': 'SafiTrack-FieldSales/1.0 (https://safitrack.netlify.app/)'
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    
+    if (!Array.isArray(data) || data.length === 0) {
+      throw new Error('No location found for this address');
+    }
+
+    const result = data[0];
+    return {
+      latitude: parseFloat(result.lat),
+      longitude: parseFloat(result.lon),
+      displayName: result.display_name,
+      osmId: result.osm_id,
+      placeId: result.place_id
+    };
+  } catch (error) {
+    console.error('[Geocoding Error]', error);
+    throw error;
+  }
+}
+
