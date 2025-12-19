@@ -765,7 +765,7 @@ function renderVisitCard(visit, showRepName = false) {
       <div class="visit-header">
         <div>
           <div class="visit-company">${visit.company_name}</div>
-          ${showRepName && visit.user ? `<div class="text-muted" style="font-size: 0.8125rem;">by ${visit.user.first_name} ${visit.user.last_name}</div>` : ''}
+          ${showRepName && visit.user ? `<div class="text-prim" style="font-size: 0.9rem;">by ${visit.user.first_name} ${visit.user.last_name}</div>` : ''}
         </div>
         <div class="visit-date">${date}</div>
       </div>
