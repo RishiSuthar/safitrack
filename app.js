@@ -1044,7 +1044,7 @@ async function renderTeamDashboardView() {
     <!-- Recent Team Visits -->
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title"><i class="fas fa-clock"></i> Recent Team Activity</h3>
+        <h3 class="card-title">Recent Team Activity</h3>
       </div>
       <div id="team-visits-container"></div>
     </div>
@@ -1912,7 +1912,7 @@ async function renderRoutePlanningView() {
       <div class="card-header">
         <h3 class="card-title">Create New Route</h3>
         <button class="btn btn-primary" id="create-route-btn">
-          <i class="fas fa-plus"></i> Create Route
+          <i class="fas fa-plus"></i> Create
         </button>
       </div>
       
@@ -1973,10 +1973,7 @@ async function renderRoutePlanningView() {
         
         <div class="form-field">
           <button id="optimize-route-btn" class="btn btn-secondary" disabled>
-            <i class="fas fa-magic"></i> Optimize Route
-          </button>
-          <button id="save-route-btn" class="btn btn-primary" style="display: none;">
-            <i class="fas fa-save"></i> Save Route
+            Continue
           </button>
         </div>
         
@@ -1986,6 +1983,13 @@ async function renderRoutePlanningView() {
           <h4>Route Order</h4>
           <div id="sortable-route" class="sortable-container"></div>
         </div>
+        
+        <div class="form-field">
+          <button id="save-route-btn" class="btn btn-primary" style="display: none;">
+              Save Route
+          </button>
+        </div>
+
       </div>
     </div>
 
@@ -2060,7 +2064,7 @@ function initRouteCreator(locations, salesReps) {
       createBtn.innerHTML = '<i class="fas fa-times"></i> Cancel';
     } else {
       routeCreator.style.display = 'none';
-      createBtn.innerHTML = '<i class="fas fa-plus"></i> Create Route';
+      createBtn.innerHTML = '<i class="fas fa-plus"></i> Create';
       resetRouteCreator();
     }
   });
@@ -2210,7 +2214,7 @@ function initRouteCreator(locations, salesReps) {
       aiRecommendationContent.innerHTML = `
         <p>Based on your selection of <strong>${lastSelected.name}</strong>, the nearest location is <strong>${nearestLocation.name}</strong> (${(shortestDistance/1000).toFixed(2)} km away).</p>
         <button class="btn btn-sm btn-primary" onclick="selectRecommendedLocation('${nearestLocation.id}')">
-          <i class="fas fa-plus"></i> Add to Route
+          <i class="fas fa-plus"></i> Add it!
         </button>
       `;
       
@@ -2248,7 +2252,7 @@ function initRouteCreator(locations, salesReps) {
     
     // Reset button state
     optimizeBtn.disabled = false;
-    optimizeBtn.innerHTML = '<i class="fas fa-magic"></i> Optimize Route';
+    optimizeBtn.innerHTML = 'Continue';
   });
   
   // Save route
@@ -2328,7 +2332,7 @@ function initRouteCreator(locations, salesReps) {
     } catch (error) {
       showToast('Error creating route: ' + error.message, 'error');
       saveBtn.disabled = false;
-      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Route';
+      saveBtn.innerHTML = 'Save Route';
     }
   });
   
