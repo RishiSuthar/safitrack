@@ -177,8 +177,6 @@ async function handleLogin(e) {
   submitBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
 }
 
-
-
 async function handleLogout() {
   await supabaseClient.auth.signOut();
   location.reload();
@@ -347,24 +345,24 @@ async function renderLogVisitView() {
     <div class="card">
       <div class="form-field">
         <label for="company-name">Company Name *</label>
-        <input type="text" id="company-name" placeholder="Enter company name" required />
+        <div class="search-container">
+          <i class="fas fa-search"></i>
+          <input type="text" id="company-name" placeholder="Search for a company..." required />
+          <div id="company-search-results" class="search-results" style="display: none;"></div>
+        </div>
+      </div>
+
+      <div class="form-field" id="selected-location" style="display: none;">
+        <label>Visit Location</label>
+        <div class="selected-location-info">
+          <div id="selected-location-name"></div>
+          <div id="selected-location-address" class="text-muted"></div>
+        </div>
       </div>
 
       <div class="form-field">
         <label for="contact-name">Contact Person</label>
         <input type="text" id="contact-name" placeholder="Client contact name" />
-      </div>
-
-      <div class="form-field">
-        <label for="location-select">Visit Location *</label>
-        <select id="location-select" required>
-          <option value="">Select a location...</option>
-          ${locations ? locations.map(loc => `
-            <option value="${loc.id}" data-lat="${loc.latitude}" data-lng="${loc.longitude}" data-radius="${loc.radius || 200}">
-              ${loc.name} - ${loc.address}
-            </option>
-          `).join('') : '<option value="">No locations available</option>'}
-        </select>
       </div>
 
       <div class="form-field">
@@ -433,9 +431,13 @@ async function renderLogVisitView() {
 }
 
 function initLogVisitForm(locations) {
+  const companyNameInput = document.getElementById('company-name');
+  const companySearchResults = document.getElementById('company-search-results');
+  const selectedLocationDiv = document.getElementById('selected-location');
+  const selectedLocationName = document.getElementById('selected-location-name');
+  const selectedLocationAddress = document.getElementById('selected-location-address');
   const notesEl = document.getElementById('notes');
   const charCountEl = document.getElementById('char-count');
-  const locationSelect = document.getElementById('location-select');
   const verifyLocationBtn = document.getElementById('verify-location');
   const locationStatus = document.getElementById('location-status');
   const locationMapEl = document.getElementById('location-map');
@@ -445,9 +447,42 @@ function initLogVisitForm(locations) {
   const photoPreview = document.getElementById('photo-preview');
   const tagsInput = document.getElementById('tags-input');
 
-  let selectedLocation = null;
   let locationVerified = false;
   let map = null;
+
+  // Store for global access
+  window.locationsData = locations;
+
+  // Company search functionality
+  companyNameInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    
+    if (query.length === 0) {
+      companySearchResults.style.display = 'none';
+      return;
+    }
+
+    const filtered = locations.filter(loc =>
+      loc.name.toLowerCase().includes(query) ||
+      loc.address.toLowerCase().includes(query)
+    );
+
+    if (filtered.length === 0) {
+      companySearchResults.innerHTML = '<div class="search-result-item">No locations found</div>';
+    } else {
+      companySearchResults.innerHTML = filtered.map(loc => `
+        <div class="search-result-item" onclick="selectLocation('${loc.id}')">
+          <div class="search-result-icon"><i class="fas fa-map-marker-alt"></i></div>
+          <div>
+            <div class="search-result-name">${loc.name}</div>
+            <div class="search-result-role">${loc.address}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    companySearchResults.style.display = 'block';
+  });
 
   // Character counter
   notesEl.addEventListener('input', () => {
@@ -478,32 +513,9 @@ function initLogVisitForm(locations) {
     }
   });
 
-  // Location selection
-  locationSelect.addEventListener('change', (e) => {
-    const option = e.target.options[e.target.selectedIndex];
-    if (option.value) {
-      selectedLocation = {
-        id: option.value,
-        name: option.text.split(' - ')[0],
-        address: option.text.split(' - ')[1],
-        lat: parseFloat(option.dataset.lat),
-        lng: parseFloat(option.dataset.lng),
-        radius: parseInt(option.dataset.radius) || 200
-      };
-      verifyLocationBtn.disabled = false;
-      locationVerified = false;
-      submitBtn.disabled = true;
-      locationStatus.style.display = 'none';
-      locationMapEl.style.display = 'none';
-    } else {
-      selectedLocation = null;
-      verifyLocationBtn.disabled = true;
-    }
-  });
-
   // Verify location
   verifyLocationBtn.addEventListener('click', () => {
-    if (!selectedLocation) return;
+    if (!window.selectedLocationData) return;
     if (!navigator.geolocation) {
       showToast('Geolocation not supported', 'error');
       return;
@@ -521,18 +533,18 @@ function initLogVisitForm(locations) {
         const userLng = position.coords.longitude;
         const accuracy = position.coords.accuracy;
 
-        const distance = calculateDistance(userLat, userLng, selectedLocation.lat, selectedLocation.lng);
-        const isWithinRadius = distance <= (selectedLocation.radius + accuracy);
+        const distance = calculateDistance(userLat, userLng, window.selectedLocationData.lat, window.selectedLocationData.lng);
+        const isWithinRadius = distance <= (window.selectedLocationData.radius + accuracy);
 
         if (isWithinRadius) {
           locationStatus.className = 'location-status success';
-          locationStatus.innerHTML = `<i class="fas fa-check-circle"></i> Location verified! You are ${distance.toFixed(0)}m from ${selectedLocation.name}`;
+          locationStatus.innerHTML = `<i class="fas fa-check-circle"></i> Location verified! You are ${distance.toFixed(0)}m from ${window.selectedLocationData.name}`;
           locationVerified = true;
           submitBtn.disabled = false;
-          initVerificationMap(userLat, userLng, selectedLocation);
+          initVerificationMap(userLat, userLng, window.selectedLocationData);
         } else {
           locationStatus.className = 'location-status error';
-          locationStatus.innerHTML = `<i class="fas fa-times-circle"></i> Too far from ${selectedLocation.name}. You are ${distance.toFixed(0)}m away (max: ${selectedLocation.radius}m)`;
+          locationStatus.innerHTML = `<i class="fas fa-times-circle"></i> Too far from ${window.selectedLocationData.name}. You are ${distance.toFixed(0)}m away (max: ${window.selectedLocationData.radius}m)`;
           locationVerified = false;
           submitBtn.disabled = true;
         }
@@ -585,10 +597,10 @@ function initLogVisitForm(locations) {
       return;
     }
 
-    const company = document.getElementById('company-name').value.trim();
+    const company = companyNameInput.value.trim();
     const contact = document.getElementById('contact-name').value.trim();
     const visitType = document.getElementById('visit-type').value;
-    const notes = document.getElementById('notes').value.trim();
+    const notes = notesEl.value.trim();
     const travelTime = document.getElementById('travel-time').value;
     const photoFile = document.getElementById('visit-photo').files[0];
 
@@ -630,10 +642,10 @@ function initLogVisitForm(locations) {
         notes: notes,
         ai_summary: aiSummary,
         lead_score: leadScore,
-        location_name: selectedLocation.name,
-        location_address: selectedLocation.address,
-        latitude: selectedLocation.lat,
-        longitude: selectedLocation.lng,
+        location_name: window.selectedLocationData.name,
+        location_address: window.selectedLocationData.address,
+        latitude: window.selectedLocationData.lat,
+        longitude: window.selectedLocationData.lng,
         photo_url: photoUrl,
         travel_time: travelTime ? parseInt(travelTime) : null,
         tags: visitTags,
@@ -658,6 +670,40 @@ function initLogVisitForm(locations) {
     }
   });
 }
+
+// Add this global function to handle location selection
+window.selectLocation = function(locationId) {
+  const locations = window.locationsData;
+  const location = locations.find(loc => loc.id === locationId);
+  if (!location) return;
+
+  // Update the company name input
+  document.getElementById('company-name').value = location.name;
+  
+  // Show selected location info
+  document.getElementById('selected-location').style.display = 'block';
+  document.getElementById('selected-location-name').textContent = location.name;
+  document.getElementById('selected-location-address').textContent = location.address;
+  
+  // Hide search results
+  document.getElementById('company-search-results').style.display = 'none';
+  
+  // Set selected location data
+  const selectedLocation = {
+    id: location.id,
+    name: location.name,
+    address: location.address,
+    lat: parseFloat(location.latitude),
+    lng: parseFloat(location.longitude),
+    radius: parseInt(location.radius) || 200
+  };
+  
+  // Store it in a way that can be accessed by the event listener
+  window.selectedLocationData = selectedLocation;
+  
+  // Enable verify location button
+  document.getElementById('verify-location').disabled = false;
+};
 
 // ======================
 // MY ACTIVITY VIEW
@@ -858,7 +904,6 @@ async function renderTeamDashboardView() {
     .select('*')
     .order('first_name', { ascending: true });
 
-
   if (profilesError) {
     viewContainer.innerHTML = renderError('Unable to load team data. Please check your permissions: ' + profilesError.message);
     return;
@@ -878,8 +923,6 @@ async function renderTeamDashboardView() {
 
   const { data: visits, error: visitsError } = visitsResult;
   const { data: locations } = locationsResult;
-
-
 
   if (visitsError) {
     viewContainer.innerHTML = renderError(visitsError.message);
@@ -918,8 +961,6 @@ async function renderTeamDashboardView() {
 
   const salesReps = Object.values(users);
   const totalVisits = visitsWithProfiles.length;
-  
-
   const totalReps = salesReps.length;
   const avgVisitsPerRep = totalReps > 0 ? (totalVisits / totalReps).toFixed(1) : 0;
   
