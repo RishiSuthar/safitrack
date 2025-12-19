@@ -297,6 +297,9 @@ async function loadView(viewName) {
     case 'sales-funnel':
       await renderSalesFunnelView();
       break;
+    case 'opportunity-pipeline':
+      await renderOpportunityPipelineView();
+      break;
     case 'team-dashboard':
       if (isManager) {
         await renderTeamDashboardView();
@@ -324,6 +327,8 @@ async function loadView(viewName) {
     default:
       viewContainer.innerHTML = renderNotFound();
   }
+  checkDueReminders();
+
 }
 
 // ======================
@@ -2966,3 +2971,582 @@ async function completeRoute(routeId) {
     showToast('Error completing route: ' + error.message, 'error');
   }
 }
+
+
+async function renderOpportunityPipelineView() {
+  const { data: opportunities, error } = await supabaseClient
+    .from('opportunities')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    viewContainer.innerHTML = renderError(error.message);
+    return;
+  }
+
+  // Define pipeline stages
+  const pipelineStages = [
+    { id: 'prospecting', title: 'Prospecting', color: '#6b7280' },
+    { id: 'qualification', title: 'Qualification', color: '#3b82f6' },
+    { id: 'proposal', title: 'Proposal', color: '#8b5cf6' },
+    { id: 'negotiation', title: 'Negotiation', color: '#f59e0b' },
+    { id: 'closed-won', title: 'Closed Won', color: '#10b981' },
+    { id: 'closed-lost', title: 'Closed Lost', color: '#ef4444' }
+  ];
+
+  // Group opportunities by stage
+  const opportunitiesByStage = {};
+  pipelineStages.forEach(stage => {
+    opportunitiesByStage[stage.id] = {
+      ...stage,
+      opportunities: opportunities.filter(opp => opp.stage === stage.id),
+      totalValue: opportunities
+        .filter(opp => opp.stage === stage.id)
+        .reduce((sum, opp) => sum + parseFloat(opp.value || 0), 0)
+    };
+  });
+
+  // Calculate pipeline summary
+  const totalValue = opportunities.reduce((sum, opp) => sum + parseFloat(opp.value || 0), 0);
+  const avgProbability = opportunities.length > 0 
+    ? opportunities.reduce((sum, opp) => sum + parseInt(opp.probability || 0), 0) / opportunities.length 
+    : 0;
+  const wonValue = opportunitiesByStage['closed-won'].totalValue;
+  const lostValue = opportunitiesByStage['closed-lost'].totalValue;
+  const activeValue = totalValue - wonValue - lostValue;
+
+  let html = `
+    <div class="page-header">
+      <h1 class="page-title">Opportunity Pipeline</h1>
+      <p class="page-subtitle">${opportunities.length} active opportunities</p>
+    </div>
+
+    <div class="pipeline-summary">
+      <div class="pipeline-summary-card">
+        <div class="pipeline-summary-title">Total Pipeline Value</div>
+        <div class="pipeline-summary-value">$${totalValue.toLocaleString()}</div>
+        <div class="pipeline-summary-change">
+          <i class="fas fa-arrow-up"></i> 12% from last month
+        </div>
+      </div>
+      <div class="pipeline-summary-card">
+        <div class="pipeline-summary-title">Active Opportunities</div>
+        <div class="pipeline-summary-value">${opportunities.filter(opp => opp.stage !== 'closed-won' && opp.stage !== 'closed-lost').length}</div>
+        <div class="pipeline-summary-change">
+          <i class="fas fa-arrow-up"></i> 3 new this week
+        </div>
+      </div>
+      <div class="pipeline-summary-card">
+        <div class="pipeline-summary-title">Avg. Win Probability</div>
+        <div class="pipeline-summary-value">${Math.round(avgProbability)}%</div>
+        <div class="pipeline-summary-change negative">
+          <i class="fas fa-arrow-down"></i> 5% from last month
+        </div>
+      </div>
+      <div class="pipeline-summary-card">
+        <div class="pipeline-summary-title">Won This Month</div>
+        <div class="pipeline-summary-value">$${wonValue.toLocaleString()}</div>
+        <div class="pipeline-summary-change">
+          <i class="fas fa-arrow-up"></i> 8% from last month
+        </div>
+      </div>
+    </div>
+
+    <div class="pipeline-header">
+      <div class="pipeline-filters">
+        <button class="pipeline-filter active" data-filter="all">All Opportunities</button>
+        <button class="pipeline-filter" data-filter="high-value">High Value ($10k+)</button>
+        <button class="pipeline-filter" data-filter="high-probability">High Probability (70%+)</button>
+        <button class="pipeline-filter" data-filter="next-step-due">Next Step Due</button>
+      </div>
+      <button class="btn btn-primary" id="add-opportunity-btn">
+        <i class="fas fa-plus"></i> Add Opportunity
+      </button>
+    </div>
+
+    <div class="pipeline-stages">
+  `;
+
+  // Render pipeline stages
+  pipelineStages.forEach(stage => {
+    const stageData = opportunitiesByStage[stage.id];
+    html += `
+      <div class="pipeline-stage" data-stage="${stage.id}">
+        <div class="pipeline-stage-header">
+          <div class="pipeline-stage-title">${stage.title}</div>
+          <div class="pipeline-stage-count">${stageData.opportunities.length}</div>
+        </div>
+        <div class="pipeline-stage-value">$${stageData.totalValue.toLocaleString()}</div>
+        <div class="opportunity-list" id="opportunities-${stage.id}">
+    `;
+
+    // Render opportunities in this stage
+    stageData.opportunities.forEach(opp => {
+      const isOverdue = opp.next_step_date && new Date(opp.next_step_date) < new Date();
+      const competitors = opp.competitors ? JSON.parse(opp.competitors) : [];
+      
+      html += `
+        <div class="opportunity-card" data-id="${opp.id}" draggable="true">
+          <div class="opportunity-company">${opp.company_name}</div>
+          <div class="opportunity-name">${opp.name}</div>
+          <div class="opportunity-value">$${parseFloat(opp.value || 0).toLocaleString()}</div>
+          
+          <div class="opportunity-probability">
+            <div class="probability-bar">
+              <div class="probability-fill" style="width: ${opp.probability || 0}%; background-color: ${getProbabilityColor(opp.probability || 0)}"></div>
+            </div>
+            <div class="probability-text">${opp.probability || 0}%</div>
+          </div>
+          
+          ${opp.next_step ? `
+            <div class="opportunity-next-step ${isOverdue ? 'overdue' : ''}">
+              <i class="fas fa-clock"></i>
+              <span>${opp.next_step}</span>
+              ${opp.next_step_date ? `<span> (${formatDate(opp.next_step_date)})</span>` : ''}
+            </div>
+          ` : ''}
+          
+          ${competitors.length > 0 ? `
+            <div class="opportunity-competitors">
+              ${competitors.slice(0, 2).map(comp => `
+                <span class="competitor-tag">${comp}</span>
+              `).join('')}
+              ${competitors.length > 2 ? `<span class="competitor-tag">+${competitors.length - 2} more</span>` : ''}
+            </div>
+          ` : ''}
+          
+          <div class="opportunity-actions">
+            <div class="opportunity-date">${formatDate(opp.created_at)}</div>
+            <div class="opportunity-menu">
+              <button class="opportunity-action-btn edit-opportunity" data-id="${opp.id}">
+                <i class="fas fa-edit"></i>
+              </button>
+              <button class="opportunity-action-btn delete-opportunity" data-id="${opp.id}">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `
+        </div>
+      </div>
+    `;
+  });
+
+  html += `</div>`;
+
+  viewContainer.innerHTML = html;
+
+  // Initialize drag and drop
+  initPipelineDragAndDrop();
+
+  // Initialize event listeners
+  initOpportunityEventListeners(opportunities);
+
+  // Initialize filters
+  initPipelineFilters();
+}
+
+function initPipelineDragAndDrop() {
+  const opportunityLists = document.querySelectorAll('.opportunity-list');
+  
+  opportunityLists.forEach(list => {
+    new Sortable(list, {
+      group: 'pipeline',
+      animation: 150,
+      ghostClass: 'dragging',
+      onEnd: async function(evt) {
+        const opportunityId = evt.item.dataset.id;
+        const newStage = evt.to.closest('.pipeline-stage').dataset.stage;
+        
+        // Update opportunity stage in database
+        const { error } = await supabaseClient
+          .from('opportunities')
+          .update({ stage: newStage })
+          .eq('id', opportunityId);
+        
+        if (error) {
+          showToast('Error updating opportunity: ' + error.message, 'error');
+          // Refresh view to restore original state
+          renderOpportunityPipelineView();
+          return;
+        }
+        
+        showToast('Opportunity moved successfully', 'success');
+        
+        // If moved to closed-won, trigger confetti
+        if (newStage === 'closed-won') {
+          triggerConfetti();
+        }
+      }
+    });
+  });
+}
+
+function initOpportunityEventListeners(opportunities) {
+  // Add opportunity button
+  document.getElementById('add-opportunity-btn')?.addEventListener('click', () => {
+    openOpportunityModal();
+  });
+
+  // Edit opportunity buttons
+  document.querySelectorAll('.edit-opportunity').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const opportunityId = btn.dataset.id;
+      const opportunity = opportunities.find(opp => opp.id === opportunityId);
+      if (opportunity) {
+        openOpportunityModal(opportunity);
+      }
+    });
+  });
+
+  // Delete opportunity buttons
+  document.querySelectorAll('.delete-opportunity').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const opportunityId = btn.dataset.id;
+      
+      if (confirm('Are you sure you want to delete this opportunity?')) {
+        const { error } = await supabaseClient
+          .from('opportunities')
+          .delete()
+          .eq('id', opportunityId);
+        
+        if (error) {
+          showToast('Error deleting opportunity: ' + error.message, 'error');
+          return;
+        }
+        
+        showToast('Opportunity deleted successfully', 'success');
+        renderOpportunityPipelineView();
+      }
+    });
+  });
+
+  // Click on opportunity card to view details
+  document.querySelectorAll('.opportunity-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const opportunityId = card.dataset.id;
+      const opportunity = opportunities.find(opp => opp.id === opportunityId);
+      if (opportunity) {
+        openOpportunityModal(opportunity, true); // true = read-only mode
+      }
+    });
+  });
+}
+
+function initPipelineFilters() {
+  const filterButtons = document.querySelectorAll('.pipeline-filter');
+  
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Update active state
+      filterButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      const filter = btn.dataset.filter;
+      
+      // Apply filter
+      document.querySelectorAll('.opportunity-card').forEach(card => {
+        let show = true;
+        
+        if (filter === 'high-value') {
+          const valueText = card.querySelector('.opportunity-value').textContent;
+          const value = parseFloat(valueText.replace(/[$,]/g, ''));
+          show = value >= 10000;
+        } else if (filter === 'high-probability') {
+          const probText = card.querySelector('.probability-text').textContent;
+          const probability = parseInt(probText.replace('%', ''));
+          show = probability >= 70;
+        } else if (filter === 'next-step-due') {
+          show = !!card.querySelector('.opportunity-next-step');
+        }
+        
+        card.style.display = show ? 'block' : 'none';
+      });
+    });
+  });
+}
+
+function openOpportunityModal(opportunity = null, readOnly = false) {
+  const modal = document.getElementById('opportunity-modal');
+  const modalTitle = document.getElementById('opportunity-modal-title');
+  const saveBtn = document.getElementById('save-opportunity-btn');
+  
+  // Reset form
+  document.getElementById('opportunity-name').value = '';
+  document.getElementById('opportunity-company').value = '';
+  document.getElementById('opportunity-value').value = '';
+  document.getElementById('opportunity-probability').value = 50;
+  document.getElementById('probability-display').textContent = '50';
+  document.getElementById('opportunity-stage').value = 'prospecting';
+  document.getElementById('opportunity-next-step').value = '';
+  document.getElementById('opportunity-next-step-date').value = '';
+  document.getElementById('opportunity-notes').value = '';
+  
+  // Clear competitors
+  document.getElementById('competitors-container').innerHTML = '<input type="text" class="competitors-input" id="competitors-input" placeholder="Add competitor...">';
+  
+  // Set modal title
+  if (opportunity) {
+    modalTitle.innerHTML = readOnly 
+      ? `<i class="fas fa-chart-line"></i> ${opportunity.name}`
+      : `<i class="fas fa-edit"></i> Edit Opportunity`;
+    
+    // Fill form with opportunity data
+    document.getElementById('opportunity-name').value = opportunity.name || '';
+    document.getElementById('opportunity-company').value = opportunity.company_name || '';
+    document.getElementById('opportunity-value').value = opportunity.value || '';
+    document.getElementById('opportunity-probability').value = opportunity.probability || 50;
+    document.getElementById('probability-display').textContent = opportunity.probability || 50;
+    document.getElementById('opportunity-stage').value = opportunity.stage || 'prospecting';
+    document.getElementById('opportunity-next-step').value = opportunity.next_step || '';
+    document.getElementById('opportunity-next-step-date').value = opportunity.next_step_date || '';
+    document.getElementById('opportunity-notes').value = opportunity.notes || '';
+    
+    // Add competitors
+    if (opportunity.competitors) {
+      const competitors = JSON.parse(opportunity.competitors);
+      competitors.forEach(comp => addCompetitor(comp));
+    }
+    
+    // Set read-only mode if needed
+    if (readOnly) {
+      document.querySelectorAll('#opportunity-modal input, #opportunity-modal select, #opportunity-modal textarea').forEach(el => {
+        el.disabled = true;
+      });
+      saveBtn.style.display = 'none';
+    } else {
+      document.querySelectorAll('#opportunity-modal input, #opportunity-modal select, #opportunity-modal textarea').forEach(el => {
+        el.disabled = false;
+      });
+      saveBtn.style.display = 'block';
+    }
+  } else {
+    modalTitle.innerHTML = '<i class="fas fa-plus"></i> New Opportunity';
+    document.querySelectorAll('#opportunity-modal input, #opportunity-modal select, #opportunity-modal textarea').forEach(el => {
+      el.disabled = false;
+    });
+    saveBtn.style.display = 'block';
+  }
+  
+  // Show modal
+  modal.style.display = 'flex';
+  
+  // Initialize event listeners
+  initOpportunityModalListeners(opportunity);
+}
+
+function initOpportunityModalListeners(opportunity) {
+  // Probability slider
+  const probabilitySlider = document.getElementById('opportunity-probability');
+  const probabilityDisplay = document.getElementById('probability-display');
+  
+  probabilitySlider.addEventListener('input', () => {
+    probabilityDisplay.textContent = probabilitySlider.value;
+  });
+  
+  // Company search
+  const companyInput = document.getElementById('opportunity-company');
+  const companySearchResults = document.getElementById('opportunity-company-search-results');
+  
+  companyInput.addEventListener('input', async (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    
+    if (query.length === 0) {
+      companySearchResults.style.display = 'none';
+      return;
+    }
+    
+    // Fetch locations for company search
+    const { data: locations } = await supabaseClient
+      .from('locations')
+      .select('*')
+      .ilike('name', `%${query}%`)
+      .limit(5);
+    
+    if (locations.length === 0) {
+      companySearchResults.innerHTML = '<div class="search-result-item">No companies found</div>';
+    } else {
+      companySearchResults.innerHTML = locations.map(loc => `
+        <div class="search-result-item" onclick="selectOpportunityCompany('${loc.name}')">
+          <div class="search-result-icon"><i class="fas fa-building"></i></div>
+          <div>
+            <div class="search-result-name">${loc.name}</div>
+            <div class="search-result-role">${loc.address}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    companySearchResults.style.display = 'block';
+  });
+  
+  // Competitors input
+  const competitorsInput = document.getElementById('competitors-input');
+  
+  competitorsInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && competitorsInput.value.trim()) {
+      e.preventDefault();
+      addCompetitor(competitorsInput.value.trim());
+      competitorsInput.value = '';
+    }
+  });
+  
+  // Save opportunity
+  const saveBtn = document.getElementById('save-opportunity-btn');
+  
+  saveBtn.onclick = async () => {
+    const name = document.getElementById('opportunity-name').value.trim();
+    const companyName = document.getElementById('opportunity-company').value.trim();
+    const value = document.getElementById('opportunity-value').value;
+    const probability = document.getElementById('opportunity-probability').value;
+    const stage = document.getElementById('opportunity-stage').value;
+    const nextStep = document.getElementById('opportunity-next-step').value.trim();
+    const nextStepDate = document.getElementById('opportunity-next-step-date').value;
+    const notes = document.getElementById('opportunity-notes').value.trim();
+    
+    // Get competitors
+    const competitorTags = document.querySelectorAll('.competitor-tag');
+    const competitors = Array.from(competitorTags).map(tag => 
+      tag.textContent.replace('×', '').trim()
+    );
+    
+    // Validate
+    if (!name || !companyName || !value) {
+      showToast('Please fill in all required fields', 'error');
+      return;
+    }
+    
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    
+    try {
+      const opportunityData = {
+        user_id: currentUser.id,
+        name,
+        company_name: companyName,
+        value,
+        probability,
+        stage,
+        next_step: nextStep || null,
+        next_step_date: nextStepDate || null,
+        notes: notes || null,
+        competitors: competitors.length > 0 ? JSON.stringify(competitors) : null
+      };
+      
+      let result;
+      
+      if (opportunity) {
+        // Update existing opportunity
+        result = await supabaseClient
+          .from('opportunities')
+          .update(opportunityData)
+          .eq('id', opportunity.id);
+      } else {
+        // Create new opportunity
+        result = await supabaseClient
+          .from('opportunities')
+          .insert([opportunityData]);
+      }
+      
+      if (result.error) throw result.error;
+      
+      showToast(`Opportunity ${opportunity ? 'updated' : 'created'} successfully!`, 'success');
+      closeModal('opportunity-modal');
+      renderOpportunityPipelineView();
+      
+      // Set reminder for next step if date is provided
+      if (nextStepDate) {
+        scheduleNextStepReminder(name, nextStep, nextStepDate);
+      }
+    } catch (error) {
+      showToast(`Error ${opportunity ? 'updating' : 'creating'} opportunity: ${error.message}`, 'error');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Opportunity';
+    }
+  };
+}
+
+function addCompetitor(name) {
+  const container = document.getElementById('competitors-container');
+  const input = document.getElementById('competitors-input');
+  
+  // Check if competitor already exists
+  const existingTags = container.querySelectorAll('.competitor-tag');
+  for (const tag of existingTags) {
+    if (tag.textContent.replace('×', '').trim() === name) {
+      return; // Already exists
+    }
+  }
+  
+  // Create competitor tag
+  const tag = document.createElement('span');
+  tag.className = 'competitor-tag';
+  tag.innerHTML = `
+    ${name}
+    <span class="remove" onclick="removeCompetitor(this)">×</span>
+  `;
+  
+  // Insert before input
+  container.insertBefore(tag, input);
+}
+
+window.removeCompetitor = function(element) {
+  element.parentElement.remove();
+};
+
+window.selectOpportunityCompany = function(name) {
+  document.getElementById('opportunity-company').value = name;
+  document.getElementById('opportunity-company-search-results').style.display = 'none';
+};
+
+function getProbabilityColor(probability) {
+  if (probability >= 70) return 'var(--color-success)';
+  if (probability >= 40) return 'var(--color-warning)';
+  return 'var(--color-danger)';
+}
+
+function scheduleNextStepReminder(opportunityName, nextStep, dueDate) {
+  // In a real implementation, this would set up a notification system
+  // For now, we'll just store the reminder in localStorage
+  const reminders = JSON.parse(localStorage.getItem('opportunityReminders') || '[]');
+  
+  reminders.push({
+    opportunityName,
+    nextStep,
+    dueDate,
+    acknowledged: false
+  });
+  
+  localStorage.setItem('opportunityReminders', JSON.stringify(reminders));
+  
+  // Check if reminder is due today
+  const today = new Date().toISOString().split('T')[0];
+  if (dueDate === today) {
+    showToast(`Reminder: ${nextStep} for ${opportunityName} is due today!`, 'info');
+  }
+}
+
+function checkDueReminders() {
+  // Check for due reminders on app load
+  const reminders = JSON.parse(localStorage.getItem('opportunityReminders') || '[]');
+  const today = new Date().toISOString().split('T')[0];
+  
+  reminders.forEach(reminder => {
+    if (!reminder.acknowledged && reminder.dueDate === today) {
+      showToast(`Reminder: ${reminder.nextStep} for ${reminder.opportunityName} is due today!`, 'info');
+      reminder.acknowledged = true;
+    }
+  });
+  
+  localStorage.setItem('opportunityReminders', JSON.stringify(reminders));
+}
+
+

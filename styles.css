@@ -2475,3 +2475,378 @@ select {
   color: var(--text-secondary);
   line-height: 1.5;
 }
+
+
+
+/* ===== OPPORTUNITY PIPELINE ===== */
+.opportunity-pipeline-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.pipeline-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.pipeline-filters {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pipeline-filter {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.pipeline-filter:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.pipeline-filter.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: white;
+}
+
+.pipeline-stages {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.pipeline-stage {
+  flex: 0 0 280px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.pipeline-stage-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.pipeline-stage-title {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+}
+
+.pipeline-stage-count {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-full);
+}
+
+.pipeline-stage-value {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+}
+
+.opportunity-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  margin-bottom: 0.75rem;
+}
+
+.opportunity-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.opportunity-card.dragging {
+  opacity: 0.5;
+}
+
+.opportunity-company {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.opportunity-value {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-success);
+  margin-bottom: 0.5rem;
+}
+
+.opportunity-probability {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.probability-bar {
+  flex: 1;
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.probability-fill {
+  height: 100%;
+  background: var(--color-success);
+  border-radius: var(--radius-full);
+}
+
+.probability-text {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-width: 35px;
+  text-align: right;
+}
+
+.opportunity-next-step {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.opportunity-next-step i {
+  color: var(--color-warning);
+}
+
+.opportunity-next-step.overdue {
+  color: var(--color-danger);
+}
+
+.opportunity-next-step.overdue i {
+  color: var(--color-danger);
+}
+
+.opportunity-competitors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-bottom: 0.5rem;
+}
+
+.competitor-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: var(--radius-full);
+}
+
+.opportunity-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.5rem;
+}
+
+.opportunity-date {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.opportunity-menu {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.opportunity-action-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0.25rem;
+  border-radius: var(--radius-sm);
+  transition: var(--transition-fast);
+}
+
+.opportunity-action-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+/* Probability Slider */
+.probability-slider-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.probability-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-full);
+  outline: none;
+}
+
+.probability-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+
+.probability-slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  border: none;
+}
+
+.probability-value {
+  min-width: 40px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--color-primary);
+}
+
+/* Competitors Input */
+.competitors-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  min-height: 48px;
+  align-items: center;
+}
+
+.competitors-input {
+  flex: 1;
+  min-width: 120px;
+  border: none;
+  background: none;
+  padding: 0.25rem;
+  font-size: 0.9375rem;
+}
+
+.competitors-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.competitor-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: var(--radius-full);
+}
+
+.competitor-tag .remove {
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+/* Pipeline Summary */
+.pipeline-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.pipeline-summary-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.pipeline-summary-title {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.pipeline-summary-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.pipeline-summary-change {
+  font-size: 0.75rem;
+  color: var(--color-success);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.pipeline-summary-change.negative {
+  color: var(--color-danger);
+}
+
+/* Responsive adjustments for pipeline */
+@media (max-width: 767px) {
+  .pipeline-stages {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .pipeline-stage {
+    flex: 1;
+  }
+  
+  .pipeline-filters {
+    flex-direction: column;
+  }
+  
+  .pipeline-filter {
+    width: 100%;
+  }
+}
+
