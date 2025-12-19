@@ -350,7 +350,7 @@ async function renderLogVisitView() {
 
     <div class="card">
       <div class="form-field">
-        <label for="company-name">Company Name *</label>
+        <label for="company-name">Location Name *</label>
         <div class="search-container">
           <i class="fas fa-search"></i>
           <input type="text" id="company-name" placeholder="Search for a company..." required />
@@ -1014,15 +1014,6 @@ async function renderTeamDashboardView() {
       </div>
     </div>
 
-    <!-- Search for Sales Rep -->
-    <div class="card">
-      <div class="search-container">
-        <i class="fas fa-search"></i>
-        <input type="text" id="rep-search-input" placeholder="Search for a sales rep...">
-        <div id="rep-search-results" class="search-results" style="display: none;"></div>
-      </div>
-    </div>
-
     <!-- Selected Rep's Visits -->
     <div id="selected-rep-visits" style="display: none;">
       <div class="card">
@@ -1040,6 +1031,19 @@ async function renderTeamDashboardView() {
     <div class="chart-container">
       <canvas id="performanceChart"></canvas>
     </div>
+
+
+        <!-- Search for Sales Rep -->
+    <div class="card">
+      <div class="search-container">
+        <i class="fas fa-search"></i>
+        <input type="text" id="rep-search-input" placeholder="Search for a sales rep...">
+        <div id="rep-search-results" class="search-results" style="display: none;"></div>
+      </div>
+    </div>
+
+
+
 
     <!-- Recent Team Visits -->
     <div class="card">
@@ -1254,7 +1258,7 @@ window.showManageLocationsModal = async function() {
     <div class="modal-backdrop" onclick="closeModal('locations-modal')"></div>
     <div class="modal-container" style="max-width: 600px;">
       <div class="modal-header">
-        <h3><i class="fas fa-map-marker-alt"></i> Manage Locations</h3>
+        <h3>Manage Locations</h3>
         <button class="modal-close" onclick="closeModal('locations-modal')">
           <i class="fas fa-times"></i>
         </button>
@@ -1985,9 +1989,9 @@ async function renderRoutePlanningView() {
         </div>
         
         <div class="form-field">
-          <button id="save-route-btn" class="btn btn-primary" style="display: none;">
-              Save Route
-          </button>
+        <button id="save-route-btn" class="btn btn-primary" style="display: none;">
+            Save Route
+        </button>
         </div>
 
       </div>
@@ -3595,7 +3599,7 @@ function initOpportunityModalListeners(opportunity) {
       showToast(`Error ${opportunity ? 'updating' : 'creating'} opportunity: ${error.message}`, 'error');
     } finally {
       saveBtn.disabled = false;
-      saveBtn.innerHTML = '<i class="fas fa-save"></i> Save Opportunity';
+      saveBtn.innerHTML = 'Save Opportunity';
     }
   };
 }

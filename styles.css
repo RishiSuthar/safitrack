@@ -1353,6 +1353,7 @@ select {
 .modal-container {
   position: relative;
   width: 100%;
+  margin-bottom: 25px;
   max-height: 90vh;
   background: var(--bg-primary);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
