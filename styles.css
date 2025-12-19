@@ -2883,3 +2883,37 @@ select {
   }
 }
 
+
+
+/* ===== OPPORTUNITY OWNER STYLES ===== */
+.opportunity-owner {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.opportunity-card.readonly {
+  opacity: 0.8;
+  border-color: var(--border-color-light);
+  cursor: not-allowed !important;
+}
+
+.opportunity-card.readonly:hover {
+  border-color: var(--border-color-light) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.opportunity-card.readonly .opportunity-action-btn {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.opportunity-card.readonly .opportunity-action-btn:hover {
+  background: transparent;
+  color: var(--text-muted);
+}
+

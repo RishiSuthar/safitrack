@@ -2974,11 +2974,39 @@ async function completeRoute(routeId) {
 }
 
 async function renderOpportunityPipelineView() {
-  const { data: opportunities, error } = await supabaseClient
-    .from('opportunities')
-    .select('*')
-    .eq('user_id', currentUser.id)
-    .order('created_at', { ascending: false });
+  let opportunities;
+  let error;
+  
+  if (isManager) {
+    // Managers can see all opportunities with user info
+    // Using explicit join syntax instead of relationship syntax
+    const result = await supabaseClient
+      .from('opportunities')
+      .select(`
+        *,
+        profiles!inner(
+          id,
+          first_name,
+          last_name,
+          email,
+          role
+        )
+      `)
+      .order('created_at', { ascending: false });
+    
+    opportunities = result.data;
+    error = result.error;
+  } else {
+    // Sales reps only see their own opportunities
+    const result = await supabaseClient
+      .from('opportunities')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+    
+    opportunities = result.data;
+    error = result.error;
+  }
 
   if (error) {
     viewContainer.innerHTML = renderError(error.message);
@@ -3019,7 +3047,10 @@ async function renderOpportunityPipelineView() {
   let html = `
     <div class="page-header">
       <h1 class="page-title">Opportunity Pipeline</h1>
-      <p class="page-subtitle">${opportunities.length} active opportunities</p>
+      <p class="page-subtitle">
+        ${opportunities.length} ${isManager ? 'total' : 'active'} opportunities
+        ${isManager ? '<span class="text-muted"> (Team View)</span>' : ''}
+      </p>
     </div>
 
     <div class="pipeline-summary">
@@ -3059,6 +3090,9 @@ async function renderOpportunityPipelineView() {
         <button class="pipeline-filter" data-filter="high-value">High Value ($10k+)</button>
         <button class="pipeline-filter" data-filter="high-probability">High Probability (70%+)</button>
         <button class="pipeline-filter" data-filter="next-step-due">Next Step Due</button>
+        ${isManager ? `
+          <button class="pipeline-filter" data-filter="my-reps">My Reps Only</button>
+        ` : ''}
       </div>
       <button class="btn btn-primary" id="add-opportunity-btn">
         <i class="fas fa-plus"></i> Add Opportunity
@@ -3085,11 +3119,24 @@ async function renderOpportunityPipelineView() {
     stageData.opportunities.forEach(opp => {
       const isOverdue = opp.next_step_date && new Date(opp.next_step_date) < new Date();
       const competitors = opp.competitors ? JSON.parse(opp.competitors) : [];
+      const isOwnOpportunity = !isManager || opp.user_id === currentUser.id;
+      
+      // Get user info from the joined data
+      const user = opp.profiles;
+      const ownerName = user ? `${user.first_name} ${user.last_name}` : 'Unknown';
       
       html += `
-        <div class="opportunity-card" data-id="${opp.id}" draggable="true">
+        <div class="opportunity-card ${!isOwnOpportunity ? 'readonly' : ''}" 
+             data-id="${opp.id}" 
+             data-user-id="${opp.user_id}"
+             draggable="${isOwnOpportunity}">
           <div class="opportunity-company">${opp.company_name}</div>
           <div class="opportunity-name">${opp.name}</div>
+          ${isManager && user ? `
+            <div class="opportunity-owner">
+              <i class="fas fa-user"></i> ${ownerName}
+            </div>
+          ` : ''}
           <div class="opportunity-value">$${parseFloat(opp.value || 0).toLocaleString()}</div>
           
           <div class="opportunity-probability">
@@ -3119,12 +3166,18 @@ async function renderOpportunityPipelineView() {
           <div class="opportunity-actions">
             <div class="opportunity-date">${formatDate(opp.created_at)}</div>
             <div class="opportunity-menu">
-              <button class="opportunity-action-btn edit-opportunity" data-id="${opp.id}">
-                <i class="fas fa-edit"></i>
-              </button>
-              <button class="opportunity-action-btn delete-opportunity" data-id="${opp.id}">
-                <i class="fas fa-trash"></i>
-              </button>
+              ${isOwnOpportunity ? `
+                <button class="opportunity-action-btn edit-opportunity" data-id="${opp.id}">
+                  <i class="fas fa-edit"></i>
+                </button>
+                <button class="opportunity-action-btn delete-opportunity" data-id="${opp.id}">
+                  <i class="fas fa-trash"></i>
+                </button>
+              ` : `
+                <button class="opportunity-action-btn view-opportunity" data-id="${opp.id}">
+                  <i class="fas fa-eye"></i>
+                </button>
+              `}
             </div>
           </div>
         </div>
@@ -3150,91 +3203,62 @@ async function renderOpportunityPipelineView() {
 }
 
 
-
-
 function initPipelineDragAndDrop() {
   const opportunityLists = document.querySelectorAll('.opportunity-list');
+  
+  if (typeof Sortable === 'undefined') {
+    console.error('Sortable.js library is not loaded!');
+    showToast('Drag-and-drop functionality requires Sortable.js library', 'error');
+    return;
+  }
   
   opportunityLists.forEach(list => {
     new Sortable(list, {
       group: 'pipeline',
       animation: 150,
-      ghostClass: 'dragging',
-      dragClass: 'dragging-active',
-      forceFallback: false, // Use HTML5 drag/drop
-      fallbackOnBody: true,
-      swapThreshold: 0.65,
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      dragClass: 'sortable-drag',
+      filter: '.readonly, .opportunity-actions', // Prevent dragging readonly cards or action buttons
       onStart: function(evt) {
-        // Add dragging class to the item
         evt.item.classList.add('dragging');
-        
-        // Add visual feedback to all lists
-        opportunityLists.forEach(l => {
-          l.classList.add('drag-over');
-        });
       },
-      onEnd: async function(evt) {
-        // Remove dragging classes
+      onEnd: function(evt) {
         evt.item.classList.remove('dragging');
-        opportunityLists.forEach(l => {
-          l.classList.remove('drag-over');
-        });
-        
+      },
+      onAdd: async function(evt) {
         const opportunityId = evt.item.dataset.id;
         const newStage = evt.to.closest('.pipeline-stage').dataset.stage;
         const oldStage = evt.from.closest('.pipeline-stage').dataset.stage;
         
-        // Only update if stage actually changed
+        // Only update if stage changed
         if (newStage !== oldStage) {
           try {
-            // Update opportunity stage in database
             const { error } = await supabaseClient
               .from('opportunities')
-              .update({ stage: newStage, updated_at: new Date().toISOString() })
+              .update({ 
+                stage: newStage, 
+                updated_at: new Date().toISOString() 
+              })
               .eq('id', opportunityId);
             
             if (error) throw error;
             
             showToast('Opportunity moved successfully', 'success');
             
-            // If moved to closed-won, trigger confetti
-            if (newStage === 'closed-won') {
-              triggerConfetti();
-            }
-            
-            // Update stage counts and values
+            // Update stage counts
             updatePipelineStageCounts();
-            
-            // If moved to closed-lost or closed-won, remove from active stages
-            if (newStage === 'closed-lost' || newStage === 'closed-won') {
-              setTimeout(() => {
-                evt.item.style.opacity = '0.5';
-                evt.item.style.pointerEvents = 'none';
-              }, 500);
-            }
             
           } catch (error) {
             showToast('Error updating opportunity: ' + error.message, 'error');
-            // Refresh view to restore original state
-            setTimeout(() => {
-              renderOpportunityPipelineView();
-            }, 1000);
+            // Move item back to original position on error
+            evt.from.appendChild(evt.item);
           }
-        }
-      },
-      onMove: function(evt) {
-        // Visual feedback for valid drop zones
-        const toList = evt.to;
-        const fromList = evt.from;
-        
-        if (toList !== fromList) {
-          toList.classList.add('valid-drop');
         }
       }
     });
   });
 }
-
 
 function updatePipelineStageCounts() {
   document.querySelectorAll('.pipeline-stage').forEach(stage => {
@@ -3265,7 +3289,6 @@ function updatePipelineStageCounts() {
 }
 
 
-
 function initOpportunityEventListeners(opportunities) {
   // Add opportunity button
   document.getElementById('add-opportunity-btn')?.addEventListener('click', () => {
@@ -3280,6 +3303,18 @@ function initOpportunityEventListeners(opportunities) {
       const opportunity = opportunities.find(opp => opp.id === opportunityId);
       if (opportunity) {
         openOpportunityModal(opportunity);
+      }
+    });
+  });
+
+  // View opportunity buttons (for managers viewing others' opportunities)
+  document.querySelectorAll('.view-opportunity').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const opportunityId = btn.dataset.id;
+      const opportunity = opportunities.find(opp => opp.id === opportunityId);
+      if (opportunity) {
+        openOpportunityModal(opportunity, true); // true = read-only mode
       }
     });
   });
@@ -3313,7 +3348,8 @@ function initOpportunityEventListeners(opportunities) {
       const opportunityId = card.dataset.id;
       const opportunity = opportunities.find(opp => opp.id === opportunityId);
       if (opportunity) {
-        openOpportunityModal(opportunity, true); // true = read-only mode
+        const isOwnOpportunity = !isManager || opportunity.user_id === currentUser.id;
+        openOpportunityModal(opportunity, !isOwnOpportunity); // read-only if not own opportunity
       }
     });
   });
@@ -3334,7 +3370,12 @@ function initPipelineFilters() {
       document.querySelectorAll('.opportunity-card').forEach(card => {
         let show = true;
         
-        if (filter === 'high-value') {
+        if (filter === 'my-reps') {
+          // Only show opportunities of sales reps (not managers)
+          const userId = card.dataset.userId;
+          const opportunity = opportunities.find(opp => opp.id === card.dataset.id);
+          show = opportunity && opportunity.user && opportunity.user.role === 'sales_rep';
+        } else if (filter === 'high-value') {
           const valueText = card.querySelector('.opportunity-value').textContent;
           const value = parseFloat(valueText.replace(/[$,]/g, ''));
           show = value >= 10000;
@@ -3351,6 +3392,8 @@ function initPipelineFilters() {
     });
   });
 }
+
+
 
 function openOpportunityModal(opportunity = null, readOnly = false) {
   const modal = document.getElementById('opportunity-modal');
