@@ -2169,20 +2169,19 @@ function initTaskActionButtons(tasks, salesReps) {
       e.stopPropagation();
       const taskId = btn.dataset.id;
       
-      if (confirm('Mark this task as completed?')) {
-        const { error } = await supabaseClient
-          .from('tasks')
-          .update({ status: 'completed', updated_at: new Date().toISOString() })
-          .eq('id', taskId);
-        
-        if (error) {
-          showToast('Error completing task: ' + error.message, 'error');
-          return;
-        }
-        
-        showToast('Task completed successfully', 'success');
-        renderTasksView();
+      const { error } = await supabaseClient
+        .from('tasks')
+        .update({ status: 'completed', updated_at: new Date().toISOString() })
+        .eq('id', taskId);
+      
+      if (error) {
+        showToast('Error completing task: ' + error.message, 'error');
+        return;
       }
+      
+      showToast('Task completed successfully', 'success');
+      renderTasksView();
+    
     });
   });
 
@@ -2758,20 +2757,20 @@ function initReminderActionButtons(reminders, salesReps) {
       e.stopPropagation();
       const reminderId = btn.dataset.id;
       
-      if (confirm('Mark this reminder as completed?')) {
-        const { error } = await supabaseClient
-          .from('reminders')
-          .update({ is_completed: true, updated_at: new Date().toISOString() })
-          .eq('id', reminderId);
-        
-        if (error) {
-          showToast('Error completing reminder: ' + error.message, 'error');
-          return;
-        }
-        
-        showToast('Reminder completed successfully', 'success');
-        renderRemindersView();
+
+      const { error } = await supabaseClient
+        .from('reminders')
+        .update({ is_completed: true, updated_at: new Date().toISOString() })
+        .eq('id', reminderId);
+      
+      if (error) {
+        showToast('Error completing reminder: ' + error.message, 'error');
+        return;
       }
+      
+      showToast('Reminder completed successfully', 'success');
+      renderRemindersView();
+      
     });
   });
 
