@@ -3384,5 +3384,25 @@ select {
 
 
 
+/* ===== FORCE CONFIRM DIALOG TO TOP ===== */
+#confirm-dialog {
+  z-index: 99999 !important;
+}
 
+#confirm-dialog .modal-container {
+  z-index: 99999 !important;
+}
 
+#confirm-dialog .modal-backdrop {
+  z-index: 99998 !important;
+}
+
+/* Ensure toast is below confirm dialog */
+#toast-container {
+  z-index: 600;
+}
+
+/* Ensure command palette is below confirm dialog */
+#command-palette {
+  z-index: 900;
+}
