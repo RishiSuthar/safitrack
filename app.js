@@ -1232,7 +1232,12 @@ async function renderUserManagementView() {
 }
 
 window.deleteUser = async function(userId, userName) {
-  if (!confirm(`Are you sure you want to delete ${userName}?`)) return;
+  const confirmed = await showConfirmDialog(
+    'Delete User',
+    `Are you sure you want to delete ${userName}?`
+  );
+
+  if (!confirmed) return;
 
   const { error } = await supabaseClient.from('profiles').delete().eq('id', userId);
 
@@ -1393,7 +1398,12 @@ window.addNewLocation = async function() {
     document.getElementById('new-location-lng').value = geo.longitude.toFixed(6);
 
     // Optional: Show confirmation to user
-    if (!confirm(`📍 Found: "${geo.displayName}"\n\nLatitude: ${geo.latitude.toFixed(6)}\nLongitude: ${geo.longitude.toFixed(6)}\n\nUse this location?`)) {
+    const confirmed = await showConfirmDialog(
+      'Confirm Location',
+      `📍 Found: "${geo.displayName}"\n\nLatitude: ${geo.latitude.toFixed(6)}\nLongitude: ${geo.longitude.toFixed(6)}\n\nUse this location?`
+    );
+
+    if (!confirmed) {
       btn.disabled = false;
       btn.innerHTML = '<i class="fas fa-plus"></i> Add Location';
       return;
@@ -1427,7 +1437,12 @@ window.addNewLocation = async function() {
 };
 
 window.deleteLocation = async function(id) {
-  if (!confirm('Delete this location?')) return;
+  const confirmed = await showConfirmDialog(
+    'Delete Location',
+    'Are you sure you want to delete this location?'
+  );
+
+  if (!confirmed) return;
 
   const { error } = await supabaseClient.from('locations').delete().eq('id', id);
 
@@ -1869,6 +1884,52 @@ function renderTags() {
   });
 }
 
+// ======================
+// CUSTOM CONFIRM DIALOG
+// ======================
+
+window.showConfirmDialog = function(title, message) {
+  return new Promise((resolve) => {
+    const dialog = document.getElementById('confirm-dialog');
+    const titleEl = document.getElementById('confirm-title');
+    const messageEl = document.getElementById('confirm-message');
+    const cancelBtn = document.getElementById('confirm-cancel');
+    const okBtn = document.getElementById('confirm-ok');
+    
+    // Set content
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+    
+    // Show dialog
+    dialog.style.display = 'flex';
+    
+    // Handle buttons
+    const handleCancel = () => {
+      dialog.style.display = 'none';
+      cleanup();
+      resolve(false);
+    };
+    
+    const handleOk = () => {
+      dialog.style.display = 'none';
+      cleanup();
+      resolve(true);
+    };
+    
+    const cleanup = () => {
+      cancelBtn.removeEventListener('click', handleCancel);
+      okBtn.removeEventListener('click', handleOk);
+    };
+    
+    cancelBtn.addEventListener('click', handleCancel);
+    okBtn.addEventListener('click', handleOk);
+  });
+};
+
+// ======================
+// TASKS VIEW
+// ======================
+
 async function renderTasksView() {
   // Fetch tasks based on user role
   let tasks;
@@ -2011,9 +2072,6 @@ async function renderTasksView() {
   initTaskActionButtons(tasks, salesReps);
 }
 
-
-
-
 function renderTaskCard(task, isManager) {
   const isAssignedToMe = task.assigned_to === currentUser.id;
   const isCreatedByMe = task.created_by === currentUser.id;
@@ -2068,39 +2126,38 @@ function renderTaskCard(task, isManager) {
             <span>Assigned to: ${assignedToName}</span>
           </div>
         ` : ''}
-        
-        ${isManager ? `
-          <div class="task-meta-item">
-            <i class="fas fa-user-plus"></i>
-            <span>Created by: ${createdByName}</span>
-          </div>
-        ` : ''}
       </div>
       
       <div class="task-actions">
         <div class="task-priority ${task.priority || 'medium'}">${(task.priority || 'medium').charAt(0).toUpperCase() + (task.priority || 'medium').slice(1)}</div>
         <div class="task-action-buttons">
           ${canEdit ? `
-            <button class="task-action-btn edit-task" data-id="${task.id}">
+            <button class="task-action-btn edit-task" data-id="${task.id}" title="Edit task">
               <i class="fas fa-edit"></i>
             </button>
             ${task.status !== 'completed' ? `
-              <button class="task-action-btn complete-task" data-id="${task.id}">
-                <i class="fas fa-check"></i>
+              <button class="task-action-btn complete-task" data-id="${task.id}" title="Mark as complete">
+                <i class="fas fa-check-circle"></i>
               </button>
             ` : ''}
           ` : ''}
           ${isManager || isCreatedByMe ? `
-            <button class="task-action-btn delete-task" data-id="${task.id}">
+            <button class="task-action-btn delete-task" data-id="${task.id}" title="Delete task">
               <i class="fas fa-trash"></i>
             </button>
           ` : ''}
         </div>
       </div>
+      
+      ${!isManager && isCreatedByMe ? `
+        <div class="task-creator">
+          <i class="fas fa-user-plus"></i>
+          <span>Created by: ${createdByName}</span>
+        </div>
+      ` : ''}
     </div>
   `;
 }
-
 
 function getStatusLabel(status) {
   switch (status) {
@@ -2110,8 +2167,6 @@ function getStatusLabel(status) {
     default: return status;
   }
 }
-
-
 
 function initTaskFilters(tasks) {
   const filterButtons = document.querySelectorAll('.task-filter');
@@ -2148,7 +2203,6 @@ function initTaskFilters(tasks) {
     });
   });
 }
-
 
 function initTaskActionButtons(tasks, salesReps) {
   // Edit task buttons
@@ -2191,20 +2245,25 @@ function initTaskActionButtons(tasks, salesReps) {
       e.stopPropagation();
       const taskId = btn.dataset.id;
       
-      if (confirm('Are you sure you want to delete this task?')) {
-        const { error } = await supabaseClient
-          .from('tasks')
-          .delete()
-          .eq('id', taskId);
-        
-        if (error) {
-          showToast('Error deleting task: ' + error.message, 'error');
-          return;
-        }
-        
-        showToast('Task deleted successfully', 'success');
-        renderTasksView();
+      const confirmed = await showConfirmDialog(
+        'Delete Task',
+        'Are you sure you want to delete this task?'
+      );
+
+      if (!confirmed) return;
+      
+      const { error } = await supabaseClient
+        .from('tasks')
+        .delete()
+        .eq('id', taskId);
+      
+      if (error) {
+        showToast('Error deleting task: ' + error.message, 'error');
+        return;
       }
+      
+      showToast('Task deleted successfully', 'success');
+      renderTasksView();
     });
   });
 }
@@ -2577,7 +2636,7 @@ async function renderRemindersView() {
         });
         localStorage.setItem('dismissedReminders', JSON.stringify(dismissedReminders));
         
-        // Hide the notification
+        // Hide notification
         document.getElementById('reminder-notification').style.display = 'none';
         
         showToast('Reminder dismissed', 'info');
@@ -2596,8 +2655,6 @@ async function renderRemindersView() {
   // Initialize reminder action buttons
   initReminderActionButtons(reminders, salesReps);
 }
-
-
 
 function renderReminderCard(reminder, isManager) {
   const isAssignedToMe = reminder.assigned_to === currentUser.id;
@@ -2672,17 +2729,17 @@ function renderReminderCard(reminder, isManager) {
         </div>
         <div class="reminder-action-buttons">
           ${canEdit ? `
-            <button class="reminder-action-btn edit-reminder" data-id="${reminder.id}">
+            <button class="reminder-action-btn edit-reminder" data-id="${reminder.id}" title="Edit reminder">
               <i class="fas fa-edit"></i>
             </button>
             ${!reminder.is_completed ? `
-              <button class="reminder-action-btn complete-reminder" data-id="${reminder.id}">
-                <i class="fas fa-check"></i>
+              <button class="reminder-action-btn complete-reminder" data-id="${reminder.id}" title="Mark as complete">
+                <i class="fas fa-check-circle"></i>
               </button>
             ` : ''}
           ` : ''}
           ${isManager || isCreatedByMe ? `
-            <button class="reminder-action-btn delete-reminder" data-id="${reminder.id}">
+            <button class="reminder-action-btn delete-reminder" data-id="${reminder.id}" title="Delete reminder">
               <i class="fas fa-trash"></i>
             </button>
           ` : ''}
@@ -2780,20 +2837,25 @@ function initReminderActionButtons(reminders, salesReps) {
       e.stopPropagation();
       const reminderId = btn.dataset.id;
       
-      if (confirm('Are you sure you want to delete this reminder?')) {
-        const { error } = await supabaseClient
-          .from('reminders')
-          .delete()
-          .eq('id', reminderId);
-        
-        if (error) {
-          showToast('Error deleting reminder: ' + error.message, 'error');
-          return;
-        }
-        
-        showToast('Reminder deleted successfully', 'success');
-        renderRemindersView();
+      const confirmed = await showConfirmDialog(
+        'Delete Reminder',
+        'Are you sure you want to delete this reminder?'
+      );
+
+      if (!confirmed) return;
+      
+      const { error } = await supabaseClient
+        .from('reminders')
+        .delete()
+        .eq('id', reminderId);
+      
+      if (error) {
+        showToast('Error deleting reminder: ' + error.message, 'error');
+        return;
       }
+      
+      showToast('Reminder deleted successfully', 'success');
+      renderRemindersView();
     });
   });
 }
@@ -2944,7 +3006,7 @@ async function renderRoutePlanningView() {
   const [routesResult, locationsResult, profilesResult] = await Promise.all([
     supabaseClient
       .from('routes')
-      // FIX: Specify the relationship to avoid ambiguity
+      // FIX: Specify relationship to avoid ambiguity
       .select(`*, assigned_to:profiles!routes_assigned_to_fkey(first_name, last_name)`)
       .eq('created_by', currentUser.id)
       .order('created_at', { ascending: false }),
@@ -3254,10 +3316,10 @@ function initRouteCreator(locations, salesReps) {
       return;
     }
     
-    // Get the last selected location
+    // Get last selected location
     const lastSelected = selected[selected.length - 1];
     
-    // Find the nearest unselected location
+    // Find nearest unselected location
     let nearestLocation = null;
     let shortestDistance = Infinity;
     
@@ -3283,13 +3345,13 @@ function initRouteCreator(locations, salesReps) {
       // Show recommendation
       aiRecommendation.style.display = 'block';
       aiRecommendationContent.innerHTML = `
-        <p>Based on your selection of <strong>${lastSelected.name}</strong>, the nearest location is <strong>${nearestLocation.name}</strong> (${(shortestDistance/1000).toFixed(2)} km away).</p>
+        <p>Based on your selection of <strong>${lastSelected.name}</strong>, nearest location is <strong>${nearestLocation.name}</strong> (${(shortestDistance/1000).toFixed(2)} km away).</p>
         <button class="btn btn-sm btn-primary" onclick="selectRecommendedLocation('${nearestLocation.id}')">
           <i class="fas fa-plus"></i> Add it!
         </button>
       `;
       
-      // Highlight the recommended location
+      // Highlight recommended location
       document.querySelectorAll('.location-card').forEach(card => {
         card.classList.remove('recommended');
         if (card.getAttribute('data-id') === nearestLocation.id) {
@@ -3564,20 +3626,25 @@ function initRouteList() {
       const routeItem = btn.closest('.route-item');
       const routeName = routeItem.querySelector('h4').textContent;
       
-      if (confirm(`Are you sure you want to delete route "${routeName}"?`)) {
-        try {
-          const { error } = await supabaseClient
-            .from('routes')
-            .delete()
-            .eq('id', routeId);
-          
-          if (error) throw error;
-          
-          showToast('Route deleted successfully', 'success');
-          routeItem.remove();
-        } catch (error) {
-          showToast('Error deleting route: ' + error.message, 'error');
-        }
+      const confirmed = await showConfirmDialog(
+        'Delete Route',
+        `Are you sure you want to delete route "${routeName}"?`
+      );
+
+      if (!confirmed) return;
+      
+      try {
+        const { error } = await supabaseClient
+          .from('routes')
+          .delete()
+          .eq('id', routeId);
+        
+        if (error) throw error;
+        
+        showToast('Route deleted successfully', 'success');
+        routeItem.remove();
+      } catch (error) {
+        showToast('Error deleting route: ' + error.message, 'error');
       }
     });
   });
@@ -3585,7 +3652,7 @@ function initRouteList() {
 
 async function viewRouteDetails(routeId) {
   // Fetch route details
-  // FIX: Specify the relationship to avoid ambiguity
+  // FIX: Specify relationship to avoid ambiguity
   const { data: route, error: routeError } = await supabaseClient
     .from('routes')
     .select(`*, 
@@ -3675,7 +3742,7 @@ async function viewRouteDetails(routeId) {
 
 async function editRoute(routeId) {
   // Similar to viewRouteDetails but with editing capabilities
-  // This would allow managers to modify the route order or locations
+  // This would allow managers to modify route order or locations
   showToast('Edit route functionality to be implemented', 'info');
 }
 
@@ -4022,10 +4089,15 @@ async function startRouteNavigation(routeId) {
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLocation.latitude},${currentLocation.longitude}`, '_blank');
   });
   
-  document.getElementById('complete-route-btn').addEventListener('click', () => {
-    if (confirm('Are you sure you want to mark this route as completed?')) {
-      completeRoute(routeId);
-    }
+  document.getElementById('complete-route-btn').addEventListener('click', async () => {
+    const confirmed = await showConfirmDialog(
+      'Complete Route',
+      'Are you sure you want to mark this route as completed?'
+    );
+
+    if (!confirmed) return;
+    
+    completeRoute(routeId);
   });
 }
 
@@ -4275,7 +4347,6 @@ async function renderOpportunityPipelineView() {
   }, 100);
 }
 
-
 function initPipelineDragAndDrop() {
   const opportunityLists = document.querySelectorAll('.opportunity-list');
   
@@ -4361,7 +4432,6 @@ function updatePipelineStageCounts() {
   });
 }
 
-
 function initOpportunityEventListeners(opportunities) {
   // Add opportunity button
   document.getElementById('add-opportunity-btn')?.addEventListener('click', () => {
@@ -4387,7 +4457,8 @@ function initOpportunityEventListeners(opportunities) {
       const opportunityId = btn.dataset.id;
       const opportunity = opportunities.find(opp => opp.id === opportunityId);
       if (opportunity) {
-        openOpportunityModal(opportunity, true); // true = read-only mode
+        const isOwnOpportunity = !isManager || opportunity.user_id === currentUser.id;
+        openOpportunityModal(opportunity, !isOwnOpportunity); // read-only if not own opportunity
       }
     });
   });
@@ -4398,20 +4469,25 @@ function initOpportunityEventListeners(opportunities) {
       e.stopPropagation();
       const opportunityId = btn.dataset.id;
       
-      if (confirm('Are you sure you want to delete this opportunity?')) {
-        const { error } = await supabaseClient
-          .from('opportunities')
-          .delete()
-          .eq('id', opportunityId);
-        
-        if (error) {
-          showToast('Error deleting opportunity: ' + error.message, 'error');
-          return;
-        }
-        
-        showToast('Opportunity deleted successfully', 'success');
-        renderOpportunityPipelineView();
+      const confirmed = await showConfirmDialog(
+        'Delete Opportunity',
+        'Are you sure you want to delete this opportunity?'
+      );
+
+      if (!confirmed) return;
+      
+      const { error } = await supabaseClient
+        .from('opportunities')
+        .delete()
+        .eq('id', opportunityId);
+      
+      if (error) {
+        showToast('Error deleting opportunity: ' + error.message, 'error');
+        return;
       }
+      
+      showToast('Opportunity deleted successfully', 'success');
+      renderOpportunityPipelineView();
     });
   });
 
@@ -4465,8 +4541,6 @@ function initPipelineFilters() {
     });
   });
 }
-
-
 
 function openOpportunityModal(opportunity = null, readOnly = false) {
   const modal = document.getElementById('opportunity-modal');
@@ -4710,7 +4784,7 @@ function getProbabilityColor(probability) {
 
 function scheduleNextStepReminder(opportunityName, nextStep, dueDate) {
   // In a real implementation, this would set up a notification system
-  // For now, we'll just store the reminder in localStorage
+  // For now, we'll just store reminder in localStorage
   const reminders = JSON.parse(localStorage.getItem('opportunityReminders') || '[]');
   
   reminders.push({
@@ -4762,4 +4836,23 @@ function formatDate(dateString, shortFormat = false) {
     hour: '2-digit',
     minute: '2-digit'
   });
+}
+
+// Helper function to geocode address
+async function geocodeAddress(address) {
+  // This is a placeholder implementation
+  // In a real app, you would use a geocoding service like Google Maps API
+  
+  // For demo purposes, we'll return a mock geocoded result
+  // In production, replace this with actual geocoding API call
+  
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 500));
+  
+  // Mock geocoded result for Nairobi
+  return {
+    latitude: -1.2921 + (Math.random() * 0.1 - 0.05), // Random variation around Nairobi
+    longitude: 36.8219 + (Math.random() * 0.1 - 0.05), // Random variation around Nairobi
+    displayName: address + ', Nairobi, Kenya'
+  };
 }
