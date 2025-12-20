@@ -4837,22 +4837,3 @@ function formatDate(dateString, shortFormat = false) {
     minute: '2-digit'
   });
 }
-
-// Helper function to geocode address
-async function geocodeAddress(address) {
-  // This is a placeholder implementation
-  // In a real app, you would use a geocoding service like Google Maps API
-  
-  // For demo purposes, we'll return a mock geocoded result
-  // In production, replace this with actual geocoding API call
-  
-  // Simulate API delay
-  await new Promise(resolve => setTimeout(resolve, 500));
-  
-  // Mock geocoded result for Nairobi
-  return {
-    latitude: -1.2921 + (Math.random() * 0.1 - 0.05), // Random variation around Nairobi
-    longitude: 36.8219 + (Math.random() * 0.1 - 0.05), // Random variation around Nairobi
-    displayName: address + ', Nairobi, Kenya'
-  };
-}
