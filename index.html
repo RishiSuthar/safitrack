@@ -14,8 +14,6 @@
 
   <!-- Add this to your HTML head -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
-
-
 </head>
 <body>
   <!-- LOADING SCREEN -->
@@ -162,6 +160,14 @@
           <button data-view="my-routes" class="nav-item">
             <i class="fas fa-route"></i>
             <span>My Routes</span>
+          </button>
+          <button data-view="tasks" class="nav-item">
+            <i class="fa-solid fa-bars-progress"></i>
+            <span>Tasks</span>
+          </button>
+          <button data-view="reminders" class="nav-item">
+            <i class="fa-regular fa-bell"></i>
+            <span>Reminders</span>
           </button>
         </div>
         
@@ -386,6 +392,108 @@
         <button class="btn btn-secondary" onclick="closeModal('opportunity-modal')">Cancel</button>
         <button class="btn btn-primary" id="save-opportunity-btn">
           Save Opportunity
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TASK MODAL -->
+  <div id="task-modal" class="modal" style="display:none;">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 id="task-modal-title"><i class="fa-solid fa-bars-progress"></i></i> New Task</h3>
+        <button class="modal-close" onclick="closeModal('task-modal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-field">
+          <label for="task-title">Task Title *</label>
+          <input type="text" id="task-title" placeholder="Enter task title" required>
+        </div>
+        
+        <div class="form-field">
+          <label for="task-description">Description</label>
+          <textarea id="task-description" placeholder="Enter task description" rows="3"></textarea>
+        </div>
+        
+        <div class="form-field" id="task-assign-field" style="display:none;">
+          <label for="task-assign-to">Assign To</label>
+          <select id="task-assign-to">
+            <option value="">Select a sales rep</option>
+          </select>
+        </div>
+        
+        <div class="form-field">
+          <label for="task-due-date">Due Date</label>
+          <input type="datetime-local" id="task-due-date">
+        </div>
+        
+        <div class="form-field">
+          <label for="task-priority">Priority</label>
+          <select id="task-priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+          </select>
+        </div>
+        
+        <div class="form-field">
+          <label for="task-status">Status</label>
+          <select id="task-status">
+            <option value="pending" selected>Pending</option>
+            <option value="in_progress">In Progress</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('task-modal')">Cancel</button>
+        <button class="btn btn-primary" id="save-task-btn">
+          Save Task
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- REMINDER MODAL -->
+  <div id="reminder-modal" class="modal" style="display:none;">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 id="reminder-modal-title"><i class="fas fa-bell"></i> New Reminder</h3>
+        <button class="modal-close" onclick="closeModal('reminder-modal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-field">
+          <label for="reminder-title">Reminder Title *</label>
+          <input type="text" id="reminder-title" placeholder="Enter reminder title" required>
+        </div>
+        
+        <div class="form-field">
+          <label for="reminder-description">Description</label>
+          <textarea id="reminder-description" placeholder="Enter reminder description" rows="3"></textarea>
+        </div>
+        
+        <div class="form-field" id="reminder-assign-field" style="display:none;">
+          <label for="reminder-assign-to">Assign To</label>
+          <select id="reminder-assign-to">
+            <option value="">Select a sales rep</option>
+          </select>
+        </div>
+        
+        <div class="form-field">
+          <label for="reminder-date">Reminder Date *</label>
+          <input type="datetime-local" id="reminder-date" required>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('reminder-modal')">Cancel</button>
+        <button class="btn btn-primary" id="save-reminder-btn">
+          Save Reminder
         </button>
       </div>
     </div>

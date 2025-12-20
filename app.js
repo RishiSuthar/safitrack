@@ -34,7 +34,6 @@ const logoutBtn = document.getElementById('logout-btn');
 // INITIALIZATION
 // ======================
 
-
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initAuth();
@@ -170,7 +169,7 @@ async function handleLogin(e) {
   if (error) {
     showToast(error.message, 'error');
     submitBtn.disabled = false;
-    submitBtn.innerHTML = '<span>Sign In</span><i class="fas fa-arrow-right"></i>';
+    submitBtn.innerHTML = '<span>Sign In</span>';
     return;
   }
 
@@ -325,11 +324,16 @@ async function loadView(viewName) {
         viewContainer.innerHTML = renderAccessDenied();
       }
       break;
+    case 'tasks':
+      await renderTasksView();
+      break;
+    case 'reminders':
+      await renderRemindersView();
+      break;
     default:
       viewContainer.innerHTML = renderNotFound();
   }
   checkDueReminders();
-
 }
 
 // ======================
@@ -1445,6 +1449,8 @@ const commands = [
   { id: 'my-activity', title: 'My Activity', description: 'View your visits', icon: 'fa-clipboard-list', action: () => loadView('my-activity') },
   { id: 'sales-funnel', title: 'Sales Funnel', description: 'View pipeline', icon: 'fa-filter', action: () => loadView('sales-funnel') },
   { id: 'team-dashboard', title: 'Team Dashboard', description: 'Team performance', icon: 'fa-users', action: () => loadView('team-dashboard') },
+  { id: 'tasks', title: 'Tasks', description: 'Manage tasks', icon: 'fa-tasks', action: () => loadView('tasks') },
+  { id: 'reminders', title: 'Reminders', description: 'View reminders', icon: 'fa-bell', action: () => loadView('reminders') },
   { id: 'export', title: 'Export Reports', description: 'Download data', icon: 'fa-download', action: () => openExportModal() },
   { id: 'theme', title: 'Toggle Theme', description: 'Switch dark/light', icon: 'fa-moon', action: () => toggleTheme() },
   { id: 'logout', title: 'Sign Out', description: 'Log out of account', icon: 'fa-sign-out-alt', action: () => handleLogout() }
@@ -1863,6 +1869,1072 @@ function renderTags() {
   });
 }
 
+async function renderTasksView() {
+  // Fetch tasks based on user role
+  let tasks;
+  let error;
+  
+  if (isManager) {
+    // Managers can see all tasks with user info
+    const result = await supabaseClient
+      .from('tasks')
+      .select(`
+        *,
+        assigned_to_profile:profiles!tasks_assigned_to_fkey(first_name, last_name, email),
+        created_by_profile:profiles!tasks_created_by_fkey(first_name, last_name, email)
+      `)
+      .order('created_at', { ascending: false });
+    
+    tasks = result.data;
+    error = result.error;
+  } else {
+    // Sales reps only see tasks assigned to them or created by them
+    const result = await supabaseClient
+      .from('tasks')
+      .select('*')
+      .or(`assigned_to.eq.${currentUser.id},created_by.eq.${currentUser.id}`)
+      .order('created_at', { ascending: false });
+    
+    tasks = result.data;
+    error = result.error;
+  }
+
+  if (error) {
+    viewContainer.innerHTML = renderError(error.message);
+    return;
+  }
+
+  // Fetch sales reps for assignment dropdown (managers only)
+  let salesReps = [];
+  if (isManager) {
+    const { data: reps } = await supabaseClient
+      .from('profiles')
+      .select('id, first_name, last_name, email')
+      .eq('role', 'sales_rep')
+      .order('first_name', { ascending: true });
+    
+    salesReps = reps || [];
+  }
+
+  // Calculate task statistics
+  const totalTasks = tasks.length;
+  const pendingTasks = tasks.filter(t => t.status === 'pending').length;
+  const inProgressTasks = tasks.filter(t => t.status === 'in_progress').length;
+  const completedTasks = tasks.filter(t => t.status === 'completed').length;
+  const overdueTasks = tasks.filter(t => {
+    return t.due_date && new Date(t.due_date) < new Date() && t.status !== 'completed';
+  }).length;
+
+  let html = `
+    <div class="page-header">
+      <h1 class="page-title">Tasks</h1>
+      <p class="page-subtitle">${totalTasks} total tasks</p>
+    </div>
+
+    <div class="task-stats">
+      <div class="task-stat-card">
+        <div class="task-stat-title">Total Tasks</div>
+        <div class="task-stat-value">${totalTasks}</div>
+      </div>
+      <div class="task-stat-card">
+        <div class="task-stat-title">Pending</div>
+        <div class="task-stat-value">${pendingTasks}</div>
+      </div>
+      <div class="task-stat-card">
+        <div class="task-stat-title">In Progress</div>
+        <div class="task-stat-value">${inProgressTasks}</div>
+      </div>
+      <div class="task-stat-card">
+        <div class="task-stat-title">Completed</div>
+        <div class="task-stat-value">${completedTasks}</div>
+      </div>
+      ${overdueTasks > 0 ? `
+        <div class="task-stat-card">
+          <div class="task-stat-title task-overdue">Overdue</div>
+          <div class="task-stat-value task-overdue">${overdueTasks}</div>
+        </div>
+      ` : ''}
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Tasks</h3>
+        <button class="btn btn-primary" id="add-task-btn">
+          <i class="fas fa-plus"></i> Add
+        </button>
+      </div>
+      
+      <div class="task-filters">
+        <button class="task-filter active" data-filter="all">All Tasks</button>
+        <button class="task-filter" data-filter="pending">Pending</button>
+        <button class="task-filter" data-filter="in_progress">In Progress</button>
+        <button class="task-filter" data-filter="completed">Completed</button>
+        <button class="task-filter" data-filter="overdue">Overdue</button>
+        ${isManager ? `
+          <button class="task-filter" data-filter="assigned">Assigned by Me</button>
+        ` : ''}
+      </div>
+      
+      <div id="tasks-container">
+  `;
+
+  if (tasks.length === 0) {
+    html += `
+      <div class="empty-state">
+        <i class="fas fa-tasks empty-state-icon"></i>
+        <h3 class="empty-state-title">No tasks yet</h3>
+        <p class="empty-state-description">Create your first task to get started.</p>
+      </div>
+    `;
+  } else {
+    tasks.forEach(task => {
+      html += renderTaskCard(task, isManager);
+    });
+  }
+
+  html += `
+      </div>
+    </div>
+  `;
+
+  viewContainer.innerHTML = html;
+
+  // Initialize event listeners
+  document.getElementById('add-task-btn').addEventListener('click', () => {
+    openTaskModal(null, salesReps);
+  });
+
+  // Initialize task filters
+  initTaskFilters(tasks);
+
+  // Initialize task action buttons
+  initTaskActionButtons(tasks, salesReps);
+}
+
+
+
+
+function renderTaskCard(task, isManager) {
+  const isAssignedToMe = task.assigned_to === currentUser.id;
+  const isCreatedByMe = task.created_by === currentUser.id;
+  const canEdit = isAssignedToMe || isCreatedByMe || isManager;
+  
+  const dueDate = task.due_date ? new Date(task.due_date) : null;
+  const isOverdue = dueDate && dueDate < new Date() && task.status !== 'completed';
+  const dueDateStr = dueDate ? formatDate(dueDate) : '';
+  
+  // Get assigned to name
+  let assignedToName = 'Unassigned';
+  if (task.assigned_to_profile) {
+    assignedToName = `${task.assigned_to_profile.first_name} ${task.assigned_to_profile.last_name}`;
+  } else if (task.assigned_to === currentUser.id) {
+    assignedToName = 'Me';
+  }
+  
+  // Get created by name
+  let createdByName = 'Unknown';
+  if (task.created_by_profile) {
+    createdByName = `${task.created_by_profile.first_name} ${task.created_by_profile.last_name}`;
+  } else if (task.created_by === currentUser.id) {
+    createdByName = 'Me';
+  }
+
+  return `
+    <div class="task-card" data-id="${task.id}" data-status="${task.status}" data-overdue="${isOverdue}">
+      <div class="task-header">
+        <div class="task-title">${task.title}</div>
+        <div class="task-status ${task.status}">${getStatusLabel(task.status)}</div>
+      </div>
+      
+      ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+      
+      <div class="task-meta">
+        ${task.due_date ? `
+          <div class="task-meta-item ${isOverdue ? 'task-overdue' : ''}">
+            <i class="fas fa-calendar"></i>
+            <span>Due: ${dueDateStr}</span>
+            ${isOverdue ? '<i class="fas fa-exclamation-triangle"></i>' : ''}
+          </div>
+        ` : ''}
+        
+        <div class="task-meta-item">
+          <i class="fas fa-flag"></i>
+          <span>Priority: ${task.priority || 'medium'}</span>
+        </div>
+        
+        ${isManager || task.assigned_to ? `
+          <div class="task-meta-item">
+            <i class="fas fa-user"></i>
+            <span>Assigned to: ${assignedToName}</span>
+          </div>
+        ` : ''}
+        
+        ${isManager ? `
+          <div class="task-meta-item">
+            <i class="fas fa-user-plus"></i>
+            <span>Created by: ${createdByName}</span>
+          </div>
+        ` : ''}
+      </div>
+      
+      <div class="task-actions">
+        <div class="task-priority ${task.priority || 'medium'}">${(task.priority || 'medium').charAt(0).toUpperCase() + (task.priority || 'medium').slice(1)}</div>
+        <div class="task-action-buttons">
+          ${canEdit ? `
+            <button class="task-action-btn edit-task" data-id="${task.id}">
+              <i class="fas fa-edit"></i>
+            </button>
+            ${task.status !== 'completed' ? `
+              <button class="task-action-btn complete-task" data-id="${task.id}">
+                <i class="fas fa-check"></i>
+              </button>
+            ` : ''}
+          ` : ''}
+          ${isManager || isCreatedByMe ? `
+            <button class="task-action-btn delete-task" data-id="${task.id}">
+              <i class="fas fa-trash"></i>
+            </button>
+          ` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+
+function getStatusLabel(status) {
+  switch (status) {
+    case 'pending': return 'Pending';
+    case 'in_progress': return 'In Progress';
+    case 'completed': return 'Completed';
+    default: return status;
+  }
+}
+
+
+
+function initTaskFilters(tasks) {
+  const filterButtons = document.querySelectorAll('.task-filter');
+  
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Update active state
+      filterButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      const filter = btn.dataset.filter;
+      
+      // Apply filter
+      document.querySelectorAll('.task-card').forEach(card => {
+        let show = true;
+        
+        if (filter === 'all') {
+          show = true;
+        } else if (filter === 'overdue') {
+          const isOverdue = card.dataset.overdue === 'true';
+          show = isOverdue;
+        } else if (filter === 'assigned') {
+          // Only show tasks created by current user
+          const taskId = card.dataset.id;
+          const task = tasks.find(t => t.id === taskId);
+          show = task && task.created_by === currentUser.id;
+        } else {
+          const status = card.dataset.status;
+          show = status === filter;
+        }
+        
+        card.style.display = show ? 'block' : 'none';
+      });
+    });
+  });
+}
+
+
+function initTaskActionButtons(tasks, salesReps) {
+  // Edit task buttons
+  document.querySelectorAll('.edit-task').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const taskId = btn.dataset.id;
+      const task = tasks.find(t => t.id === taskId);
+      if (task) {
+        openTaskModal(task, salesReps);
+      }
+    });
+  });
+
+  // Complete task buttons
+  document.querySelectorAll('.complete-task').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const taskId = btn.dataset.id;
+      
+      if (confirm('Mark this task as completed?')) {
+        const { error } = await supabaseClient
+          .from('tasks')
+          .update({ status: 'completed', updated_at: new Date().toISOString() })
+          .eq('id', taskId);
+        
+        if (error) {
+          showToast('Error completing task: ' + error.message, 'error');
+          return;
+        }
+        
+        showToast('Task completed successfully', 'success');
+        renderTasksView();
+      }
+    });
+  });
+
+  // Delete task buttons
+  document.querySelectorAll('.delete-task').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const taskId = btn.dataset.id;
+      
+      if (confirm('Are you sure you want to delete this task?')) {
+        const { error } = await supabaseClient
+          .from('tasks')
+          .delete()
+          .eq('id', taskId);
+        
+        if (error) {
+          showToast('Error deleting task: ' + error.message, 'error');
+          return;
+        }
+        
+        showToast('Task deleted successfully', 'success');
+        renderTasksView();
+      }
+    });
+  });
+}
+
+function openTaskModal(task = null, salesReps = []) {
+  const modal = document.getElementById('task-modal');
+  const modalTitle = document.getElementById('task-modal-title');
+  const saveBtn = document.getElementById('save-task-btn');
+  const assignField = document.getElementById('task-assign-field');
+  const assignSelect = document.getElementById('task-assign-to');
+  
+  // Reset form
+  document.getElementById('task-title').value = '';
+  document.getElementById('task-description').value = '';
+  document.getElementById('task-due-date').value = '';
+  document.getElementById('task-priority').value = 'medium';
+  document.getElementById('task-status').value = 'pending';
+  
+  // Populate sales reps dropdown for managers
+  if (isManager && salesReps.length > 0) {
+    assignField.style.display = 'block';
+    assignSelect.innerHTML = '<option value="">Select a sales rep</option>';
+    
+    // Add option for self
+    assignSelect.innerHTML += `<option value="${currentUser.id}">Me</option>`;
+    
+    // Add options for sales reps
+    salesReps.forEach(rep => {
+      assignSelect.innerHTML += `<option value="${rep.id}">${rep.first_name} ${rep.last_name}</option>`;
+    });
+  } else {
+    assignField.style.display = 'none';
+  }
+  
+  // Set modal title
+  if (task) {
+    modalTitle.innerHTML = 'Edit Task';
+    
+    // Fill form with task data
+    document.getElementById('task-title').value = task.title || '';
+    document.getElementById('task-description').value = task.description || '';
+    
+    // Fix for time display issue
+    if (task.due_date) {
+      const dueDate = new Date(task.due_date);
+      // Format as YYYY-MM-DDTHH:MM for datetime-local input
+      const year = dueDate.getFullYear();
+      const month = String(dueDate.getMonth() + 1).padStart(2, '0');
+      const day = String(dueDate.getDate()).padStart(2, '0');
+      const hours = String(dueDate.getHours()).padStart(2, '0');
+      const minutes = String(dueDate.getMinutes()).padStart(2, '0');
+      
+      document.getElementById('task-due-date').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    } else {
+      document.getElementById('task-due-date').value = '';
+    }
+    
+    document.getElementById('task-priority').value = task.priority || 'medium';
+    document.getElementById('task-status').value = task.status || 'pending';
+    
+    if (isManager && task.assigned_to) {
+      assignSelect.value = task.assigned_to;
+    }
+  } else {
+    modalTitle.innerHTML = 'New Task';
+    
+    // Default to self for non-managers
+    if (!isManager) {
+      // Non-managers can only create tasks for themselves
+      // So we don't need to show the assign field
+    }
+  }
+  
+  // Show modal
+  modal.style.display = 'flex';
+  
+  // Initialize event listeners
+  initTaskModalListeners(task);
+}
+
+function initTaskModalListeners(task) {
+  // Save task
+  const saveBtn = document.getElementById('save-task-btn');
+  
+  saveBtn.onclick = async () => {
+    const title = document.getElementById('task-title').value.trim();
+    const description = document.getElementById('task-description').value.trim();
+    const dueDate = document.getElementById('task-due-date').value;
+    const priority = document.getElementById('task-priority').value;
+    const status = document.getElementById('task-status').value;
+    
+    // Get assigned to
+    let assignedTo = null;
+    if (isManager) {
+      assignedTo = document.getElementById('task-assign-to').value || null;
+    } else {
+      // Non-managers can only create tasks for themselves
+      assignedTo = currentUser.id;
+    }
+    
+    // Validate
+    if (!title) {
+      showToast('Please enter a task title', 'error');
+      return;
+    }
+    
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    
+    try {
+      const taskData = {
+        title,
+        description: description || null,
+        assigned_to: assignedTo,
+        created_by: currentUser.id,
+        due_date: dueDate ? new Date(dueDate).toISOString() : null,
+        priority,
+        status
+      };
+      
+      let result;
+      
+      if (task) {
+        // Update existing task
+        result = await supabaseClient
+          .from('tasks')
+          .update(taskData)
+          .eq('id', task.id);
+      } else {
+        // Create new task
+        result = await supabaseClient
+          .from('tasks')
+          .insert([taskData]);
+      }
+      
+      if (result.error) throw result.error;
+      
+      showToast(`Task ${task ? 'updated' : 'created'} successfully!`, 'success');
+      closeModal('task-modal');
+      renderTasksView();
+    } catch (error) {
+      showToast(`Error ${task ? 'updating' : 'creating'} task: ${error.message}`, 'error');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = 'Save Task';
+    }
+  };
+}
+
+// ======================
+// REMINDERS VIEW
+// ======================
+
+async function renderRemindersView() {
+  // Fetch reminders based on user role
+  let reminders;
+  let error;
+  
+  if (isManager) {
+    // Managers can see all reminders with user info
+    const result = await supabaseClient
+      .from('reminders')
+      .select(`
+        *,
+        assigned_to_profile:profiles!reminders_assigned_to_fkey(first_name, last_name, email),
+        created_by_profile:profiles!reminders_created_by_fkey(first_name, last_name, email)
+      `)
+      .order('reminder_date', { ascending: true });
+    
+    reminders = result.data;
+    error = result.error;
+  } else {
+    // Sales reps only see reminders assigned to them or created by them
+    const result = await supabaseClient
+      .from('reminders')
+      .select('*')
+      .or(`assigned_to.eq.${currentUser.id},created_by.eq.${currentUser.id}`)
+      .order('reminder_date', { ascending: true });
+    
+    reminders = result.data;
+    error = result.error;
+  }
+
+  if (error) {
+    viewContainer.innerHTML = renderError(error.message);
+    return;
+  }
+
+  // Fetch sales reps for assignment dropdown (managers only)
+  let salesReps = [];
+  if (isManager) {
+    const { data: reps } = await supabaseClient
+      .from('profiles')
+      .select('id, first_name, last_name, email')
+      .eq('role', 'sales_rep')
+      .order('first_name', { ascending: true });
+    
+    salesReps = reps || [];
+  }
+
+  // Calculate reminder statistics
+  const totalReminders = reminders.length;
+  const pendingReminders = reminders.filter(r => !r.is_completed).length;
+  const completedReminders = reminders.filter(r => r.is_completed).length;
+  const todayReminders = reminders.filter(r => {
+    const reminderDate = new Date(r.reminder_date).toDateString();
+    const today = new Date().toDateString();
+    return reminderDate === today && !r.is_completed;
+  }).length;
+  const overdueReminders = reminders.filter(r => {
+    return new Date(r.reminder_date) < new Date() && !r.is_completed;
+  }).length;
+
+  // Check for due reminders and show notification
+  const dueReminders = reminders.filter(r => {
+    const reminderDate = new Date(r.reminder_date);
+    const now = new Date();
+    return reminderDate <= now && !r.is_completed;
+  });
+
+  let html = `
+    <div class="page-header">
+      <h1 class="page-title">Reminders</h1>
+      <p class="page-subtitle">${totalReminders} total reminders</p>
+    </div>
+  `;
+
+  // Show notification banner for due reminders
+  if (dueReminders.length > 0) {
+    html += `
+      <div class="reminder-notification" id="reminder-notification">
+        <div class="reminder-notification-header">
+          <i class="fas fa-bell"></i>
+          <span>You have ${dueReminders.length} due reminder${dueReminders.length > 1 ? 's' : ''}</span>
+          <button class="reminder-notification-close" id="close-notification">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <div class="reminder-notification-content">
+          ${dueReminders.slice(0, 3).map(reminder => `
+            <div class="reminder-notification-item">
+              <div class="reminder-notification-title">${reminder.title}</div>
+              <div class="reminder-notification-time">${formatDate(reminder.reminder_date, true)}</div>
+              <div class="reminder-notification-actions">
+                <button class="btn btn-sm btn-primary complete-reminder-notification" data-id="${reminder.id}">
+                  <i class="fas fa-check"></i> Complete
+                </button>
+                <button class="btn btn-sm btn-secondary dismiss-reminder-notification" data-id="${reminder.id}">
+                  <i class="fas fa-clock"></i> Dismiss
+                </button>
+              </div>
+            </div>
+          `).join('')}
+          ${dueReminders.length > 3 ? `
+            <div class="reminder-notification-more">
+              And ${dueReminders.length - 3} more...
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  }
+
+  html += `
+    <div class="reminder-stats">
+      <div class="reminder-stat-card">
+        <div class="reminder-stat-title">Total Reminders</div>
+        <div class="reminder-stat-value">${totalReminders}</div>
+      </div>
+      <div class="reminder-stat-card">
+        <div class="reminder-stat-title">Pending</div>
+        <div class="reminder-stat-value">${pendingReminders}</div>
+      </div>
+      <div class="reminder-stat-card">
+        <div class="reminder-stat-title">Today</div>
+        <div class="reminder-stat-value">${todayReminders}</div>
+      </div>
+      <div class="reminder-stat-card">
+        <div class="reminder-stat-title">Completed</div>
+        <div class="reminder-stat-value">${completedReminders}</div>
+      </div>
+      ${overdueReminders > 0 ? `
+        <div class="reminder-stat-card">
+          <div class="reminder-stat-title task-overdue">Overdue</div>
+          <div class="reminder-stat-value task-overdue">${overdueReminders}</div>
+        </div>
+      ` : ''}
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Reminders</h3>
+        <button class="btn btn-primary" id="add-reminder-btn">
+          <i class="fas fa-plus"></i> Add
+        </button>
+      </div>
+      
+      <div class="reminder-filters">
+        <button class="reminder-filter active" data-filter="all">All Reminders</button>
+        <button class="reminder-filter" data-filter="pending">Pending</button>
+        <button class="reminder-filter" data-filter="completed">Completed</button>
+        <button class="reminder-filter" data-filter="today">Today</button>
+        <button class="reminder-filter" data-filter="overdue">Overdue</button>
+        ${isManager ? `
+          <button class="reminder-filter" data-filter="assigned">Assigned by Me</button>
+        ` : ''}
+      </div>
+      
+      <div id="reminders-container">
+  `;
+
+  if (reminders.length === 0) {
+    html += `
+      <div class="empty-state">
+        <i class="fas fa-bell empty-state-icon"></i>
+        <h3 class="empty-state-title">No reminders yet</h3>
+        <p class="empty-state-description">Create your first reminder to get started.</p>
+      </div>
+    `;
+  } else {
+    reminders.forEach(reminder => {
+      html += renderReminderCard(reminder, isManager);
+    });
+  }
+
+  html += `
+      </div>
+    </div>
+  `;
+
+  viewContainer.innerHTML = html;
+
+  // Initialize notification close button
+  if (dueReminders.length > 0) {
+    document.getElementById('close-notification').addEventListener('click', () => {
+      document.getElementById('reminder-notification').style.display = 'none';
+    });
+
+    // Initialize notification action buttons
+    document.querySelectorAll('.complete-reminder-notification').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const reminderId = btn.dataset.id;
+        
+        const { error } = await supabaseClient
+          .from('reminders')
+          .update({ is_completed: true, updated_at: new Date().toISOString() })
+          .eq('id', reminderId);
+        
+        if (error) {
+          showToast('Error completing reminder: ' + error.message, 'error');
+          return;
+        }
+        
+        showToast('Reminder completed successfully', 'success');
+        renderRemindersView();
+      });
+    });
+
+    document.querySelectorAll('.dismiss-reminder-notification').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const reminderId = btn.dataset.id;
+        
+        // Store dismissed reminder in localStorage with a timestamp
+        const dismissedReminders = JSON.parse(localStorage.getItem('dismissedReminders') || '[]');
+        dismissedReminders.push({
+          id: reminderId,
+          dismissedAt: new Date().toISOString()
+        });
+        localStorage.setItem('dismissedReminders', JSON.stringify(dismissedReminders));
+        
+        // Hide the notification
+        document.getElementById('reminder-notification').style.display = 'none';
+        
+        showToast('Reminder dismissed', 'info');
+      });
+    });
+  }
+
+  // Initialize event listeners
+  document.getElementById('add-reminder-btn').addEventListener('click', () => {
+    openReminderModal(null, salesReps);
+  });
+
+  // Initialize reminder filters
+  initReminderFilters(reminders);
+
+  // Initialize reminder action buttons
+  initReminderActionButtons(reminders, salesReps);
+}
+
+
+
+function renderReminderCard(reminder, isManager) {
+  const isAssignedToMe = reminder.assigned_to === currentUser.id;
+  const isCreatedByMe = reminder.created_by === currentUser.id;
+  const isCreatedByManager = isManager && reminder.created_by !== currentUser.id;
+  
+  // Sales reps can only edit reminders they created themselves
+  // Managers can edit reminders they created or those assigned to sales reps
+  const canEdit = (isManager && !isAssignedToMe) || 
+                  (!isManager && isCreatedByMe) || 
+                  (isManager && isCreatedByManager);
+  
+  const reminderDate = new Date(reminder.reminder_date);
+  const isOverdue = reminderDate < new Date() && !reminder.is_completed;
+  const isToday = reminderDate.toDateString() === new Date().toDateString();
+  const reminderDateStr = formatDate(reminder.reminder_date);
+  
+  // Get assigned to name
+  let assignedToName = 'Unassigned';
+  if (reminder.assigned_to_profile) {
+    assignedToName = `${reminder.assigned_to_profile.first_name} ${reminder.assigned_to_profile.last_name}`;
+  } else if (reminder.assigned_to === currentUser.id) {
+    assignedToName = 'Me';
+  }
+  
+  // Get created by name
+  let createdByName = 'Unknown';
+  if (reminder.created_by_profile) {
+    createdByName = `${reminder.created_by_profile.first_name} ${reminder.created_by_profile.last_name}`;
+  } else if (reminder.created_by === currentUser.id) {
+    createdByName = 'Me';
+  }
+
+  return `
+    <div class="reminder-card" data-id="${reminder.id}" data-completed="${reminder.is_completed}" data-overdue="${isOverdue}" data-today="${isToday}">
+      <div class="reminder-header">
+        <div class="reminder-title">${reminder.title}</div>
+        <div class="reminder-status ${reminder.is_completed ? 'completed' : 'pending'}">
+          ${reminder.is_completed ? 'Completed' : 'Pending'}
+        </div>
+      </div>
+      
+      ${reminder.description ? `<div class="reminder-description">${reminder.description}</div>` : ''}
+      
+      <div class="reminder-meta">
+        <div class="reminder-meta-item ${isOverdue ? 'task-overdue' : ''}">
+          <i class="fas fa-calendar"></i>
+          <span>${reminderDateStr}</span>
+          ${isToday && !reminder.is_completed ? '<i class="fas fa-clock"></i>' : ''}
+          ${isOverdue ? '<i class="fas fa-exclamation-triangle"></i>' : ''}
+        </div>
+        
+        ${isManager || reminder.assigned_to ? `
+          <div class="reminder-meta-item">
+            <i class="fas fa-user"></i>
+            <span>Assigned to: ${assignedToName}</span>
+          </div>
+        ` : ''}
+        
+        ${isManager ? `
+          <div class="reminder-meta-item">
+            <i class="fas fa-user-plus"></i>
+            <span>Created by: ${createdByName}</span>
+          </div>
+        ` : ''}
+      </div>
+      
+      <div class="reminder-actions">
+        <div class="reminder-date">
+          <i class="fas fa-bell"></i>
+          ${isToday && !reminder.is_completed ? 'Today' : formatDate(reminder.reminder_date, true)}
+        </div>
+        <div class="reminder-action-buttons">
+          ${canEdit ? `
+            <button class="reminder-action-btn edit-reminder" data-id="${reminder.id}">
+              <i class="fas fa-edit"></i>
+            </button>
+            ${!reminder.is_completed ? `
+              <button class="reminder-action-btn complete-reminder" data-id="${reminder.id}">
+                <i class="fas fa-check"></i>
+              </button>
+            ` : ''}
+          ` : ''}
+          ${isManager || isCreatedByMe ? `
+            <button class="reminder-action-btn delete-reminder" data-id="${reminder.id}">
+              <i class="fas fa-trash"></i>
+            </button>
+          ` : ''}
+        </div>
+      </div>
+      
+      ${!isManager && isCreatedByManager ? `
+        <div class="reminder-assigned-to">
+          <i class="fas fa-info-circle"></i>
+          <span>This reminder was assigned to you by a manager</span>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function initReminderFilters(reminders) {
+  const filterButtons = document.querySelectorAll('.reminder-filter');
+  
+  filterButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      // Update active state
+      filterButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      
+      const filter = btn.dataset.filter;
+      
+      // Apply filter
+      document.querySelectorAll('.reminder-card').forEach(card => {
+        let show = true;
+        
+        if (filter === 'all') {
+          show = true;
+        } else if (filter === 'overdue') {
+          const isOverdue = card.dataset.overdue === 'true';
+          show = isOverdue;
+        } else if (filter === 'today') {
+          const isToday = card.dataset.today === 'true';
+          show = isToday;
+        } else if (filter === 'assigned') {
+          // Only show reminders created by current user
+          const reminderId = card.dataset.id;
+          const reminder = reminders.find(r => r.id === reminderId);
+          show = reminder && reminder.created_by === currentUser.id;
+        } else {
+          const isCompleted = card.dataset.completed === 'true';
+          show = isCompleted === (filter === 'completed');
+        }
+        
+        card.style.display = show ? 'block' : 'none';
+      });
+    });
+  });
+}
+
+function initReminderActionButtons(reminders, salesReps) {
+  // Edit reminder buttons
+  document.querySelectorAll('.edit-reminder').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const reminderId = btn.dataset.id;
+      const reminder = reminders.find(r => r.id === reminderId);
+      if (reminder) {
+        openReminderModal(reminder, salesReps);
+      }
+    });
+  });
+
+  // Complete reminder buttons
+  document.querySelectorAll('.complete-reminder').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const reminderId = btn.dataset.id;
+      
+      if (confirm('Mark this reminder as completed?')) {
+        const { error } = await supabaseClient
+          .from('reminders')
+          .update({ is_completed: true, updated_at: new Date().toISOString() })
+          .eq('id', reminderId);
+        
+        if (error) {
+          showToast('Error completing reminder: ' + error.message, 'error');
+          return;
+        }
+        
+        showToast('Reminder completed successfully', 'success');
+        renderRemindersView();
+      }
+    });
+  });
+
+  // Delete reminder buttons
+  document.querySelectorAll('.delete-reminder').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const reminderId = btn.dataset.id;
+      
+      if (confirm('Are you sure you want to delete this reminder?')) {
+        const { error } = await supabaseClient
+          .from('reminders')
+          .delete()
+          .eq('id', reminderId);
+        
+        if (error) {
+          showToast('Error deleting reminder: ' + error.message, 'error');
+          return;
+        }
+        
+        showToast('Reminder deleted successfully', 'success');
+        renderRemindersView();
+      }
+    });
+  });
+}
+
+function openReminderModal(reminder = null, salesReps = []) {
+  const modal = document.getElementById('reminder-modal');
+  const modalTitle = document.getElementById('reminder-modal-title');
+  const saveBtn = document.getElementById('save-reminder-btn');
+  const assignField = document.getElementById('reminder-assign-field');
+  const assignSelect = document.getElementById('reminder-assign-to');
+  
+  // Reset form
+  document.getElementById('reminder-title').value = '';
+  document.getElementById('reminder-description').value = '';
+  document.getElementById('reminder-date').value = '';
+  
+  // Populate sales reps dropdown for managers
+  if (isManager && salesReps.length > 0) {
+    assignField.style.display = 'block';
+    assignSelect.innerHTML = '<option value="">Select a sales rep</option>';
+    
+    // Add option for self
+    assignSelect.innerHTML += `<option value="${currentUser.id}">Me</option>`;
+    
+    // Add options for sales reps
+    salesReps.forEach(rep => {
+      assignSelect.innerHTML += `<option value="${rep.id}">${rep.first_name} ${rep.last_name}</option>`;
+    });
+  } else {
+    assignField.style.display = 'none';
+  }
+  
+  // Set modal title
+  if (reminder) {
+    modalTitle.innerHTML = 'Edit Reminder';
+    
+    // Fill form with reminder data
+    document.getElementById('reminder-title').value = reminder.title || '';
+    document.getElementById('reminder-description').value = reminder.description || '';
+    
+    // Fix for time display issue
+    if (reminder.reminder_date) {
+      const reminderDate = new Date(reminder.reminder_date);
+      // Format as YYYY-MM-DDTHH:MM for datetime-local input
+      const year = reminderDate.getFullYear();
+      const month = String(reminderDate.getMonth() + 1).padStart(2, '0');
+      const day = String(reminderDate.getDate()).padStart(2, '0');
+      const hours = String(reminderDate.getHours()).padStart(2, '0');
+      const minutes = String(reminderDate.getMinutes()).padStart(2, '0');
+      
+      document.getElementById('reminder-date').value = `${year}-${month}-${day}T${hours}:${minutes}`;
+    } else {
+      document.getElementById('reminder-date').value = '';
+    }
+    
+    if (isManager && reminder.assigned_to) {
+      assignSelect.value = reminder.assigned_to;
+    }
+  } else {
+    modalTitle.innerHTML = 'New Reminder';
+    
+    // Default to self for non-managers
+    if (!isManager) {
+      // Non-managers can only create reminders for themselves
+      // So we don't need to show the assign field
+    }
+  }
+  
+  // Show modal
+  modal.style.display = 'flex';
+  
+  // Initialize event listeners
+  initReminderModalListeners(reminder);
+}
+
+function initReminderModalListeners(reminder) {
+  // Save reminder
+  const saveBtn = document.getElementById('save-reminder-btn');
+  
+  saveBtn.onclick = async () => {
+    const title = document.getElementById('reminder-title').value.trim();
+    const description = document.getElementById('reminder-description').value.trim();
+    const reminderDate = document.getElementById('reminder-date').value;
+    
+    // Get assigned to
+    let assignedTo = null;
+    if (isManager) {
+      assignedTo = document.getElementById('reminder-assign-to').value || null;
+    } else {
+      // Non-managers can only create reminders for themselves
+      assignedTo = currentUser.id;
+    }
+    
+    // Validate
+    if (!title || !reminderDate) {
+      showToast('Please enter a title and reminder date', 'error');
+      return;
+    }
+    
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    
+    try {
+      const reminderData = {
+        title,
+        description: description || null,
+        assigned_to: assignedTo,
+        created_by: currentUser.id,
+        reminder_date: new Date(reminderDate).toISOString(),
+        is_completed: false
+      };
+      
+      let result;
+      
+      if (reminder) {
+        // Update existing reminder
+        result = await supabaseClient
+          .from('reminders')
+          .update(reminderData)
+          .eq('id', reminder.id);
+      } else {
+        // Create new reminder
+        result = await supabaseClient
+          .from('reminders')
+          .insert([reminderData]);
+      }
+      
+      if (result.error) throw result.error;
+      
+      showToast(`Reminder ${reminder ? 'updated' : 'created'} successfully!`, 'success');
+      closeModal('reminder-modal');
+      renderRemindersView();
+    } catch (error) {
+      showToast(`Error ${reminder ? 'updating' : 'creating'} reminder: ${error.message}`, 'error');
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = 'Save Reminder';
+    }
+  };
+}
 
 // ======================
 // ROUTE PLANNING VIEW
@@ -2241,7 +3313,7 @@ function initRouteCreator(locations, salesReps) {
     // Simple nearest neighbor algorithm for route optimization
     optimizedRoute = optimizeRoute(selectedLocations);
     
-    // Display the route on map
+    // Display route on map
     displayRouteOnMap(optimizedRoute);
     
     // Show route order
@@ -2442,12 +3514,12 @@ function initRouteCreator(locations, salesReps) {
       </div>
     `).join('');
     
-    // Make the list sortable
+    // Make() list sortable
     new Sortable(sortableRoute, {
       handle: '.sortable-handle',
       animation: 150,
       onEnd: function(evt) {
-        // Update the optimizedRoute array based on new order
+        // Update optimizedRoute array based on new order
         const newOrder = Array.from(sortableRoute.children).map(item => {
           const locationId = item.getAttribute('data-id');
           return route.find(loc => loc.id === locationId);
@@ -2493,7 +3565,7 @@ function initRouteList() {
       const routeItem = btn.closest('.route-item');
       const routeName = routeItem.querySelector('h4').textContent;
       
-      if (confirm(`Are you sure you want to delete the route "${routeName}"?`)) {
+      if (confirm(`Are you sure you want to delete route "${routeName}"?`)) {
         try {
           const { error } = await supabaseClient
             .from('routes')
@@ -2605,10 +3677,8 @@ async function viewRouteDetails(routeId) {
 async function editRoute(routeId) {
   // Similar to viewRouteDetails but with editing capabilities
   // This would allow managers to modify the route order or locations
-  // Implementation would be similar to creating a new route but with pre-filled data
   showToast('Edit route functionality to be implemented', 'info');
 }
-
 
 // ======================
 // MY ROUTES VIEW
@@ -2877,7 +3947,7 @@ async function startRouteNavigation(routeId) {
             }).addTo(map);
           }
           
-          // Check if user is near the current stop
+          // Check if user is near current stop
           const currentLocation = locations[currentStopIndex];
           const distance = calculateDistance(
             latitude, longitude,
@@ -3125,7 +4195,7 @@ async function renderOpportunityPipelineView() {
       const competitors = opp.competitors ? JSON.parse(opp.competitors) : [];
       const isOwnOpportunity = !isManager || opp.user_id === currentUser.id;
       
-      // Get user info from the joined data
+      // Get user info from joined data
       const user = opp.profiles;
       const ownerName = user ? `${user.first_name} ${user.last_name}` : 'Unknown';
       
@@ -3675,5 +4745,22 @@ function checkDueReminders() {
   localStorage.setItem('opportunityReminders', JSON.stringify(reminders));
 }
 
-
-
+// Helper function to format date with optional short format
+function formatDate(dateString, shortFormat = false) {
+  const date = new Date(dateString);
+  
+  if (shortFormat) {
+    return date.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric'
+    });
+  }
+  
+  return date.toLocaleDateString('en-US', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
