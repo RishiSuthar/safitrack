@@ -359,12 +359,13 @@ async function renderLogVisitView() {
       </div>
 
       <div class="form-field" id="selected-location" style="display: none;">
-        <label>Visit Location</label>
         <div class="selected-location-info">
           <div id="selected-location-name"></div>
           <div id="selected-location-address" class="text-muted"></div>
         </div>
       </div>
+
+      <br>
 
       <div class="form-field">
         <label for="contact-name">Contact Person</label>
@@ -427,7 +428,6 @@ async function renderLogVisitView() {
       </div>
 
       <button type="button" id="submit-visit" class="btn btn-primary btn-lg w-full mt-3" disabled>
-        <i class="fas fa-check"></i>
         Save Visit
       </button>
     </div>
@@ -478,7 +478,7 @@ function initLogVisitForm(locations) {
     } else {
       companySearchResults.innerHTML = filtered.map(loc => `
         <div class="search-result-item" onclick="selectLocation('${loc.id}')">
-          <div class="search-result-icon"><i class="fas fa-map-marker-alt"></i></div>
+          <div class="search-result-icon"></div>
           <div>
             <div class="search-result-name">${loc.name}</div>
             <div class="search-result-role">${loc.address}</div>
@@ -672,7 +672,7 @@ function initLogVisitForm(locations) {
     } catch (err) {
       showToast('Failed to save visit: ' + err.message, 'error');
       submitBtn.disabled = false;
-      submitBtn.innerHTML = '<i class="fas fa-check"></i> Save Visit';
+      submitBtn.innerHTML = 'Save Visit';
     }
   });
 }
@@ -765,7 +765,7 @@ function renderVisitCard(visit, showRepName = false) {
       <div class="visit-header">
         <div>
           <div class="visit-company">${visit.company_name}</div>
-          ${showRepName && visit.user ? `<div class="text-prim" style="font-size: 0.9rem;">by ${visit.user.first_name} ${visit.user.last_name}</div>` : ''}
+          ${showRepName && visit.user ? `<div class="text-prim" style="font-size: 1rem;">by ${visit.user.first_name} ${visit.user.last_name}</div>` : ''}
         </div>
         <div class="visit-date">${date}</div>
       </div>
@@ -1769,7 +1769,7 @@ function getLeadScoreBadge(score) {
     label = 'Medium';
   }
 
-  return `<span class="lead-score-badge ${className}"><i class="fas fa-bullseye"></i> ${label} (${score}%)</span>`;
+  return `<span class="lead-score-badge ${className}"> Lead Score : <i class="fas fa-bullseye"></i> ${label}(${score}%)</span>`;
 }
 
 function parseMarkdown(text) {
@@ -3425,8 +3425,8 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
   // Set modal title
   if (opportunity) {
     modalTitle.innerHTML = readOnly 
-      ? `<i class="fas fa-chart-line"></i> ${opportunity.name}`
-      : `<i class="fas fa-edit"></i> Edit Opportunity`;
+      ? `${opportunity.name}`
+      : `Edit Opportunity`;
     
     // Fill form with opportunity data
     document.getElementById('opportunity-name').value = opportunity.name || '';
@@ -3458,7 +3458,7 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
       saveBtn.style.display = 'block';
     }
   } else {
-    modalTitle.innerHTML = '<i class="fas fa-plus"></i> New Opportunity';
+    modalTitle.innerHTML = 'New Opportunity';
     document.querySelectorAll('#opportunity-modal input, #opportunity-modal select, #opportunity-modal textarea').forEach(el => {
       el.disabled = false;
     });
