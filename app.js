@@ -2042,7 +2042,6 @@ async function renderTasksView() {
   if (tasks.length === 0) {
     html += `
       <div class="empty-state">
-        <i class="fas fa-tasks empty-state-icon"></i>
         <h3 class="empty-state-title">No tasks yet</h3>
         <p class="empty-state-description">Create your first task to get started.</p>
       </div>
@@ -2578,7 +2577,6 @@ async function renderRemindersView() {
   if (reminders.length === 0) {
     html += `
       <div class="empty-state">
-        <i class="fas fa-bell empty-state-icon"></i>
         <h3 class="empty-state-title">No reminders yet</h3>
         <p class="empty-state-description">Create your first reminder to get started.</p>
       </div>
