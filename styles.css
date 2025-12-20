@@ -1112,16 +1112,16 @@ select {
 
 /* ===== AI INSIGHT ===== */
 .ai-insight {
-  background: linear-gradient(135deg, #fef3c7 0%, #fef9c3 100%);
-  border: 1px solid #fcd34d;
+  background: linear-gradient(135deg, rgba(26, 55, 186, 0.15) 0%, rgba(73, 11, 181, 0.1) 100%);
+  border: 1px soli rgba(120, 120, 255, 0.3);
   border-radius: var(--radius-md);
   padding: 1rem;
   margin-top: 0.75rem;
 }
 
 [data-theme="dark"] .ai-insight {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.15) 0%, rgba(245, 158, 11, 0.1) 100%);
-  border-color: rgba(251, 191, 36, 0.3);
+  background: linear-gradient(135deg, rgba(26, 55, 186, 0.15) 0%, rgba(73, 11, 181, 0.1) 100%);
+  border-color: rgba(120, 120, 255, 0.3);
 }
 
 .ai-insight-header {
@@ -1131,21 +1131,21 @@ select {
   margin-bottom: 0.5rem;
   font-weight: 600;
   font-size: 0.875rem;
-  color: #92400e;
+  color: #00035f;
 }
 
 [data-theme="dark"] .ai-insight-header {
-  color: #fbbf24;
+  color: rgb(226, 239, 255);
 }
 
 .ai-insight-content {
   font-size: 0.875rem;
-  color: #78350f;
+  color: #00035f;
   line-height: 1.5;
 }
 
 [data-theme="dark"] .ai-insight-content {
-  color: #fcd34d;
+  color: rgb(226, 239, 255);
 }
 
 /* ===== LEAD SCORE BADGE ===== */
