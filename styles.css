@@ -913,19 +913,6 @@ body {
   overflow: hidden;
 }
 
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: var(--color-primary);
-}
-
-.stat-card.success::before { background: var(--color-success); }
-.stat-card.warning::before { background: var(--color-warning); }
-.stat-card.danger::before { background: var(--color-danger); }
 
 .stat-icon {
   width: 40px;
@@ -940,20 +927,6 @@ body {
   margin-bottom: 0.75rem;
 }
 
-.stat-card.success .stat-icon {
-  background: var(--color-success-bg);
-  color: var(--color-success);
-}
-
-.stat-card.warning .stat-icon {
-  background: var(--color-warning-bg);
-  color: var(--color-warning);
-}
-
-.stat-card.danger .stat-icon {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
-}
 
 .stat-value {
   font-size: 1.75rem;

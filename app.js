@@ -993,22 +993,18 @@ async function renderTeamDashboardView() {
 
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
         <div class="stat-value">${totalVisits}</div>
         <div class="stat-label">Total Visits</div>
       </div>
       <div class="stat-card success">
-        <div class="stat-icon"><i class="fas fa-users"></i></div>
         <div class="stat-value">${totalReps}</div>
         <div class="stat-label">Sales Reps</div>
       </div>
       <div class="stat-card warning">
-        <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
         <div class="stat-value">${todayVisits}</div>
         <div class="stat-label">Today</div>
       </div>
       <div class="stat-card">
-        <div class="stat-icon"><i class="fas fa-bullseye"></i></div>
         <div class="stat-value">${avgLeadScore}%</div>
         <div class="stat-label">Avg Lead Score</div>
       </div>
