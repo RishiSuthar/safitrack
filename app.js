@@ -396,7 +396,15 @@ async function renderCompaniesView() {
         ` : ''}
       </div>
       
-      <div class="companies-grid">
+      <!-- Add search bar -->
+      <div class="form-field">
+        <div class="search-container">
+          <i class="fas fa-search"></i>
+          <input type="text" id="companies-search" placeholder="Search companies by name or description...">
+        </div>
+      </div>
+      
+      <div class="companies-grid" id="companies-grid">
   `;
 
   if (companies.length === 0) {
@@ -417,7 +425,7 @@ async function renderCompaniesView() {
       const categories = company.company_categories.map(c => c.categories.name).join(', ');
       
       html += `
-        <div class="company-card" data-id="${company.id}">
+        <div class="company-card" data-id="${company.id}" data-name="${company.name.toLowerCase()}" data-description="${(company.description || '').toLowerCase()}">
           <div class="company-header">
             <div class="company-name">${company.name}</div>
             ${isManager ? `
@@ -459,6 +467,51 @@ async function renderCompaniesView() {
   `;
 
   viewContainer.innerHTML = html;
+
+  // Initialize search functionality
+  const searchInput = document.getElementById('companies-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const companyCards = document.querySelectorAll('.company-card');
+      
+      companyCards.forEach(card => {
+        const name = card.dataset.name;
+        const description = card.dataset.description;
+        
+        if (query === '' || name.includes(query) || description.includes(query)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      
+      // Check if any companies are visible
+      const visibleCards = Array.from(companyCards).filter(card => card.style.display !== 'none');
+      const companiesGrid = document.getElementById('companies-grid');
+      
+      if (visibleCards.length === 0 && query !== '') {
+        // Show no results message
+        if (!document.getElementById('no-companies-results')) {
+          const noResults = document.createElement('div');
+          noResults.id = 'no-companies-results';
+          noResults.className = 'empty-state';
+          noResults.innerHTML = `
+            <i class="fas fa-search empty-state-icon"></i>
+            <h3 class="empty-state-title">No companies found</h3>
+            <p class="empty-state-description">Try adjusting your search terms</p>
+          `;
+          companiesGrid.appendChild(noResults);
+        }
+      } else {
+        // Remove no results message if it exists
+        const noResults = document.getElementById('no-companies-results');
+        if (noResults) {
+          noResults.remove();
+        }
+      }
+    });
+  }
 
   // Initialize event listeners
   if (isManager) {
@@ -867,7 +920,15 @@ async function renderPeopleView() {
         </button>
       </div>
       
-      <div class="people-grid">
+      <!-- Add search bar -->
+      <div class="form-field">
+        <div class="search-container">
+          <i class="fas fa-search"></i>
+          <input type="text" id="people-search" placeholder="Search people by name, email, or company...">
+        </div>
+      </div>
+      
+      <div class="people-grid" id="people-grid">
   `;
 
   if (people.length === 0) {
@@ -887,7 +948,11 @@ async function renderPeopleView() {
       const opportunityName = person.opportunity ? person.opportunity.name : '';
       
       html += `
-        <div class="person-card" data-id="${person.id}">
+        <div class="person-card" data-id="${person.id}" 
+             data-name="${person.name.toLowerCase()}" 
+             data-email="${(person.email || '').toLowerCase()}" 
+             data-company="${companyName.toLowerCase()}"
+             data-job-title="${(person.job_title || '').toLowerCase()}">
           <div class="person-header">
             <div class="person-name">${person.name}</div>
             <div class="person-actions">
@@ -952,6 +1017,57 @@ async function renderPeopleView() {
   window.companiesData = companies;
   window.opportunitiesData = opportunities;
 
+  // Initialize search functionality
+  const searchInput = document.getElementById('people-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const personCards = document.querySelectorAll('.person-card');
+      
+      personCards.forEach(card => {
+        const name = card.dataset.name;
+        const email = card.dataset.email;
+        const company = card.dataset.company;
+        const jobTitle = card.dataset.jobTitle;
+        
+        if (query === '' || 
+            name.includes(query) || 
+            email.includes(query) || 
+            company.includes(query) ||
+            jobTitle.includes(query)) {
+          card.style.display = 'block';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      
+      // Check if any people are visible
+      const visibleCards = Array.from(personCards).filter(card => card.style.display !== 'none');
+      const peopleGrid = document.getElementById('people-grid');
+      
+      if (visibleCards.length === 0 && query !== '') {
+        // Show no results message
+        if (!document.getElementById('no-people-results')) {
+          const noResults = document.createElement('div');
+          noResults.id = 'no-people-results';
+          noResults.className = 'empty-state';
+          noResults.innerHTML = `
+            <i class="fas fa-search empty-state-icon"></i>
+            <h3 class="empty-state-title">No people found</h3>
+            <p class="empty-state-description">Try adjusting your search terms</p>
+          `;
+          peopleGrid.appendChild(noResults);
+        }
+      } else {
+        // Remove no results message if it exists
+        const noResults = document.getElementById('no-people-results');
+        if (noResults) {
+          noResults.remove();
+        }
+      }
+    });
+  }
+
   // Initialize event listeners
   document.getElementById('add-person-btn')?.addEventListener('click', () => {
     openPersonModal();
@@ -997,6 +1113,8 @@ async function renderPeopleView() {
     });
   });
 }
+
+
 
 function openPersonModal(person = null) {
   const modal = document.getElementById('person-modal');
