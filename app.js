@@ -2216,7 +2216,7 @@ async function renderOpportunityPipelineView() {
         ` : ''}
       </div>
       <button class="btn btn-primary" id="add-opportunity-btn">
-        <i class="fas fa-plus"></i> Add 
+        <i class="fas fa-plus"></i> New 
       </button>
     </div>
 
@@ -4837,7 +4837,7 @@ async function renderTasksView() {
       <div class="card-header">
         <h3 class="card-title">Tasks</h3>
         <button class="btn btn-primary" id="add-task-btn">
-          <i class="fas fa-plus"></i> Add
+          <i class="fas fa-plus"></i> New Task
         </button>
       </div>
       
@@ -5325,7 +5325,7 @@ async function renderRemindersView() {
       <div class="card-header">
         <h3 class="card-title">Reminders</h3>
         <button class="btn btn-primary" id="add-reminder-btn">
-          <i class="fas fa-plus"></i> Add
+          <i class="fas fa-plus"></i> New Reminder
         </button>
       </div>
       
