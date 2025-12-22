@@ -240,10 +240,6 @@ function updateUserDisplay(profile) {
   document.getElementById('user-display-name').textContent = displayName;
   document.getElementById('user-display-email').textContent = email;
 
-  // Update sidebar
-  document.getElementById('sidebar-user-avatar').textContent = initials;
-  document.getElementById('sidebar-user-name').textContent = displayName;
-  document.getElementById('sidebar-user-role').textContent = isManager ? 'Manager' : 'Sales Rep';
 }
 
 function updateNavigationForRole() {
@@ -2078,13 +2074,16 @@ async function renderSalesFunnelView() {
 // OPPORTUNITY PIPELINE VIEW
 // ======================
 
+// ======================
+// OPPORTUNITY PIPELINE VIEW (Updated)
+// ======================
+
 async function renderOpportunityPipelineView() {
   let opportunities;
   let error;
   
   if (isManager) {
     // Managers can see all opportunities with user info
-    // Using explicit join syntax instead of relationship syntax
     const result = await supabaseClient
       .from('opportunities')
       .select(`
@@ -2118,24 +2117,41 @@ async function renderOpportunityPipelineView() {
     return;
   }
 
-  // Define pipeline stages
+  // Define pipeline stages - simplified to 4 columns as requested
   const pipelineStages = [
-    { id: 'prospecting', title: 'Prospecting', color: '#6b7280' },
-    { id: 'qualification', title: 'Qualification', color: '#3b82f6' },
-    { id: 'proposal', title: 'Proposal', color: '#8b5cf6' },
-    { id: 'negotiation', title: 'Negotiation', color: '#f59e0b' },
-    { id: 'closed-won', title: 'Closed Won', color: '#10b981' },
-    { id: 'closed-lost', title: 'Closed Lost', color: '#ef4444' }
+    { id: 'prospecting', title: 'Discovery', color: '#6b7280' },
+    { id: 'qualification', title: 'In Progress', color: '#3b82f6' },
+    { id: 'closed-won', title: 'Won/Invoiced 🎉', color: '#10b981' },
+    { id: 'closed-lost', title: 'Lost', color: '#ef4444' }
   ];
+
+  // Map old stage values to new ones
+  const stageMapping = {
+    'prospecting': 'prospecting',
+    'qualification': 'qualification',
+    'proposal': 'qualification', // Map to In Progress
+    'negotiation': 'qualification', // Map to In Progress
+    'closed-won': 'closed-won',
+    'closed-lost': 'closed-lost'
+  };
+
+  // Apply mapping to opportunities
+  opportunities.forEach(opp => {
+    if (stageMapping[opp.stage]) {
+      opp.mappedStage = stageMapping[opp.stage];
+    } else {
+      opp.mappedStage = opp.stage;
+    }
+  });
 
   // Group opportunities by stage
   const opportunitiesByStage = {};
   pipelineStages.forEach(stage => {
     opportunitiesByStage[stage.id] = {
       ...stage,
-      opportunities: opportunities.filter(opp => opp.stage === stage.id),
+      opportunities: opportunities.filter(opp => opp.mappedStage === stage.id),
       totalValue: opportunities
-        .filter(opp => opp.stage === stage.id)
+        .filter(opp => opp.mappedStage === stage.id)
         .reduce((sum, opp) => sum + parseFloat(opp.value || 0), 0)
     };
   });
@@ -2168,7 +2184,7 @@ async function renderOpportunityPipelineView() {
       </div>
       <div class="pipeline-summary-card">
         <div class="pipeline-summary-title">Active Opportunities</div>
-        <div class="pipeline-summary-value">${opportunities.filter(opp => opp.stage !== 'closed-won' && opp.stage !== 'closed-lost').length}</div>
+        <div class="pipeline-summary-value">${opportunities.filter(opp => opp.mappedStage !== 'closed-won' && opp.mappedStage !== 'closed-lost').length}</div>
         <div class="pipeline-summary-change">
           <i class="fas fa-arrow-up"></i> 3 new this week
         </div>
@@ -2290,11 +2306,9 @@ async function renderOpportunityPipelineView() {
                 <button class="opportunity-action-btn edit-opportunity" data-id="${opp.id}">
                   <i class="fas fa-edit"></i>
                 </button>
-                ${opp.stage !== 'completed' ? `
-                  <button class="opportunity-action-btn complete-opportunity" data-id="${opp.id}">
-                    <i class="fas fa-check-circle"></i>
-                  </button>
-                ` : ''}
+                <button class="opportunity-action-btn delete-opportunity" data-id="${opp.id}">
+                  <i class="fas fa-trash"></i>
+                </button>
               ` : `
                 <button class="opportunity-action-btn view-opportunity" data-id="${opp.id}">
                   <i class="fas fa-eye"></i>
@@ -2323,6 +2337,80 @@ async function renderOpportunityPipelineView() {
     initPipelineFilters();
   }, 100);
 }
+
+function initOpportunityEventListeners(opportunities) {
+  // Add opportunity button
+  document.getElementById('add-opportunity-btn')?.addEventListener('click', () => {
+    openOpportunityModal();
+  });
+
+  // Edit opportunity buttons
+  document.querySelectorAll('.edit-opportunity').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const opportunityId = btn.dataset.id;
+      const opportunity = opportunities.find(opp => opp.id === opportunityId);
+      if (opportunity) {
+        openOpportunityModal(opportunity);
+      }
+    });
+  });
+
+  // Delete opportunity buttons
+  document.querySelectorAll('.delete-opportunity').forEach(btn => {
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const opportunityId = btn.dataset.id;
+      const opportunity = opportunities.find(opp => opp.id === opportunityId);
+      
+      const confirmed = await showConfirmDialog(
+        'Delete Opportunity',
+        `Are you sure you want to delete ${opportunity.name}?`
+      );
+
+      if (!confirmed) return;
+      
+      const { error } = await supabaseClient
+        .from('opportunities')
+        .delete()
+        .eq('id', opportunityId);
+      
+      if (error) {
+        showToast('Error deleting opportunity: ' + error.message, 'error');
+        return;
+      }
+      
+      showToast('Opportunity deleted successfully', 'success');
+      renderOpportunityPipelineView();
+    });
+  });
+
+  // View opportunity buttons (for managers viewing others' opportunities)
+  document.querySelectorAll('.view-opportunity').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const opportunityId = btn.dataset.id;
+      const opportunity = opportunities.find(opp => opp.id === opportunityId);
+      if (opportunity) {
+        const isOwnOpportunity = !isManager || opportunity.user_id === currentUser.id;
+        openOpportunityModal(opportunity, !isOwnOpportunity); // read-only if not own opportunity
+      }
+    });
+  });
+
+  // Click on opportunity card to view details
+  document.querySelectorAll('.opportunity-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const opportunityId = card.dataset.id;
+      const opportunity = opportunities.find(opp => opp.id === opportunityId);
+      if (opportunity) {
+        const isOwnOpportunity = !isManager || opportunity.user_id === currentUser.id;
+        openOpportunityModal(opportunity, !isOwnOpportunity); // read-only if not own opportunity
+      }
+    });
+  });
+}
+
 
 function initPipelineDragAndDrop() {
   const opportunityLists = document.querySelectorAll('.opportunity-list');
@@ -2530,7 +2618,7 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
   document.getElementById('opportunity-value').value = '';
   document.getElementById('opportunity-probability').value = 50;
   document.getElementById('probability-display').textContent = '50';
-  document.getElementById('opportunity-stage').value = 'prospecting';
+  document.getElementById('opportunity-stage').value = 'prospecting'; // Default to first stage
   document.getElementById('opportunity-next-step').value = '';
   document.getElementById('opportunity-next-step-date').value = '';
   document.getElementById('opportunity-notes').value = '';
@@ -2553,7 +2641,15 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
     document.getElementById('opportunity-value').value = opportunity.value || '';
     document.getElementById('opportunity-probability').value = opportunity.probability || 50;
     document.getElementById('probability-display').textContent = opportunity.probability || 50;
-    document.getElementById('opportunity-stage').value = opportunity.stage || 'prospecting';
+    
+    // Map old stage values to new ones
+    let stageValue = opportunity.stage || 'prospecting';
+    if (opportunity.stage === 'qualification') stageValue = 'qualification'; // Map to In Progress
+    if (opportunity.stage === 'proposal' || opportunity.stage === 'negotiation') stageValue = 'qualification'; // Map to In Progress
+    if (opportunity.stage === 'closed-won') stageValue = 'closed-won'; // Map to Won/Invoiced
+    
+    document.getElementById('opportunity-stage').value = stageValue;
+    
     document.getElementById('opportunity-next-step').value = opportunity.next_step || '';
     document.getElementById('opportunity-next-step-date').value = opportunity.next_step_date || '';
     document.getElementById('opportunity-notes').value = opportunity.notes || '';
@@ -2590,6 +2686,8 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
   // Initialize event listeners
   initOpportunityModalListeners(opportunity);
 }
+
+
 
 function initOpportunityModalListeners(opportunity) {
   // Probability slider
@@ -2653,13 +2751,13 @@ function initOpportunityModalListeners(opportunity) {
     const originalTextarea = document.getElementById('opportunity-notes');
     originalTextarea.parentNode.replaceChild(mentionContainer, originalTextarea);
     
-    // Get the new textarea element
+    // Get function new textarea element
     const newNotesEl = document.getElementById('opportunity-notes');
     
     // Copy value from original textarea
     newNotesEl.value = originalTextarea.value;
     
-    // Initialize mention system for the new textarea
+    // Initialize mention system for new textarea
     let mentionStartIndex = -1;
     let currentMentionQuery = '';
     
