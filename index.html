@@ -112,7 +112,7 @@
           <div class="user-dropdown" id="user-dropdown">
             <div class="user-dropdown-header">
               <span class="user-name" id="user-display-name">John Doe</span>
-              <span class="user-email" id="user-display-email">john@example.com</span>
+              <span class="user-display-email" id="user-display-email">john@example.com</span>
             </div>
             <div class="user-dropdown-divider"></div>
             <button id="export-btn" class="user-dropdown-item">
@@ -177,16 +177,26 @@
             <i class="fa-solid fa-tv"></i>
             <span>Dashboard</span>
           </button>
-          <button data-view="user-management" id="admin-view" class="nav-item">
-            <i class="fa-regular fa-user"></i>
-            <span>Users</span>
-          </button>
-
           <button data-view="route-planning" class="nav-item">
             <i class="fa-regular fa-map"></i>
             <span>Route Plan</span>
           </button>
+        </div>
 
+        <div class="nav-section">
+          <span class="nav-section-title">Records</span>
+          <button data-view="companies" class="nav-item">
+            <i class="fas fa-building"></i>
+            <span>Companies</span>
+          </button>
+          <button data-view="people" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>People</span>
+          </button>
+          <button data-view="user-management" id="admin-view" class="nav-item">
+            <i class="fa-regular fa-user"></i>
+            <span>Users</span>
+          </button>
         </div>
 
         <div class="sidebar-footer">
@@ -311,6 +321,151 @@
         <button class="btn btn-primary" onclick="executeExport()">
           <i class="fas fa-download"></i>
           Export
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPANY MODAL -->
+  <div id="company-modal" class="modal" style="display:none;">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 id="company-modal-title"><i class="fas fa-building"></i> New Company</h3>
+        <button class="modal-close" onclick="closeModal('company-modal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-field">
+          <label for="company-name-input">Company Name *</label>
+          <input type="text" id="company-name-input" placeholder="e.g., Acme Corporation" required>
+        </div>
+        
+        <div class="form-field">
+          <label for="company-description">Description</label>
+          <textarea id="company-description" placeholder="Brief description of company..." rows="3"></textarea>
+        </div>
+        
+        <div class="form-field">
+          <label for="company-address">Location Address *</label>
+          <input type="text" id="company-address" placeholder="e.g., 123 Main St, City, Country" required>
+        </div>
+
+        <div class="form-field">
+          <label>Location Coordinates</label>
+          <div class="coord-inputs">
+            <div class="coord-input-group">
+              <input type="number" id="company-latitude" placeholder="Latitude" step="0.000001">
+              <input type="number" id="company-longitude" placeholder="Longitude" step="0.000001">
+            </div>
+            <div class="coord-buttons">
+              <button type="button" id="geocode-address-btn" class="btn btn-secondary">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Geocode Address</span>
+              </button>
+              <button type="button" id="use-current-location-btn" class="btn btn-secondary">
+                <i class="fas fa-crosshairs"></i>
+                <span>Use Current Location</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="company-radius">Verification Radius (meters)</label>
+          <input type="number" id="company-radius" value="200" min="50" max="1000">
+        </div>
+        
+        <div class="form-field">
+          <label>Categories</label>
+          <div class="categories-input-container" id="categories-container">
+            <input type="text" class="categories-input" id="categories-input" placeholder="Add category...">
+          </div>
+          <div class="category-suggestions">
+            <button type="button" class="tag-suggestion" onclick="addCategory('Technology')">Technology</button>
+            <button type="button" class="tag-suggestion" onclick="addCategory('Manufacturing')">Manufacturing</button>
+            <button type="button" class="tag-suggestion" onclick="addCategory('Healthcare')">Healthcare</button>
+            <button type="button" class="tag-suggestion" onclick="addCategory('Finance')">Finance</button>
+            <button type="button" class="tag-suggestion" onclick="addCategory('Retail')">Retail</button>
+          </div>
+        </div>
+
+        <div id="manual-coords-section" class="manual-coords-section hidden">
+          <div class="form-field">
+            <label>Manual Coordinates</label>
+            <div class="coord-inputs">
+              <div class="coord-input-group">
+                <input type="number" id="company-latitude" placeholder="Latitude" step="0.000001">
+                <input type="number" id="company-longitude" placeholder="Longitude" step="0.000001">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('company-modal')">Cancel</button>
+        <button class="btn btn-primary" id="save-company-btn">Save Company</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PERSON MODAL -->
+  <div id="person-modal" class="modal" style="display:none;">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 id="person-modal-title"><i class="fas fa-user"></i> New Person</h3>
+        <button class="modal-close" onclick="closeModal('person-modal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-field">
+          <label for="person-name">Name *</label>
+          <input type="text" id="person-name" placeholder="Enter person's name" required>
+        </div>
+        
+        <div class="form-field">
+          <label for="person-email">Email Address</label>
+          <input type="email" id="person-email" placeholder="Enter email address">
+        </div>
+        
+        <div class="form-field">
+          <label for="person-company">Company *</label>
+          <select id="person-company" required>
+            <option value="">Select a company</option>
+          </select>
+        </div>
+        
+        <div class="form-field">
+          <label for="person-job-title">Job Title</label>
+          <input type="text" id="person-job-title" placeholder="Enter job title">
+        </div>
+        
+        <div class="form-field">
+          <label for="person-phone">Phone Numbers</label>
+          <div class="phone-numbers-container" id="phone-numbers-container">
+            <div class="phone-number-input">
+              <input type="tel" class="phone-number" placeholder="Enter phone number">
+              <button type="button" class="btn btn-sm btn-ghost add-phone-btn">
+                <i class="fas fa-plus"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-field">
+          <label for="person-opportunity">Opportunity</label>
+          <select id="person-opportunity">
+            <option value="">Select an opportunity</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('person-modal')">Cancel</button>
+        <button class="btn btn-primary" id="save-person-btn">
+          Save Person
         </button>
       </div>
     </div>

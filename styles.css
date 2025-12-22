@@ -81,6 +81,98 @@
   --shadow-xl: 0 20px 36px rgba(0, 0, 0, 0.6);
 }
 
+/* ===== MENTION SYSTEM ===== */
+.mention-container {
+  position: relative;
+}
+
+.mention-input {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.875rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  transition: var(--transition-fast);
+  resize: vertical;
+}
+
+.mention-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.mention-suggestions {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: var(--z-dropdown);
+}
+
+.mention-suggestion {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.mention-suggestion:hover {
+  background: var(--bg-tertiary);
+}
+
+.mention-suggestion.active {
+  background: var(--color-primary-bg);
+}
+
+.mention-avatar {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  color: white;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+}
+
+.mention-info {
+  flex: 1;
+}
+
+.mention-name {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.mention-details {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.mentioned-person {
+  display: inline-block;
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  padding: 0.125rem 0.375rem;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  margin: 0 0.125rem;
+}
 
 /* ===== RESET & BASE ===== */
 *, *::before, *::after {
@@ -208,7 +300,6 @@ body {
   align-items: center;
   justify-content: center;
 }
-
 
 .auth-hero-content p {
   font-size: 1.25rem;
@@ -351,13 +442,11 @@ body {
   background: var(--border-color);
 }
 
-
 .auth-card img {
   max-width: 250px;
   padding-bottom: 20px;
   display: block;
   margin: 0 auto;
-
 }
 
 /* ===== BUTTONS ===== */
@@ -434,7 +523,6 @@ body {
 .btn-block {
   width: 100%;
 }
-
 
 /* ===== APP LAYOUT ===== */
 .main-app {
@@ -690,19 +778,6 @@ body {
   cursor: pointer;
 }
 
-
-/* Add this to your CSS */
-@media (max-width: 767px) {
-  .sidebar-close {
-    width: 40px; /* Even larger for better tap target */
-    height: 40px; /* Even larger for better tap target */
-    font-size: 1.25rem; /* Make the icon bigger */
-    background: var(--bg-tertiary); /* Add a background for better visibility */
-  }
-}
-
-
-
 .sidebar-close:hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
@@ -913,7 +988,6 @@ body {
   overflow: hidden;
 }
 
-
 .stat-icon {
   width: 40px;
   height: 40px;
@@ -926,7 +1000,6 @@ body {
   font-size: 1rem;
   margin-bottom: 0.75rem;
 }
-
 
 .stat-value {
   font-size: 1.75rem;
@@ -1524,8 +1597,6 @@ select {
   animation: toast-in 0.3s ease, toast-out 0.3s ease 2.7s forwards;
   pointer-events: auto;
 }
-
-
 
 .toast-icon {
   font-size: 1.125rem;
@@ -2474,8 +2545,6 @@ select {
   line-height: 1.5;
 }
 
-
-
 /* ===== OPPORTUNITY PIPELINE ===== */
 .opportunity-pipeline-container {
   display: flex;
@@ -2854,7 +2923,6 @@ select {
   }
 }
 
-
 .pipeline-stage.drag-over {
   background: var(--color-primary-bg);
   border: 2px dashed var(--color-primary);
@@ -2885,10 +2953,7 @@ select {
     background: rgba(0, 0, 0, 0.02);
     border-radius: var(--radius-md);
   }
-
 }
-
-
 
 /* ===== OPPORTUNITY OWNER STYLES ===== */
 .opportunity-owner {
@@ -2935,8 +3000,6 @@ select {
   text-align: center;
   font-weight: 500;
 }
-
-
 
 /* ===== AUTH LOGOS ===== */
 .auth-logos {
@@ -3292,8 +3355,6 @@ select {
   }
 }
 
-
-
 /* ===== TASKS AND REMINDERS NOTIFICATION ===== */
 .reminder-notification {
   background: linear-gradient(135deg, rgba(79, 70, 229, 0.1) 0%, rgba(79, 70, 229, 0.05) 100%);
@@ -3381,9 +3442,6 @@ select {
   font-style: italic;
 }
 
-
-
-
 /* ===== FORCE CONFIRM DIALOG TO TOP ===== */
 #confirm-dialog {
   z-index: 99999 !important;
@@ -3405,4 +3463,275 @@ select {
 /* Ensure command palette is below confirm dialog */
 #command-palette {
   z-index: 900;
+}
+
+/* ===== COMPANIES AND PEOPLE ===== */
+.companies-grid, .people-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.company-card, .person-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  transition: var(--transition-fast);
+  cursor: pointer;
+}
+
+.company-card:hover, .person-card:hover {
+  border-color: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.company-header, .person-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.company-name, .person-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.company-actions, .person-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: var(--transition-fast);
+}
+
+.action-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.company-description, .person-details {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 0.75rem;
+}
+
+.company-location, .person-company {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.company-location i, .person-company i {
+  color: var(--text-muted);
+}
+
+.company-categories, .person-contact {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.company-category {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: var(--radius-full);
+}
+
+.person-contact-item {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.person-contact-item i {
+  color: var(--text-muted);
+}
+
+.person-opportunity {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-success);
+}
+
+.person-opportunity i {
+  color: var(--color-success);
+}
+
+.categories-input-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  min-height: 48px;
+  align-items: center;
+}
+
+.categories-input {
+  flex: 1;
+  min-width: 120px;
+  border: none;
+  background: none;
+  padding: 0.25rem;
+  font-size: 0.9375rem;
+}
+
+.categories-input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.category-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: var(--radius-full);
+}
+
+.category-tag .remove {
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.category-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.75rem;
+}
+
+.phone-numbers-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.phone-number-input {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.phone-number {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  transition: var(--transition-fast);
+}
+
+.phone-number:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+/* Manual coordinates section */
+.manual-coords-section {
+  display: none;
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.manual-coords-section.hidden {
+  display: block;
+}
+
+.coord-inputs {
+  display: flex;
+  gap: 1rem;
+}
+
+.coord-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.coord-inputs input[type="number"] {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+}
+
+.coord-buttons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.coord-buttons button {
+  flex: 1;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: white;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.coord-buttons button:hover {
+  background: var(--color-primary-dark);
+}
+
+.coord-buttons button i {
+  margin-right: 0.25rem;
+}
+
+/* Geocoding button loading state */
+.geocode-btn.loading {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.geocode-btn.loading i {
+  animation: spin 1s linear infinite;
 }
