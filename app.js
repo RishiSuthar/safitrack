@@ -283,7 +283,6 @@ function updateActiveNav(viewName) {
 // ======================
 // VIEW ROUTER
 // ======================
-
 async function loadView(viewName) {
   currentView = viewName;
   updateActiveNav(viewName);
@@ -296,11 +295,8 @@ async function loadView(viewName) {
     }
   });
 
-  // Show loading skeleton
-  viewContainer.innerHTML = renderSkeletonCards(3);
-
-  // Small delay for smooth transition
-  await new Promise(resolve => setTimeout(resolve, 200));
+  // REMOVED: The loading skeleton and the 200ms delay.
+  // The view will now switch instantly.
 
   switch (viewName) {
     case 'log-visit':
