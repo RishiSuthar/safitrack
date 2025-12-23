@@ -14,19 +14,6 @@ function parseMarkdown(text) {
   return text;
 }
 
-// SHOW TOAST
-function showToast(message, type = 'info') {
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.innerHTML = `
-    <div>${message}</div>
-    <button class="icon-btn" onclick="this.parentElement.remove()">✕</button>
-  `;
-  document.getElementById('toast-container').appendChild(toast);
-  setTimeout(() => {
-    if (toast.parentNode) toast.remove();
-  }, 3000);
-}
 
 // COPY TO CLIPBOARD
 function copyToClipboard(element) {
@@ -104,63 +91,5 @@ function hashCode(str) {
 function validateEmail(email) {
   const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return re.test(email);
-}
-
-// CALCULATE DISTANCE (Haversine formula)
-function calculateDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371e3; // Earth radius in meters
-  const φ1 = lat1 * Math.PI / 180;
-  const φ2 = lat2 * Math.PI / 180;
-  const Δφ = (lat2 - lat1) * Math.PI / 180;
-  const Δλ = (lon2 - lon1) * Math.PI / 180;
-
-  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-            Math.cos(φ1) * Math.cos(φ2) *
-            Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
-  return R * c; // Distance in meters
-}
-
-
-// GEOCODE ADDRESS → LAT/LNG using OpenStreetMap (Nominatim)
-async function geocodeAddress(address) {
-  if (!address || typeof address !== 'string' || address.trim() === '') {
-    throw new Error('Address is required');
-  }
-
-  const query = encodeURIComponent(address.trim());
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`;
-
-  try {
-    const response = await fetch(url, {
-      headers: {
-        // 🔐 Required by Nominatim's ToS — customize this!
-        'User-Agent': 'SafiTrack-FieldSales/1.0 (https://safitrack.netlify.app/)'
-      }
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    
-    if (!Array.isArray(data) || data.length === 0) {
-      throw new Error('No location found for this address');
-    }
-
-    const result = data[0];
-    return {
-      latitude: parseFloat(result.lat),
-      longitude: parseFloat(result.lon),
-      displayName: result.display_name,
-      osmId: result.osm_id,
-      placeId: result.place_id
-    };
-  } catch (error) {
-    console.error('[Geocoding Error]', error);
-    throw error;
-  }
 }
 
