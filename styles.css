@@ -63,23 +63,28 @@
 }
 
 [data-theme="dark"] {
-  --bg-primary: #0b1220;
-  --bg-secondary: #111827;
-  --bg-tertiary: #1b2340;
-  --bg-elevated: #111827;
+  /* Backgrounds – neutral graphite, low contrast */
+  --bg-primary: #0b0d12;        /* app background */
+  --bg-secondary: #0f1218;      /* panels */
+  --bg-tertiary: #141823;       /* subtle sections */
+  --bg-elevated: #181c27;       /* modals / cards */
 
-  --text-primary: #f8fafc;
-  --text-secondary: #cbd5e1;
-  --text-muted: #8b95b3;
+  /* Text – softer white, not pure */
+  --text-primary: #e5e7eb;      /* main text */
+  --text-secondary: #b6bccb;    /* labels / secondary */
+  --text-muted: #8a90a5;        /* hints / placeholders */
 
-  --border-color: #1f2a44;
-  --border-color-light: #111827;
+  /* Borders – very subtle */
+  --border-color: #1f2433;
+  --border-color-light: #171b26;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
-  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 12px 20px rgba(0, 0, 0, 0.55);
-  --shadow-xl: 0 20px 36px rgba(0, 0, 0, 0.6);
+  /* Shadows – minimal, Attio-style */
+  --shadow-sm: 0 1px 0 rgba(255, 255, 255, 0.02);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.45);
+  --shadow-xl: 0 20px 48px rgba(0, 0, 0, 0.55);
 }
+
 
 /* ===== MENTION SYSTEM ===== */
 .mention-container {
