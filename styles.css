@@ -811,7 +811,7 @@ body {
   padding: 0.5rem 0.8rem;
   border: none;
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--text-primary);
   font-size: 0.9rem;
   font-weight: 500;
   border-radius: var(--radius-md);
