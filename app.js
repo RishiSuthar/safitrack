@@ -6113,8 +6113,18 @@ function parseMarkdown(text) {
     .replace(/\n/g, '<br>');
 }
 
+
+
 function renderSkeletonCards(count = 3) {
   let html = '';
+
+  // UPDATE: Add data-hide-scrollbar to the first div
+  html += `<div class="page-header" data-hide-scrollbar>
+    <h1 class="page-title">Loading...</h1>
+    <p class="page-subtitle">Please wait</p>
+  </div>`; // Make sure this div closes! 
+  
+  // ... rest of the function remains the same
   for (let i = 0; i < count; i++) {
     html += `
       <div class="card">
@@ -6125,6 +6135,7 @@ function renderSkeletonCards(count = 3) {
       </div>
     `;
   }
+
   return html;
 }
 
