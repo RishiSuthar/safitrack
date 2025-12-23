@@ -190,6 +190,7 @@ html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: transparent;
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -1992,11 +1993,33 @@ select {
 }
 
 /* ===== RESPONSIVE - Large Desktop ===== */
+/* ===== RESPONSIVE - Large Desktop ===== */
 @media (min-width: 1280px) {
+  /* UPDATE: Full width logic */
   .main-content {
-    max-width: calc(var(--content-max-width) + var(--sidebar-width));
+    /* 1. Calculate exact remaining width after sidebar */
+    width: calc(100vw - var(--sidebar-width)); 
+    
+    /* 2. Keep the margin for sidebar, but REMOVE 'auto' (which was centering it) */
+    margin-left: var(--sidebar-width); 
+    margin-right: 0; 
+    
+    /* 3. Sleek padding (reduced from 3rem to 2rem) */
+    padding: 2rem; 
+    
+    /* 4. Remove max-width constraint to allow full stretch */
+    max-width: none; 
+  }
+
+  .page-title {
+    font-size: 1.75rem;
+  }
+
+  .card {
+    padding: 2rem;
   }
 }
+
 
 /* ===== UTILITY CLASSES ===== */
 .text-center { text-align: center; }
