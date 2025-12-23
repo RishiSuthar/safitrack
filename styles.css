@@ -1285,6 +1285,7 @@ select {
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-xl);
   overflow: hidden;
+  max-height: 480px;
 }
 
 .command-palette-header {
