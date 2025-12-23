@@ -212,9 +212,18 @@ async function initApp() {
   // Load all people for mention functionality
   await loadAllPeople();
 
-  // Load default view
-  loadView(isManager ? 'team-dashboard' : 'log-visit');
+  const savedView = localStorage.getItem('lastActiveView');
+  
+  // Define the default based on role
+  const defaultView = isManager ? 'team-dashboard' : 'log-visit';
+  
+  // If we have a saved view (and it's not the auth screen), use it. Otherwise use default.
+  const viewToLoad = (savedView && savedView !== 'auth-screen') ? savedView : defaultView;
+  
+  // Load the determined view
+  await loadView(viewToLoad);
 }
+
 
 async function loadAllPeople() {
   const { data: people, error } = await supabaseClient
@@ -295,8 +304,7 @@ async function loadView(viewName) {
     }
   });
 
-  // REMOVED: The loading skeleton and the 200ms delay.
-  // The view will now switch instantly.
+  localStorage.setItem('lastActiveView', viewName);
 
   switch (viewName) {
     case 'log-visit':
