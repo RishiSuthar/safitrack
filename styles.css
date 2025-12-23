@@ -836,6 +836,21 @@ body {
   text-align: center;
 }
 
+
+/* ===== SIDEBAR ICONS ===== */
+
+/* Target SVG elements inside nav items */
+.nav-item svg {
+  width: 18px;
+  height: 18px;
+  color: inherit; 
+}
+
+/* Optional: Add a transition for smooth color switching */
+.nav-item svg {
+  transition: color var(--transition-fast);
+}
+
 .sidebar-footer {
   margin-top: auto;
 }
