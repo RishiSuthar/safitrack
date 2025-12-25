@@ -4829,8 +4829,8 @@ async function renderTasksView() {
   let error;
   
   if (isManager) {
-    // Managers can see all tasks with user info
-    // Using explicit join syntax instead of relationship syntax
+    // Managers should only see tasks they created (either assigned to others or themselves).
+    // This prevents managers from seeing tasks that sales reps create for themselves.
     const result = await supabaseClient
       .from('tasks')
       .select(`
@@ -4838,8 +4838,9 @@ async function renderTasksView() {
         assigned_to_profile:profiles!tasks_assigned_to_fkey(first_name, last_name, email),
         created_by_profile:profiles!tasks_created_by_fkey(first_name, last_name, email)
       `)
+      .eq('created_by', currentUser.id)
       .order('created_at', { ascending: false });
-    
+
     tasks = result.data;
     error = result.error;
   } else {
@@ -4970,11 +4971,15 @@ function renderTaskCard(task, isManager) {
   const isCreatedByMe = task.created_by === currentUser.id;
   const isCreatedByManager = isManager && task.created_by !== currentUser.id;
   
-  // Sales reps can only edit tasks they created themselves
-  // Managers can edit tasks they created or those assigned to sales reps
-  const canEdit = (isManager && !isAssignedToMe) || 
-                  (!isManager && isCreatedByMe) || 
-                  (isManager && isCreatedByManager);
+  // Permissions:
+  // - Managers can edit any task.
+  // - Sales reps can only edit tasks they created themselves (not tasks assigned to them by a manager).
+  const canEdit = isManager || isCreatedByMe;
+
+  // Completion permission:
+  // - Managers can mark any task complete.
+  // - Sales reps can mark a task complete if it is assigned to them or if they created it.
+  const canComplete = isManager || isAssignedToMe || isCreatedByMe;
   
   const dueDate = task.due_date ? new Date(task.due_date) : null;
   const isOverdue = dueDate && dueDate < new Date();
@@ -5034,11 +5039,11 @@ function renderTaskCard(task, isManager) {
             <button class="task-action-btn edit-task" data-id="${task.id}">
               <i class="fas fa-edit"></i>
             </button>
-            ${task.status !== 'completed' ? `
-              <button class="task-action-btn complete-task" data-id="${task.id}">
-                <i class="fas fa-check-circle"></i>
-              </button>
-            ` : ''}
+          ` : ''}
+          ${canComplete && task.status !== 'completed' ? `
+            <button class="task-action-btn complete-task" data-id="${task.id}">
+              <i class="fas fa-check-circle"></i>
+            </button>
           ` : ''}
           ${isManager || isCreatedByMe ? `
             <button class="task-action-btn delete-task" data-id="${task.id}">
