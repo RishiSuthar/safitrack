@@ -13,6 +13,7 @@ let companyCategories = [];
 let personPhoneNumbers = [];
 let mentionedPeople = [];
 let allPeople = [];
+let isTechnician = false;
 
 // ======================
 // DOM ELEMENTS
@@ -204,6 +205,7 @@ async function initApp() {
   }
 
   isManager = profile.role === 'manager';
+  isTechnician = profile.role === 'technician';
   
   // Update UI based on role
   updateUserDisplay(profile);
@@ -215,7 +217,14 @@ async function initApp() {
   const savedView = localStorage.getItem('lastActiveView');
   
   // Define the default based on role
-  const defaultView = isManager ? 'team-dashboard' : 'log-visit';
+  let defaultView;
+  if (isManager) {
+    defaultView = 'team-dashboard';
+  } else if (isTechnician) {
+    defaultView = 'technician-log-visit';
+  } else {
+    defaultView = 'log-visit';
+  }
   
   // If we have a saved view (and it's not the auth screen), use it. Otherwise use default.
   const viewToLoad = (savedView && savedView !== 'auth-screen') ? savedView : defaultView;
@@ -223,7 +232,6 @@ async function initApp() {
   // Load the determined view
   await loadView(viewToLoad);
 }
-
 
 async function loadAllPeople() {
   const { data: people, error } = await supabaseClient
@@ -253,8 +261,11 @@ function updateUserDisplay(profile) {
 
 function updateNavigationForRole() {
   const managerNavSection = document.getElementById('manager-nav-section');
+  const technicianNavSection = document.getElementById('technician-nav-section');
   const managerBottomNav = document.querySelector('.bottom-nav-item.manager-only');
   const logVisitNav = document.querySelector('[data-view="log-visit"]');
+  const technicianLogVisitNav = document.querySelector('[data-view="technician-log-visit"]');
+  const technicianBottomNav = document.querySelectorAll('.bottom-nav-item.technician-only');
 
   if (isManager) {
     managerNavSection.style.display = 'block';
@@ -263,11 +274,42 @@ function updateNavigationForRole() {
     document.querySelectorAll('.sidebar-nav [data-view="log-visit"]').forEach(el => {
       el.style.display = 'none';
     });
-  } else {
+    // Hide technician views for managers
+    technicianNavSection.style.display = 'none';
+  } else if (isTechnician) {
+    // Show technician navigation
+    technicianNavSection.style.display = 'block';
+    // Hide sales rep navigation
+    document.querySelectorAll('.sidebar-nav [data-view="log-visit"]').forEach(el => {
+      el.style.display = 'none';
+    });
+    document.querySelectorAll('.sidebar-nav [data-view="my-activity"]').forEach(el => {
+      el.style.display = 'none';
+    });
+    // Hide views that technicians should not access
+    ['sales-funnel','opportunity-pipeline','companies','people','user-management'].forEach(view => {
+      document.querySelectorAll(`.sidebar-nav [data-view="${view}"]`).forEach(el => el.style.display = 'none');
+    });
+    // Hide manager navigation
     managerNavSection.style.display = 'none';
+  } else {
+    // Sales rep view
+    managerNavSection.style.display = 'none';
+    technicianNavSection.style.display = 'none';
     if (managerBottomNav) managerBottomNav.style.display = 'none';
   }
+  if (isTechnician) {
+    technicianBottomNav.forEach(el => el.style.display = 'flex');
+    // Hide other navigation
+    document.querySelectorAll('.bottom-nav-item:not(.technician-only)').forEach(el => {
+      el.style.display = 'none';
+    });
+  } else {
+    technicianBottomNav.forEach(el => el.style.display = 'none');
+  }
+
 }
+
 
 // ======================
 // SIDEBAR & NAVIGATION
@@ -295,6 +337,13 @@ function updateActiveNav(viewName) {
 async function loadView(viewName) {
   currentView = viewName;
   updateActiveNav(viewName);
+
+  // Prevent technicians from accessing certain views
+  const blockedForTechnician = ['sales-funnel','opportunity-pipeline','companies','people','user-management'];
+  if (isTechnician && blockedForTechnician.includes(viewName)) {
+    showToast('You do not have permission to access this view', 'error');
+    return;
+  }
 
   // Destroy existing charts
   Object.keys(chartInstances).forEach(chartId => {
@@ -347,6 +396,27 @@ async function loadView(viewName) {
       break;
     case 'tasks':
       await renderTasksView();
+      break;
+    case 'technician-log-visit':
+      if (isTechnician) {
+        await renderTechnicianLogVisitView();
+      } else {
+        viewContainer.innerHTML = renderAccessDenied();
+      }
+      break;
+    case 'technician-activity':
+      if (isTechnician) {
+        await renderTechnicianActivityView();
+      } else {
+        viewContainer.innerHTML = renderAccessDenied();
+      }
+      break;
+    case 'technicians-dashboard':
+      if (isManager) {
+        await renderTechniciansDashboardView();
+      } else {
+        viewContainer.innerHTML = renderAccessDenied();
+      }
       break;
     case 'reminders':
       await renderRemindersView();
@@ -1336,7 +1406,7 @@ async function renderLogVisitView() {
           <div id="selected-company-address" class="text-muted"></div>
         </div>
       </div>
-
+      
       <br>
 
       <div class="form-field">
@@ -1417,6 +1487,7 @@ function initLogVisitForm(companies) {
   const selectedCompanyDiv = document.getElementById('selected-company');
   const selectedCompanyName = document.getElementById('selected-company-name');
   const selectedCompanyAddress = document.getElementById('selected-company-address');
+  // sales rep should select a company from search; no custom company input here
   const notesEl = document.getElementById('notes');
   const charCountEl = document.getElementById('char-count');
   const verifyLocationBtn = document.getElementById('verify-location');
@@ -1451,7 +1522,7 @@ function initLogVisitForm(companies) {
     );
 
     if (filtered.length === 0) {
-      companySearchResults.innerHTML = '<div class="search-result-item">No companies found</div>';
+      companySearchResults.innerHTML = `<div class="search-result-item">No companies found</div>`;
     } else {
       companySearchResults.innerHTML = filtered.map(company => `
         <div class="search-result-item" onclick="selectCompany('${company.id}')">
@@ -1879,6 +1950,9 @@ window.selectCompany = function(companyId) {
   // Enable verify location button
   document.getElementById('verify-location').disabled = false;
 };
+
+// Allow selecting a custom company entered by the user in the Log Visit form
+// custom company helper removed for sales rep flow; technicians may use their own helper
 // ======================
 // MY ACTIVITY VIEW
 // ======================
@@ -1964,7 +2038,7 @@ function renderVisitCard(visit, showRepName = false) {
 
       ${visit.photo_url ? `
         <div class="photo-preview mb-2">
-          <img src="${visit.photo_url}" alt="Visit photo">
+          <img src="${visit.photo_url}" alt="Visit photo" onerror="handleImageError(this)">
         </div>
       ` : ''}
 
@@ -3360,7 +3434,7 @@ async function renderUserManagementView() {
           <div class="text-muted" style="font-size: 0.875rem;">${user.email}</div>
         </div>
         <span class="tag ${user.role === 'manager' ? '' : 'text-muted'}" style="background: ${user.role === 'manager' ? 'var(--color-primary-bg)' : 'var(--bg-tertiary)'};">
-          ${user.role === 'manager' ? 'Manager' : 'Sales Rep'}
+          ${user.role === 'manager' ? 'Manager' : user.role === 'technician' ? 'Technician' : user.role === 'sales_rep' ? 'Sales Rep' : (user.role || '')}
         </span>
         ${!isCurrentUser ? `
           <button class="btn btn-ghost btn-sm" onclick="deleteUser('${user.id}', '${user.first_name} ${user.last_name}')">
@@ -6029,6 +6103,40 @@ function showToast(message, type = 'info') {
   }, 3000);
 }
 
+// Try to repair broken image links from Supabase storage by requesting a signed URL
+async function handleImageError(img) {
+  try {
+    // Prevent retry loops
+    if (img.dataset._tried) return;
+    img.dataset._tried = '1';
+
+    const src = img.src || '';
+    const bucketMarker = '/safitrack/';
+    const idx = src.indexOf(bucketMarker);
+    if (idx === -1) {
+      img.onerror = null;
+      img.src = 'assets/illustrations/image-missing.png';
+      return;
+    }
+
+    const storagePath = decodeURIComponent(src.substring(idx + bucketMarker.length));
+
+    const { data, error } = await supabaseClient.storage.from('safitrack').createSignedUrl(storagePath, 60);
+    if (!error && data && data.signedUrl) {
+      img.onerror = null;
+      img.src = data.signedUrl;
+      return;
+    }
+
+    img.onerror = null;
+    img.src = 'assets/illustrations/image-missing.png';
+  } catch (err) {
+    console.error('handleImageError failed', err);
+    img.onerror = null;
+    img.src = 'assets/illustrations/image-missing.png';
+  }
+}
+
 function triggerConfetti() {
   if (typeof confetti === 'function') {
     confetti({
@@ -6317,3 +6425,2098 @@ window.executeCommand = function(commandId) {
     closeCommandPalette();
   }
 };
+
+
+
+// ======================
+// TECHNICIAN LOG VISIT VIEW
+// ======================
+
+async function renderTechnicianLogVisitView() {
+  const { data: companies } = await supabaseClient
+    .from('companies')
+    .select('*')
+    .order('name', { ascending: true });
+
+  viewContainer.innerHTML = `
+    <div class="page-header">
+      <h1 class="page-title">Log Service Visit</h1>
+      <p class="page-subtitle">Record your technical service details</p>
+    </div>
+
+    <!-- Step Progress -->
+    <div class="form-steps">
+      <div class="step active" data-step="1">
+        <div class="step-number">1</div>
+        <div class="step-title">Location & Company</div>
+      </div>
+      <div class="step" data-step="2">
+        <div class="step-number">2</div>
+        <div class="step-title">Visit Details</div>
+      </div>
+      <div class="step" data-step="3">
+        <div class="step-number">3</div>
+        <div class="step-title">Photos</div>
+      </div>
+      <div class="step" data-step="4">
+        <div class="step-number">4</div>
+        <div class="step-title">Signatures</div>
+      </div>
+      <div class="step" data-step="5">
+        <div class="step-number">5</div>
+        <div class="step-title">Review</div>
+      </div>
+    </div>
+
+    <!-- Step 1: Location & Company -->
+    <div class="step-container active" id="step-1">
+      <div class="card">
+        <h3 class="card-title">Location & Company</h3>
+        
+        <div class="form-field">
+          <label for="technician-company-name">Company Name *</label>
+          <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="technician-company-name" placeholder="Search for a company..." required />
+            <div id="technician-company-search-results" class="search-results" style="display: none;"></div>
+          </div>
+        </div>
+
+        <div class="form-field" id="selected-technician-company" style="display: none;">
+          <div class="selected-location-info">
+            <div id="selected-technician-company-name"></div>
+            <div id="selected-technician-company-address" class="text-muted"></div>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="technician-custom-location">Custom Location (optional)</label>
+          <input type="text" id="technician-custom-location" placeholder="Enter custom company or location name" />
+          <div class="text-muted mt-1">Technicians may enter a custom location if the company isn't listed.</div>
+        </div>
+
+        <div class="form-field">
+          <label>Location Verification</label>
+          <div class="location-verification">
+            <button type="button" id="verify-technician-location" class="btn btn-secondary w-full">
+              <i class="fas fa-map-marker-alt"></i>
+              Capture Current Location
+            </button>
+            <div id="technician-location-status" class="location-status" style="display: none;"></div>
+            <div id="technician-location-map" class="location-map" style="display: none; height: 200px;"></div>
+          </div>
+          <small class="text-muted">Your location will be captured and displayed on the map for the manager</small>
+        </div>
+
+        <div class="form-field">
+          <button class="btn btn-primary w-full next-step" data-next="2">
+            Next: Visit Details
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 2: Visit Details -->
+    <div class="step-container" id="step-2">
+      <div class="card">
+        <h3 class="card-title">Visit Details</h3>
+        
+        <div class="form-field">
+          <label for="visit-type">Visit Type *</label>
+          <select id="visit-type" required>
+            <option value="">Select visit type</option>
+            <option value="installation">Installation</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="repair">Repair</option>
+            <option value="inspection">Inspection</option>
+            <option value="emergency">Emergency / Call-out</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label for="work-category">Work Category *</label>
+          <select id="work-category" required>
+            <option value="">Select category</option>
+            <option value="electrical">Electrical</option>
+            <option value="solar">Solar</option>
+            <option value="networking">Networking</option>
+            <option value="mechanical">Mechanical</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+
+        <div class="form-field" id="other-category-field" style="display: none;">
+          <label for="other-category">Specify Other Category</label>
+          <input type="text" id="other-category" placeholder="Enter category">
+        </div>
+
+        <div class="form-field">
+          <label for="work-status">Work Status *</label>
+          <select id="work-status" required>
+            <option value="">Select status</option>
+            <option value="completed">Completed</option>
+            <option value="partially_completed">Partially Completed</option>
+            <option value="pending">Pending</option>
+            <option value="follow_up">Follow-up Required</option>
+          </select>
+        </div>
+
+        <div class="form-field" id="follow-up-field" style="display: none;">
+          <label for="follow-up-notes">Follow-up & Next Actions *</label>
+          <textarea id="follow-up-notes" placeholder="Describe required follow-up actions..." rows="3"></textarea>
+        </div>
+
+        <div class="form-field">
+          <label for="visit-notes">Visit Notes *</label>
+          <textarea id="visit-notes" placeholder="Describe the work performed, findings, recommendations..." rows="5" required></textarea>
+        </div>
+
+        <div class="form-field flex gap-2">
+          <button class="btn btn-secondary flex-1 prev-step" data-prev="1">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          <button class="btn btn-primary flex-1 next-step" data-next="3">
+            Next: Photos
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Photos -->
+    <div class="step-container" id="step-3">
+      <div class="card">
+        <h3 class="card-title">Photos</h3>
+        <p class="text-muted mb-3">Photos will be automatically deleted after 30 days</p>
+        
+        <input type="file" id="technician-photos" accept="image/*" multiple style="display: none;" />
+        
+        <div class="photo-upload-multiple" id="photo-upload-multiple">
+          <i class="fas fa-camera"></i>
+          <p>Tap to add photos (multiple selection supported)</p>
+          <small class="text-muted">Maximum 10 photos, 5MB each</small>
+        </div>
+
+        <div class="photo-grid" id="photo-preview-grid"></div>
+
+        <div class="form-field flex gap-2">
+          <button class="btn btn-secondary flex-1 prev-step" data-prev="2">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          <button class="btn btn-primary flex-1 next-step" data-next="4">
+            Next: Signatures
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 4: Signatures -->
+    <div class="step-container" id="step-4">
+      <div class="card">
+        <h3 class="card-title">Signatures</h3>
+        <p class="text-muted mb-3">Both signatures are required to submit the visit</p>
+        
+        <div class="form-field">
+          <label>Client Signature *</label>
+          <div class="signature-container">
+            <canvas id="client-signature-canvas" class="signature-canvas"></canvas>
+            <div class="signature-placeholder" id="client-signature-placeholder">
+              Click and drag to sign
+            </div>
+          </div>
+          <div class="signature-actions">
+            <button type="button" class="btn btn-sm btn-secondary" id="clear-client-signature">
+              Clear
+            </button>
+            <button type="button" class="btn btn-sm btn-secondary" id="save-client-signature">
+              Save
+            </button>
+          </div>
+          
+        </div>
+
+        <div class="form-field">
+          <label>Technician Signature *</label>
+          <div class="signature-container">
+            <canvas id="technician-signature-canvas" class="signature-canvas"></canvas>
+            <div class="signature-placeholder" id="technician-signature-placeholder">
+              Click and drag to sign
+            </div>
+          </div>
+          <div class="signature-actions">
+            <button type="button" class="btn btn-sm btn-secondary" id="clear-technician-signature">
+              Clear
+            </button>
+            <button type="button" class="btn btn-sm btn-secondary" id="save-technician-signature">
+              Save
+            </button>
+          </div>
+          
+        </div>
+
+        <div class="form-field flex gap-2">
+          <button class="btn btn-secondary flex-1 prev-step" data-prev="3">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          <button class="btn btn-primary flex-1 next-step" data-next="5" id="next-to-review" disabled>
+            Next: Review
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 5: Review & Submit -->
+    <div class="step-container" id="step-5">
+      <div class="card">
+        <h3 class="card-title">Review & Submit</h3>
+        
+        <div class="review-section">
+          <h4>Visit Summary</h4>
+          <div id="review-summary"></div>
+        </div>
+
+        <div class="review-section">
+          <h4>Photos</h4>
+          <div class="photo-grid" id="review-photos"></div>
+        </div>
+
+        <div class="review-section">
+          <h4>Signatures</h4>
+          <div class="flex gap-4">
+            <div>
+              <p class="text-sm text-muted">Client Signature</p>
+              <div id="review-client-signature"></div>
+            </div>
+            <div>
+              <p class="text-sm text-muted">Technician Signature</p>
+              <div id="review-technician-signature"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Confirm signatures checkbox removed - not required -->
+
+        <div class="form-field flex gap-2">
+          <button class="btn btn-secondary flex-1 prev-step" data-prev="4">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          <button class="btn btn-primary flex-1" id="submit-technician-visit" disabled>
+            <i class="fas fa-check"></i> Submit Visit
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  initTechnicianLogVisitForm(companies);
+}
+
+function initTechnicianLogVisitForm(companies) {
+  // Create a global state object for the form
+  window.technicianVisitForm = {
+    currentStep: 1,
+    selectedCompany: null,
+    capturedLocation: null,
+    clientSignature: null,
+    technicianSignature: null,
+    photos: [],
+    clientSignatureCanvas: null,
+    technicianSignatureCanvas: null,
+    clientSignatureCtx: null,
+    technicianSignatureCtx: null,
+    isClientDrawing: false,
+    isTechnicianDrawing: false,
+    map: null
+  };
+
+  // Store for global access
+  window.companiesData = companies;
+
+  // Company search functionality
+  const companyNameInput = document.getElementById('technician-company-name');
+  const companySearchResults = document.getElementById('technician-company-search-results');
+  const selectedCompanyDiv = document.getElementById('selected-technician-company');
+  const selectedCompanyName = document.getElementById('selected-technician-company-name');
+  const selectedCompanyAddress = document.getElementById('selected-technician-company-address');
+  const customLocationInput = document.getElementById('technician-custom-location');
+
+  companyNameInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    
+    if (query.length === 0) {
+      companySearchResults.style.display = 'none';
+      return;
+    }
+
+    const filtered = companies.filter(company =>
+      company.name.toLowerCase().includes(query)
+    );
+
+    if (filtered.length === 0) {
+      companySearchResults.innerHTML = '<div class="search-result-item">No companies found</div>';
+    } else {
+      companySearchResults.innerHTML = filtered.map(company => `
+        <div class="search-result-item" onclick="selectTechnicianCompany('${company.id}')">
+          <div class="search-result-icon"></div>
+          <div>
+            <div class="search-result-name">${company.name}</div>
+            <div class="search-result-role">${company.description || 'No description'}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    companySearchResults.style.display = 'block';
+  });
+
+  // Location verification
+  const verifyLocationBtn = document.getElementById('verify-technician-location');
+  const locationStatus = document.getElementById('technician-location-status');
+  const locationMap = document.getElementById('technician-location-map');
+
+  verifyLocationBtn.addEventListener('click', () => {
+    let company = window.technicianVisitForm.selectedCompany;
+
+    // If no selected company but technician provided a custom location name, use that
+    if (!company) {
+      const customName = customLocationInput && customLocationInput.value.trim() ? customLocationInput.value.trim() : null;
+      if (customName) {
+        company = { id: null, name: customName, description: 'Custom entry' };
+        // store as selectedCompany so submit uses it
+        window.technicianVisitForm.selectedCompany = company;
+        if (selectedCompanyDiv) selectedCompanyDiv.style.display = 'block';
+        if (selectedCompanyName) selectedCompanyName.textContent = company.name;
+        if (selectedCompanyAddress) selectedCompanyAddress.textContent = company.description;
+      } else {
+        showToast('Please select a company or enter a custom location', 'error');
+        return;
+      }
+    }
+
+    if (!navigator.geolocation) {
+      showToast('Geolocation not supported', 'error');
+      return;
+    }
+
+    verifyLocationBtn.disabled = true;
+    verifyLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Capturing location...';
+    locationStatus.style.display = 'flex';
+    locationStatus.className = 'location-status';
+    locationStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting your location...';
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const capturedLocation = {
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
+          accuracy: position.coords.accuracy
+        };
+
+        // Store in global state
+        window.technicianVisitForm.capturedLocation = capturedLocation;
+
+        locationStatus.className = 'location-status success';
+        locationStatus.innerHTML = `<i class="fas fa-check-circle"></i> Location captured! Coordinates: ${capturedLocation.latitude.toFixed(6)}, ${capturedLocation.longitude.toFixed(6)}`;
+        
+        // Show map
+        locationMap.style.display = 'block';
+        initTechnicianLocationMap(company, capturedLocation);
+        
+        verifyLocationBtn.disabled = false;
+        verifyLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i> Location Captured';
+        verifyLocationBtn.classList.add('btn-success');
+      },
+      (error) => {
+        locationStatus.className = 'location-status error';
+        locationStatus.innerHTML = `<i class="fas fa-times-circle"></i> Unable to get location`;
+        verifyLocationBtn.disabled = false;
+        verifyLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i> Capture Current Location';
+        showToast('Location capture failed', 'error');
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  });
+
+  // Work category other field
+  const workCategorySelect = document.getElementById('work-category');
+  const otherCategoryField = document.getElementById('other-category-field');
+
+  workCategorySelect.addEventListener('change', (e) => {
+    if (e.target.value === 'other') {
+      otherCategoryField.style.display = 'block';
+    } else {
+      otherCategoryField.style.display = 'none';
+    }
+  });
+
+  // Follow-up field
+  const workStatusSelect = document.getElementById('work-status');
+  const followUpField = document.getElementById('follow-up-field');
+  const followUpNotes = document.getElementById('follow-up-notes');
+
+  workStatusSelect.addEventListener('change', (e) => {
+    if (e.target.value === 'follow_up') {
+      followUpField.style.display = 'block';
+      followUpNotes.required = true;
+    } else {
+      followUpField.style.display = 'none';
+      followUpNotes.required = false;
+    }
+  });
+
+  // Photo upload
+  const photoInput = document.getElementById('technician-photos');
+  const photoUploadArea = document.getElementById('photo-upload-multiple');
+  const photoPreviewGrid = document.getElementById('photo-preview-grid');
+
+  photoUploadArea.addEventListener('click', () => photoInput.click());
+
+// Replace the photo upload event listener with this updated version
+  photoInput.addEventListener('change', (e) => {
+    const files = Array.from(e.target.files).slice(0, 10); // Limit to 10 photos
+    
+    files.forEach(file => {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        showToast(`Photo ${file.name} exceeds 5MB limit`, 'error');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        // Create a temporary photo object for preview
+        const tempPhoto = {
+          dataUrl: e.target.result,
+          file: file,
+          timestamp: new Date().toISOString()
+        };
+        
+        // Add to global state for preview
+        window.technicianVisitForm.photos.push(tempPhoto);
+        renderPhotoPreviews();
+      };
+      reader.readAsDataURL(file);
+    });
+  });
+
+  function renderPhotoPreviews() {
+    const photos = window.technicianVisitForm.photos;
+    const photoPreviewGrid = document.getElementById('photo-preview-grid');
+    
+    if (!photoPreviewGrid) return;
+    
+    photoPreviewGrid.innerHTML = photos.map((photo, index) => `
+      <div class="photo-item">
+        <img src="${photo.dataUrl}" alt="Visit photo ${index + 1}" style="width: 100%; height: 100%; object-fit: cover;">
+        <button class="photo-remove" onclick="removeTechnicianPhoto(${index})">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `).join('');
+  }
+
+  window.removeTechnicianPhoto = function(index) {
+    window.technicianVisitForm.photos.splice(index, 1);
+    renderPhotoPreviews();
+  };
+
+  function renderPhotoPreviews() {
+    const photos = window.technicianVisitForm.photos;
+    photoPreviewGrid.innerHTML = photos.map((photo, index) => `
+      <div class="photo-item">
+        <img src="${photo.dataUrl}" alt="Visit photo ${index + 1}">
+        <button class="photo-remove" onclick="removeTechnicianPhoto(${index})">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+    `).join('');
+  }
+
+  window.removeTechnicianPhoto = function(index) {
+    window.technicianVisitForm.photos.splice(index, 1);
+    renderPhotoPreviews();
+  };
+
+  // Initialize signature canvases
+  function initSignatureCanvases() {
+    const clientSignatureCanvas = document.getElementById('client-signature-canvas');
+    const technicianSignatureCanvas = document.getElementById('technician-signature-canvas');
+    
+    // Set canvas dimensions
+    clientSignatureCanvas.width = clientSignatureCanvas.offsetWidth;
+    clientSignatureCanvas.height = clientSignatureCanvas.offsetHeight;
+    technicianSignatureCanvas.width = technicianSignatureCanvas.offsetWidth;
+    technicianSignatureCanvas.height = technicianSignatureCanvas.offsetHeight;
+    
+    // Get contexts
+    const clientSignatureCtx = clientSignatureCanvas.getContext('2d');
+    const technicianSignatureCtx = technicianSignatureCanvas.getContext('2d');
+    
+    // Store in global state
+    window.technicianVisitForm.clientSignatureCanvas = clientSignatureCanvas;
+    window.technicianVisitForm.technicianSignatureCanvas = technicianSignatureCanvas;
+    window.technicianVisitForm.clientSignatureCtx = clientSignatureCtx;
+    window.technicianVisitForm.technicianSignatureCtx = technicianSignatureCtx;
+    
+    // Set up drawing
+    setupSignatureDrawing(clientSignatureCanvas, clientSignatureCtx, 'client');
+    setupSignatureDrawing(technicianSignatureCanvas, technicianSignatureCtx, 'technician');
+  }
+
+  function setupSignatureDrawing(canvas, ctx, type) {
+    let isDrawing = false;
+    let lastX = 0;
+    let lastY = 0;
+    let drawingTimeout = null;
+
+    // Get current theme
+    const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+    
+    function startDrawing(e) {
+      isDrawing = true;
+      [lastX, lastY] = getCoordinates(e);
+      if (type === 'client') window.technicianVisitForm.isClientDrawing = true;
+      if (type === 'technician') window.technicianVisitForm.isTechnicianDrawing = true;
+      canvas.style.cursor = 'crosshair';
+      
+      // Clear any existing timeout
+      if (drawingTimeout) clearTimeout(drawingTimeout);
+    }
+
+
+    function draw(e) {
+      if (!isDrawing) return;
+      
+      // Use consistent blue color so signatures are visible in both themes
+      ctx.strokeStyle = '#2563eb';
+      ctx.lineWidth = 2;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      
+      const [x, y] = getCoordinates(e);
+      
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      
+      [lastX, lastY] = [x, y];
+      
+      // Clear any existing timeout
+      if (drawingTimeout) clearTimeout(drawingTimeout);
+    }
+    
+
+    function stopDrawing() {
+      if (!isDrawing) return;
+      
+      isDrawing = false;
+      canvas.style.cursor = 'crosshair';
+      
+      // Immediately capture the signature when drawing stops
+      try {
+        const signatureData = canvas.toDataURL('image/png');
+        const preview = document.getElementById(`${type}-signature-preview`);
+
+        if (type === 'client') {
+          window.technicianVisitForm.clientSignature = signatureData;
+          document.getElementById('client-signature-placeholder').style.display = 'none';
+        } else {
+          window.technicianVisitForm.technicianSignature = signatureData;
+          document.getElementById('technician-signature-placeholder').style.display = 'none';
+        }
+
+        if (preview) {
+          preview.innerHTML = `<img src="${signatureData}" alt="${type} signature" style="max-height: 100px;">`;
+          preview.classList.add('show');
+        }
+
+        checkSignatures();
+
+        // Show a brief confirmation
+        showToast(`${type === 'client' ? 'Client' : 'Technician'} signature captured`, 'success');
+      } catch (err) {
+        console.error('Error capturing signature:', err);
+      }
+    }
+
+    function getCoordinates(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      
+      let clientX, clientY;
+      
+      if (e.type.includes('touch')) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+      } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+      }
+      
+      return [
+        (clientX - rect.left) * scaleX,
+        (clientY - rect.top) * scaleY
+      ];
+    }
+
+    // Mouse events
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+
+    // Touch events
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      startDrawing(e);
+    });
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      draw(e);
+    });
+    canvas.addEventListener('touchend', (e) => {
+      e.preventDefault();
+      stopDrawing();
+    });
+
+    // Clear signature buttons
+    document.getElementById(`clear-${type}-signature`).addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      if (type === 'client') {
+        window.technicianVisitForm.clientSignature = null;
+        document.getElementById('client-signature-placeholder').style.display = 'block';
+        const pv = document.getElementById('client-signature-preview'); if (pv) pv.classList.remove('show');
+      } else {
+        window.technicianVisitForm.technicianSignature = null;
+        document.getElementById('technician-signature-placeholder').style.display = 'block';
+        const pv2 = document.getElementById('technician-signature-preview'); if (pv2) pv2.classList.remove('show');
+      }
+      checkSignatures();
+    });
+
+    // Save signature buttons
+    document.getElementById(`save-${type}-signature`).addEventListener('click', () => {
+      const signatureData = canvas.toDataURL('image/png');
+      const preview = document.getElementById(`${type}-signature-preview`);
+      
+      if (type === 'client') {
+        window.technicianVisitForm.clientSignature = signatureData;
+        document.getElementById('client-signature-placeholder').style.display = 'none';
+      } else {
+        window.technicianVisitForm.technicianSignature = signatureData;
+        document.getElementById('technician-signature-placeholder').style.display = 'none';
+      }
+      
+      if (preview) {
+        preview.innerHTML = `<img src="${signatureData}" alt="${type} signature" style="max-height: 100px;">`;
+        preview.classList.add('show');
+      }
+      
+      checkSignatures();
+    });
+  }
+
+
+  function checkSignatures() {
+    const nextToReviewBtn = document.getElementById('next-to-review');
+    // Require only technician signature to proceed
+    nextToReviewBtn.disabled = !window.technicianVisitForm.technicianSignature;
+  }
+
+  // Step navigation
+  document.querySelectorAll('.next-step').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const nextStep = parseInt(e.target.dataset.next);
+      if (validateStep(window.technicianVisitForm.currentStep)) {
+        goToStep(nextStep);
+      }
+    });
+  });
+
+  document.querySelectorAll('.prev-step').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const prevStep = parseInt(e.target.dataset.prev);
+      goToStep(prevStep);
+    });
+  });
+
+  function goToStep(step) {
+    // Update step indicators
+    document.querySelectorAll('.step').forEach(stepEl => {
+      const stepNum = parseInt(stepEl.dataset.step);
+      stepEl.classList.remove('active', 'completed');
+      if (stepNum < step) {
+        stepEl.classList.add('completed');
+      } else if (stepNum === step) {
+        stepEl.classList.add('active');
+      }
+    });
+
+    // Hide all step containers
+    document.querySelectorAll('.step-container').forEach(container => {
+      container.classList.remove('active');
+    });
+
+    // Show current step container
+    document.getElementById(`step-${step}`).classList.add('active');
+    
+    // Update current step in global state
+    window.technicianVisitForm.currentStep = step;
+    
+    // Initialize signatures if going to step 4
+    if (step === 4 && !window.technicianVisitForm.clientSignatureCanvas) {
+      setTimeout(initSignatureCanvases, 100);
+    }
+    
+    // Generate review if going to step 5
+    if (step === 5) {
+      generateReview();
+    }
+  }
+
+  function validateStep(step) {
+    switch (step) {
+      case 1:
+        if (!window.technicianVisitForm.selectedCompany) {
+          showToast('Please select a company', 'error');
+          return false;
+        }
+        if (!window.technicianVisitForm.capturedLocation) {
+          showToast('Please capture your location', 'error');
+          return false;
+        }
+        return true;
+        
+      case 2:
+        const visitType = document.getElementById('visit-type').value;
+        const workCategory = document.getElementById('work-category').value;
+        const workStatus = document.getElementById('work-status').value;
+        const visitNotes = document.getElementById('visit-notes').value;
+        
+        if (!visitType || !workCategory || !workStatus || !visitNotes) {
+          showToast('Please fill all required fields', 'error');
+          return false;
+        }
+        
+        if (workCategory === 'other' && !document.getElementById('other-category').value) {
+          showToast('Please specify work category', 'error');
+          return false;
+        }
+        
+        if (workStatus === 'follow_up' && !document.getElementById('follow-up-notes').value) {
+          showToast('Please provide follow-up notes', 'error');
+          return false;
+        }
+        
+        return true;
+        
+      case 3:
+        // Photos are optional
+        return true;
+        
+      case 4:
+        // Client signature optional; technician signature required
+        if (!window.technicianVisitForm.technicianSignature) {
+          showToast('Technician signature is required', 'error');
+          return false;
+        }
+        return true;
+        
+      default:
+        return true;
+    }
+  }
+
+  function generateReview() {
+    const visitType = document.getElementById('visit-type');
+    const workCategory = document.getElementById('work-category');
+    const workStatus = document.getElementById('work-status');
+    const otherCategory = document.getElementById('other-category');
+    const followUpNotes = document.getElementById('follow-up-notes');
+    const visitNotes = document.getElementById('visit-notes');
+    const company = window.technicianVisitForm.selectedCompany;
+    const capturedLocation = window.technicianVisitForm.capturedLocation;
+    
+    const summaryHTML = `
+      <div class="review-item">
+        <strong>Company:</strong> ${company ? company.name : 'Not selected'}
+      </div>
+      <div class="review-item">
+        <strong>Visit Type:</strong> ${visitType.options[visitType.selectedIndex]?.text || 'Not selected'}
+      </div>
+      <div class="review-item">
+        <strong>Work Category:</strong> ${workCategory.value === 'other' ? otherCategory.value : workCategory.options[workCategory.selectedIndex]?.text}
+      </div>
+      <div class="review-item">
+        <strong>Work Status:</strong> ${workStatus.options[workStatus.selectedIndex]?.text || 'Not selected'}
+      </div>
+      ${workStatus.value === 'follow_up' ? `
+        <div class="review-item">
+          <strong>Follow-up Notes:</strong> ${followUpNotes.value}
+        </div>
+      ` : ''}
+      <div class="review-item">
+        <strong>Visit Notes:</strong> ${visitNotes.value}
+      </div>
+      <div class="review-item">
+        <strong>Location:</strong> ${capturedLocation ? 'Captured ✓' : 'Not captured'}
+      </div>
+    `;
+    
+    document.getElementById('review-summary').innerHTML = summaryHTML;
+    
+    // Render photos
+    const reviewPhotos = document.getElementById('review-photos');
+    const photos = window.technicianVisitForm.photos;
+    if (photos.length > 0) {
+      reviewPhotos.innerHTML = photos.map((photo, index) => `
+        <div class="photo-item">
+          <img src="${photo.dataUrl}" alt="Visit photo ${index + 1}">
+        </div>
+      `).join('');
+    } else {
+      reviewPhotos.innerHTML = '<p class="text-muted">No photos uploaded</p>';
+    }
+    
+    // Render signatures (client optional)
+    document.getElementById('review-client-signature').innerHTML = 
+      window.technicianVisitForm.clientSignature ? `<img src="${window.technicianVisitForm.clientSignature}" alt="Client signature" style="max-height: 100px;" onerror="handleImageError(this)">` : 'Not provided';
+    
+    document.getElementById('review-technician-signature').innerHTML = 
+      window.technicianVisitForm.technicianSignature ? `<img src="${window.technicianVisitForm.technicianSignature}" alt="Technician signature" style="max-height: 100px;" onerror="handleImageError(this)">` : 'Not provided';
+
+    // Enable submit only if technician signature exists (client signature optional)
+    const submitBtn = document.getElementById('submit-technician-visit');
+    submitBtn.disabled = !window.technicianVisitForm.technicianSignature;
+  }
+
+  // Submit visit
+  document.getElementById('submit-technician-visit').addEventListener('click', async () => {
+    if (!validateStep(window.technicianVisitForm.currentStep)) {
+      showToast('Please complete all required fields', 'error');
+      return;
+    }
+
+    const submitBtn = document.getElementById('submit-technician-visit');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+
+    try {
+      // Upload photos to storage
+      const photoUrls = [];
+      for (const photo of window.technicianVisitForm.photos) {
+        const photoPath = `technician-photos/${currentUser.id}/${Date.now()}-${photo.file.name}`;
+        const { error: uploadError } = await supabaseClient.storage
+          .from('safitrack')
+          .upload(photoPath, photo.file);
+
+        if (!uploadError) {
+          const { data: urlData } = supabaseClient.storage.from('safitrack').getPublicUrl(photoPath);
+          photoUrls.push(urlData.publicUrl);
+        }
+      }
+
+      // Prepare visit data
+      // Use selected company id if present; allow null for custom technician locations.
+      const visitData = {
+        technician_id: currentUser.id,
+        company_id: window.technicianVisitForm.selectedCompany ? window.technicianVisitForm.selectedCompany.id : null,
+        company_name: window.technicianVisitForm.selectedCompany ? window.technicianVisitForm.selectedCompany.name : null,
+        visit_type: document.getElementById('visit-type').value,
+        work_category: document.getElementById('work-category').value,
+        other_work_category: document.getElementById('work-category').value === 'other' ? 
+          document.getElementById('other-category').value : null,
+        work_status: document.getElementById('work-status').value,
+        follow_up_notes: document.getElementById('work-status').value === 'follow_up' ? 
+          document.getElementById('follow-up-notes').value : null,
+        visit_notes: document.getElementById('visit-notes').value,
+        client_signature: window.technicianVisitForm.clientSignature,
+        technician_signature: window.technicianVisitForm.technicianSignature,
+        photos: photoUrls.length > 0 ? photoUrls : null,
+        latitude: window.technicianVisitForm.capturedLocation.latitude,
+        longitude: window.technicianVisitForm.capturedLocation.longitude,
+        verified_location: true,
+        created_at: new Date().toISOString()
+      };
+
+      const { error } = await supabaseClient
+        .from('technician_visits')
+        .insert([visitData]);
+
+      if (error) throw error;
+
+      showToast('Service visit submitted successfully!', 'success');
+      
+      // Clear form for next entry
+      setTimeout(() => {
+        loadView('technician-activity');
+      }, 1500);
+      
+    } catch (err) {
+      console.error('Error submitting visit:', err);
+      showToast('Failed to submit visit: ' + err.message, 'error');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<i class="fas fa-check"></i> Submit Visit';
+    }
+  });
+
+  function initTechnicianLocationMap(company, userLocation) {
+    if (window.technicianVisitForm.map) {
+      window.technicianVisitForm.map.remove();
+    }
+
+    const map = L.map('technician-location-map').setView([userLocation.latitude, userLocation.longitude], 16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // Add technician location marker
+    L.marker([userLocation.latitude, userLocation.longitude])
+      .addTo(map)
+      .bindPopup('Your Location')
+      .openPopup();
+
+    // Add company location marker if available
+    if (company.latitude && company.longitude) {
+      L.marker([company.latitude, company.longitude])
+        .addTo(map)
+        .bindPopup(company.name);
+      
+      // Draw line between technician and company
+      const latlngs = [
+        [userLocation.latitude, userLocation.longitude],
+        [company.latitude, company.longitude]
+      ];
+      L.polyline(latlngs, { color: '#4f46e5', weight: 2, dashArray: '5, 5' }).addTo(map);
+    }
+    
+    // Store map reference
+    window.technicianVisitForm.map = map;
+  }
+}
+
+window.selectTechnicianCompany = function(companyId) {
+  const companies = window.companiesData;
+  const company = companies.find(c => c.id === companyId);
+  if (!company) return;
+
+  // Update company name input
+  document.getElementById('technician-company-name').value = company.name;
+  
+  // Show selected company info
+  document.getElementById('selected-technician-company').style.display = 'block';
+  document.getElementById('selected-technician-company-name').textContent = company.name;
+  document.getElementById('selected-technician-company-address').textContent = 
+    company.description || 'No description';
+  
+  // Hide search results
+  document.getElementById('technician-company-search-results').style.display = 'none';
+  
+  // CRITICAL FIX: Store the company in the global state
+  window.technicianVisitForm.selectedCompany = company;
+  
+  // Enable verify location button
+  document.getElementById('verify-technician-location').disabled = false;
+};
+
+// Allow selecting a custom company entered by the technician
+window.selectCustomTechnicianCompany = function(name) {
+  const company = {
+    id: null,
+    name: name,
+    description: 'Custom entry'
+  };
+
+  document.getElementById('technician-company-name').value = company.name;
+  document.getElementById('selected-technician-company').style.display = 'block';
+  document.getElementById('selected-technician-company-name').textContent = company.name;
+  document.getElementById('selected-technician-company-address').textContent = company.description;
+  document.getElementById('technician-company-search-results').style.display = 'none';
+
+  window.technicianVisitForm.selectedCompany = company;
+  document.getElementById('verify-technician-location').disabled = false;
+};
+
+// ======================
+// TECHNICIAN ACTIVITY VIEW
+// ======================
+
+// Update the renderTechnicianActivityView function to properly display photos
+async function renderTechnicianActivityView() {
+  const { data: visits, error } = await supabaseClient
+    .from('technician_visits')
+    .select(`
+      *,
+      companies(
+        name,
+        description
+      )
+    `)
+    .eq('technician_id', currentUser.id)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    viewContainer.innerHTML = renderError(error.message);
+    return;
+  }
+
+  let html = `
+    <div class="page-header">
+      <h1 class="page-title">My Service Visits</h1>
+      <p class="page-subtitle">${visits.length} service visits logged</p>
+    </div>
+  `;
+
+  if (visits.length === 0) {
+    html += `
+      <div class="card">
+        <div class="empty-state">
+          <i class="fas fa-tools empty-state-icon"></i>
+          <h3 class="empty-state-title">No service visits yet</h3>
+          <p class="empty-state-description">Start logging your service visits to see them here.</p>
+          <button class="btn btn-primary" onclick="loadView('technician-log-visit')">
+            <i class="fas fa-plus"></i> Log Your First Visit
+          </button>
+        </div>
+      </div>
+    `;
+  } else {
+    visits.forEach(visit => {
+      html += renderTechnicianVisitCard(visit);
+    });
+  }
+
+  viewContainer.innerHTML = html;
+}
+
+function renderTechnicianVisitCard(visit) {
+  const date = formatDate(visit.created_at);
+  const companyName = visit.companies?.name || 'Unknown Company';
+  
+  const workStatusLabels = {
+    'completed': 'Completed',
+    'partially_completed': 'Partially Completed',
+    'pending': 'Pending',
+    'follow_up': 'Follow-up Required'
+  };
+
+  const visitTypeLabels = {
+    'installation': 'Installation',
+    'maintenance': 'Maintenance',
+    'repair': 'Repair',
+    'inspection': 'Inspection',
+    'emergency': 'Emergency / Call-out'
+  };
+
+  return `
+    <div class="technician-visit-card">
+      <div class="technician-visit-header">
+        <div>
+          <div class="technician-visit-company">${companyName}</div>
+          <div class="text-muted" style="font-size: 0.875rem;">${date}</div>
+        </div>
+        <span class="work-status-badge ${visit.work_status}">
+          ${workStatusLabels[visit.work_status]}
+        </span>
+      </div>
+      
+      <div class="technician-visit-meta">
+        <span class="technician-visit-meta-item">
+          <i class="fas fa-wrench"></i>
+          ${visitTypeLabels[visit.visit_type]}
+        </span>
+        <span class="technician-visit-meta-item">
+          <i class="fas fa-layer-group"></i>
+          ${visit.work_category}
+        </span>
+        ${visit.latitude && visit.longitude ? `
+          <span class="technician-visit-meta-item">
+            <i class="fas fa-map-marker-alt"></i>
+            Location captured
+          </span>
+        ` : ''}
+      </div>
+
+      ${visit.visit_notes ? `
+        <div class="visit-notes mb-2">${visit.visit_notes}</div>
+      ` : ''}
+
+      ${visit.follow_up_notes ? `
+        <div class="ai-insight">
+          <div class="ai-insight-header">
+            <i class="fas fa-exclamation-circle"></i> Follow-up Required
+          </div>
+          <div class="ai-insight-content">${visit.follow_up_notes}</div>
+        </div>
+      ` : ''}
+
+          ${visit.photos && visit.photos.length > 0 ? `
+        <div class="photo-grid mb-2" style="grid-template-columns: repeat(3, 1fr);">
+          ${visit.photos.map((photo, index) => `
+            <div class="photo-item" onclick="openPhotoModal('${photo}')">
+              <img src="${photo}" alt="Visit photo ${index + 1}" style="width: 100%; height: 100%; object-fit: cover;" onerror="handleImageError(this)">
+            </div>
+          `).join('')}
+          ${visit.photos.length > 3 ? `
+            <div class="photo-item" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center;">
+              <span class="text-muted">+${visit.photos.length - 3} more</span>
+            </div>
+          ` : ''}
+        </div>
+      ` : ''}
+
+      <div class="flex items-center justify-between mt-2">
+        <div class="flex gap-2">
+          ${visit.client_signature ? `
+            <span class="tag" style="background: var(--color-success-bg); color: var(--color-success);">
+              <i class="fas fa-signature"></i> Client signed
+            </span>
+          ` : ''}
+          ${visit.technician_signature ? `
+            <span class="tag" style="background: var(--color-primary-bg); color: var(--color-primary);">
+              <i class="fas fa-signature"></i> Technician signed
+            </span>
+          ` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+
+function renderTechnicianVisitCard(visit) {
+  const date = formatDate(visit.created_at);
+  const companyName = visit.companies?.name || 'Unknown Company';
+  
+  const workStatusLabels = {
+    'completed': 'Completed',
+    'partially_completed': 'Partially Completed',
+    'pending': 'Pending',
+    'follow_up': 'Follow-up Required'
+  };
+
+  const visitTypeLabels = {
+    'installation': 'Installation',
+    'maintenance': 'Maintenance',
+    'repair': 'Repair',
+    'inspection': 'Inspection',
+    'emergency': 'Emergency / Call-out'
+  };
+
+  const workCategoryLabels = {
+    'electrical': 'Electrical',
+    'solar': 'Solar',
+    'networking': 'Networking',
+    'mechanical': 'Mechanical',
+    'other': visit.other_work_category || 'Other'
+  };
+
+  return `
+    <div class="technician-visit-card">
+      <div class="technician-visit-header">
+        <div>
+          <div class="technician-visit-company">${companyName}</div>
+          <div class="text-muted" style="font-size: 0.875rem;">${date}</div>
+        </div>
+        <span class="work-status-badge ${visit.work_status}">
+          ${workStatusLabels[visit.work_status]}
+        </span>
+      </div>
+      
+      <div class="technician-visit-meta">
+        <span class="technician-visit-meta-item">
+          <i class="fas fa-wrench"></i>
+          ${visitTypeLabels[visit.visit_type]}
+        </span>
+        <span class="technician-visit-meta-item">
+          <i class="fas fa-layer-group"></i>
+          ${workCategoryLabels[visit.work_category]}
+        </span>
+        ${visit.latitude && visit.longitude ? `
+          <span class="technician-visit-meta-item">
+            <i class="fas fa-map-marker-alt"></i>
+            Location captured
+          </span>
+        ` : ''}
+      </div>
+
+      ${visit.visit_notes ? `
+        <div class="visit-notes mb-2">${visit.visit_notes}</div>
+      ` : ''}
+
+      ${visit.follow_up_notes ? `
+        <div class="ai-insight">
+          <div class="ai-insight-header">
+            <i class="fas fa-exclamation-circle"></i> Follow-up Required
+          </div>
+          <div class="ai-insight-content">${visit.follow_up_notes}</div>
+        </div>
+      ` : ''}
+
+          ${visit.photos && visit.photos.length > 0 ? `
+        <div class="photo-grid mb-2" style="grid-template-columns: repeat(3, 1fr);">
+          ${visit.photos.slice(0, 3).map(photo => `
+            <div class="photo-item">
+              <img src="${photo}" alt="Visit photo" onclick="openPhotoModal('${photo}')" onerror="handleImageError(this)">
+            </div>
+          `).join('')}
+          ${visit.photos.length > 3 ? `
+            <div class="photo-item" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center;">
+              <span class="text-muted">+${visit.photos.length - 3} more</span>
+            </div>
+          ` : ''}
+        </div>
+      ` : ''}
+
+      <div class="flex items-center justify-between mt-2">
+        <div class="flex gap-2">
+          ${visit.client_signature ? `
+            <span class="tag" style="background: var(--color-success-bg); color: var(--color-success);">
+              <i class="fas fa-signature"></i> Client signed
+            </span>
+          ` : ''}
+          ${visit.technician_signature ? `
+            <span class="tag" style="background: var(--color-primary-bg); color: var(--color-primary);">
+              <i class="fas fa-signature"></i> Technician signed
+            </span>
+          ` : ''}
+        </div>
+        
+        ${isManager ? `
+          <button class="btn btn-sm btn-secondary" onclick="generateTechnicianVisitPDF('${visit.id}')">
+            <i class="fas fa-file-pdf"></i> PDF
+          </button>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+// ======================
+// TECHNICIANS DASHBOARD VIEW (for managers)
+// ======================
+
+async function renderTechniciansDashboardView() {
+  // Fetch all technician visits with technician and company details
+  const { data: visits, error: visitsError } = await supabaseClient
+    .from('technician_visits')
+    .select(`
+      *,
+      technician:profiles!technician_visits_technician_id_fkey(
+        first_name,
+        last_name,
+        email
+      ),
+      companies(
+        name,
+        description
+      )
+    `)
+    .order('created_at', { ascending: false });
+
+  // Fetch all technicians
+  const { data: technicians, error: techError } = await supabaseClient
+    .from('profiles')
+    .select('id, first_name, last_name, email')
+    .eq('role', 'technician')
+    .order('first_name', { ascending: true });
+
+  if (visitsError || techError) {
+    viewContainer.innerHTML = renderError('Error loading technician data');
+    return;
+  }
+
+  // Calculate statistics
+  const totalVisits = visits.length;
+  const totalTechnicians = technicians.length;
+  const todayVisits = visits.filter(v => {
+    const visitDate = new Date(v.created_at).toDateString();
+    return visitDate === new Date().toDateString();
+  }).length;
+
+  // Group visits by work status
+  const statusCounts = {
+    completed: visits.filter(v => v.work_status === 'completed').length,
+    partially_completed: visits.filter(v => v.work_status === 'partially_completed').length,
+    pending: visits.filter(v => v.work_status === 'pending').length,
+    follow_up: visits.filter(v => v.work_status === 'follow_up').length
+  };
+
+  let html = `
+    <div class="page-header">
+      <h1 class="page-title">Technicians Dashboard</h1>
+      <p class="page-subtitle">Monitor technician service visits</p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-value">${totalVisits}</div>
+        <div class="stat-label">Total Service Visits</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${totalTechnicians}</div>
+        <div class="stat-label">Active Technicians</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${todayVisits}</div>
+        <div class="stat-label">Visits Today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">${statusCounts.completed}</div>
+        <div class="stat-label">Completed</div>
+      </div>
+    </div>
+
+    
+    <!-- Filters -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Filter Visits</h3>
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <select class="form-control" style="width: auto;" id="filter-technician">
+          <option value="">All Technicians</option>
+          ${technicians.map(tech => `
+            <option value="${tech.id}">${tech.first_name} ${tech.last_name}</option>
+          `).join('')}
+        </select>
+        <select class="form-control" style="width: auto;" id="filter-status">
+          <option value="">All Status</option>
+          <option value="completed">Completed</option>
+          <option value="partially_completed">Partially Completed</option>
+          <option value="pending">Pending</option>
+          <option value="follow_up">Follow-up Required</option>
+        </select>
+        <select class="form-control" style="width: auto;" id="filter-type">
+          <option value="">All Types</option>
+          <option value="installation">Installation</option>
+          <option value="maintenance">Maintenance</option>
+          <option value="repair">Repair</option>
+          <option value="inspection">Inspection</option>
+          <option value="emergency">Emergency</option>
+        </select>
+        <input type="date" class="form-control" style="width: auto;" id="filter-date">
+        <button class="btn btn-secondary" id="clear-filters">
+          Clear Filters
+        </button>
+      </div>
+    </div>
+
+    <!-- Visits List -->
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Recent Service Visits</h3>
+        <span class="text-muted">${visits.length} total visits</span>
+      </div>
+      
+      <div id="technician-visits-list">
+  `;
+
+  if (visits.length === 0) {
+    html += `
+      <div class="empty-state">
+        <i class="fas fa-tools empty-state-icon"></i>
+        <h3 class="empty-state-title">No service visits yet</h3>
+        <p class="empty-state-description">Technicians will appear here when they start logging visits.</p>
+      </div>
+    `;
+  } else {
+    visits.slice(0, 20).forEach(visit => {
+      html += renderTechnicianVisitCardForManager(visit);
+    });
+  }
+
+  html += `
+      </div>
+      ${visits.length > 20 ? `
+        <div class="text-center mt-3">
+          <button class="btn btn-secondary" id="load-more-visits">
+            Load More (${visits.length - 20} remaining)
+          </button>
+        </div>
+      ` : ''}
+    </div>
+  `;
+
+  viewContainer.innerHTML = html;
+
+  // Technician locations map removed per request
+
+  // Initialize filters
+  initTechnicianFilters(visits, technicians);
+}
+
+function renderTechnicianVisitCardForManager(visit) {
+  const date = formatDate(visit.created_at);
+  const companyName = visit.companies?.name || 'Unknown Company';
+  const technicianName = visit.technician ? 
+    `${visit.technician.first_name} ${visit.technician.last_name}` : 'Unknown Technician';
+
+  const workStatusLabels = {
+    'completed': 'Completed',
+    'partially_completed': 'Partially Completed',
+    'pending': 'Pending',
+    'follow_up': 'Follow-up Required'
+  };
+
+  const visitTypeLabels = {
+    'installation': 'Installation',
+    'maintenance': 'Maintenance',
+    'repair': 'Repair',
+    'inspection': 'Inspection',
+    'emergency': 'Emergency / Call-out'
+  };
+
+  return `
+    <div class="technician-visit-card" 
+         data-technician="${visit.technician_id}"
+         data-status="${visit.work_status}"
+         data-type="${visit.visit_type}"
+         data-date="${new Date(visit.created_at).toISOString().split('T')[0]}">
+      <div class="technician-visit-header">
+        <div>
+          <div class="technician-visit-company">${companyName}</div>
+          <div class="text-prim" style="font-size: 0.875rem;">
+            by ${technicianName} • ${date}
+          </div>
+        </div>
+        <span class="work-status-badge ${visit.work_status}">
+          ${workStatusLabels[visit.work_status]}
+        </span>
+      </div>
+      
+      <div class="technician-visit-meta">
+        <span class="technician-visit-meta-item">
+          <i class="fas fa-wrench"></i>
+          ${visitTypeLabels[visit.visit_type]}
+        </span>
+        <span class="technician-visit-meta-item">
+          <i class="fas fa-layer-group"></i>
+          ${visit.work_category}
+        </span>
+        ${visit.latitude && visit.longitude ? `
+          <span class="technician-visit-meta-item">
+            <i class="fas fa-map-marker-alt"></i>
+            ${visit.latitude.toFixed(4)}, ${visit.longitude.toFixed(4)}
+          </span>
+        ` : ''}
+      </div>
+
+      ${visit.visit_notes ? `
+        <div class="visit-notes mb-2">${visit.visit_notes}</div>
+      ` : ''}
+
+      ${visit.follow_up_notes ? `
+        <div class="ai-insight">
+          <div class="ai-insight-header">
+            <i class="fas fa-exclamation-circle"></i> Follow-up Required
+          </div>
+          <div class="ai-insight-content">${visit.follow_up_notes}</div>
+        </div>
+      ` : ''}
+
+      <div class="flex items-center justify-between mt-2">
+        <div class="flex gap-2">
+          ${visit.photos && visit.photos.length > 0 ? `
+            <span class="tag" style="background: var(--color-primary-bg); color: var(--color-primary);">
+              <i class="fas fa-camera"></i> ${visit.photos.length} photo(s)
+            </span>
+          ` : ''}
+          ${visit.client_signature ? `
+            <span class="tag" style="background: var(--color-success-bg); color: var(--color-success);">
+              <i class="fas fa-signature"></i> Client signed
+            </span>
+          ` : ''}
+        </div>
+        
+        <div class="flex gap-2">
+          ${visit.latitude && visit.longitude ? `
+            <button class="btn btn-sm btn-ghost" onclick="viewLocationOnMap(${visit.latitude}, ${visit.longitude}, '${companyName}')">
+              <i class="fas fa-map"></i> View Map
+            </button>
+          ` : ''}
+          <button class="btn btn-sm btn-secondary" onclick="generateTechnicianVisitPDF('${visit.id}')">
+            <i class="fas fa-file-pdf"></i> Generate PDF
+          </button>
+          <button class="btn btn-sm btn-ghost" onclick="viewTechnicianVisitDetails('${visit.id}')">
+            <i class="fas fa-eye"></i> View Details
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function initTechniciansMap(visits) {
+  const mapElement = document.getElementById('technicians-map');
+  if (!mapElement) return;
+
+  // Filter visits with valid coordinates
+  const validVisits = visits.filter(v => v.latitude && v.longitude);
+  
+  if (validVisits.length === 0) {
+    mapElement.innerHTML = `
+      <div class="flex items-center justify-center h-full">
+        <div class="text-center">
+          <i class="fas fa-map-marker-alt text-4xl text-muted mb-2"></i>
+          <p class="text-muted">No location data available</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  // Initialize map
+  const map = L.map('technicians-map').setView(
+    [validVisits[0].latitude, validVisits[0].longitude], 
+    12
+  );
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap'
+  }).addTo(map);
+
+  // Add markers for each visit
+  const markers = validVisits.map(visit => {
+    const companyName = visit.companies?.name || 'Unknown';
+    const technicianName = visit.technician ? 
+      `${visit.technician.first_name} ${visit.technician.last_name}` : 'Unknown';
+    
+    const statusColors = {
+      'completed': 'green',
+      'partially_completed': 'orange',
+      'pending': 'blue',
+      'follow_up': 'red'
+    };
+
+    const marker = L.marker([visit.latitude, visit.longitude], {
+      icon: L.divIcon({
+        className: 'technician-marker',
+        html: `
+          <div style="
+            background: ${statusColors[visit.work_status] || 'gray'};
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          ">
+            <i class="fas fa-wrench"></i>
+          </div>
+        `,
+        iconSize: [24, 24],
+        iconAnchor: [12, 12]
+      })
+    })
+      .addTo(map)
+      .bindPopup(`
+        <div style="min-width: 200px;">
+          <strong>${companyName}</strong><br>
+          <small>${technicianName}</small><br>
+          <hr style="margin: 8px 0;">
+          <div><strong>Type:</strong> ${visit.visit_type}</div>
+          <div><strong>Status:</strong> ${visit.work_status}</div>
+          <div><strong>Date:</strong> ${formatDate(visit.created_at)}</div>
+          ${visit.visit_notes ? `<div><strong>Notes:</strong> ${visit.visit_notes.substring(0, 100)}${visit.visit_notes.length > 100 ? '...' : ''}</div>` : ''}
+          <button class="btn btn-sm btn-primary w-full mt-2" onclick="viewTechnicianVisitDetails('${visit.id}')">
+            View Details
+          </button>
+        </div>
+      `);
+    
+    return marker;
+  });
+
+  // Fit map to show all markers
+  if (markers.length > 0) {
+    const group = new L.featureGroup(markers);
+    map.fitBounds(group.getBounds().pad(0.1));
+  }
+
+  // Store map reference for refresh
+  window.techniciansMap = map;
+  window.techniciansMarkers = markers;
+}
+
+function initTechnicianFilters(visits, technicians) {
+  const technicianFilter = document.getElementById('filter-technician');
+  const statusFilter = document.getElementById('filter-status');
+  const typeFilter = document.getElementById('filter-type');
+  const dateFilter = document.getElementById('filter-date');
+  const clearFiltersBtn = document.getElementById('clear-filters');
+  const loadMoreBtn = document.getElementById('load-more-visits');
+  
+  let filteredVisits = [...visits];
+  let displayedCount = 20;
+
+  function applyFilters() {
+    const technicianId = technicianFilter.value;
+    const status = statusFilter.value;
+    const type = typeFilter.value;
+    const date = dateFilter.value;
+
+    filteredVisits = visits.filter(visit => {
+      if (technicianId && visit.technician_id !== technicianId) return false;
+      if (status && visit.work_status !== status) return false;
+      if (type && visit.visit_type !== type) return false;
+      if (date) {
+        const visitDate = new Date(visit.created_at).toISOString().split('T')[0];
+        if (visitDate !== date) return false;
+      }
+      return true;
+    });
+
+    renderFilteredVisits();
+  }
+
+  function renderFilteredVisits() {
+    const container = document.getElementById('technician-visits-list');
+    const visitsToShow = filteredVisits.slice(0, displayedCount);
+    
+    if (visitsToShow.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-search empty-state-icon"></i>
+          <h3 class="empty-state-title">No visits found</h3>
+          <p class="empty-state-description">Try adjusting your filters</p>
+        </div>
+      `;
+    } else {
+      container.innerHTML = visitsToShow.map(visit => 
+        renderTechnicianVisitCardForManager(visit)
+      ).join('');
+    }
+
+    // Update load more button
+    if (loadMoreBtn) {
+      const remaining = filteredVisits.length - displayedCount;
+      if (remaining > 0) {
+        loadMoreBtn.innerHTML = `Load More (${remaining} remaining)`;
+        loadMoreBtn.style.display = 'block';
+      } else {
+        loadMoreBtn.style.display = 'none';
+      }
+    }
+  }
+
+  // Add event listeners
+  technicianFilter.addEventListener('change', applyFilters);
+  statusFilter.addEventListener('change', applyFilters);
+  typeFilter.addEventListener('change', applyFilters);
+  dateFilter.addEventListener('change', applyFilters);
+
+  clearFiltersBtn.addEventListener('click', () => {
+    technicianFilter.value = '';
+    statusFilter.value = '';
+    typeFilter.value = '';
+    dateFilter.value = '';
+    displayedCount = 20;
+    applyFilters();
+  });
+
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', () => {
+      displayedCount += 20;
+      renderFilteredVisits();
+    });
+  }
+
+  // Technician locations map and refresh removed per request
+}
+
+// ======================
+// PDF GENERATION FOR TECHNICIAN VISITS
+// ======================
+
+async function generateTechnicianVisitPDF(visitId) {
+  showToast('Generating PDF...', 'info');
+
+  try {
+    // Fetch visit details with all related data
+    const { data: visit, error } = await supabaseClient
+      .from('technician_visits')
+      .select(`
+        *,
+        technician:profiles!technician_visits_technician_id_fkey(
+          first_name,
+          last_name,
+          email
+        ),
+        companies(
+          name,
+          address,
+          description
+        )
+      `)
+      .eq('id', visitId)
+      .single();
+
+    if (error) throw error;
+
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    // Add logo and header
+    doc.setFontSize(20);
+    doc.setTextColor(47, 95, 208); // Your primary color
+    doc.text('SafiTrack - Service Visit Report', 20, 20);
+    doc.setFontSize(12);
+    doc.setTextColor(0, 0, 0);
+    doc.text(`Report ID: ${visitId.substring(0, 8)}`, 20, 30);
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 37);
+
+    // Company Information
+    doc.setFontSize(14);
+    doc.text('Company Information', 20, 50);
+    doc.setFontSize(10);
+    doc.text(`Name: ${visit.companies.name}`, 20, 60);
+    if (visit.companies.address) {
+      doc.text(`Address: ${visit.companies.address}`, 20, 67);
+    }
+    if (visit.companies.description) {
+      doc.text(`Description: ${visit.companies.description}`, 20, 74);
+    }
+
+    // Visit Details
+    doc.setFontSize(14);
+    doc.text('Visit Details', 20, 90);
+    doc.setFontSize(10);
+    doc.text(`Visit Type: ${visit.visit_type}`, 20, 100);
+    doc.text(`Work Category: ${visit.work_category}${visit.other_work_category ? ` (${visit.other_work_category})` : ''}`, 20, 107);
+    doc.text(`Work Status: ${visit.work_status}`, 20, 114);
+    doc.text(`Date: ${formatDate(visit.created_at)}`, 20, 121);
+
+    // Technician Information
+    doc.text(`Technician: ${visit.technician.first_name} ${visit.technician.last_name}`, 20, 131);
+    doc.text(`Email: ${visit.technician.email}`, 20, 138);
+
+    // Location Information
+    if (visit.latitude && visit.longitude) {
+      doc.text(`Location: ${visit.latitude.toFixed(6)}, ${visit.longitude.toFixed(6)}`, 20, 148);
+      doc.text(`Location Verified: ${visit.verified_location ? 'Yes' : 'No'}`, 20, 155);
+    }
+
+    // Visit Notes
+    if (visit.visit_notes) {
+      doc.setFontSize(14);
+      doc.text('Visit Notes', 20, 170);
+      doc.setFontSize(10);
+      const notesLines = doc.splitTextToSize(visit.visit_notes, 170);
+      doc.text(notesLines, 20, 180);
+    }
+
+    // Follow-up Notes
+    if (visit.follow_up_notes) {
+      const yPos = doc.internal.pageSize.height - 60;
+      doc.setFontSize(14);
+      doc.text('Follow-up Required', 20, yPos);
+      doc.setFontSize(10);
+      const followUpLines = doc.splitTextToSize(visit.follow_up_notes, 170);
+      doc.text(followUpLines, 20, yPos + 10);
+    }
+
+    // Add page for photos if needed
+    if (visit.photos && visit.photos.length > 0) {
+      doc.addPage();
+      doc.setFontSize(14);
+      doc.text('Photos', 20, 20);
+      
+      let yPos = 30;
+      visit.photos.forEach((photo, index) => {
+        if (yPos > 250) {
+          doc.addPage();
+          yPos = 20;
+        }
+        
+        doc.text(`Photo ${index + 1}:`, 20, yPos);
+        
+        // Note: Adding actual images requires more complex handling
+        // For now, we'll just list the photo URLs
+        doc.setFontSize(8);
+        doc.text(photo.substring(0, 100) + '...', 40, yPos);
+        doc.setFontSize(10);
+        
+        yPos += 10;
+      });
+    }
+
+    // Add page for signatures if available
+    if (visit.client_signature || visit.technician_signature) {
+      doc.addPage();
+      doc.setFontSize(14);
+      doc.text('Signatures', 20, 20);
+      
+      if (visit.client_signature) {
+        doc.text('Client Signature:', 20, 40);
+        // Here you would add the actual signature image
+        // doc.addImage(visit.client_signature, 'PNG', 20, 50, 80, 40);
+      }
+      
+      if (visit.technician_signature) {
+        doc.text('Technician Signature:', 20, 120);
+        // doc.addImage(visit.technician_signature, 'PNG', 20, 130, 80, 40);
+      }
+    }
+
+    // Save the PDF
+    const fileName = `Service_Visit_${visit.companies.name.replace(/\s+/g, '_')}_${new Date(visit.created_at).toISOString().split('T')[0]}.pdf`;
+    doc.save(fileName);
+    
+    showToast('PDF generated successfully', 'success');
+  } catch (error) {
+    console.error('Error generating PDF:', error);
+    showToast('Failed to generate PDF: ' + error.message, 'error');
+  }
+}
+
+// ======================
+// UTILITY FUNCTIONS FOR TECHNICIANS
+// ======================
+
+window.viewLocationOnMap = function(latitude, longitude, title) {
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.style.display = 'flex';
+  modal.id = 'location-modal';
+  
+  modal.innerHTML = `
+    <div class="modal-backdrop" onclick="closeModal('location-modal')"></div>
+    <div class="modal-container" style="max-width: 800px;">
+      <div class="modal-header">
+        <h3><i class="fas fa-map-marker-alt"></i> ${title || 'Location'}</h3>
+        <button class="modal-close" onclick="closeModal('location-modal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div id="location-modal-map" style="height: 400px;"></div>
+        <div class="mt-3">
+          <p><strong>Coordinates:</strong> ${latitude.toFixed(6)}, ${longitude.toFixed(6)}</p>
+          <a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank" class="btn btn-sm btn-primary mt-2">
+            <i class="fas fa-external-link-alt"></i> Open in Google Maps
+          </a>
+        </div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Initialize map
+  setTimeout(() => {
+    const map = L.map('location-modal-map').setView([latitude, longitude], 16);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+    
+    L.marker([latitude, longitude])
+      .addTo(map)
+      .bindPopup(title || 'Visit Location')
+      .openPopup();
+  }, 100);
+};
+
+window.viewTechnicianVisitDetails = async function(visitId) {
+  showToast('Loading visit details...', 'info');
+  
+  try {
+    const { data: visit, error } = await supabaseClient
+      .from('technician_visits')
+      .select(`
+        *,
+        technician:profiles!technician_visits_technician_id_fkey(
+          first_name,
+          last_name,
+          email
+        ),
+        companies(
+          name,
+          address,
+          description
+        )
+      `)
+      .eq('id', visitId)
+      .single();
+
+    if (error) throw error;
+
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'flex';
+    modal.id = 'visit-details-modal';
+    
+    const workStatusLabels = {
+      'completed': 'Completed',
+      'partially_completed': 'Partially Completed',
+      'pending': 'Pending',
+      'follow_up': 'Follow-up Required'
+    };
+
+    const visitTypeLabels = {
+      'installation': 'Installation',
+      'maintenance': 'Maintenance',
+      'repair': 'Repair',
+      'inspection': 'Inspection',
+      'emergency': 'Emergency / Call-out'
+    };
+
+    modal.innerHTML = `
+      <div class="modal-backdrop" onclick="closeModal('visit-details-modal')"></div>
+      <div class="modal-container" style="max-width: 800px;">
+        <div class="modal-header">
+          <h3><i class="fas fa-tools"></i> Service Visit Details</h3>
+          <div class="flex gap-2">
+            <button class="btn btn-sm btn-secondary" onclick="generateTechnicianVisitPDF('${visitId}')">
+              <i class="fas fa-file-pdf"></i> PDF
+            </button>
+            <button class="modal-close" onclick="closeModal('visit-details-modal')">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+        <div class="modal-body">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <h4>Company Information</h4>
+              <p><strong>Name:</strong> ${visit.companies.name}</p>
+              ${visit.companies.address ? `<p><strong>Address:</strong> ${visit.companies.address}</p>` : ''}
+              ${visit.companies.description ? `<p><strong>Description:</strong> ${visit.companies.description}</p>` : ''}
+            </div>
+            <div>
+              <h4>Visit Information</h4>
+              <p><strong>Visit Type:</strong> ${visitTypeLabels[visit.visit_type]}</p>
+              <p><strong>Work Category:</strong> ${visit.work_category}${visit.other_work_category ? ` (${visit.other_work_category})` : ''}</p>
+              <p><strong>Work Status:</strong> ${workStatusLabels[visit.work_status]}</p>
+              <p><strong>Date:</strong> ${formatDate(visit.created_at)}</p>
+            </div>
+          </div>
+          
+          ${visit.latitude && visit.longitude ? `
+            <div class="mt-4">
+              <h4>Location</h4>
+              <div id="visit-details-map" style="height: 200px; margin-top: 1rem;"></div>
+            </div>
+          ` : ''}
+          
+          ${visit.visit_notes ? `
+            <div class="mt-4">
+              <h4>Visit Notes</h4>
+              <div class="bg-gray-50 p-3 rounded">${visit.visit_notes}</div>
+            </div>
+          ` : ''}
+          
+          ${visit.follow_up_notes ? `
+            <div class="mt-4">
+              <h4>Follow-up Required</h4>
+              <div class="bg-yellow-50 p-3 rounded">${visit.follow_up_notes}</div>
+            </div>
+          ` : ''}
+          
+          ${visit.photos && visit.photos.length > 0 ? `
+            <div class="mt-4">
+              <h4>Photos (${visit.photos.length})</h4>
+              <div class="photo-grid" style="grid-template-columns: repeat(3, 1fr);">
+                ${visit.photos.map(photo => `
+                  <div class="photo-item">
+                    <img src="${photo}" alt="Visit photo" onclick="openPhotoModal('${photo}')" onerror="handleImageError(this)">
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          ` : ''}
+          
+          ${visit.client_signature || visit.technician_signature ? `
+            <div class="mt-4">
+              <h4>Signatures</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                ${visit.client_signature ? `
+                  <div>
+                    <p><strong>Client Signature:</strong></p>
+                    <img src="${visit.client_signature}" alt="Client signature" style="max-height: 100px;" onerror="handleImageError(this)">
+                  </div>
+                ` : ''}
+                ${visit.technician_signature ? `
+                  <div>
+                    <p><strong>Technician Signature:</strong></p>
+                    <img src="${visit.technician_signature}" alt="Technician signature" style="max-height: 100px;" onerror="handleImageError(this)">
+                  </div>
+                ` : ''}
+              </div>
+            </div>
+          ` : ''}
+          
+          <div class="mt-4">
+            <h4>Technician</h4>
+            <p><strong>Name:</strong> ${visit.technician.first_name} ${visit.technician.last_name}</p>
+            <p><strong>Email:</strong> ${visit.technician.email}</p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModal('visit-details-modal')">
+            Close
+          </button>
+        </div>
+      </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Initialize map if location exists
+    if (visit.latitude && visit.longitude) {
+      setTimeout(() => {
+        const map = L.map('visit-details-map').setView([visit.latitude, visit.longitude], 16);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap'
+        }).addTo(map);
+        
+        L.marker([visit.latitude, visit.longitude])
+          .addTo(map)
+          .bindPopup(visit.companies.name)
+          .openPopup();
+      }, 100);
+    }
+    
+  } catch (error) {
+    console.error('Error loading visit details:', error);
+    showToast('Failed to load visit details', 'error');
+  }
+};
+
+window.openPhotoModal = function(photoUrl) {
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.style.display = 'flex';
+  modal.id = 'photo-modal';
+  
+  modal.innerHTML = `
+    <div class="modal-backdrop" onclick="closeModal('photo-modal')"></div>
+    <div class="modal-container" style="max-width: 90%; max-height: 90%;">
+      <div class="modal-header">
+        <h3><i class="fas fa-camera"></i> Photo</h3>
+        <button class="modal-close" onclick="closeModal('photo-modal')">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body" style="display: flex; justify-content: center; align-items: center;">
+        <img src="${photoUrl}" alt="Visit photo" style="max-width: 100%; max-height: 70vh; object-fit: contain;" onerror="handleImageError(this)">
+      </div>
+      <div class="modal-footer">
+        <a href="${photoUrl}" download="technician_visit_photo.jpg" class="btn btn-primary">
+          <i class="fas fa-download"></i> Download
+        </a>
+        <button class="btn btn-secondary" onclick="closeModal('photo-modal')">
+          Close
+        </button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+};
+
