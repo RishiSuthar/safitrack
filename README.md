@@ -27,10 +27,9 @@ SafiTrack helps businesses manage field agents, routes, locations, and visit log
 ## 🛠 Tech Stack
 
 - **Frontend:** HTML, CSS, JavaScript
-- **Backend:** (add later — e.g. Supabase, Firebase, Node.js)
-- **Database:** (add later)
-- **Hosting:** (add later)
-
+- **Backend:** Supabase, JavaScript
+- **Database:** Supabase
+- **Hosting:** Netlify
 ---
 
 ## 📸 Screenshots
