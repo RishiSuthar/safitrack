@@ -1603,6 +1603,18 @@ function initLogVisitForm(companies) {
     }
   });
 
+  // Handle click on mention suggestions (before document click handler)
+  mentionSuggestions.addEventListener('click', (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const suggestion = e.target.closest('.mention-suggestion');
+    if (suggestion && suggestion.dataset.personId) {
+      setTimeout(() => {
+        window.selectMentionedPerson(suggestion.dataset.personId);
+      }, 0);
+    }
+  }, true); // Use capture phase to ensure this fires first
+
   // Handle click outside to close suggestions
   document.addEventListener('click', (e) => {
     if (e.target !== notesEl && !mentionSuggestions.contains(e.target)) {
@@ -1619,7 +1631,7 @@ function initLogVisitForm(companies) {
       mentionSuggestions.innerHTML = '<div class="mention-suggestion">No people found</div>';
     } else {
       mentionSuggestions.innerHTML = filteredPeople.map(person => `
-        <div class="mention-suggestion" data-person-id="${person.id}" onclick="selectMentionedPerson('${person.id}')">
+        <div class="mention-suggestion" data-person-id="${person.id}">
           <div class="mention-avatar">${getInitials(person.name)}</div>
           <div class="mention-info">
             <div class="mention-name">${person.name}</div>
@@ -2324,13 +2336,27 @@ async function renderOpportunityPipelineView() {
       const user = opp.profiles;
       const ownerName = user ? `${user.first_name} ${user.last_name}` : 'Unknown';
       
-      // Process mentioned people in notes
+      // Process mentioned people in notes using explicit mentioned_people from DB
       let processedNotes = opp.notes || '';
-      if (opp.mentioned_people && opp.mentioned_people.length > 0) {
+      // helper to escape regex special chars
+      const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+      if (opp.mentioned_people && Array.isArray(opp.mentioned_people) && opp.mentioned_people.length > 0) {
+        // Each mentioned person object should have `id` and `name` fields
         opp.mentioned_people.forEach(person => {
-          const mentionPattern = new RegExp(`@${person.name} \\(${person.id}\\)`, 'g');
-          processedNotes = processedNotes.replace(mentionPattern, `<span class="mentioned-person">@${person.name}</span>`);
+          if (!person || !person.name) return;
+          const safeName = escapeRegExp(person.name.trim());
+          // match @Name as whole word (case-insensitive)
+          const pattern = new RegExp(`@${safeName}\\b`, 'gi');
+          processedNotes = processedNotes.replace(pattern, (match) => {
+            // preserve original casing inside the span
+            const displayName = person.name;
+            return `<span class="mentioned-person">@${displayName}</span>`;
+          });
         });
+      } else {
+        // Fallback: simple regex for single-word mentions (no DB info available)
+        processedNotes = processedNotes.replace(/@([A-Za-z0-9_\-]+)\b/g, '<span class="mentioned-person">@$1</span>');
       }
       
       html += `
@@ -2372,8 +2398,8 @@ async function renderOpportunityPipelineView() {
           ` : ''}
           
           ${opp.notes ? `
-            <div class="opportunity-notes">
-              ${processedNotes.length > 100 ? processedNotes.substring(0, 100) + '...' : processedNotes}
+            <div class="opportunity-notes" style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+              ${processedNotes.substring(0, 150)}${processedNotes.length > 150 ? '...' : ''}
             </div>
           ` : ''}
           
@@ -2814,159 +2840,82 @@ function initOpportunityModalListeners(opportunity) {
   
   // Initialize mention system for notes
   const notesEl = document.getElementById('opportunity-notes');
-  const mentionSuggestions = document.getElementById('opportunity-mention-suggestions');
+  const mentionSuggestionsContainer = document.getElementById('opportunity-mention-suggestions');
   
-  if (!mentionSuggestions) {
-    // Create mention suggestions container if it doesn't exist
-    const mentionContainer = document.createElement('div');
-    mentionContainer.className = 'mention-container';
-    mentionContainer.innerHTML = `
-      <textarea id="opportunity-notes" placeholder="Additional details about this opportunity..." rows="3"></textarea>
-      <div id="opportunity-mention-suggestions" class="mention-suggestions" style="display: none;"></div>
-    `;
+  
+  
+  let mentionStartIndex = -1;
+  let currentMentionQuery = '';
+  let lastMentionStartIndex = -1;
+  
+  // Input event - detect @ and show suggestions
+  notesEl.addEventListener('input', (e) => {
+    const text = notesEl.value;
+    const cursorPos = notesEl.selectionStart;
+    const beforeCursor = text.substring(0, cursorPos);
+    const mentionMatch = beforeCursor.match(/@([^@\s]*)$/);
     
-    // Replace original textarea with new container
-    const originalTextarea = document.getElementById('opportunity-notes');
-    originalTextarea.parentNode.replaceChild(mentionContainer, originalTextarea);
     
-    // Get function new textarea element
-    const newNotesEl = document.getElementById('opportunity-notes');
     
-    // Copy value from original textarea
-    newNotesEl.value = originalTextarea.value;
-    
-    // Initialize mention system for new textarea
-    let mentionStartIndex = -1;
-    let currentMentionQuery = '';
-    
-    newNotesEl.addEventListener('input', (e) => {
-      const text = e.target.value;
-      const cursorPos = e.target.selectionStart;
+    if (mentionMatch) {
+      mentionStartIndex = cursorPos - mentionMatch[0].length;
+      currentMentionQuery = mentionMatch[1];
       
-      // Check if user is typing a mention (@)
-      const beforeCursor = text.substring(0, cursorPos);
-      const mentionMatch = beforeCursor.match(/@([^@]*)$/);
-      
-      if (mentionMatch) {
-        mentionStartIndex = cursorPos - mentionMatch[0].length;
-        currentMentionQuery = mentionMatch[1];
-        
-        // Show suggestions if query is not empty
-        if (currentMentionQuery.length > 0) {
-          showOpportunityMentionSuggestions(currentMentionQuery);
-        } else {
-          hideOpportunityMentionSuggestions();
-        }
-      } else {
-        hideOpportunityMentionSuggestions();
-        mentionStartIndex = -1;
-        currentMentionQuery = '';
-      }
-    });
-    
-    // Handle mention selection
-    newNotesEl.addEventListener('keydown', (e) => {
-      if (document.getElementById('opportunity-mention-suggestions').style.display !== 'none') {
-        const items = document.getElementById('opportunity-mention-suggestions').querySelectorAll('.mention-suggestion');
-        let activeIndex = -1;
-        
-        // Find active item
-        for (let i = 0; i < items.length; i++) {
-          if (items[i].classList.contains('active')) {
-            activeIndex = i;
-            break;
-          }
-        }
-        
-        // Handle navigation
-        if (e.key === 'ArrowDown') {
-          e.preventDefault();
-          activeIndex = (activeIndex + 1) % items.length;
-          updateActiveOpportunityMention(items, activeIndex);
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          activeIndex = activeIndex <= 0 ? items.length - 1 : activeIndex - 1;
-          updateActiveOpportunityMention(items, activeIndex);
-        } else if (e.key === 'Enter' || e.key === 'Tab') {
-          e.preventDefault();
-          if (activeIndex >= 0) {
-            selectOpportunityMentionedPerson(items[activeIndex].dataset.personId);
-          }
-        } else if (e.key === 'Escape') {
-          hideOpportunityMentionSuggestions();
-        }
-      }
-    });
-    
-    // Handle click outside to close suggestions
-    document.addEventListener('click', (e) => {
-      if (e.target !== newNotesEl && !document.getElementById('opportunity-mention-suggestions').contains(e.target)) {
-        hideOpportunityMentionSuggestions();
-      }
-    });
-    
-    function showOpportunityMentionSuggestions(query) {
-      const filteredPeople = allPeople.filter(person => 
-        person.name.toLowerCase().includes(query.toLowerCase())
-      );
-      
-      if (filteredPeople.length === 0) {
-        document.getElementById('opportunity-mention-suggestions').innerHTML = '<div class="mention-suggestion">No people found</div>';
-      } else {
-        document.getElementById('opportunity-mention-suggestions').innerHTML = filteredPeople.map(person => `
-          <div class="mention-suggestion" data-person-id="${person.id}" onclick="selectOpportunityMentionedPerson('${person.id}')">
-            <div class="mention-avatar">${getInitials(person.name)}</div>
-            <div class="mention-info">
-              <div class="mention-name">${person.name}</div>
-              <div class="mention-details">${person.email || ''} ${person.companies ? `• ${person.companies.name}` : ''}</div>
-            </div>
-          </div>
-        `).join('');
-      }
-      
-      document.getElementById('opportunity-mention-suggestions').style.display = 'block';
-    }
-    
-    function hideOpportunityMentionSuggestions() {
-      document.getElementById('opportunity-mention-suggestions').style.display = 'none';
-    }
-    
-    function updateActiveOpportunityMention(items, activeIndex) {
-      items.forEach((item, index) => {
-        item.classList.toggle('active', index === activeIndex);
-      });
-    }
-    
-    window.selectOpportunityMentionedPerson = function(personId) {
-      const person = allPeople.find(p => p.id === parseInt(personId));
-      if (!person) return;
-      
-      const text = newNotesEl.value;
-      const beforeMention = text.substring(0, mentionStartIndex);
-      const afterMention = text.substring(mentionStartIndex + currentMentionQuery.length + 1);
-      
-      // Replace with mention format
-      newNotesEl.value = `${beforeMention}@${person.name} (${person.id})${afterMention}`;
-      
-      // Add to mentioned people array
-      if (!mentionedPeople.find(p => p.id === parseInt(personId))) {
-        mentionedPeople.push({
-          id: parseInt(personId),
-          name: person.name
-        });
-      }
-      
-      // Reset mention state
-      hideOpportunityMentionSuggestions();
+      showMentionSuggestions(currentMentionQuery, mentionSuggestionsContainer);
+    } else {
+      mentionSuggestionsContainer.style.display = 'none';
       mentionStartIndex = -1;
       currentMentionQuery = '';
+    }
+  });
+  
+  // Keyboard navigation for suggestions
+  notesEl.addEventListener('keydown', (e) => {
+    if (mentionSuggestionsContainer.style.display === 'none') return;
+    
+    const items = Array.from(mentionSuggestionsContainer.querySelectorAll('.mention-suggestion'));
+    if (items.length === 0) return;
+    
+    let activeIndex = items.findIndex(item => item.classList.contains('active'));
+    
+    
+    
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      activeIndex = (activeIndex + 1) % items.length;
+      setActiveMention(items, activeIndex);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      activeIndex = (activeIndex - 1 + items.length) % items.length;
+      setActiveMention(items, activeIndex);
+    } else if (e.key === 'Enter' || e.key === 'Tab') {
+      e.preventDefault();
+      if (activeIndex >= 0) {
+        
+        insertMentionFromSuggestion(items[activeIndex], notesEl, mentionStartIndex, currentMentionQuery, mentionSuggestionsContainer);
+      }
+    } else if (e.key === 'Escape') {
+      mentionSuggestionsContainer.style.display = 'none';
+    }
+  });
+  
+  // Handle mousedown on suggestions (before focus is lost)
+  mentionSuggestionsContainer.addEventListener('mousedown', (e) => {
+    const suggestion = e.target.closest('.mention-suggestion');
+    if (suggestion) {
+      e.preventDefault();
+      e.stopPropagation();
       
-      // Update cursor position
-      const newCursorPos = beforeMention.length + person.name.length + person.id.toString().length + 4;
-      newNotesEl.focus();
-      newNotesEl.setSelectionRange(newCursorPos, newCursorPos);
-    };
-  }
+      insertMentionFromSuggestion(suggestion, notesEl, mentionStartIndex, currentMentionQuery, mentionSuggestionsContainer);
+    }
+  }, true); // Capture phase
+  
+  // Close suggestions when clicking outside
+  document.addEventListener('click', (e) => {
+    if (e.target !== notesEl && !mentionSuggestionsContainer.contains(e.target)) {
+      mentionSuggestionsContainer.style.display = 'none';
+    }
+  });
   
   // Competitors input
   const competitorsInput = document.getElementById('competitors-input');
@@ -3136,7 +3085,7 @@ function checkDueReminders() {
 // ======================
 
 async function renderTeamDashboardView() {
-  console.log('Loading Team Dashboard for user:', currentUser.id); // Debug log
+  
   
   // First, try to get all profiles separately to ensure we have access
   const { data: allProfiles, error: profilesError } = await supabaseClient
@@ -8524,4 +8473,83 @@ window.openPhotoModal = function(photoUrl) {
   
   document.body.appendChild(modal);
 };
+
+// ==================== MENTION SYSTEM HELPERS ====================
+
+function showMentionSuggestions(query, container) {
+  const filteredPeople = allPeople.filter(person => 
+    person.name.toLowerCase().includes(query.toLowerCase())
+  );
+  
+  
+  if (filteredPeople.length === 0) {
+    container.innerHTML = '<div class="mention-suggestion">No people found</div>';
+  } else {
+    container.innerHTML = filteredPeople.map(person => `
+      <div class="mention-suggestion" data-person-id="${person.id}">
+        <div class="mention-avatar">${getInitials(person.name)}</div>
+        <div class="mention-info">
+          <div class="mention-name">${person.name}</div>
+          <div class="mention-details">${person.email || ''} ${person.companies ? `• ${person.companies.name}` : ''}</div>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  container.style.display = 'block';
+}
+
+function setActiveMention(items, activeIndex) {
+  items.forEach((item, index) => {
+    item.classList.toggle('active', index === activeIndex);
+  });
+}
+
+function insertMentionFromSuggestion(suggestionEl, textareaEl, startIndex, query, containerEl) {
+  
+  
+  const personId = suggestionEl.dataset.personId;
+  const person = allPeople.find(p => p.id === personId); // Use string comparison, not parseInt
+  
+  
+  
+  if (!person) {
+    console.error('❌ Person not found with ID:', personId);
+    return;
+  }
+  
+  const text = textareaEl.value;
+  const cursorPos = textareaEl.selectionStart;
+  const beforeMention = text.substring(0, startIndex);
+  // Calculate afterMention from cursor position (accounts for partial typing)
+  const afterMention = text.substring(cursorPos);
+  
+  
+  
+  // Insert mention with styling markup
+  const mentionHTML = `@${person.name}`;
+  const newText = `${beforeMention}${mentionHTML} ${afterMention}`;
+  textareaEl.value = newText;
+  
+  
+  
+  // Add to mentioned people array
+  if (!mentionedPeople.find(p => p.id === personId)) {
+    mentionedPeople.push({
+      id: personId,
+      name: person.name
+    });
+    
+  }
+  
+  // Close suggestions
+  containerEl.style.display = 'none';
+  
+  // Update cursor position (after the mention and space)
+  const newCursorPos = beforeMention.length + mentionHTML.length + 1;
+  textareaEl.focus();
+  textareaEl.setSelectionRange(newCursorPos, newCursorPos);
+  
+  
+}
 
