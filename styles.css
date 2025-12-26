@@ -4191,3 +4191,7 @@ html, body {
 .photo-remove:hover {
   opacity: 1;
 }
+
+button svg {
+  width: 18px;
+}

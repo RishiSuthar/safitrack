@@ -177,7 +177,7 @@ async function handleLogin(e) {
   }
 
   currentUser = data.user;
-  submitBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
+  submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Success!';
 }
 
 async function handleLogout() {
@@ -504,7 +504,7 @@ async function renderCompaniesView() {
                   <i class="fas fa-edit"></i>
                 </button>
                 <button class="action-btn delete-company" data-id="${company.id}" title="Delete company">
-                  <i class="fas fa-trash"></i>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
               </div>
             ` : ''}
@@ -1030,7 +1030,7 @@ async function renderPeopleView() {
                 <i class="fas fa-edit"></i>
               </button>
               <button class="action-btn delete-person" data-id="${person.id}" title="Delete person">
-                <i class="fas fa-trash"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
               </button>
             </div>
           </div>
@@ -1760,7 +1760,7 @@ function initLogVisitForm(companies) {
 
         if (isWithinRadius) {
           locationStatus.className = 'location-status success';
-          locationStatus.innerHTML = `<i class="fas fa-check-circle"></i> Location verified! You are ${distance.toFixed(0)}m from ${window.selectedCompanyData.name}`;
+          locationStatus.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Location verified! You are ${distance.toFixed(0)}m from ${window.selectedCompanyData.name}`;
           locationVerified = true;
           submitBtn.disabled = false;
           initVerificationMap(userLat, userLng, window.selectedCompanyData);
@@ -2410,7 +2410,7 @@ async function renderOpportunityPipelineView() {
                   <i class="fas fa-edit"></i>
                 </button>
                 <button class="opportunity-action-btn delete-opportunity" data-id="${opp.id}">
-                  <i class="fas fa-trash"></i>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
               ` : `
                 <button class="opportunity-action-btn view-opportunity" data-id="${opp.id}">
@@ -3386,7 +3386,7 @@ async function renderUserManagementView() {
         </span>
         ${!isCurrentUser ? `
           <button class="btn btn-ghost btn-sm" onclick="deleteUser('${user.id}', '${user.first_name} ${user.last_name}')">
-            <i class="fas fa-trash text-danger"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
           </button>
         ` : ''}
       </div>
@@ -4539,7 +4539,8 @@ async function startRouteNavigation(routeId) {
           </button>
           <h2>${route.name}</h2>
           <button class="btn btn-secondary" id="complete-route-btn">
-            <i class="fas fa-check"></i> Complete
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
+            Complete
           </button>
         </div>
         
@@ -4553,7 +4554,7 @@ async function startRouteNavigation(routeId) {
               <p id="current-stop-address">${validLocations[0].company.address || 'No address'}</p>
               <div class="stop-actions">
                 <button class="btn btn-primary" id="arrived-btn">
-                  <i class="fas fa-check-circle"></i> I've Arrived
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>I've Arrived
                 </button>
                 <button class="btn btn-secondary" id="get-directions-btn">
                   <i class="fas fa-directions"></i> Get Directions
@@ -4989,12 +4990,12 @@ function renderTaskCard(task, isManager) {
           ` : ''}
           ${canComplete && task.status !== 'completed' ? `
             <button class="task-action-btn complete-task" data-id="${task.id}">
-              <i class="fas fa-check-circle"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
             </button>
           ` : ''}
           ${isManager || isCreatedByMe ? `
             <button class="task-action-btn delete-task" data-id="${task.id}">
-              <i class="fas fa-trash"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             </button>
           ` : ''}
         </div>
@@ -5397,7 +5398,7 @@ async function renderRemindersView() {
               <div class="reminder-notification-time">${formatDate(reminder.reminder_date, true)}</div>
               <div class="reminder-notification-actions">
                 <button class="btn btn-sm btn-primary complete-reminder-notification" data-id="${reminder.id}">
-                  <i class="fas fa-check"></i> Complete
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Complete
                 </button>
                 <button class="btn btn-sm btn-secondary dismiss-reminder-notification" data-id="${reminder.id}">
                   <i class="fas fa-clock"></i> Dismiss
@@ -5484,13 +5485,13 @@ async function renderRemindersView() {
                 </button>
                 ${!reminder.is_completed ? `
                   <button class="reminder-action-btn complete-reminder" data-id="${reminder.id}">
-                    <i class="fas fa-check-circle"></i>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
                   </button>
                 ` : ''}
               ` : ''}
               ${isManager || isCreatedByManager ? `
                 <button class="reminder-action-btn delete-reminder" data-id="${reminder.id}">
-                  <i class="fas fa-trash"></i>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
               ` : ''}
             </div>
@@ -6652,7 +6653,7 @@ async function renderTechnicianLogVisitView() {
             <i class="fas fa-arrow-left"></i> Back
           </button>
           <button class="btn btn-primary flex-1" id="submit-technician-visit" disabled>
-            <i class="fas fa-check"></i> Submit Visit
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Submit Visit
           </button>
         </div>
       </div>
@@ -6767,7 +6768,7 @@ function initTechnicianLogVisitForm(companies) {
         window.technicianVisitForm.capturedLocation = capturedLocation;
 
         locationStatus.className = 'location-status success';
-        locationStatus.innerHTML = `<i class="fas fa-check-circle"></i> Location captured! Coordinates: ${capturedLocation.latitude.toFixed(6)}, ${capturedLocation.longitude.toFixed(6)}`;
+        locationStatus.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Location captured! Coordinates: ${capturedLocation.latitude.toFixed(6)}, ${capturedLocation.longitude.toFixed(6)}`;
         
         // Show map
         locationMap.style.display = 'block';
@@ -7308,7 +7309,7 @@ function initTechnicianLogVisitForm(companies) {
       console.error('Error submitting visit:', err);
       showToast('Failed to submit visit: ' + err.message, 'error');
       submitBtn.disabled = false;
-      submitBtn.innerHTML = '<i class="fas fa-check"></i> Submit Visit';
+      submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Submit Visit';
     }
   });
 
