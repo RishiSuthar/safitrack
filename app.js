@@ -1992,7 +1992,6 @@ async function renderMyActivityView() {
     html += `
       <div class="card">
         <div class="empty-state">
-          <i class="fas fa-clipboard-list empty-state-icon"></i>
           <h3 class="empty-state-title">No visits yet</h3>
           <p class="empty-state-description">Start logging your field visits to see them here.</p>
           <button class="btn btn-primary" onclick="loadView('log-visit')">
@@ -4119,7 +4118,7 @@ async function viewRouteDetails(routeId) {
       <div class="modal-backdrop" onclick="closeModal('route-details-modal')"></div>
       <div class="modal-container" style="max-width: 800px;">
         <div class="modal-header">
-          <h3><i class="fas fa-route"></i> ${route.name}</h3>
+          <h3>${route.name}</h3>
           <button class="modal-close" onclick="closeModal('route-details-modal')">
             <i class="fas fa-times"></i>
           </button>
@@ -4236,7 +4235,6 @@ async function renderMyRoutesView() {
       html += `
         <div class="card">
           <div class="empty-state">
-            <i class="fas fa-route empty-state-icon"></i>
             <h3 class="empty-state-title">No routes assigned</h3>
             <p class="empty-state-description">
               Your manager will assign routes to you here.
