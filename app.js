@@ -1004,7 +1004,6 @@ async function renderPeopleView() {
   if (people.length === 0) {
     html += `
       <div class="empty-state">
-        <i class="fas fa-users empty-state-icon"></i>
         <h3 class="empty-state-title">No people yet</h3>
         <p class="empty-state-description">Add your first person to get started.</p>
         <button class="btn btn-primary" onclick="openPersonModal()">
@@ -2033,7 +2032,7 @@ function renderVisitCard(visit, showRepName = false) {
       </div>
       
       <div class="visit-meta">
-        ${visit.contact_name ? `<span class="visit-meta-item"><i class="fas fa-user"></i> ${visit.contact_name}</span>` : ''}
+        ${visit.contact_name ? `<span class="visit-meta-item"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${visit.contact_name}</span>` : ''}
         ${visit.location_name ? `<span class="visit-meta-item"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>${visit.location_name}</span>` : ''}
         ${visit.visit_type ? `<span class="visit-meta-item"><i class="fas fa-tag"></i> ${visit.visit_type.replace('_', ' ')}</span>` : ''}
         ${visit.travel_time ? `<span class="visit-meta-item"><i class="fas fa-clock"></i> ${visit.travel_time} min travel</span>` : ''}
@@ -2367,7 +2366,7 @@ async function renderOpportunityPipelineView() {
           <div class="opportunity-name">${opp.name}</div>
           ${isManager && user ? `
             <div class="opportunity-owner">
-              <i class="fas fa-user"></i> ${ownerName}
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${ownerName}
             </div>
           ` : ''}
           <div class="opportunity-value">Ksh ${parseFloat(opp.value || 0).toLocaleString()}</div>
@@ -4642,7 +4641,7 @@ async function startRouteNavigation(routeId) {
                 userMarker = L.marker([latitude, longitude], {
                   icon: L.divIcon({
                     className: 'user-marker',
-                    html: '<div class="user-marker-icon"><i class="fas fa-user"></i></div>',
+                    html: '<div class="user-marker-icon"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>',
                     iconSize: [30, 30],
                     iconAnchor: [15, 15]
                   })
@@ -4974,7 +4973,7 @@ function renderTaskCard(task, isManager) {
         
         ${isManager || task.assigned_to ? `
           <div class="task-meta-item">
-            <i class="fas fa-user"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <span>Assigned to: ${assignedToName}</span>
           </div>
         ` : ''}
@@ -5460,14 +5459,14 @@ async function renderRemindersView() {
             
             ${isManager || reminder.assigned_to ? `
               <div class="reminder-meta-item">
-                <i class="fas fa-user"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 <span>Assigned to: ${assignedToName}</span>
               </div>
             ` : ''}
             
             ${isManager && createdByUser ? `
               <div class="reminder-meta-item">
-                <i class="fas fa-user-plus"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
                 <span>Created by: ${createdByName}</span>
               </div>
             ` : ''}
