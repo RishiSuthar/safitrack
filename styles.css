@@ -393,7 +393,7 @@ body {
 .input-wrapper input,
 .input-wrapper select {
   width: 100%;
-  padding: 0.875rem 1rem 0.875rem 2.75rem;
+  padding: 0.875rem 1rem 0.875rem 1rem;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
   font-size: 1rem;
