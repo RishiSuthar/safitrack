@@ -950,7 +950,7 @@ body {
 }
 
 .page-title {
-  font-size: 1.5rem;
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--text-primary);
   margin-bottom: 0.25rem;
@@ -1985,7 +1985,7 @@ select {
   }
   
   .page-title {
-    font-size: 1.75rem;
+    font-size: 1.3rem;
   }
   
   .card {
@@ -2013,7 +2013,7 @@ select {
   }
 
   .page-title {
-    font-size: 1.75rem;
+    font-size: 1.3rem;
   }
 
   .card {
