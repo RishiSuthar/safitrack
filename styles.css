@@ -1923,7 +1923,6 @@ select {
     top: var(--header-height);
     bottom: 0;
     width: var(--sidebar-width);
-
     pointer-events: auto;
   }
   
@@ -1935,6 +1934,7 @@ select {
     margin-left: var(--sidebar-width);
     margin-bottom: 0;
     padding: 2rem;
+    /* This max-width is applied when sidebar is EXPANDED */
     max-width: calc(100vw - var(--sidebar-width));
   }
   
@@ -1978,7 +1978,22 @@ select {
   .chart-container {
     height: 350px;
   }
+  
+  /* ========================================= */
+  /* FIX: Handle COLLAPSED state on Tablets */
+  /* ========================================= */
+  
+  .main-content {
+    transition: margin-left var(--transition-base), max-width var(--transition-base);
+  }
+  
+  .sidebar.collapsed ~ .main-content {
+    margin-left: 60px;
+    /* OVERRIDE: Update max-width to match collapsed sidebar (60px) */
+    max-width: calc(100vw - 60px);
+  }
 }
+
 
 /* ===== RESPONSIVE - Desktop ===== */
 @media (min-width: 1024px) {
