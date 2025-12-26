@@ -514,7 +514,7 @@ async function renderCompaniesView() {
           
           ${company.latitude && company.longitude ? `
             <div class="company-location">
-              <i class="fas fa-map-marker-alt"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
               ${company.latitude.toFixed(6)}, ${company.longitude.toFixed(6)}
             </div>
           ` : ''}
@@ -738,7 +738,7 @@ function initCompanyModalListeners(company) {
         showToast('Geocoding failed. Please enter coordinates manually', 'error');
       } finally {
         geocodeBtn.disabled = false;
-        geocodeBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i> Geocode Address';
+        geocodeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Geocode Address';
       }
     });
   }
@@ -1460,7 +1460,7 @@ async function renderLogVisitView() {
       <div class="form-field">
         <label>Location Verification *</label>
         <button type="button" id="verify-location" class="btn btn-secondary w-full" disabled>
-          <i class="fas fa-map-marker-alt"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
           Verify Location
         </button>
         <div id="location-status" class="location-status" style="display: none;"></div>
@@ -1752,7 +1752,7 @@ function initLogVisitForm(companies) {
           locationStatus.className = 'location-status error';
           locationStatus.innerHTML = `<i class="fas fa-times-circle"></i> Error calculating distance. Please check company coordinates.`;
           verifyLocationBtn.disabled = false;
-          verifyLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i> Verify Location';
+          verifyLocationBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Verify Location';
           return;
         }
 
@@ -1772,7 +1772,7 @@ function initLogVisitForm(companies) {
         }
 
         verifyLocationBtn.disabled = false;
-        verifyLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i> Verify Location';
+        verifyLocationBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Verify Location';
       },
       (error) => {
         let errorMsg = 'Unable to get location';
@@ -1783,7 +1783,7 @@ function initLogVisitForm(companies) {
         locationStatus.className = 'location-status error';
         locationStatus.innerHTML = `<i class="fas fa-times-circle"></i> ${errorMsg}`;
         verifyLocationBtn.disabled = false;
-        verifyLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i> Verify Location';
+        verifyLocationBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Verify Location';
         showToast(errorMsg, 'error');
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -2034,7 +2034,7 @@ function renderVisitCard(visit, showRepName = false) {
       
       <div class="visit-meta">
         ${visit.contact_name ? `<span class="visit-meta-item"><i class="fas fa-user"></i> ${visit.contact_name}</span>` : ''}
-        ${visit.location_name ? `<span class="visit-meta-item"><i class="fas fa-map-marker-alt"></i> ${visit.location_name}</span>` : ''}
+        ${visit.location_name ? `<span class="visit-meta-item"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>${visit.location_name}</span>` : ''}
         ${visit.visit_type ? `<span class="visit-meta-item"><i class="fas fa-tag"></i> ${visit.visit_type.replace('_', ' ')}</span>` : ''}
         ${visit.travel_time ? `<span class="visit-meta-item"><i class="fas fa-clock"></i> ${visit.travel_time} min travel</span>` : ''}
       </div>
@@ -6452,7 +6452,7 @@ async function renderTechnicianLogVisitView() {
           <label>Location Verification</label>
           <div class="location-verification">
             <button type="button" id="verify-technician-location" class="btn btn-secondary w-full">
-              <i class="fas fa-map-marker-alt"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
               Capture Current Location
             </button>
             <div id="technician-location-status" class="location-status" style="display: none;"></div>
@@ -6775,14 +6775,14 @@ function initTechnicianLogVisitForm(companies) {
         initTechnicianLocationMap(company, capturedLocation);
         
         verifyLocationBtn.disabled = false;
-        verifyLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i> Location Captured';
+        verifyLocationBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Location Captured';
         verifyLocationBtn.classList.add('btn-success');
       },
       (error) => {
         locationStatus.className = 'location-status error';
         locationStatus.innerHTML = `<i class="fas fa-times-circle"></i> Unable to get location`;
         verifyLocationBtn.disabled = false;
-        verifyLocationBtn.innerHTML = '<i class="fas fa-map-marker-alt"></i> Capture Current Location';
+        verifyLocationBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Capture Current Location';
         showToast('Location capture failed', 'error');
       },
       { enableHighAccuracy: true, timeout: 10000 }
@@ -7484,7 +7484,7 @@ function renderTechnicianVisitCard(visit) {
         </span>
         ${visit.latitude && visit.longitude ? `
           <span class="technician-visit-meta-item">
-            <i class="fas fa-map-marker-alt"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
             Location captured
           </span>
         ` : ''}
@@ -7587,7 +7587,7 @@ function renderTechnicianVisitCard(visit) {
         </span>
         ${visit.latitude && visit.longitude ? `
           <span class="technician-visit-meta-item">
-            <i class="fas fa-map-marker-alt"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
             Location captured
           </span>
         ` : ''}
@@ -7849,7 +7849,7 @@ function renderTechnicianVisitCardForManager(visit) {
         </span>
         ${visit.latitude && visit.longitude ? `
           <span class="technician-visit-meta-item">
-            <i class="fas fa-map-marker-alt"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
             ${visit.latitude.toFixed(4)}, ${visit.longitude.toFixed(4)}
           </span>
         ` : ''}
@@ -8242,7 +8242,7 @@ window.viewLocationOnMap = function(latitude, longitude, title) {
     <div class="modal-backdrop" onclick="closeModal('location-modal')"></div>
     <div class="modal-container" style="max-width: 800px;">
       <div class="modal-header">
-        <h3><i class="fas fa-map-marker-alt"></i> ${title || 'Location'}</h3>
+        <h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-locate-fixed-icon lucide-locate-fixed"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>${title || 'Location'}</h3>
         <button class="modal-close" onclick="closeModal('location-modal')">
           <i class="fas fa-times"></i>
         </button>
