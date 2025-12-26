@@ -4340,3 +4340,18 @@ button svg {
   opacity: 1;
   visibility: visible;
 }
+
+
+/* The connecting line: Visible when Sidebar is OPEN (Expanded) */
+.sidebar-toggle-btn::before {
+  content: '';
+  position: absolute;
+  left: 209px; /* Pulls the line towards the sidebar to bridge the margin gap */
+  top: 50%;
+  transform: translateY(-50%);
+  
+  /* Visuals */
+  width: 1px; /* Thin line matching the sidebar border */
+  height: 57px; /* Length of the line */
+  background-color: var(--border-color); /* Matches the sidebar border color perfectly */
+}
