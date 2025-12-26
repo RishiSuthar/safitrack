@@ -4960,20 +4960,20 @@ function renderTaskCard(task, isManager) {
       <div class="task-meta">
         ${task.due_date ? `
           <div class="task-meta-item ${isOverdue ? 'task-overdue' : ''}">
-            <i class="fas fa-calendar"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-icon lucide-calendar"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
             <span>Due: ${dueDateStr}</span>
             ${isOverdue ? '<i class="fas fa-exclamation-triangle"></i>' : ''}
           </div>
         ` : ''}
         
         <div class="task-meta-item">
-          <i class="fas fa-flag"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flag-icon lucide-flag"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg>
           <span>Priority: ${task.priority || 'medium'}</span>
         </div>
         
         ${isManager || task.assigned_to ? `
           <div class="task-meta-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             <span>Assigned to: ${assignedToName}</span>
           </div>
         ` : ''}
@@ -5451,7 +5451,7 @@ async function renderRemindersView() {
           <div class="reminder-meta">
             ${reminder.reminder_date ? `
               <div class="reminder-meta-item">
-                <i class="fas fa-calendar"></i>
+                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-icon lucide-calendar"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
                 <span>${formatDate(reminder.reminder_date)}</span>
                 ${isOverdue ? '<i class="fas fa-exclamation-triangle"></i>' : ''}
               </div>
