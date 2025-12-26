@@ -8551,3 +8551,71 @@ function insertMentionFromSuggestion(suggestionEl, textareaEl, startIndex, query
   
 }
 
+
+// ======================
+// SIDEBAR COLLAPSE LOGIC
+// ======================
+
+// ======================
+// SIDEBAR COLLAPSE LOGIC (UPDATED WITH CUSTOM ICONS)
+// ======================
+
+document.addEventListener('DOMContentLoaded', () => {
+  const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+
+  if (!sidebar || !sidebarToggle) return;
+
+  // Helper function to update the icon SVG based on sidebar state
+  const updateSidebarIcon = () => {
+    const isCollapsed = sidebar.classList.contains('collapsed');
+
+    if (isCollapsed) {
+      // Sidebar is HIDDEN (Collapsed): Show "Open" Icon (Arrows pointing OUT)
+      sidebarToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-right-close-icon lucide-panel-right-close"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/><path d="m8 9 3 3-3 3"/></svg>`;
+    } else {
+      // Sidebar is VISIBLE (Expanded): Show "Close" Icon (Arrows pointing IN)
+      sidebarToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-right-open-icon lucide-panel-right-open"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/><path d="m10 15-3-3 3-3"/></svg>`;
+    }
+  };
+
+  // 1. Set the correct icon immediately on page load
+  updateSidebarIcon();
+
+  // 2. Add the click listener
+  sidebarToggle.addEventListener('click', () => {
+    // Toggle the class
+    sidebar.classList.toggle('collapsed');
+
+    // Update the icon to match the new state
+    updateSidebarIcon();
+
+    // Save preference
+    localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+  });
+
+  // 3. Restore state on reload
+  const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
+  // Only collapse if we are on Desktop (>= 768px)
+  if (sidebarCollapsed && window.innerWidth >= 768) {
+    sidebar.classList.add('collapsed');
+    updateSidebarIcon(); // Ensure icon matches restored state
+  }
+});
+
+// Handle window resize to ensure icons stay correct if CSS forces a state change
+window.addEventListener('resize', () => {
+  const sidebar = document.getElementById('sidebar');
+  const sidebarToggle = document.getElementById('sidebar-toggle');
+  
+  // If we switch to mobile, the sidebar is forced open/hidden by CSS media queries.
+  // We force remove the collapsed class and reset the icon.
+  if (window.innerWidth < 768) {
+    sidebar.classList.remove('collapsed');
+    // On mobile, the toggle button is usually hidden, but if visible:
+    if (sidebarToggle) {
+        sidebarToggle.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-right-close-icon lucide-panel-right-close"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/><path d="m8 9 3 3-3 3"/></svg>`;
+    }
+  }
+});
