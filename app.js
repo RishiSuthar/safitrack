@@ -1749,7 +1749,7 @@ function initLogVisitForm(companies) {
         // Check if distance calculation was successful
         if (isNaN(distance)) {
           locationStatus.className = 'location-status error';
-          locationStatus.innerHTML = `<i class="fas fa-times-circle"></i> Error calculating distance. Please check company coordinates.`;
+          locationStatus.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Error calculating distance. Please check company coordinates.`;
           verifyLocationBtn.disabled = false;
           verifyLocationBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Verify Location';
           return;
@@ -1765,7 +1765,7 @@ function initLogVisitForm(companies) {
           initVerificationMap(userLat, userLng, window.selectedCompanyData);
         } else {
           locationStatus.className = 'location-status error';
-          locationStatus.innerHTML = `<i class="fas fa-times-circle"></i> Too far from ${window.selectedCompanyData.name}. You are ${distance.toFixed(0)}m away (max: ${window.selectedCompanyData.radius}m)`;
+          locationStatus.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Too far from ${window.selectedCompanyData.name}. You are ${distance.toFixed(0)}m away (max: ${window.selectedCompanyData.radius}m)`;
           locationVerified = false;
           submitBtn.disabled = true;
         }
@@ -1780,7 +1780,7 @@ function initLogVisitForm(companies) {
         if (error.code === error.TIMEOUT) errorMsg = 'Location request timed out';
 
         locationStatus.className = 'location-status error';
-        locationStatus.innerHTML = `<i class="fas fa-times-circle"></i> ${errorMsg}`;
+        locationStatus.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> ${errorMsg}`;
         verifyLocationBtn.disabled = false;
         verifyLocationBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Verify Location';
         showToast(errorMsg, 'error');
@@ -3188,7 +3188,7 @@ async function renderTeamDashboardView() {
         <div class="card-header">
           <h3 class="card-title" id="rep-visits-title">Rep Visits</h3>
           <button class="btn btn-ghost btn-sm" id="clear-rep-filter">
-            <i class="fas fa-times"></i> Clear
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Clear
           </button>
         </div>
         <div id="rep-visits-container"></div>
@@ -3611,7 +3611,7 @@ function initRouteCreator(companies, salesReps) {
   createBtn.addEventListener('click', () => {
     if (routeCreator.style.display === 'none') {
       routeCreator.style.display = 'block';
-      createBtn.innerHTML = '<i class="fas fa-times"></i> Cancel';
+      createBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Cancel';
     } else {
       routeCreator.style.display = 'none';
       createBtn.innerHTML = '<i class="fas fa-plus"></i> Create';
@@ -4119,7 +4119,7 @@ async function viewRouteDetails(routeId) {
         <div class="modal-header">
           <h3>${route.name}</h3>
           <button class="modal-close" onclick="closeModal('route-details-modal')">
-            <i class="fas fa-times"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
         </div>
         <div class="modal-body">
@@ -5387,7 +5387,7 @@ async function renderRemindersView() {
           <i class="fas fa-bell"></i>
           <span>You have ${dueReminders.length} due reminder${dueReminders.length > 1 ? 's' : ''}</span>
           <button class="reminder-notification-close" id="close-notification">
-            <i class="fas fa-times"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
         </div>
         <div class="reminder-notification-content">
@@ -6779,7 +6779,7 @@ function initTechnicianLogVisitForm(companies) {
       },
       (error) => {
         locationStatus.className = 'location-status error';
-        locationStatus.innerHTML = `<i class="fas fa-times-circle"></i> Unable to get location`;
+        locationStatus.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Unable to get location`;
         verifyLocationBtn.disabled = false;
         verifyLocationBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Capture Current Location';
         showToast('Location capture failed', 'error');
@@ -6859,7 +6859,7 @@ function initTechnicianLogVisitForm(companies) {
       <div class="photo-item">
         <img src="${photo.dataUrl}" alt="Visit photo ${index + 1}" style="width: 100%; height: 100%; object-fit: cover;">
         <button class="photo-remove" onclick="removeTechnicianPhoto(${index})">
-          <i class="fas fa-times"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
       </div>
     `).join('');
@@ -6876,7 +6876,7 @@ function initTechnicianLogVisitForm(companies) {
       <div class="photo-item">
         <img src="${photo.dataUrl}" alt="Visit photo ${index + 1}">
         <button class="photo-remove" onclick="removeTechnicianPhoto(${index})">
-          <i class="fas fa-times"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
       </div>
     `).join('');
@@ -8243,7 +8243,7 @@ window.viewLocationOnMap = function(latitude, longitude, title) {
       <div class="modal-header">
         <h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-locate-fixed-icon lucide-locate-fixed"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>${title || 'Location'}</h3>
         <button class="modal-close" onclick="closeModal('location-modal')">
-          <i class="fas fa-times"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
       </div>
       <div class="modal-body">
@@ -8328,7 +8328,7 @@ window.viewTechnicianVisitDetails = async function(visitId) {
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text-icon lucide-file-text"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg> PDF
             </button>
             <button class="modal-close" onclick="closeModal('visit-details-modal')">
-              <i class="fas fa-times"></i>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
           </div>
         </div>
@@ -8452,7 +8452,7 @@ window.openPhotoModal = function(photoUrl) {
       <div class="modal-header">
         <h3><i class="fas fa-camera"></i> Photo</h3>
         <button class="modal-close" onclick="closeModal('photo-modal')">
-          <i class="fas fa-times"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
       </div>
       <div class="modal-body" style="display: flex; justify-content: center; align-items: center;">
