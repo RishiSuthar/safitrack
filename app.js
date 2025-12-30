@@ -430,7 +430,6 @@ async function loadView(viewName) {
 // ======================
 // COMPANIES VIEW
 // ======================
-
 async function renderCompaniesView() {
   const { data: companies, error } = await supabaseClient
     .from('companies')
@@ -451,11 +450,6 @@ async function renderCompaniesView() {
   }
 
   let html = `
-    <div class="page-header">
-      <h1 class="page-title">Companies</h1>
-      <p class="page-subtitle">${companies.length} companies</p>
-    </div>
-
     <div class="card">
       <div class="card-header">
         <h3 class="card-title">Companies</h3>
@@ -474,32 +468,56 @@ async function renderCompaniesView() {
         </div>
       </div>
       
-      <div class="companies-grid" id="companies-grid">
+      <!-- Companies Table -->
+      <div class="table-container" id="companies-table-container">
+        <table class="data-table" id="companies-table">
+          <thead>
+            <tr>
+              <th width="50">#</th>
+              <th>Company Name</th>
+              <th>Industry</th>
+              <th>Location</th>
+              <th>Last Interaction</th>
+              ${isManager ? '<th>Actions</th>' : ''}
+            </tr>
+          </thead>
+          <tbody>
   `;
 
   if (companies.length === 0) {
     html += `
-      <div class="empty-state">
-        <i class="fas fa-building empty-state-icon"></i>
-        <h3 class="empty-state-title">No companies yet</h3>
-        <p class="empty-state-description">Add your first company to get started.</p>
-        ${isManager ? `
-          <button class="btn btn-primary" onclick="openCompanyModal()">
-            <i class="fas fa-plus"></i> Add Company
-          </button>
-        ` : ''}
-      </div>
+      <tr>
+        <td colspan="${isManager ? '8' : '7'}" class="text-center">
+          <div class="empty-state">
+            <i class="fas fa-building empty-state-icon"></i>
+            <h3 class="empty-state-title">No companies yet</h3>
+            <p class="empty-state-description">Add your first company to get started.</p>
+            ${isManager ? `
+              <button class="btn btn-primary" onclick="openCompanyModal()">
+                <i class="fas fa-plus"></i> Add Company
+              </button>
+            ` : ''}
+          </div>
+        </td>
+      </tr>
     `;
   } else {
-    companies.forEach(company => {
+    companies.forEach((company, index) => {
       const categories = company.company_categories.map(c => c.categories.name).join(', ');
       
       html += `
-        <div class="company-card" data-id="${company.id}" data-name="${company.name.toLowerCase()}" data-description="${(company.description || '').toLowerCase()}">
-          <div class="company-header">
-            <div class="company-name">${company.name}</div>
-            ${isManager ? `
-              <div class="company-actions">
+        <tr data-id="${company.id}" data-name="${company.name.toLowerCase()}" data-description="${(company.description || '').toLowerCase()}">
+          <td>${index + 1}</td>
+          <td>
+            <div class="company-name-cell">${company.name}</div>
+            ${company.description ? `<div class="company-description">${company.description}</div>` : ''}
+          </td>
+          <td>${categories || 'N/A'}</td>
+          <td>${company.address || 'N/A'}</td>
+          <td>${company.last_interaction ? formatDate(company.last_interaction) : 'Never'}</td>
+          ${isManager ? `
+            <td>
+              <div class="table-actions">
                 <button class="action-btn edit-company" data-id="${company.id}" title="Edit company">
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen-icon lucide-square-pen"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
                 </button>
@@ -507,31 +525,16 @@ async function renderCompaniesView() {
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
               </div>
-            ` : ''}
-          </div>
-          
-          ${company.description ? `<div class="company-description">${company.description}</div>` : ''}
-          
-          ${company.latitude && company.longitude ? `
-            <div class="company-location">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
-              ${company.latitude.toFixed(6)}, ${company.longitude.toFixed(6)}
-            </div>
+            </td>
           ` : ''}
-          
-          ${categories ? `
-            <div class="company-categories">
-              ${categories.split(', ').map(category => `
-                <span class="company-category">${category}</span>
-              `).join('')}
-            </div>
-          ` : ''}
-        </div>
+        </tr>
       `;
     });
   }
 
   html += `
+          </tbody>
+        </table>
       </div>
     </div>
   `;
@@ -543,35 +546,38 @@ async function renderCompaniesView() {
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
       const query = e.target.value.toLowerCase().trim();
-      const companyCards = document.querySelectorAll('.company-card');
+      const rows = document.querySelectorAll('#companies-table tbody tr');
       
-      companyCards.forEach(card => {
-        const name = card.dataset.name;
-        const description = card.dataset.description;
+      rows.forEach(row => {
+        const name = row.dataset.name;
+        const description = row.dataset.description;
         
         if (query === '' || name.includes(query) || description.includes(query)) {
-          card.style.display = 'block';
+          row.style.display = '';
         } else {
-          card.style.display = 'none';
+          row.style.display = 'none';
         }
       });
       
       // Check if any companies are visible
-      const visibleCards = Array.from(companyCards).filter(card => card.style.display !== 'none');
-      const companiesGrid = document.getElementById('companies-grid');
+      const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
       
-      if (visibleCards.length === 0 && query !== '') {
+      if (visibleRows.length === 0 && query !== '') {
         // Show no results message
         if (!document.getElementById('no-companies-results')) {
-          const noResults = document.createElement('div');
+          const tbody = document.querySelector('#companies-table tbody');
+          const noResults = document.createElement('tr');
           noResults.id = 'no-companies-results';
-          noResults.className = 'empty-state';
           noResults.innerHTML = `
-            <i class="fas fa-search empty-state-icon"></i>
-            <h3 class="empty-state-title">No companies found</h3>
-            <p class="empty-state-description">Try adjusting your search terms</p>
+            <td colspan="${isManager ? '8' : '7'}" class="text-center">
+              <div class="empty-state">
+                <i class="fas fa-search empty-state-icon"></i>
+                <h3 class="empty-state-title">No companies found</h3>
+                <p class="empty-state-description">Try adjusting your search terms</p>
+              </div>
+            </td>
           `;
-          companiesGrid.appendChild(noResults);
+          tbody.appendChild(noResults);
         }
       } else {
         // Remove no results message if it exists
@@ -630,6 +636,12 @@ async function renderCompaniesView() {
     });
   }
 }
+
+
+
+
+
+
 
 function openCompanyModal(company = null) {
   const modal = document.getElementById('company-modal');
@@ -777,10 +789,11 @@ function initCompanyModalListeners(company) {
   }
   
   // Save company
+  // In initCompanyModalListeners function, update the save button handler:
   saveBtn.onclick = async () => {
     const name = document.getElementById('company-name-input').value.trim();
     const description = document.getElementById('company-description').value.trim();
-    const address = document.getElementById('company-address').value.trim();
+    const address = document.getElementById('company-address').value.trim(); // This is correct
     const latitude = parseFloat(document.getElementById('company-latitude').value);
     const longitude = parseFloat(document.getElementById('company-longitude').value);
     const radius = parseInt(document.getElementById('company-radius').value);
@@ -798,6 +811,7 @@ function initCompanyModalListeners(company) {
       const companyData = {
         name,
         description: description || null,
+        address: address, // Make sure this is included
         latitude,
         longitude,
         radius,
@@ -977,11 +991,6 @@ async function renderPeopleView() {
   }
 
   let html = `
-    <div class="page-header">
-      <h1 class="page-title">People</h1>
-      <p class="page-subtitle">${people.length} people</p>
-    </div>
-
     <div class="card">
       <div class="card-header">
         <h3 class="card-title">People</h3>
@@ -998,33 +1007,65 @@ async function renderPeopleView() {
         </div>
       </div>
       
-      <div class="people-grid" id="people-grid">
+      
+      <!-- People Table -->
+      <div class="table-container" id="people-table-container">
+        <table class="data-table" id="people-table">
+          <thead>
+            <tr>
+              <th width="50">#</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Company</th>
+              <th>Job Title</th>
+              <th>Phone</th>
+              <th>Opportunity</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
   `;
 
   if (people.length === 0) {
     html += `
-      <div class="empty-state">
-        <h3 class="empty-state-title">No people yet</h3>
-        <p class="empty-state-description">Add your first person to get started.</p>
-        <button class="btn btn-primary" onclick="openPersonModal()">
-          <i class="fas fa-plus"></i> Add Person
-        </button>
-      </div>
+      <tr>
+        <td colspan="8" class="text-center">
+          <div class="empty-state">
+            <i class="fas fa-user empty-state-icon"></i>
+            <h3 class="empty-state-title">No people yet</h3>
+            <p class="empty-state-description">Add your first person to get started.</p>
+            <button class="btn btn-primary" onclick="openPersonModal()">
+              <i class="fas fa-plus"></i> Add Person
+            </button>
+          </div>
+        </td>
+      </tr>
     `;
   } else {
-    people.forEach(person => {
+    people.forEach((person, index) => {
       const companyName = person.company ? person.company.name : 'No company';
       const opportunityName = person.opportunity ? person.opportunity.name : '';
+      const phoneNumbers = person.phone_numbers && person.phone_numbers.length > 0 
+        ? person.phone_numbers.join(', ') 
+        : 'N/A';
       
       html += `
-        <div class="person-card" data-id="${person.id}" 
+        <tr data-id="${person.id}" 
             data-name="${person.name.toLowerCase()}" 
             data-email="${(person.email || '').toLowerCase()}" 
             data-company="${companyName.toLowerCase()}"
             data-job-title="${(person.job_title || '').toLowerCase()}">
-          <div class="person-header">
-            <div class="person-name">${person.name}</div>
-            <div class="person-actions">
+          <td>${index + 1}</td>
+          <td>
+            <div class="person-name-cell">${person.name}</div>
+          </td>
+          <td>${person.email || 'N/A'}</td>
+          <td>${companyName}</td>
+          <td>${person.job_title || 'N/A'}</td>
+          <td>${phoneNumbers}</td>
+          <td>${opportunityName || 'N/A'}</td>
+          <td>
+            <div class="table-actions">
               <button class="action-btn edit-person" data-id="${person.id}" title="Edit person">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen-icon lucide-square-pen"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
               </button>
@@ -1032,50 +1073,15 @@ async function renderPeopleView() {
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
               </button>
             </div>
-          </div>
-          
-          ${person.email ? `
-            <div class="person-contact-item">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-mail-icon lucide-mail"><path d="m22 7-8.991 5.727a2 2 0 0 1-2.009 0L2 7"/><rect x="2" y="4" width="20" height="16" rx="2"/></svg>
-              ${person.email}
-            </div>
-          ` : ''}
-          
-          <div class="person-company">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-building2-icon lucide-building-2"><path d="M10 12h4"/><path d="M10 8h4"/><path d="M14 21v-3a2 2 0 0 0-4 0v3"/><path d="M6 10H4a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-2"/><path d="M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16"/></svg>
-            ${companyName}
-          </div>
-          
-          ${person.job_title ? `
-            <div class="person-contact-item">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-briefcase-icon lucide-briefcase"><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/></svg>
-              ${person.job_title}
-            </div>
-          ` : ''}
-          
-          ${person.phone_numbers && person.phone_numbers.length > 0 ? `
-            <div class="person-contact">
-              ${person.phone_numbers.map(phone => `
-                <div class="person-contact-item">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone-icon lucide-phone"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg>
-                  ${phone}
-                </div>
-              `).join('')}
-            </div>
-          ` : ''}
-          
-          ${opportunityName ? `
-            <div class="person-opportunity">
-              <i class="fas fa-lightbulb"></i>
-              ${opportunityName}
-            </div>
-          ` : ''}
-        </div>
+          </td>
+        </tr>
       `;
     });
   }
 
   html += `
+          </tbody>
+        </table>
       </div>
     </div>
   `;
@@ -1091,41 +1097,44 @@ async function renderPeopleView() {
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
       const query = e.target.value.toLowerCase().trim();
-      const personCards = document.querySelectorAll('.person-card');
+      const rows = document.querySelectorAll('#people-table tbody tr');
       
-      personCards.forEach(card => {
-        const name = card.dataset.name;
-        const email = card.dataset.email;
-        const company = card.dataset.company;
-        const jobTitle = card.dataset.jobTitle;
+      rows.forEach(row => {
+        const name = row.dataset.name;
+        const email = row.dataset.email;
+        const company = row.dataset.company;
+        const jobTitle = row.dataset.jobTitle;
         
         if (query === '' || 
             name.includes(query) || 
             email.includes(query) || 
             company.includes(query) ||
             jobTitle.includes(query)) {
-          card.style.display = 'block';
+          row.style.display = '';
         } else {
-          card.style.display = 'none';
+          row.style.display = 'none';
         }
       });
       
       // Check if any people are visible
-      const visibleCards = Array.from(personCards).filter(card => card.style.display !== 'none');
-      const peopleGrid = document.getElementById('people-grid');
+      const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
       
-      if (visibleCards.length === 0 && query !== '') {
+      if (visibleRows.length === 0 && query !== '') {
         // Show no results message
         if (!document.getElementById('no-people-results')) {
-          const noResults = document.createElement('div');
+          const tbody = document.querySelector('#people-table tbody');
+          const noResults = document.createElement('tr');
           noResults.id = 'no-people-results';
-          noResults.className = 'empty-state';
           noResults.innerHTML = `
-            <i class="fas fa-search empty-state-icon"></i>
-            <h3 class="empty-state-title">No people found</h3>
-            <p class="empty-state-description">Try adjusting your search terms</p>
+            <td colspan="8" class="text-center">
+              <div class="empty-state">
+                <i class="fas fa-search empty-state-icon"></i>
+                <h3 class="empty-state-title">No people found</h3>
+                <p class="empty-state-description">Try adjusting your search terms</p>
+              </div>
+            </td>
           `;
-          peopleGrid.appendChild(noResults);
+          tbody.appendChild(noResults);
         }
       } else {
         // Remove no results message if it exists
