@@ -3495,45 +3495,6 @@ select {
   z-index: 900;
 }
 
-/* ===== COMPANIES AND PEOPLE ===== */
-.companies-grid, .people-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.company-card, .person-card {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  transition: var(--transition-fast);
-  cursor: pointer;
-}
-
-.company-card:hover, .person-card:hover {
-  border-color: var(--color-primary);
-  box-shadow: var(--shadow-md);
-}
-
-.company-header, .person-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 0.75rem;
-}
-
-.company-name, .person-name {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.company-actions, .person-actions {
-  display: flex;
-  gap: 0.5rem;
-}
 
 .action-btn {
   display: flex;
