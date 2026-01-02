@@ -1394,7 +1394,7 @@ function openPersonModal(person = null) {
     <div class="phone-number-input">
       <input type="tel" class="phone-number" placeholder="Enter phone number">
       <button type="button" class="btn btn-sm btn-ghost add-phone-btn">
-        <i class="fas fa-plus"></i>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
       </button>
     </div>
   `;
@@ -1653,7 +1653,7 @@ async function renderLogVisitView() {
         <label>Visit Photo</label>
         <input type="file" id="visit-photo" accept="image/*" style="display: none;" />
         <div class="photo-upload-area" id="photo-upload-area">
-          <i class="fas fa-camera"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera-icon lucide-camera"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"/><circle cx="12" cy="13" r="3"/></svg>
           <span>Tap to take photo</span>
         </div>
         <div id="photo-preview" class="photo-preview"></div>
@@ -2197,7 +2197,8 @@ async function renderMyActivityView() {
           <h3 class="empty-state-title">No visits yet</h3>
           <p class="empty-state-description">Start logging your field visits to see them here.</p>
           <button class="btn btn-primary" onclick="loadView('log-visit')">
-            <i class="fas fa-plus"></i> Log Your First Visit
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+            Log Your First Visit
           </button>
         </div>
       </div>
@@ -2260,7 +2261,8 @@ function renderVisitCard(visit, showRepName = false) {
       ${visit.ai_summary ? `
         <div class="ai-insight">
           <div class="ai-insight-header">
-            <i class="fas fa-robot"></i> AI Summary
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bot-icon lucide-bot"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+            AI Summary
           </div>
           <div class="ai-insight-content">${parseMarkdown(visit.ai_summary)}</div>
         </div>
@@ -3719,7 +3721,8 @@ async function renderRoutePlanningView() {
         
         <div class="ai-recommendation" id="ai-recommendation" style="display: none;">
           <div class="ai-recommendation-header">
-            <i class="fas fa-lightbulb"></i> AI Recommendation
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bot-icon lucide-bot"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+            AI Recommendation
           </div>
           <div class="ai-recommendation-content" id="ai-recommendation-content"></div>
         </div>
@@ -4513,7 +4516,8 @@ async function renderMyRoutesView() {
               <h3 class="card-title">${route.name}</h3>
               <button class="btn btn-primary start-route-btn"
                       data-id="${route.id}">
-                <i class="fas fa-play"></i> Start Route
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-navigation2-icon lucide-navigation-2"><polygon points="12 2 19 21 12 17 5 21 12 2"/></svg>
+                Start Route
               </button>
             </div>
 
@@ -4759,7 +4763,8 @@ async function startRouteNavigation(routeId) {
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>I've Arrived
                 </button>
                 <button class="btn btn-secondary" id="get-directions-btn">
-                  <i class="fas fa-directions"></i> Get Directions
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-locate-icon lucide-locate"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/></svg>
+                  Get Directions
                 </button>
               </div>
             </div>
@@ -5587,7 +5592,7 @@ async function renderRemindersView() {
     html += `
       <div class="reminder-notification" id="reminder-notification">
         <div class="reminder-notification-header">
-          <i class="fas fa-bell"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-ring-icon lucide-bell-ring"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M22 8c0-2.3-.8-4.3-2-6"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/><path d="M4 2C2.8 3.7 2 5.7 2 8"/></svg>
           <span>You have ${dueReminders.length} due reminder${dueReminders.length > 1 ? 's' : ''}</span>
           <button class="reminder-notification-close" id="close-notification">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -5603,7 +5608,8 @@ async function renderRemindersView() {
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Complete
                 </button>
                 <button class="btn btn-sm btn-secondary dismiss-reminder-notification" data-id="${reminder.id}">
-                  <i class="fas fa-clock"></i> Dismiss
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-off-icon lucide-bell-off"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M17 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 .258-1.742"/><path d="m2 2 20 20"/><path d="M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05"/></svg>
+                  Dismiss
                 </button>
               </div>
             </div>
@@ -6753,7 +6759,7 @@ async function renderTechnicianLogVisitView() {
         <input type="file" id="technician-photos" accept="image/*" multiple style="display: none;" />
         
         <div class="photo-upload-multiple" id="photo-upload-multiple">
-          <i class="fas fa-camera"></i>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera-icon lucide-camera"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"/><circle cx="12" cy="13" r="3"/></svg>
           <p>Tap to add photos (multiple selection supported)</p>
           <small class="text-muted">Maximum 10 photos, 5MB each</small>
         </div>
