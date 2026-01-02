@@ -430,7 +430,9 @@ async function loadView(viewName) {
 // ======================
 // COMPANIES VIEW
 // ======================
+
 async function renderCompaniesView() {
+  // Fetch all companies (we'll paginate in the UI)
   const { data: companies, error } = await supabaseClient
     .from('companies')
     .select(`
@@ -449,158 +451,204 @@ async function renderCompaniesView() {
     return;
   }
 
-  let html = `
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">Companies</h3>
-        ${isManager ? `
-          <button class="btn btn-primary" id="add-company-btn">
-            <i class="fas fa-plus"></i> Add Company
-          </button>
-        ` : ''}
-      </div>
-      
-      <!-- Add search bar -->
-      <div class="form-field">
-        <div class="search-container">
-          <i class="fas fa-search"></i>
-          <input type="text" id="companies-search" placeholder="Search companies by name or description...">
-        </div>
-      </div>
-      
-      <!-- Companies Table -->
-      <div class="table-container" id="companies-table-container">
-        <table class="data-table" id="companies-table">
-          <thead>
-            <tr>
-              <th width="50">#</th>
-              <th>Company Name</th>
-              <th>Industry</th>
-              <th>Location</th>
-              <th>Last Interaction</th>
-              ${isManager ? '<th>Actions</th>' : ''}
-            </tr>
-          </thead>
-          <tbody>
-  `;
-
-  if (companies.length === 0) {
-    html += `
-      <tr>
-        <td colspan="${isManager ? '8' : '7'}" class="text-center">
-          <div class="empty-state">
-            <i class="fas fa-building empty-state-icon"></i>
-            <h3 class="empty-state-title">No companies yet</h3>
-            <p class="empty-state-description">Add your first company to get started.</p>
-            ${isManager ? `
-              <button class="btn btn-primary" onclick="openCompanyModal()">
-                <i class="fas fa-plus"></i> Add Company
-              </button>
-            ` : ''}
-          </div>
-        </td>
-      </tr>
-    `;
-  } else {
-    companies.forEach((company, index) => {
-      const categories = company.company_categories.map(c => c.categories.name).join(', ');
-      
-      html += `
-        <tr data-id="${company.id}" data-name="${company.name.toLowerCase()}" data-description="${(company.description || '').toLowerCase()}">
-          <td>${index + 1}</td>
-          <td>
-            <div class="company-name-cell">${company.name}</div>
-            ${company.description ? `<div class="company-description">${company.description}</div>` : ''}
-          </td>
-          <td>${categories || 'N/A'}</td>
-          <td>${company.address || 'N/A'}</td>
-          <td>${company.last_interaction ? formatDate(company.last_interaction) : 'Never'}</td>
+  // Store for global access
+  window.allCompaniesData = companies;
+  
+  // Initial pagination state
+  let currentPage = 1;
+  const recordsPerPage = 10; // Number of records per page
+  let searchQuery = ''; // Separate search state
+  
+  // Function to render the companies table
+  function renderCompaniesTable(companiesToRender, paginationInfo) {
+    let html = `
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">Companies</h3>
           ${isManager ? `
-            <td>
-              <div class="table-actions">
-                <button class="action-btn edit-company" data-id="${company.id}" title="Edit company">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen-icon lucide-square-pen"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
-                </button>
-                <button class="action-btn delete-company" data-id="${company.id}" title="Delete company">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                </button>
-              </div>
-            </td>
+            <button class="btn btn-primary" id="add-company-btn">
+              <i class="fas fa-plus"></i> Add Company
+            </button>
           ` : ''}
+        </div>
+        
+        <!-- Add search bar -->
+        <div class="form-field">
+          <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="companies-search" placeholder="Search companies by name or description...">
+          </div>
+        </div>
+        
+        <!-- Companies Table -->
+        <div class="table-container" id="companies-table-container">
+          <table class="data-table" id="companies-table">
+            <thead>
+              <tr>
+                <th width="50">#</th>
+                <th>Company Name</th>
+                <th>Industry</th>
+                <th>Location</th>
+                <th>Last Interaction</th>
+                ${isManager ? '<th>Actions</th>' : ''}
+              </tr>
+            </thead>
+            <tbody>
+    `;
+
+    if (companiesToRender.length === 0) {
+      html += `
+        <tr>
+          <td colspan="${isManager ? '6' : '5'}" class="text-center">
+            <div class="empty-state">
+              <i class="fas fa-building empty-state-icon"></i>
+              <h3 class="empty-state-title">No companies found</h3>
+              <p class="empty-state-description">Try adjusting your search terms or add a new company.</p>
+              ${isManager ? `
+                <button class="btn btn-primary" onclick="openCompanyModal()">
+                  <i class="fas fa-plus"></i> Add Company
+                </button>
+              ` : ''}
+            </div>
+          </td>
         </tr>
       `;
-    });
-  }
-
-  html += `
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-
-  viewContainer.innerHTML = html;
-
-  // Initialize search functionality
-  const searchInput = document.getElementById('companies-search');
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase().trim();
-      const rows = document.querySelectorAll('#companies-table tbody tr');
-      
-      rows.forEach(row => {
-        const name = row.dataset.name;
-        const description = row.dataset.description;
+    } else {
+      companiesToRender.forEach((company, index) => {
+        const categories = company.company_categories.map(c => c.categories.name).join(', ');
+        const actualRowNumber = (paginationInfo.currentPage - 1) * paginationInfo.recordsPerPage + index + 1;
         
-        if (query === '' || name.includes(query) || description.includes(query)) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
-        }
-      });
-      
-      // Check if any companies are visible
-      const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
-      
-      if (visibleRows.length === 0 && query !== '') {
-        // Show no results message
-        if (!document.getElementById('no-companies-results')) {
-          const tbody = document.querySelector('#companies-table tbody');
-          const noResults = document.createElement('tr');
-          noResults.id = 'no-companies-results';
-          noResults.innerHTML = `
-            <td colspan="${isManager ? '8' : '7'}" class="text-center">
-              <div class="empty-state">
-                <i class="fas fa-search empty-state-icon"></i>
-                <h3 class="empty-state-title">No companies found</h3>
-                <p class="empty-state-description">Try adjusting your search terms</p>
-              </div>
+        html += `
+          <tr data-id="${company.id}" data-name="${company.name.toLowerCase()}" data-description="${(company.description || '').toLowerCase()}">
+            <td>${actualRowNumber}</td>
+            <td>
+              <div class="company-name-cell">${company.name}</div>
+              ${company.description ? `<div class="company-description">${company.description}</div>` : ''}
             </td>
-          `;
-          tbody.appendChild(noResults);
-        }
-      } else {
-        // Remove no results message if it exists
-        const noResults = document.getElementById('no-companies-results');
-        if (noResults) {
-          noResults.remove();
-        }
-      }
-    });
-  }
+            <td>${categories || 'N/A'}</td>
+            <td>${company.address || 'N/A'}</td>
+            <td>${company.last_interaction ? formatDate(company.last_interaction) : 'Never'}</td>
+            ${isManager ? `
+              <td>
+                <div class="table-actions">
+                  <button class="action-btn edit-company" data-id="${company.id}" title="Edit company">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen-icon lucide-square-pen"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
+                  </button>
+                  <button class="action-btn delete-company" data-id="${company.id}" title="Delete company">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  </button>
+                </div>
+              </td>
+            ` : ''}
+          </tr>
+        `;
+      });
+    }
 
-  // Initialize event listeners
-  if (isManager) {
+    html += `
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination Container -->
+        <div id="companies-pagination"></div>
+      </div>
+    `;
+
+    viewContainer.innerHTML = html;
+    
+    // Restore search value after rendering
+    const searchInput = document.getElementById('companies-search');
+    if (searchInput && searchInput.value !== searchQuery) {
+      searchInput.value = searchQuery;
+    }
+    
+    // Create pagination controls
+    createPaginationControls(
+      paginationInfo.currentPage,
+      paginationInfo.totalPages,
+      paginationInfo.totalRecords,
+      paginationInfo.recordsPerPage,
+      'companies-pagination',
+      (newPage) => {
+        currentPage = newPage;
+        const result = searchAndPaginate(
+          window.allCompaniesData,
+          searchQuery,
+          currentPage,
+          recordsPerPage,
+          (company, query) => 
+            company.name.toLowerCase().includes(query) || 
+            (company.description && company.description.toLowerCase().includes(query))
+        );
+        renderCompaniesTable(result.data, result);
+      }
+    );
+    
+    // Initialize event listeners
+    initializeCompaniesEventListeners();
+  }
+  
+  // Separate function to initialize event listeners
+  function initializeCompaniesEventListeners() {
+
+    const searchInput = document.getElementById('companies-search');
+    if (searchInput) {
+      // Remove any existing listeners by cloning and replacing
+      const newSearchInput = searchInput.cloneNode(true);
+      searchInput.parentNode.replaceChild(newSearchInput, searchInput);
+      
+      // Add new listener
+      newSearchInput.addEventListener('input', (e) => {
+        // Store the current cursor position
+        const cursorPosition = e.target.selectionStart;
+        const searchValue = e.target.value;
+        
+        searchQuery = searchValue;
+        
+        // Use a small delay to avoid too many rapid searches
+        clearTimeout(newSearchInput.searchTimeout);
+        newSearchInput.searchTimeout = setTimeout(() => {
+          currentPage = 1; // Reset to first page when searching
+          const result = searchAndPaginate(
+            window.allCompaniesData,
+            searchQuery,
+            currentPage,
+            recordsPerPage,
+            (company, query) => 
+              company.name.toLowerCase().includes(query) || 
+              (company.description && company.description.toLowerCase().includes(query))
+          );
+          
+          // Store the active element and cursor position before re-rendering
+          const activeElement = document.activeElement;
+          const wasSearchInput = activeElement && activeElement.id === 'companies-search';
+          
+          renderCompaniesTable(result.data, result);
+          
+          // Restore focus and cursor position to the search input if it was the active element
+          if (wasSearchInput) {
+            setTimeout(() => {
+              const searchElement = document.getElementById('companies-search');
+              searchElement.focus();
+              // Set the cursor position to where it was before
+              searchElement.setSelectionRange(cursorPosition, cursorPosition);
+            }, 0);
+          }
+        }, 300); // 300ms delay
+      });
+    }
+    // Add company button
     document.getElementById('add-company-btn')?.addEventListener('click', () => {
       openCompanyModal();
     });
 
-    // Initialize company action buttons
+    // Edit and delete buttons
     document.querySelectorAll('.edit-company').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
         const companyId = btn.dataset.id;
-        const company = companies.find(c => c.id === companyId);
+        const company = window.allCompaniesData.find(c => c.id === companyId);
         if (company) {
           openCompanyModal(company);
         }
@@ -611,7 +659,7 @@ async function renderCompaniesView() {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
         const companyId = btn.dataset.id;
-        const company = companies.find(c => c.id === companyId);
+        const company = window.allCompaniesData.find(c => c.id === companyId);
         
         const confirmed = await showConfirmDialog(
           'Delete Company',
@@ -630,19 +678,56 @@ async function renderCompaniesView() {
           return;
         }
         
+        // Remove from local data and refresh
+        window.allCompaniesData = window.allCompaniesData.filter(c => c.id !== companyId);
+        
         showToast('Company deleted successfully', 'success');
-        renderCompaniesView();
+        
+        // Re-render with current page
+        const result = searchAndPaginate(
+          window.allCompaniesData,
+          searchQuery,
+          currentPage,
+          recordsPerPage,
+          (company, query) => 
+            company.name.toLowerCase().includes(query) || 
+            (company.description && company.description.toLowerCase().includes(query))
+        );
+        
+        // Adjust current page if necessary
+        if (result.data.length === 0 && result.currentPage > 1) {
+          currentPage--;
+          const adjustedResult = searchAndPaginate(
+            window.allCompaniesData,
+            searchQuery,
+            currentPage,
+            recordsPerPage,
+            (company, query) => 
+              company.name.toLowerCase().includes(query) || 
+              (company.description && company.description.toLowerCase().includes(query))
+          );
+          renderCompaniesTable(adjustedResult.data, adjustedResult);
+        } else {
+          renderCompaniesTable(result.data, result);
+        }
       });
     });
   }
+  
+  // Initial render
+  const initialResult = searchAndPaginate(
+    window.allCompaniesData,
+    searchQuery,
+    1, // Explicitly set to 1
+    recordsPerPage,
+    (company, query) => true // No initial filter
+  );
+  renderCompaniesTable(initialResult.data, initialResult);
 }
 
 
 
-
-
-
-
+// Update the openCompanyModal function to use the global data
 function openCompanyModal(company = null) {
   const modal = document.getElementById('company-modal');
   const modalTitle = document.getElementById('company-modal-title');
@@ -704,6 +789,7 @@ function openCompanyModal(company = null) {
   // Initialize event listeners
   initCompanyModalListeners(company);
 }
+
 
 function initCompanyModalListeners(company) {
   const categoriesInput = document.getElementById('categories-input');
@@ -831,6 +917,12 @@ function initCompanyModalListeners(company) {
         
         if (result.error) throw result.error;
         companyId = company.id;
+
+        const index = window.allCompaniesData.findIndex(c => c.id === companyId);
+        if (index !== -1) {
+          window.allCompaniesData[index] = { ...window.allCompaniesData[index], ...companyData };
+        }
+
       } else {
         // Create new company
         result = await supabaseClient
@@ -846,6 +938,8 @@ function initCompanyModalListeners(company) {
         }
         
         companyId = result.data[0].id;
+        window.allCompaniesData.push(result.data[0]);
+
       }
       
       // Handle categories - ONLY if there are categories to process
@@ -906,9 +1000,11 @@ function initCompanyModalListeners(company) {
       showToast(`Company ${company ? 'updated' : 'created'} successfully!`, 'success');
       closeModal('company-modal');
       renderCompaniesView();
+
     } catch (error) {
       console.error('Error saving company:', error);
       showToast(`Error ${company ? 'updating' : 'creating'} company: ${error.message}`, 'error');
+
     } finally {
       saveBtn.disabled = false;
       saveBtn.innerHTML = 'Save Company';
@@ -990,210 +1086,297 @@ async function renderPeopleView() {
     return;
   }
 
-  let html = `
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">People</h3>
-        <button class="btn btn-primary" id="add-person-btn">
-          <i class="fas fa-plus"></i> Add Person
-        </button>
-      </div>
-      
-      <!-- Add search bar -->
-      <div class="form-field">
-        <div class="search-container">
-          <i class="fas fa-search"></i>
-          <input type="text" id="people-search" placeholder="Search people by name, email, or company...">
+  // Store for global access
+  window.allPeopleData = people;
+  window.companiesData = companies;
+  window.opportunitiesData = opportunities;
+  
+  // Initial pagination state
+  let currentPage = 1;
+  const recordsPerPage = 10; // Number of records per page
+  let searchQuery = ''; // Separate search state
+  
+  // Function to render the people table
+  function renderPeopleTable(peopleToRender, paginationInfo) {
+    let html = `
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">People</h3>
+          <button class="btn btn-primary" id="add-person-btn">
+            <i class="fas fa-plus"></i> Add Person
+          </button>
         </div>
-      </div>
-      
-      
-      <!-- People Table -->
-      <div class="table-container" id="people-table-container">
-        <table class="data-table" id="people-table">
-          <thead>
-            <tr>
-              <th width="50">#</th>
-              <th>Name</th>
-              <th>Email</th>
-              <th>Company</th>
-              <th>Job Title</th>
-              <th>Phone</th>
-              <th>Opportunity</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-  `;
-
-  if (people.length === 0) {
-    html += `
-      <tr>
-        <td colspan="8" class="text-center">
-          <div class="empty-state">
-            <i class="fas fa-user empty-state-icon"></i>
-            <h3 class="empty-state-title">No people yet</h3>
-            <p class="empty-state-description">Add your first person to get started.</p>
-            <button class="btn btn-primary" onclick="openPersonModal()">
-              <i class="fas fa-plus"></i> Add Person
-            </button>
+        
+        <!-- Add search bar -->
+        <div class="form-field">
+          <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="people-search" placeholder="Search people by name, email, or company...">
           </div>
-        </td>
-      </tr>
+        </div>
+        
+        <!-- People Table -->
+        <div class="table-container" id="people-table-container">
+          <table class="data-table" id="people-table">
+            <thead>
+              <tr>
+                <th width="50">#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Company</th>
+                <th>Job Title</th>
+                <th>Phone</th>
+                <th>Opportunity</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
     `;
-  } else {
-    people.forEach((person, index) => {
-      const companyName = person.company ? person.company.name : 'No company';
-      const opportunityName = person.opportunity ? person.opportunity.name : '';
-      const phoneNumbers = person.phone_numbers && person.phone_numbers.length > 0 
-        ? person.phone_numbers.join(', ') 
-        : 'N/A';
-      
+
+    if (peopleToRender.length === 0) {
       html += `
-        <tr data-id="${person.id}" 
-            data-name="${person.name.toLowerCase()}" 
-            data-email="${(person.email || '').toLowerCase()}" 
-            data-company="${companyName.toLowerCase()}"
-            data-job-title="${(person.job_title || '').toLowerCase()}">
-          <td>${index + 1}</td>
-          <td>
-            <div class="person-name-cell">${person.name}</div>
-          </td>
-          <td>${person.email || 'N/A'}</td>
-          <td>${companyName}</td>
-          <td>${person.job_title || 'N/A'}</td>
-          <td>${phoneNumbers}</td>
-          <td>${opportunityName || 'N/A'}</td>
-          <td>
-            <div class="table-actions">
-              <button class="action-btn edit-person" data-id="${person.id}" title="Edit person">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen-icon lucide-square-pen"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
-              </button>
-              <button class="action-btn delete-person" data-id="${person.id}" title="Delete person">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        <tr>
+          <td colspan="8" class="text-center">
+            <div class="empty-state">
+              <i class="fas fa-user empty-state-icon"></i>
+              <h3 class="empty-state-title">No people found</h3>
+              <p class="empty-state-description">Try adjusting your search terms or add a new person.</p>
+              <button class="btn btn-primary" onclick="openPersonModal()">
+                <i class="fas fa-plus"></i> Add Person
               </button>
             </div>
           </td>
         </tr>
       `;
-    });
-  }
-
-  html += `
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-
-  viewContainer.innerHTML = html;
-
-  // Store for global access
-  window.companiesData = companies;
-  window.opportunitiesData = opportunities;
-
-  // Initialize search functionality
-  const searchInput = document.getElementById('people-search');
-  if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase().trim();
-      const rows = document.querySelectorAll('#people-table tbody tr');
-      
-      rows.forEach(row => {
-        const name = row.dataset.name;
-        const email = row.dataset.email;
-        const company = row.dataset.company;
-        const jobTitle = row.dataset.jobTitle;
+    } else {
+      peopleToRender.forEach((person, index) => {
+        const companyName = person.company ? person.company.name : 'No company';
+        const opportunityName = person.opportunity ? person.opportunity.name : '';
+        const phoneNumbers = person.phone_numbers && person.phone_numbers.length > 0 
+          ? person.phone_numbers.join(', ') 
+          : 'N/A';
+        const actualRowNumber = (paginationInfo.currentPage - 1) * paginationInfo.recordsPerPage + index + 1;
         
-        if (query === '' || 
-            name.includes(query) || 
-            email.includes(query) || 
-            company.includes(query) ||
-            jobTitle.includes(query)) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
-        }
-      });
-      
-      // Check if any people are visible
-      const visibleRows = Array.from(rows).filter(row => row.style.display !== 'none');
-      
-      if (visibleRows.length === 0 && query !== '') {
-        // Show no results message
-        if (!document.getElementById('no-people-results')) {
-          const tbody = document.querySelector('#people-table tbody');
-          const noResults = document.createElement('tr');
-          noResults.id = 'no-people-results';
-          noResults.innerHTML = `
-            <td colspan="8" class="text-center">
-              <div class="empty-state">
-                <i class="fas fa-search empty-state-icon"></i>
-                <h3 class="empty-state-title">No people found</h3>
-                <p class="empty-state-description">Try adjusting your search terms</p>
+        html += `
+          <tr data-id="${person.id}" 
+              data-name="${person.name.toLowerCase()}" 
+              data-email="${(person.email || '').toLowerCase()}" 
+              data-company="${companyName.toLowerCase()}"
+              data-job-title="${(person.job_title || '').toLowerCase()}">
+            <td>${actualRowNumber}</td>
+            <td>
+              <div class="person-name-cell">${person.name}</div>
+            </td>
+            <td>${person.email || 'N/A'}</td>
+            <td>${companyName}</td>
+            <td>${person.job_title || 'N/A'}</td>
+            <td>${phoneNumbers}</td>
+            <td>${opportunityName || 'N/A'}</td>
+            <td>
+              <div class="table-actions">
+                <button class="action-btn edit-person" data-id="${person.id}" title="Edit person">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen-icon lucide-square-pen"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
+                </button>
+                <button class="action-btn delete-person" data-id="${person.id}" title="Delete person">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
               </div>
             </td>
-          `;
-          tbody.appendChild(noResults);
-        }
-      } else {
-        // Remove no results message if it exists
-        const noResults = document.getElementById('no-people-results');
-        if (noResults) {
-          noResults.remove();
-        }
+          </tr>
+        `;
+      });
+    }
+
+    html += `
+            </tbody>
+          </table>
+        </div>
+        
+        <!-- Pagination Container -->
+        <div id="people-pagination"></div>
+      </div>
+    `;
+
+    viewContainer.innerHTML = html;
+    
+    // Restore search value after rendering
+    const searchInput = document.getElementById('people-search');
+    if (searchInput && searchInput.value !== searchQuery) {
+      searchInput.value = searchQuery;
+    }
+    
+    // Create pagination controls
+    createPaginationControls(
+      paginationInfo.currentPage,
+      paginationInfo.totalPages,
+      paginationInfo.totalRecords,
+      paginationInfo.recordsPerPage,
+      'people-pagination',
+      (newPage) => {
+        currentPage = newPage;
+        const result = searchAndPaginate(
+          window.allPeopleData,
+          searchQuery,
+          currentPage,
+          recordsPerPage,
+          (person, query) => 
+            person.name.toLowerCase().includes(query) || 
+            (person.email && person.email.toLowerCase().includes(query)) ||
+            (person.company && person.company.name && person.company.name.toLowerCase().includes(query)) ||
+            (person.job_title && person.job_title.toLowerCase().includes(query))
+        );
+        renderPeopleTable(result.data, result);
       }
+    );
+    
+    // Initialize event listeners
+    initializePeopleEventListeners();
+  }
+  
+  // Separate function to initialize event listeners
+  function initializePeopleEventListeners() {
+    const searchInput = document.getElementById('people-search');
+    if (searchInput) {
+      // Remove any existing listeners by cloning and replacing
+      const newSearchInput = searchInput.cloneNode(true);
+      searchInput.parentNode.replaceChild(newSearchInput, searchInput);
+      
+      // Add new listener
+      newSearchInput.addEventListener('input', (e) => {
+        // Store the current cursor position
+        const cursorPosition = e.target.selectionStart;
+        const searchValue = e.target.value;
+        
+        searchQuery = searchValue;
+        
+        // Use a small delay to avoid too many rapid searches
+        clearTimeout(newSearchInput.searchTimeout);
+        newSearchInput.searchTimeout = setTimeout(() => {
+          currentPage = 1; // Reset to first page when searching
+          const result = searchAndPaginate(
+            window.allPeopleData,
+            searchQuery,
+            currentPage,
+            recordsPerPage,
+            (person, query) => 
+              person.name.toLowerCase().includes(query) || 
+              (person.email && person.email.toLowerCase().includes(query)) ||
+              (person.company && person.company.name && person.company.name.toLowerCase().includes(query)) ||
+              (person.job_title && person.job_title.toLowerCase().includes(query))
+          );
+          
+          // Store the active element and cursor position before re-rendering
+          const activeElement = document.activeElement;
+          const wasSearchInput = activeElement && activeElement.id === 'people-search';
+          
+          renderPeopleTable(result.data, result);
+          
+          // Restore focus and cursor position to the search input if it was the active element
+          if (wasSearchInput) {
+            setTimeout(() => {
+              const searchElement = document.getElementById('people-search');
+              searchElement.focus();
+              // Set the cursor position to where it was before
+              searchElement.setSelectionRange(cursorPosition, cursorPosition);
+            }, 0);
+          }
+        }, 300); // 300ms delay
+      });
+    }
+
+    // Add person button
+    document.getElementById('add-person-btn')?.addEventListener('click', () => {
+      openPersonModal();
+    });
+
+    // Edit and delete buttons
+    document.querySelectorAll('.edit-person').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const personId = btn.dataset.id;
+        const person = window.allPeopleData.find(p => p.id === personId);
+        if (person) {
+          openPersonModal(person);
+        }
+      });
+    });
+
+    document.querySelectorAll('.delete-person').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const personId = btn.dataset.id;
+        const person = window.allPeopleData.find(p => p.id === personId);
+        
+        const confirmed = await showConfirmDialog(
+          'Delete Person',
+          `Are you sure you want to delete ${person.name}?`
+        );
+
+        if (!confirmed) return;
+        
+        const { error } = await supabaseClient
+          .from('people')
+          .delete()
+          .eq('id', personId);
+        
+        if (error) {
+          showToast('Error deleting person: ' + error.message, 'error');
+          return;
+        }
+        
+        // Remove from local data and refresh
+        window.allPeopleData = window.allPeopleData.filter(p => p.id !== personId);
+        
+        showToast('Person deleted successfully', 'success');
+        
+        // Re-render with current page
+        const result = searchAndPaginate(
+          window.allPeopleData,
+          searchQuery,
+          currentPage,
+          recordsPerPage,
+          (person, query) => 
+            person.name.toLowerCase().includes(query) || 
+            (person.email && person.email.toLowerCase().includes(query)) ||
+            (person.company && person.company.name && person.company.name.toLowerCase().includes(query)) ||
+            (person.job_title && person.job_title.toLowerCase().includes(query))
+        );
+        
+        // Adjust current page if necessary
+        if (result.data.length === 0 && result.currentPage > 1) {
+          currentPage--;
+          const adjustedResult = searchAndPaginate(
+            window.allPeopleData,
+            searchQuery,
+            currentPage,
+            recordsPerPage,
+            (person, query) => 
+              person.name.toLowerCase().includes(query) || 
+              (person.email && person.email.toLowerCase().includes(query)) ||
+              (person.company && person.company.name && person.company.name.toLowerCase().includes(query)) ||
+              (person.job_title && person.job_title.toLowerCase().includes(query))
+          );
+          renderPeopleTable(adjustedResult.data, adjustedResult);
+        } else {
+          renderPeopleTable(result.data, result);
+        }
+      });
     });
   }
-
-  // Initialize event listeners
-  document.getElementById('add-person-btn')?.addEventListener('click', () => {
-    openPersonModal();
-  });
-
-  // Initialize person action buttons
-  document.querySelectorAll('.edit-person').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const personId = btn.dataset.id;
-      const person = people.find(p => p.id === personId);
-      if (person) {
-        openPersonModal(person);
-      }
-    });
-  });
-
-  document.querySelectorAll('.delete-person').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      const personId = btn.dataset.id;
-      const person = people.find(p => p.id === personId);
-      
-      const confirmed = await showConfirmDialog(
-        'Delete Person',
-        `Are you sure you want to delete ${person.name}?`
-      );
-
-      if (!confirmed) return;
-      
-      const { error } = await supabaseClient
-        .from('people')
-        .delete()
-        .eq('id', personId);
-      
-      if (error) {
-        showToast('Error deleting person: ' + error.message, 'error');
-        return;
-      }
-      
-      showToast('Person deleted successfully', 'success');
-      renderPeopleView();
-    });
-  });
+  
+  // Initial render
+  const initialResult = searchAndPaginate(
+    window.allPeopleData,
+    searchQuery,
+    1, // Explicitly set to 1
+    recordsPerPage,
+    (person, query) => true // No initial filter
+  );
+  renderPeopleTable(initialResult.data, initialResult);
 }
 
 
-
+// Update the openPersonModal function to use the global data
 function openPersonModal(person = null) {
   const modal = document.getElementById('person-modal');
   const modalTitle = document.getElementById('person-modal-title');
@@ -1217,7 +1400,7 @@ function openPersonModal(person = null) {
   `;
   personPhoneNumbers = [];
   
-  // Populate company dropdown
+  // Populate company dropdown using global data
   if (window.companiesData) {
     companySelect.innerHTML = '<option value="">Select a company</option>';
     window.companiesData.forEach(company => {
@@ -1225,7 +1408,7 @@ function openPersonModal(person = null) {
     });
   }
   
-  // Populate opportunity dropdown
+  // Populate opportunity dropdown using global data
   if (window.opportunitiesData) {
     opportunitySelect.innerHTML = '<option value="">Select an opportunity</option>';
     window.opportunitiesData.forEach(opportunity => {
@@ -1318,11 +1501,22 @@ function initPersonModalListeners(person) {
           .from('people')
           .update(personData)
           .eq('id', person.id);
+
+
+        const index = window.allPeopleData.findIndex(p => p.id === person.id);
+        if (index !== -1) {
+          window.allPeopleData[index] = { ...window.allPeopleData[index], ...personData };
+        }
+
       } else {
         // Create new person
         result = await supabaseClient
           .from('people')
           .insert([personData]);
+
+        if (result.data && result.data.length > 0) {
+          window.allPeopleData.push(result.data[0]);
+        }
       }
       
       if (result.error) throw result.error;
@@ -8669,3 +8863,5 @@ window.addEventListener('resize', () => {
     }
   }
 });
+
+

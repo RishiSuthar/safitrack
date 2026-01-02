@@ -93,3 +93,132 @@ function validateEmail(email) {
   return re.test(email);
 }
 
+
+/**
+ * Create pagination controls HTML
+ * @param {number} currentPage - Current page number (1-based)
+ * @param {number} totalPages - Total number of pages
+ * @param {number} totalRecords - Total number of records
+ * @param {number} recordsPerPage - Number of records per page
+ * @param {string} containerId - ID of the container to render pagination in
+ * @param {Function} onPageChange - Callback function when page changes
+ */
+function createPaginationControls(currentPage, totalPages, totalRecords, recordsPerPage, containerId, onPageChange) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  
+  // Ensure all values are valid numbers
+  currentPage = parseInt(currentPage) || 1;
+  totalPages = parseInt(totalPages) || 1;
+  totalRecords = parseInt(totalRecords) || 0;
+  recordsPerPage = parseInt(recordsPerPage) || 10;
+  
+  let html = `
+    <div class="pagination-container">
+      <div class="pagination-info">
+        Showing ${((currentPage - 1) * recordsPerPage) + 1} to ${Math.min(currentPage * recordsPerPage, totalRecords)} of ${totalRecords} records
+      </div>
+      <div class="pagination-controls">
+  `;
+  
+  // Previous button
+  html += `
+    <button class="pagination-btn ${currentPage === 1 ? 'disabled' : ''}" 
+            onclick="${currentPage > 1 ? `changePage(${currentPage - 1})` : ''}">
+      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left-icon lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
+      Previous
+    </button>
+  `;
+  
+  // Page numbers
+  const maxVisiblePages = 5;
+  let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+  let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+  
+  // Adjust if we're near the end
+  if (endPage - startPage + 1 < maxVisiblePages) {
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+  
+  // First page and ellipsis
+  if (startPage > 1) {
+    html += `<button class="pagination-btn" onclick="changePage(1)">1</button>`;
+    if (startPage > 2) {
+      html += `<span class="pagination-ellipsis">...</span>`;
+    }
+  }
+  
+  // Page numbers
+  for (let i = startPage; i <= endPage; i++) {
+    html += `
+      <button class="pagination-btn ${i === currentPage ? 'active' : ''}" 
+              onclick="changePage(${i})">${i}</button>
+    `;
+  }
+  
+  // Last page and ellipsis
+  if (endPage < totalPages) {
+    if (endPage < totalPages - 1) {
+      html += `<span class="pagination-ellipsis">...</span>`;
+    }
+    html += `<button class="pagination-btn" onclick="changePage(${totalPages})">${totalPages}</button>`;
+  }
+  
+  // Next button
+  html += `
+    <button class="pagination-btn ${currentPage === totalPages ? 'disabled' : ''}" 
+            onclick="${currentPage < totalPages ? `changePage(${currentPage + 1})` : ''}">
+      Next 
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg>
+    </button>
+  `;
+  
+  html += `
+      </div>
+    </div>
+  `;
+  
+  container.innerHTML = html;
+  
+  // Make the changePage function available globally
+  window.changePage = function(page) {
+    if (page >= 1 && page <= totalPages) {
+      onPageChange(page);
+    }
+  };
+}
+
+/**
+ * Search and paginate data
+ * @param {Array} data - All data to search and paginate
+ * @param {string} searchQuery - Search query
+ * @param {number} page - Current page number (1-based)
+ * @param {number} recordsPerPage - Number of records per page
+ * @param {Function} searchFunction - Function to search in each record
+ * @returns {Object} Object with filtered data and pagination info
+ */
+function searchAndPaginate(data, searchQuery, page, recordsPerPage, searchFunction) {
+  // Ensure valid inputs
+  page = parseInt(page) || 1;
+  recordsPerPage = parseInt(recordsPerPage) || 10;
+  
+  // Filter data based on search query
+  let filteredData = data;
+  if (searchQuery && searchQuery.trim() !== '') {
+    filteredData = data.filter(item => searchFunction(item, searchQuery.toLowerCase().trim()));
+  }
+  
+  // Calculate pagination
+  const totalRecords = filteredData.length;
+  const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
+  const offset = (page - 1) * recordsPerPage;
+  const paginatedData = filteredData.slice(offset, offset + recordsPerPage);
+  
+  return {
+    data: paginatedData,
+    totalRecords,
+    totalPages,
+    currentPage: page,
+    recordsPerPage
+  };
+}
