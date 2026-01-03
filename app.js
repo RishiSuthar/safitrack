@@ -5473,8 +5473,7 @@ async function renderRemindersView() {
   let error;
   
   if (isManager) {
-    // Managers can see all reminders with user info
-    // Using explicit join syntax instead of relationship syntax
+
     const result = await supabaseClient
       .from('reminders')
       .select(`
@@ -5482,21 +5481,28 @@ async function renderRemindersView() {
         assigned_to_profile:profiles!reminders_assigned_to_fkey(first_name, last_name, email),
         created_by_profile:profiles!reminders_created_by_fkey(first_name, last_name, email)
       `)
+      .eq('created_by', currentUser.id)
       .order('reminder_date', { ascending: true });
     
     reminders = result.data;
     error = result.error;
+
   } else {
     // Sales reps only see reminders assigned to them or created by them
     const result = await supabaseClient
       .from('reminders')
-      .select('*')
+      .select(`
+        *,
+        assigned_to_profile:profiles!reminders_assigned_to_fkey(first_name, last_name, email),
+        created_by_profile:profiles!reminders_created_by_fkey(first_name, last_name, email)
+      `)
       .or(`assigned_to.eq.${currentUser.id},created_by.eq.${currentUser.id}`)
       .order('reminder_date', { ascending: true });
     
     reminders = result.data;
     error = result.error;
   }
+
 
   if (error) {
     viewContainer.innerHTML = renderError(error.message);
@@ -5581,6 +5587,7 @@ async function renderRemindersView() {
       <div id="reminders-container">
   `;
 
+    // Check for due reminders and show notification
   // Check for due reminders and show notification
   const dueReminders = reminders.filter(r => {
     const reminderDate = new Date(r.reminder_date);
@@ -5599,21 +5606,30 @@ async function renderRemindersView() {
           </button>
         </div>
         <div class="reminder-notification-content">
-          ${dueReminders.slice(0, 3).map(reminder => `
-            <div class="reminder-notification-item">
-              <div class="reminder-notification-title">${reminder.title}</div>
-              <div class="reminder-notification-time">${formatDate(reminder.reminder_date, true)}</div>
-              <div class="reminder-notification-actions">
-                <button class="btn btn-sm btn-primary complete-reminder-notification" data-id="${reminder.id}">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Complete
-                </button>
-                <button class="btn btn-sm btn-secondary dismiss-reminder-notification" data-id="${reminder.id}">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-off-icon lucide-bell-off"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M17 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 .258-1.742"/><path d="m2 2 20 20"/><path d="M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05"/></svg>
-                  Dismiss
-                </button>
+          ${dueReminders.slice(0, 3).map(reminder => {
+            // Check if current user is assigned to this reminder
+            const isAssignedToCurrentUser = reminder.assigned_to === currentUser.id;
+            
+            return `
+              <div class="reminder-notification-item">
+                <div class="reminder-notification-title">${reminder.title}</div>
+                <div class="reminder-notification-time">${formatDate(reminder.reminder_date, true)}</div>
+                <div class="reminder-notification-actions">
+                  ${isAssignedToCurrentUser ? `
+                    <button class="btn btn-sm btn-primary complete-reminder-notification" data-id="${reminder.id}">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Complete
+                    </button>
+                  ` : `
+                    <span class="text-muted" style="font-size: 0.875rem;">Assigned to ${reminder.assigned_to_profile ? reminder.assigned_to_profile.first_name + ' ' + reminder.assigned_to_profile.last_name : 'someone else'}</span>
+                  `}
+                  <button class="btn btn-sm btn-secondary dismiss-reminder-notification" data-id="${reminder.id}">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-off-icon lucide-bell-off"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M17 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 .258-1.742"/><path d="m2 2 20 20"/><path d="M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05"/></svg>
+                    Dismiss
+                  </button>
+                </div>
               </div>
-            </div>
-          `).join('')}
+            `;
+          }).join('')}
           ${dueReminders.length > 3 ? `
             <div class="reminder-notification-more">
               And ${dueReminders.length - 3} more...
@@ -5637,7 +5653,11 @@ async function renderRemindersView() {
   } else {
     reminders.forEach(reminder => {
       const isOverdue = reminder.reminder_date && new Date(reminder.reminder_date) < new Date();
-      const isOwnReminder = !isManager || reminder.assigned_to === currentUser.id;
+      const isAssignedToMe = reminder.assigned_to === currentUser.id;
+      const isCreatedByMe = reminder.created_by === currentUser.id;
+      // Only show complete button if the reminder is assigned to the current user
+      const canComplete = isAssignedToMe;
+
       const isCreatedByManager = isManager && reminder.created_by !== currentUser.id;
       
       // Get user info from joined data
@@ -5666,17 +5686,17 @@ async function renderRemindersView() {
               </div>
             ` : ''}
             
-            ${isManager || reminder.assigned_to ? `
+            ${!isManager && reminder.created_by !== currentUser.id && reminder.created_by_profile ? `
               <div class="reminder-meta-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                <span>Assigned to: ${assignedToName}</span>
+                <span>Assigned by: ${reminder.created_by_profile.first_name} ${reminder.created_by_profile.last_name}</span>
               </div>
             ` : ''}
             
-            ${isManager && createdByUser ? `
+            ${isManager && reminder.assigned_to_profile ? `
               <div class="reminder-meta-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                <span>Created by: ${createdByName}</span>
+                <span>Assigned to: ${reminder.assigned_to_profile.first_name} ${reminder.assigned_to_profile.last_name}</span>
               </div>
             ` : ''}
           </div>
@@ -5687,17 +5707,17 @@ async function renderRemindersView() {
               ${formatDate(reminder.reminder_date, true)}
             </div>
             <div class="reminder-action-buttons">
-              ${isOwnReminder ? `
+              ${(isManager && isCreatedByMe) || (!isManager && (isAssignedToMe || isCreatedByMe)) ? `
                 <button class="reminder-action-btn edit-reminder" data-id="${reminder.id}">
                   <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen-icon lucide-square-pen"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
                 </button>
-                ${!reminder.is_completed ? `
-                  <button class="reminder-action-btn complete-reminder" data-id="${reminder.id}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
-                  </button>
-                ` : ''}
               ` : ''}
-              ${isManager || isCreatedByManager ? `
+              ${canComplete && !reminder.is_completed ? `
+                <button class="reminder-action-btn complete-reminder" data-id="${reminder.id}">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
+                </button>
+              ` : ''}
+              ${(isManager && isCreatedByMe) || (!isManager && isCreatedByMe) ? `
                 <button class="reminder-action-btn delete-reminder" data-id="${reminder.id}">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
