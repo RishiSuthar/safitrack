@@ -7058,31 +7058,119 @@ function initTechnicianLogVisitForm(companies) {
 
   photoUploadArea.addEventListener('click', () => photoInput.click());
 
-// Replace the photo upload event listener with this updated version
-  photoInput.addEventListener('change', (e) => {
-    const files = Array.from(e.target.files).slice(0, 10); // Limit to 10 photos
+  photoInput.addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files);
     
-    files.forEach(file => {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        showToast(`Photo ${file.name} exceeds 5MB limit`, 'error');
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        // Create a temporary photo object for preview
-        const tempPhoto = {
-          dataUrl: e.target.result,
-          file: file,
-          timestamp: new Date().toISOString()
-        };
+    if (files.length === 0) {
+      window.technicianVisitForm.photos = [];
+      renderPhotoPreviews();
+      return;
+    }
+    
+    // Limit to 10 photos
+    const filesToProcess = files.slice(0, 10);
+    
+    // Clear existing photos
+    window.technicianVisitForm.photos = [];
+    
+    // Show compression progress
+    showCompressionProgress('Compressing images...');
+    
+    try {
+      // Process each file with compression
+      for (let i = 0; i < filesToProcess.length; i++) {
+        const file = filesToProcess[i];
         
-        // Add to global state for preview
-        window.technicianVisitForm.photos.push(tempPhoto);
-        renderPhotoPreviews();
-      };
-      reader.readAsDataURL(file);
-    });
+        // Update progress message
+        showCompressionProgress(`Compressing image ${i + 1} of ${filesToProcess.length}...`);
+        
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          showToast(`File ${file.name} is not an image`, 'error');
+          continue;
+        }
+        
+        // Validate file size (before compression)
+        if (file.size > 10 * 1024 * 1024) { // 10MB limit before compression
+          showToast(`Photo ${file.name} exceeds 10MB limit`, 'error');
+          continue;
+        }
+        
+        try {
+          // Compress the image
+          const compressedFile = await compressImage(file, 0.6, 1200, 1200);
+          
+          // Read compressed file for preview
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            // Create a photo object with both original and compressed info
+            const photoObj = {
+              dataUrl: e.target.result,
+              file: compressedFile,
+              originalFile: file,
+              name: file.name,
+              originalSize: file.size,
+              compressedSize: compressedFile.size,
+              type: file.type,
+              timestamp: new Date().toISOString()
+            };
+            
+            // Add to global state
+            window.technicianVisitForm.photos.push(photoObj);
+            
+            // Update preview if this is the last image
+            if (window.technicianVisitForm.photos.length === filesToProcess.filter(f => f.type.startsWith('image/')).length) {
+              renderPhotoPreviews();
+              hideCompressionProgress();
+              
+              // Show compression summary
+              const totalOriginal = window.technicianVisitForm.photos.reduce((sum, p) => sum + p.originalSize, 0);
+              const totalCompressed = window.technicianVisitForm.photos.reduce((sum, p) => sum + p.compressedSize, 0);
+              const totalSavings = ((1 - totalCompressed / totalOriginal) * 100).toFixed(0);
+              
+              showToast(`Images compressed! Saved ${totalSavings}% storage space`, 'success');
+            }
+          };
+          
+          reader.readAsDataURL(compressedFile);
+          
+        } catch (compressionError) {
+          console.error('Compression error:', compressionError);
+          showToast(`Failed to compress ${file.name}, using original`, 'warning');
+          
+          // Fallback to original file if compression fails
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const photoObj = {
+              dataUrl: e.target.result,
+              file: file,
+              name: file.name,
+              originalSize: file.size,
+              compressedSize: file.size,
+              type: file.type,
+              timestamp: new Date().toISOString()
+            };
+            
+            window.technicianVisitForm.photos.push(photoObj);
+            
+            if (window.technicianVisitForm.photos.length === filesToProcess.filter(f => f.type.startsWith('image/')).length) {
+              renderPhotoPreviews();
+              hideCompressionProgress();
+            }
+          };
+          
+          reader.readAsDataURL(file);
+        }
+      }
+      
+    } catch (error) {
+      console.error('Error processing images:', error);
+      hideCompressionProgress();
+      showToast('Error processing images', 'error');
+    }
+    
+    // Reset the input value
+    e.target.value = '';
   });
 
   function renderPhotoPreviews() {
@@ -7091,31 +7179,30 @@ function initTechnicianLogVisitForm(companies) {
     
     if (!photoPreviewGrid) return;
     
-    photoPreviewGrid.innerHTML = photos.map((photo, index) => `
-      <div class="photo-item">
-        <img src="${photo.dataUrl}" alt="Visit photo ${index + 1}" style="width: 100%; height: 100%; object-fit: cover;">
-        <button class="photo-remove" onclick="removeTechnicianPhoto(${index})">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
-      </div>
-    `).join('');
-  }
-
-  window.removeTechnicianPhoto = function(index) {
-    window.technicianVisitForm.photos.splice(index, 1);
-    renderPhotoPreviews();
-  };
-
-  function renderPhotoPreviews() {
-    const photos = window.technicianVisitForm.photos;
-    photoPreviewGrid.innerHTML = photos.map((photo, index) => `
-      <div class="photo-item">
-        <img src="${photo.dataUrl}" alt="Visit photo ${index + 1}">
-        <button class="photo-remove" onclick="removeTechnicianPhoto(${index})">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
-      </div>
-    `).join('');
+    if (photos.length === 0) {
+      photoPreviewGrid.innerHTML = '<p class="text-muted text-center">No photos selected</p>';
+      return;
+    }
+    
+    photoPreviewGrid.innerHTML = photos.map((photo, index) => {
+      const originalSizeMB = (photo.originalSize / 1024 / 1024).toFixed(2);
+      const compressedSizeMB = (photo.compressedSize / 1024 / 1024).toFixed(2);
+      const savings = photo.originalSize !== photo.compressedSize ? 
+        `(-${((1 - photo.compressedSize / photo.originalSize) * 100).toFixed(0)}%)` : '';
+      
+      return `
+        <div class="photo-item">
+          <img src="${photo.dataUrl}" alt="Visit photo ${index + 1}" style="width: 100%; height: 100%; object-fit: cover;">
+          <button class="photo-remove" onclick="removeTechnicianPhoto(${index})" title="Remove photo">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+          <div class="photo-info">
+            <small>${photo.name}</small>
+            <small>${compressedSizeMB} MB ${savings}</small>
+          </div>
+        </div>
+      `;
+    }).join('');
   }
 
   window.removeTechnicianPhoto = function(index) {
@@ -8891,3 +8978,120 @@ window.addEventListener('resize', () => {
 });
 
 
+/**
+ * Compress an image file
+ * @param {File} file - The image file to compress
+ * @param {number} quality - Compression quality (0.1 to 1.0)
+ * @param {number} maxWidth - Maximum width (default 1200)
+ * @param {number} maxHeight - Maximum height (default 1200)
+ * @returns {Promise<File>} - Compressed file
+ */
+async function compressImage(file, quality = 0.6, maxWidth = 1200, maxHeight = 1200) {
+  return new Promise((resolve, reject) => {
+    // Create a canvas element
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Create an image element
+    const img = new Image();
+    
+    img.onload = function() {
+      // Calculate new dimensions
+      let { width, height } = img;
+      
+      // Calculate aspect ratio
+      const aspectRatio = width / height;
+      
+      // Resize if dimensions exceed max values
+      if (width > maxWidth || height > maxHeight) {
+        if (width > height) {
+          width = maxWidth;
+          height = maxWidth / aspectRatio;
+        } else {
+          height = maxHeight;
+          width = maxHeight * aspectRatio;
+        }
+      }
+      
+      // Set canvas dimensions
+      canvas.width = width;
+      canvas.height = height;
+      
+      // Draw and compress image
+      ctx.drawImage(img, 0, 0, width, height);
+      
+      // Convert to blob with compression
+      canvas.toBlob(
+        (blob) => {
+          if (blob) {
+            // Create a new File object with the compressed blob
+            const compressedFile = new File(
+              [blob], 
+              `compressed_${file.name}`, 
+              { 
+                type: file.type, 
+                lastModified: Date.now() 
+              }
+            );
+            
+            // Log compression results
+            const originalSize = (file.size / 1024 / 1024).toFixed(2);
+            const compressedSize = (blob.size / 1024 / 1024).toFixed(2);
+            const savings = ((1 - blob.size / file.size) * 100).toFixed(0);
+            
+            console.log(`Image compression: ${originalSize}MB → ${compressedSize}MB (${savings}% reduction)`);
+            
+            resolve(compressedFile);
+          } else {
+            reject(new Error('Failed to compress image'));
+          }
+        },
+        file.type,
+        quality
+      );
+    };
+    
+    img.onerror = function() {
+      reject(new Error('Failed to load image'));
+    };
+    
+    // Load the image
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+
+
+/**
+ * Show compression progress
+ * @param {string} message - Progress message
+ */
+function showCompressionProgress(message) {
+  // Create or update progress toast
+  let progressToast = document.getElementById('compression-progress-toast');
+  
+  if (!progressToast) {
+    progressToast = document.createElement('div');
+    progressToast.id = 'compression-progress-toast';
+    progressToast.className = 'toast info';
+    progressToast.style.position = 'fixed';
+    progressToast.style.top = '20px';
+    progressToast.style.right = '20px';
+    progressToast.style.zIndex = '9999';
+    document.body.appendChild(progressToast);
+  }
+  
+  progressToast.innerHTML = `
+    <i class="fas fa-compress fa-spin toast-icon"></i>
+    <span class="toast-message">${message}</span>
+  `;
+  
+  progressToast.style.display = 'flex';
+}
+
+function hideCompressionProgress() {
+  const progressToast = document.getElementById('compression-progress-toast');
+  if (progressToast) {
+    progressToast.style.display = 'none';
+  }
+}

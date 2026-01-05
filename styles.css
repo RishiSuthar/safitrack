@@ -4528,6 +4528,48 @@ button svg {
   }
 }
 
+.photo-info {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  color: white;
+  padding: 8px 4px 4px;
+  font-size: 10px;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  text-align: center;
+}
+
+.photo-item:hover .photo-info {
+  opacity: 1;
+}
+
+.photo-info small:first-child {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.photo-info small:last-child {
+  color: #4ade80;
+  font-weight: 500;
+}
+
+/* Compression progress toast styling */
+#compression-progress-toast {
+  background: var(--color-primary-bg);
+  border-left: 4px solid var(--color-primary);
+  min-width: 250px;
+}
+
+#compression-progress-toast .toast-icon {
+  color: var(--color-primary);
+}
 
 
 
