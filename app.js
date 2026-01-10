@@ -808,35 +808,47 @@ function initCompanyModalListeners(company) {
     }
   });
   
-  // Geocode button
+  // Geocode button (Updated to use OpenStreetMap Nominatim)
   if (geocodeBtn) {
     geocodeBtn.addEventListener('click', async () => {
-      const address = document.getElementById('company-address').value.trim();
+      const addressInput = document.getElementById('company-address');
+      const address = addressInput.value.trim();
+      
       if (!address) {
         showToast('Please enter an address to geocode', 'error');
         return;
       }
       
+      // Set loading state
       geocodeBtn.disabled = true;
       geocodeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Geocoding...';
       
       try {
-        const geo = await geocodeAddress(address);
+        // CALL THE NEW NOMINATIM FUNCTION
+        const geo = await geocodeAddressWithOSM(address);
         
         // Update coordinates fields
         document.getElementById('company-latitude').value = geo.latitude.toFixed(6);
         document.getElementById('company-longitude').value = geo.longitude.toFixed(6);
         document.getElementById('company-radius').value = '200';
         
-        // Hide manual section
-        document.getElementById('manual-coords-section').classList.add('hidden');
+        // Hide manual coordinate input section
+        const manualCoordsSection = document.getElementById('manual-coords-section');
+        if (manualCoordsSection) {
+          manualCoordsSection.classList.add('hidden');
+        }
         
-        showToast('Address geocoded successfully', 'success');
+        showToast(`Address found: ${geo.displayName}`, 'success');
+        
       } catch (error) {
-        showToast('Geocoding failed. Please enter coordinates manually', 'error');
+        showToast(error.message, 'error');
       } finally {
+        // Restore button state
         geocodeBtn.disabled = false;
-        geocodeBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Geocode Address';
+        geocodeBtn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> 
+          Search Address
+        `;
       }
     });
   }
@@ -6363,6 +6375,58 @@ function formatDate(dateString, shortFormat = false) {
     minute: '2-digit'
   });
 }
+
+/**
+ * Geocode an address using OpenStreetMap (Nominatim) API
+ * @param {string} address - The address to search for
+ * @returns {Promise<Object>} - Object containing latitude, longitude, and display name
+ */
+async function geocodeAddressWithOSM(address) {
+  try {
+    // URL encode the address to handle spaces and special characters
+    const encodedAddress = encodeURIComponent(address);
+    
+    // Nominatim Search Endpoint
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}`;
+
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'SafiTrack-CRM/1.0' // User-Agent is recommended to avoid blocking
+      }
+    });
+    
+    if (!response.ok) {
+      // Handle rate limits (HTTP 429)
+      if (response.status === 429) {
+        throw new Error('Too many requests. Please wait a moment.');
+      }
+      throw new Error('Geocoding service unavailable. Please enter coordinates manually.');
+    }
+
+    const data = await response.json();
+
+    // Check if we got results back
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      throw new Error('Address not found. Please try a more specific address or enter coordinates manually.');
+    }
+
+    // Extract the first (most relevant) result
+    const result = data[0];
+
+    return {
+      latitude: parseFloat(result.lat),
+      longitude: parseFloat(result.lon),
+      displayName: result.display_name || address
+    };
+
+  } catch (error) {
+    console.error('Geocoding error:', error);
+    throw new Error(error.message || 'Geocoding failed. Please enter coordinates manually.');
+  }
+}
+
+
+
 
 // Replace the existing calculateDistance function with this improved version
 function calculateDistance(lat1, lon1, lat2, lon2) {
