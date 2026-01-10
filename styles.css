@@ -223,7 +223,7 @@ body {
 
 .loading-content {
   text-align: center;
-  padding: 2rem;
+  padding: 1rem;
 }
 
 .loading-logo {
@@ -1938,7 +1938,7 @@ select {
   .main-content {
     margin-left: var(--sidebar-width);
     margin-bottom: 0;
-    padding: 2rem;
+    padding: 1rem;
     /* This max-width is applied when sidebar is EXPANDED */
     max-width: calc(100vw - var(--sidebar-width));
   }
@@ -1953,7 +1953,7 @@ select {
   
   .modal {
     align-items: center;
-    padding: 2rem;
+    padding: 1rem;
   }
   
   .modal-container {
@@ -2003,7 +2003,7 @@ select {
 /* ===== RESPONSIVE - Desktop ===== */
 @media (min-width: 1024px) {
   .main-content {
-    padding: 2rem 3rem;
+    padding: 1rem 2rem;
   }
   
   .page-title {
@@ -2011,7 +2011,7 @@ select {
   }
   
   .card {
-    padding: 2rem;
+    padding: 1rem;
   }
 }
 
@@ -2028,7 +2028,7 @@ select {
     margin-right: 0; 
     
     /* 3. Sleek padding (reduced from 3rem to 2rem) */
-    padding: 2rem; 
+    padding: 1rem; 
     
     /* 4. Remove max-width constraint to allow full stretch */
     max-width: none; 
@@ -2039,7 +2039,7 @@ select {
   }
 
   .card {
-    padding: 2rem;
+    padding: 1rem;
   }
 }
 
