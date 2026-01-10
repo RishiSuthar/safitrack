@@ -8499,7 +8499,7 @@ function initTechnicianFilters(visits, technicians) {
 // ======================
 
 async function generateTechnicianVisitPDF(visitId) {
-  showToast('Generating premium PDF report...', 'info');
+  showToast('Generating PDF report...', 'info');
 
   try {
     // Fetch visit data
@@ -8973,7 +8973,7 @@ async function generateTechnicianVisitPDF(visitId) {
     
     doc.save(fileName);
     
-    showToast('Premium PDF generated successfully!', 'success');
+    showToast('PDF generated successfully!', 'success');
 
   } catch (error) {
     console.error('Error generating PDF:', error);
