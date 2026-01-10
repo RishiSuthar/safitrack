@@ -7745,6 +7745,15 @@ function initTechnicianLogVisitForm(companies) {
     
     // Store map reference
     window.technicianVisitForm.map = map;
+
+    // ==========================================================
+    // FIX: Force map to recalculate size
+    // This prevents the "blank map" issue when initializing
+    // on a container that was recently hidden (display: none -> block).
+    // ==========================================================
+    setTimeout(() => {
+      map.invalidateSize();
+    }, 100);
   }
 }
 
@@ -8839,17 +8848,24 @@ window.viewTechnicianVisitDetails = async function(visitId) {
     document.body.appendChild(modal);
     
     // Initialize map if location exists
-    if (visit.latitude && visit.longitude && visit.companies && visit.companies.name) {
+    if (visit.latitude && visit.longitude) {
       setTimeout(() => {
         const map = L.map('visit-details-map').setView([visit.latitude, visit.longitude], 16);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '© OpenStreetMap'
         }).addTo(map);
         
+        // FIX: Use the 'companyName' variable (calculated earlier in the function)
+        // instead of visit.companies.name. This handles custom locations safely.
         L.marker([visit.latitude, visit.longitude])
           .addTo(map)
           .bindPopup(companyName)
           .openPopup();
+          
+        // FIX: Force size recalculation to prevent blank map in modal
+        setTimeout(() => { 
+            map.invalidateSize(); 
+        }, 200);
       }, 100);
     }
     
