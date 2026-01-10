@@ -4299,6 +4299,11 @@ function initRouteList() {
 // Updated viewRouteDetails function
 // Replace the existing viewRouteDetails function with this updated version
 async function viewRouteDetails(routeId) {
+  const oldModal = document.getElementById('route-details-modal');
+  if (oldModal) {
+    oldModal.remove();
+  }
+
   try {
     // Use the correct table name 'routes' instead of 'route_details'
     const { data: route, error: routeError } = await supabaseClient
@@ -8630,6 +8635,13 @@ async function generateTechnicianVisitPDF(visitId) {
 // ======================
 
 window.viewLocationOnMap = function(latitude, longitude, title) {
+
+  const oldModal = document.getElementById('location-modal');
+  if (oldModal) {
+    oldModal.remove();
+  }
+
+
   const modal = document.createElement('div');
   modal.className = 'modal';
   modal.style.display = 'flex';
@@ -8673,6 +8685,12 @@ window.viewLocationOnMap = function(latitude, longitude, title) {
 };
 
 window.viewTechnicianVisitDetails = async function(visitId) {
+
+  const oldModal = document.getElementById('visit-details-modal');
+  if (oldModal) {
+    oldModal.remove();
+  }
+
   showToast('Loading visit details...', 'info');
   
   try {
@@ -8841,7 +8859,14 @@ window.viewTechnicianVisitDetails = async function(visitId) {
   }
 };
 
+
 window.openPhotoModal = function(photoUrl) {
+
+  const oldModal = document.getElementById('photo-modal');
+  if (oldModal) {
+    oldModal.remove();
+  }
+
   const modal = document.createElement('div');
   modal.className = 'modal';
   modal.style.display = 'flex';
