@@ -9095,7 +9095,7 @@ window.viewTechnicianVisitDetails = async function(visitId) {
       <div class="modal-backdrop" onclick="closeModal('visit-details-modal')"></div>
       <div class="modal-container" style="max-width: 800px;">
         <div class="modal-header">
-          <h3><i class="fas fa-tools"></i> Service Visit Details</h3>
+          <h3>Service Visit Details</h3>
           <div class="flex gap-2">
             <button class="btn btn-sm btn-secondary" onclick="generateTechnicianVisitPDF('${visitId}')">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text-icon lucide-file-text"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v9a2 2 0 0 1 2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg> PDF
@@ -9242,14 +9242,6 @@ window.openPhotoModal = function(photoUrl) {
       </div>
       <div class="modal-body" style="display: flex; justify-content: center; align-items: center;">
         <img src="${photoUrl}" alt="Visit photo" style="max-width: 100%; max-height: 70vh; object-fit: contain;" onerror="handleImageError(this)">
-      </div>
-      <div class="modal-footer">
-        <a href="${photoUrl}" download="technician_visit_photo.jpg" class="btn btn-primary">
-          <i class="fas fa-download"></i> Download
-        </a>
-        <button class="btn btn-secondary" onclick="closeModal('photo-modal')">
-          Close
-        </button>
       </div>
     </div>
   `;
