@@ -8497,11 +8497,12 @@ function initTechnicianFilters(visits, technicians) {
 // ======================
 // PDF GENERATION FOR TECHNICIAN VISITS
 // ======================
+
 async function generateTechnicianVisitPDF(visitId) {
-  showToast('Generating PDF with photos...', 'info');
+  showToast('Generating premium PDF report...', 'info');
 
   try {
-    // 1. Fetch the visit details with related data
+    // Fetch visit data
     const { data: visit, error } = await supabaseClient
       .from('technician_visits')
       .select(`
@@ -8525,11 +8526,128 @@ async function generateTechnicianVisitPDF(visitId) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     let yPos = 20;
 
-    // ==========================================
-    // HELPER: Fetch and Convert Images to Base64
-    // ==========================================
+    // Color scheme
+    const colors = {
+      primary: [47, 95, 208],
+      secondary: [99, 102, 241],
+      success: [16, 185, 129],
+      warning: [245, 158, 11],
+      danger: [239, 68, 68],
+      dark: [31, 41, 55],
+      light: [243, 244, 246],
+      white: [255, 255, 255]
+    };
+
+    // Helper: Add gradient header
+    const addGradientHeader = () => {
+      // Create gradient effect with overlapping rectangles
+      doc.setFillColor(...colors.primary);
+      doc.rect(0, 0, pageWidth, 50, 'F');
+      
+      doc.setFillColor(99, 102, 241, 0.3);
+      doc.triangle(0, 0, pageWidth, 0, pageWidth, 50, 'F');
+    };
+
+    // Helper: Add footer
+    const addFooter = (pageNum) => {
+      doc.setFillColor(...colors.light);
+      doc.rect(0, pageHeight - 15, pageWidth, 15, 'F');
+      
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text(`SafiTrack Service Report - Generated ${new Date().toLocaleDateString()}`, 20, pageHeight - 7);
+      doc.text(`Page ${pageNum}`, pageWidth - 30, pageHeight - 7);
+    };
+
+    // Helper: Section header
+    const addSectionHeader = (title, icon = '') => {
+      if (yPos > pageHeight - 40) {
+        doc.addPage();
+        addGradientHeader();
+        yPos = 60;
+      }
+
+      doc.setFillColor(...colors.primary);
+      doc.roundedRect(20, yPos - 5, pageWidth - 40, 12, 2, 2, 'F');
+      
+      doc.setFontSize(12);
+      doc.setTextColor(...colors.white);
+      doc.setFont(undefined, 'bold');
+      doc.text(title, 25, yPos + 3);
+      
+      yPos += 18;
+      doc.setTextColor(...colors.dark);
+      doc.setFont(undefined, 'normal');
+    };
+
+    // Helper: Info row with proper spacing
+    const addInfoRow = (label, value) => {
+      if (yPos > pageHeight - 25) {
+        doc.addPage();
+        addGradientHeader();
+        addFooter(doc.internal.getNumberOfPages());
+        yPos = 60;
+      }
+
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.text('>', 22, yPos);
+      
+      doc.setFont(undefined, 'bold');
+      doc.setTextColor(...colors.dark);
+      doc.text(label + ':', 27, yPos);
+      
+      doc.setFont(undefined, 'normal');
+      // Add extra spacing (3 spaces) after the colon
+      const labelWidth = doc.getTextWidth(label + ':   ');
+      
+      // Handle long text with wrapping
+      const maxWidth = pageWidth - 60;
+      const lines = doc.splitTextToSize(value, maxWidth);
+      
+      lines.forEach((line, index) => {
+        if (index === 0) {
+          doc.text(line, 27 + labelWidth, yPos);
+        } else {
+          yPos += 6;
+          if (yPos > pageHeight - 25) {
+            doc.addPage();
+            addGradientHeader();
+            addFooter(doc.internal.getNumberOfPages());
+            yPos = 60;
+          }
+          doc.text(line, 27 + labelWidth, yPos);
+        }
+      });
+      
+      yPos += 8;
+    };
+
+    // Helper: Status badge
+    const addStatusBadge = (status) => {
+      const statusConfig = {
+        'completed': { color: colors.success, text: 'COMPLETED' },
+        'partially_completed': { color: colors.warning, text: 'PARTIAL' },
+        'pending': { color: colors.secondary, text: 'PENDING' },
+        'follow_up': { color: colors.danger, text: 'FOLLOW-UP' }
+      };
+
+      const config = statusConfig[status] || statusConfig.pending;
+      
+      doc.setFillColor(...config.color);
+      doc.roundedRect(pageWidth - 70, 15, 50, 10, 2, 2, 'F');
+      
+      doc.setFontSize(8);
+      doc.setTextColor(...colors.white);
+      doc.setFont(undefined, 'bold');
+      doc.text(config.text, pageWidth - 67, 21);
+      doc.setFont(undefined, 'normal');
+    };
+
+    // Helper: Fetch image with error handling
     const fetchImageAsBase64 = async (url) => {
       try {
         const response = await fetch(url);
@@ -8542,77 +8660,85 @@ async function generateTechnicianVisitPDF(visitId) {
         });
       } catch (err) {
         console.error('Error fetching image:', url, err);
-        return null; // Fail silently for individual images so the PDF doesn't crash
+        return null;
       }
     };
 
-    // Fetch all photos and signatures in parallel
+    // Fetch all media
     let photoDataUrls = [];
     if (visit.photos && visit.photos.length > 0) {
-      showToast('Downloading photos for PDF...', 'info');
+      showToast('Processing photos...', 'info');
       photoDataUrls = await Promise.all(visit.photos.map(url => fetchImageAsBase64(url)));
     }
 
-    const clientSignatureData = visit.client_signature ? await fetchImageAsBase64(visit.client_signature) : null;
-    const technicianSignatureData = visit.technician_signature ? await fetchImageAsBase64(visit.technician_signature) : null;
-
+    const clientSig = visit.client_signature ? await fetchImageAsBase64(visit.client_signature) : null;
+    const techSig = visit.technician_signature ? await fetchImageAsBase64(visit.technician_signature) : null;
 
     // ==========================================
-    // 2. PDF HEADER
+    // PAGE 1: HEADER & OVERVIEW
     // ==========================================
-    doc.setFontSize(20);
-    doc.setTextColor(47, 95, 208); // Your primary color
-    doc.text('SafiTrack - Service Visit Report', 20, yPos);
-    yPos += 15;
+    let currentPage = 1;
+    addGradientHeader();
     
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text(`Report ID: ${visit.id.substring(0, 8)}`, 20, yPos);
-    yPos += 7;
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, yPos);
-    yPos += 10;
-
-
-    // ==========================================
-    // 3. COMPANY INFORMATION (Null Safe)
-    // ==========================================
-    doc.setFontSize(14);
-    doc.setTextColor(0, 0, 0);
-    doc.text('Company Information', 20, yPos);
-    yPos += 10;
-
-    doc.setFontSize(10);
+    // Logo/Title - UPDATED
+    doc.setFontSize(24);
+    doc.setTextColor(...colors.white);
+    doc.setFont(undefined, 'bold');
+    doc.text('SafiTrack Technician Report', 20, 30);
     
-    // FIX: Use optional chaining and fallbacks to prevent crash
-    const companyName = visit.companies ? visit.companies.name : visit.company_name || 'Unknown Location';
-    const companyAddress = visit.companies ? (visit.companies.address || 'N/A') : 'Custom Entry';
-    const companyDescription = visit.companies ? (visit.companies.description || '') : '';
-
-    doc.text(`Name: ${companyName}`, 20, yPos);
-    yPos += 7;
+    doc.setFontSize(11);
+    doc.setFont(undefined, 'normal');
+    doc.text('Service Visit Information', 20, 40);
     
-    if (visit.companies && visit.companies.address) {
-      doc.text(`Address: ${companyAddress}`, 20, yPos);
-      yPos += 7;
+    // Status badge
+    addStatusBadge(visit.work_status);
+    
+    yPos = 60;
+
+    // Report metadata box
+    doc.setFillColor(250, 251, 252);
+    doc.roundedRect(20, yPos, pageWidth - 40, 25, 3, 3, 'F');
+    
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    doc.text('REPORT ID:', 25, yPos + 7);
+    doc.setTextColor(...colors.dark);
+    doc.setFont(undefined, 'bold');
+    doc.text(visit.id.substring(0, 16), 53, yPos + 7);
+    
+    doc.setFont(undefined, 'normal');
+    doc.setTextColor(100, 100, 100);
+    doc.text('DATE:', 25, yPos + 14);
+    doc.setTextColor(...colors.dark);
+    doc.text(new Date(visit.created_at).toLocaleString(), 53, yPos + 14);
+    
+    doc.setTextColor(100, 100, 100);
+    doc.text('GENERATED:', 25, yPos + 21);
+    doc.setTextColor(...colors.dark);
+    doc.text(new Date().toLocaleString(), 53, yPos + 21);
+    
+    yPos += 35;
+
+    // Company Information
+    addSectionHeader('LOCATION & COMPANY');
+    const companyName = visit.company_name || visit.companies?.name || 'Unknown Location';
+    addInfoRow('Company Name', companyName);
+    
+    if (visit.companies?.address) {
+      addInfoRow('Address', visit.companies.address);
+    }
+    if (visit.companies?.description) {
+      addInfoRow('Description', visit.companies.description);
+    }
+    if (visit.latitude && visit.longitude) {
+      addInfoRow('Coordinates', `${visit.latitude.toFixed(6)}, ${visit.longitude.toFixed(6)}`);
     }
 
-    if (companyDescription) {
-      doc.text(`Description: ${companyDescription}`, 20, yPos);
-      yPos += 7;
-    }
+    yPos += 5;
 
-    yPos += 10; // Section spacing
-
-
-    // ==========================================
-    // 4. VISIT DETAILS
-    // ==========================================
-    doc.setFontSize(14);
-    doc.text('Visit Details', 20, yPos);
-    yPos += 10;
-
-    doc.setFontSize(10);
-
+    // Visit Details
+    addSectionHeader('SERVICE DETAILS');
+    
     const visitTypeLabels = {
       'installation': 'Installation',
       'maintenance': 'Maintenance',
@@ -8621,191 +8747,240 @@ async function generateTechnicianVisitPDF(visitId) {
       'emergency': 'Emergency / Call-out'
     };
 
-    const workCategory = visit.work_category + (visit.other_work_category ? ` (${visit.other_work_category})` : '');
-
-    doc.text(`Visit Type: ${visitTypeLabels[visit.visit_type] || visit.visit_type}`, 20, yPos);
-    yPos += 7;
+    addInfoRow('Visit Type', visitTypeLabels[visit.visit_type] || visit.visit_type);
     
-    doc.text(`Work Category: ${workCategory}`, 20, yPos);
-    yPos += 7;
-
+    const workCategory = visit.work_category + (visit.other_work_category ? ` (${visit.other_work_category})` : '');
+    addInfoRow('Work Category', workCategory);
+    
     const statusLabels = {
       'completed': 'Completed',
       'partially_completed': 'Partially Completed',
       'pending': 'Pending',
       'follow_up': 'Follow-up Required'
     };
+    addInfoRow('Work Status', statusLabels[visit.work_status] || visit.work_status);
 
-    doc.text(`Work Status: ${statusLabels[visit.work_status] || visit.work_status}`, 20, yPos);
-    yPos += 7;
+    yPos += 5;
 
-    if (visit.follow_up_notes) {
-      doc.text(`Follow-up Notes: ${visit.follow_up_notes}`, 20, yPos);
-      yPos += 7;
-    }
-
-    if (visit.visit_notes) {
-      const notesLines = doc.splitTextToSize(visit.visit_notes, pageWidth - 40);
-      doc.text('Visit Notes:', 20, yPos);
-      yPos += 7;
-      notesLines.forEach(line => {
-        doc.text(line, 20, yPos);
-        yPos += 5;
-      });
-    }
-
-    yPos += 10; // Section spacing
-
-
-    // ==========================================
-    // 5. TECHNICIAN INFORMATION
-    // ==========================================
-    doc.setFontSize(14);
-    doc.text('Technician Information', 20, yPos);
-    yPos += 10;
-
-    doc.setFontSize(10);
-    
+    // Technician Info
+    addSectionHeader('TECHNICIAN INFORMATION');
     if (visit.technician) {
-      doc.text(`Technician: ${visit.technician.first_name} ${visit.technician.last_name}`, 20, yPos);
-      yPos += 7;
-      doc.text(`Email: ${visit.technician.email}`, 20, yPos);
-      yPos += 7;
+      addInfoRow('Name', `${visit.technician.first_name} ${visit.technician.last_name}`);
+      addInfoRow('Email', visit.technician.email);
     }
 
-    yPos += 10; // Section spacing
-
+    // Add footer to first page
+    addFooter(currentPage);
 
     // ==========================================
-    // 6. LOCATION INFORMATION
+    // PAGE 2: NOTES & DETAILS
     // ==========================================
-    if (visit.latitude && visit.longitude) {
-      doc.setFontSize(14);
-      doc.text('Location Information', 20, yPos);
-      yPos += 10;
+    doc.addPage();
+    currentPage++;
+    addGradientHeader();
+    yPos = 60;
 
-      doc.setFontSize(10);
-      doc.text(`Coordinates: ${visit.latitude.toFixed(6)}, ${visit.longitude.toFixed(6)}`, 20, yPos);
-      yPos += 7;
-      doc.text(`Location Verified: ${visit.verified_location ? 'Yes' : 'No'}`, 20, yPos);
+    // Visit Notes
+    if (visit.visit_notes) {
+      addSectionHeader('VISIT NOTES');
       
-      yPos += 10;
+      doc.setFillColor(255, 251, 235);
+      const notesLines = doc.splitTextToSize(visit.visit_notes, pageWidth - 50);
+      const notesHeight = notesLines.length * 6 + 10;
+      
+      doc.roundedRect(20, yPos, pageWidth - 40, notesHeight, 3, 3, 'F');
+      
+      doc.setFontSize(10);
+      doc.setTextColor(...colors.dark);
+      
+      notesLines.forEach((line, index) => {
+        doc.text(line, 25, yPos + 8 + (index * 6));
+      });
+      
+      yPos += notesHeight + 10;
     }
 
+    // Follow-up Notes
+    if (visit.follow_up_notes) {
+      if (yPos > pageHeight - 60) {
+        doc.addPage();
+        currentPage++;
+        addGradientHeader();
+        addFooter(currentPage - 1);
+        yPos = 60;
+      }
+
+      addSectionHeader('FOLLOW-UP REQUIRED');
+      
+      doc.setFillColor(254, 243, 199);
+      const followUpLines = doc.splitTextToSize(visit.follow_up_notes, pageWidth - 50);
+      const followUpHeight = followUpLines.length * 6 + 10;
+      
+      doc.roundedRect(20, yPos, pageWidth - 40, followUpHeight, 3, 3, 'F');
+      
+      doc.setFontSize(10);
+      doc.setTextColor(...colors.dark);
+      
+      followUpLines.forEach((line, index) => {
+        doc.text(line, 25, yPos + 8 + (index * 5));
+      });
+      
+      yPos += followUpHeight + 10;
+    }
+
+    addFooter(currentPage);
 
     // ==========================================
-    // 7. PHOTOS SECTION (Embedding Images)
+    // PHOTOS SECTION
     // ==========================================
     if (photoDataUrls.length > 0) {
-      // Check if we need a new page
-      if (yPos > 230) {
-        doc.addPage();
-        yPos = 20;
-      }
+      doc.addPage();
+      currentPage++;
+      addGradientHeader();
+      yPos = 60;
 
-      doc.setFontSize(14);
-      doc.text('Photos', 20, yPos);
-      yPos += 10;
+      addSectionHeader(`PHOTOS (${photoDataUrls.length} Total)`);
 
-      // Loop through images and embed them
-      const maxImageWidth = 160; // Max width for images in PDF
-      const imageHeight = 120; // Fixed height for consistency
+      const photosPerPage = 2;
+      const photoWidth = pageWidth - 50;
+      const photoHeight = 100;
+      let photoCount = 0;
 
-      photoDataUrls.forEach((imgData, index) => {
-        // Check for new page
-        if (yPos > 230) {
+      for (let i = 0; i < photoDataUrls.length; i++) {
+        const imgData = photoDataUrls[i];
+        
+        if (!imgData) continue;
+
+        // Check if we need a new page
+        if (yPos + photoHeight + 20 > pageHeight - 20) {
+          addFooter(currentPage);
           doc.addPage();
-          yPos = 20;
+          currentPage++;
+          addGradientHeader();
+          yPos = 60;
+          
+          if (photoCount % photosPerPage === 0) {
+            addSectionHeader('PHOTOS (Continued)');
+          }
         }
 
-        // Embed the image
-        // If imgData is null (fetch failed), skip or show placeholder
-        if (imgData) {
-          try {
-            doc.addImage(imgData, 'JPEG', 20, yPos, maxImageWidth, imageHeight);
-            yPos += imageHeight + 10; // Image height + spacing
-          } catch (err) {
-            console.warn('Failed to add image to PDF', err);
-            doc.text(`[Photo ${index + 1} could not be loaded]`, 20, yPos);
-            yPos += 20;
-          }
-        } else {
-          doc.text(`[Photo ${index + 1} missing]`, 20, yPos);
+        try {
+          // Add photo border/frame
+          doc.setDrawColor(...colors.light);
+          doc.setLineWidth(0.5);
+          doc.roundedRect(20, yPos, photoWidth, photoHeight, 2, 2, 'S');
+          
+          // Add photo
+          doc.addImage(imgData, 'JPEG', 22, yPos + 2, photoWidth - 4, photoHeight - 4);
+          
+          // Add photo caption
+          doc.setFontSize(8);
+          doc.setTextColor(100, 100, 100);
+          doc.text(`Photo ${i + 1} of ${photoDataUrls.length}`, 25, yPos + photoHeight + 8);
+          
+          yPos += photoHeight + 15;
+          photoCount++;
+          
+        } catch (err) {
+          console.warn('Failed to add image:', err);
+          doc.setFontSize(10);
+          doc.setTextColor(...colors.danger);
+          doc.text(`[Photo ${i + 1} could not be loaded]`, 25, yPos + 10);
           yPos += 20;
         }
-      });
-      
-      yPos += 10; // Section spacing after photos
-    }
-
-
-    // ==========================================
-    // 8. SIGNATURES SECTION (Embedding Images)
-    // ==========================================
-    if (clientSignatureData || technicianSignatureData) {
-      // Check for new page
-      if (yPos > 230) {
-        doc.addPage();
-        yPos = 20;
       }
 
-      doc.setFontSize(14);
-      doc.text('Signatures', 20, yPos);
-      yPos += 10;
+      addFooter(currentPage);
+    }
+
+    // ==========================================
+    // SIGNATURES PAGE
+    // ==========================================
+    if (clientSig || techSig) {
+      doc.addPage();
+      currentPage++;
+      addGradientHeader();
+      yPos = 60;
+
+      addSectionHeader('SIGNATURES');
+
+      const sigWidth = (pageWidth - 50) / 2;
+      const sigHeight = 60;
 
       // Client Signature
-      if (clientSignatureData) {
-        doc.setFontSize(10);
-        doc.text('Client Signature:', 20, yPos);
-        yPos += 7;
-        
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.text('CLIENT SIGNATURE', 25, yPos);
+      yPos += 8;
+
+      if (clientSig) {
         try {
-          // Embed base64 signature image
-          doc.addImage(clientSignatureData, 'PNG', 20, yPos, 100, 60);
-          yPos += 70; // Fixed height for signature area
+          doc.setDrawColor(...colors.light);
+          doc.setLineWidth(0.5);
+          doc.roundedRect(20, yPos, sigWidth, sigHeight, 2, 2, 'S');
+          doc.addImage(clientSig, 'PNG', 22, yPos + 2, sigWidth - 4, sigHeight - 4);
         } catch (e) {
-          doc.text('[Client signature could not be embedded]', 20, yPos);
-          yPos += 70;
+          doc.text('[Signature unavailable]', 25, yPos + 30);
         }
+      } else {
+        doc.setFillColor(...colors.light);
+        doc.roundedRect(20, yPos, sigWidth, sigHeight, 2, 2, 'F');
+        doc.setTextColor(150, 150, 150);
+        doc.text('Not provided', 25, yPos + 30);
       }
 
       // Technician Signature
-      if (technicianSignatureData) {
-        doc.setFontSize(10);
-        doc.text('Technician Signature:', 20, yPos);
-        yPos += 7;
+      doc.setTextColor(100, 100, 100);
+      doc.text('TECHNICIAN SIGNATURE', pageWidth - sigWidth - 5, yPos - 8);
 
+      if (techSig) {
         try {
-          // Embed base64 signature image
-          doc.addImage(technicianSignatureData, 'PNG', 20, yPos, 100, 60);
-          yPos += 70;
+          doc.setDrawColor(...colors.light);
+          doc.roundedRect(pageWidth - sigWidth - 10, yPos, sigWidth, sigHeight, 2, 2, 'S');
+          doc.addImage(techSig, 'PNG', pageWidth - sigWidth - 8, yPos + 2, sigWidth - 4, sigHeight - 4);
         } catch (e) {
-          doc.text('[Technician signature could not be embedded]', 20, yPos);
-          yPos += 70;
+          doc.text('[Signature unavailable]', pageWidth - sigWidth - 5, yPos + 30);
         }
+      } else {
+        doc.setFillColor(...colors.light);
+        doc.roundedRect(pageWidth - sigWidth - 10, yPos, sigWidth, sigHeight, 2, 2, 'F');
+        doc.setTextColor(150, 150, 150);
+        doc.text('Not provided', pageWidth - sigWidth - 5, yPos + 30);
       }
+
+      yPos += sigHeight + 20;
+
+      // Certification statement
+      doc.setFillColor(240, 253, 244);
+      doc.roundedRect(20, yPos, pageWidth - 40, 25, 3, 3, 'F');
+      
+      doc.setFontSize(9);
+      doc.setTextColor(...colors.dark);
+      const certText = 'This service report certifies that the work described above was performed on the specified date. All information provided is accurate to the best of our knowledge.';
+      const certLines = doc.splitTextToSize(certText, pageWidth - 50);
+      
+      certLines.forEach((line, index) => {
+        doc.text(line, 25, yPos + 8 + (index * 5));
+      });
+
+      addFooter(currentPage);
     }
 
-
     // ==========================================
-    // 9. SAVE PDF
+    // SAVE PDF
     // ==========================================
-    const fileName = `Service_Visit_${companyName.replace(/\s+/g, '_')}_${new Date(visit.created_at).toISOString().split('T')[0]}.pdf`;
+    const fileName = `SafiTrack_Service_Report_${companyName.replace(/\s+/g, '_')}_${new Date(visit.created_at).toISOString().split('T')[0]}.pdf`;
     
     doc.save(fileName);
     
-    showToast('PDF generated successfully with photos!', 'success');
+    showToast('Premium PDF generated successfully!', 'success');
 
   } catch (error) {
     console.error('Error generating PDF:', error);
-    // Specific toast for the null error to help user identify it
-    if (error.message && error.message.includes('reading')) {
-        showToast('PDF Error: Missing Company Data. Please ensure the visit has a valid company.', 'error');
-    } else {
-        showToast('Failed to generate PDF: ' + error.message, 'error');
-    }
+    showToast('Failed to generate PDF: ' + error.message, 'error');
   }
 }
+
 
 // ======================
 // UTILITY FUNCTIONS FOR TECHNICIANS
