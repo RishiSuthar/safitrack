@@ -7452,8 +7452,12 @@ function initTechnicianLogVisitForm(companies) {
   function validateStep(step) {
     switch (step) {
       case 1:
-        if (!window.technicianVisitForm.selectedCompany) {
-          showToast('Please select a company', 'error');
+        const company = window.technicianVisitForm.selectedCompany;
+        const customLocation = document.getElementById('technician-custom-location').value.trim();
+        
+        // Allow submission if we have a selected company OR a custom location name
+        if (!company && !customLocation) {
+          showToast('Please select a company or enter a custom location', 'error');
           return false;
         }
         if (!window.technicianVisitForm.capturedLocation) {
@@ -7591,12 +7595,18 @@ function initTechnicianLogVisitForm(companies) {
         }
       }
 
-      // Prepare visit data
-      // Use selected company id if present; allow null for custom technician locations.
       const visitData = {
         technician_id: currentUser.id,
+        
+        // 1. Company ID: If selected company, save ID. If custom, save NULL.
         company_id: window.technicianVisitForm.selectedCompany ? window.technicianVisitForm.selectedCompany.id : null,
-        company_name: window.technicianVisitForm.selectedCompany ? window.technicianVisitForm.selectedCompany.name : null,
+        
+        // 2. Company Name: If selected company, save name. If custom, save the custom input value.
+        // This ensures the "Name: Unknown Company" issue is fixed because we save the name here.
+        company_name: window.technicianVisitForm.selectedCompany 
+          ? window.technicianVisitForm.selectedCompany.name 
+          : (document.getElementById('technician-custom-location').value.trim() || 'Custom Location'),
+          
         visit_type: document.getElementById('visit-type').value,
         work_category: document.getElementById('work-category').value,
         other_work_category: document.getElementById('work-category').value === 'other' ? 
@@ -7766,7 +7776,7 @@ async function renderTechnicianActivityView() {
 
 function renderTechnicianVisitCard(visit) {
   const date = formatDate(visit.created_at);
-  const companyName = visit.companies?.name || 'Unknown Company';
+  const companyName = visit.company_name || visit.companies?.name || 'Unknown Company';
   
   const workStatusLabels = {
     'completed': 'Completed',
@@ -7861,7 +7871,7 @@ function renderTechnicianVisitCard(visit) {
 
 function renderTechnicianVisitCard(visit) {
   const date = formatDate(visit.created_at);
-  const companyName = visit.companies?.name || 'Unknown Company';
+  const companyName = visit.company_name || visit.companies?.name || 'Unknown Company';
   
   const workStatusLabels = {
     'completed': 'Completed',
@@ -8123,7 +8133,8 @@ async function renderTechniciansDashboardView() {
 
 function renderTechnicianVisitCardForManager(visit) {
   const date = formatDate(visit.created_at);
-  const companyName = visit.companies?.name || 'Unknown Company';
+    // Use visit.company_name first (for custom locations), then fallback to joined companies data
+  const companyName = visit.company_name || visit.companies?.name || 'Unknown Company';
   const technicianName = visit.technician ? 
     `${visit.technician.first_name} ${visit.technician.last_name}` : 'Unknown Technician';
 
@@ -8253,7 +8264,8 @@ function initTechniciansMap(visits) {
 
   // Add markers for each visit
   const markers = validVisits.map(visit => {
-    const companyName = visit.companies?.name || 'Unknown';
+      // Use visit.company_name first (for custom locations), then fallback to joined companies data
+    const companyName = visit.company_name || visit.companies?.name || 'Unknown Company';
     const technicianName = visit.technician ? 
       `${visit.technician.first_name} ${visit.technician.last_name}` : 'Unknown';
     
@@ -8621,11 +8633,7 @@ window.viewTechnicianVisitDetails = async function(visitId) {
 
     if (error) throw error;
 
-    const modal = document.createElement('div');
-    modal.className = 'modal';
-    modal.style.display = 'flex';
-    modal.id = 'visit-details-modal';
-    
+
     const workStatusLabels = {
       'completed': 'Completed',
       'partially_completed': 'Partially Completed',
@@ -8641,6 +8649,15 @@ window.viewTechnicianVisitDetails = async function(visitId) {
       'emergency': 'Emergency / Call-out'
     };
 
+    const companyName = visit.company_name || visit.companies?.name || 'Unknown Location';
+    const companyAddress = visit.companies?.address || 'N/A';
+    const companyDescription = visit.companies?.description || 'N/A';
+
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'flex';
+    modal.id = 'visit-details-modal';
+
     modal.innerHTML = `
       <div class="modal-backdrop" onclick="closeModal('visit-details-modal')"></div>
       <div class="modal-container" style="max-width: 800px;">
@@ -8648,7 +8665,7 @@ window.viewTechnicianVisitDetails = async function(visitId) {
           <h3><i class="fas fa-tools"></i> Service Visit Details</h3>
           <div class="flex gap-2">
             <button class="btn btn-sm btn-secondary" onclick="generateTechnicianVisitPDF('${visitId}')">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text-icon lucide-file-text"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg> PDF
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-text-icon lucide-file-text"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v9a2 2 0 0 1 2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg> PDF
             </button>
             <button class="modal-close" onclick="closeModal('visit-details-modal')">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -8659,16 +8676,15 @@ window.viewTechnicianVisitDetails = async function(visitId) {
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <h4>Company Information</h4>
-              <p><strong>Name:</strong> ${visit.companies.name}</p>
-              ${visit.companies.address ? `<p><strong>Address:</strong> ${visit.companies.address}</p>` : ''}
-              ${visit.companies.description ? `<p><strong>Description:</strong> ${visit.companies.description}</p>` : ''}
+              <p><strong>Name:</strong> ${companyName}</p>
+              ${visit.companies ? `<p><strong>Address:</strong> ${companyAddress}</p>` : ''}
+              ${visit.companies ? `<p><strong>Description:</strong> ${companyDescription}</p>` : ''}
             </div>
             <div>
               <h4>Visit Information</h4>
-              <p><strong>Visit Type:</strong> ${visitTypeLabels[visit.visit_type]}</p>
+              <p><strong>Visit Type:</strong> ${visit.visit_type}</p>
               <p><strong>Work Category:</strong> ${visit.work_category}${visit.other_work_category ? ` (${visit.other_work_category})` : ''}</p>
-              <p><strong>Work Status:</strong> ${workStatusLabels[visit.work_status]}</p>
-              <p><strong>Date:</strong> ${formatDate(visit.created_at)}</p>
+              <p><strong>Work Status:</strong> ${visit.work_status}</p>
             </div>
           </div>
           
@@ -8678,14 +8694,14 @@ window.viewTechnicianVisitDetails = async function(visitId) {
               <div id="visit-details-map" style="height: 200px; margin-top: 1rem;"></div>
             </div>
           ` : ''}
-          
+
           ${visit.visit_notes ? `
             <div class="mt-4">
               <h4>Visit Notes</h4>
               <div class="bg-gray-50 p-3 rounded">${visit.visit_notes}</div>
             </div>
           ` : ''}
-          
+
           ${visit.follow_up_notes ? `
             <div class="mt-4">
               <h4>Follow-up Required</h4>
@@ -8697,34 +8713,33 @@ window.viewTechnicianVisitDetails = async function(visitId) {
             <div class="mt-4">
               <h4>Photos (${visit.photos.length})</h4>
               <div class="photo-grid" style="grid-template-columns: repeat(3, 1fr);">
-                ${visit.photos.map(photo => `
+                ${visit.photos.slice(0, 3).map(photo => `
                   <div class="photo-item">
                     <img src="${photo}" alt="Visit photo" onclick="openPhotoModal('${photo}')" onerror="handleImageError(this)">
                   </div>
                 `).join('')}
+                ${visit.photos.length > 3 ? `
+                  <div class="photo-item" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center;">
+                    <span class="text-muted">+${visit.photos.length - 3} more</span>
+                  </div>
+                ` : ''}
               </div>
             </div>
           ` : ''}
           
-          ${visit.client_signature || visit.technician_signature ? `
-            <div class="mt-4">
-              <h4>Signatures</h4>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                ${visit.client_signature ? `
-                  <div>
-                    <p><strong>Client Signature:</strong></p>
-                    <img src="${visit.client_signature}" alt="Client signature" style="max-height: 100px;" onerror="handleImageError(this)">
-                  </div>
-                ` : ''}
-                ${visit.technician_signature ? `
-                  <div>
-                    <p><strong>Technician Signature:</strong></p>
-                    <img src="${visit.technician_signature}" alt="Technician signature" style="max-height: 100px;" onerror="handleImageError(this)">
-                  </div>
-                ` : ''}
+          <div class="mt-4">
+            <h4>Signatures</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p class="text-sm text-muted">Client Signature</p>
+                ${visit.client_signature ? `<img src="${visit.client_signature}" alt="Client signature" style="max-height: 100px;" onerror="handleImageError(this)">` : 'Not provided'}
+              </div>
+              <div>
+                <p class="text-sm text-muted">Technician Signature</p>
+                ${visit.technician_signature ? `<img src="${visit.technician_signature}" alt="Technician signature" style="max-height: 100px;" onerror="handleImageError(this)">` : 'Not provided'}
               </div>
             </div>
-          ` : ''}
+          </div>
           
           <div class="mt-4">
             <h4>Technician</h4>
@@ -8743,7 +8758,7 @@ window.viewTechnicianVisitDetails = async function(visitId) {
     document.body.appendChild(modal);
     
     // Initialize map if location exists
-    if (visit.latitude && visit.longitude) {
+    if (visit.latitude && visit.longitude && visit.companies && visit.companies.name) {
       setTimeout(() => {
         const map = L.map('visit-details-map').setView([visit.latitude, visit.longitude], 16);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -8752,14 +8767,14 @@ window.viewTechnicianVisitDetails = async function(visitId) {
         
         L.marker([visit.latitude, visit.longitude])
           .addTo(map)
-          .bindPopup(visit.companies.name)
+          .bindPopup(companyName)
           .openPopup();
       }, 100);
     }
     
   } catch (error) {
     console.error('Error loading visit details:', error);
-    showToast('Failed to load visit details', 'error');
+    showToast('Error loading visit details: ' + error.message, 'error');
   }
 };
 
