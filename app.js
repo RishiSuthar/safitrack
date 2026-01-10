@@ -8497,12 +8497,11 @@ function initTechnicianFilters(visits, technicians) {
 // ======================
 // PDF GENERATION FOR TECHNICIAN VISITS
 // ======================
-
 async function generateTechnicianVisitPDF(visitId) {
-  showToast('Generating PDF...', 'info');
+  showToast('Generating PDF with photos...', 'info');
 
   try {
-    // Fetch visit details with all related data
+    // 1. Fetch the visit details with related data
     const { data: visit, error } = await supabaseClient
       .from('technician_visits')
       .select(`
@@ -8525,117 +8524,286 @@ async function generateTechnicianVisitPDF(visitId) {
 
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let yPos = 20;
 
-    // Add logo and header
+    // ==========================================
+    // HELPER: Fetch and Convert Images to Base64
+    // ==========================================
+    const fetchImageAsBase64 = async (url) => {
+      try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onloadend = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(blob);
+        });
+      } catch (err) {
+        console.error('Error fetching image:', url, err);
+        return null; // Fail silently for individual images so the PDF doesn't crash
+      }
+    };
+
+    // Fetch all photos and signatures in parallel
+    let photoDataUrls = [];
+    if (visit.photos && visit.photos.length > 0) {
+      showToast('Downloading photos for PDF...', 'info');
+      photoDataUrls = await Promise.all(visit.photos.map(url => fetchImageAsBase64(url)));
+    }
+
+    const clientSignatureData = visit.client_signature ? await fetchImageAsBase64(visit.client_signature) : null;
+    const technicianSignatureData = visit.technician_signature ? await fetchImageAsBase64(visit.technician_signature) : null;
+
+
+    // ==========================================
+    // 2. PDF HEADER
+    // ==========================================
     doc.setFontSize(20);
     doc.setTextColor(47, 95, 208); // Your primary color
-    doc.text('SafiTrack - Service Visit Report', 20, 20);
+    doc.text('SafiTrack - Service Visit Report', 20, yPos);
+    yPos += 15;
+    
     doc.setFontSize(12);
     doc.setTextColor(0, 0, 0);
-    doc.text(`Report ID: ${visitId.substring(0, 8)}`, 20, 30);
-    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, 37);
+    doc.text(`Report ID: ${visit.id.substring(0, 8)}`, 20, yPos);
+    yPos += 7;
+    doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, yPos);
+    yPos += 10;
 
-    // Company Information
+
+    // ==========================================
+    // 3. COMPANY INFORMATION (Null Safe)
+    // ==========================================
     doc.setFontSize(14);
-    doc.text('Company Information', 20, 50);
+    doc.setTextColor(0, 0, 0);
+    doc.text('Company Information', 20, yPos);
+    yPos += 10;
+
     doc.setFontSize(10);
-    doc.text(`Name: ${visit.companies.name}`, 20, 60);
-    if (visit.companies.address) {
-      doc.text(`Address: ${visit.companies.address}`, 20, 67);
-    }
-    if (visit.companies.description) {
-      doc.text(`Description: ${visit.companies.description}`, 20, 74);
+    
+    // FIX: Use optional chaining and fallbacks to prevent crash
+    const companyName = visit.companies ? visit.companies.name : visit.company_name || 'Unknown Location';
+    const companyAddress = visit.companies ? (visit.companies.address || 'N/A') : 'Custom Entry';
+    const companyDescription = visit.companies ? (visit.companies.description || '') : '';
+
+    doc.text(`Name: ${companyName}`, 20, yPos);
+    yPos += 7;
+    
+    if (visit.companies && visit.companies.address) {
+      doc.text(`Address: ${companyAddress}`, 20, yPos);
+      yPos += 7;
     }
 
-    // Visit Details
+    if (companyDescription) {
+      doc.text(`Description: ${companyDescription}`, 20, yPos);
+      yPos += 7;
+    }
+
+    yPos += 10; // Section spacing
+
+
+    // ==========================================
+    // 4. VISIT DETAILS
+    // ==========================================
     doc.setFontSize(14);
-    doc.text('Visit Details', 20, 90);
+    doc.text('Visit Details', 20, yPos);
+    yPos += 10;
+
     doc.setFontSize(10);
-    doc.text(`Visit Type: ${visit.visit_type}`, 20, 100);
-    doc.text(`Work Category: ${visit.work_category}${visit.other_work_category ? ` (${visit.other_work_category})` : ''}`, 20, 107);
-    doc.text(`Work Status: ${visit.work_status}`, 20, 114);
-    doc.text(`Date: ${formatDate(visit.created_at)}`, 20, 121);
 
-    // Technician Information
-    doc.text(`Technician: ${visit.technician.first_name} ${visit.technician.last_name}`, 20, 131);
-    doc.text(`Email: ${visit.technician.email}`, 20, 138);
+    const visitTypeLabels = {
+      'installation': 'Installation',
+      'maintenance': 'Maintenance',
+      'repair': 'Repair',
+      'inspection': 'Inspection',
+      'emergency': 'Emergency / Call-out'
+    };
 
-    // Location Information
-    if (visit.latitude && visit.longitude) {
-      doc.text(`Location: ${visit.latitude.toFixed(6)}, ${visit.longitude.toFixed(6)}`, 20, 148);
-      doc.text(`Location Verified: ${visit.verified_location ? 'Yes' : 'No'}`, 20, 155);
-    }
+    const workCategory = visit.work_category + (visit.other_work_category ? ` (${visit.other_work_category})` : '');
 
-    // Visit Notes
-    if (visit.visit_notes) {
-      doc.setFontSize(14);
-      doc.text('Visit Notes', 20, 170);
-      doc.setFontSize(10);
-      const notesLines = doc.splitTextToSize(visit.visit_notes, 170);
-      doc.text(notesLines, 20, 180);
-    }
+    doc.text(`Visit Type: ${visitTypeLabels[visit.visit_type] || visit.visit_type}`, 20, yPos);
+    yPos += 7;
+    
+    doc.text(`Work Category: ${workCategory}`, 20, yPos);
+    yPos += 7;
 
-    // Follow-up Notes
+    const statusLabels = {
+      'completed': 'Completed',
+      'partially_completed': 'Partially Completed',
+      'pending': 'Pending',
+      'follow_up': 'Follow-up Required'
+    };
+
+    doc.text(`Work Status: ${statusLabels[visit.work_status] || visit.work_status}`, 20, yPos);
+    yPos += 7;
+
     if (visit.follow_up_notes) {
-      const yPos = doc.internal.pageSize.height - 60;
-      doc.setFontSize(14);
-      doc.text('Follow-up Required', 20, yPos);
-      doc.setFontSize(10);
-      const followUpLines = doc.splitTextToSize(visit.follow_up_notes, 170);
-      doc.text(followUpLines, 20, yPos + 10);
+      doc.text(`Follow-up Notes: ${visit.follow_up_notes}`, 20, yPos);
+      yPos += 7;
     }
 
-    // Add page for photos if needed
-    if (visit.photos && visit.photos.length > 0) {
-      doc.addPage();
-      doc.setFontSize(14);
-      doc.text('Photos', 20, 20);
-      
-      let yPos = 30;
-      visit.photos.forEach((photo, index) => {
-        if (yPos > 250) {
-          doc.addPage();
-          yPos = 20;
-        }
-        
-        doc.text(`Photo ${index + 1}:`, 20, yPos);
-        
-        // Note: Adding actual images requires more complex handling
-        // For now, we'll just list the photo URLs
-        doc.setFontSize(8);
-        doc.text(photo.substring(0, 100) + '...', 40, yPos);
-        doc.setFontSize(10);
-        
-        yPos += 10;
+    if (visit.visit_notes) {
+      const notesLines = doc.splitTextToSize(visit.visit_notes, pageWidth - 40);
+      doc.text('Visit Notes:', 20, yPos);
+      yPos += 7;
+      notesLines.forEach(line => {
+        doc.text(line, 20, yPos);
+        yPos += 5;
       });
     }
 
-    // Add page for signatures if available
-    if (visit.client_signature || visit.technician_signature) {
-      doc.addPage();
+    yPos += 10; // Section spacing
+
+
+    // ==========================================
+    // 5. TECHNICIAN INFORMATION
+    // ==========================================
+    doc.setFontSize(14);
+    doc.text('Technician Information', 20, yPos);
+    yPos += 10;
+
+    doc.setFontSize(10);
+    
+    if (visit.technician) {
+      doc.text(`Technician: ${visit.technician.first_name} ${visit.technician.last_name}`, 20, yPos);
+      yPos += 7;
+      doc.text(`Email: ${visit.technician.email}`, 20, yPos);
+      yPos += 7;
+    }
+
+    yPos += 10; // Section spacing
+
+
+    // ==========================================
+    // 6. LOCATION INFORMATION
+    // ==========================================
+    if (visit.latitude && visit.longitude) {
       doc.setFontSize(14);
-      doc.text('Signatures', 20, 20);
+      doc.text('Location Information', 20, yPos);
+      yPos += 10;
+
+      doc.setFontSize(10);
+      doc.text(`Coordinates: ${visit.latitude.toFixed(6)}, ${visit.longitude.toFixed(6)}`, 20, yPos);
+      yPos += 7;
+      doc.text(`Location Verified: ${visit.verified_location ? 'Yes' : 'No'}`, 20, yPos);
       
-      if (visit.client_signature) {
-        doc.text('Client Signature:', 20, 40);
-        // Here you would add the actual signature image
-        // doc.addImage(visit.client_signature, 'PNG', 20, 50, 80, 40);
+      yPos += 10;
+    }
+
+
+    // ==========================================
+    // 7. PHOTOS SECTION (Embedding Images)
+    // ==========================================
+    if (photoDataUrls.length > 0) {
+      // Check if we need a new page
+      if (yPos > 230) {
+        doc.addPage();
+        yPos = 20;
       }
+
+      doc.setFontSize(14);
+      doc.text('Photos', 20, yPos);
+      yPos += 10;
+
+      // Loop through images and embed them
+      const maxImageWidth = 160; // Max width for images in PDF
+      const imageHeight = 120; // Fixed height for consistency
+
+      photoDataUrls.forEach((imgData, index) => {
+        // Check for new page
+        if (yPos > 230) {
+          doc.addPage();
+          yPos = 20;
+        }
+
+        // Embed the image
+        // If imgData is null (fetch failed), skip or show placeholder
+        if (imgData) {
+          try {
+            doc.addImage(imgData, 'JPEG', 20, yPos, maxImageWidth, imageHeight);
+            yPos += imageHeight + 10; // Image height + spacing
+          } catch (err) {
+            console.warn('Failed to add image to PDF', err);
+            doc.text(`[Photo ${index + 1} could not be loaded]`, 20, yPos);
+            yPos += 20;
+          }
+        } else {
+          doc.text(`[Photo ${index + 1} missing]`, 20, yPos);
+          yPos += 20;
+        }
+      });
       
-      if (visit.technician_signature) {
-        doc.text('Technician Signature:', 20, 120);
-        // doc.addImage(visit.technician_signature, 'PNG', 20, 130, 80, 40);
+      yPos += 10; // Section spacing after photos
+    }
+
+
+    // ==========================================
+    // 8. SIGNATURES SECTION (Embedding Images)
+    // ==========================================
+    if (clientSignatureData || technicianSignatureData) {
+      // Check for new page
+      if (yPos > 230) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFontSize(14);
+      doc.text('Signatures', 20, yPos);
+      yPos += 10;
+
+      // Client Signature
+      if (clientSignatureData) {
+        doc.setFontSize(10);
+        doc.text('Client Signature:', 20, yPos);
+        yPos += 7;
+        
+        try {
+          // Embed base64 signature image
+          doc.addImage(clientSignatureData, 'PNG', 20, yPos, 100, 60);
+          yPos += 70; // Fixed height for signature area
+        } catch (e) {
+          doc.text('[Client signature could not be embedded]', 20, yPos);
+          yPos += 70;
+        }
+      }
+
+      // Technician Signature
+      if (technicianSignatureData) {
+        doc.setFontSize(10);
+        doc.text('Technician Signature:', 20, yPos);
+        yPos += 7;
+
+        try {
+          // Embed base64 signature image
+          doc.addImage(technicianSignatureData, 'PNG', 20, yPos, 100, 60);
+          yPos += 70;
+        } catch (e) {
+          doc.text('[Technician signature could not be embedded]', 20, yPos);
+          yPos += 70;
+        }
       }
     }
 
-    // Save the PDF
-    const fileName = `Service_Visit_${visit.companies.name.replace(/\s+/g, '_')}_${new Date(visit.created_at).toISOString().split('T')[0]}.pdf`;
+
+    // ==========================================
+    // 9. SAVE PDF
+    // ==========================================
+    const fileName = `Service_Visit_${companyName.replace(/\s+/g, '_')}_${new Date(visit.created_at).toISOString().split('T')[0]}.pdf`;
+    
     doc.save(fileName);
     
-    showToast('PDF generated successfully', 'success');
+    showToast('PDF generated successfully with photos!', 'success');
+
   } catch (error) {
     console.error('Error generating PDF:', error);
-    showToast('Failed to generate PDF: ' + error.message, 'error');
+    // Specific toast for the null error to help user identify it
+    if (error.message && error.message.includes('reading')) {
+        showToast('PDF Error: Missing Company Data. Please ensure the visit has a valid company.', 'error');
+    } else {
+        showToast('Failed to generate PDF: ' + error.message, 'error');
+    }
   }
 }
 
