@@ -2660,9 +2660,9 @@ async function renderOpportunityPipelineView() {
 
   // Initialize drag and drop with a small delay to ensure DOM is ready
   setTimeout(() => {
-    initPipelineDragAndDrop();
+    initPipelineDragAndDrop(opportunities);
     initOpportunityEventListeners(opportunities);
-    initPipelineFilters();
+    initPipelineFilters(opportunities);
   }, 100);
 }
 
@@ -2740,7 +2740,7 @@ function initOpportunityEventListeners(opportunities) {
 }
 
 
-function initPipelineDragAndDrop() {
+function initPipelineDragAndDrop(opportunities) {
   const opportunityLists = document.querySelectorAll('.opportunity-list');
 
   if (typeof Sortable === 'undefined') {
@@ -2780,6 +2780,23 @@ function initPipelineDragAndDrop() {
               .eq('id', opportunityId);
 
             if (error) throw error;
+
+            // Update local state so that subsequent edits reflect the new stage
+            const opportunity = opportunities.find(opp => opp.id === opportunityId);
+            if (opportunity) {
+              opportunity.stage = newStage;
+
+              // Map old stage values to new ones for the mappedStage property
+              const stageMapping = {
+                'prospecting': 'prospecting',
+                'qualification': 'qualification',
+                'proposal': 'qualification',
+                'negotiation': 'qualification',
+                'closed-won': 'closed-won',
+                'closed-lost': 'closed-lost'
+              };
+              opportunity.mappedStage = stageMapping[newStage] || newStage;
+            }
 
             showToast('Opportunity moved successfully', 'success');
 
@@ -2868,79 +2885,7 @@ function updatePipelineSummary() {
   }
 }
 
-function initOpportunityEventListeners(opportunities) {
-  // Add opportunity button
-  document.getElementById('add-opportunity-btn')?.addEventListener('click', () => {
-    openOpportunityModal();
-  });
-
-  // Edit opportunity buttons
-  document.querySelectorAll('.edit-opportunity').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const opportunityId = btn.dataset.id;
-      const opportunity = opportunities.find(opp => opp.id === opportunityId);
-      if (opportunity) {
-        openOpportunityModal(opportunity);
-      }
-    });
-  });
-
-  // View opportunity buttons (for managers viewing others' opportunities)
-  document.querySelectorAll('.view-opportunity').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const opportunityId = btn.dataset.id;
-      const opportunity = opportunities.find(opp => opp.id === opportunityId);
-      if (opportunity) {
-        const isOwnOpportunity = !isManager || opportunity.user_id === currentUser.id;
-        openOpportunityModal(opportunity, !isOwnOpportunity); // read-only if not own opportunity
-      }
-    });
-  });
-
-  // Delete opportunity buttons
-  document.querySelectorAll('.delete-opportunity').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      const opportunityId = btn.dataset.id;
-
-      const confirmed = await showConfirmDialog(
-        'Delete Opportunity',
-        'Are you sure you want to delete this opportunity?'
-      );
-
-      if (!confirmed) return;
-
-      const { error } = await supabaseClient
-        .from('opportunities')
-        .delete()
-        .eq('id', opportunityId);
-
-      if (error) {
-        showToast('Error deleting opportunity: ' + error.message, 'error');
-        return;
-      }
-
-      showToast('Opportunity deleted successfully', 'success');
-      renderOpportunityPipelineView();
-    });
-  });
-
-  // Click on opportunity card to view details
-  document.querySelectorAll('.opportunity-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const opportunityId = card.dataset.id;
-      const opportunity = opportunities.find(opp => opp.id === opportunityId);
-      if (opportunity) {
-        const isOwnOpportunity = !isManager || opportunity.user_id === currentUser.id;
-        openOpportunityModal(opportunity, !isOwnOpportunity); // read-only if not own opportunity
-      }
-    });
-  });
-}
-
-function initPipelineFilters() {
+function initPipelineFilters(opportunities) {
   const filterButtons = document.querySelectorAll('.pipeline-filter');
 
   filterButtons.forEach(btn => {
@@ -2959,7 +2904,7 @@ function initPipelineFilters() {
           // Only show opportunities of sales reps (not managers)
           const userId = card.dataset.userId;
           const opportunity = opportunities.find(opp => opp.id === card.dataset.id);
-          show = opportunity && opportunity.user && opportunity.user.role === 'sales_rep';
+          show = opportunity && opportunity.profiles && opportunity.profiles.role === 'sales_rep';
         } else if (filter === 'high-value') {
           const valueText = card.querySelector('.opportunity-value').textContent;
           const value = parseCurrencyValue(valueText);
