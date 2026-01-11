@@ -810,7 +810,10 @@ function initCompanyModalListeners(company) {
 
   // Geocode button (Updated to use OpenStreetMap Nominatim)
   if (geocodeBtn) {
-    geocodeBtn.addEventListener('click', async () => {
+    const newGeocodeBtn = geocodeBtn.cloneNode(true);
+    geocodeBtn.parentNode.replaceChild(newGeocodeBtn, geocodeBtn);
+
+    newGeocodeBtn.addEventListener('click', async () => {
       const addressInput = document.getElementById('company-address');
       const address = addressInput.value.trim();
 
@@ -820,8 +823,8 @@ function initCompanyModalListeners(company) {
       }
 
       // Set loading state
-      geocodeBtn.disabled = true;
-      geocodeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Geocoding...';
+      newGeocodeBtn.disabled = true;
+      newGeocodeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Geocoding...';
 
       try {
         // CALL THE NEW NOMINATIM FUNCTION
@@ -844,8 +847,8 @@ function initCompanyModalListeners(company) {
         showToast(error.message, 'error');
       } finally {
         // Restore button state
-        geocodeBtn.disabled = false;
-        geocodeBtn.innerHTML = `
+        newGeocodeBtn.disabled = false;
+        newGeocodeBtn.innerHTML = `
           Search Address
         `;
       }
@@ -854,10 +857,13 @@ function initCompanyModalListeners(company) {
 
   // Use current location button
   if (useCurrentLocationBtn) {
-    useCurrentLocationBtn.addEventListener('click', () => {
+    const newUseLocationBtn = useCurrentLocationBtn.cloneNode(true);
+    useCurrentLocationBtn.parentNode.replaceChild(newUseLocationBtn, useCurrentLocationBtn);
+
+    newUseLocationBtn.addEventListener('click', () => {
       if (navigator.geolocation) {
-        useCurrentLocationBtn.disabled = true;
-        useCurrentLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting location...';
+        newUseLocationBtn.disabled = true;
+        newUseLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting location...';
 
         navigator.geolocation.getCurrentPosition(
           (position) => {
@@ -880,8 +886,8 @@ function initCompanyModalListeners(company) {
         showToast('Geolocation not supported', 'error');
       }
 
-      useCurrentLocationBtn.disabled = false;
-      useCurrentLocationBtn.innerHTML = 'Use Current Location';
+      newUseLocationBtn.disabled = false;
+      newUseLocationBtn.innerHTML = 'Use Current Location';
     });
   }
 
@@ -1462,11 +1468,15 @@ function openPersonModal(person = null) {
 
 function initPersonModalListeners(person) {
   // Add phone number button
-  document.addEventListener('click', (e) => {
-    if (e.target.closest('.add-phone-btn')) {
+  const addPhoneBtn = document.querySelector('.add-phone-btn');
+  if (addPhoneBtn) {
+    const newAddPhoneBtn = addPhoneBtn.cloneNode(true);
+    addPhoneBtn.parentNode.replaceChild(newAddPhoneBtn, addPhoneBtn);
+    newAddPhoneBtn.addEventListener('click', (e) => {
+      e.preventDefault();
       addPhoneNumber();
-    }
-  });
+    });
+  }
 
   // Save person
   const saveBtn = document.getElementById('save-person-btn');
@@ -3058,15 +3068,22 @@ function initOpportunityModalListeners(opportunity) {
   const probabilitySlider = document.getElementById('opportunity-probability');
   const probabilityDisplay = document.getElementById('probability-display');
 
-  probabilitySlider.addEventListener('input', () => {
-    probabilityDisplay.textContent = probabilitySlider.value;
-  });
+  if (probabilitySlider) {
+    const newSlider = probabilitySlider.cloneNode(true);
+    probabilitySlider.parentNode.replaceChild(newSlider, probabilitySlider);
+    newSlider.addEventListener('input', () => {
+      probabilityDisplay.textContent = newSlider.value;
+    });
+  }
 
   // Company search
   const companyInput = document.getElementById('opportunity-company');
   const companySearchResults = document.getElementById('opportunity-company-search-results');
 
-  companyInput.addEventListener('input', async (e) => {
+  const newCompanyInput = companyInput.cloneNode(true);
+  companyInput.parentNode.replaceChild(newCompanyInput, companyInput);
+
+  newCompanyInput.addEventListener('input', async (e) => {
     const query = e.target.value.toLowerCase().trim();
 
     if (query.length === 0) {
@@ -3074,28 +3091,32 @@ function initOpportunityModalListeners(opportunity) {
       return;
     }
 
-    // Fetch companies for company search
-    const { data: companies } = await supabaseClient
-      .from('companies')
-      .select('*')
-      .ilike('name', `%${query}%`)
-      .limit(5);
+    // Use a small delay for search
+    clearTimeout(companyInput.searchTimeout);
+    companyInput.searchTimeout = setTimeout(async () => {
+      // Fetch companies for company search
+      const { data: companies } = await supabaseClient
+        .from('companies')
+        .select('*')
+        .ilike('name', `%${query}%`)
+        .limit(5);
 
-    if (companies.length === 0) {
-      companySearchResults.innerHTML = '<div class="search-result-item">No companies found</div>';
-    } else {
-      companySearchResults.innerHTML = companies.map(company => `
-        <div class="search-result-item" onclick="selectOpportunityCompany('${company.name}')">
-          <div class="search-result-icon"></div>
-          <div>
-            <div class="search-result-name">${company.name}</div>
-            <div class="search-result-role">${company.description || 'No description'}</div>
+      if (companies.length === 0) {
+        companySearchResults.innerHTML = '<div class="search-result-item">No companies found</div>';
+      } else {
+        companySearchResults.innerHTML = companies.map(company => `
+          <div class="search-result-item" onclick="selectOpportunityCompany('${company.name}')">
+            <div class="search-result-icon"></div>
+            <div>
+              <div class="search-result-name">${company.name}</div>
+              <div class="search-result-role">${company.description || 'No description'}</div>
+            </div>
           </div>
-        </div>
-      `).join('');
-    }
+        `).join('');
+      }
 
-    companySearchResults.style.display = 'block';
+      companySearchResults.style.display = 'block';
+    }, 300);
   });
 
   // Initialize mention system for notes
@@ -3109,13 +3130,14 @@ function initOpportunityModalListeners(opportunity) {
   let lastMentionStartIndex = -1;
 
   // Input event - detect @ and show suggestions
-  notesEl.addEventListener('input', (e) => {
-    const text = notesEl.value;
-    const cursorPos = notesEl.selectionStart;
+  const newNotesEl = notesEl.cloneNode(true);
+  notesEl.parentNode.replaceChild(newNotesEl, notesEl);
+
+  newNotesEl.addEventListener('input', (e) => {
+    const text = newNotesEl.value;
+    const cursorPos = newNotesEl.selectionStart;
     const beforeCursor = text.substring(0, cursorPos);
     const mentionMatch = beforeCursor.match(/@([^@\s]*)$/);
-
-
 
     if (mentionMatch) {
       mentionStartIndex = cursorPos - mentionMatch[0].length;
@@ -3130,7 +3152,7 @@ function initOpportunityModalListeners(opportunity) {
   });
 
   // Keyboard navigation for suggestions
-  notesEl.addEventListener('keydown', (e) => {
+  newNotesEl.addEventListener('keydown', (e) => {
     if (mentionSuggestionsContainer.style.display === 'none') return;
 
     const items = Array.from(mentionSuggestionsContainer.querySelectorAll('.mention-suggestion'));
