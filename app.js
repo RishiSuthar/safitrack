@@ -46,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initTheme() {
-  const savedTheme = localStorage.getItem('theme') || 
+  const savedTheme = localStorage.getItem('theme') ||
     (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   document.documentElement.setAttribute('data-theme', savedTheme);
   updateThemeIcon(savedTheme);
@@ -206,7 +206,7 @@ async function initApp() {
 
   isManager = profile.role === 'manager';
   isTechnician = profile.role === 'technician';
-  
+
   // Update UI based on role
   updateUserDisplay(profile);
   updateNavigationForRole();
@@ -215,7 +215,7 @@ async function initApp() {
   await loadAllPeople();
 
   const savedView = localStorage.getItem('lastActiveView');
-  
+
   // Define the default based on role
   let defaultView;
   if (isManager) {
@@ -225,10 +225,10 @@ async function initApp() {
   } else {
     defaultView = 'log-visit';
   }
-  
+
   // If we have a saved view (and it's not the auth screen), use it. Otherwise use default.
   const viewToLoad = (savedView && savedView !== 'auth-screen') ? savedView : defaultView;
-  
+
   // Load the determined view
   await loadView(viewToLoad);
 }
@@ -287,7 +287,7 @@ function updateNavigationForRole() {
       el.style.display = 'none';
     });
     // Hide views that technicians should not access
-    ['sales-funnel','opportunity-pipeline','companies','people','user-management'].forEach(view => {
+    ['sales-funnel', 'opportunity-pipeline', 'companies', 'people', 'user-management'].forEach(view => {
       document.querySelectorAll(`.sidebar-nav [data-view="${view}"]`).forEach(el => el.style.display = 'none');
     });
     // Hide manager navigation
@@ -339,7 +339,7 @@ async function loadView(viewName) {
   updateActiveNav(viewName);
 
   // Prevent technicians from accessing certain views
-  const blockedForTechnician = ['sales-funnel','opportunity-pipeline','companies','people','user-management'];
+  const blockedForTechnician = ['sales-funnel', 'opportunity-pipeline', 'companies', 'people', 'user-management'];
   if (isTechnician && blockedForTechnician.includes(viewName)) {
     showToast('You do not have permission to access this view', 'error');
     return;
@@ -453,12 +453,12 @@ async function renderCompaniesView() {
 
   // Store for global access
   window.allCompaniesData = companies;
-  
+
   // Initial pagination state
   let currentPage = 1;
   const recordsPerPage = 10; // Number of records per page
   let searchQuery = ''; // Separate search state
-  
+
   // Function to render the companies table
   function renderCompaniesTable(companiesToRender, paginationInfo) {
     let html = `
@@ -517,7 +517,7 @@ async function renderCompaniesView() {
       companiesToRender.forEach((company, index) => {
         const categories = company.company_categories.map(c => c.categories.name).join(', ');
         const actualRowNumber = (paginationInfo.currentPage - 1) * paginationInfo.recordsPerPage + index + 1;
-        
+
         html += `
           <tr data-id="${company.id}" data-name="${company.name.toLowerCase()}" data-description="${(company.description || '').toLowerCase()}">
             <td>${actualRowNumber}</td>
@@ -556,13 +556,13 @@ async function renderCompaniesView() {
     `;
 
     viewContainer.innerHTML = html;
-    
+
     // Restore search value after rendering
     const searchInput = document.getElementById('companies-search');
     if (searchInput && searchInput.value !== searchQuery) {
       searchInput.value = searchQuery;
     }
-    
+
     // Create pagination controls
     createPaginationControls(
       paginationInfo.currentPage,
@@ -577,18 +577,18 @@ async function renderCompaniesView() {
           searchQuery,
           currentPage,
           recordsPerPage,
-          (company, query) => 
-            company.name.toLowerCase().includes(query) || 
+          (company, query) =>
+            company.name.toLowerCase().includes(query) ||
             (company.description && company.description.toLowerCase().includes(query))
         );
         renderCompaniesTable(result.data, result);
       }
     );
-    
+
     // Initialize event listeners
     initializeCompaniesEventListeners();
   }
-  
+
   // Separate function to initialize event listeners
   function initializeCompaniesEventListeners() {
 
@@ -597,15 +597,15 @@ async function renderCompaniesView() {
       // Remove any existing listeners by cloning and replacing
       const newSearchInput = searchInput.cloneNode(true);
       searchInput.parentNode.replaceChild(newSearchInput, searchInput);
-      
+
       // Add new listener
       newSearchInput.addEventListener('input', (e) => {
         // Store the current cursor position
         const cursorPosition = e.target.selectionStart;
         const searchValue = e.target.value;
-        
+
         searchQuery = searchValue;
-        
+
         // Use a small delay to avoid too many rapid searches
         clearTimeout(newSearchInput.searchTimeout);
         newSearchInput.searchTimeout = setTimeout(() => {
@@ -615,17 +615,17 @@ async function renderCompaniesView() {
             searchQuery,
             currentPage,
             recordsPerPage,
-            (company, query) => 
-              company.name.toLowerCase().includes(query) || 
+            (company, query) =>
+              company.name.toLowerCase().includes(query) ||
               (company.description && company.description.toLowerCase().includes(query))
           );
-          
+
           // Store the active element and cursor position before re-rendering
           const activeElement = document.activeElement;
           const wasSearchInput = activeElement && activeElement.id === 'companies-search';
-          
+
           renderCompaniesTable(result.data, result);
-          
+
           // Restore focus and cursor position to the search input if it was the active element
           if (wasSearchInput) {
             setTimeout(() => {
@@ -660,40 +660,40 @@ async function renderCompaniesView() {
         e.stopPropagation();
         const companyId = btn.dataset.id;
         const company = window.allCompaniesData.find(c => c.id === companyId);
-        
+
         const confirmed = await showConfirmDialog(
           'Delete Company',
           `Are you sure you want to delete ${company.name}?`
         );
 
         if (!confirmed) return;
-        
+
         const { error } = await supabaseClient
           .from('companies')
           .delete()
           .eq('id', companyId);
-        
+
         if (error) {
           showToast('Error deleting company: ' + error.message, 'error');
           return;
         }
-        
+
         // Remove from local data and refresh
         window.allCompaniesData = window.allCompaniesData.filter(c => c.id !== companyId);
-        
+
         showToast('Company deleted successfully', 'success');
-        
+
         // Re-render with current page
         const result = searchAndPaginate(
           window.allCompaniesData,
           searchQuery,
           currentPage,
           recordsPerPage,
-          (company, query) => 
-            company.name.toLowerCase().includes(query) || 
+          (company, query) =>
+            company.name.toLowerCase().includes(query) ||
             (company.description && company.description.toLowerCase().includes(query))
         );
-        
+
         // Adjust current page if necessary
         if (result.data.length === 0 && result.currentPage > 1) {
           currentPage--;
@@ -702,8 +702,8 @@ async function renderCompaniesView() {
             searchQuery,
             currentPage,
             recordsPerPage,
-            (company, query) => 
-              company.name.toLowerCase().includes(query) || 
+            (company, query) =>
+              company.name.toLowerCase().includes(query) ||
               (company.description && company.description.toLowerCase().includes(query))
           );
           renderCompaniesTable(adjustedResult.data, adjustedResult);
@@ -713,7 +713,7 @@ async function renderCompaniesView() {
       });
     });
   }
-  
+
   // Initial render
   const initialResult = searchAndPaginate(
     window.allCompaniesData,
@@ -732,7 +732,7 @@ function openCompanyModal(company = null) {
   const modal = document.getElementById('company-modal');
   const modalTitle = document.getElementById('company-modal-title');
   const saveBtn = document.getElementById('save-company-btn');
-  
+
   // Reset form
   document.getElementById('company-name-input').value = '';
   document.getElementById('company-description').value = '';
@@ -740,15 +740,15 @@ function openCompanyModal(company = null) {
   document.getElementById('company-latitude').value = '';
   document.getElementById('company-longitude').value = '';
   document.getElementById('company-radius').value = '200';
-  
+
   // Clear categories
   document.getElementById('categories-container').innerHTML = '<input type="text" class="categories-input" id="categories-input" placeholder="Add category...">';
   companyCategories = [];
-  
+
   // Set modal title and show manual coordinates section
   if (company) {
     modalTitle.innerHTML = 'Edit Company';
-    
+
     // Fill form with company data
     document.getElementById('company-name-input').value = company.name || '';
     document.getElementById('company-description').value = company.description || '';
@@ -756,17 +756,17 @@ function openCompanyModal(company = null) {
     document.getElementById('company-latitude').value = company.latitude?.toString() || '';
     document.getElementById('company-longitude').value = company.longitude?.toString() || '';
     document.getElementById('company-radius').value = company.radius?.toString() || '200';
-    
+
     // Show manual coordinates section
     document.getElementById('manual-coords-section').style.display = 'block';
-    
+
     // Fill categories
     if (company.company_categories && company.company_categories.length > 0) {
       company.company_categories.forEach(c => {
         addCategory(c.categories.name);
       });
     }
-    
+
     // Show/hide geocode button based on whether coordinates exist
     const geocodeBtn = document.getElementById('geocode-address-btn');
     if (company.latitude && company.longitude) {
@@ -782,10 +782,10 @@ function openCompanyModal(company = null) {
     const geocodeBtn = document.getElementById('geocode-address-btn');
     if (geocodeBtn) geocodeBtn.style.display = 'block';
   }
-  
+
   // Show modal
   modal.style.display = 'flex';
-  
+
   // Initialize event listeners
   initCompanyModalListeners(company);
 }
@@ -794,11 +794,11 @@ function openCompanyModal(company = null) {
 function initCompanyModalListeners(company) {
   const categoriesInput = document.getElementById('categories-input');
   const saveBtn = document.getElementById('save-company-btn');
-  
+
   // Get buttons after they exist in the DOM
   const geocodeBtn = document.getElementById('geocode-address-btn');
   const useCurrentLocationBtn = document.getElementById('use-current-location-btn');
-  
+
   // Categories input
   categoriesInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && categoriesInput.value.trim()) {
@@ -807,39 +807,39 @@ function initCompanyModalListeners(company) {
       categoriesInput.value = '';
     }
   });
-  
+
   // Geocode button (Updated to use OpenStreetMap Nominatim)
   if (geocodeBtn) {
     geocodeBtn.addEventListener('click', async () => {
       const addressInput = document.getElementById('company-address');
       const address = addressInput.value.trim();
-      
+
       if (!address) {
         showToast('Please enter an address to geocode', 'error');
         return;
       }
-      
+
       // Set loading state
       geocodeBtn.disabled = true;
       geocodeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Geocoding...';
-      
+
       try {
         // CALL THE NEW NOMINATIM FUNCTION
         const geo = await geocodeAddressWithOSM(address);
-        
+
         // Update coordinates fields
         document.getElementById('company-latitude').value = geo.latitude.toFixed(6);
         document.getElementById('company-longitude').value = geo.longitude.toFixed(6);
         document.getElementById('company-radius').value = '200';
-        
+
         // Hide manual coordinate input section
         const manualCoordsSection = document.getElementById('manual-coords-section');
         if (manualCoordsSection) {
           manualCoordsSection.classList.add('hidden');
         }
-        
+
         showToast(`Address found: ${geo.displayName}`, 'success');
-        
+
       } catch (error) {
         showToast(error.message, 'error');
       } finally {
@@ -851,24 +851,24 @@ function initCompanyModalListeners(company) {
       }
     });
   }
-  
+
   // Use current location button
   if (useCurrentLocationBtn) {
     useCurrentLocationBtn.addEventListener('click', () => {
       if (navigator.geolocation) {
         useCurrentLocationBtn.disabled = true;
         useCurrentLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting location...';
-        
+
         navigator.geolocation.getCurrentPosition(
           (position) => {
             const { latitude, longitude } = position.coords;
             document.getElementById('company-latitude').value = latitude.toFixed(6);
             document.getElementById('company-longitude').value = longitude.toFixed(6);
             document.getElementById('company-radius').value = '200';
-            
+
             // Hide manual section
             document.getElementById('manual-coords-section').classList.add('hidden');
-            
+
             showToast('Current location set successfully', 'success');
           },
           (error) => {
@@ -879,12 +879,12 @@ function initCompanyModalListeners(company) {
       } else {
         showToast('Geolocation not supported', 'error');
       }
-      
+
       useCurrentLocationBtn.disabled = false;
       useCurrentLocationBtn.innerHTML = 'Use Current Location';
     });
   }
-  
+
   // Save company
   // In initCompanyModalListeners function, update the save button handler:
   saveBtn.onclick = async () => {
@@ -894,16 +894,16 @@ function initCompanyModalListeners(company) {
     const latitude = parseFloat(document.getElementById('company-latitude').value);
     const longitude = parseFloat(document.getElementById('company-longitude').value);
     const radius = parseInt(document.getElementById('company-radius').value);
-    
+
     // Validate
     if (!name || !address || (!latitude && !longitude)) {
       showToast('Please enter company name, address, and coordinates', 'error');
       return;
     }
-    
+
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-    
+
     try {
       const companyData = {
         name,
@@ -914,10 +914,10 @@ function initCompanyModalListeners(company) {
         radius,
         created_by: currentUser.id
       };
-      
+
       let result;
       let companyId;
-      
+
       if (company) {
         // Update existing company
         result = await supabaseClient
@@ -925,7 +925,7 @@ function initCompanyModalListeners(company) {
           .update(companyData)
           .eq('id', company.id)
           .select(); // Add .select() to return the updated data
-        
+
         if (result.error) throw result.error;
         companyId = company.id;
 
@@ -940,19 +940,19 @@ function initCompanyModalListeners(company) {
           .from('companies')
           .insert([companyData])
           .select(); // Add .select() to return the inserted data
-        
+
         if (result.error) throw result.error;
-        
+
         // Check if result.data exists and has elements before accessing
         if (!result.data || result.data.length === 0) {
           throw new Error('Company was created but no data was returned');
         }
-        
+
         companyId = result.data[0].id;
         window.allCompaniesData.push(result.data[0]);
 
       }
-      
+
       // Handle categories - ONLY if there are categories to process
       if (companyCategories && companyCategories.length > 0) {
         // Delete existing categories ONLY if editing an existing company
@@ -962,7 +962,7 @@ function initCompanyModalListeners(company) {
             .delete()
             .eq('company_id', companyId);
         }
-        
+
         // Add categories
         for (const categoryName of companyCategories) {
           // First, ensure all categories exist
@@ -971,11 +971,11 @@ function initCompanyModalListeners(company) {
             .select('id')
             .eq('name', categoryName)
             .single();
-          
+
           if (categoryError && categoryError.code !== 'PGRST116') { // Not found error
             throw categoryError;
           }
-          
+
           let categoryId;
           if (existingCategory) {
             categoryId = existingCategory.id;
@@ -985,17 +985,17 @@ function initCompanyModalListeners(company) {
               .from('categories')
               .insert([{ name: categoryName }])
               .select();
-            
+
             if (insertError) throw insertError;
-            
+
             // Check if newCategory exists and has elements before accessing
             if (!newCategory || newCategory.length === 0) {
               throw new Error('Category was created but no data was returned');
             }
-            
+
             categoryId = newCategory[0].id;
           }
-          
+
           // Link category to company
           const { error: linkError } = await supabaseClient
             .from('company_categories')
@@ -1003,11 +1003,11 @@ function initCompanyModalListeners(company) {
               company_id: companyId,
               category_id: categoryId
             }]);
-          
+
           if (linkError) throw linkError;
         }
       }
-      
+
       showToast(`Company ${company ? 'updated' : 'created'} successfully!`, 'success');
       closeModal('company-modal');
       renderCompaniesView();
@@ -1101,12 +1101,12 @@ async function renderPeopleView() {
   window.allPeopleData = people;
   window.companiesData = companies;
   window.opportunitiesData = opportunities;
-  
+
   // Initial pagination state
   let currentPage = 1;
   const recordsPerPage = 10; // Number of records per page
   let searchQuery = ''; // Separate search state
-  
+
   // Function to render the people table
   function renderPeopleTable(peopleToRender, paginationInfo) {
     let html = `
@@ -1163,11 +1163,11 @@ async function renderPeopleView() {
       peopleToRender.forEach((person, index) => {
         const companyName = person.company ? person.company.name : 'No company';
         const opportunityName = person.opportunity ? person.opportunity.name : '';
-        const phoneNumbers = person.phone_numbers && person.phone_numbers.length > 0 
-          ? person.phone_numbers.join(', ') 
+        const phoneNumbers = person.phone_numbers && person.phone_numbers.length > 0
+          ? person.phone_numbers.join(', ')
           : 'N/A';
         const actualRowNumber = (paginationInfo.currentPage - 1) * paginationInfo.recordsPerPage + index + 1;
-        
+
         html += `
           <tr data-id="${person.id}" 
               data-name="${person.name.toLowerCase()}" 
@@ -1209,13 +1209,13 @@ async function renderPeopleView() {
     `;
 
     viewContainer.innerHTML = html;
-    
+
     // Restore search value after rendering
     const searchInput = document.getElementById('people-search');
     if (searchInput && searchInput.value !== searchQuery) {
       searchInput.value = searchQuery;
     }
-    
+
     // Create pagination controls
     createPaginationControls(
       paginationInfo.currentPage,
@@ -1230,8 +1230,8 @@ async function renderPeopleView() {
           searchQuery,
           currentPage,
           recordsPerPage,
-          (person, query) => 
-            person.name.toLowerCase().includes(query) || 
+          (person, query) =>
+            person.name.toLowerCase().includes(query) ||
             (person.email && person.email.toLowerCase().includes(query)) ||
             (person.company && person.company.name && person.company.name.toLowerCase().includes(query)) ||
             (person.job_title && person.job_title.toLowerCase().includes(query))
@@ -1239,11 +1239,11 @@ async function renderPeopleView() {
         renderPeopleTable(result.data, result);
       }
     );
-    
+
     // Initialize event listeners
     initializePeopleEventListeners();
   }
-  
+
   // Separate function to initialize event listeners
   function initializePeopleEventListeners() {
     const searchInput = document.getElementById('people-search');
@@ -1251,15 +1251,15 @@ async function renderPeopleView() {
       // Remove any existing listeners by cloning and replacing
       const newSearchInput = searchInput.cloneNode(true);
       searchInput.parentNode.replaceChild(newSearchInput, searchInput);
-      
+
       // Add new listener
       newSearchInput.addEventListener('input', (e) => {
         // Store the current cursor position
         const cursorPosition = e.target.selectionStart;
         const searchValue = e.target.value;
-        
+
         searchQuery = searchValue;
-        
+
         // Use a small delay to avoid too many rapid searches
         clearTimeout(newSearchInput.searchTimeout);
         newSearchInput.searchTimeout = setTimeout(() => {
@@ -1269,19 +1269,19 @@ async function renderPeopleView() {
             searchQuery,
             currentPage,
             recordsPerPage,
-            (person, query) => 
-              person.name.toLowerCase().includes(query) || 
+            (person, query) =>
+              person.name.toLowerCase().includes(query) ||
               (person.email && person.email.toLowerCase().includes(query)) ||
               (person.company && person.company.name && person.company.name.toLowerCase().includes(query)) ||
               (person.job_title && person.job_title.toLowerCase().includes(query))
           );
-          
+
           // Store the active element and cursor position before re-rendering
           const activeElement = document.activeElement;
           const wasSearchInput = activeElement && activeElement.id === 'people-search';
-          
+
           renderPeopleTable(result.data, result);
-          
+
           // Restore focus and cursor position to the search input if it was the active element
           if (wasSearchInput) {
             setTimeout(() => {
@@ -1317,42 +1317,42 @@ async function renderPeopleView() {
         e.stopPropagation();
         const personId = btn.dataset.id;
         const person = window.allPeopleData.find(p => p.id === personId);
-        
+
         const confirmed = await showConfirmDialog(
           'Delete Person',
           `Are you sure you want to delete ${person.name}?`
         );
 
         if (!confirmed) return;
-        
+
         const { error } = await supabaseClient
           .from('people')
           .delete()
           .eq('id', personId);
-        
+
         if (error) {
           showToast('Error deleting person: ' + error.message, 'error');
           return;
         }
-        
+
         // Remove from local data and refresh
         window.allPeopleData = window.allPeopleData.filter(p => p.id !== personId);
-        
+
         showToast('Person deleted successfully', 'success');
-        
+
         // Re-render with current page
         const result = searchAndPaginate(
           window.allPeopleData,
           searchQuery,
           currentPage,
           recordsPerPage,
-          (person, query) => 
-            person.name.toLowerCase().includes(query) || 
+          (person, query) =>
+            person.name.toLowerCase().includes(query) ||
             (person.email && person.email.toLowerCase().includes(query)) ||
             (person.company && person.company.name && person.company.name.toLowerCase().includes(query)) ||
             (person.job_title && person.job_title.toLowerCase().includes(query))
         );
-        
+
         // Adjust current page if necessary
         if (result.data.length === 0 && result.currentPage > 1) {
           currentPage--;
@@ -1361,8 +1361,8 @@ async function renderPeopleView() {
             searchQuery,
             currentPage,
             recordsPerPage,
-            (person, query) => 
-              person.name.toLowerCase().includes(query) || 
+            (person, query) =>
+              person.name.toLowerCase().includes(query) ||
               (person.email && person.email.toLowerCase().includes(query)) ||
               (person.company && person.company.name && person.company.name.toLowerCase().includes(query)) ||
               (person.job_title && person.job_title.toLowerCase().includes(query))
@@ -1374,7 +1374,7 @@ async function renderPeopleView() {
       });
     });
   }
-  
+
   // Initial render
   const initialResult = searchAndPaginate(
     window.allPeopleData,
@@ -1394,12 +1394,12 @@ function openPersonModal(person = null) {
   const saveBtn = document.getElementById('save-person-btn');
   const companySelect = document.getElementById('person-company');
   const opportunitySelect = document.getElementById('person-opportunity');
-  
+
   // Reset form
   document.getElementById('person-name').value = '';
   document.getElementById('person-email').value = '';
   document.getElementById('person-job-title').value = '';
-  
+
   // Clear phone numbers
   document.getElementById('phone-numbers-container').innerHTML = `
     <div class="phone-number-input">
@@ -1410,7 +1410,7 @@ function openPersonModal(person = null) {
     </div>
   `;
   personPhoneNumbers = [];
-  
+
   // Populate company dropdown using global data
   if (window.companiesData) {
     companySelect.innerHTML = '<option value="">Select a company</option>';
@@ -1418,7 +1418,7 @@ function openPersonModal(person = null) {
       companySelect.innerHTML += `<option value="${company.id}">${company.name}</option>`;
     });
   }
-  
+
   // Populate opportunity dropdown using global data
   if (window.opportunitiesData) {
     opportunitySelect.innerHTML = '<option value="">Select an opportunity</option>';
@@ -1426,24 +1426,24 @@ function openPersonModal(person = null) {
       opportunitySelect.innerHTML += `<option value="${opportunity.id}">${opportunity.name}</option>`;
     });
   }
-  
+
   // Set modal title
   if (person) {
     modalTitle.innerHTML = 'Edit Person';
-    
+
     // Fill form with person data
     document.getElementById('person-name').value = person.name || '';
     document.getElementById('person-email').value = person.email || '';
     document.getElementById('person-job-title').value = person.job_title || '';
-    
+
     if (person.company_id) {
       companySelect.value = person.company_id;
     }
-    
+
     if (person.opportunity_id) {
       opportunitySelect.value = person.opportunity_id;
     }
-    
+
     // Add phone numbers
     if (person.phone_numbers && person.phone_numbers.length > 0) {
       personPhoneNumbers = [...person.phone_numbers];
@@ -1452,10 +1452,10 @@ function openPersonModal(person = null) {
   } else {
     modalTitle.innerHTML = 'New Person';
   }
-  
+
   // Show modal
   modal.style.display = 'flex';
-  
+
   // Initialize event listeners
   initPersonModalListeners(person);
 }
@@ -1467,32 +1467,32 @@ function initPersonModalListeners(person) {
       addPhoneNumber();
     }
   });
-  
+
   // Save person
   const saveBtn = document.getElementById('save-person-btn');
-  
+
   saveBtn.onclick = async () => {
     const name = document.getElementById('person-name').value.trim();
     const email = document.getElementById('person-email').value.trim();
     const companyId = document.getElementById('person-company').value;
     const jobTitle = document.getElementById('person-job-title').value.trim();
     const opportunityId = document.getElementById('person-opportunity').value;
-    
+
     // Collect phone numbers
     const phoneInputs = document.querySelectorAll('.phone-number');
     const phoneNumbers = Array.from(phoneInputs)
       .map(input => input.value.trim())
       .filter(phone => phone !== '');
-    
+
     // Validate
     if (!name || !companyId) {
       showToast('Please enter a name and select a company', 'error');
       return;
     }
-    
+
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-    
+
     try {
       const personData = {
         name,
@@ -1503,9 +1503,9 @@ function initPersonModalListeners(person) {
         opportunity_id: opportunityId || null,
         created_by: currentUser.id
       };
-      
+
       let result;
-      
+
       if (person) {
         // Update existing person
         result = await supabaseClient
@@ -1529,9 +1529,9 @@ function initPersonModalListeners(person) {
           window.allPeopleData.push(result.data[0]);
         }
       }
-      
+
       if (result.error) throw result.error;
-      
+
       showToast(`Person ${person ? 'updated' : 'created'} successfully!`, 'success');
       closeModal('person-modal');
       renderPeopleView();
@@ -1555,7 +1555,7 @@ function addPhoneNumber() {
     </button>
   `;
   container.appendChild(phoneInput);
-  
+
   // Add event listener to remove button
   phoneInput.querySelector('.remove-phone-btn').addEventListener('click', () => {
     phoneInput.remove();
@@ -1565,7 +1565,7 @@ function addPhoneNumber() {
 function renderPhoneNumbers() {
   const container = document.getElementById('phone-numbers-container');
   container.innerHTML = '';
-  
+
   personPhoneNumbers.forEach(phone => {
     const phoneInput = document.createElement('div');
     phoneInput.className = 'phone-number-input';
@@ -1576,13 +1576,13 @@ function renderPhoneNumbers() {
       </button>
     `;
     container.appendChild(phoneInput);
-    
+
     // Add event listener to remove button
     phoneInput.querySelector('.remove-phone-btn').addEventListener('click', () => {
       phoneInput.remove();
     });
   });
-  
+
   // Add one empty input
   addPhoneNumber();
 }
@@ -1724,7 +1724,7 @@ function initLogVisitForm(companies) {
   // Company search functionality
   companyNameInput.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase().trim();
-    
+
     if (query.length === 0) {
       companySearchResults.style.display = 'none';
       return;
@@ -1760,15 +1760,15 @@ function initLogVisitForm(companies) {
   notesEl.addEventListener('input', (e) => {
     const text = e.target.value;
     const cursorPos = e.target.selectionStart;
-    
+
     // Check if user is typing a mention (@)
     const beforeCursor = text.substring(0, cursorPos);
     const mentionMatch = beforeCursor.match(/@([^@]*)$/);
-    
+
     if (mentionMatch) {
       mentionStartIndex = cursorPos - mentionMatch[0].length;
       currentMentionQuery = mentionMatch[1];
-      
+
       // Show suggestions if query is not empty
       if (currentMentionQuery.length > 0) {
         showMentionSuggestions(currentMentionQuery);
@@ -1787,7 +1787,7 @@ function initLogVisitForm(companies) {
     if (mentionSuggestions.style.display !== 'none') {
       const items = mentionSuggestions.querySelectorAll('.mention-suggestion');
       let activeIndex = -1;
-      
+
       // Find active item
       for (let i = 0; i < items.length; i++) {
         if (items[i].classList.contains('active')) {
@@ -1795,7 +1795,7 @@ function initLogVisitForm(companies) {
           break;
         }
       }
-      
+
       // Handle navigation
       if (e.key === 'ArrowDown') {
         e.preventDefault();
@@ -1836,10 +1836,10 @@ function initLogVisitForm(companies) {
   });
 
   function showMentionSuggestions(query) {
-    const filteredPeople = allPeople.filter(person => 
+    const filteredPeople = allPeople.filter(person =>
       person.name.toLowerCase().includes(query.toLowerCase())
     );
-    
+
     if (filteredPeople.length === 0) {
       mentionSuggestions.innerHTML = '<div class="mention-suggestion">No people found</div>';
     } else {
@@ -1853,7 +1853,7 @@ function initLogVisitForm(companies) {
         </div>
       `).join('');
     }
-    
+
     mentionSuggestions.style.display = 'block';
   }
 
@@ -1867,17 +1867,17 @@ function initLogVisitForm(companies) {
     });
   }
 
-  window.selectMentionedPerson = function(personId) {
+  window.selectMentionedPerson = function (personId) {
     const person = allPeople.find(p => p.id === parseInt(personId));
     if (!person) return;
-    
+
     const text = notesEl.value;
     const beforeMention = text.substring(0, mentionStartIndex);
     const afterMention = text.substring(mentionStartIndex + currentMentionQuery.length + 1);
-    
+
     // Replace with mention format
     notesEl.value = `${beforeMention}@${person.name} (${person.id})${afterMention}`;
-    
+
     // Add to mentioned people array
     if (!mentionedPeople.find(p => p.id === parseInt(personId))) {
       mentionedPeople.push({
@@ -1885,12 +1885,12 @@ function initLogVisitForm(companies) {
         name: person.name
       });
     }
-    
+
     // Reset mention state
     hideMentionSuggestions();
     mentionStartIndex = -1;
     currentMentionQuery = '';
-    
+
     // Update cursor position
     const newCursorPos = beforeMention.length + person.name.length + person.id.toString().length + 4;
     notesEl.focus();
@@ -1921,20 +1921,20 @@ function initLogVisitForm(companies) {
     }
   });
 
-    // Verify location
+  // Verify location
   // In the initLogVisitForm function, update the verifyLocationBtn event listener
   verifyLocationBtn.addEventListener('click', () => {
     if (!window.selectedCompanyData) {
       showToast('Please select a company first', 'error');
       return;
     }
-    
+
     // Validate selected company data
     if (isNaN(window.selectedCompanyData.latitude) || isNaN(window.selectedCompanyData.longitude)) {
       showToast('Invalid company coordinates. Please update company location.', 'error');
       return;
     }
-    
+
     if (!navigator.geolocation) {
       showToast('Geolocation not supported', 'error');
       return;
@@ -1954,12 +1954,12 @@ function initLogVisitForm(companies) {
 
         // Calculate distance with error handling
         const distance = calculateDistance(
-          userLat, 
-          userLng, 
-          window.selectedCompanyData.latitude, 
+          userLat,
+          userLng,
+          window.selectedCompanyData.latitude,
           window.selectedCompanyData.longitude
         );
-        
+
         // Check if distance calculation was successful
         if (isNaN(distance)) {
           locationStatus.className = 'location-status error';
@@ -2005,7 +2005,7 @@ function initLogVisitForm(companies) {
 
   function initVerificationMap(userLat, userLng, company) {
     locationMapEl.style.display = 'block';
-    
+
     if (map) {
       map.remove();
     }
@@ -2062,8 +2062,8 @@ function initLogVisitForm(companies) {
         }
       }
 
-      const aiSummary = typeof generateConciseVisitSummary === 'function' 
-        ? await generateConciseVisitSummary(company, contact, notes) 
+      const aiSummary = typeof generateConciseVisitSummary === 'function'
+        ? await generateConciseVisitSummary(company, contact, notes)
         : null;
       const leadScore = typeof predictLeadScore === 'function'
         ? await predictLeadScore(company, contact, notes, visitType)
@@ -2093,7 +2093,7 @@ function initLogVisitForm(companies) {
       if (error) throw error;
 
       showToast('Visit logged successfully!', 'success');
-      
+
       if (leadScore >= 70 || visitTags.includes('high-value')) {
         triggerConfetti();
       }
@@ -2115,7 +2115,7 @@ async function geocodeAddress(address) {
     // Using Nominatim OpenStreetMap geocoding API
     const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
     const data = await response.json();
-    
+
     if ((data && data.length > 0) && data[0]) {
       const { lat, lon } = data[0];
       return {
@@ -2133,33 +2133,33 @@ async function geocodeAddress(address) {
 }
 
 // Replace the existing selectCompany function with this updated version
-window.selectCompany = function(companyId) {
+window.selectCompany = function (companyId) {
   const companies = window.companiesData;
   const company = companies.find(c => c.id === companyId);
   if (!company) return;
 
   // Update company name input
   document.getElementById('company-name').value = company.name;
-  
+
   // Show selected company info
   document.getElementById('selected-company').style.display = 'block';
   document.getElementById('selected-company-name').textContent = company.name;
   document.getElementById('selected-company-address').textContent = company.description || 'No description';
-  
+
   // Hide search results
   document.getElementById('company-search-results').style.display = 'none';
-  
+
   // Validate and parse coordinates
   const latitude = parseFloat(company.latitude);
   const longitude = parseFloat(company.longitude);
-  
+
   // Check if coordinates are valid numbers
   if (isNaN(latitude) || isNaN(longitude)) {
     showToast('Invalid coordinates for this company. Please update company location.', 'error');
     document.getElementById('verify-location').disabled = true;
     return;
   }
-  
+
   // Set selected company data with radius
   const selectedCompany = {
     id: company.id,
@@ -2168,10 +2168,10 @@ window.selectCompany = function(companyId) {
     longitude: longitude,
     radius: parseInt(company.radius) || 200 // Include the radius
   };
-  
+
   // Store it in a way that can be accessed by the event listener
   window.selectedCompanyData = selectedCompany;
-  
+
   // Enable verify location button
   document.getElementById('verify-location').disabled = false;
 };
@@ -2226,7 +2226,7 @@ async function renderMyActivityView() {
 function renderVisitCard(visit, showRepName = false) {
   const date = formatDate(visit.created_at);
   const leadScoreBadge = visit.lead_score ? getLeadScoreBadge(visit.lead_score) : '';
-  
+
   // Process mentioned people
   let processedNotes = visit.notes || '';
   if (visit.mentioned_people && visit.mentioned_people.length > 0) {
@@ -2385,7 +2385,7 @@ async function renderSalesFunnelView() {
 async function renderOpportunityPipelineView() {
   let opportunities;
   let error;
-  
+
   if (isManager) {
     // Managers can see all opportunities with user info
     const result = await supabaseClient
@@ -2401,7 +2401,7 @@ async function renderOpportunityPipelineView() {
         )
       `)
       .order('created_at', { ascending: false });
-    
+
     opportunities = result.data;
     error = result.error;
   } else {
@@ -2411,7 +2411,7 @@ async function renderOpportunityPipelineView() {
       .select('*')
       .eq('user_id', currentUser.id)
       .order('created_at', { ascending: false });
-    
+
     opportunities = result.data;
     error = result.error;
   }
@@ -2462,8 +2462,8 @@ async function renderOpportunityPipelineView() {
 
   // Calculate pipeline summary
   const totalValue = opportunities.reduce((sum, opp) => sum + parseFloat(opp.value || 0), 0);
-  const avgProbability = opportunities.length > 0 
-    ? opportunities.reduce((sum, opp) => sum + parseInt(opp.probability || 0), 0) / opportunities.length 
+  const avgProbability = opportunities.length > 0
+    ? opportunities.reduce((sum, opp) => sum + parseInt(opp.probability || 0), 0) / opportunities.length
     : 0;
   const wonValue = opportunitiesByStage['closed-won'].totalValue;
   const lostValue = opportunitiesByStage['closed-lost'].totalValue;
@@ -2545,11 +2545,11 @@ async function renderOpportunityPipelineView() {
       const isOverdue = opp.next_step_date && new Date(opp.next_step_date) < new Date();
       const competitors = opp.competitors ? JSON.parse(opp.competitors) : [];
       const isOwnOpportunity = !isManager || opp.user_id === currentUser.id;
-      
+
       // Get user info from joined data
       const user = opp.profiles;
       const ownerName = user ? `${user.first_name} ${user.last_name}` : 'Unknown';
-      
+
       // Process mentioned people in notes using explicit mentioned_people from DB
       let processedNotes = opp.notes || '';
       // helper to escape regex special chars
@@ -2572,7 +2572,7 @@ async function renderOpportunityPipelineView() {
         // Fallback: simple regex for single-word mentions (no DB info available)
         processedNotes = processedNotes.replace(/@([A-Za-z0-9_\-]+)\b/g, '<span class="mentioned-person">@$1</span>');
       }
-      
+
       html += `
         <div class="opportunity-card ${!isOwnOpportunity ? 'readonly' : ''}" 
             data-id="${opp.id}" 
@@ -2680,24 +2680,24 @@ function initOpportunityEventListeners(opportunities) {
       e.stopPropagation();
       const opportunityId = btn.dataset.id;
       const opportunity = opportunities.find(opp => opp.id === opportunityId);
-      
+
       const confirmed = await showConfirmDialog(
         'Delete Opportunity',
         `Are you sure you want to delete ${opportunity.name}?`
       );
 
       if (!confirmed) return;
-      
+
       const { error } = await supabaseClient
         .from('opportunities')
         .delete()
         .eq('id', opportunityId);
-      
+
       if (error) {
         showToast('Error deleting opportunity: ' + error.message, 'error');
         return;
       }
-      
+
       showToast('Opportunity deleted successfully', 'success');
       renderOpportunityPipelineView();
     });
@@ -2732,13 +2732,13 @@ function initOpportunityEventListeners(opportunities) {
 
 function initPipelineDragAndDrop() {
   const opportunityLists = document.querySelectorAll('.opportunity-list');
-  
+
   if (typeof Sortable === 'undefined') {
     console.error('Sortable.js library is not loaded!');
     showToast('Drag-and-drop functionality requires Sortable.js library', 'error');
     return;
   }
-  
+
   opportunityLists.forEach(list => {
     new Sortable(list, {
       group: 'pipeline',
@@ -2747,35 +2747,35 @@ function initPipelineDragAndDrop() {
       chosenClass: 'sortable-chosen',
       dragClass: 'sortable-drag',
       filter: '.readonly, .opportunity-actions', // Prevent dragging readonly cards or action buttons
-      onStart: function(evt) {
+      onStart: function (evt) {
         evt.item.classList.add('dragging');
       },
-      onEnd: function(evt) {
+      onEnd: function (evt) {
         evt.item.classList.remove('dragging');
       },
-      onAdd: async function(evt) {
+      onAdd: async function (evt) {
         const opportunityId = evt.item.dataset.id;
         const newStage = evt.to.closest('.pipeline-stage').dataset.stage;
         const oldStage = evt.from.closest('.pipeline-stage').dataset.stage;
-        
+
         // Only update if stage changed
         if (newStage !== oldStage) {
           try {
             const { error } = await supabaseClient
               .from('opportunities')
-              .update({ 
-                stage: newStage, 
-                updated_at: new Date().toISOString() 
+              .update({
+                stage: newStage,
+                updated_at: new Date().toISOString()
               })
               .eq('id', opportunityId);
-            
+
             if (error) throw error;
-            
+
             showToast('Opportunity moved successfully', 'success');
-            
+
             // Update stage counts
             updatePipelineStageCounts();
-            
+
           } catch (error) {
             showToast('Error updating opportunity: ' + error.message, 'error');
             // Move item back to original position on error
@@ -2790,29 +2790,72 @@ function initPipelineDragAndDrop() {
 function updatePipelineStageCounts() {
   document.querySelectorAll('.pipeline-stage').forEach(stage => {
     const stageId = stage.dataset.stage;
-    const opportunities = stage.querySelectorAll('.opportunity-card:not([style*="opacity: 0.5"])');
+    const opportunities = stage.querySelectorAll('.opportunity-card:not([style*="display: none"])');
     const count = opportunities.length;
-    
+
     // Update count badge
     const countBadge = stage.querySelector('.pipeline-stage-count');
     if (countBadge) {
       countBadge.textContent = count;
     }
-    
+
     // Calculate and update total value
     let totalValue = 0;
     opportunities.forEach(card => {
       const valueText = card.querySelector('.opportunity-value')?.textContent;
       if (valueText) {
-        totalValue += parseFloat(valueText.replace(/[$,]/g, ''));
+        totalValue += parseCurrencyValue(valueText);
       }
     });
-    
+
     const valueElement = stage.querySelector('.pipeline-stage-value');
     if (valueElement) {
-      valueElement.textContent = `$${totalValue.toLocaleString()}`;
+      valueElement.textContent = `Ksh ${totalValue.toLocaleString()}`;
     }
   });
+
+  // Also update the main summary cards at the top
+  updatePipelineSummary();
+}
+
+/**
+ * Updates the summary cards at the top of the pipeline view based on current cards in the DOM.
+ */
+function updatePipelineSummary() {
+  const visibleCards = document.querySelectorAll('.opportunity-card:not([style*="display: none"])');
+
+  let totalValue = 0;
+  let wonValue = 0;
+  let totalProbability = 0;
+  let activeCount = 0;
+
+  visibleCards.forEach(card => {
+    const valueText = card.querySelector('.opportunity-value')?.textContent;
+    const value = parseCurrencyValue(valueText);
+    totalValue += value;
+
+    const probText = card.querySelector('.probability-text')?.textContent;
+    const probability = parseInt(probText?.replace('%', '') || 0);
+    totalProbability += probability;
+
+    const stageId = card.closest('.pipeline-stage')?.dataset.stage;
+    if (stageId === 'closed-won') {
+      wonValue += value;
+    } else if (stageId !== 'closed-lost') {
+      activeCount++;
+    }
+  });
+
+  const avgProbability = visibleCards.length > 0 ? Math.round(totalProbability / visibleCards.length) : 0;
+
+  // Update DOM elements
+  const summaryValues = document.querySelectorAll('.pipeline-summary-value');
+  if (summaryValues.length >= 4) {
+    summaryValues[0].textContent = `Ksh ${totalValue.toLocaleString()}`;
+    summaryValues[1].textContent = activeCount;
+    summaryValues[2].textContent = `${avgProbability}%`;
+    summaryValues[3].textContent = `Ksh ${wonValue.toLocaleString()}`;
+  }
 }
 
 function initOpportunityEventListeners(opportunities) {
@@ -2851,24 +2894,24 @@ function initOpportunityEventListeners(opportunities) {
     btn.addEventListener('click', async (e) => {
       e.stopPropagation();
       const opportunityId = btn.dataset.id;
-      
+
       const confirmed = await showConfirmDialog(
         'Delete Opportunity',
         'Are you sure you want to delete this opportunity?'
       );
 
       if (!confirmed) return;
-      
+
       const { error } = await supabaseClient
         .from('opportunities')
         .delete()
         .eq('id', opportunityId);
-      
+
       if (error) {
         showToast('Error deleting opportunity: ' + error.message, 'error');
         return;
       }
-      
+
       showToast('Opportunity deleted successfully', 'success');
       renderOpportunityPipelineView();
     });
@@ -2889,19 +2932,19 @@ function initOpportunityEventListeners(opportunities) {
 
 function initPipelineFilters() {
   const filterButtons = document.querySelectorAll('.pipeline-filter');
-  
+
   filterButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       // Update active state
       filterButtons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      
+
       const filter = btn.dataset.filter;
-      
+
       // Apply filter
       document.querySelectorAll('.opportunity-card').forEach(card => {
         let show = true;
-        
+
         if (filter === 'my-reps') {
           // Only show opportunities of sales reps (not managers)
           const userId = card.dataset.userId;
@@ -2909,7 +2952,7 @@ function initPipelineFilters() {
           show = opportunity && opportunity.user && opportunity.user.role === 'sales_rep';
         } else if (filter === 'high-value') {
           const valueText = card.querySelector('.opportunity-value').textContent;
-          const value = parseFloat(valueText.replace(/[$,]/g, ''));
+          const value = parseCurrencyValue(valueText);
           show = value >= 100000;
         } else if (filter === 'high-probability') {
           const probText = card.querySelector('.probability-text').textContent;
@@ -2918,9 +2961,12 @@ function initPipelineFilters() {
         } else if (filter === 'next-step-due') {
           show = !!card.querySelector('.opportunity-next-step');
         }
-        
+
         card.style.display = show ? 'block' : 'none';
       });
+
+      // Update counts and summary after filtering
+      updatePipelineStageCounts();
     });
   });
 }
@@ -2929,7 +2975,7 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
   const modal = document.getElementById('opportunity-modal');
   const modalTitle = document.getElementById('opportunity-modal-title');
   const saveBtn = document.getElementById('save-opportunity-btn');
-  
+
   // Reset form
   document.getElementById('opportunity-name').value = '';
   document.getElementById('opportunity-company').value = '';
@@ -2940,44 +2986,44 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
   document.getElementById('opportunity-next-step').value = '';
   document.getElementById('opportunity-next-step-date').value = '';
   document.getElementById('opportunity-notes').value = '';
-  
+
   // Clear competitors
   document.getElementById('competitors-container').innerHTML = '<input type="text" class="competitors-input" id="competitors-input" placeholder="Add competitor...">';
-  
+
   // Reset mentioned people
   mentionedPeople = opportunity && opportunity.mentioned_people ? [...opportunity.mentioned_people] : [];
-  
+
   // Set modal title
   if (opportunity) {
-    modalTitle.innerHTML = readOnly 
+    modalTitle.innerHTML = readOnly
       ? `${opportunity.name}`
       : `Edit Opportunity`;
-    
+
     // Fill form with opportunity data
     document.getElementById('opportunity-name').value = opportunity.name || '';
     document.getElementById('opportunity-company').value = opportunity.company_name || '';
     document.getElementById('opportunity-value').value = opportunity.value || '';
     document.getElementById('opportunity-probability').value = opportunity.probability || 50;
     document.getElementById('probability-display').textContent = opportunity.probability || 50;
-    
+
     // Map old stage values to new ones
     let stageValue = opportunity.stage || 'prospecting';
     if (opportunity.stage === 'qualification') stageValue = 'qualification'; // Map to In Progress
     if (opportunity.stage === 'proposal' || opportunity.stage === 'negotiation') stageValue = 'qualification'; // Map to In Progress
     if (opportunity.stage === 'closed-won') stageValue = 'closed-won'; // Map to Won/Invoiced
-    
+
     document.getElementById('opportunity-stage').value = stageValue;
-    
+
     document.getElementById('opportunity-next-step').value = opportunity.next_step || '';
     document.getElementById('opportunity-next-step-date').value = opportunity.next_step_date || '';
     document.getElementById('opportunity-notes').value = opportunity.notes || '';
-    
+
     // Add competitors
     if (opportunity.competitors) {
       const competitors = JSON.parse(opportunity.competitors);
       competitors.forEach(comp => addCompetitor(comp));
     }
-    
+
     // Set read-only mode if needed
     if (readOnly) {
       document.querySelectorAll('#opportunity-modal input, #opportunity-modal select, #opportunity-modal textarea').forEach(el => {
@@ -2997,10 +3043,10 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
     });
     saveBtn.style.display = 'block';
   }
-  
+
   // Show modal
   modal.style.display = 'flex';
-  
+
   // Initialize event listeners
   initOpportunityModalListeners(opportunity);
 }
@@ -3011,30 +3057,30 @@ function initOpportunityModalListeners(opportunity) {
   // Probability slider
   const probabilitySlider = document.getElementById('opportunity-probability');
   const probabilityDisplay = document.getElementById('probability-display');
-  
+
   probabilitySlider.addEventListener('input', () => {
     probabilityDisplay.textContent = probabilitySlider.value;
   });
-  
+
   // Company search
   const companyInput = document.getElementById('opportunity-company');
   const companySearchResults = document.getElementById('opportunity-company-search-results');
-  
+
   companyInput.addEventListener('input', async (e) => {
     const query = e.target.value.toLowerCase().trim();
-    
+
     if (query.length === 0) {
       companySearchResults.style.display = 'none';
       return;
     }
-    
+
     // Fetch companies for company search
     const { data: companies } = await supabaseClient
       .from('companies')
       .select('*')
       .ilike('name', `%${query}%`)
       .limit(5);
-    
+
     if (companies.length === 0) {
       companySearchResults.innerHTML = '<div class="search-result-item">No companies found</div>';
     } else {
@@ -3048,33 +3094,33 @@ function initOpportunityModalListeners(opportunity) {
         </div>
       `).join('');
     }
-    
+
     companySearchResults.style.display = 'block';
   });
-  
+
   // Initialize mention system for notes
   const notesEl = document.getElementById('opportunity-notes');
   const mentionSuggestionsContainer = document.getElementById('opportunity-mention-suggestions');
-  
-  
-  
+
+
+
   let mentionStartIndex = -1;
   let currentMentionQuery = '';
   let lastMentionStartIndex = -1;
-  
+
   // Input event - detect @ and show suggestions
   notesEl.addEventListener('input', (e) => {
     const text = notesEl.value;
     const cursorPos = notesEl.selectionStart;
     const beforeCursor = text.substring(0, cursorPos);
     const mentionMatch = beforeCursor.match(/@([^@\s]*)$/);
-    
-    
-    
+
+
+
     if (mentionMatch) {
       mentionStartIndex = cursorPos - mentionMatch[0].length;
       currentMentionQuery = mentionMatch[1];
-      
+
       showMentionSuggestions(currentMentionQuery, mentionSuggestionsContainer);
     } else {
       mentionSuggestionsContainer.style.display = 'none';
@@ -3082,18 +3128,18 @@ function initOpportunityModalListeners(opportunity) {
       currentMentionQuery = '';
     }
   });
-  
+
   // Keyboard navigation for suggestions
   notesEl.addEventListener('keydown', (e) => {
     if (mentionSuggestionsContainer.style.display === 'none') return;
-    
+
     const items = Array.from(mentionSuggestionsContainer.querySelectorAll('.mention-suggestion'));
     if (items.length === 0) return;
-    
+
     let activeIndex = items.findIndex(item => item.classList.contains('active'));
-    
-    
-    
+
+
+
     if (e.key === 'ArrowDown') {
       e.preventDefault();
       activeIndex = (activeIndex + 1) % items.length;
@@ -3105,35 +3151,35 @@ function initOpportunityModalListeners(opportunity) {
     } else if (e.key === 'Enter' || e.key === 'Tab') {
       e.preventDefault();
       if (activeIndex >= 0) {
-        
+
         insertMentionFromSuggestion(items[activeIndex], notesEl, mentionStartIndex, currentMentionQuery, mentionSuggestionsContainer);
       }
     } else if (e.key === 'Escape') {
       mentionSuggestionsContainer.style.display = 'none';
     }
   });
-  
+
   // Handle mousedown on suggestions (before focus is lost)
   mentionSuggestionsContainer.addEventListener('mousedown', (e) => {
     const suggestion = e.target.closest('.mention-suggestion');
     if (suggestion) {
       e.preventDefault();
       e.stopPropagation();
-      
+
       insertMentionFromSuggestion(suggestion, notesEl, mentionStartIndex, currentMentionQuery, mentionSuggestionsContainer);
     }
   }, true); // Capture phase
-  
+
   // Close suggestions when clicking outside
   document.addEventListener('click', (e) => {
     if (e.target !== notesEl && !mentionSuggestionsContainer.contains(e.target)) {
       mentionSuggestionsContainer.style.display = 'none';
     }
   });
-  
+
   // Competitors input
   const competitorsInput = document.getElementById('competitors-input');
-  
+
   competitorsInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && competitorsInput.value.trim()) {
       e.preventDefault();
@@ -3141,10 +3187,10 @@ function initOpportunityModalListeners(opportunity) {
       competitorsInput.value = '';
     }
   });
-  
+
   // Save opportunity
   const saveBtn = document.getElementById('save-opportunity-btn');
-  
+
   saveBtn.onclick = async () => {
     const name = document.getElementById('opportunity-name').value.trim();
     const companyName = document.getElementById('opportunity-company').value.trim();
@@ -3154,22 +3200,22 @@ function initOpportunityModalListeners(opportunity) {
     const nextStep = document.getElementById('opportunity-next-step').value.trim();
     const nextStepDate = document.getElementById('opportunity-next-step-date').value;
     const notes = document.getElementById('opportunity-notes').value.trim();
-    
+
     // Get competitors
     const competitorTags = document.querySelectorAll('.competitor-tag');
-    const competitors = Array.from(competitorTags).map(tag => 
+    const competitors = Array.from(competitorTags).map(tag =>
       tag.textContent.replace('×', '').trim()
     );
-    
+
     // Validate
     if (!name || !companyName || !value) {
       showToast('Please fill in all required fields', 'error');
       return;
     }
-    
+
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-    
+
     try {
       const opportunityData = {
         user_id: currentUser.id,
@@ -3184,9 +3230,9 @@ function initOpportunityModalListeners(opportunity) {
         competitors: competitors.length > 0 ? JSON.stringify(competitors) : null,
         mentioned_people: mentionedPeople
       };
-      
+
       let result;
-      
+
       if (opportunity) {
         // Update existing opportunity
         result = await supabaseClient
@@ -3199,13 +3245,13 @@ function initOpportunityModalListeners(opportunity) {
           .from('opportunities')
           .insert([opportunityData]);
       }
-      
+
       if (result.error) throw result.error;
-      
+
       showToast(`Opportunity ${opportunity ? 'updated' : 'created'} successfully!`, 'success');
       closeModal('opportunity-modal');
       renderOpportunityPipelineView();
-      
+
       // Set reminder for next step if date is provided
       if (nextStepDate) {
         scheduleNextStepReminder(name, nextStep, nextStepDate);
@@ -3222,7 +3268,7 @@ function initOpportunityModalListeners(opportunity) {
 function addCompetitor(name) {
   const container = document.getElementById('competitors-container');
   const input = document.getElementById('competitors-input');
-  
+
   // Check if competitor already exists
   const existingTags = container.querySelectorAll('.competitor-tag');
   for (const tag of existingTags) {
@@ -3230,7 +3276,7 @@ function addCompetitor(name) {
       return; // Already exists
     }
   }
-  
+
   // Create competitor tag
   const tag = document.createElement('span');
   tag.className = 'competitor-tag';
@@ -3238,16 +3284,16 @@ function addCompetitor(name) {
     ${name}
     <button class="remove" onclick="removeCompetitor(this)">×</button>
   `;
-  
+
   // Insert before input
   container.insertBefore(tag, input);
 }
 
-window.removeCompetitor = function(element) {
+window.removeCompetitor = function (element) {
   element.parentElement.remove();
 };
 
-window.selectOpportunityCompany = function(name) {
+window.selectOpportunityCompany = function (name) {
   document.getElementById('opportunity-company').value = name;
   document.getElementById('opportunity-company-search-results').style.display = 'none';
 };
@@ -3262,16 +3308,16 @@ function scheduleNextStepReminder(opportunityName, nextStep, dueDate) {
   // In a real implementation, this would set up a notification system
   // For now, we'll just store reminder in localStorage
   const reminders = JSON.parse(localStorage.getItem('opportunityReminders') || '[]');
-  
+
   reminders.push({
     opportunityName,
     nextStep,
     dueDate,
     acknowledged: false
   });
-  
+
   localStorage.setItem('opportunityReminders', JSON.stringify(reminders));
-  
+
   // Check if reminder is due today
   const today = new Date().toISOString().split('T')[0];
   if (dueDate === today) {
@@ -3283,14 +3329,14 @@ function checkDueReminders() {
   // Check for due reminders on app load
   const reminders = JSON.parse(localStorage.getItem('opportunityReminders') || '[]');
   const today = new Date().toISOString().split('T')[0];
-  
+
   reminders.forEach(reminder => {
     if (!reminder.acknowledged && reminder.dueDate === today) {
       showToast(`Reminder: ${reminder.nextStep} for ${reminder.opportunityName} is due today!`, 'info');
       reminder.acknowledged = true;
     }
   });
-  
+
   localStorage.setItem('opportunityReminders', JSON.stringify(reminders));
 }
 
@@ -3299,8 +3345,8 @@ function checkDueReminders() {
 // ======================
 
 async function renderTeamDashboardView() {
-  
-  
+
+
   // First, try to get all profiles separately to ensure we have access
   const { data: allProfiles, error: profilesError } = await supabaseClient
     .from('profiles')
@@ -3338,7 +3384,7 @@ async function renderTeamDashboardView() {
 
   // Group visits by user - include all profiles even if they have no visits
   const users = {};
-  
+
   // First, initialize all profiles
   allProfiles.forEach(profile => {
     if (profile.role === 'sales_rep') {
@@ -3348,7 +3394,7 @@ async function renderTeamDashboardView() {
       };
     }
   });
-  
+
   // Then add visits to each user
   visitsWithProfiles.forEach(visit => {
     const userId = visit.user_id;
@@ -3361,7 +3407,7 @@ async function renderTeamDashboardView() {
   const totalVisits = visitsWithProfiles.length;
   const totalReps = salesReps.length;
   const avgVisitsPerRep = totalReps > 0 ? (totalVisits / totalReps).toFixed(1) : 0;
-  
+
   const todayVisits = visitsWithProfiles.filter(v => {
     const visitDate = new Date(v.created_at).toDateString();
     return visitDate === new Date().toDateString();
@@ -3454,7 +3500,7 @@ function initRepSearch(salesReps, users) {
 
   searchInput.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase().trim();
-    
+
     if (query.length === 0) {
       searchResults.style.display = 'none';
       return;
@@ -3492,14 +3538,14 @@ function initRepSearch(salesReps, users) {
   });
 }
 
-window.selectRep = function(repId) {
+window.selectRep = function (repId) {
   const { salesReps, users } = window.salesRepsData;
   const rep = salesReps.find(r => r.id === repId);
   if (!rep) return;
 
   const repVisits = users[repId]?.visits || [];
-  
-  document.getElementById('rep-visits-title').textContent = 
+
+  document.getElementById('rep-visits-title').textContent =
     `${rep.first_name} ${rep.last_name}'s Visits (${repVisits.length})`;
 
   const container = document.getElementById('rep-visits-container');
@@ -3611,7 +3657,7 @@ async function renderUserManagementView() {
   viewContainer.innerHTML = html;
 }
 
-window.deleteUser = async function(userId, userName) {
+window.deleteUser = async function (userId, userName) {
   const confirmed = await showConfirmDialog(
     'Delete User',
     `Are you sure you want to delete ${userName}?`
@@ -3663,7 +3709,7 @@ async function renderRoutePlanningView() {
     if (routesError) console.error('Routes Error:', routesError);
     if (companiesError) console.error('Companies Error:', companiesError);
     if (profilesError) console.error('Profiles Error:', profilesError);
-    
+
     viewContainer.innerHTML = renderError('Error loading data');
     return;
   }
@@ -3765,9 +3811,9 @@ async function renderRoutePlanningView() {
         <h3 class="card-title">Existing Routes</h3>
       </div>
       <div class="routes-list">
-        ${routes.length === 0 ? 
-          '<p class="text-muted text-center" style="padding: 2rem;">No routes created yet</p>' :
-          routes.map(route => `
+        ${routes.length === 0 ?
+      '<p class="text-muted text-center" style="padding: 2rem;">No routes created yet</p>' :
+      routes.map(route => `
             <div class="route-item" data-id="${route.id}">
               <div class="route-info">
                 <h4>${route.name}</h4>
@@ -3788,16 +3834,16 @@ async function renderRoutePlanningView() {
               </div>
             </div>
           `).join('')
-        }
+    }
       </div>
     </div>
   `;
 
   viewContainer.innerHTML = html;
-  
+
   // Initialize route creator functionality
   initRouteCreator(companies, salesReps);
-  
+
   // Initialize route list functionality
   initRouteList();
 }
@@ -3813,17 +3859,17 @@ function initRouteCreator(companies, salesReps) {
   const locationSearch = document.getElementById('location-search');
   const aiRecommendation = document.getElementById('ai-recommendation');
   const aiRecommendationContent = document.getElementById('ai-recommendation-content');
-  
+
   let selectedLocations = [];
   let optimizedRoute = [];
   let selectedReps = [];
   let map = null;
   let markers = [];
   let routeLine = null;
-  
+
   // Store for global access
   window.allLocationsData = companies;
-  
+
   // Show/hide route creator
   createBtn.addEventListener('click', () => {
     if (routeCreator.style.display === 'none') {
@@ -3835,31 +3881,31 @@ function initRouteCreator(companies, salesReps) {
       resetRouteCreator();
     }
   });
-  
+
   // Initialize multi-select for reps
   const repMultiSelect = document.getElementById('rep-multi-select');
   const repDropdown = document.getElementById('rep-dropdown');
-  
+
   repMultiSelect.addEventListener('click', () => {
     repDropdown.classList.toggle('show');
   });
-  
+
   // Handle rep selection
   document.querySelectorAll('.multi-select-option input').forEach(checkbox => {
     checkbox.addEventListener('change', () => {
       const repId = checkbox.value;
       const repName = checkbox.nextElementSibling.textContent;
-      
+
       if (checkbox.checked) {
         selectedReps.push({ id: repId, name: repName });
       } else {
         selectedReps = selectedReps.filter(rep => rep.id !== repId);
       }
-      
+
       updateMultiSelectDisplay();
     });
   });
-  
+
   function updateMultiSelectDisplay() {
     if (selectedReps.length === 0) {
       repMultiSelect.innerHTML = '<span>Select sales reps...</span>';
@@ -3872,7 +3918,7 @@ function initRouteCreator(companies, salesReps) {
         </span>
       `).join('');
       repMultiSelect.classList.remove('empty');
-      
+
       // Add event listeners to remove buttons
       repMultiSelect.querySelectorAll('.remove').forEach(btn => {
         btn.addEventListener('click', (e) => {
@@ -3885,23 +3931,23 @@ function initRouteCreator(companies, salesReps) {
       });
     }
   }
-  
+
   // Location search functionality
   locationSearch.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase().trim();
     const locationCards = document.querySelectorAll('.location-card');
-    
+
     if (query.length === 0) {
       locationCards.forEach(card => {
         card.style.display = 'flex';
       });
       return;
     }
-    
+
     locationCards.forEach(card => {
       const locationId = card.getAttribute('data-id');
       const location = companies.find(loc => loc.id === locationId);
-      
+
       if (location && (
         location.name.toLowerCase().includes(query) ||
         (location.description && location.description.toLowerCase().includes(query))
@@ -3912,18 +3958,18 @@ function initRouteCreator(companies, salesReps) {
       }
     });
   });
-  
+
   // Handle location selection
   document.querySelectorAll('.location-card input[type="checkbox"]').forEach(checkbox => {
     checkbox.addEventListener('change', () => {
       const locationId = checkbox.value;
       const locationCard = checkbox.closest('.location-card');
       const location = companies.find(loc => loc.id === locationId);
-      
+
       if (checkbox.checked) {
         selectedLocations.push(location);
         locationCard.classList.add('selected');
-        
+
         // Check if we should show a recommendation
         if (selectedLocations.length >= 1) {
           showNearestLocationRecommendation(selectedLocations);
@@ -3931,7 +3977,7 @@ function initRouteCreator(companies, salesReps) {
       } else {
         selectedLocations = selectedLocations.filter(loc => loc.id !== locationId);
         locationCard.classList.remove('selected');
-        
+
         // Update recommendations
         if (selectedLocations.length >= 1) {
           showNearestLocationRecommendation(selectedLocations);
@@ -3939,29 +3985,29 @@ function initRouteCreator(companies, salesReps) {
           aiRecommendation.style.display = 'none';
         }
       }
-      
+
       optimizeBtn.disabled = selectedLocations.length < 2;
     });
   });
-  
+
   // Function to show nearest location recommendation
   function showNearestLocationRecommendation(selected) {
     if (selected.length === 0) {
       aiRecommendation.style.display = 'none';
       return;
     }
-    
+
     // Get last selected location
     const lastSelected = selected[selected.length - 1];
-    
+
     // Find nearest unselected location
     let nearestLocation = null;
     let shortestDistance = Infinity;
-    
+
     companies.forEach(location => {
       // Skip if already selected
       if (selected.some(loc => loc.id === location.id)) return;
-      
+
       // Calculate distance from last selected location
       const distance = calculateDistance(
         parseFloat(lastSelected.latitude),
@@ -3969,23 +4015,23 @@ function initRouteCreator(companies, salesReps) {
         parseFloat(location.latitude),
         parseFloat(location.longitude)
       );
-      
+
       if (distance < shortestDistance) {
         shortestDistance = distance;
         nearestLocation = location;
       }
     });
-    
+
     if (nearestLocation) {
       // Show recommendation
       aiRecommendation.style.display = 'block';
       aiRecommendationContent.innerHTML = `
-        <p>Based on your selection of <strong>${lastSelected.name}</strong>, nearest location is <strong>${nearestLocation.name}</strong> (${(shortestDistance/1000).toFixed(2)} km away).</p>
+        <p>Based on your selection of <strong>${lastSelected.name}</strong>, nearest location is <strong>${nearestLocation.name}</strong> (${(shortestDistance / 1000).toFixed(2)} km away).</p>
         <button class="btn btn-sm btn-primary" onclick="selectRecommendedLocation('${nearestLocation.id}')">
           <i class="fas fa-plus"></i> Add it!
         </button>
       `;
-      
+
       // Highlight recommended location
       document.querySelectorAll('.location-card').forEach(card => {
         card.classList.remove('recommended');
@@ -3997,69 +4043,69 @@ function initRouteCreator(companies, salesReps) {
       aiRecommendation.style.display = 'none';
     }
   }
-  
+
   // Optimize route
   optimizeBtn.addEventListener('click', async () => {
     if (selectedLocations.length < 2) return;
-    
+
     // Show loading state
     optimizeBtn.disabled = true;
     optimizeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Optimizing...';
-    
+
     // Simple nearest neighbor algorithm for route optimization
     optimizedRoute = optimizeRoute(selectedLocations);
-    
+
     // Display route on map
     displayRouteOnMap(optimizedRoute);
-    
+
     // Show route order
     displayRouteOrder(optimizedRoute);
-    
+
     // Show save button
     saveBtn.style.display = 'inline-flex';
-    
+
     // Reset button state
     optimizeBtn.disabled = false;
     optimizeBtn.innerHTML = 'Continue';
   });
-  
+
   // Save route
   saveBtn.addEventListener('click', async () => {
     const routeName = document.getElementById('route-name').value.trim();
-    
+
     if (!routeName) {
       showToast('Please enter a route name', 'error');
       return;
     }
-    
+
     if (selectedReps.length === 0) {
       showToast('Please select at least one sales rep', 'error');
       return;
     }
-    
+
     if (selectedLocations.length === 0) {
       showToast('Please select at least one location', 'error');
       return;
     }
-    
+
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-    
+
     try {
       // Calculate total distance and estimated duration
       let totalDistance = 0;
       for (let i = 0; i < optimizedRoute.length - 1; i++) {
         totalDistance += calculateDistance(
-          optimizedRoute[i].latitude, 
+          optimizedRoute[i].latitude,
           optimizedRoute[i].longitude,
-          optimizedRoute[i+1].latitude, 
-          optimizedRoute[i+1].longitude
+          optimizedRoute[i + 1].latitude,
+          optimizedRoute[i + 1].longitude
         );
       }
-      
+
       // Estimate duration (assuming average speed of 40 km/h in city)
       const estimatedDuration = Math.round((totalDistance / 1000 / 40) * 60);
-      
+
       // Create route
       const { data: route, error: routeError } = await supabaseClient
         .from('routes')
@@ -4071,44 +4117,44 @@ function initRouteCreator(companies, salesReps) {
           total_distance: Math.round(totalDistance)
         }])
         .select();
-      
+
       if (routeError) throw routeError;
-      
+
       // Check if route was created successfully
       if (!route || route.length === 0) {
         throw new Error('Route was created but no data was returned');
       }
-      
+
       const newRouteId = route[0].id;
-      
+
       // Create route locations
       const routeLocationsData = optimizedRoute.map((location, index) => ({
         route_id: newRouteId,
         company_id: location.id,
         position: index + 1
       }));
-      
+
       const { error: locationsError } = await supabaseClient
         .from('route_locations')
         .insert(routeLocationsData);
-      
+
       if (locationsError) throw locationsError;
-      
+
       // Create route assignments for each selected rep
       const routeAssignments = selectedReps.map(rep => ({
         route_id: newRouteId,
         rep_id: rep.id,
         assigned_by: currentUser.id
       }));
-      
+
       if (routeAssignments.length > 0) {
         const { error: assignmentsError } = await supabaseClient
           .from('route_assignments')
           .insert(routeAssignments);
-        
+
         if (assignmentsError) throw assignmentsError;
       }
-      
+
       showToast('Route created and assigned successfully!', 'success');
       renderRoutePlanningView(); // Refresh view
     } catch (error) {
@@ -4119,7 +4165,7 @@ function initRouteCreator(companies, salesReps) {
       saveBtn.innerHTML = 'Save Route';
     }
   });
-  
+
   function resetRouteCreator() {
     document.getElementById('route-name').value = '';
     document.querySelectorAll('.multi-select-option input').forEach(cb => {
@@ -4139,41 +4185,41 @@ function initRouteCreator(companies, salesReps) {
     routeOrder.style.display = 'none';
     aiRecommendation.style.display = 'none';
   }
-  
+
   function optimizeRoute(locations) {
     if (locations.length <= 1) return locations;
-    
+
     // Simple nearest neighbor algorithm
     const route = [locations[0]];
     const remaining = [...locations.slice(1)];
-    
+
     while (remaining.length > 0) {
       const current = route[route.length - 1];
       let nearestIndex = 0;
       let nearestDistance = Infinity;
-      
+
       remaining.forEach((location, index) => {
         const distance = calculateDistance(
           current.latitude, current.longitude,
           location.latitude, location.longitude
         );
-        
+
         if (distance < nearestDistance) {
           nearestDistance = distance;
           nearestIndex = index;
         }
       });
-      
+
       route.push(remaining[nearestIndex]);
       remaining.splice(nearestIndex, 1);
     }
-    
+
     return route;
   }
-  
+
   function displayRouteOnMap(route) {
     routeMap.style.display = 'block';
-    
+
     // Initialize map if not already done
     if (!map) {
       map = L.map('route-map').setView([route[0].latitude, route[0].longitude], 13);
@@ -4186,28 +4232,28 @@ function initRouteCreator(companies, salesReps) {
       if (routeLine) map.removeLayer(routeLine);
       markers = [];
     }
-    
+
     // Add markers for each location
     route.forEach((location, index) => {
       const marker = L.marker([location.latitude, location.longitude])
         .bindPopup(`<b>${index + 1}. ${location.name}</b><br>${location.description || 'No description'}`)
         .addTo(map);
-      
+
       markers.push(marker);
     });
-    
+
     // Draw route line
     const latlngs = route.map(loc => [loc.latitude, loc.longitude]);
     routeLine = L.polyline(latlngs, { color: '#4f46e5', weight: 4 }).addTo(map);
-    
+
     // Fit map to show entire route
     const group = new L.featureGroup(markers);
     map.fitBounds(group.getBounds().pad(0.1));
   }
-  
+
   function displayRouteOrder(route) {
     routeOrder.style.display = 'block';
-    
+
     sortableRoute.innerHTML = route.map((location, index) => `
       <div class="sortable-item" data-id="${location.id}">
         <div class="sortable-handle">
@@ -4220,18 +4266,18 @@ function initRouteCreator(companies, salesReps) {
         </div>
       </div>
     `).join('');
-    
+
     // Make list sortable
     new Sortable(sortableRoute, {
       handle: '.sortable-handle',
       animation: 150,
-      onEnd: function(evt) {
+      onEnd: function (evt) {
         // Update optimizedRoute array based on new order
         const newOrder = Array.from(sortableRoute.children).map(item => {
           const locationId = item.getAttribute('data-id');
           return route.find(loc => loc.id === locationId);
         });
-        
+
         optimizedRoute = newOrder;
         displayRouteOnMap(optimizedRoute);
       }
@@ -4240,7 +4286,7 @@ function initRouteCreator(companies, salesReps) {
 }
 
 // Global function to select recommended location
-window.selectRecommendedLocation = function(locationId) {
+window.selectRecommendedLocation = function (locationId) {
   const checkbox = document.querySelector(`#loc-${locationId}`);
   if (checkbox && !checkbox.checked) {
     checkbox.checked = true;
@@ -4256,7 +4302,7 @@ function initRouteList() {
       await viewRouteDetails(routeId);
     });
   });
-  
+
   // Edit route
   document.querySelectorAll('.edit-route-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -4264,29 +4310,29 @@ function initRouteList() {
       await editRoute(routeId);
     });
   });
-  
+
   // Delete route
   document.querySelectorAll('.delete-route-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const routeId = btn.dataset.id;
       const routeItem = btn.closest('.route-item');
       const routeName = routeItem.querySelector('h4').textContent;
-      
+
       const confirmed = await showConfirmDialog(
         'Delete Route',
         `Are you sure you want to delete route "${routeName}"?`
       );
 
       if (!confirmed) return;
-      
+
       try {
         const { error } = await supabaseClient
           .from('routes')
           .delete()
           .eq('id', routeId);
-        
+
         if (error) throw error;
-        
+
         showToast('Route deleted successfully', 'success');
         routeItem.remove();
       } catch (error) {
@@ -4315,9 +4361,9 @@ async function viewRouteDetails(routeId) {
       `)
       .eq('id', routeId)
       .single();
-    
+
     if (routeError) throw routeError;
-    
+
     // Use the correct table name 'route_locations' with a join to companies
     const { data: routeLocations, error: locationsError } = await supabaseClient
       .from('route_locations')
@@ -4327,9 +4373,9 @@ async function viewRouteDetails(routeId) {
       `)
       .eq('route_id', routeId)
       .order('position');
-    
+
     if (locationsError) throw locationsError;
-    
+
     // Create modal to show route details
     const modal = document.createElement('div');
     modal.className = 'modal';
@@ -4369,41 +4415,41 @@ async function viewRouteDetails(routeId) {
         </div>
       </div>
     `;
-    
+
     document.body.appendChild(modal);
-    
+
     // Initialize map with a delay to ensure DOM is ready
     setTimeout(() => {
       // Filter for valid locations with coordinates
-      const validStops = routeLocations.filter(stop => 
-        stop.companies && 
-        stop.companies.latitude && 
-        stop.companies.longitude && 
-        !isNaN(stop.companies.latitude) && 
+      const validStops = routeLocations.filter(stop =>
+        stop.companies &&
+        stop.companies.latitude &&
+        stop.companies.longitude &&
+        !isNaN(stop.companies.latitude) &&
         !isNaN(stop.companies.longitude)
       );
-      
+
       if (validStops.length > 0) {
         const map = L.map('route-details-map').setView(
           [validStops[0].companies.latitude, validStops[0].companies.longitude],
           13
         );
-        
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '© OpenStreetMap'
         }).addTo(map);
-        
+
         // Add markers for each location
         const markers = validStops.map((stop, index) => {
           return L.marker([stop.companies.latitude, stop.companies.longitude])
             .bindPopup(`<b>${index + 1}. ${stop.companies.name}</b><br>${stop.companies.address || 'No address'}`)
             .addTo(map);
         });
-        
+
         // Draw route line
         const latlngs = validStops.map(stop => [stop.companies.latitude, stop.companies.longitude]);
         L.polyline(latlngs, { color: '#4f46e5', weight: 4 }).addTo(map);
-        
+
         // Fit map to show entire route
         const group = new L.featureGroup(markers);
         map.fitBounds(group.getBounds().pad(0.1));
@@ -4510,7 +4556,7 @@ async function renderMyRoutesView() {
           .map(rl => {
             // Try different possible column names
             const locationId = rl.location_id || rl.company_id || rl.stop_id || rl.point_id || rl.company;
-            
+
             const company = companies.find(c => c.id === locationId);
 
             // If no company found, create a placeholder with available data
@@ -4539,16 +4585,14 @@ async function renderMyRoutesView() {
 
             <div class="route-summary">
               <p><strong>Created:</strong> ${formatDate(route.created_at)}</p>
-              ${
-                route.estimated_duration
-                  ? `<p><strong>Est. duration:</strong> ${route.estimated_duration} min</p>`
-                  : ''
-              }
-              ${
-                route.total_distance
-                  ? `<p><strong>Total distance:</strong> ${(route.total_distance / 1000).toFixed(2)} km</p>`
-                  : ''
-              }
+              ${route.estimated_duration
+            ? `<p><strong>Est. duration:</strong> ${route.estimated_duration} min</p>`
+            : ''
+          }
+              ${route.total_distance
+            ? `<p><strong>Total distance:</strong> ${(route.total_distance / 1000).toFixed(2)} km</p>`
+            : ''
+          }
             </div>
 
             <div class="route-map"
@@ -4558,15 +4602,15 @@ async function renderMyRoutesView() {
             <h4>Route Stops</h4>
             <ol class="route-stops">
               ${routeLocations
-                .map(
-                  loc => `
+            .map(
+              loc => `
                     <li>
                       <strong>${loc.company.name}</strong><br>
                       ${loc.company.address || 'No address'}
                     </li>
                   `
-                )
-                .join('')}
+            )
+            .join('')}
             </ol>
           </div>
         `;
@@ -4584,7 +4628,7 @@ async function renderMyRoutesView() {
           // Try different possible column names
           const locationId = rl.location_id || rl.company_id || rl.stop_id || rl.point_id || rl.company;
           const company = companies.find(c => c.id === locationId);
-          
+
           return {
             ...rl,
             company: company || {
@@ -4596,16 +4640,16 @@ async function renderMyRoutesView() {
             }
           };
         });
-      
+
       // Filter for valid locations with coordinates
-      const validLocations = routeLocations.filter(loc => 
-        loc.company && 
-        loc.company.latitude && 
-        loc.company.longitude && 
-        !isNaN(loc.company.latitude) && 
+      const validLocations = routeLocations.filter(loc =>
+        loc.company &&
+        loc.company.latitude &&
+        loc.company.longitude &&
+        !isNaN(loc.company.latitude) &&
         !isNaN(loc.company.longitude)
       );
-      
+
       if (validLocations.length > 0) {
         setTimeout(() => {
           try {
@@ -4613,22 +4657,22 @@ async function renderMyRoutesView() {
               [validLocations[0].company.latitude, validLocations[0].company.longitude],
               13
             );
-            
+
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
               attribution: '© OpenStreetMap'
             }).addTo(map);
-            
+
             // Add markers for each location
             const markers = validLocations.map((location, index) => {
               return L.marker([location.company.latitude, location.company.longitude])
                 .bindPopup(`<b>${index + 1}. ${location.company.name}</b><br>${location.company.address || 'No address'}`)
                 .addTo(map);
             });
-            
+
             // Draw route line
             const latlngs = validLocations.map(loc => [loc.company.latitude, loc.company.longitude]);
             L.polyline(latlngs, { color: '#4f46e5', weight: 4 }).addTo(map);
-            
+
             // Fit map to show entire route
             const group = new L.featureGroup(markers);
             map.fitBounds(group.getBounds().pad(0.1));
@@ -4672,12 +4716,12 @@ async function startRouteNavigation(routeId) {
       .select('*')
       .eq('id', routeId)
       .single();
-    
+
     if (routeError) {
       showToast('Error loading route: ' + routeError.message, 'error');
       return;
     }
-    
+
     // Get route locations with more flexible approach
     let routeLocationsData = [];
     try {
@@ -4686,14 +4730,14 @@ async function startRouteNavigation(routeId) {
         .select('*')
         .eq('route_id', routeId)
         .order('position');
-      
+
       if (!locationsError) {
         routeLocationsData = locations || [];
       }
     } catch (e) {
       console.error('Error fetching route locations:', e);
     }
-    
+
     // Get company details for each location
     const locationIds = routeLocationsData
       .map(rl => {
@@ -4701,7 +4745,7 @@ async function startRouteNavigation(routeId) {
         return rl.location_id || rl.company_id || rl.stop_id || rl.point_id || rl.company;
       })
       .filter(Boolean);
-    
+
     let companies = [];
     if (locationIds.length > 0) {
       try {
@@ -4709,13 +4753,13 @@ async function startRouteNavigation(routeId) {
           .from('companies')
           .select('*')
           .in('id', locationIds);
-        
+
         if (companiesData) companies = companiesData;
       } catch (e) {
         console.error('Error fetching companies:', e);
       }
     }
-    
+
     // Combine data
     const locations = routeLocationsData
       .sort((a, b) => a.position - b.position)
@@ -4723,7 +4767,7 @@ async function startRouteNavigation(routeId) {
         // Try different possible column names
         const locationId = rl.location_id || rl.company_id || rl.stop_id || rl.point_id || rl.company;
         const company = companies.find(c => c.id === locationId);
-        
+
         // If no company found, create a placeholder with available data
         return {
           ...rl,
@@ -4736,22 +4780,22 @@ async function startRouteNavigation(routeId) {
           }
         };
       });
-    
+
     // Filter for valid locations with coordinates
-    const validLocations = locations.filter(loc => 
-      loc.company && 
-      loc.company.name && 
-      loc.company.latitude && 
-      loc.company.longitude && 
-      !isNaN(loc.company.latitude) && 
+    const validLocations = locations.filter(loc =>
+      loc.company &&
+      loc.company.name &&
+      loc.company.latitude &&
+      loc.company.longitude &&
+      !isNaN(loc.company.latitude) &&
       !isNaN(loc.company.longitude)
     );
-    
+
     if (validLocations.length === 0) {
       showToast('No valid locations found for this route', 'error');
       return;
     }
-    
+
     // Create navigation view
     let html = `
       <div class="route-navigation">
@@ -4804,32 +4848,32 @@ async function startRouteNavigation(routeId) {
       </div>
     `;
 
-    viewContainer.innerHTML = html;  
-    
+    viewContainer.innerHTML = html;
+
     // Initialize navigation
     let currentStopIndex = 0;
     let map = null;
     let userMarker = null;
     let routeLine = null;
     let stopMarkers = [];
-    
+
     // Initialize map with a delay to ensure DOM is ready
     setTimeout(() => {
       try {
         map = L.map('navigation-map').setView(
-          [validLocations[0].company.latitude, validLocations[0].company.longitude], 
+          [validLocations[0].company.latitude, validLocations[0].company.longitude],
           15
         );
-        
+
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '© OpenStreetMap'
         }).addTo(map);
-        
+
         // Add markers for each location
         validLocations.forEach((location, index) => {
           const isCurrentStop = index === currentStopIndex;
           const isCompletedStop = index < currentStopIndex;
-          
+
           const marker = L.marker([location.company.latitude, location.company.longitude], {
             icon: L.divIcon({
               className: 'route-marker',
@@ -4840,24 +4884,24 @@ async function startRouteNavigation(routeId) {
           })
             .bindPopup(`<b>${index + 1}. ${location.company.name}</b><br>${location.company.address || 'No address'}`)
             .addTo(map);
-          
+
           stopMarkers.push(marker);
         });
-        
+
         // Draw route line
         const latlngs = validLocations.map(loc => [loc.company.latitude, loc.company.longitude]);
         routeLine = L.polyline(latlngs, { color: '#4f46e5', weight: 4, opacity: 0.7 }).addTo(map);
-        
+
         // Fit map to show entire route
         const group = new L.featureGroup(stopMarkers);
         map.fitBounds(group.getBounds().pad(0.1));
-        
+
         // Try to get user's location
         if (navigator.geolocation) {
           navigator.geolocation.watchPosition(
             (position) => {
               const { latitude, longitude } = position.coords;
-              
+
               // Update or create user marker
               if (userMarker) {
                 userMarker.setLatLng([latitude, longitude]);
@@ -4871,14 +4915,14 @@ async function startRouteNavigation(routeId) {
                   })
                 }).addTo(map);
               }
-              
+
               // Check if user is near current stop
               const currentLocation = validLocations[currentStopIndex];
               const distance = calculateDistance(
                 latitude, longitude,
                 currentLocation.company.latitude, currentLocation.company.longitude
               );
-              
+
               // If within 100 meters, show notification
               if (distance < 100) {
                 document.getElementById('arrived-btn').classList.add('pulse');
@@ -4898,24 +4942,24 @@ async function startRouteNavigation(routeId) {
         }
       }
     }, 100);
-    
+
     // Handle button clicks
     document.getElementById('arrived-btn').addEventListener('click', () => {
       // Mark current stop as completed
       currentStopIndex++;
-      
+
       // If there are more stops, update UI
       if (currentStopIndex < validLocations.length) {
         // Update current stop
         document.getElementById('current-stop-name').textContent = validLocations[currentStopIndex].company.name;
         document.getElementById('current-stop-address').textContent = validLocations[currentStopIndex].company.address || 'No address';
-        
+
         // Update stops list
         const firstStop = document.querySelector('.stop-item');
         if (firstStop) {
           firstStop.remove();
         }
-        
+
         // Update map markers
         if (stopMarkers[currentStopIndex - 1]) {
           stopMarkers[currentStopIndex - 1].setIcon(
@@ -4927,7 +4971,7 @@ async function startRouteNavigation(routeId) {
             })
           );
         }
-        
+
         if (stopMarkers[currentStopIndex]) {
           stopMarkers[currentStopIndex].setIcon(
             L.divIcon({
@@ -4938,24 +4982,24 @@ async function startRouteNavigation(routeId) {
             })
           );
         }
-        
+
         // Center map on new current stop
         if (map) {
           map.setView([validLocations[currentStopIndex].company.latitude, validLocations[currentStopIndex].company.longitude], 15);
         }
-        
+
         showToast(`Proceeding to stop ${currentStopIndex + 1}`, 'info');
       } else {
         // Route completed
         completeRoute(routeId);
       }
     });
-    
+
     document.getElementById('get-directions-btn').addEventListener('click', () => {
       const currentLocation = validLocations[currentStopIndex];
       window.open(`https://www.google.com/maps/dir/?api=1&destination=${currentLocation.company.latitude},${currentLocation.company.longitude}`, '_blank');
     });
-    
+
     document.getElementById('complete-route-btn').addEventListener('click', async () => {
       const confirmed = await showConfirmDialog(
         'Complete Route',
@@ -4963,7 +5007,7 @@ async function startRouteNavigation(routeId) {
       );
 
       if (!confirmed) return;
-      
+
       completeRoute(routeId);
     });
   } catch (error) {
@@ -4979,9 +5023,9 @@ async function completeRoute(routeId) {
       .from('routes')
       .update({ is_active: false })
       .eq('id', routeId);
-    
+
     if (error) throw error;
-    
+
     showToast('Route completed successfully', 'success');
     loadView('my-routes');
   } catch (error) {
@@ -4998,7 +5042,7 @@ async function renderTasksView() {
   // Fetch tasks based on user role
   let tasks;
   let error;
-  
+
   if (isManager) {
     // Managers should only see tasks they created (either assigned to others or themselves).
     // This prevents managers from seeing tasks that sales reps create for themselves.
@@ -5021,7 +5065,7 @@ async function renderTasksView() {
       .select('*')
       .or(`assigned_to.eq.${currentUser.id},created_by.eq.${currentUser.id}`)
       .order('created_at', { ascending: false });
-    
+
     tasks = result.data;
     error = result.error;
   }
@@ -5039,7 +5083,7 @@ async function renderTasksView() {
       .select('id, first_name, last_name, email')
       .eq('role', 'sales_rep')
       .order('first_name', { ascending: true });
-    
+
     salesReps = reps || [];
   }
 
@@ -5141,7 +5185,7 @@ function renderTaskCard(task, isManager) {
   const isAssignedToMe = task.assigned_to === currentUser.id;
   const isCreatedByMe = task.created_by === currentUser.id;
   const isCreatedByManager = isManager && task.created_by !== currentUser.id;
-  
+
   // Permissions:
   // - Managers can edit any task.
   // - Sales reps can only edit tasks they created themselves (not tasks assigned to them by a manager).
@@ -5151,11 +5195,11 @@ function renderTaskCard(task, isManager) {
   // - Managers can mark any task complete.
   // - Sales reps can mark a task complete if it is assigned to them or if they created it.
   const canComplete = isManager || isAssignedToMe || isCreatedByMe;
-  
+
   const dueDate = task.due_date ? new Date(task.due_date) : null;
   const isOverdue = dueDate && dueDate < new Date();
   const dueDateStr = dueDate ? formatDate(dueDate) : '';
-  
+
   // Get assigned to name
   let assignedToName = 'Unassigned';
   if (task.assigned_to_profile) {
@@ -5163,7 +5207,7 @@ function renderTaskCard(task, isManager) {
   } else if (task.assigned_to === currentUser.id) {
     assignedToName = 'Me';
   }
-  
+
   // Get created by name
   let createdByName = 'Unknown';
   if (task.created_by_profile) {
@@ -5245,19 +5289,19 @@ function getStatusLabel(status) {
 
 function initTaskFilters(tasks) {
   const filterButtons = document.querySelectorAll('.task-filter');
-  
+
   filterButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       // Update active state
       filterButtons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      
+
       const filter = btn.dataset.filter;
-      
+
       // Apply filter
       document.querySelectorAll('.task-card').forEach(card => {
         let show = true;
-        
+
         if (filter === 'assigned') {
           // Only show tasks created by current user
           const taskId = card.dataset.id;
@@ -5270,7 +5314,7 @@ function initTaskFilters(tasks) {
           const status = card.dataset.status;
           show = status === filter;
         }
-        
+
         card.style.display = show ? 'block' : 'none';
       });
     });
@@ -5295,17 +5339,17 @@ function initTaskActionButtons(tasks, salesReps) {
     btn.addEventListener('click', async (e) => {
       e.stopPropagation();
       const taskId = btn.dataset.id;
-      
+
       const { error } = await supabaseClient
         .from('tasks')
         .update({ status: 'completed', updated_at: new Date().toISOString() })
         .eq('id', taskId);
-      
+
       if (error) {
         showToast('Error completing task: ' + error.message, 'error');
         return;
       }
-      
+
       showToast('Task completed successfully', 'success');
       renderTasksView();
     });
@@ -5316,24 +5360,24 @@ function initTaskActionButtons(tasks, salesReps) {
     btn.addEventListener('click', async (e) => {
       e.stopPropagation();
       const taskId = btn.dataset.id;
-      
+
       const confirmed = await showConfirmDialog(
         'Delete Task',
         'Are you sure you want to delete this task?'
       );
 
       if (!confirmed) return;
-      
+
       const { error } = await supabaseClient
         .from('tasks')
         .delete()
         .eq('id', taskId);
-      
+
       if (error) {
         showToast('Error deleting task: ' + error.message, 'error');
         return;
       }
-      
+
       showToast('Task deleted successfully', 'success');
       renderTasksView();
     });
@@ -5346,22 +5390,22 @@ function openTaskModal(task = null, salesReps = []) {
   const saveBtn = document.getElementById('save-task-btn');
   const assignField = document.getElementById('task-assign-field');
   const assignSelect = document.getElementById('task-assign-to');
-  
+
   // Reset form
   document.getElementById('task-title').value = '';
   document.getElementById('task-description').value = '';
   document.getElementById('task-due-date').value = '';
   document.getElementById('task-priority').value = 'medium';
   document.getElementById('task-status').value = 'pending';
-  
+
   // Populate sales reps dropdown for managers
   if (isManager && salesReps.length > 0) {
     assignField.style.display = 'block';
     assignSelect.innerHTML = '<option value="">Select a sales rep</option>';
-    
+
     // Add option for self
     assignSelect.innerHTML += `<option value="${currentUser.id}">Me</option>`;
-    
+
     // Add options for sales reps
     salesReps.forEach(rep => {
       assignSelect.innerHTML += `<option value="${rep.id}">${rep.first_name} ${rep.last_name}</option>`;
@@ -5369,15 +5413,15 @@ function openTaskModal(task = null, salesReps = []) {
   } else {
     assignField.style.display = 'none';
   }
-  
+
   // Set modal title
   if (task) {
     modalTitle.innerHTML = 'Edit Task';
-    
+
     // Fill form with task data
     document.getElementById('task-title').value = task.title || '';
     document.getElementById('task-description').value = task.description || '';
-    
+
     // Fix for time display issue
     if (task.due_date) {
       const dueDate = new Date(task.due_date);
@@ -5387,25 +5431,25 @@ function openTaskModal(task = null, salesReps = []) {
       const day = String(dueDate.getDate()).padStart(2, '0');
       const hours = String(dueDate.getHours()).padStart(2, '0');
       const minutes = String(dueDate.getMinutes()).padStart(2, '0');
-      
+
       document.getElementById('task-due-date').value = `${year}-${month}-${day}T${hours}:${minutes}`;
     } else {
       document.getElementById('task-due-date').value = '';
     }
-    
+
     document.getElementById('task-priority').value = task.priority || 'medium';
     document.getElementById('task-status').value = task.status || 'pending';
-    
+
     if (isManager && task.assigned_to) {
       assignSelect.value = task.assigned_to;
     }
   } else {
     modalTitle.innerHTML = 'New Task';
   }
-  
+
   // Show modal
   modal.style.display = 'flex';
-  
+
   // Initialize event listeners
   initTaskModalListeners(task);
 }
@@ -5413,14 +5457,14 @@ function openTaskModal(task = null, salesReps = []) {
 function initTaskModalListeners(task) {
   // Save task
   const saveBtn = document.getElementById('save-task-btn');
-  
+
   saveBtn.onclick = async () => {
     const title = document.getElementById('task-title').value.trim();
     const description = document.getElementById('task-description').value.trim();
     const dueDate = document.getElementById('task-due-date').value;
     const priority = document.getElementById('task-priority').value;
     const status = document.getElementById('task-status').value;
-    
+
     // Get assigned to
     let assignedTo = null;
     if (isManager) {
@@ -5429,16 +5473,16 @@ function initTaskModalListeners(task) {
       // Non-managers can only create tasks for themselves
       assignedTo = currentUser.id;
     }
-    
+
     // Validate
     if (!title) {
       showToast('Please enter a task title', 'error');
       return;
     }
-    
+
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-    
+
     try {
       const taskData = {
         title,
@@ -5449,9 +5493,9 @@ function initTaskModalListeners(task) {
         priority,
         status
       };
-      
+
       let result;
-      
+
       if (task) {
         // Update existing task
         result = await supabaseClient
@@ -5464,9 +5508,9 @@ function initTaskModalListeners(task) {
           .from('tasks')
           .insert([taskData]);
       }
-      
+
       if (result.error) throw result.error;
-      
+
       showToast(`Task ${task ? 'updated' : 'created'} successfully!`, 'success');
       closeModal('task-modal');
       renderTasksView();
@@ -5487,7 +5531,7 @@ async function renderRemindersView() {
   // Fetch reminders based on user role
   let reminders;
   let error;
-  
+
   if (isManager) {
 
     const result = await supabaseClient
@@ -5499,7 +5543,7 @@ async function renderRemindersView() {
       `)
       .eq('created_by', currentUser.id)
       .order('reminder_date', { ascending: true });
-    
+
     reminders = result.data;
     error = result.error;
 
@@ -5514,7 +5558,7 @@ async function renderRemindersView() {
       `)
       .or(`assigned_to.eq.${currentUser.id},created_by.eq.${currentUser.id}`)
       .order('reminder_date', { ascending: true });
-    
+
     reminders = result.data;
     error = result.error;
   }
@@ -5533,7 +5577,7 @@ async function renderRemindersView() {
       .select('id, first_name, last_name, email')
       .eq('role', 'sales_rep')
       .order('first_name', { ascending: true });
-    
+
     salesReps = reps || [];
   }
 
@@ -5603,7 +5647,7 @@ async function renderRemindersView() {
       <div id="reminders-container">
   `;
 
-    // Check for due reminders and show notification
+  // Check for due reminders and show notification
   // Check for due reminders and show notification
   const dueReminders = reminders.filter(r => {
     const reminderDate = new Date(r.reminder_date);
@@ -5623,10 +5667,10 @@ async function renderRemindersView() {
         </div>
         <div class="reminder-notification-content">
           ${dueReminders.slice(0, 3).map(reminder => {
-            // Check if current user is assigned to this reminder
-            const isAssignedToCurrentUser = reminder.assigned_to === currentUser.id;
-            
-            return `
+      // Check if current user is assigned to this reminder
+      const isAssignedToCurrentUser = reminder.assigned_to === currentUser.id;
+
+      return `
               <div class="reminder-notification-item">
                 <div class="reminder-notification-title">${reminder.title}</div>
                 <div class="reminder-notification-time">${formatDate(reminder.reminder_date, true)}</div>
@@ -5645,7 +5689,7 @@ async function renderRemindersView() {
                 </div>
               </div>
             `;
-          }).join('')}
+    }).join('')}
           ${dueReminders.length > 3 ? `
             <div class="reminder-notification-more">
               And ${dueReminders.length - 3} more...
@@ -5675,13 +5719,13 @@ async function renderRemindersView() {
       const canComplete = isAssignedToMe;
 
       const isCreatedByManager = isManager && reminder.created_by !== currentUser.id;
-      
+
       // Get user info from joined data
       const assignedToUser = reminder.assigned_to_profile;
       const assignedToName = assignedToUser ? `${assignedToUser.first_name} ${assignedToUser.last_name}` : 'Unknown';
       const createdByUser = reminder.created_by_profile;
       const createdByName = createdByUser ? `${createdByUser.first_name} ${createdByUser.last_name}` : 'Unknown';
-      
+
       html += `
         <div class="reminder-card" data-id="${reminder.id}" data-completed="${reminder.is_completed}">
           <div class="reminder-header">
@@ -5784,17 +5828,17 @@ async function renderRemindersView() {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
         const reminderId = btn.dataset.id;
-        
+
         const { error } = await supabaseClient
           .from('reminders')
           .update({ is_completed: true, updated_at: new Date().toISOString() })
           .eq('id', reminderId);
-        
+
         if (error) {
           showToast('Error completing reminder: ' + error.message, 'error');
           return;
         }
-        
+
         showToast('Reminder completed successfully', 'success');
         renderRemindersView();
       });
@@ -5804,7 +5848,7 @@ async function renderRemindersView() {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
         const reminderId = btn.dataset.id;
-        
+
         // Store dismissed reminder in localStorage with a timestamp
         const dismissedReminders = JSON.parse(localStorage.getItem('dismissedReminders') || '[]');
         dismissedReminders.push({
@@ -5812,10 +5856,10 @@ async function renderRemindersView() {
           dismissedAt: new Date().toISOString()
         });
         localStorage.setItem('dismissedReminders', JSON.stringify(dismissedReminders));
-        
+
         // Hide notification
         document.getElementById('reminder-notification').style.display = 'none';
-        
+
         showToast('Reminder dismissed', 'info');
       });
     });
@@ -5824,19 +5868,19 @@ async function renderRemindersView() {
 
 function initReminderFilters(reminders) {
   const filterButtons = document.querySelectorAll('.reminder-filter');
-  
+
   filterButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       // Update active state
       filterButtons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-      
+
       const filter = btn.dataset.filter;
-      
+
       // Apply filter
       document.querySelectorAll('.reminder-card').forEach(card => {
         let show = true;
-        
+
         if (filter === 'assigned') {
           // Only show reminders created by current user
           const reminderId = card.dataset.id;
@@ -5849,7 +5893,7 @@ function initReminderFilters(reminders) {
           const isCompleted = card.dataset.completed === 'true';
           show = isCompleted === (filter === 'completed');
         }
-        
+
         card.style.display = show ? 'block' : 'none';
       });
     });
@@ -5874,17 +5918,17 @@ function initReminderActionButtons(reminders, salesReps) {
     btn.addEventListener('click', async (e) => {
       e.stopPropagation();
       const reminderId = btn.dataset.id;
-      
+
       const { error } = await supabaseClient
         .from('reminders')
         .update({ is_completed: true, updated_at: new Date().toISOString() })
         .eq('id', reminderId);
-      
+
       if (error) {
         showToast('Error completing reminder: ' + error.message, 'error');
         return;
       }
-      
+
       showToast('Reminder completed successfully', 'success');
       renderRemindersView();
     });
@@ -5895,24 +5939,24 @@ function initReminderActionButtons(reminders, salesReps) {
     btn.addEventListener('click', async (e) => {
       e.stopPropagation();
       const reminderId = btn.dataset.id;
-      
+
       const confirmed = await showConfirmDialog(
         'Delete Reminder',
         'Are you sure you want to delete this reminder?'
       );
 
       if (!confirmed) return;
-      
+
       const { error } = await supabaseClient
         .from('reminders')
         .delete()
         .eq('id', reminderId);
-      
+
       if (error) {
         showToast('Error deleting reminder: ' + error.message, 'error');
         return;
       }
-      
+
       showToast('Reminder deleted successfully', 'success');
       renderRemindersView();
     });
@@ -5925,20 +5969,20 @@ function openReminderModal(reminder = null, salesReps = []) {
   const saveBtn = document.getElementById('save-reminder-btn');
   const assignField = document.getElementById('reminder-assign-field');
   const assignSelect = document.getElementById('reminder-assign-to');
-  
+
   // Reset form
   document.getElementById('reminder-title').value = '';
   document.getElementById('reminder-description').value = '';
   document.getElementById('reminder-date').value = '';
-  
+
   // Populate sales reps dropdown for managers
   if (isManager && salesReps.length > 0) {
     assignField.style.display = 'block';
     assignSelect.innerHTML = '<option value="">Select a sales rep</option>';
-    
+
     // Add option for self
     assignSelect.innerHTML += `<option value="${currentUser.id}">Me</option>`;
-    
+
     // Add options for sales reps
     salesReps.forEach(rep => {
       assignSelect.innerHTML += `<option value="${rep.id}">${rep.first_name} ${rep.last_name}</option>`;
@@ -5946,15 +5990,15 @@ function openReminderModal(reminder = null, salesReps = []) {
   } else {
     assignField.style.display = 'none';
   }
-  
+
   // Set modal title
   if (reminder) {
     modalTitle.innerHTML = 'Edit Reminder';
-    
+
     // Fill form with reminder data
     document.getElementById('reminder-title').value = reminder.title || '';
     document.getElementById('reminder-description').value = reminder.description || '';
-    
+
     // Fix for time display issue
     if (reminder.reminder_date) {
       const reminderDate = new Date(reminder.reminder_date);
@@ -5964,22 +6008,22 @@ function openReminderModal(reminder = null, salesReps = []) {
       const day = String(reminderDate.getDate()).padStart(2, '0');
       const hours = String(reminderDate.getHours()).padStart(2, '0');
       const minutes = String(reminderDate.getMinutes()).padStart(2, '0');
-      
+
       document.getElementById('reminder-date').value = `${year}-${month}-${day}T${hours}:${minutes}`;
     } else {
       document.getElementById('reminder-date').value = '';
     }
-    
+
     if (isManager && reminder.assigned_to) {
       assignSelect.value = reminder.assigned_to;
     }
   } else {
     modalTitle.innerHTML = 'New Reminder';
   }
-  
+
   // Show modal
   modal.style.display = 'flex';
-  
+
   // Initialize event listeners
   initReminderModalListeners(reminder);
 }
@@ -5987,12 +6031,12 @@ function openReminderModal(reminder = null, salesReps = []) {
 function initReminderModalListeners(reminder) {
   // Save reminder
   const saveBtn = document.getElementById('save-reminder-btn');
-  
+
   saveBtn.onclick = async () => {
     const title = document.getElementById('reminder-title').value.trim();
     const description = document.getElementById('reminder-description').value.trim();
     const reminderDate = document.getElementById('reminder-date').value;
-    
+
     // Get assigned to
     let assignedTo = null;
     if (isManager) {
@@ -6001,16 +6045,16 @@ function initReminderModalListeners(reminder) {
       // Non-managers can only create reminders for themselves
       assignedTo = currentUser.id;
     }
-    
+
     // Validate
     if (!title || !reminderDate) {
       showToast('Please enter a title and reminder date', 'error');
       return;
     }
-    
+
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-    
+
     try {
       const reminderData = {
         title,
@@ -6020,9 +6064,9 @@ function initReminderModalListeners(reminder) {
         reminder_date: new Date(reminderDate).toISOString(),
         is_completed: false
       };
-      
+
       let result;
-      
+
       if (reminder) {
         // Update existing reminder
         result = await supabaseClient
@@ -6035,9 +6079,9 @@ function initReminderModalListeners(reminder) {
           .from('reminders')
           .insert([reminderData]);
       }
-      
+
       if (result.error) throw result.error;
-      
+
       showToast(`Reminder ${reminder ? 'updated' : 'created'} successfully!`, 'success');
       closeModal('reminder-modal');
       renderRemindersView();
@@ -6058,7 +6102,7 @@ function openExportModal() {
   document.getElementById('export-modal').style.display = 'flex';
 }
 
-window.closeModal = function(modalId) {
+window.closeModal = function (modalId) {
   const modal = document.getElementById(modalId);
   if (modal) modal.style.display = 'none';
   // For dynamically created modals
@@ -6069,7 +6113,7 @@ window.closeModal = function(modalId) {
   }
 };
 
-window.setDateRange = function(range, btn) {
+window.setDateRange = function (range, btn) {
   document.querySelectorAll('.date-range-btn').forEach(b => b.classList.remove('active'));
   btn?.classList.add('active');
 
@@ -6103,7 +6147,7 @@ window.setDateRange = function(range, btn) {
   toInput.value = today.toISOString().split('T')[0];
 };
 
-window.executeExport = async function() {
+window.executeExport = async function () {
   const format = document.querySelector('input[name="export-format"]:checked')?.value || 'pdf';
   const fromDate = document.getElementById('export-date-from').value;
   const toDate = document.getElementById('export-date-to').value;
@@ -6169,31 +6213,31 @@ async function exportToPDF(visits, fromDate, toDate) {
     yPos += 6;
     doc.text(`Rep: ${userName} | Date: ${date}`, 20, yPos);
     yPos += 10;
-    
+
     if (visit.contact_name) {
       doc.text(`Contact: ${visit.contact_name}`, 20, yPos);
       yPos += 6;
     }
-    
+
     if (visit.location_name) {
       doc.text(`Location: ${visit.location_name}`, 20, yPos);
       yPos += 6;
     }
-    
+
     if (visit.visit_type) {
       doc.text(`Type: ${visit.visit_type.replace('_', ' ')}`, 20, yPos);
       yPos += 6;
     }
-    
+
     if (visit.travel_time) {
       doc.text(`Travel Time: ${visit.travel_time} min`, 20, yPos);
       yPos += 6;
     }
-    
+
     if (visit.notes) {
       doc.text('Notes:', 20, yPos);
       yPos += 6;
-      
+
       // Split notes into lines to fit in page
       const lines = doc.splitTextToSize(visit.notes, 170);
       lines.forEach(line => {
@@ -6201,7 +6245,7 @@ async function exportToPDF(visits, fromDate, toDate) {
         yPos += 5;
       });
     }
-    
+
     yPos += 10;
   });
 
@@ -6277,7 +6321,7 @@ function updateThemeIcon(theme) {
 
   // Define the SVG icons
   const darkModeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon-icon lucide-moon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>`;
-  
+
   const lightModeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun-icon lucide-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
 
   // Inject the correct SVG based on the theme
@@ -6363,14 +6407,14 @@ function getInitials(name) {
 
 function formatDate(dateString, shortFormat = false) {
   const date = new Date(dateString);
-  
+
   if (shortFormat) {
     return date.toLocaleDateString('en-US', {
       month: 'short',
       day: 'numeric'
     });
   }
-  
+
   return date.toLocaleDateString('en-US', {
     day: 'numeric',
     month: 'short',
@@ -6389,7 +6433,7 @@ async function geocodeAddressWithOSM(address) {
   try {
     // URL encode the address to handle spaces and special characters
     const encodedAddress = encodeURIComponent(address);
-    
+
     // Nominatim Search Endpoint
     const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddress}`;
 
@@ -6398,7 +6442,7 @@ async function geocodeAddressWithOSM(address) {
         'User-Agent': 'SafiTrack-CRM/1.0' // User-Agent is recommended to avoid blocking
       }
     });
-    
+
     if (!response.ok) {
       // Handle rate limits (HTTP 429)
       if (response.status === 429) {
@@ -6439,7 +6483,7 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
     console.error('Invalid coordinates for distance calculation', { lat1, lon1, lat2, lon2 });
     return NaN;
   }
-  
+
   const R = 6371e3; // Earth's radius in meters
   const φ1 = lat1 * Math.PI / 180;
   const φ2 = lat2 * Math.PI / 180;
@@ -6487,7 +6531,7 @@ function renderSkeletonCards(count = 3) {
     <h1 class="page-title">Loading...</h1>
     <p class="page-subtitle">Please wait</p>
   </div>`; // Make sure this div closes! 
-  
+
   // ... rest of the function remains the same
   for (let i = 0; i < count; i++) {
     html += `
@@ -6540,14 +6584,14 @@ function renderNotFound() {
 }
 
 // Tags functions
-window.addTag = function(tag) {
+window.addTag = function (tag) {
   if (!visitTags.includes(tag)) {
     visitTags.push(tag);
     renderTags();
   }
 };
 
-window.removeTag = function(tag) {
+window.removeTag = function (tag) {
   visitTags = visitTags.filter(t => t !== tag);
   renderTags();
 };
@@ -6579,39 +6623,39 @@ function renderTags() {
 // CUSTOM CONFIRM DIALOG
 // ======================
 
-window.showConfirmDialog = function(title, message) {
+window.showConfirmDialog = function (title, message) {
   return new Promise((resolve) => {
     const dialog = document.getElementById('confirm-dialog');
     const titleEl = document.getElementById('confirm-title');
     const messageEl = document.getElementById('confirm-message');
     const cancelBtn = document.getElementById('confirm-cancel');
     const okBtn = document.getElementById('confirm-ok');
-    
+
     // Set content
     titleEl.textContent = title;
     messageEl.textContent = message;
-    
+
     // Show dialog
     dialog.style.display = 'flex';
-    
+
     // Handle buttons
     const handleCancel = () => {
       dialog.style.display = 'none';
       cleanup();
       resolve(false);
     };
-    
+
     const handleOk = () => {
       dialog.style.display = 'none';
       cleanup();
       resolve(true);
     };
-    
+
     const cleanup = () => {
       cancelBtn.removeEventListener('click', handleCancel);
       okBtn.removeEventListener('click', handleOk);
     };
-    
+
     cancelBtn.addEventListener('click', handleCancel);
     okBtn.addEventListener('click', handleOk);
   });
@@ -6674,7 +6718,7 @@ function renderCommandResults(results) {
   `).join('');
 }
 
-window.executeCommand = function(commandId) {
+window.executeCommand = function (commandId) {
   const command = commands.find(cmd => cmd.id === commandId);
   if (command) {
     command.action();
@@ -6997,7 +7041,7 @@ function initTechnicianLogVisitForm(companies) {
 
   companyNameInput.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase().trim();
-    
+
     if (query.length === 0) {
       companySearchResults.style.display = 'none';
       return;
@@ -7072,11 +7116,11 @@ function initTechnicianLogVisitForm(companies) {
 
         locationStatus.className = 'location-status success';
         locationStatus.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Location captured! Coordinates: ${capturedLocation.latitude.toFixed(6)}, ${capturedLocation.longitude.toFixed(6)}`;
-        
+
         // Show map
         locationMap.style.display = 'block';
         initTechnicianLocationMap(company, capturedLocation);
-        
+
         verifyLocationBtn.disabled = false;
         verifyLocationBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Location Captured';
         verifyLocationBtn.classList.add('btn-success');
@@ -7128,46 +7172,46 @@ function initTechnicianLogVisitForm(companies) {
 
   photoInput.addEventListener('change', async (e) => {
     const files = Array.from(e.target.files);
-    
+
     if (files.length === 0) {
       window.technicianVisitForm.photos = [];
       renderPhotoPreviews();
       return;
     }
-    
+
     // Limit to 10 photos
     const filesToProcess = files.slice(0, 10);
-    
+
     // Clear existing photos
     window.technicianVisitForm.photos = [];
-    
+
     // Show compression progress
     showCompressionProgress('Compressing images...');
-    
+
     try {
       // Process each file with compression
       for (let i = 0; i < filesToProcess.length; i++) {
         const file = filesToProcess[i];
-        
+
         // Update progress message
         showCompressionProgress(`Compressing image ${i + 1} of ${filesToProcess.length}...`);
-        
+
         // Validate file type
         if (!file.type.startsWith('image/')) {
           showToast(`File ${file.name} is not an image`, 'error');
           continue;
         }
-        
+
         // Validate file size (before compression)
         if (file.size > 10 * 1024 * 1024) { // 10MB limit before compression
           showToast(`Photo ${file.name} exceeds 10MB limit`, 'error');
           continue;
         }
-        
+
         try {
           // Compress the image
           const compressedFile = await compressImage(file, 0.6, 1200, 1200);
-          
+
           // Read compressed file for preview
           const reader = new FileReader();
           reader.onload = (e) => {
@@ -7182,30 +7226,30 @@ function initTechnicianLogVisitForm(companies) {
               type: file.type,
               timestamp: new Date().toISOString()
             };
-            
+
             // Add to global state
             window.technicianVisitForm.photos.push(photoObj);
-            
+
             // Update preview if this is the last image
             if (window.technicianVisitForm.photos.length === filesToProcess.filter(f => f.type.startsWith('image/')).length) {
               renderPhotoPreviews();
               hideCompressionProgress();
-              
+
               // Show compression summary
               const totalOriginal = window.technicianVisitForm.photos.reduce((sum, p) => sum + p.originalSize, 0);
               const totalCompressed = window.technicianVisitForm.photos.reduce((sum, p) => sum + p.compressedSize, 0);
               const totalSavings = ((1 - totalCompressed / totalOriginal) * 100).toFixed(0);
-              
+
               showToast(`Images compressed! Saved ${totalSavings}% storage space`, 'success');
             }
           };
-          
+
           reader.readAsDataURL(compressedFile);
-          
+
         } catch (compressionError) {
           console.error('Compression error:', compressionError);
           showToast(`Failed to compress ${file.name}, using original`, 'warning');
-          
+
           // Fallback to original file if compression fails
           const reader = new FileReader();
           reader.onload = (e) => {
@@ -7218,25 +7262,25 @@ function initTechnicianLogVisitForm(companies) {
               type: file.type,
               timestamp: new Date().toISOString()
             };
-            
+
             window.technicianVisitForm.photos.push(photoObj);
-            
+
             if (window.technicianVisitForm.photos.length === filesToProcess.filter(f => f.type.startsWith('image/')).length) {
               renderPhotoPreviews();
               hideCompressionProgress();
             }
           };
-          
+
           reader.readAsDataURL(file);
         }
       }
-      
+
     } catch (error) {
       console.error('Error processing images:', error);
       hideCompressionProgress();
       showToast('Error processing images', 'error');
     }
-    
+
     // Reset the input value
     e.target.value = '';
   });
@@ -7244,20 +7288,20 @@ function initTechnicianLogVisitForm(companies) {
   function renderPhotoPreviews() {
     const photos = window.technicianVisitForm.photos;
     const photoPreviewGrid = document.getElementById('photo-preview-grid');
-    
+
     if (!photoPreviewGrid) return;
-    
+
     if (photos.length === 0) {
       photoPreviewGrid.innerHTML = '<p class="text-muted text-center">No photos selected</p>';
       return;
     }
-    
+
     photoPreviewGrid.innerHTML = photos.map((photo, index) => {
       const originalSizeMB = (photo.originalSize / 1024 / 1024).toFixed(2);
       const compressedSizeMB = (photo.compressedSize / 1024 / 1024).toFixed(2);
-      const savings = photo.originalSize !== photo.compressedSize ? 
+      const savings = photo.originalSize !== photo.compressedSize ?
         `(-${((1 - photo.compressedSize / photo.originalSize) * 100).toFixed(0)}%)` : '';
-      
+
       return `
         <div class="photo-item">
           <img src="${photo.dataUrl}" alt="Visit photo ${index + 1}" style="width: 100%; height: 100%; object-fit: cover;">
@@ -7273,7 +7317,7 @@ function initTechnicianLogVisitForm(companies) {
     }).join('');
   }
 
-  window.removeTechnicianPhoto = function(index) {
+  window.removeTechnicianPhoto = function (index) {
     window.technicianVisitForm.photos.splice(index, 1);
     renderPhotoPreviews();
   };
@@ -7282,23 +7326,23 @@ function initTechnicianLogVisitForm(companies) {
   function initSignatureCanvases() {
     const clientSignatureCanvas = document.getElementById('client-signature-canvas');
     const technicianSignatureCanvas = document.getElementById('technician-signature-canvas');
-    
+
     // Set canvas dimensions
     clientSignatureCanvas.width = clientSignatureCanvas.offsetWidth;
     clientSignatureCanvas.height = clientSignatureCanvas.offsetHeight;
     technicianSignatureCanvas.width = technicianSignatureCanvas.offsetWidth;
     technicianSignatureCanvas.height = technicianSignatureCanvas.offsetHeight;
-    
+
     // Get contexts
     const clientSignatureCtx = clientSignatureCanvas.getContext('2d');
     const technicianSignatureCtx = technicianSignatureCanvas.getContext('2d');
-    
+
     // Store in global state
     window.technicianVisitForm.clientSignatureCanvas = clientSignatureCanvas;
     window.technicianVisitForm.technicianSignatureCanvas = technicianSignatureCanvas;
     window.technicianVisitForm.clientSignatureCtx = clientSignatureCtx;
     window.technicianVisitForm.technicianSignatureCtx = technicianSignatureCtx;
-    
+
     // Set up drawing
     setupSignatureDrawing(clientSignatureCanvas, clientSignatureCtx, 'client');
     setupSignatureDrawing(technicianSignatureCanvas, technicianSignatureCtx, 'technician');
@@ -7312,14 +7356,14 @@ function initTechnicianLogVisitForm(companies) {
 
     // Get current theme
     const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
-    
+
     function startDrawing(e) {
       isDrawing = true;
       [lastX, lastY] = getCoordinates(e);
       if (type === 'client') window.technicianVisitForm.isClientDrawing = true;
       if (type === 'technician') window.technicianVisitForm.isTechnicianDrawing = true;
       canvas.style.cursor = 'crosshair';
-      
+
       // Clear any existing timeout
       if (drawingTimeout) clearTimeout(drawingTimeout);
     }
@@ -7327,33 +7371,33 @@ function initTechnicianLogVisitForm(companies) {
 
     function draw(e) {
       if (!isDrawing) return;
-      
+
       // Use consistent blue color so signatures are visible in both themes
       ctx.strokeStyle = '#2563eb';
       ctx.lineWidth = 2;
       ctx.lineCap = 'round';
       ctx.lineJoin = 'round';
-      
+
       const [x, y] = getCoordinates(e);
-      
+
       ctx.beginPath();
       ctx.moveTo(lastX, lastY);
       ctx.lineTo(x, y);
       ctx.stroke();
-      
+
       [lastX, lastY] = [x, y];
-      
+
       // Clear any existing timeout
       if (drawingTimeout) clearTimeout(drawingTimeout);
     }
-    
+
 
     function stopDrawing() {
       if (!isDrawing) return;
-      
+
       isDrawing = false;
       canvas.style.cursor = 'crosshair';
-      
+
       // Immediately capture the signature when drawing stops
       try {
         const signatureData = canvas.toDataURL('image/png');
@@ -7385,9 +7429,9 @@ function initTechnicianLogVisitForm(companies) {
       const rect = canvas.getBoundingClientRect();
       const scaleX = canvas.width / rect.width;
       const scaleY = canvas.height / rect.height;
-      
+
       let clientX, clientY;
-      
+
       if (e.type.includes('touch')) {
         clientX = e.touches[0].clientX;
         clientY = e.touches[0].clientY;
@@ -7395,7 +7439,7 @@ function initTechnicianLogVisitForm(companies) {
         clientX = e.clientX;
         clientY = e.clientY;
       }
-      
+
       return [
         (clientX - rect.left) * scaleX,
         (clientY - rect.top) * scaleY
@@ -7441,7 +7485,7 @@ function initTechnicianLogVisitForm(companies) {
     document.getElementById(`save-${type}-signature`).addEventListener('click', () => {
       const signatureData = canvas.toDataURL('image/png');
       const preview = document.getElementById(`${type}-signature-preview`);
-      
+
       if (type === 'client') {
         window.technicianVisitForm.clientSignature = signatureData;
         document.getElementById('client-signature-placeholder').style.display = 'none';
@@ -7449,12 +7493,12 @@ function initTechnicianLogVisitForm(companies) {
         window.technicianVisitForm.technicianSignature = signatureData;
         document.getElementById('technician-signature-placeholder').style.display = 'none';
       }
-      
+
       if (preview) {
         preview.innerHTML = `<img src="${signatureData}" alt="${type} signature" style="max-height: 100px;">`;
         preview.classList.add('show');
       }
-      
+
       checkSignatures();
     });
   }
@@ -7502,15 +7546,15 @@ function initTechnicianLogVisitForm(companies) {
 
     // Show current step container
     document.getElementById(`step-${step}`).classList.add('active');
-    
+
     // Update current step in global state
     window.technicianVisitForm.currentStep = step;
-    
+
     // Initialize signatures if going to step 4
     if (step === 4 && !window.technicianVisitForm.clientSignatureCanvas) {
       setTimeout(initSignatureCanvases, 100);
     }
-    
+
     // Generate review if going to step 5
     if (step === 5) {
       generateReview();
@@ -7522,7 +7566,7 @@ function initTechnicianLogVisitForm(companies) {
       case 1:
         const company = window.technicianVisitForm.selectedCompany;
         const customLocation = document.getElementById('technician-custom-location').value.trim();
-        
+
         // Allow submission if we have a selected company OR a custom location name
         if (!company && !customLocation) {
           showToast('Please select a company or enter a custom location', 'error');
@@ -7533,34 +7577,34 @@ function initTechnicianLogVisitForm(companies) {
           return false;
         }
         return true;
-        
+
       case 2:
         const visitType = document.getElementById('visit-type').value;
         const workCategory = document.getElementById('work-category').value;
         const workStatus = document.getElementById('work-status').value;
         const visitNotes = document.getElementById('visit-notes').value;
-        
+
         if (!visitType || !workCategory || !workStatus || !visitNotes) {
           showToast('Please fill all required fields', 'error');
           return false;
         }
-        
+
         if (workCategory === 'other' && !document.getElementById('other-category').value) {
           showToast('Please specify work category', 'error');
           return false;
         }
-        
+
         if (workStatus === 'follow_up' && !document.getElementById('follow-up-notes').value) {
           showToast('Please provide follow-up notes', 'error');
           return false;
         }
-        
+
         return true;
-        
+
       case 3:
         // Photos are optional
         return true;
-        
+
       case 4:
         // Client signature optional; technician signature required
         if (!window.technicianVisitForm.technicianSignature) {
@@ -7568,7 +7612,7 @@ function initTechnicianLogVisitForm(companies) {
           return false;
         }
         return true;
-        
+
       default:
         return true;
     }
@@ -7583,7 +7627,7 @@ function initTechnicianLogVisitForm(companies) {
     const visitNotes = document.getElementById('visit-notes');
     const company = window.technicianVisitForm.selectedCompany;
     const capturedLocation = window.technicianVisitForm.capturedLocation;
-    
+
     const summaryHTML = `
       <div class="review-item">
         <strong>Company:</strong> ${company ? company.name : 'Not selected'}
@@ -7609,9 +7653,9 @@ function initTechnicianLogVisitForm(companies) {
         <strong>Location:</strong> ${capturedLocation ? 'Captured ✓' : 'Not captured'}
       </div>
     `;
-    
+
     document.getElementById('review-summary').innerHTML = summaryHTML;
-    
+
     // Render photos
     const reviewPhotos = document.getElementById('review-photos');
     const photos = window.technicianVisitForm.photos;
@@ -7624,12 +7668,12 @@ function initTechnicianLogVisitForm(companies) {
     } else {
       reviewPhotos.innerHTML = '<p class="text-muted">No photos uploaded</p>';
     }
-    
+
     // Render signatures (client optional)
-    document.getElementById('review-client-signature').innerHTML = 
+    document.getElementById('review-client-signature').innerHTML =
       window.technicianVisitForm.clientSignature ? `<img src="${window.technicianVisitForm.clientSignature}" alt="Client signature" style="max-height: 100px;" onerror="handleImageError(this)">` : 'Not provided';
-    
-    document.getElementById('review-technician-signature').innerHTML = 
+
+    document.getElementById('review-technician-signature').innerHTML =
       window.technicianVisitForm.technicianSignature ? `<img src="${window.technicianVisitForm.technicianSignature}" alt="Technician signature" style="max-height: 100px;" onerror="handleImageError(this)">` : 'Not provided';
 
     // Enable submit only if technician signature exists (client signature optional)
@@ -7665,22 +7709,22 @@ function initTechnicianLogVisitForm(companies) {
 
       const visitData = {
         technician_id: currentUser.id,
-        
+
         // 1. Company ID: If selected company, save ID. If custom, save NULL.
         company_id: window.technicianVisitForm.selectedCompany ? window.technicianVisitForm.selectedCompany.id : null,
-        
+
         // 2. Company Name: If selected company, save name. If custom, save the custom input value.
         // This ensures the "Name: Unknown Company" issue is fixed because we save the name here.
-        company_name: window.technicianVisitForm.selectedCompany 
-          ? window.technicianVisitForm.selectedCompany.name 
+        company_name: window.technicianVisitForm.selectedCompany
+          ? window.technicianVisitForm.selectedCompany.name
           : (document.getElementById('technician-custom-location').value.trim() || 'Custom Location'),
-          
+
         visit_type: document.getElementById('visit-type').value,
         work_category: document.getElementById('work-category').value,
-        other_work_category: document.getElementById('work-category').value === 'other' ? 
+        other_work_category: document.getElementById('work-category').value === 'other' ?
           document.getElementById('other-category').value : null,
         work_status: document.getElementById('work-status').value,
-        follow_up_notes: document.getElementById('work-status').value === 'follow_up' ? 
+        follow_up_notes: document.getElementById('work-status').value === 'follow_up' ?
           document.getElementById('follow-up-notes').value : null,
         visit_notes: document.getElementById('visit-notes').value,
         client_signature: window.technicianVisitForm.clientSignature,
@@ -7699,12 +7743,12 @@ function initTechnicianLogVisitForm(companies) {
       if (error) throw error;
 
       showToast('Service visit submitted successfully!', 'success');
-      
+
       // Clear form for next entry
       setTimeout(() => {
         loadView('technician-activity');
       }, 1500);
-      
+
     } catch (err) {
       console.error('Error submitting visit:', err);
       showToast('Failed to submit visit: ' + err.message, 'error');
@@ -7734,7 +7778,7 @@ function initTechnicianLogVisitForm(companies) {
       L.marker([company.latitude, company.longitude])
         .addTo(map)
         .bindPopup(company.name);
-      
+
       // Draw line between technician and company
       const latlngs = [
         [userLocation.latitude, userLocation.longitude],
@@ -7742,7 +7786,7 @@ function initTechnicianLogVisitForm(companies) {
       ];
       L.polyline(latlngs, { color: '#4f46e5', weight: 2, dashArray: '5, 5' }).addTo(map);
     }
-    
+
     // Store map reference
     window.technicianVisitForm.map = map;
 
@@ -7757,32 +7801,32 @@ function initTechnicianLogVisitForm(companies) {
   }
 }
 
-window.selectTechnicianCompany = function(companyId) {
+window.selectTechnicianCompany = function (companyId) {
   const companies = window.companiesData;
   const company = companies.find(c => c.id === companyId);
   if (!company) return;
 
   // Update company name input
   document.getElementById('technician-company-name').value = company.name;
-  
+
   // Show selected company info
   document.getElementById('selected-technician-company').style.display = 'block';
   document.getElementById('selected-technician-company-name').textContent = company.name;
-  document.getElementById('selected-technician-company-address').textContent = 
+  document.getElementById('selected-technician-company-address').textContent =
     company.description || 'No description';
-  
+
   // Hide search results
   document.getElementById('technician-company-search-results').style.display = 'none';
-  
+
   // CRITICAL FIX: Store the company in the global state
   window.technicianVisitForm.selectedCompany = company;
-  
+
   // Enable verify location button
   document.getElementById('verify-technician-location').disabled = false;
 };
 
 // Allow selecting a custom company entered by the technician
-window.selectCustomTechnicianCompany = function(name) {
+window.selectCustomTechnicianCompany = function (name) {
   const company = {
     id: null,
     name: name,
@@ -7854,7 +7898,7 @@ async function renderTechnicianActivityView() {
 function renderTechnicianVisitCard(visit) {
   const date = formatDate(visit.created_at);
   const companyName = visit.company_name || visit.companies?.name || 'Unknown Company';
-  
+
   const workStatusLabels = {
     'completed': 'Completed',
     'partially_completed': 'Partially Completed',
@@ -7949,7 +7993,7 @@ function renderTechnicianVisitCard(visit) {
 function renderTechnicianVisitCard(visit) {
   const date = formatDate(visit.created_at);
   const companyName = visit.company_name || visit.companies?.name || 'Unknown Company';
-  
+
   const workStatusLabels = {
     'completed': 'Completed',
     'partially_completed': 'Partially Completed',
@@ -8210,9 +8254,9 @@ async function renderTechniciansDashboardView() {
 
 function renderTechnicianVisitCardForManager(visit) {
   const date = formatDate(visit.created_at);
-    // Use visit.company_name first (for custom locations), then fallback to joined companies data
+  // Use visit.company_name first (for custom locations), then fallback to joined companies data
   const companyName = visit.company_name || visit.companies?.name || 'Unknown Company';
-  const technicianName = visit.technician ? 
+  const technicianName = visit.technician ?
     `${visit.technician.first_name} ${visit.technician.last_name}` : 'Unknown Technician';
 
   const workStatusLabels = {
@@ -8316,7 +8360,7 @@ function initTechniciansMap(visits) {
 
   // Filter visits with valid coordinates
   const validVisits = visits.filter(v => v.latitude && v.longitude);
-  
+
   if (validVisits.length === 0) {
     mapElement.innerHTML = `
       <div class="flex items-center justify-center h-full">
@@ -8331,7 +8375,7 @@ function initTechniciansMap(visits) {
 
   // Initialize map
   const map = L.map('technicians-map').setView(
-    [validVisits[0].latitude, validVisits[0].longitude], 
+    [validVisits[0].latitude, validVisits[0].longitude],
     12
   );
 
@@ -8341,11 +8385,11 @@ function initTechniciansMap(visits) {
 
   // Add markers for each visit
   const markers = validVisits.map(visit => {
-      // Use visit.company_name first (for custom locations), then fallback to joined companies data
+    // Use visit.company_name first (for custom locations), then fallback to joined companies data
     const companyName = visit.company_name || visit.companies?.name || 'Unknown Company';
-    const technicianName = visit.technician ? 
+    const technicianName = visit.technician ?
       `${visit.technician.first_name} ${visit.technician.last_name}` : 'Unknown';
-    
+
     const statusColors = {
       'completed': 'green',
       'partially_completed': 'orange',
@@ -8393,7 +8437,7 @@ function initTechniciansMap(visits) {
           </button>
         </div>
       `);
-    
+
     return marker;
   });
 
@@ -8415,7 +8459,7 @@ function initTechnicianFilters(visits, technicians) {
   const dateFilter = document.getElementById('filter-date');
   const clearFiltersBtn = document.getElementById('clear-filters');
   const loadMoreBtn = document.getElementById('load-more-visits');
-  
+
   let filteredVisits = [...visits];
   let displayedCount = 20;
 
@@ -8442,7 +8486,7 @@ function initTechnicianFilters(visits, technicians) {
   function renderFilteredVisits() {
     const container = document.getElementById('technician-visits-list');
     const visitsToShow = filteredVisits.slice(0, displayedCount);
-    
+
     if (visitsToShow.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
@@ -8452,7 +8496,7 @@ function initTechnicianFilters(visits, technicians) {
         </div>
       `;
     } else {
-      container.innerHTML = visitsToShow.map(visit => 
+      container.innerHTML = visitsToShow.map(visit =>
         renderTechnicianVisitCardForManager(visit)
       ).join('');
     }
@@ -8546,7 +8590,7 @@ async function generateTechnicianVisitPDF(visitId) {
       // Create gradient effect with overlapping rectangles
       doc.setFillColor(...colors.primary);
       doc.rect(0, 0, pageWidth, 50, 'F');
-      
+
       doc.setFillColor(99, 102, 241, 0.3);
       doc.triangle(0, 0, pageWidth, 0, pageWidth, 50, 'F');
     };
@@ -8555,7 +8599,7 @@ async function generateTechnicianVisitPDF(visitId) {
     const addFooter = (pageNum) => {
       doc.setFillColor(...colors.light);
       doc.rect(0, pageHeight - 15, pageWidth, 15, 'F');
-      
+
       doc.setFontSize(8);
       doc.setTextColor(100, 100, 100);
       doc.text(`SafiTrack Service Report - Generated ${new Date().toLocaleDateString()}`, 20, pageHeight - 7);
@@ -8572,12 +8616,12 @@ async function generateTechnicianVisitPDF(visitId) {
 
       doc.setFillColor(...colors.primary);
       doc.roundedRect(20, yPos - 5, pageWidth - 40, 12, 2, 2, 'F');
-      
+
       doc.setFontSize(12);
       doc.setTextColor(...colors.white);
       doc.setFont(undefined, 'bold');
       doc.text(title, 25, yPos + 3);
-      
+
       yPos += 18;
       doc.setTextColor(...colors.dark);
       doc.setFont(undefined, 'normal');
@@ -8595,19 +8639,19 @@ async function generateTechnicianVisitPDF(visitId) {
       doc.setFontSize(10);
       doc.setTextColor(100, 100, 100);
       doc.text('>', 22, yPos);
-      
+
       doc.setFont(undefined, 'bold');
       doc.setTextColor(...colors.dark);
       doc.text(label + ':', 27, yPos);
-      
+
       doc.setFont(undefined, 'normal');
       // Add extra spacing (3 spaces) after the colon
       const labelWidth = doc.getTextWidth(label + ':   ');
-      
+
       // Handle long text with wrapping
       const maxWidth = pageWidth - 60;
       const lines = doc.splitTextToSize(value, maxWidth);
-      
+
       lines.forEach((line, index) => {
         if (index === 0) {
           doc.text(line, 27 + labelWidth, yPos);
@@ -8622,7 +8666,7 @@ async function generateTechnicianVisitPDF(visitId) {
           doc.text(line, 27 + labelWidth, yPos);
         }
       });
-      
+
       yPos += 8;
     };
 
@@ -8636,10 +8680,10 @@ async function generateTechnicianVisitPDF(visitId) {
       };
 
       const config = statusConfig[status] || statusConfig.pending;
-      
+
       doc.setFillColor(...config.color);
       doc.roundedRect(pageWidth - 70, 15, 50, 10, 2, 2, 'F');
-      
+
       doc.setFontSize(8);
       doc.setTextColor(...colors.white);
       doc.setFont(undefined, 'bold');
@@ -8679,51 +8723,51 @@ async function generateTechnicianVisitPDF(visitId) {
     // ==========================================
     let currentPage = 1;
     addGradientHeader();
-    
+
     // Logo/Title - UPDATED
     doc.setFontSize(24);
     doc.setTextColor(...colors.white);
     doc.setFont(undefined, 'bold');
     doc.text('SafiTrack Technician Report', 20, 30);
-    
+
     doc.setFontSize(11);
     doc.setFont(undefined, 'normal');
     doc.text('Service Visit Information', 20, 40);
-    
+
     // Status badge
     addStatusBadge(visit.work_status);
-    
+
     yPos = 60;
 
     // Report metadata box
     doc.setFillColor(250, 251, 252);
     doc.roundedRect(20, yPos, pageWidth - 40, 25, 3, 3, 'F');
-    
+
     doc.setFontSize(9);
     doc.setTextColor(100, 100, 100);
     doc.text('REPORT ID:', 25, yPos + 7);
     doc.setTextColor(...colors.dark);
     doc.setFont(undefined, 'bold');
     doc.text(visit.id.substring(0, 16), 53, yPos + 7);
-    
+
     doc.setFont(undefined, 'normal');
     doc.setTextColor(100, 100, 100);
     doc.text('DATE:', 25, yPos + 14);
     doc.setTextColor(...colors.dark);
     doc.text(new Date(visit.created_at).toLocaleString(), 53, yPos + 14);
-    
+
     doc.setTextColor(100, 100, 100);
     doc.text('GENERATED:', 25, yPos + 21);
     doc.setTextColor(...colors.dark);
     doc.text(new Date().toLocaleString(), 53, yPos + 21);
-    
+
     yPos += 35;
 
     // Company Information
     addSectionHeader('LOCATION & COMPANY');
     const companyName = visit.company_name || visit.companies?.name || 'Unknown Location';
     addInfoRow('Company Name', companyName);
-    
+
     if (visit.companies?.address) {
       addInfoRow('Address', visit.companies.address);
     }
@@ -8738,7 +8782,7 @@ async function generateTechnicianVisitPDF(visitId) {
 
     // Visit Details
     addSectionHeader('SERVICE DETAILS');
-    
+
     const visitTypeLabels = {
       'installation': 'Installation',
       'maintenance': 'Maintenance',
@@ -8748,10 +8792,10 @@ async function generateTechnicianVisitPDF(visitId) {
     };
 
     addInfoRow('Visit Type', visitTypeLabels[visit.visit_type] || visit.visit_type);
-    
+
     const workCategory = visit.work_category + (visit.other_work_category ? ` (${visit.other_work_category})` : '');
     addInfoRow('Work Category', workCategory);
-    
+
     const statusLabels = {
       'completed': 'Completed',
       'partially_completed': 'Partially Completed',
@@ -8783,20 +8827,20 @@ async function generateTechnicianVisitPDF(visitId) {
     // Visit Notes
     if (visit.visit_notes) {
       addSectionHeader('VISIT NOTES');
-      
+
       doc.setFillColor(255, 251, 235);
       const notesLines = doc.splitTextToSize(visit.visit_notes, pageWidth - 50);
       const notesHeight = notesLines.length * 6 + 10;
-      
+
       doc.roundedRect(20, yPos, pageWidth - 40, notesHeight, 3, 3, 'F');
-      
+
       doc.setFontSize(10);
       doc.setTextColor(...colors.dark);
-      
+
       notesLines.forEach((line, index) => {
         doc.text(line, 25, yPos + 8 + (index * 6));
       });
-      
+
       yPos += notesHeight + 10;
     }
 
@@ -8811,20 +8855,20 @@ async function generateTechnicianVisitPDF(visitId) {
       }
 
       addSectionHeader('FOLLOW-UP REQUIRED');
-      
+
       doc.setFillColor(254, 243, 199);
       const followUpLines = doc.splitTextToSize(visit.follow_up_notes, pageWidth - 50);
       const followUpHeight = followUpLines.length * 6 + 10;
-      
+
       doc.roundedRect(20, yPos, pageWidth - 40, followUpHeight, 3, 3, 'F');
-      
+
       doc.setFontSize(10);
       doc.setTextColor(...colors.dark);
-      
+
       followUpLines.forEach((line, index) => {
         doc.text(line, 25, yPos + 8 + (index * 5));
       });
-      
+
       yPos += followUpHeight + 10;
     }
 
@@ -8848,7 +8892,7 @@ async function generateTechnicianVisitPDF(visitId) {
 
       for (let i = 0; i < photoDataUrls.length; i++) {
         const imgData = photoDataUrls[i];
-        
+
         if (!imgData) continue;
 
         // Check if we need a new page
@@ -8858,7 +8902,7 @@ async function generateTechnicianVisitPDF(visitId) {
           currentPage++;
           addGradientHeader();
           yPos = 60;
-          
+
           if (photoCount % photosPerPage === 0) {
             addSectionHeader('PHOTOS (Continued)');
           }
@@ -8869,18 +8913,18 @@ async function generateTechnicianVisitPDF(visitId) {
           doc.setDrawColor(...colors.light);
           doc.setLineWidth(0.5);
           doc.roundedRect(20, yPos, photoWidth, photoHeight, 2, 2, 'S');
-          
+
           // Add photo
           doc.addImage(imgData, 'JPEG', 22, yPos + 2, photoWidth - 4, photoHeight - 4);
-          
+
           // Add photo caption
           doc.setFontSize(8);
           doc.setTextColor(100, 100, 100);
           doc.text(`Photo ${i + 1} of ${photoDataUrls.length}`, 25, yPos + photoHeight + 8);
-          
+
           yPos += photoHeight + 15;
           photoCount++;
-          
+
         } catch (err) {
           console.warn('Failed to add image:', err);
           doc.setFontSize(10);
@@ -8953,12 +8997,12 @@ async function generateTechnicianVisitPDF(visitId) {
       // Certification statement
       doc.setFillColor(240, 253, 244);
       doc.roundedRect(20, yPos, pageWidth - 40, 25, 3, 3, 'F');
-      
+
       doc.setFontSize(9);
       doc.setTextColor(...colors.dark);
       const certText = 'This service report certifies that the work described above was performed on the specified date. All information provided is accurate to the best of our knowledge.';
       const certLines = doc.splitTextToSize(certText, pageWidth - 50);
-      
+
       certLines.forEach((line, index) => {
         doc.text(line, 25, yPos + 8 + (index * 5));
       });
@@ -8970,9 +9014,9 @@ async function generateTechnicianVisitPDF(visitId) {
     // SAVE PDF
     // ==========================================
     const fileName = `SafiTrack_Service_Report_${companyName.replace(/\s+/g, '_')}_${new Date(visit.created_at).toISOString().split('T')[0]}.pdf`;
-    
+
     doc.save(fileName);
-    
+
     showToast('PDF generated successfully!', 'success');
 
   } catch (error) {
@@ -8986,7 +9030,7 @@ async function generateTechnicianVisitPDF(visitId) {
 // UTILITY FUNCTIONS FOR TECHNICIANS
 // ======================
 
-window.viewLocationOnMap = function(latitude, longitude, title) {
+window.viewLocationOnMap = function (latitude, longitude, title) {
 
   const oldModal = document.getElementById('location-modal');
   if (oldModal) {
@@ -8998,7 +9042,7 @@ window.viewLocationOnMap = function(latitude, longitude, title) {
   modal.className = 'modal';
   modal.style.display = 'flex';
   modal.id = 'location-modal';
-  
+
   modal.innerHTML = `
     <div class="modal-backdrop" onclick="closeModal('location-modal')"></div>
     <div class="modal-container" style="max-width: 800px;">
@@ -9019,16 +9063,16 @@ window.viewLocationOnMap = function(latitude, longitude, title) {
       </div>
     </div>
   `;
-  
+
   document.body.appendChild(modal);
-  
+
   // Initialize map
   setTimeout(() => {
     const map = L.map('location-modal-map').setView([latitude, longitude], 16);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '© OpenStreetMap'
     }).addTo(map);
-    
+
     L.marker([latitude, longitude])
       .addTo(map)
       .bindPopup(title || 'Visit Location')
@@ -9036,7 +9080,7 @@ window.viewLocationOnMap = function(latitude, longitude, title) {
   }, 100);
 };
 
-window.viewTechnicianVisitDetails = async function(visitId) {
+window.viewTechnicianVisitDetails = async function (visitId) {
 
   const oldModal = document.getElementById('visit-details-modal');
   if (oldModal) {
@@ -9044,7 +9088,7 @@ window.viewTechnicianVisitDetails = async function(visitId) {
   }
 
   showToast('Loading visit details...', 'info');
-  
+
   try {
     const { data: visit, error } = await supabaseClient
       .from('technician_visits')
@@ -9187,9 +9231,9 @@ window.viewTechnicianVisitDetails = async function(visitId) {
         </div>
       </div>
     `;
-    
+
     document.body.appendChild(modal);
-    
+
     // Initialize map if location exists
     if (visit.latitude && visit.longitude) {
       setTimeout(() => {
@@ -9197,21 +9241,21 @@ window.viewTechnicianVisitDetails = async function(visitId) {
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
           attribution: '© OpenStreetMap'
         }).addTo(map);
-        
+
         // FIX: Use the 'companyName' variable (calculated earlier in the function)
         // instead of visit.companies.name. This handles custom locations safely.
         L.marker([visit.latitude, visit.longitude])
           .addTo(map)
           .bindPopup(companyName)
           .openPopup();
-          
+
         // FIX: Force size recalculation to prevent blank map in modal
-        setTimeout(() => { 
-            map.invalidateSize(); 
+        setTimeout(() => {
+          map.invalidateSize();
         }, 200);
       }, 100);
     }
-    
+
   } catch (error) {
     console.error('Error loading visit details:', error);
     showToast('Error loading visit details: ' + error.message, 'error');
@@ -9219,7 +9263,7 @@ window.viewTechnicianVisitDetails = async function(visitId) {
 };
 
 
-window.openPhotoModal = function(photoUrl) {
+window.openPhotoModal = function (photoUrl) {
 
   const oldModal = document.getElementById('photo-modal');
   if (oldModal) {
@@ -9230,7 +9274,7 @@ window.openPhotoModal = function(photoUrl) {
   modal.className = 'modal';
   modal.style.display = 'flex';
   modal.id = 'photo-modal';
-  
+
   modal.innerHTML = `
     <div class="modal-backdrop" onclick="closeModal('photo-modal')"></div>
     <div class="modal-container" style="max-width: 90%; max-height: 90%;">
@@ -9245,18 +9289,18 @@ window.openPhotoModal = function(photoUrl) {
       </div>
     </div>
   `;
-  
+
   document.body.appendChild(modal);
 };
 
 // ==================== MENTION SYSTEM HELPERS ====================
 
 function showMentionSuggestions(query, container) {
-  const filteredPeople = allPeople.filter(person => 
+  const filteredPeople = allPeople.filter(person =>
     person.name.toLowerCase().includes(query.toLowerCase())
   );
-  
-  
+
+
   if (filteredPeople.length === 0) {
     container.innerHTML = '<div class="mention-suggestion">No people found</div>';
   } else {
@@ -9270,7 +9314,7 @@ function showMentionSuggestions(query, container) {
       </div>
     `).join('');
   }
-  
+
   container.style.display = 'block';
 }
 
@@ -9281,51 +9325,51 @@ function setActiveMention(items, activeIndex) {
 }
 
 function insertMentionFromSuggestion(suggestionEl, textareaEl, startIndex, query, containerEl) {
-  
-  
+
+
   const personId = suggestionEl.dataset.personId;
   const person = allPeople.find(p => p.id === personId); // Use string comparison, not parseInt
-  
-  
-  
+
+
+
   if (!person) {
     console.error('❌ Person not found with ID:', personId);
     return;
   }
-  
+
   const text = textareaEl.value;
   const cursorPos = textareaEl.selectionStart;
   const beforeMention = text.substring(0, startIndex);
   // Calculate afterMention from cursor position (accounts for partial typing)
   const afterMention = text.substring(cursorPos);
-  
-  
-  
+
+
+
   // Insert mention with styling markup
   const mentionHTML = `@${person.name}`;
   const newText = `${beforeMention}${mentionHTML} ${afterMention}`;
   textareaEl.value = newText;
-  
-  
-  
+
+
+
   // Add to mentioned people array
   if (!mentionedPeople.find(p => p.id === personId)) {
     mentionedPeople.push({
       id: personId,
       name: person.name
     });
-    
+
   }
-  
+
   // Close suggestions
   containerEl.style.display = 'none';
-  
+
   // Update cursor position (after the mention and space)
   const newCursorPos = beforeMention.length + mentionHTML.length + 1;
   textareaEl.focus();
   textareaEl.setSelectionRange(newCursorPos, newCursorPos);
-  
-  
+
+
 }
 
 
@@ -9362,19 +9406,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const adjustMainContent = (isCollapsed) => {
     // Find the main content element
     const mainContent = document.querySelector('.main-content');
-    
+
     if (isCollapsed) {
       // --- SIDEBAR IS COLLAPSED (60px) ---
       // 1. Calculate exact remaining width: Full Screen Width - Sidebar Width
       mainContent.style.width = 'calc(100vw - 60px)';
-      
+
       // 2. Reduce margin to match the small sidebar
       mainContent.style.marginLeft = '60px';
     } else {
       // --- SIDEBAR IS EXPANDED (210px) ---
       // 1. Clear inline width so your existing CSS media query handles it
       mainContent.style.width = '';
-      
+
       // 2. Clear inline margin so CSS handles it
       mainContent.style.marginLeft = '';
     }
@@ -9389,13 +9433,13 @@ document.addEventListener('DOMContentLoaded', () => {
   sidebarToggle.addEventListener('click', () => {
     // Toggle the class
     const isNowCollapsed = sidebar.classList.toggle('collapsed');
-    
+
     // Update the icon
     updateSidebarIcon();
-    
+
     // <--- NEW: Force layout change --->
     adjustMainContent(isNowCollapsed);
-    
+
     // Save state
     localStorage.setItem('sidebarCollapsed', isNowCollapsed);
   });
@@ -9403,29 +9447,29 @@ document.addEventListener('DOMContentLoaded', () => {
   // 3. Restore state on reload
   // Restore state on load
   const sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true';
-  
+
   if (sidebarCollapsed && window.innerWidth >= 768) {
     sidebar.classList.add('collapsed');
     updateSidebarIcon();
-    
+
     // <--- NEW: Apply layout on load --->
-    adjustMainContent(true); 
+    adjustMainContent(true);
   }
-  
+
 });
 
 // Handle window resize to ensure icons stay correct if CSS forces a state change
 window.addEventListener('resize', () => {
   const sidebar = document.getElementById('sidebar');
   const sidebarToggle = document.getElementById('sidebar-toggle');
-  
+
   // If we switch to mobile, the sidebar is forced open/hidden by CSS media queries.
   // We force remove the collapsed class and reset the icon.
   if (window.innerWidth < 768) {
     sidebar.classList.remove('collapsed');
     // On mobile, the toggle button is usually hidden, but if visible:
     if (sidebarToggle) {
-        sidebarToggle.innerHTML = `
+      sidebarToggle.innerHTML = `
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-right-close-icon lucide-panel-right-close"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/><path d="m8 9 3 3-3 3"/></svg>`;
     }
   }
@@ -9445,17 +9489,17 @@ async function compressImage(file, quality = 0.6, maxWidth = 1200, maxHeight = 1
     // Create a canvas element
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
-    
+
     // Create an image element
     const img = new Image();
-    
-    img.onload = function() {
+
+    img.onload = function () {
       // Calculate new dimensions
       let { width, height } = img;
-      
+
       // Calculate aspect ratio
       const aspectRatio = width / height;
-      
+
       // Resize if dimensions exceed max values
       if (width > maxWidth || height > maxHeight) {
         if (width > height) {
@@ -9466,35 +9510,35 @@ async function compressImage(file, quality = 0.6, maxWidth = 1200, maxHeight = 1
           width = maxHeight * aspectRatio;
         }
       }
-      
+
       // Set canvas dimensions
       canvas.width = width;
       canvas.height = height;
-      
+
       // Draw and compress image
       ctx.drawImage(img, 0, 0, width, height);
-      
+
       // Convert to blob with compression
       canvas.toBlob(
         (blob) => {
           if (blob) {
             // Create a new File object with the compressed blob
             const compressedFile = new File(
-              [blob], 
-              `compressed_${file.name}`, 
-              { 
-                type: file.type, 
-                lastModified: Date.now() 
+              [blob],
+              `compressed_${file.name}`,
+              {
+                type: file.type,
+                lastModified: Date.now()
               }
             );
-            
+
             // Log compression results
             const originalSize = (file.size / 1024 / 1024).toFixed(2);
             const compressedSize = (blob.size / 1024 / 1024).toFixed(2);
             const savings = ((1 - blob.size / file.size) * 100).toFixed(0);
-            
+
             console.log(`Image compression: ${originalSize}MB → ${compressedSize}MB (${savings}% reduction)`);
-            
+
             resolve(compressedFile);
           } else {
             reject(new Error('Failed to compress image'));
@@ -9504,11 +9548,11 @@ async function compressImage(file, quality = 0.6, maxWidth = 1200, maxHeight = 1
         quality
       );
     };
-    
-    img.onerror = function() {
+
+    img.onerror = function () {
       reject(new Error('Failed to load image'));
     };
-    
+
     // Load the image
     img.src = URL.createObjectURL(file);
   });
@@ -9523,7 +9567,7 @@ async function compressImage(file, quality = 0.6, maxWidth = 1200, maxHeight = 1
 function showCompressionProgress(message) {
   // Create or update progress toast
   let progressToast = document.getElementById('compression-progress-toast');
-  
+
   if (!progressToast) {
     progressToast = document.createElement('div');
     progressToast.id = 'compression-progress-toast';
@@ -9534,12 +9578,12 @@ function showCompressionProgress(message) {
     progressToast.style.zIndex = '9999';
     document.body.appendChild(progressToast);
   }
-  
+
   progressToast.innerHTML = `
     <i class="fas fa-compress fa-spin toast-icon"></i>
     <span class="toast-message">${message}</span>
   `;
-  
+
   progressToast.style.display = 'flex';
 }
 

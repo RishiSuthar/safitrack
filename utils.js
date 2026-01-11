@@ -1,7 +1,7 @@
 // Simple Markdown parser for AI insights
 function parseMarkdown(text) {
   if (!text) return '';
-  
+
   text = text.replace(/^### (.*$)/gim, '<h4>$1</h4>');
   text = text.replace(/^## (.*$)/gim, '<h3>$1</h3>');
   text = text.replace(/^# (.*$)/gim, '<h2>$1</h2>');
@@ -10,7 +10,7 @@ function parseMarkdown(text) {
   text = text.replace(/^\* (.+)$/gim, '<li>$1</li>');
   text = text.replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>');
   text = text.replace(/\n/g, '<br>');
-  
+
   return text;
 }
 
@@ -46,11 +46,11 @@ function formatDate(dateString) {
   const now = new Date();
   const diffTime = Math.abs(now - date);
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
+
   if (diffDays === 0) return 'Today';
   if (diffDays === 1) return 'Yesterday';
   if (diffDays < 7) return `${diffDays} days ago`;
-  
+
   return date.toLocaleDateString();
 }
 
@@ -72,7 +72,7 @@ function generateColor(seed) {
     '#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6',
     '#06b6d4', '#84cc16', '#f97316', '#ec4899', '#14b8a6'
   ];
-  
+
   const index = Math.abs(hashCode(seed)) % colors.length;
   return colors[index];
 }
@@ -106,13 +106,13 @@ function validateEmail(email) {
 function createPaginationControls(currentPage, totalPages, totalRecords, recordsPerPage, containerId, onPageChange) {
   const container = document.getElementById(containerId);
   if (!container) return;
-  
+
   // Ensure all values are valid numbers
   currentPage = parseInt(currentPage) || 1;
   totalPages = parseInt(totalPages) || 1;
   totalRecords = parseInt(totalRecords) || 0;
   recordsPerPage = parseInt(recordsPerPage) || 10;
-  
+
   let html = `
     <div class="pagination-container">
       <div class="pagination-info">
@@ -120,7 +120,7 @@ function createPaginationControls(currentPage, totalPages, totalRecords, records
       </div>
       <div class="pagination-controls">
   `;
-  
+
   // Previous button
   html += `
     <button class="pagination-btn ${currentPage === 1 ? 'disabled' : ''}" 
@@ -129,17 +129,17 @@ function createPaginationControls(currentPage, totalPages, totalRecords, records
       Previous
     </button>
   `;
-  
+
   // Page numbers
   const maxVisiblePages = 5;
   let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
   let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-  
+
   // Adjust if we're near the end
   if (endPage - startPage + 1 < maxVisiblePages) {
     startPage = Math.max(1, endPage - maxVisiblePages + 1);
   }
-  
+
   // First page and ellipsis
   if (startPage > 1) {
     html += `<button class="pagination-btn" onclick="changePage(1)">1</button>`;
@@ -147,7 +147,7 @@ function createPaginationControls(currentPage, totalPages, totalRecords, records
       html += `<span class="pagination-ellipsis">...</span>`;
     }
   }
-  
+
   // Page numbers
   for (let i = startPage; i <= endPage; i++) {
     html += `
@@ -155,7 +155,7 @@ function createPaginationControls(currentPage, totalPages, totalRecords, records
               onclick="changePage(${i})">${i}</button>
     `;
   }
-  
+
   // Last page and ellipsis
   if (endPage < totalPages) {
     if (endPage < totalPages - 1) {
@@ -163,7 +163,7 @@ function createPaginationControls(currentPage, totalPages, totalRecords, records
     }
     html += `<button class="pagination-btn" onclick="changePage(${totalPages})">${totalPages}</button>`;
   }
-  
+
   // Next button
   html += `
     <button class="pagination-btn ${currentPage === totalPages ? 'disabled' : ''}" 
@@ -172,16 +172,16 @@ function createPaginationControls(currentPage, totalPages, totalRecords, records
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right-icon lucide-chevron-right"><path d="m9 18 6-6-6-6"/></svg>
     </button>
   `;
-  
+
   html += `
       </div>
     </div>
   `;
-  
+
   container.innerHTML = html;
-  
+
   // Make the changePage function available globally
-  window.changePage = function(page) {
+  window.changePage = function (page) {
     if (page >= 1 && page <= totalPages) {
       onPageChange(page);
     }
@@ -201,19 +201,19 @@ function searchAndPaginate(data, searchQuery, page, recordsPerPage, searchFuncti
   // Ensure valid inputs
   page = parseInt(page) || 1;
   recordsPerPage = parseInt(recordsPerPage) || 10;
-  
+
   // Filter data based on search query
   let filteredData = data;
   if (searchQuery && searchQuery.trim() !== '') {
     filteredData = data.filter(item => searchFunction(item, searchQuery.toLowerCase().trim()));
   }
-  
+
   // Calculate pagination
   const totalRecords = filteredData.length;
   const totalPages = Math.ceil(totalRecords / recordsPerPage) || 1;
   const offset = (page - 1) * recordsPerPage;
   const paginatedData = filteredData.slice(offset, offset + recordsPerPage);
-  
+
   return {
     data: paginatedData,
     totalRecords,
@@ -221,4 +221,17 @@ function searchAndPaginate(data, searchQuery, page, recordsPerPage, searchFuncti
     currentPage: page,
     recordsPerPage
   };
+}
+
+/**
+ * Parse a currency string into a number.
+ * Handles "Ksh", "$", and commas.
+ * @param {string} value - The currency string (e.g., "Ksh 50,000" or "$50.00")
+ * @returns {number} The numeric value
+ */
+function parseCurrencyValue(value) {
+  if (!value) return 0;
+  // Remove non-numeric characters except for the decimal point
+  const cleanValue = value.replace(/[^0-9.]/g, '');
+  return parseFloat(cleanValue) || 0;
 }

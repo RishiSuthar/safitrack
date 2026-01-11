@@ -1,6 +1,7 @@
 :root {
   /* Colors - Light Theme */
-  --color-primary: #2f5fd0;        /* confident CRM blue */
+  --color-primary: #2f5fd0;
+  /* confident CRM blue */
   --color-primary-dark: #244bb0;
   --color-primary-light: #7da2f8;
   --color-primary-bg: rgba(47, 95, 208, 0.14);
@@ -14,12 +15,14 @@
 
   /* Backgrounds */
   --bg-primary: #ffffff;
-  --bg-secondary: #f7f9fc;         /* softer than gray */
+  --bg-secondary: #f7f9fc;
+  /* softer than gray */
   --bg-tertiary: #eef2f8;
   --bg-elevated: #ffffff;
 
   /* Text */
-  --text-primary: #101828;         /* strong for tables */
+  --text-primary: #101828;
+  /* strong for tables */
   --text-secondary: #475467;
   --text-muted: #8a94a6;
   --text-inverse: #ffffff;
@@ -64,15 +67,22 @@
 
 [data-theme="dark"] {
   /* Backgrounds – neutral graphite, low contrast */
-  --bg-primary: #0b0d12;        /* app background */
-  --bg-secondary: #0f1218;      /* panels */
-  --bg-tertiary: #141823;       /* subtle sections */
-  --bg-elevated: #181c27;       /* modals / cards */
+  --bg-primary: #0b0d12;
+  /* app background */
+  --bg-secondary: #0f1218;
+  /* panels */
+  --bg-tertiary: #141823;
+  /* subtle sections */
+  --bg-elevated: #181c27;
+  /* modals / cards */
 
   /* Text – softer white, not pure */
-  --text-primary: #e5e7eb;      /* main text */
-  --text-secondary: #b6bccb;    /* labels / secondary */
-  --text-muted: #8a90a5;        /* hints / placeholders */
+  --text-primary: #e5e7eb;
+  /* main text */
+  --text-secondary: #b6bccb;
+  /* labels / secondary */
+  --text-muted: #8a90a5;
+  /* hints / placeholders */
 
   /* Borders – very subtle */
   --border-color: #1f2433;
@@ -180,7 +190,9 @@
 }
 
 /* ===== RESET & BASE ===== */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
@@ -263,18 +275,37 @@ body {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.05); opacity: 0.8; }
+
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
 }
 
 @keyframes loading-progress {
-  0% { width: 0; }
-  50% { width: 70%; }
-  100% { width: 100%; }
+  0% {
+    width: 0;
+  }
+
+  50% {
+    width: 70%;
+  }
+
+  100% {
+    width: 100%;
+  }
 }
 
 /* ===== AUTH SCREEN ===== */
@@ -844,7 +875,7 @@ body {
 .nav-item svg {
   width: 18px;
   height: 18px;
-  color: inherit; 
+  color: inherit;
 }
 
 /* Optional: Add a transition for smooth color switching */
@@ -1401,6 +1432,7 @@ select {
   from {
     transform: translateY(100%);
   }
+
   to {
     transform: translateY(0);
   }
@@ -1470,6 +1502,7 @@ select {
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -1509,7 +1542,7 @@ select {
   transition: var(--transition-fast);
 }
 
-.export-format-option input:checked + .export-format-card {
+.export-format-option input:checked+.export-format-card {
   background: var(--color-primary-bg);
   border-color: var(--color-primary);
 }
@@ -1519,7 +1552,7 @@ select {
   color: var(--text-secondary);
 }
 
-.export-format-option input:checked + .export-format-card i {
+.export-format-option input:checked+.export-format-card i {
   color: var(--color-primary);
 }
 
@@ -1594,9 +1627,17 @@ select {
   font-size: 1.125rem;
 }
 
-.toast.success .toast-icon { color: var(--color-success); }
-.toast.error .toast-icon { color: var(--color-danger); }
-.toast.info .toast-icon { color: var(--color-primary); }
+.toast.success .toast-icon {
+  color: var(--color-success);
+}
+
+.toast.error .toast-icon {
+  color: var(--color-danger);
+}
+
+.toast.info .toast-icon {
+  color: var(--color-primary);
+}
 
 .toast-message {
   flex: 1;
@@ -1609,6 +1650,7 @@ select {
     opacity: 0;
     transform: translateY(1rem);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -1620,6 +1662,7 @@ select {
     opacity: 1;
     transform: translateY(0);
   }
+
   to {
     opacity: 0;
     transform: translateY(1rem);
@@ -1720,7 +1763,8 @@ select {
   transform: translateY(-50%);
   color: var(--text-muted);
   font-size: 0.875rem;
-  pointer-events: none; /* Ensure icon doesn't interfere with input */
+  pointer-events: none;
+  /* Ensure icon doesn't interfere with input */
   z-index: 1;
 }
 
@@ -1811,12 +1855,10 @@ select {
 
 /* ===== SKELETON LOADING ===== */
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--bg-tertiary) 25%,
-    var(--border-color) 50%,
-    var(--bg-tertiary) 75%
-  );
+  background: linear-gradient(90deg,
+      var(--bg-tertiary) 25%,
+      var(--border-color) 50%,
+      var(--bg-tertiary) 75%);
   background-size: 200% 100%;
   animation: skeleton-shimmer 1.5s infinite;
   border-radius: var(--radius-md);
@@ -1844,8 +1886,13 @@ select {
 }
 
 @keyframes skeleton-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
+  0% {
+    background-position: 200% 0;
+  }
+
+  100% {
+    background-position: -200% 0;
+  }
 }
 
 /* ===== TAGS INPUT ===== */
@@ -1904,24 +1951,24 @@ select {
   .auth-hero {
     display: flex;
   }
-  
+
   .auth-form-container {
     flex: 0 0 50%;
     max-width: 50%;
   }
-  
+
   .mobile-menu-btn {
     display: none;
   }
-  
+
   .sidebar {
     pointer-events: none;
   }
-  
+
   .sidebar-overlay {
     display: none;
   }
-  
+
   .sidebar-nav {
     transform: translateX(0);
     position: fixed;
@@ -1930,11 +1977,11 @@ select {
     width: var(--sidebar-width);
     pointer-events: auto;
   }
-  
+
   .sidebar-header {
     display: none;
   }
-  
+
   .main-content {
     margin-left: var(--sidebar-width);
     margin-bottom: 0;
@@ -1942,57 +1989,58 @@ select {
     /* This max-width is applied when sidebar is EXPANDED */
     max-width: calc(100vw - var(--sidebar-width));
   }
-  
+
   .bottom-nav {
     display: none;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(4, 1fr);
   }
-  
+
   .modal {
     align-items: center;
     padding: 1rem;
   }
-  
+
   .modal-container {
     max-width: 500px;
     border-radius: var(--radius-xl);
     animation: modal-fade-in 0.2s ease;
   }
-  
+
   @keyframes modal-fade-in {
     from {
       opacity: 0;
       transform: scale(0.95);
     }
+
     to {
       opacity: 1;
       transform: scale(1);
     }
   }
-  
+
   #toast-container {
     bottom: 2rem;
     left: auto;
     right: 2rem;
     width: 360px;
   }
-  
+
   .chart-container {
     height: 350px;
   }
-  
+
   /* ========================================= */
   /* FIX: Handle COLLAPSED state on Tablets */
   /* ========================================= */
-  
+
   .main-content {
     transition: margin-left var(--transition-base), max-width var(--transition-base);
   }
-  
-  .sidebar.collapsed ~ .main-content {
+
+  .sidebar.collapsed~.main-content {
     margin-left: 60px;
     /* OVERRIDE: Update max-width to match collapsed sidebar (60px) */
     max-width: calc(100vw - 60px);
@@ -2005,11 +2053,11 @@ select {
   .main-content {
     padding: 1rem 2rem;
   }
-  
+
   .page-title {
     font-size: 1.3rem;
   }
-  
+
   .card {
     padding: 1rem;
   }
@@ -2018,20 +2066,21 @@ select {
 /* ===== RESPONSIVE - Large Desktop ===== */
 /* ===== RESPONSIVE - Large Desktop ===== */
 @media (min-width: 1280px) {
+
   /* UPDATE: Full width logic */
   .main-content {
     /* 1. Calculate exact remaining width after sidebar */
-    width: calc(100vw - var(--sidebar-width)); 
-    
+    width: calc(100vw - var(--sidebar-width));
+
     /* 2. Keep the margin for sidebar, but REMOVE 'auto' (which was centering it) */
-    margin-left: var(--sidebar-width); 
-    margin-right: 0; 
-    
+    margin-left: var(--sidebar-width);
+    margin-right: 0;
+
     /* 3. Sleek padding (reduced from 3rem to 2rem) */
-    padding: 1rem; 
-    
+    padding: 1rem;
+
     /* 4. Remove max-width constraint to allow full stretch */
-    max-width: none; 
+    max-width: none;
   }
 
   .page-title {
@@ -2045,37 +2094,105 @@ select {
 
 
 /* ===== UTILITY CLASSES ===== */
-.text-center { text-align: center; }
-.text-right { text-align: right; }
-.text-muted { color: var(--text-muted); }
-.text-prim { color: var(--color-primary-light) ; }
-.text-success { color: var(--color-success); }
-.text-warning { color: var(--color-warning); }
-.text-danger { color: var(--color-danger); }
+.text-center {
+  text-align: center;
+}
 
-.mt-1 { margin-top: 0.5rem; }
-.mt-2 { margin-top: 1rem; }
-.mt-3 { margin-top: 1.5rem; }
-.mt-4 { margin-top: 2rem; }
+.text-right {
+  text-align: right;
+}
 
-.mb-1 { margin-bottom: 0.5rem; }
-.mb-2 { margin-bottom: 1rem; }
-.mb-3 { margin-bottom: 1.5rem; }
-.mb-4 { margin-bottom: 2rem; }
+.text-muted {
+  color: var(--text-muted);
+}
 
-.gap-1 { gap: 0.5rem; }
-.gap-2 { gap: 1rem; }
-.gap-3 { gap: 1.5rem; }
+.text-prim {
+  color: var(--color-primary-light);
+}
 
-.flex { display: flex; }
-.flex-col { flex-direction: column; }
-.items-center { align-items: center; }
-.justify-between { justify-content: space-between; }
-.flex-wrap { flex-wrap: wrap; }
+.text-success {
+  color: var(--color-success);
+}
 
-.hidden { display: none !important; }
+.text-warning {
+  color: var(--color-warning);
+}
 
-.w-full { width: 100%; }
+.text-danger {
+  color: var(--color-danger);
+}
+
+.mt-1 {
+  margin-top: 0.5rem;
+}
+
+.mt-2 {
+  margin-top: 1rem;
+}
+
+.mt-3 {
+  margin-top: 1.5rem;
+}
+
+.mt-4 {
+  margin-top: 2rem;
+}
+
+.mb-1 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-2 {
+  margin-bottom: 1rem;
+}
+
+.mb-3 {
+  margin-bottom: 1.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 2rem;
+}
+
+.gap-1 {
+  gap: 0.5rem;
+}
+
+.gap-2 {
+  gap: 1rem;
+}
+
+.gap-3 {
+  gap: 1.5rem;
+}
+
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.w-full {
+  width: 100%;
+}
 
 /* ===== ROUTE PLANNING ===== */
 .locations-grid {
@@ -2130,12 +2247,12 @@ select {
   transition: var(--transition-fast);
 }
 
-.location-checkbox input[type="checkbox"]:checked + label {
+.location-checkbox input[type="checkbox"]:checked+label {
   background: var(--color-primary);
   border-color: var(--color-primary);
 }
 
-.location-checkbox input[type="checkbox"]:checked + label::after {
+.location-checkbox input[type="checkbox"]:checked+label::after {
   content: '✓';
   color: white;
   font-size: 0.75rem;
@@ -2568,7 +2685,7 @@ select {
   color: var(--color-success);
 }
 
-.ai-recommendation button{
+.ai-recommendation button {
   margin-top: 12px;
   background-color: #008659;
 }
@@ -2943,15 +3060,15 @@ select {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .pipeline-stage {
     flex: 1;
   }
-  
+
   .pipeline-filters {
     flex-direction: column;
   }
-  
+
   .pipeline-filter {
     width: 100%;
   }
@@ -2982,7 +3099,7 @@ select {
     min-height: 100px;
     transition: all 0.3s ease;
   }
-  
+
   .opportunity-list:hover {
     background: rgba(0, 0, 0, 0.02);
     border-radius: var(--radius-md);
@@ -3025,7 +3142,7 @@ select {
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 1px solid var(--border-color);
-  padding-bottom:20px ;
+  padding-bottom: 20px;
 }
 
 .sidebar-attribution p {
@@ -3081,14 +3198,15 @@ select {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .auth-logo img {
     max-width: 180px !important;
   }
 }
 
 /* ===== TASKS AND REMINDERS ===== */
-.task-card, .reminder-card {
+.task-card,
+.reminder-card {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
@@ -3098,26 +3216,30 @@ select {
   position: relative;
 }
 
-.task-card:hover, .reminder-card:hover {
+.task-card:hover,
+.reminder-card:hover {
   border-color: var(--color-primary);
   box-shadow: var(--shadow-md);
 }
 
-.task-header, .reminder-header {
+.task-header,
+.reminder-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 0.75rem;
 }
 
-.task-title, .reminder-title {
+.task-title,
+.reminder-title {
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
   flex: 1;
 }
 
-.task-status, .reminder-status {
+.task-status,
+.reminder-status {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -3152,14 +3274,16 @@ select {
   color: var(--color-success);
 }
 
-.task-meta, .reminder-meta {
+.task-meta,
+.reminder-meta {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
 
-.task-meta-item, .reminder-meta-item {
+.task-meta-item,
+.reminder-meta-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -3167,27 +3291,31 @@ select {
   color: var(--text-secondary);
 }
 
-.task-meta-item i, .reminder-meta-item i {
+.task-meta-item i,
+.reminder-meta-item i {
   color: var(--text-muted);
   font-size: 0.875rem;
   width: 20px;
   text-align: center;
 }
 
-.task-description, .reminder-description {
+.task-description,
+.reminder-description {
   font-size: 0.9375rem;
   color: var(--text-secondary);
   line-height: 1.5;
   margin-bottom: 0.75rem;
 }
 
-.task-actions, .reminder-actions {
+.task-actions,
+.reminder-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.task-priority, .reminder-date {
+.task-priority,
+.reminder-date {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -3217,12 +3345,14 @@ select {
   color: var(--color-primary);
 }
 
-.task-action-buttons, .reminder-action-buttons {
+.task-action-buttons,
+.reminder-action-buttons {
   display: flex;
   gap: 0.5rem;
 }
 
-.task-action-btn, .reminder-action-btn {
+.task-action-btn,
+.reminder-action-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3237,12 +3367,14 @@ select {
   transition: var(--transition-fast);
 }
 
-.task-action-btn:hover, .reminder-action-btn:hover {
+.task-action-btn:hover,
+.reminder-action-btn:hover {
   background: var(--bg-tertiary);
   color: var(--text-primary);
 }
 
-.task-assigned-to, .reminder-assigned-to {
+.task-assigned-to,
+.reminder-assigned-to {
   font-size: 0.75rem;
   color: var(--text-muted);
   margin-top: 0.5rem;
@@ -3251,18 +3383,21 @@ select {
   gap: 0.375rem;
 }
 
-.task-assigned-to i, .reminder-assigned-to i {
+.task-assigned-to i,
+.reminder-assigned-to i {
   color: var(--text-muted);
 }
 
-.task-filters, .reminder-filters {
+.task-filters,
+.reminder-filters {
   display: flex;
   gap: 0.75rem;
   margin-bottom: 1rem;
   flex-wrap: wrap;
 }
 
-.task-filter, .reminder-filter {
+.task-filter,
+.reminder-filter {
   padding: 0.5rem 1rem;
   border: 1px solid var(--border-color);
   background: var(--bg-primary);
@@ -3274,25 +3409,29 @@ select {
   transition: var(--transition-fast);
 }
 
-.task-filter:hover, .reminder-filter:hover {
+.task-filter:hover,
+.reminder-filter:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
 }
 
-.task-filter.active, .reminder-filter.active {
+.task-filter.active,
+.reminder-filter.active {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: white;
 }
 
-.task-stats, .reminder-stats {
+.task-stats,
+.reminder-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.task-stat-card, .reminder-stat-card {
+.task-stat-card,
+.reminder-stat-card {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
@@ -3302,24 +3441,28 @@ select {
   gap: 0.5rem;
 }
 
-.task-stat-title, .reminder-stat-title {
+.task-stat-title,
+.reminder-stat-title {
   font-size: 0.8125rem;
   color: var(--text-muted);
   font-weight: 500;
 }
 
-.task-stat-value, .reminder-stat-value {
+.task-stat-value,
+.reminder-stat-value {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-primary);
 }
 
-.task-overdue, .reminder-overdue {
+.task-overdue,
+.reminder-overdue {
   color: var(--color-danger);
   font-weight: 500;
 }
 
-.task-creator, .reminder-creator {
+.task-creator,
+.reminder-creator {
   font-size: 0.75rem;
   color: var(--text-muted);
   margin-top: 0.5rem;
@@ -3328,16 +3471,19 @@ select {
   gap: 0.375rem;
 }
 
-.task-creator i, .reminder-creator i {
+.task-creator i,
+.reminder-creator i {
   color: var(--text-muted);
 }
 
 /* Task and reminder modals */
-.task-form-field, .reminder-form-field {
+.task-form-field,
+.reminder-form-field {
   margin-bottom: 1rem;
 }
 
-.task-form-label, .reminder-form-label {
+.task-form-label,
+.reminder-form-label {
   display: block;
   font-size: 0.875rem;
   font-weight: 500;
@@ -3345,7 +3491,12 @@ select {
   margin-bottom: 0.5rem;
 }
 
-.task-form-input, .reminder-form-input, .task-form-select, .reminder-form-select, .task-form-textarea, .reminder-form-textarea {
+.task-form-input,
+.reminder-form-input,
+.task-form-select,
+.reminder-form-select,
+.task-form-textarea,
+.reminder-form-textarea {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid var(--border-color);
@@ -3357,18 +3508,25 @@ select {
   transition: var(--transition-fast);
 }
 
-.task-form-input:focus, .reminder-form-input:focus, .task-form-select:focus, .reminder-form-select:focus, .task-form-textarea:focus, .reminder-form-textarea:focus {
+.task-form-input:focus,
+.reminder-form-input:focus,
+.task-form-select:focus,
+.reminder-form-select:focus,
+.task-form-textarea:focus,
+.reminder-form-textarea:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px var(--color-primary-bg);
 }
 
-.task-form-textarea, .reminder-form-textarea {
+.task-form-textarea,
+.reminder-form-textarea {
   resize: vertical;
   min-height: 100px;
 }
 
-.task-form-buttons, .reminder-form-buttons {
+.task-form-buttons,
+.reminder-form-buttons {
   display: flex;
   gap: 0.75rem;
   justify-content: flex-end;
@@ -3377,15 +3535,19 @@ select {
 
 /* Responsive adjustments for tasks and reminders */
 @media (max-width: 767px) {
-  .task-stats, .reminder-stats {
+
+  .task-stats,
+  .reminder-stats {
     grid-template-columns: repeat(2, 1fr);
   }
-  
-  .task-filters, .reminder-filters {
+
+  .task-filters,
+  .reminder-filters {
     flex-direction: column;
   }
-  
-  .task-filter, .reminder-filter {
+
+  .task-filter,
+  .reminder-filter {
     width: 100%;
   }
 }
@@ -3405,6 +3567,7 @@ select {
     opacity: 0;
     transform: translateY(-20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -3521,14 +3684,16 @@ select {
   color: var(--text-primary);
 }
 
-.company-description, .person-details {
+.company-description,
+.person-details {
   font-size: 0.9375rem;
   color: var(--text-secondary);
   line-height: 1.5;
   margin-bottom: 0.75rem;
 }
 
-.company-location, .person-company {
+.company-location,
+.person-company {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -3537,11 +3702,13 @@ select {
   margin-bottom: 0.75rem;
 }
 
-.company-location i, .person-company i {
+.company-location i,
+.person-company i {
   color: var(--text-muted);
 }
 
-.company-categories, .person-contact {
+.company-categories,
+.person-contact {
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
@@ -3733,7 +3900,8 @@ select {
 }
 
 /* Force hide the native scrollbar so we can use our custom one */
-html, body {
+html,
+body {
   scrollbar-width: none !important;
 }
 
@@ -3741,27 +3909,38 @@ html, body {
 
 /* Webkit (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
-  width: 10px; /* Thin track looks more modern */
+  width: 10px;
+  /* Thin track looks more modern */
   height: 12px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bg-tertiary); /* Matches your app's background perfectly */
-  border-radius: 100px; /* Fully rounded track ends */
-  border: none; /* Clean look */
+  background: var(--bg-tertiary);
+  /* Matches your app's background perfectly */
+  border-radius: 100px;
+  /* Fully rounded track ends */
+  border: none;
+  /* Clean look */
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #4e6374; /* Dark grey thumb - nice contrast */
-  border-radius: 4px; /* Sleek rounded corners */
-  border: 2px solid var(--bg-primary); /* Optional border for extra definition */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* Subtle lift effect */
-  transition: background-color 0.2s, box-shadow 0.2s; /* Smooth transition on hover */
+  background-color: #4e6374;
+  /* Dark grey thumb - nice contrast */
+  border-radius: 4px;
+  /* Sleek rounded corners */
+  border: 2px solid var(--bg-primary);
+  /* Optional border for extra definition */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  /* Subtle lift effect */
+  transition: background-color 0.2s, box-shadow 0.2s;
+  /* Smooth transition on hover */
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--color-primary); /* Your brand color on hover */
-  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2); /* Stronger lift on hover */
+  background-color: var(--color-primary);
+  /* Your brand color on hover */
+  box-shadow: 0 2px 6px rgba(79, 70, 229, 0.2);
+  /* Stronger lift on hover */
 }
 
 /* Fallback for Firefox */
@@ -3853,8 +4032,13 @@ html, body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* Signature Canvas */
@@ -4077,20 +4261,20 @@ html, body {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .form-steps::before {
     display: none;
   }
-  
+
   .step {
     flex-direction: row;
     gap: 0.75rem;
   }
-  
+
   .step-number {
     margin-bottom: 0;
   }
-  
+
   .photo-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -4183,7 +4367,8 @@ button svg {
 .icon-bg {
   width: 21px;
   height: 21px;
-  border-radius: 6px; /* key detail */
+  border-radius: 6px;
+  /* key detail */
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -4197,11 +4382,25 @@ button svg {
 }
 
 /* Colors (from screenshot) */
-.icon-bg.companies { background: #2563eb; }
-.icon-bg.people    { background: #c95809; }
-.icon-bg.deals     { background: #ea580c; }
-.icon-bg.users     { background: #0c99bd; }
-.icon-bg.workspaces{ background: #7c3aed; }
+.icon-bg.companies {
+  background: #2563eb;
+}
+
+.icon-bg.people {
+  background: #c95809;
+}
+
+.icon-bg.deals {
+  background: #ea580c;
+}
+
+.icon-bg.users {
+  background: #0c99bd;
+}
+
+.icon-bg.workspaces {
+  background: #7c3aed;
+}
 
 
 /* Sidebar toggle button for desktop */
@@ -4253,7 +4452,7 @@ button svg {
 }
 
 /* Collapsed sidebar state - Fix for Icons */
-.sidebar.collapsed .nav-item > span:not(.icon-bg),
+.sidebar.collapsed .nav-item>span:not(.icon-bg),
 .sidebar.collapsed .nav-section-title,
 .sidebar.collapsed .sidebar-footer p,
 .sidebar.collapsed .sidebar-header img {
@@ -4262,7 +4461,8 @@ button svg {
 
 /* Ensure icon containers stay visible */
 .sidebar.collapsed .icon-bg {
-  display: grid; /* Keep grid layout for centering */
+  display: grid;
+  /* Keep grid layout for centering */
 }
 
 /* Adjust nav items when collapsed */
@@ -4281,8 +4481,8 @@ button svg {
   .main-content {
     transition: margin-left var(--transition-base);
   }
-  
-  .sidebar.collapsed ~ .main-content {
+
+  .sidebar.collapsed~.main-content {
     margin-left: 60px;
   }
 }
@@ -4293,7 +4493,8 @@ button svg {
 }
 
 .sidebar.collapsed .sidebar-toggle-btn i.fa-bars:before {
-  content: "\f053"; /* Chevron right icon */
+  content: "\f053";
+  /* Chevron right icon */
 }
 
 /* Show tooltips for collapsed sidebar */
@@ -4312,14 +4513,18 @@ button svg {
 .sidebar-toggle-btn::before {
   content: '';
   position: absolute;
-  left: 209px; /* Pulls the line towards the sidebar to bridge the margin gap */
+  left: 209px;
+  /* Pulls the line towards the sidebar to bridge the margin gap */
   top: 50%;
   transform: translateY(-50%);
-  
+
   /* Visuals */
-  width: 1px; /* Thin line matching the sidebar border */
-  height: 57px; /* Length of the line */
-  background-color: var(--border-color); /* Matches the sidebar border color perfectly */
+  width: 1px;
+  /* Thin line matching the sidebar border */
+  height: 57px;
+  /* Length of the line */
+  background-color: var(--border-color);
+  /* Matches the sidebar border color perfectly */
 }
 
 /* ===== TABLE VIEW STYLES ===== */
@@ -4433,16 +4638,17 @@ button svg {
   .data-table {
     font-size: 0.875rem;
   }
-  
-  .data-table th, .data-table td {
+
+  .data-table th,
+  .data-table td {
     padding: 0.5rem;
   }
-  
+
   .table-actions {
     flex-direction: column;
     gap: 0.25rem;
   }
-  
+
   .table-actions .action-btn {
     width: 28px;
     height: 28px;
@@ -4521,7 +4727,7 @@ button svg {
     gap: 1rem;
     align-items: center;
   }
-  
+
   .pagination-controls {
     flex-wrap: wrap;
     justify-content: center;
@@ -4533,7 +4739,7 @@ button svg {
   bottom: 0;
   left: 0;
   right: 0;
-  background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
   color: white;
   padding: 8px 4px 4px;
   font-size: 10px;
@@ -4570,4 +4776,3 @@ button svg {
 #compression-progress-toast .toast-icon {
   color: var(--color-primary);
 }
-
