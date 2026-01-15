@@ -362,6 +362,10 @@ async function loadView(viewName) {
     case 'my-activity':
       await renderMyActivityView();
       break;
+    // Add this case to your loadView function
+    case 'notes':
+      await renderNotesView();
+      break;
     case 'sales-funnel':
       await renderSalesFunnelView();
       break;
@@ -9559,4 +9563,1163 @@ function hideCompressionProgress() {
   if (progressToast) {
     progressToast.style.display = 'none';
   }
+}
+
+// ======================
+// NOTES VIEW
+// ======================
+
+async function renderNotesView() {
+  // Fetch user's notes
+  const { data: notes, error } = await supabaseClient
+    .from('notes')
+    .select('*')
+    .eq('user_id', currentUser.id)
+    .order('is_pinned', { ascending: false })
+    .order('updated_at', { ascending: false });
+
+  if (error) {
+    viewContainer.innerHTML = renderError(error.message);
+    return;
+  }
+
+  // Fetch companies and people for tagging
+  const [companiesResult, peopleResult] = await Promise.all([
+    supabaseClient.from('companies').select('id, name').order('name'),
+    supabaseClient.from('people').select('id, name, company_id, companies(name)').order('name')
+  ]);
+
+  const companies = companiesResult.data || [];
+  const people = peopleResult.data || [];
+
+  // Check if user has no notes
+  if (notes.length === 0) {
+    // Instead of showing empty state, directly open a new note editor
+    let html = `
+      <div class="notes-container">
+        <!-- Left Sidebar -->
+        <div class="notes-sidebar">
+          <div class="notes-sidebar-header">
+            <div class="search-container">
+              <i class="fas fa-search"></i>
+              <input type="text" id="notes-search" placeholder="Search notes...">
+            </div>
+            <button class="btn btn-primary btn-sm" id="add-note-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+            </button>
+          </div>
+          
+          <div class="notes-list" id="notes-list">
+            <div class="empty-state">
+              <i class="fas fa-sticky-note empty-state-icon"></i>
+              <h3 class="empty-state-title">No notes yet</h3>
+              <p class="empty-state-description">Creating your first note...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Content Area -->
+        <div class="notes-content">
+          <div class="note-editor" id="note-editor">
+            <!-- Note editor will be initialized here -->
+          </div>
+        </div>
+      </div>
+    `;
+
+    viewContainer.innerHTML = html;
+
+    // Initialize notes functionality
+    initNotesView(notes, companies, people);
+    
+    // Automatically create a new note
+    setTimeout(() => {
+      createNewNote();
+    }, 100);
+    
+    return;
+  }
+
+  // Original code for when notes exist
+  let html = `
+    <div class="notes-container">
+      <!-- Left Sidebar -->
+      <div class="notes-sidebar">
+        <div class="notes-sidebar-header">
+          <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="notes-search" placeholder="Search notes...">
+          </div>
+          <button class="btn btn-primary btn-sm" id="add-note-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+          </button>
+        </div>
+        
+        <div class="notes-list" id="notes-list">
+  `;
+
+  notes.forEach(note => {
+    const preview = note.content.replace(/<[^>]*>/g, '').substring(0, 100);
+    html += `
+      <div class="note-item ${note.id === (window.selectedNoteId || '') ? 'active' : ''}" data-id="${note.id}">
+        <div class="note-item-header">
+          <h4 class="note-item-title">${note.title}</h4>
+          ${note.is_pinned ? '<i class="fas fa-thumbtack note-pinned"></i>' : ''}
+        </div>
+        <div class="note-item-preview">${preview}${preview.length >= 100 ? '...' : ''}</div>
+        <div class="note-item-date">${formatDate(note.updated_at)}</div>
+      </div>
+    `;
+  });
+
+  html += `
+        </div>
+      </div>
+
+      <!-- Right Content Area -->
+      <div class="notes-content">
+        <div class="note-editor" id="note-editor">
+          <!-- Note content will be loaded here -->
+        </div>
+      </div>
+    </div>
+  `;
+
+  viewContainer.innerHTML = html;
+
+  // Initialize notes functionality
+  initNotesView(notes, companies, people);
+
+  // If there are notes, select the first one
+  if (notes.length > 0) {
+    selectNote(notes[0].id);
+  }
+}
+
+function initNotesView(notes, companies, people) {
+  // Store for global access
+  window.allNotesData = notes;
+  window.companiesData = companies;
+  window.peopleData = people;
+  window.selectedNoteId = null;
+  window.isCreatingNewNote = false;
+
+  // Add note button
+  document.getElementById('add-note-btn').addEventListener('click', () => {
+    createNewNote();
+  });
+
+  // Search functionality
+  const searchInput = document.getElementById('notes-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      
+      const filteredNotes = notes.filter(note => 
+        note.title.toLowerCase().includes(query) || 
+        note.content.toLowerCase().includes(query)
+      );
+      
+      renderNotesList(filteredNotes);
+    });
+  }
+
+  // Note item click handlers
+  document.querySelectorAll('.note-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const noteId = item.dataset.id;
+      selectNote(noteId);
+    });
+  });
+
+  // If there are notes, select the first one
+  if (notes.length > 0) {
+    selectNote(notes[0].id);
+  }
+}
+
+
+
+function createNewNote() {
+  // Set flags immediately
+  window.isCreatingNewNote = true;
+  window.selectedNoteId = null;
+  
+  // Update active state in sidebar immediately
+  document.querySelectorAll('.note-item').forEach(item => {
+    item.classList.remove('active');
+  });
+
+  // Get the note editor element
+  const noteEditor = document.getElementById('note-editor');
+  if (!noteEditor) return;
+  
+  // Create the HTML once and set it directly
+  const editorHTML = `
+    <div class="note-editor-header">
+      <input type="text" id="note-title" class="note-title-input" placeholder="Note Title" value="New Note">
+      <div class="note-editor-actions">
+        <button class="btn btn-sm btn-ghost" id="save-new-note-btn" title="Save Note">
+          <i class="fas fa-save"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="note-editor-toolbar">
+      <div class="toolbar-group">
+        <button class="toolbar-btn" data-command="bold" title="Bold">
+          <i class="fas fa-bold"></i>
+        </button>
+        <button class="toolbar-btn" data-command="italic" title="Italic">
+          <i class="fas fa-italic"></i>
+        </button>
+        <button class="toolbar-btn" data-command="underline" title="Underline">
+          <i class="fas fa-underline"></i>
+        </button>
+      </div>
+      
+      <div class="toolbar-separator"></div>
+      
+      <div class="toolbar-group color-picker-group">
+        <button class="color-option" data-color="#000000" title="Black" style="background-color: #000000;"></button>
+        <button class="color-option" data-color="#ffffff" title="White" style="background-color: #ffffff; border: 1px solid #ddd;"></button>
+        <button class="color-option" data-color="#3b82f6" title="Blue" style="background-color: #3b82f6;"></button>
+        <button class="color-option" data-color="#10b981" title="Green" style="background-color: #10b981;"></button>
+        <button class="color-option" data-color="#f59e0b" title="Yellow" style="background-color: #f59e0b;"></button>
+        <button class="color-option" data-color="#f97316" title="Orange" style="background-color: #f97316;"></button>
+      </div>
+      
+      <div class="toolbar-separator"></div>
+      
+      <div class="toolbar-group">
+        <button class="toolbar-btn" data-command="undo" title="Undo">
+          <i class="fas fa-undo"></i>
+        </button>
+        <button class="toolbar-btn" data-command="redo" title="Redo">
+          <i class="fas fa-redo"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="note-editor-content">
+      <div class="note-title-separator"></div>
+      <div id="note-content" class="note-content-editable" contenteditable="true" placeholder="Start typing your note..."></div>
+    </div>
+    
+    <div class="note-editor-footer">
+      <div class="text-muted text-sm">Creating new note</div>
+    </div>
+  `;
+
+  // Set HTML directly - this is much faster than innerHTML
+  noteEditor.innerHTML = editorHTML;
+
+  // Use requestAnimationFrame for smoother initialization
+  requestAnimationFrame(() => {
+    initNewNoteEditor();
+    
+    // Focus on the title input immediately
+    const titleInput = document.getElementById('note-title');
+    if (titleInput) {
+      titleInput.focus();
+      // Select all text for easy editing
+      titleInput.select();
+    }
+  });
+}
+
+
+function initNewNoteEditor() {
+  // Cache elements to avoid repeated DOM queries
+  const titleInput = document.getElementById('note-title');
+  const contentDiv = document.getElementById('note-content');
+  const saveBtn = document.getElementById('save-new-note-btn');
+
+  // Auto-save functionality
+  let autoSaveTimeout;
+  
+  const autoSave = () => {
+    clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = setTimeout(async () => {
+      await saveNewNote(false);
+    }, 1000); // Save after 1 second of inactivity
+  };
+
+  // Create a single event listener for all toolbar buttons using event delegation
+  const toolbar = document.querySelector('.note-editor-toolbar');
+  if (toolbar) {
+    toolbar.addEventListener('click', (e) => {
+      const btn = e.target.closest('.toolbar-btn');
+      if (btn) {
+        const command = btn.dataset.command;
+        if (command) {
+          // Get current selection
+          const selection = window.getSelection();
+          const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+          
+          // Apply the formatting
+          document.execCommand(command, false, null);
+          
+          // Clear selection after applying format
+          if (selection.rangeCount > 0) {
+            selection.removeAllRanges();
+          }
+          
+          // Move cursor to the end of the formatted text
+          if (range) {
+            const newRange = document.createRange();
+            newRange.setStart(range.endContainer, range.endOffset);
+            newRange.collapse(true);
+            selection.addRange(newRange);
+          }
+          
+          if (contentDiv) contentDiv.focus();
+          autoSave();
+        }
+      }
+
+      const colorBtn = e.target.closest('.color-option');
+      if (colorBtn) {
+        const color = colorBtn.dataset.color;
+        
+        // Get current selection
+        const selection = window.getSelection();
+        const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+        
+        // Apply the color
+        document.execCommand('foreColor', false, color);
+        
+        // Clear selection after applying color
+        if (selection.rangeCount > 0) {
+          selection.removeAllRanges();
+        }
+        
+        // Move cursor to the end of the colored text
+        if (range) {
+          const newRange = document.createRange();
+          newRange.setStart(range.endContainer, range.endOffset);
+          newRange.collapse(true);
+          selection.addRange(newRange);
+        }
+        
+        if (contentDiv) contentDiv.focus();
+        autoSave();
+      }
+    });
+  }
+
+  // Title change
+  if (titleInput) {
+    titleInput.addEventListener('input', autoSave);
+  }
+
+  // Content change
+  if (contentDiv) {
+    contentDiv.addEventListener('input', autoSave);
+  }
+
+  // Tagging functionality - debounce for better performance
+  if (contentDiv) {
+    let taggingTimeout;
+    contentDiv.addEventListener('input', (e) => {
+      clearTimeout(taggingTimeout);
+      taggingTimeout = setTimeout(() => {
+        handleTagging(e);
+      }, 100); // Reduced debounce time for better responsiveness
+    });
+  }
+
+  // Save button
+  if (saveBtn) {
+    saveBtn.addEventListener('click', async () => {
+      await saveNewNote(true);
+    });
+  }
+}
+
+async function saveNewNote(showNotification = true) {
+  const titleInput = document.getElementById('note-title');
+  const contentDiv = document.getElementById('note-content');
+  
+  if (!titleInput || !contentDiv) return;
+  
+  const title = titleInput.value.trim();
+  const content = contentDiv.innerHTML;
+  
+  if (!title || !content || content === '<br>') {
+    showToast('Title and content are required', 'error');
+    return;
+  }
+  
+  const noteData = {
+    user_id: currentUser.id,
+    title,
+    content,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+  
+  const { data, error } = await supabaseClient
+    .from('notes')
+    .insert([noteData])
+    .select();
+  
+  if (error) {
+    showToast('Error creating note: ' + error.message, 'error');
+    return;
+  }
+  
+  if (data && data.length > 0) {
+    // Add to local data
+    window.allNotesData.unshift(data[0]);
+    
+    // Re-render notes list
+    renderNotesList(window.allNotesData);
+    
+    // Select the newly created note
+    selectNote(data[0].id);
+    
+    if (showNotification) {
+      showToast('Note created successfully', 'success');
+    }
+  }
+}
+
+
+
+
+function renderNotesList(notes) {
+  const notesList = document.getElementById('notes-list');
+  
+  if (notes.length === 0) {
+    notesList.innerHTML = `
+      <div class="empty-state">
+        <i class="fas fa-sticky-note empty-state-icon"></i>
+        <h3 class="empty-state-title">No notes found</h3>
+        <p class="empty-state-description">Try adjusting your search or create a new note.</p>
+      </div>
+    `;
+    return;
+  }
+
+  notesList.innerHTML = notes.map(note => {
+    const preview = note.content.replace(/<[^>]*>/g, '').substring(0, 100);
+    return `
+      <div class="note-item ${note.id === (window.selectedNoteId || '') ? 'active' : ''}" data-id="${note.id}">
+        <div class="note-item-header">
+          <h4 class="note-item-title">${note.title}</h4>
+          ${note.is_pinned ? '<i class="fas fa-thumbtack note-pinned"></i>' : ''}
+        </div>
+        <div class="note-item-preview">${preview}${preview.length >= 100 ? '...' : ''}</div>
+        <div class="note-item-date">${formatDate(note.updated_at)}</div>
+      </div>
+    `;
+  }).join('');
+
+  // Re-attach click handlers
+  document.querySelectorAll('.note-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const noteId = item.dataset.id;
+      selectNote(noteId);
+    });
+  });
+}
+
+
+
+async function selectNote(noteId) {
+  // Update active state in sidebar
+  document.querySelectorAll('.note-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.id === noteId);
+  });
+
+  // Store selected note ID
+  window.selectedNoteId = noteId;
+  window.isCreatingNewNote = false;
+
+  // Find the note data
+  const note = window.allNotesData.find(n => n.id === noteId);
+  
+  if (!note) return;
+
+  // Render note editor
+  const noteEditor = document.getElementById('note-editor');
+  if (!noteEditor) return;
+  
+  noteEditor.innerHTML = `
+    <div class="note-editor-header">
+      <input type="text" id="note-title" class="note-title-input" value="${note.title}">
+      <div class="note-editor-actions">
+        <button class="btn btn-sm btn-ghost" id="pin-note-btn" title="${note.is_pinned ? 'Unpin note' : 'Pin note'}">
+          <i class="fas fa-thumbtack ${note.is_pinned ? 'text-warning' : ''}"></i>
+        </button>
+        <button class="btn btn-sm btn-ghost" id="delete-note-btn" title="Delete note">
+          <i class="fas fa-trash text-danger"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="note-editor-toolbar">
+      <div class="toolbar-group">
+        <button class="toolbar-btn" data-command="bold" title="Bold">
+          <i class="fas fa-bold"></i>
+        </button>
+        <button class="toolbar-btn" data-command="italic" title="Italic">
+          <i class="fas fa-italic"></i>
+        </button>
+        <button class="toolbar-btn" data-command="underline" title="Underline">
+          <i class="fas fa-underline"></i>
+        </button>
+      </div>
+      
+      <div class="toolbar-separator"></div>
+      
+      <div class="toolbar-group color-picker-group">
+        <button class="color-option" data-color="#000000" title="Black" style="background-color: #000000;"></button>
+        <button class="color-option" data-color="#ffffff" title="White" style="background-color: #ffffff; border: 1px solid #ddd;"></button>
+        <button class="color-option" data-color="#3b82f6" title="Blue" style="background-color: #3b82f6;"></button>
+        <button class="color-option" data-color="#10b981" title="Green" style="background-color: #10b981;"></button>
+        <button class="color-option" data-color="#f59e0b" title="Yellow" style="background-color: #f59e0b;"></button>
+        <button class="color-option" data-color="#f97316" title="Orange" style="background-color: #f97316;"></button>
+      </div>
+      
+      <div class="toolbar-separator"></div>
+      
+      <div class="toolbar-group">
+        <button class="toolbar-btn" data-command="undo" title="Undo">
+          <i class="fas fa-undo"></i>
+        </button>
+        <button class="toolbar-btn" data-command="redo" title="Redo">
+          <i class="fas fa-redo"></i>
+        </button>
+      </div>
+    </div>
+    
+    <div class="note-editor-content">
+      <div class="note-title-separator"></div>
+      <div id="note-content" class="note-content-editable" contenteditable="true">${note.content}</div>
+    </div>
+    
+    <div class="note-editor-footer">
+      <div class="text-muted text-sm">Last updated: ${formatDate(note.updated_at)}</div>
+    </div>
+  `;
+
+  // Initialize note editor after a short delay to ensure DOM is ready
+  setTimeout(() => {
+    initNoteEditor(noteId);
+  }, 100);
+}
+
+
+function initNoteEditor(noteId) {
+  const note = window.allNotesData.find(n => n.id === noteId);
+  if (!note) return;
+
+  const titleInput = document.getElementById('note-title');
+  const contentDiv = document.getElementById('note-content');
+  const pinBtn = document.getElementById('pin-note-btn');
+  const deleteBtn = document.getElementById('delete-note-btn');
+
+  // Auto-save functionality
+  let autoSaveTimeout;
+  
+  const autoSave = () => {
+    clearTimeout(autoSaveTimeout);
+    autoSaveTimeout = setTimeout(async () => {
+      await saveNote(noteId, false);
+    }, 1000); // Save after 1 second of inactivity
+  };
+
+  // Title change
+  if (titleInput) {
+    titleInput.addEventListener('input', autoSave);
+  }
+
+  // Content change
+  if (contentDiv) {
+    contentDiv.addEventListener('input', autoSave);
+  }
+
+  // Toolbar buttons
+// Update this part in both initNoteEditor and initNewNoteEditor functions
+
+  // Toolbar buttons
+  document.querySelectorAll('.toolbar-btn[data-command]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const command = btn.dataset.command;
+      
+      // Get current selection
+      const selection = window.getSelection();
+      const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+      
+      // Apply the formatting
+      document.execCommand(command, false, null);
+      
+      // Clear selection after applying format
+      if (selection.rangeCount > 0) {
+        selection.removeAllRanges();
+      }
+      
+      // Move cursor to the end of the formatted text
+      if (range) {
+        const newRange = document.createRange();
+        newRange.setStart(range.endContainer, range.endOffset);
+        newRange.collapse(true);
+        selection.addRange(newRange);
+      }
+      
+      if (contentDiv) contentDiv.focus();
+      autoSave();
+    });
+  });
+
+  // Color options
+  document.querySelectorAll('.color-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const color = btn.dataset.color;
+      
+      // Get current selection
+      const selection = window.getSelection();
+      const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+      
+      // Apply the color
+      document.execCommand('foreColor', false, color);
+      
+      // Clear selection after applying color
+      if (selection.rangeCount > 0) {
+        selection.removeAllRanges();
+      }
+      
+      // Move cursor to the end of the colored text
+      if (range) {
+        const newRange = document.createRange();
+        newRange.setStart(range.endContainer, range.endOffset);
+        newRange.collapse(true);
+        selection.addRange(newRange);
+      }
+      
+      if (contentDiv) contentDiv.focus();
+      autoSave();
+    });
+  });
+
+  // Tagging functionality
+  if (contentDiv) {
+    contentDiv.addEventListener('input', handleTagging);
+  }
+
+  // Pin button
+  if (pinBtn) {
+    pinBtn.addEventListener('click', async () => {
+      const { error } = await supabaseClient
+        .from('notes')
+        .update({ is_pinned: !note.is_pinned })
+        .eq('id', noteId);
+
+      if (error) {
+        showToast('Error updating note: ' + error.message, 'error');
+        return;
+      }
+
+      note.is_pinned = !note.is_pinned;
+      pinBtn.innerHTML = `<i class="fas fa-thumbtack ${note.is_pinned ? 'text-warning' : ''}"></i>`;
+      pinBtn.title = note.is_pinned ? 'Unpin note' : 'Pin note';
+      
+      // Re-render notes list to update pin status
+      renderNotesList(window.allNotesData);
+      
+      showToast(note.is_pinned ? 'Note pinned' : 'Note unpinned', 'success');
+    });
+  }
+
+  // Delete button
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', async () => {
+      const confirmed = await showConfirmDialog(
+        'Delete Note',
+        'Are you sure you want to delete this note?'
+      );
+
+      if (!confirmed) return;
+
+      const { error } = await supabaseClient
+        .from('notes')
+        .delete()
+        .eq('id', noteId);
+
+      if (error) {
+        showToast('Error deleting note: ' + error.message, 'error');
+        return;
+      }
+
+      // Remove from local data
+      window.allNotesData = window.allNotesData.filter(n => n.id !== noteId);
+      
+      // Re-render notes list
+      renderNotesList(window.allNotesData);
+      
+      // Clear editor if this was the selected note
+      if (window.selectedNoteId === noteId) {
+        window.selectedNoteId = null;
+        const noteEditor = document.getElementById('note-editor');
+        if (noteEditor) {
+          noteEditor.innerHTML = `
+            <div class="empty-state">
+              <i class="fas fa-sticky-note empty-state-icon"></i>
+              <h3 class="empty-state-title">Select a note to view</h3>
+              <p class="empty-state-description">Choose a note from the sidebar to view or edit it.</p>
+            </div>
+          `;
+        }
+      }
+      
+      showToast('Note deleted successfully', 'success');
+    });
+  }
+}
+
+
+
+
+function handleTextSelection() {
+  const selection = window.getSelection();
+  const selectedText = selection.toString().trim();
+  
+  if (selectedText.length > 0) {
+    showTextFormattingPopup(selection);
+  } else {
+    hideTextFormattingPopup();
+  }
+}
+
+function showTextFormattingPopup(selection) {
+  // Remove existing popup
+  hideTextFormattingPopup();
+  
+  // Create popup
+  const popup = document.createElement('div');
+  popup.className = 'text-formatting-popup';
+  popup.id = 'text-formatting-popup';
+  
+  popup.innerHTML = `
+    <div class="popup-content">
+      <button class="popup-btn" data-command="bold" title="Bold">
+        <i class="fas fa-bold"></i>
+      </button>
+      <button class="popup-btn" data-command="italic" title="Italic">
+        <i class="fas fa-italic"></i>
+      </button>
+      <button class="popup-btn" data-command="underline" title="Underline">
+        <i class="fas fa-underline"></i>
+      </button>
+      <button class="popup-btn" id="popup-color-btn" title="Text Color">
+        <i class="fas fa-palette"></i>
+      </button>
+      <input type="color" id="popup-color-picker" style="display: none;">
+    </div>
+  `;
+  
+  document.body.appendChild(popup);
+  
+  // Position popup near selection
+  const range = selection.getRangeAt(0);
+  const rect = range.getBoundingClientRect();
+  
+  popup.style.left = `${rect.left + window.scrollX}px`;
+  popup.style.top = `${rect.bottom + window.scrollY + 5}px`;
+  
+  // Add event listeners
+  document.querySelectorAll('.popup-btn[data-command]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const command = btn.dataset.command;
+      document.execCommand(command, false, null);
+      hideTextFormattingPopup();
+    });
+  });
+  
+  const colorBtn = document.getElementById('popup-color-btn');
+  const colorPicker = document.getElementById('popup-color-picker');
+  
+  colorBtn.addEventListener('click', () => {
+    colorPicker.click();
+  });
+  
+  colorPicker.addEventListener('change', (e) => {
+    document.execCommand('foreColor', false, e.target.value);
+    hideTextFormattingPopup();
+  });
+  
+  // Hide popup when clicking outside
+  setTimeout(() => {
+    document.addEventListener('click', hideTextFormattingPopup, { once: true });
+  }, 100);
+}
+
+function hideTextFormattingPopup() {
+  const popup = document.getElementById('text-formatting-popup');
+  if (popup) {
+    popup.remove();
+  }
+}
+
+let taggingTimeout;
+let currentMentionType = null;
+let mentionStartPos = 0;
+
+function handleTagging(e) {
+  try {
+    const contentDiv = e.target;
+    const text = contentDiv.innerText;
+    const cursorPos = window.getSelection().anchorOffset;
+    
+    // Check if user is typing a mention
+    const beforeCursor = text.substring(0, cursorPos);
+    
+    // Check for company mention (@)
+    const companyMatch = beforeCursor.match(/@([^\s@]*)$/);
+    if (companyMatch) {
+      currentMentionType = 'company';
+      mentionStartPos = cursorPos - companyMatch[0].length;
+      const query = companyMatch[1];
+      
+      clearTimeout(taggingTimeout);
+      taggingTimeout = setTimeout(() => {
+        showCompanySuggestions(query, contentDiv, mentionStartPos);
+      }, 300);
+      return;
+    }
+    
+    // Check for person mention (#)
+    const personMatch = beforeCursor.match(/#([^\s#]*)$/);
+    if (personMatch) {
+      currentMentionType = 'person';
+      mentionStartPos = cursorPos - personMatch[0].length;
+      const query = personMatch[1];
+      
+      clearTimeout(taggingTimeout);
+      taggingTimeout = setTimeout(() => {
+        showPersonSuggestions(query, contentDiv, mentionStartPos);
+      }, 300);
+      return;
+    }
+    
+    // Hide suggestions if no mention
+    hideTaggingSuggestions();
+  } catch (error) {
+    console.error('Error in handleTagging:', error);
+  }
+}
+
+function showCompanySuggestions(query, contentDiv, startPos) {
+  hideTaggingSuggestions();
+  
+  if (query.length < 2) return;
+  
+  const filteredCompanies = window.companiesData.filter(company =>
+    company.name.toLowerCase().includes(query.toLowerCase())
+  );
+  
+  if (filteredCompanies.length === 0) return;
+  
+  // Create suggestions popup
+  const suggestions = document.createElement('div');
+  suggestions.className = 'tagging-suggestions';
+  suggestions.id = 'tagging-suggestions';
+  
+  suggestions.innerHTML = filteredCompanies.slice(0, 5).map(company => `
+    <div class="suggestion-item company-suggestion" data-id="${company.id}" data-name="${company.name}">
+      <i class="fas fa-building"></i>
+      <span>${company.name}</span>
+    </div>
+  `).join('');
+  
+  document.body.appendChild(suggestions);
+  
+  // Position suggestions
+  const range = document.createRange();
+  range.setStart(contentDiv.childNodes[0], startPos);
+  range.setEnd(contentDiv.childNodes[0], startPos + query.length + 1);
+  const rect = range.getBoundingClientRect();
+  
+  suggestions.style.left = `${rect.left + window.scrollX}px`;
+  suggestions.style.top = `${rect.bottom + window.scrollY + 5}px`;
+  
+  // Add event listeners
+  suggestions.querySelectorAll('.company-suggestion').forEach(item => {
+    item.addEventListener('click', () => {
+      const companyId = item.dataset.id;
+      const companyName = item.dataset.name;
+      
+      // Replace the mention with a tagged company
+      const text = contentDiv.innerText;
+      const beforeMention = text.substring(0, startPos);
+      const afterMention = text.substring(startPos + query.length + 1);
+      
+      contentDiv.innerText = `${beforeMention}<span class="company-tag" data-id="${companyId}">${companyName}</span> ${afterMention}`;
+      
+      hideTaggingSuggestions();
+      contentDiv.focus();
+      
+      // Move cursor to after the tag
+      const newRange = document.createRange();
+      const tagElement = contentDiv.querySelector('.company-tag:last-of-type');
+      if (tagElement) {
+        newRange.setStartAfter(tagElement);
+        newRange.collapse(true);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(newRange);
+      }
+    });
+  });
+  
+  // Hide suggestions when clicking outside
+  setTimeout(() => {
+    document.addEventListener('click', hideTaggingSuggestions, { once: true });
+  }, 100);
+}
+
+function showPersonSuggestions(query, contentDiv, startPos) {
+  hideTaggingSuggestions();
+  
+  if (query.length < 2) return;
+  
+  const filteredPeople = window.peopleData.filter(person =>
+    person.name.toLowerCase().includes(query.toLowerCase())
+  );
+  
+  if (filteredPeople.length === 0) return;
+  
+  // Create suggestions popup
+  const suggestions = document.createElement('div');
+  suggestions.className = 'tagging-suggestions';
+  suggestions.id = 'tagging-suggestions';
+  
+  suggestions.innerHTML = filteredPeople.slice(0, 5).map(person => {
+    const companyName = person.companies ? person.companies.name : '';
+    return `
+      <div class="suggestion-item person-suggestion" data-id="${person.id}" data-name="${person.name}">
+        <i class="fas fa-user"></i>
+        <div>
+          <span>${person.name}</span>
+          ${companyName ? `<small>${companyName}</small>` : ''}
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  document.body.appendChild(suggestions);
+  
+  // Position suggestions
+  const range = document.createRange();
+  range.setStart(contentDiv.childNodes[0], startPos);
+  range.setEnd(contentDiv.childNodes[0], startPos + query.length + 1);
+  const rect = range.getBoundingClientRect();
+  
+  suggestions.style.left = `${rect.left + window.scrollX}px`;
+  suggestions.style.top = `${rect.bottom + window.scrollY + 5}px`;
+  
+  // Add event listeners
+  suggestions.querySelectorAll('.person-suggestion').forEach(item => {
+    item.addEventListener('click', () => {
+      const personId = item.dataset.id;
+      const personName = item.dataset.name;
+      
+      // Replace the mention with a tagged person
+      const text = contentDiv.innerText;
+      const beforeMention = text.substring(0, startPos);
+      const afterMention = text.substring(startPos + query.length + 1);
+      
+      contentDiv.innerText = `${beforeMention}<span class="person-tag" data-id="${personId}">${personName}</span> ${afterMention}`;
+      
+      hideTaggingSuggestions();
+      contentDiv.focus();
+      
+      // Move cursor to after the tag
+      const newRange = document.createRange();
+      const tagElement = contentDiv.querySelector('.person-tag:last-of-type');
+      if (tagElement) {
+        newRange.setStartAfter(tagElement);
+        newRange.collapse(true);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(newRange);
+      }
+    });
+  });
+  
+  // Hide suggestions when clicking outside
+  setTimeout(() => {
+    document.addEventListener('click', hideTaggingSuggestions, { once: true });
+  }, 100);
+}
+
+function hideTaggingSuggestions() {
+  const suggestions = document.getElementById('tagging-suggestions');
+  if (suggestions) {
+    suggestions.remove();
+  }
+}
+
+async function saveNote(noteId, showNotification = true) {
+  const titleInput = document.getElementById('note-title');
+  const contentDiv = document.getElementById('note-content');
+  
+  if (!titleInput || !contentDiv) return;
+  
+  const title = titleInput.value.trim();
+  const content = contentDiv.innerHTML;
+  
+  if (!title || !content) {
+    showToast('Title and content are required', 'error');
+    return;
+  }
+  
+  const { error } = await supabaseClient
+    .from('notes')
+    .update({
+      title,
+      content,
+      updated_at: new Date().toISOString()
+    })
+    .eq('id', noteId);
+  
+  if (error) {
+    showToast('Error saving note: ' + error.message, 'error');
+    return;
+  }
+  
+  // Update local data
+  const note = window.allNotesData.find(n => n.id === noteId);
+  if (note) {
+    note.title = title;
+    note.content = content;
+    note.updated_at = new Date().toISOString();
+  }
+  
+  // Update the preview in the sidebar without repositioning
+  updateNotePreview(noteId, title, content);
+  
+  // Update date in footer
+  const footer = document.querySelector('.note-editor-footer .text-muted');
+  if (footer) {
+    footer.textContent = `Last updated: ${formatDate(note.updated_at)}`;
+  }
+  
+  if (showNotification) {
+    showToast('Note saved', 'success');
+  }
+}
+
+// New function to update just the preview without repositioning
+function updateNotePreview(noteId, title, content) {
+  const noteItem = document.querySelector(`.note-item[data-id="${noteId}"]`);
+  if (!noteItem) return;
+  
+  // Update title
+  const titleElement = noteItem.querySelector('.note-item-title');
+  if (titleElement) {
+    titleElement.textContent = title;
+  }
+  
+  // Update preview
+  const previewElement = noteItem.querySelector('.note-item-preview');
+  if (previewElement) {
+    const preview = content.replace(/<[^>]*>/g, '').substring(0, 100);
+    previewElement.textContent = `${preview}${preview.length >= 100 ? '...' : ''}`;
+  }
+  
+  // Update date
+  const dateElement = noteItem.querySelector('.note-item-date');
+  if (dateElement) {
+    dateElement.textContent = formatDate(new Date().toISOString());
+  }
+}
+
+
+function openNoteModal(note = null) {
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.style.display = 'flex';
+  modal.id = 'note-modal';
+  
+  modal.innerHTML = `
+    <div class="modal-backdrop" onclick="closeModal('note-modal')"></div>
+    <div class="modal-container" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>${note ? 'Edit Note' : 'New Note'}</h3>
+        <button class="modal-close" onclick="closeModal('note-modal')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-field">
+          <label for="modal-note-title">Title</label>
+          <input type="text" id="modal-note-title" class="form-input" value="${note ? note.title : ''}" placeholder="Enter note title">
+        </div>
+        <div class="form-field">
+          <label for="modal-note-content">Content</label>
+          <div id="modal-note-content" class="note-content-editable" contenteditable="true" placeholder="Start typing your note...">${note ? note.content : ''}</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('note-modal')">Cancel</button>
+        <button class="btn btn-primary" id="save-modal-note-btn">${note ? 'Update' : 'Create'}</button>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+  
+  // Initialize modal editor
+  const contentDiv = document.getElementById('modal-note-content');
+  
+  // Text selection popup
+  contentDiv.addEventListener('mouseup', handleTextSelection);
+  contentDiv.addEventListener('keyup', handleTextSelection);
+  
+  // Tagging functionality
+  contentDiv.addEventListener('input', handleTagging);
+  
+  // Save button
+  document.getElementById('save-modal-note-btn').addEventListener('click', async () => {
+    const titleInput = document.getElementById('modal-note-title');
+    const title = titleInput.value.trim();
+    const content = contentDiv.innerHTML;
+    
+    if (!title || !content) {
+      showToast('Title and content are required', 'error');
+      return;
+    }
+    
+    const noteData = {
+      user_id: currentUser.id,
+      title,
+      content,
+      updated_at: new Date().toISOString()
+    };
+    
+    let result;
+    
+    if (note) {
+      // Update existing note
+      result = await supabaseClient
+        .from('notes')
+        .update(noteData)
+        .eq('id', note.id);
+    } else {
+      // Create new note
+      result = await supabaseClient
+        .from('notes')
+        .insert([noteData]);
+    }
+    
+    if (result.error) {
+      showToast(`Error ${note ? 'updating' : 'creating'} note: ` + result.error.message, 'error');
+      return;
+    }
+    
+    showToast(`Note ${note ? 'updated' : 'created'} successfully`, 'success');
+    closeModal('note-modal');
+    renderNotesView(); // Refresh the notes view
+  });
 }
