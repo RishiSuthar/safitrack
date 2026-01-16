@@ -10282,32 +10282,31 @@ function initNoteEditor(noteId) {
 let taggingTimeout;
 let currentMentionType = null;
 let mentionStartPos = 0;
+let mentionRange = null;
+
 
 function handleTagging(e) {
   try {
     const contentDiv = e.target;
-    const text = contentDiv.innerText;
-    const cursorPos = window.getSelection().anchorOffset;
+    const selection = window.getSelection();
     
-    // Check if user is typing a mention
-    const beforeCursor = text.substring(0, cursorPos);
+    // Get the current cursor position
+    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+    if (!range) return;
     
-    // Check for company mention (@)
-    const companyMatch = beforeCursor.match(/@([^\s@]*)$/);
-    if (companyMatch) {
-      currentMentionType = 'company';
-      mentionStartPos = cursorPos - companyMatch[0].length;
-      const query = companyMatch[1];
-      
-      clearTimeout(taggingTimeout);
-      taggingTimeout = setTimeout(() => {
-        showCompanySuggestions(query, contentDiv, mentionStartPos);
-      }, 300);
-      return;
-    }
+    // Store the current range for later use
+    mentionRange = range.cloneRange();
     
-    // Check for person mention (#)
-    const personMatch = beforeCursor.match(/#([^\s#]*)$/);
+    // Get the text content up to the cursor
+    const preCaretRange = range.cloneRange();
+    preCaretRange.selectNodeContents(contentDiv);
+    preCaretRange.setEnd(range.endContainer, range.endOffset);
+    
+    const text = preCaretRange.toString();
+    const cursorPos = text.length;
+    
+    // Check if user is typing a person mention (@)
+    const personMatch = text.match(/@([^\s@]*)$/);
     if (personMatch) {
       currentMentionType = 'person';
       mentionStartPos = cursorPos - personMatch[0].length;
@@ -10315,19 +10314,39 @@ function handleTagging(e) {
       
       clearTimeout(taggingTimeout);
       taggingTimeout = setTimeout(() => {
-        showPersonSuggestions(query, contentDiv, mentionStartPos);
+        showPersonSuggestions(query, contentDiv);
       }, 300);
       return;
     }
     
-    // Hide suggestions if no mention
+    // Check if user is typing a company name (no special symbol, just regular text)
+    // Look for the last word that might be a company name
+    const words = text.split(/\s+/);
+    const lastWord = words[words.length - 1] || '';
+    
+    // Only show company suggestions if the last word is at least 2 characters and doesn't start with @
+    if (lastWord.length >= 2 && !lastWord.startsWith('@')) {
+      currentMentionType = 'company';
+      mentionStartPos = cursorPos - lastWord.length;
+      const query = lastWord;
+      
+      clearTimeout(taggingTimeout);
+      taggingTimeout = setTimeout(() => {
+        showCompanySuggestions(query, contentDiv);
+      }, 300);
+      return;
+    }
+    
+    // Hide suggestions if no match
     hideTaggingSuggestions();
   } catch (error) {
     console.error('Error in handleTagging:', error);
   }
 }
 
-function showCompanySuggestions(query, contentDiv, startPos) {
+
+
+function showCompanySuggestions(query, contentDiv) {
   hideTaggingSuggestions();
   
   if (query.length < 2) return;
@@ -10352,11 +10371,8 @@ function showCompanySuggestions(query, contentDiv, startPos) {
   
   document.body.appendChild(suggestions);
   
-  // Position suggestions
-  const range = document.createRange();
-  range.setStart(contentDiv.childNodes[0], startPos);
-  range.setEnd(contentDiv.childNodes[0], startPos + query.length + 1);
-  const rect = range.getBoundingClientRect();
+  // Position suggestions near the cursor
+  const rect = mentionRange.getBoundingClientRect();
   
   suggestions.style.left = `${rect.left + window.scrollX}px`;
   suggestions.style.top = `${rect.bottom + window.scrollY + 5}px`;
@@ -10367,25 +10383,116 @@ function showCompanySuggestions(query, contentDiv, startPos) {
       const companyId = item.dataset.id;
       const companyName = item.dataset.name;
       
-      // Replace the mention with a tagged company
-      const text = contentDiv.innerText;
-      const beforeMention = text.substring(0, startPos);
-      const afterMention = text.substring(startPos + query.length + 1);
+      // Get current cursor position and content
+      const selection = window.getSelection();
+      const currentRange = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
       
-      contentDiv.innerText = `${beforeMention}<span class="company-tag" data-id="${companyId}">${companyName}</span> ${afterMention}`;
+      if (currentRange) {
+        // Get all content as HTML
+        const contentHTML = contentDiv.innerHTML;
+        
+        // Create a temporary div to work with the content
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = contentHTML;
+        
+        // Find all text nodes and replace the matching text
+        const walker = document.createTreeWalker(
+          tempDiv,
+          NodeFilter.SHOW_TEXT,
+          null,
+          false
+        );
+        
+        let textNode;
+        let totalOffset = 0;
+        let foundMatch = false;
+        let replacementNode = null;
+        
+        while (textNode = walker.nextNode()) {
+          const nodeText = textNode.textContent;
+          
+          // Check if this text node contains our match
+          const matchStart = Math.max(0, mentionStartPos - totalOffset);
+          const matchEnd = Math.min(nodeText.length, matchStart + query.length);
+          
+          if (matchEnd > matchStart && nodeText.substring(matchStart, matchEnd).toLowerCase() === query.toLowerCase()) {
+            // Get text before and after the match
+            const beforeText = nodeText.substring(0, matchStart);
+            const afterText = nodeText.substring(matchEnd);
+            
+            // Create the tag element
+            const tagSpan = document.createElement('span');
+            tagSpan.className = 'company-tag';
+            tagSpan.setAttribute('data-id', companyId);
+            tagSpan.contentEditable = false;
+            tagSpan.textContent = companyName;
+            
+            // Create a document fragment with the new content
+            const fragment = document.createDocumentFragment();
+            
+            if (beforeText) {
+              fragment.appendChild(document.createTextNode(beforeText));
+            }
+            
+            fragment.appendChild(tagSpan);
+            
+            // Add a space after the tag
+            const spaceNode = document.createTextNode(' ');
+            fragment.appendChild(spaceNode);
+            
+            if (afterText) {
+              fragment.appendChild(document.createTextNode(afterText));
+            }
+            
+            // Replace the text node with the fragment
+            textNode.parentNode.replaceChild(fragment, textNode);
+            
+            // Store reference to the space node for cursor positioning
+            replacementNode = spaceNode;
+            
+            foundMatch = true;
+            break;
+          }
+          
+          totalOffset += nodeText.length;
+        }
+        
+        if (foundMatch) {
+          // Update the content div with the new HTML
+          contentDiv.innerHTML = tempDiv.innerHTML;
+          
+          // Restore cursor position after the tag
+          setTimeout(() => {
+            if (replacementNode) {
+              // Find the corresponding node in the updated DOM
+              const tags = contentDiv.querySelectorAll('.company-tag');
+              const targetTag = Array.from(tags).find(tag => 
+                tag.getAttribute('data-id') === companyId && 
+                tag.textContent === companyName
+              );
+              
+              if (targetTag && targetTag.nextSibling) {
+                const newRange = document.createRange();
+                newRange.setStart(targetTag.nextSibling, 0);
+                newRange.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+              } else {
+                // Fallback: place cursor at the end
+                const newRange = document.createRange();
+                newRange.selectNodeContents(contentDiv);
+                newRange.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+              }
+            }
+            
+            contentDiv.focus();
+          }, 0);
+        }
+      }
       
       hideTaggingSuggestions();
-      contentDiv.focus();
-      
-      // Move cursor to after the tag
-      const newRange = document.createRange();
-      const tagElement = contentDiv.querySelector('.company-tag:last-of-type');
-      if (tagElement) {
-        newRange.setStartAfter(tagElement);
-        newRange.collapse(true);
-        window.getSelection().removeAllRanges();
-        window.getSelection().addRange(newRange);
-      }
     });
   });
   
@@ -10395,7 +10502,9 @@ function showCompanySuggestions(query, contentDiv, startPos) {
   }, 100);
 }
 
-function showPersonSuggestions(query, contentDiv, startPos) {
+
+
+function showPersonSuggestions(query, contentDiv) {
   hideTaggingSuggestions();
   
   if (query.length < 2) return;
@@ -10426,11 +10535,8 @@ function showPersonSuggestions(query, contentDiv, startPos) {
   
   document.body.appendChild(suggestions);
   
-  // Position suggestions
-  const range = document.createRange();
-  range.setStart(contentDiv.childNodes[0], startPos);
-  range.setEnd(contentDiv.childNodes[0], startPos + query.length + 1);
-  const rect = range.getBoundingClientRect();
+  // Position suggestions near the cursor
+  const rect = mentionRange.getBoundingClientRect();
   
   suggestions.style.left = `${rect.left + window.scrollX}px`;
   suggestions.style.top = `${rect.bottom + window.scrollY + 5}px`;
@@ -10441,25 +10547,116 @@ function showPersonSuggestions(query, contentDiv, startPos) {
       const personId = item.dataset.id;
       const personName = item.dataset.name;
       
-      // Replace the mention with a tagged person
-      const text = contentDiv.innerText;
-      const beforeMention = text.substring(0, startPos);
-      const afterMention = text.substring(startPos + query.length + 1);
+      // Get current cursor position and content
+      const selection = window.getSelection();
+      const currentRange = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
       
-      contentDiv.innerText = `${beforeMention}<span class="person-tag" data-id="${personId}">${personName}</span> ${afterMention}`;
+      if (currentRange) {
+        // Get all content as HTML
+        const contentHTML = contentDiv.innerHTML;
+        
+        // Create a temporary div to work with the content
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = contentHTML;
+        
+        // Find all text nodes and replace the matching text
+        const walker = document.createTreeWalker(
+          tempDiv,
+          NodeFilter.SHOW_TEXT,
+          null,
+          false
+        );
+        
+        let textNode;
+        let totalOffset = 0;
+        let foundMatch = false;
+        let replacementNode = null;
+        
+        while (textNode = walker.nextNode()) {
+          const nodeText = textNode.textContent;
+          
+          // Check if this text node contains our match (including @)
+          const matchStart = Math.max(0, mentionStartPos - totalOffset);
+          const matchEnd = Math.min(nodeText.length, matchStart + query.length + 1); // +1 for @
+          
+          if (matchEnd > matchStart && nodeText.substring(matchStart, matchEnd).toLowerCase() === '@' + query.toLowerCase()) {
+            // Get text before and after the match
+            const beforeText = nodeText.substring(0, matchStart);
+            const afterText = nodeText.substring(matchEnd);
+            
+            // Create the tag element
+            const tagSpan = document.createElement('span');
+            tagSpan.className = 'person-tag';
+            tagSpan.setAttribute('data-id', personId);
+            tagSpan.contentEditable = false;
+            tagSpan.textContent = personName;
+            
+            // Create a document fragment with the new content
+            const fragment = document.createDocumentFragment();
+            
+            if (beforeText) {
+              fragment.appendChild(document.createTextNode(beforeText));
+            }
+            
+            fragment.appendChild(tagSpan);
+            
+            // Add a space after the tag
+            const spaceNode = document.createTextNode(' ');
+            fragment.appendChild(spaceNode);
+            
+            if (afterText) {
+              fragment.appendChild(document.createTextNode(afterText));
+            }
+            
+            // Replace the text node with the fragment
+            textNode.parentNode.replaceChild(fragment, textNode);
+            
+            // Store reference to the space node for cursor positioning
+            replacementNode = spaceNode;
+            
+            foundMatch = true;
+            break;
+          }
+          
+          totalOffset += nodeText.length;
+        }
+        
+        if (foundMatch) {
+          // Update the content div with the new HTML
+          contentDiv.innerHTML = tempDiv.innerHTML;
+          
+          // Restore cursor position after the tag
+          setTimeout(() => {
+            if (replacementNode) {
+              // Find the corresponding node in the updated DOM
+              const tags = contentDiv.querySelectorAll('.person-tag');
+              const targetTag = Array.from(tags).find(tag => 
+                tag.getAttribute('data-id') === personId && 
+                tag.textContent === personName
+              );
+              
+              if (targetTag && targetTag.nextSibling) {
+                const newRange = document.createRange();
+                newRange.setStart(targetTag.nextSibling, 0);
+                newRange.collapse(true);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+              } else {
+                // Fallback: place cursor at the end
+                const newRange = document.createRange();
+                newRange.selectNodeContents(contentDiv);
+                newRange.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(newRange);
+              }
+            }
+            
+            contentDiv.focus();
+          }, 0);
+        }
+      }
       
       hideTaggingSuggestions();
-      contentDiv.focus();
-      
-      // Move cursor to after the tag
-      const newRange = document.createRange();
-      const tagElement = contentDiv.querySelector('.person-tag:last-of-type');
-      if (tagElement) {
-        newRange.setStartAfter(tagElement);
-        newRange.collapse(true);
-        window.getSelection().removeAllRanges();
-        window.getSelection().addRange(newRange);
-      }
     });
   });
   
@@ -10469,12 +10666,14 @@ function showPersonSuggestions(query, contentDiv, startPos) {
   }, 100);
 }
 
+
 function hideTaggingSuggestions() {
   const suggestions = document.getElementById('tagging-suggestions');
   if (suggestions) {
     suggestions.remove();
   }
 }
+
 
 async function saveNote(noteId, showNotification = true) {
   const titleInput = document.getElementById('note-title');
