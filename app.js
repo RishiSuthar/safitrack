@@ -372,6 +372,13 @@ async function loadView(viewName) {
     case 'opportunity-pipeline':
       await renderOpportunityPipelineView();
       break;
+    case 'main-dashboard':
+      if (isManager) {
+        await renderProfessionalDashboardView();
+      } else {
+        viewContainer.innerHTML = renderAccessDenied();
+      }
+      break;
     case 'team-dashboard':
       if (isManager) {
         await renderTeamDashboardView();
@@ -3424,8 +3431,7 @@ async function renderTeamDashboardView() {
   let html = `
     <div class="page-header flex justify-between items-center">
       <div>
-        <h1 class="page-title">Team Dashboard</h1>
-        <p class="page-subtitle">Monitor team performance</p>
+        <h1 class="page-title">Team Visits</h1>
       </div>
     </div>
 
@@ -3718,7 +3724,6 @@ async function renderRoutePlanningView() {
   let html = `
     <div class="page-header">
       <h1 class="page-title">Route Planning</h1>
-      <p class="page-subtitle">Create optimized routes for your sales team</p>
     </div>
 
     <div class="route-planning-container">
@@ -5123,7 +5128,6 @@ async function renderTasksView() {
     <div class="page-header">
       <div class="header-left">
           <h1 class="page-title">Tasks</h1>
-          <p class="page-subtitle">Manage your tasks</p>
       </div>
     </div>
 
@@ -8501,7 +8505,6 @@ async function renderTechniciansDashboardView() {
   let html = `
     <div class="page-header">
       <h1 class="page-title">Technicians Dashboard</h1>
-      <p class="page-subtitle">Monitor technician service visits</p>
     </div>
 
     <div class="stats-grid">
@@ -11216,4 +11219,255 @@ function openNoteModal(note = null) {
     closeModal('note-modal');
     renderNotesView(); // Refresh the notes view
   });
+}
+// ======================
+// PROFESSIONAL DASHBOARD
+// ======================
+
+async function renderProfessionalDashboardView() {
+  const viewContainer = document.getElementById('view-container');
+  // Set header title for dashboard
+  const headerTitle = document.querySelector('.header-title');
+  if (headerTitle) headerTitle.textContent = 'Dashboard';
+
+
+  try {
+    // 1. Fetch Stats
+    // Parallel requests for speed
+    const [
+      { count: contactsCount },
+      { count: companiesCount },
+      { count: tasksCount },
+      { data: opportunities },
+      { data: recentExchanges } // Using visits table
+    ] = await Promise.all([
+      supabaseClient.from('people').select('*', { count: 'exact', head: true }),
+      supabaseClient.from('companies').select('*', { count: 'exact', head: true }),
+      supabaseClient.from('tasks').select('*', { count: 'exact', head: true }).neq('status', 'completed'),
+      supabaseClient.from('opportunities').select('value, stage, created_at').order('created_at', { ascending: true }),
+      supabaseClient.from('visits')
+        .select('*, profiles(first_name, last_name, email)') // Join with profiles
+        .order('created_at', { ascending: false })
+        .limit(5)
+    ]);
+
+    // Calculate Financials
+    const totalPipelineValue = opportunities?.reduce((sum, opp) => sum + (opp.value || 0), 0) || 0;
+    const wonOpportunities = opportunities?.filter(o => o.stage === 'closed_won') || [];
+    const revenue = wonOpportunities.reduce((sum, opp) => sum + (opp.value || 0), 0);
+
+    // --- REAL CHART DATA PREP ---
+
+    // 1. Revenue/Pipeline Trend (Last 6 Months)
+    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const today = new Date();
+    const last6Months = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      last6Months.push({
+        name: monthNames[d.getMonth()],
+        year: d.getFullYear(),
+        monthIdx: d.getMonth(),
+        value: 0
+      });
+    }
+
+    // Bucket opportunities by creation month
+    opportunities?.forEach(opp => {
+      const created = new Date(opp.created_at);
+      const monthCtx = last6Months.find(m => m.monthIdx === created.getMonth() && m.year === created.getFullYear());
+      if (monthCtx) {
+        monthCtx.value += (opp.value || 0);
+      }
+    });
+
+    // Find absolute max for scaling height
+    const maxValue = Math.max(...last6Months.map(m => m.value), 10); // avoid div by 0
+
+    // 2. Stage Distribution (Donut)
+    const stages = { 'prospecting': 0, 'qualification': 0, 'proposal': 0, 'negotiation': 0, 'closed_won': 0 };
+    let totalOpps = 0;
+    opportunities?.forEach(opp => {
+      if (stages.hasOwnProperty(opp.stage)) {
+        stages[opp.stage]++;
+      } else {
+        // group others
+        stages['prospecting']++;
+      }
+      totalOpps++;
+    });
+
+    // Calculate percentages for donut conic-gradient
+    // We will simplify to: Early(Blue), Middle(Orange), Won(Green)
+    const earlyCount = stages.prospecting + stages.qualification;
+    const midCount = stages.proposal + stages.negotiation;
+    const wonCount = stages.closed_won;
+    const totalForChart = totalOpps || 1;
+
+    const earlyPct = (earlyCount / totalForChart) * 100;
+    const midPct = (midCount / totalForChart) * 100;
+    // Gradient stops
+    const stop1 = earlyPct;
+    const stop2 = earlyPct + midPct;
+
+
+    // --- RENDER HTML ---
+
+    const html = `
+      <div class="dashboard-container">
+        <div class="dashboard-header">
+           <div>
+             <h1 class="dashboard-title">Dashboard</h1>
+             <p style="color:var(--text-muted);">Welcome back, ${currentUser.first_name || 'User'}</p>
+           </div>
+           <div class="dashboard-actions">
+              <!-- Removed Buttons as requested -->
+           </div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+           <!-- Contacts -->
+           <div class="stat-card">
+              <div class="stat-header">
+                 <span class="stat-title">Total Contacts</span>
+                 <div class="stat-icon purple"><i class="fas fa-address-book"></i></div>
+              </div>
+              <div class="stat-value-container">
+                 <span class="stat-value">${contactsCount || 0}</span>
+              </div>
+           </div>
+
+           <!-- Ongoing Tasks -->
+           <div class="stat-card">
+              <div class="stat-header">
+                 <span class="stat-title">Ongoing Tasks</span>
+                 <div class="stat-icon orange"><i class="fas fa-tasks"></i></div>
+              </div>
+              <div class="stat-value-container">
+                 <span class="stat-value">${tasksCount || 0}</span>
+              </div>
+           </div>
+
+           <!-- Pipeline Value -->
+           <div class="stat-card">
+              <div class="stat-header">
+                 <span class="stat-title">Pipeline Value</span>
+                 <div class="stat-icon green"><i class="fas fa-dollar-sign"></i></div>
+              </div>
+              <div class="stat-value-container">
+                 <span class="stat-value">$${totalPipelineValue.toLocaleString()}</span>
+              </div>
+           </div>
+
+           <!-- Companies -->
+           <div class="stat-card">
+              <div class="stat-header">
+                 <span class="stat-title">Active Companies</span>
+                 <div class="stat-icon blue"><i class="fas fa-building"></i></div>
+              </div>
+              <div class="stat-value-container">
+                 <span class="stat-value">${companiesCount || 0}</span>
+              </div>
+           </div>
+        </div>
+
+        <!-- Charts Grid -->
+        <div class="charts-grid">
+           <!-- Real Revenue Chart -->
+           <div class="chart-card">
+              <div class="chart-header">
+                 <h3 class="chart-title">Pipeline Trend</h3>
+              </div>
+              <div class="chart-placeholder">
+                 <div class="css-chart">
+                    ${last6Months.map(m => {
+      const heightPct = (m.value / maxValue) * 100;
+      const displayVal = m.value > 1000 ? (m.value / 1000).toFixed(1) + 'k' : m.value;
+      const finalHeight = Math.max(heightPct, 5);
+      return `
+                        <div class="chart-bar-group">
+                            <div class="chart-bar" style="height: ${finalHeight}%;" data-value="$${displayVal}"></div>
+                            <span class="chart-label">${m.name}</span>
+                        </div>
+                        `;
+    }).join('')}
+                 </div>
+              </div>
+           </div>
+
+           <!-- Real Pie Chart -->
+           <div class="chart-card">
+              <div class="chart-header">
+                 <h3 class="chart-title">Pipeline Stages</h3>
+              </div>
+              <div class="donut-chart-container">
+                 <div class="donut-chart" style="background: conic-gradient(
+                    #3b82f6 0% ${stop1}%, 
+                    #f97316 ${stop1}% ${stop2}%, 
+                    #10b981 ${stop2}% 100%
+                 );">
+                    <div class="donut-inner">
+                       <span class="donut-total">${totalOpps}</span>
+                       <span class="donut-label">Opportunities</span>
+                    </div>
+                 </div>
+                 <div class="donut-legend">
+                    <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;"></div> Early</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#f97316;"></div> Mid</div>
+                    <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div> Won</div>
+                 </div>
+              </div>
+           </div>
+        </div>
+
+        <!-- Recent Activities Table -->
+        <div class="recent-activity-card">
+           <div class="chart-header">
+               <h3 class="chart-title">Recent Visits</h3>
+           </div>
+           <div class="table-responsive">
+              <table class="dashboard-table">
+                 <thead>
+                    <tr>
+                       <th>Representative</th>
+                       <th>Company</th>
+                       <th>Purpose</th>
+                       <th>Date</th>
+                       <th>Status</th>
+                    </tr>
+                 </thead>
+                 <tbody>
+                    ${recentExchanges?.map(visit => {
+      const repName = visit.profiles ? `${visit.profiles.first_name} ${visit.profiles.last_name}` : 'Unknown';
+      const initials = repName.split(' ').map(n => n[0]).join('').substring(0, 2);
+      return `
+                        <tr>
+                           <td>
+                              <div class="user-cell">
+                                 <div class="user-img-circle">${initials}</div>
+                                 <span style="font-weight:500;">${repName}</span>
+                              </div>
+                           </td>
+                           <td>${visit.company_name || 'N/A'}</td>
+                           <td>${visit.notes ? (visit.notes.length > 30 ? visit.notes.substring(0, 30) + '...' : visit.notes) : 'Visit'}</td>
+                           <td>${new Date(visit.date).toLocaleDateString()}</td>
+                           <td><span class="status-pill success">Completed</span></td>
+                        </tr>
+                        `;
+    }).join('') || '<tr><td colspan="5">No recent visits</td></tr>'}
+                 </tbody>
+              </table>
+           </div>
+        </div>
+
+      </div>
+    `;
+
+    viewContainer.innerHTML = html;
+
+  } catch (err) {
+    console.error('Error rendering dashboard:', err);
+    viewContainer.innerHTML = renderError('Failed to load dashboard data: ' + err.message);
+  }
 }
