@@ -5065,14 +5065,15 @@ async function completeRoute(routeId) {
 // TASKS VIEW
 // ======================
 
+// State for task view preference
+let currentTaskViewMode = 'kanban'; // 'kanban' or 'list'
+
 async function renderTasksView() {
   // Fetch tasks based on user role
   let tasks;
   let error;
 
   if (isManager) {
-    // Managers should only see tasks they created (either assigned to others or themselves).
-    // This prevents managers from seeing tasks that sales reps create for themselves.
     const result = await supabaseClient
       .from('tasks')
       .select(`
@@ -5086,7 +5087,6 @@ async function renderTasksView() {
     tasks = result.data;
     error = result.error;
   } else {
-    // Sales reps only see tasks assigned to them or created by them
     const result = await supabaseClient
       .from('tasks')
       .select('*')
@@ -5102,6 +5102,9 @@ async function renderTasksView() {
     return;
   }
 
+  // Store tasks globally for edit/delete access
+  window.allTasksData = tasks;
+
   // Fetch sales reps for assignment dropdown (managers only)
   let salesReps = [];
   if (isManager) {
@@ -5113,100 +5116,420 @@ async function renderTasksView() {
 
     salesReps = reps || [];
   }
-
-  // Calculate task statistics
-  const totalTasks = tasks.length;
-  const pendingTasks = tasks.filter(t => t.status === 'pending').length;
-  const inProgressTasks = tasks.filter(t => t.status === 'in_progress').length;
-  const completedTasks = tasks.filter(t => t.status === 'completed').length;
-  const overdueTasks = tasks.filter(t => {
-    return t.due_date && new Date(t.due_date) < new Date() && t.status !== 'completed';
-  }).length;
+  // Store globally for editTask access
+  window.salesRepsData = salesReps;
 
   let html = `
     <div class="page-header">
-      <h1 class="page-title">Tasks</h1>
-      <p class="page-subtitle">${totalTasks} total tasks</p>
+      <div class="header-left">
+          <h1 class="page-title">Tasks</h1>
+          <p class="page-subtitle">Manage your tasks</p>
+      </div>
     </div>
 
-    <div class="task-stats">
-      <div class="task-stat-card">
-        <div class="task-stat-title">Total Tasks</div>
-        <div class="task-stat-value">${totalTasks}</div>
+    <div class="tasks-kanban-header">
+      <div class="tasks-search-bar">
+        <i class="fas fa-search"></i>
+        <input type="text" id="task-search-input" placeholder="Search tasks...">
       </div>
-      <div class="task-stat-card">
-        <div class="task-stat-title">Pending</div>
-        <div class="task-stat-value">${pendingTasks}</div>
-      </div>
-      <div class="task-stat-card">
-        <div class="task-stat-title">In Progress</div>
-        <div class="task-stat-value">${inProgressTasks}</div>
-      </div>
-      <div class="task-stat-card">
-        <div class="task-stat-title">Completed</div>
-        <div class="task-stat-value">${completedTasks}</div>
-      </div>
-      ${overdueTasks > 0 ? `
-        <div class="task-stat-card">
-          <div class="task-stat-title task-overdue">Overdue</div>
-          <div class="task-stat-value task-overdue">${overdueTasks}</div>
-        </div>
-      ` : ''}
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">Tasks</h3>
+      <div class="tasks-header-actions">
+        <button class="btn btn-secondary" id="filter-tasks-btn">
+          <i class="fas fa-filter"></i> Filter
+        </button>
         <button class="btn btn-primary" id="add-task-btn">
           <i class="fas fa-plus"></i> New Task
         </button>
       </div>
-      
-      <div class="task-filters">
-        <button class="task-filter active" data-filter="all">All Tasks</button>
-        <button class="task-filter" data-filter="pending">Pending</button>
-        <button class="task-filter" data-filter="in_progress">In Progress</button>
-        <button class="task-filter" data-filter="completed">Completed</button>
-        <button class="task-filter" data-filter="overdue">Overdue</button>
-        ${isManager ? `
-          <button class="task-filter" data-filter="assigned">Assigned by Me</button>
-        ` : ''}
-      </div>
-      
-      <div id="tasks-container">
+    </div>
   `;
 
-  if (tasks.length === 0) {
-    html += `
-      <div class="empty-state">
-        <h3 class="empty-state-title">No tasks yet</h3>
-        <p class="empty-state-description">Create your first task to get started.</p>
-      </div>
-    `;
-  } else {
-    tasks.forEach(task => {
-      html += renderTaskCard(task, isManager);
-    });
-  }
+  // Always render Kanban
+  // Group tasks by status
+  const todoTasks = tasks.filter(t => t.status === 'pending');
+  const inProgressTasks = tasks.filter(t => t.status === 'in_progress');
+  const doneTasks = tasks.filter(t => t.status === 'completed');
 
   html += `
+    <div class="tasks-kanban-container">
+      <!-- To Do Column -->
+      <div class="kanban-column" data-status="pending">
+        <div class="kanban-column-header">
+          <div class="kanban-column-title">
+            <div class="kanban-column-icon todo">📋</div>
+            <span>To Do</span>
+            <span class="kanban-column-count">${todoTasks.length} Tasks</span>
+          </div>
+          <button class="kanban-add-btn" data-status="pending">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        <div class="kanban-cards-container" id="kanban-todo">
+          ${todoTasks.length === 0 ? `
+            <div class="kanban-empty-state">
+              <div class="kanban-empty-icon">📝</div>
+              <div class="kanban-empty-text">No tasks</div>
+            </div>
+          ` : todoTasks.map(task => renderKanbanTaskCard(task, isManager)).join('')}
+        </div>
+      </div>
+
+      <!-- In Progress Column -->
+      <div class="kanban-column" data-status="in_progress">
+        <div class="kanban-column-header">
+          <div class="kanban-column-title">
+            <div class="kanban-column-icon in-progress">🔄</div>
+            <span>In Progress</span>
+            <span class="kanban-column-count">${inProgressTasks.length} Tasks</span>
+          </div>
+          <button class="kanban-add-btn" data-status="in_progress">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        <div class="kanban-cards-container" id="kanban-in-progress">
+          ${inProgressTasks.length === 0 ? `
+            <div class="kanban-empty-state">
+              <div class="kanban-empty-icon">⚙️</div>
+              <div class="kanban-empty-text">No tasks</div>
+            </div>
+          ` : inProgressTasks.map(task => renderKanbanTaskCard(task, isManager)).join('')}
+        </div>
+      </div>
+
+      <!-- Done Column -->
+      <div class="kanban-column" data-status="completed">
+        <div class="kanban-column-header">
+          <div class="kanban-column-title">
+            <div class="kanban-column-icon done">✅</div>
+            <span>Done</span>
+            <span class="kanban-column-count">${doneTasks.length} Tasks</span>
+          </div>
+          <button class="kanban-add-btn" data-status="completed">
+            <i class="fas fa-plus"></i>
+          </button>
+        </div>
+        <div class="kanban-cards-container" id="kanban-completed">
+          ${doneTasks.length === 0 ? `
+            <div class="kanban-empty-state">
+              <div class="kanban-empty-icon">🎉</div>
+              <div class="kanban-empty-text">No tasks</div>
+            </div>
+          ` : doneTasks.map(task => renderKanbanTaskCard(task, isManager)).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Add Task Modal Container
+  html += `
+    <div class="task-detail-modal" id="task-detail-modal">
+      <div class="task-detail-container" id="task-detail-content">
+        <!-- Content will be populated dynamically -->
       </div>
     </div>
   `;
 
   viewContainer.innerHTML = html;
 
-  // Initialize event listeners
-  document.getElementById('add-task-btn')?.addEventListener('click', () => {
-    openTaskModal(null, salesReps);
+  // Initialize functionality
+  initKanbanBoard(tasks, salesReps);
+
+  // Common listeners setup (Search, Add Task)
+  // ... (Listeners are set up below in existing code)
+}
+
+function renderKanbanTaskCard(task, isManager) {
+  const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== 'completed';
+
+  // Robust Assignee Logic
+  let assigneeHtml = '<span style="font-size:0.75rem; color:var(--text-muted);">Unassigned</span>';
+  let assigneeName = 'Unassigned';
+
+  if (task.assigned_to_profile) {
+    assigneeName = `${task.assigned_to_profile.first_name} ${task.assigned_to_profile.last_name}`;
+    const initials = (task.assigned_to_profile.first_name?.[0] || '') + (task.assigned_to_profile.last_name?.[0] || '');
+    assigneeHtml = `
+            <div class="task-card-assignee">
+              ${initials}
+            </div>
+            <span class="task-card-assignee-name">${task.assigned_to_profile.first_name}</span>
+      `;
+  } else if (task.assigned_to === currentUser.id) {
+    assigneeName = 'Me';
+    assigneeHtml = `
+            <div class="task-card-assignee" style="background:var(--color-primary); color: white;">
+              Me
+            </div>
+            <span class="task-card-assignee-name">Me</span>
+      `;
+  }
+
+  return `
+    <div class="kanban-task-card" data-task-id="${task.id}" data-status="${task.status}">
+      <div class="task-card-header">
+        <div class="task-card-title">${task.title}</div>
+        <!-- Menu hidden/removed per design -->
+      </div>
+      ${task.description ? `
+        <div class="task-card-description">${task.description}</div>
+      ` : ''}
+      <div class="task-card-tags">
+        ${task.priority ? `
+          <span class="task-tag priority-${task.priority}">
+            ${task.priority === 'high' ? '🔴' : task.priority === 'medium' ? '🟡' : '🔵'}
+            ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+          </span>
+        ` : ''}
+      </div>
+      <div class="task-card-footer">
+        <div class="task-card-due-date ${isOverdue ? 'overdue' : ''}">
+          <i class="fas fa-calendar"></i>
+          ${task.due_date ? formatDate(task.due_date) : 'No date'}
+        </div>
+        <div class="task-card-meta">
+          <div class="task-card-assignee-wrapper" title="${assigneeName}">
+            ${assigneeHtml}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function initKanbanBoard(tasks, salesReps) {
+  // Initialize drag-and-drop for each column
+  const columns = ['todo', 'in-progress', 'completed'];
+  const statusMap = {
+    'todo': 'pending',
+    'in-progress': 'in_progress',
+    'completed': 'completed'
+  };
+
+  columns.forEach(columnId => {
+    const container = document.getElementById(`kanban-${columnId}`);
+    if (!container) return;
+
+    new Sortable(container, {
+      group: 'kanban',
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      dragClass: 'sortable-drag',
+      onAdd: function (evt) {
+        // Remove empty state if present
+        const emptyState = evt.to.querySelector('.kanban-empty-state');
+        if (emptyState) {
+          emptyState.remove();
+        }
+        updateColumnCounts();
+      },
+      onRemove: function (evt) {
+        // Add empty state if column becomes empty
+        if (evt.from.querySelectorAll('.kanban-task-card').length === 0) {
+          let icon, text;
+          if (evt.from.id === 'kanban-todo') { icon = '📝'; text = 'No tasks'; }
+          else if (evt.from.id === 'kanban-in-progress') { icon = '⚙️'; text = 'No tasks'; }
+          else { icon = '🎉'; text = 'No tasks'; }
+
+          evt.from.innerHTML = `
+            <div class="kanban-empty-state">
+              <div class="kanban-empty-icon">${icon}</div>
+              <div class="kanban-empty-text">${text}</div>
+            </div>`;
+        }
+        updateColumnCounts();
+      },
+      onEnd: async function (evt) {
+        const taskId = evt.item.dataset.taskId;
+        const newStatus = statusMap[evt.to.id.replace('kanban-', '')];
+        const oldStatus = evt.item.dataset.status;
+
+        if (newStatus && newStatus !== oldStatus) {
+          // Update task status in database
+          const { error } = await supabaseClient
+            .from('tasks')
+            .update({ status: newStatus })
+            .eq('id', taskId);
+
+          if (error) {
+            showToast('Error updating task status', 'error');
+            // Revert will be tricky without reload, so we reload
+            renderTasksView();
+          } else {
+            // Update local data immediate to prevent stale state issues
+            if (window.allTasksData) {
+              const taskIndex = window.allTasksData.findIndex(t => t.id === taskId);
+              if (taskIndex !== -1) {
+                window.allTasksData[taskIndex].status = newStatus;
+              }
+            }
+
+            // Update DOM attributes
+            evt.item.dataset.status = newStatus;
+
+            // If the card has a status badge/text that needs updating, we can do it here
+            // But currently the column implies status. 
+            // We might want to update the "detail view" if it's open, but it shouldn't be open during drag.
+          }
+        }
+      }
+    });
   });
 
-  // Initialize task filters
-  initTaskFilters(tasks);
+  // Column add buttons
+  document.querySelectorAll('.kanban-add-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const status = btn.dataset.status;
+      openTaskModal(null, salesReps, status);
+    });
+  });
 
-  // Initialize task action buttons
-  initTaskActionButtons(tasks, salesReps);
+  // Task card click to view details
+  document.querySelectorAll('.kanban-task-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      // Don't trigger if clicking menu button, though we hid it for now as per design tweak
+      if (e.target.closest('.task-card-menu')) return;
+      const taskId = card.dataset.taskId;
+      const task = tasks.find(t => t.id === taskId);
+      if (task) {
+        showTaskDetail(task, salesReps);
+      }
+    });
+  });
 }
+
+function updateColumnCounts() {
+  const columns = {
+    'pending': document.querySelectorAll('#kanban-todo .kanban-task-card').length,
+    'in_progress': document.querySelectorAll('#kanban-in-progress .kanban-task-card').length,
+    'completed': document.querySelectorAll('#kanban-completed .kanban-task-card').length
+  };
+
+  document.querySelector('[data-status="pending"] .kanban-column-count').textContent = `${columns.pending} Tasks`;
+  document.querySelector('[data-status="in_progress"] .kanban-column-count').textContent = `${columns.in_progress} Tasks`;
+  document.querySelector('[data-status="completed"] .kanban-column-count').textContent = `${columns.completed} Tasks`;
+}
+
+function showTaskDetail(task, salesReps) {
+  const modal = document.getElementById('task-detail-modal');
+  const content = document.getElementById('task-detail-content');
+
+  const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== 'completed';
+  const assigneeName = task.assigned_to_profile
+    ? `${task.assigned_to_profile.first_name} ${task.assigned_to_profile.last_name}`
+    : 'Unassigned';
+
+  // Permission Logic: STRICT
+  // Manager can always edit.
+  // Sales Rep can only edit/delete if they created the task.
+  // If assigned to Sales Rep but created by Manager (or anyone else), Sales Rep CANNOT edit details or delete.
+  const canEditDetails = isManager || task.created_by === currentUser.id;
+
+  // Assigned By Info (Show if created by someone else)
+  let assignedByHtml = '';
+  if (task.created_by !== currentUser.id && task.created_by_profile) {
+    assignedByHtml = `
+      <div class="task-detail-meta-item">
+        <div class="task-detail-meta-label">Assigned By</div>
+        <div class="task-detail-meta-value">${task.created_by_profile.first_name} ${task.created_by_profile.last_name}</div>
+      </div>`;
+  }
+
+  content.innerHTML = `
+    <div class="task-detail-header">
+      <div class="task-detail-title">${task.title}</div>
+      <button class="task-detail-close" onclick="document.getElementById('task-detail-modal').classList.remove('active')">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="task-detail-body">
+      <div class="task-detail-section">
+        <div class="task-detail-section-title">Description</div>
+        <div class="task-detail-description">${task.description || 'No description provided'}</div>
+      </div>
+      
+      <div class="task-detail-section">
+        <div class="task-detail-meta">
+          <div class="task-detail-meta-item">
+            <div class="task-detail-meta-label">Status</div>
+            <div class="task-detail-meta-value">
+              ${task.status === 'pending' ? '📋 To Do' : task.status === 'in_progress' ? '🔄 In Progress' : '✅ Done'}
+            </div>
+          </div>
+          <div class="task-detail-meta-item">
+            <div class="task-detail-meta-label">Priority</div>
+            <div class="task-detail-meta-value">
+              ${task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Not set'}
+            </div>
+          </div>
+          <div class="task-detail-meta-item">
+            <div class="task-detail-meta-label">Due Date</div>
+            <div class="task-detail-meta-value ${isOverdue ? 'task-overdue' : ''}">
+              ${task.due_date ? formatDate(task.due_date) : 'No due date'}
+            </div>
+          </div>
+          <div class="task-detail-meta-item">
+            <div class="task-detail-meta-label">Assigned To</div>
+            <div class="task-detail-meta-value">${assigneeName}</div>
+          </div>
+          ${assignedByHtml}
+        </div>
+      </div>
+
+      <div class="task-detail-section">
+        ${canEditDetails ? `
+        <button class="btn btn-primary" onclick="editTask('${task.id}')">
+          <i class="fas fa-edit"></i> Edit Task
+        </button>
+        <button class="btn btn-danger" onclick="deleteTask('${task.id}')" style="margin-left: 0.5rem;">
+          <i class="fas fa-trash"></i> Delete
+        </button>
+        ` : `
+        <div class="alert alert-info">
+            <i class="fas fa-lock"></i> Only the manager can edit or delete this task.
+        </div>
+        `}
+      </div>
+    </div>
+  `;
+
+  modal.classList.add('active');
+
+  // Close on backdrop click
+  modal.onclick = (e) => {
+    if (e.target === modal) {
+      modal.classList.remove('active');
+    }
+  };
+}
+
+// Global functions for task actions
+window.editTask = function (taskId) {
+  document.getElementById('task-detail-modal').classList.remove('active');
+  // This will call the existing openTaskModal function
+  const task = window.allTasksData?.find(t => t.id === taskId);
+  if (task) {
+    // Use globally stored sales reps
+    openTaskModal(task, window.salesRepsData || []);
+  }
+};
+
+window.deleteTask = async function (taskId) {
+  const confirmed = await showConfirmDialog('Delete Task', 'Are you sure you want to delete this task?');
+  if (!confirmed) return;
+
+  const { error } = await supabaseClient
+    .from('tasks')
+    .delete()
+    .eq('id', taskId);
+
+  if (error) {
+    showToast('Error deleting task', 'error');
+  } else {
+    showToast('Task deleted successfully', 'success');
+    document.getElementById('task-detail-modal').classList.remove('active');
+    renderTasksView();
+  }
+};
 
 function renderTaskCard(task, isManager) {
   const isAssignedToMe = task.assigned_to === currentUser.id;
