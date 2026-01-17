@@ -5410,3 +5410,430 @@ button svg {
   padding: 12px;
   margin-bottom: 15px;
 }
+
+/* ===== ROUTE PLANNING 3-PANEL LAYOUT ===== */
+.route-planning-container {
+  display: grid;
+  grid-template-columns: 300px 1fr 400px;
+  gap: 1rem;
+  height: calc(100vh - var(--header-height) - 4rem);
+  margin-top: 1rem;
+}
+
+/* Company Selection Panel (Left) */
+.company-selection-panel {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.panel-header {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+.panel-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+}
+
+.panel-subtitle {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.panel-search {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+.panel-search input {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: var(--transition-fast);
+}
+
+.panel-search input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.75rem;
+}
+
+/* Company Quick Cards */
+.company-quick-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.875rem;
+  margin-bottom: 0.625rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  position: relative;
+}
+
+.company-quick-card:hover {
+  border-color: var(--color-primary);
+  background: var(--bg-secondary);
+  transform: translateX(2px);
+}
+
+.company-quick-card.added {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.company-quick-card.added:hover {
+  transform: none;
+}
+
+.company-card-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.company-card-address {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.company-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.75rem;
+}
+
+.company-card-distance {
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.company-card-add-btn {
+  padding: 0.25rem 0.625rem;
+  background: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+}
+
+.company-card-add-btn:hover {
+  background: var(--color-primary-dark);
+}
+
+.company-quick-card.added .company-card-add-btn {
+  background: var(--color-success);
+  pointer-events: none;
+}
+
+/* Route Builder Panel (Center) */
+.route-builder-panel {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.route-stats-card {
+  background: linear-gradient(135deg, var(--color-primary-bg) 0%, var(--bg-secondary) 100%);
+  border-bottom: 1px solid var(--border-color);
+  padding: 1.25rem;
+}
+
+.route-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.route-stat-item {
+  text-align: center;
+}
+
+.route-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  display: block;
+}
+
+.route-stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.25rem;
+}
+
+.route-assignment {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.route-assignment select,
+.route-assignment input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.route-stops-container {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.route-stops-empty {
+  text-align: center;
+  padding: 3rem 1.5rem;
+  color: var(--text-muted);
+}
+
+.route-stops-empty-icon {
+  font-size: 3rem;
+  opacity: 0.3;
+  margin-bottom: 1rem;
+}
+
+.route-stops-empty-text {
+  font-size: 0.9375rem;
+  margin-bottom: 0.5rem;
+}
+
+.route-stops-empty-hint {
+  font-size: 0.8125rem;
+  opacity: 0.7;
+}
+
+/* Route Stop Items */
+.route-stop-item {
+  background: var(--bg-primary);
+  border: 1.5px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.875rem;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  cursor: grab;
+  transition: all var(--transition-fast);
+}
+
+.route-stop-item:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(47, 95, 208, 0.15);
+}
+
+.route-stop-item.sortable-chosen {
+  cursor: grabbing;
+  opacity: 0.5;
+}
+
+.route-stop-number {
+  width: 32px;
+  height: 32px;
+  background: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.route-stop-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.route-stop-name {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.route-stop-address {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.route-stop-remove {
+  width: 28px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: var(--transition-fast);
+}
+
+.route-stop-remove:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.route-actions {
+  padding: 1rem 1.25rem;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: 0.75rem;
+}
+
+.route-actions .btn {
+  flex: 1;
+}
+
+/* Map Preview Panel (Right) */
+.map-preview-panel {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.route-map-container {
+  flex: 1;
+  position: relative;
+  min-height: 400px;
+}
+
+#route-planning-map {
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+}
+
+.map-empty-state {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  padding: 2rem;
+  text-align: center;
+}
+
+.map-empty-icon {
+  font-size: 3rem;
+  opacity: 0.3;
+  margin-bottom: 1rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .route-planning-container {
+    grid-template-columns: 280px 1fr 350px;
+  }
+}
+
+@media (max-width: 992px) {
+  .route-planning-container {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto 1fr;
+  }
+
+  .company-selection-panel {
+    grid-column: 1 / -1;
+    max-height: 300px;
+  }
+
+  .map-preview-panel {
+    order: 3;
+  }
+}
+
+@media (max-width: 768px) {
+  .route-planning-container {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .company-selection-panel,
+  .route-builder-panel,
+  .map-preview-panel {
+    max-height: none;
+    min-height: 400px;
+  }
+
+  .route-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Empty state */
+.panel-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-muted);
+}
+
+.panel-empty-icon {
+  font-size: 2rem;
+  opacity: 0.3;
+  margin-bottom: 0.75rem;
+}
+
+.panel-empty-text {
+  font-size: 0.875rem;
+}

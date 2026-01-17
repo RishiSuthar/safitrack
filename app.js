@@ -3685,14 +3685,8 @@ window.deleteUser = async function (userId, userName) {
 // ======================
 
 async function renderRoutePlanningView() {
-  // Fetch existing routes and companies
-  const [routesResult, companiesResult, profilesResult] = await Promise.all([
-    supabaseClient
-      .from('routes')
-      // FIX: Specify relationship to avoid ambiguity
-      .select(`*, assigned_to:profiles!routes_assigned_to_fkey(first_name, last_name)`)
-      .eq('created_by', currentUser.id)
-      .order('created_at', { ascending: false }),
+  // Fetch companies, sales reps, and existing routes
+  const [companiesResult, profilesResult, routesResult] = await Promise.all([
     supabaseClient
       .from('companies')
       .select('*')
@@ -3701,115 +3695,130 @@ async function renderRoutePlanningView() {
       .from('profiles')
       .select('*')
       .eq('role', 'sales_rep')
-      .order('first_name', { ascending: true })
+      .order('first_name', { ascending: true }),
+    supabaseClient
+      .from('routes')
+      .select(`*, assigned_to:profiles!routes_assigned_to_fkey(first_name, last_name)`)
+      .eq('created_by', currentUser.id)
+      .order('created_at', { ascending: false })
   ]);
 
-  const { data: routes, error: routesError } = routesResult;
   const { data: companies, error: companiesError } = companiesResult;
   const { data: salesReps, error: profilesError } = profilesResult;
+  const { data: routes, error: routesError } = routesResult;
 
-  if (routesError || companiesError || profilesError) {
-    // Log specific errors to console for debugging
-    if (routesError) console.error('Routes Error:', routesError);
-    if (companiesError) console.error('Companies Error:', companiesError);
-    if (profilesError) console.error('Profiles Error:', profilesError);
-
+  if (companiesError || profilesError || routesError) {
     viewContainer.innerHTML = renderError('Error loading data');
     return;
   }
 
+  // Filter companies with valid coordinates
+  const validCompanies = companies.filter(c => c.latitude && c.longitude);
+
   let html = `
     <div class="page-header">
       <h1 class="page-title">Route Planning</h1>
-      <p class="page-subtitle">Create and manage routes for your team</p>
+      <p class="page-subtitle">Create optimized routes for your sales team</p>
     </div>
 
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">Create New Route</h3>
-        <button class="btn btn-primary" id="create-route-btn">
-          <i class="fas fa-plus"></i> Create
-        </button>
-      </div>
-      
-      <div id="route-creator" style="display: none;">
-        <div class="form-field">
-          <label for="route-name">Route Name</label>
-          <input type="text" id="route-name" placeholder="e.g., Downtown Client Route">
+    <div class="route-planning-container">
+      <!-- Left Panel: Company Selection -->
+      <div class="company-selection-panel">
+        <div class="panel-header">
+          <div class="panel-title">Available Companies</div>
+          <div class="panel-subtitle">${validCompanies.length} locations</div>
         </div>
         
-        <div class="form-field">
-          <label for="route-rep">Assign to Sales Reps</label>
-          <div class="multi-select-container">
-            <div class="multi-select-display empty" id="rep-multi-select">
-              <span>Select sales reps...</span>
+        <div class="panel-search">
+          <input type="text" id="company-search-input" placeholder="Search companies...">
+        </div>
+        
+        <div class="panel-body" id="companies-list">
+          ${validCompanies.length === 0 ? `
+            <div class="panel-empty">
+              <div class="panel-empty-icon">📍</div>
+              <div class="panel-empty-text">No companies with coordinates</div>
             </div>
-            <div class="multi-select-dropdown" id="rep-dropdown">
-              ${salesReps.map(rep => `
-                <div class="multi-select-option" data-id="${rep.id}">
-                  <input type="checkbox" id="rep-${rep.id}" value="${rep.id}">
-                  <label for="rep-${rep.id}">${rep.first_name} ${rep.last_name}</label>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-        
-        <div class="form-field">
-          <label>Search Companies</label>
-          <div class="location-search-container">
-            <input type="text" id="location-search" placeholder="Search for companies by name or address...">
-          </div>
-        </div>
-        
-        <div class="form-field">
-          <label>Select Companies</label>
-          <div id="locations-selector" class="locations-grid">
-            ${companies.map(loc => `
-              <div class="location-card" data-id="${loc.id}" data-lat="${loc.latitude}" data-lng="${loc.longitude}">
-                <div class="location-checkbox">
-                  <input type="checkbox" id="loc-${loc.id}" value="${loc.id}">
-                  <label for="loc-${loc.id}"></label>
-                </div>
-                <div class="location-info">
-                  <h4>${loc.name}</h4>
-                  <p>${loc.description || 'No description'}</p>
-                </div>
+          ` : validCompanies.map(company => `
+            <div class="company-quick-card" data-company-id="${company.id}" data-lat="${company.latitude}" data-lng="${company.longitude}">
+              <div class="company-card-name">
+                ${company.name}
               </div>
-            `).join('')}
+              <div class="company-card-address">${company.address || 'No address'}</div>
+              <div class="company-card-footer">
+                <div class="company-card-distance"></div>
+                <button class="company-card-add-btn">+ Add</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Center Panel: Route Builder -->
+      <div class="route-builder-panel">
+        <div class="route-stats-card">
+          <div class="route-stats-grid">
+            <div class="route-stat-item">
+              <span class="route-stat-value" id="route-stops-count">0</span>
+              <span class="route-stat-label">Stops</span>
+            </div>
+            <div class="route-stat-item">
+              <span class="route-stat-value" id="route-distance">0 km</span>
+              <span class="route-stat-label">Distance</span>
+            </div>
+            <div class="route-stat-item">
+              <span class="route-stat-value" id="route-duration">0 min</span>
+              <span class="route-stat-label">Est. Time</span>
+            </div>
+          </div>
+          
+          <div class="route-assignment">
+            <input type="text" id="route-name-input" placeholder="Route name (e.g., Downtown Route)">
+            <select id="route-rep-select">
+              <option value="">Assign to...</option>
+              ${salesReps.map(rep => `
+                <option value="${rep.id}">${rep.first_name} ${rep.last_name}</option>
+              `).join('')}
+            </select>
           </div>
         </div>
         
-        <div class="ai-recommendation" id="ai-recommendation" style="display: none;">
-          <div class="ai-recommendation-header">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bot-icon lucide-bot"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
-            AI Recommendation
+        <div class="route-stops-container" id="route-stops-container">
+          <div class="route-stops-empty">
+            <div class="route-stops-empty-icon">🗺️</div>
+            <div class="route-stops-empty-text">No stops added yet</div>
+            <div class="route-stops-empty-hint">Click "+ Add" on companies to build your route</div>
           </div>
-          <div class="ai-recommendation-content" id="ai-recommendation-content"></div>
         </div>
         
-        <div class="form-field">
-          <button id="optimize-route-btn" class="btn btn-secondary" disabled>
-            Continue
+        <div class="route-actions">
+          <button class="btn btn-secondary" id="optimize-route-btn" style="display: none;">
+            <i class="fas fa-magic"></i> Optimize
+          </button>
+          <button class="btn btn-primary" id="save-route-btn" style="display: none;">
+            Save Route
           </button>
         </div>
-        
-        <div id="route-map" class="route-map" style="display: none;"></div>
-        
-        <div id="route-order" class="route-order" style="display: none;">
-          <h4>Route Order</h4>
-          <div id="sortable-route" class="sortable-container"></div>
-        </div>
-        
-        <div class="form-field">
-        <button id="save-route-btn" class="btn btn-primary" style="display: none;">
-            Save Route
-        </button>
-        </div>
+      </div>
 
+      <!-- Right Panel: Map Preview -->
+      <div class="map-preview-panel">
+        <div class="panel-header">
+          <div class="panel-title">Route Preview</div>
+          <div class="panel-subtitle">Live map view</div>
+        </div>
+        
+        <div class="route-map-container">
+          <div id="route-planning-map" style="display: none;"></div>
+          <div class="map-empty-state" id="map-empty-state">
+            <div class="map-empty-icon">🗺️</div>
+            <div>Add stops to see route on map</div>
+          </div>
+        </div>
       </div>
     </div>
 
+    <!-- Existing Routes Section -->
     <div class="card mt-3">
       <div class="card-header">
         <h3 class="card-title">Existing Routes</h3>
@@ -3845,250 +3854,316 @@ async function renderRoutePlanningView() {
 
   viewContainer.innerHTML = html;
 
-  // Initialize route creator functionality
-  initRouteCreator(companies, salesReps);
+  // Initialize route planning functionality
+  initRoutePlanning(validCompanies, salesReps);
 
   // Initialize route list functionality
   initRouteList();
 }
 
-function initRouteCreator(companies, salesReps) {
-  const createBtn = document.getElementById('create-route-btn');
-  const routeCreator = document.getElementById('route-creator');
-  const optimizeBtn = document.getElementById('optimize-route-btn');
-  const saveBtn = document.getElementById('save-route-btn');
-  const routeMap = document.getElementById('route-map');
-  const routeOrder = document.getElementById('route-order');
-  const sortableRoute = document.getElementById('sortable-route');
-  const locationSearch = document.getElementById('location-search');
-  const aiRecommendation = document.getElementById('ai-recommendation');
-  const aiRecommendationContent = document.getElementById('ai-recommendation-content');
-
-  let selectedLocations = [];
-  let optimizedRoute = [];
-  let selectedReps = [];
+function initRoutePlanning(companies, salesReps) {
+  let routeStops = [];
   let map = null;
   let markers = [];
   let routeLine = null;
+  let sortable = null;
 
-  // Store for global access
-  window.allLocationsData = companies;
+  const searchInput = document.getElementById('company-search-input');
+  const companiesList = document.getElementById('companies-list');
+  const stopsContainer = document.getElementById('route-stops-container');
+  const optimizeBtn = document.getElementById('optimize-route-btn');
+  const saveBtn = document.getElementById('save-route-btn');
+  const routeNameInput = document.getElementById('route-name-input');
+  const routeRepSelect = document.getElementById('route-rep-select');
+  const mapContainer = document.getElementById('route-planning-map');
+  const mapEmptyState = document.getElementById('map-empty-state');
 
-  // Show/hide route creator
-  createBtn.addEventListener('click', () => {
-    if (routeCreator.style.display === 'none') {
-      routeCreator.style.display = 'block';
-      createBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Cancel';
-    } else {
-      routeCreator.style.display = 'none';
-      createBtn.innerHTML = '<i class="fas fa-plus"></i> Create';
-      resetRouteCreator();
-    }
-  });
+  // Search functionality
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase();
+      const companyCards = companiesList.querySelectorAll('.company-quick-card');
 
-  // Initialize multi-select for reps
-  const repMultiSelect = document.getElementById('rep-multi-select');
-  const repDropdown = document.getElementById('rep-dropdown');
+      companyCards.forEach(card => {
+        const name = card.querySelector('.company-card-name').textContent.toLowerCase();
+        const address = card.querySelector('.company-card-address').textContent.toLowerCase();
 
-  repMultiSelect.addEventListener('click', () => {
-    repDropdown.classList.toggle('show');
-  });
-
-  // Handle rep selection
-  document.querySelectorAll('.multi-select-option input').forEach(checkbox => {
-    checkbox.addEventListener('change', () => {
-      const repId = checkbox.value;
-      const repName = checkbox.nextElementSibling.textContent;
-
-      if (checkbox.checked) {
-        selectedReps.push({ id: repId, name: repName });
-      } else {
-        selectedReps = selectedReps.filter(rep => rep.id !== repId);
-      }
-
-      updateMultiSelectDisplay();
-    });
-  });
-
-  function updateMultiSelectDisplay() {
-    if (selectedReps.length === 0) {
-      repMultiSelect.innerHTML = '<span>Select sales reps...</span>';
-      repMultiSelect.classList.add('empty');
-    } else {
-      repMultiSelect.innerHTML = selectedReps.map(rep => `
-        <span class="multi-select-tag">
-          ${rep.name}
-          <span class="remove" data-id="${rep.id}">×</span>
-        </span>
-      `).join('');
-      repMultiSelect.classList.remove('empty');
-
-      // Add event listeners to remove buttons
-      repMultiSelect.querySelectorAll('.remove').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const repId = btn.getAttribute('data-id');
-          document.querySelector(`#rep-${repId}`).checked = false;
-          selectedReps = selectedReps.filter(rep => rep.id !== repId);
-          updateMultiSelectDisplay();
-        });
-      });
-    }
-  }
-
-  // Location search functionality
-  locationSearch.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase().trim();
-    const locationCards = document.querySelectorAll('.location-card');
-
-    if (query.length === 0) {
-      locationCards.forEach(card => {
-        card.style.display = 'flex';
-      });
-      return;
-    }
-
-    locationCards.forEach(card => {
-      const locationId = card.getAttribute('data-id');
-      const location = companies.find(loc => loc.id === locationId);
-
-      if (location && (
-        location.name.toLowerCase().includes(query) ||
-        (location.description && location.description.toLowerCase().includes(query))
-      )) {
-        card.style.display = 'flex';
-      } else {
-        card.style.display = 'none';
-      }
-    });
-  });
-
-  // Handle location selection
-  document.querySelectorAll('.location-card input[type="checkbox"]').forEach(checkbox => {
-    checkbox.addEventListener('change', () => {
-      const locationId = checkbox.value;
-      const locationCard = checkbox.closest('.location-card');
-      const location = companies.find(loc => loc.id === locationId);
-
-      if (checkbox.checked) {
-        selectedLocations.push(location);
-        locationCard.classList.add('selected');
-
-        // Check if we should show a recommendation
-        if (selectedLocations.length >= 1) {
-          showNearestLocationRecommendation(selectedLocations);
-        }
-      } else {
-        selectedLocations = selectedLocations.filter(loc => loc.id !== locationId);
-        locationCard.classList.remove('selected');
-
-        // Update recommendations
-        if (selectedLocations.length >= 1) {
-          showNearestLocationRecommendation(selectedLocations);
+        if (name.includes(searchTerm) || address.includes(searchTerm)) {
+          card.style.display = '';
         } else {
-          aiRecommendation.style.display = 'none';
+          card.style.display = 'none';
         }
-      }
-
-      optimizeBtn.disabled = selectedLocations.length < 2;
+      });
     });
-  });
+  }
 
-  // Function to show nearest location recommendation
-  function showNearestLocationRecommendation(selected) {
-    if (selected.length === 0) {
-      aiRecommendation.style.display = 'none';
+  // Add company to route
+  companiesList.addEventListener('click', (e) => {
+    const addBtn = e.target.closest('.company-card-add-btn');
+    if (!addBtn) return;
+
+    const card = addBtn.closest('.company-quick-card');
+    const companyId = card.dataset.companyId;
+
+    // Check if already added
+    if (routeStops.find(stop => stop.id === companyId)) {
+      showToast('Company already added to route', 'warning');
       return;
     }
 
-    // Get last selected location
-    const lastSelected = selected[selected.length - 1];
+    const company = companies.find(c => c.id === companyId);
+    if (!company) return;
 
-    // Find nearest unselected location
-    let nearestLocation = null;
-    let shortestDistance = Infinity;
+    // Add to route
+    routeStops.push({
+      id: company.id,
+      name: company.name,
+      address: company.address,
+      latitude: parseFloat(company.latitude),
+      longitude: parseFloat(company.longitude)
+    });
 
-    companies.forEach(location => {
-      // Skip if already selected
-      if (selected.some(loc => loc.id === location.id)) return;
+    // Mark as added
+    card.classList.add('added');
+    addBtn.textContent = '✓ Added';
 
-      // Calculate distance from last selected location
-      const distance = calculateDistance(
-        parseFloat(lastSelected.latitude),
-        parseFloat(lastSelected.longitude),
-        parseFloat(location.latitude),
-        parseFloat(location.longitude)
-      );
+    updateRouteDisplay();
+  });
 
-      if (distance < shortestDistance) {
-        shortestDistance = distance;
-        nearestLocation = location;
+  function updateRouteDisplay() {
+    // Update stats
+    document.getElementById('route-stops-count').textContent = routeStops.length;
+
+    if (routeStops.length === 0) {
+      stopsContainer.innerHTML = `
+        <div class="route-stops-empty">
+          <div class="route-stops-empty-icon">🗺️</div>
+          <div class="route-stops-empty-text">No stops added yet</div>
+          <div class="route-stops-empty-hint">Click "+ Add" on companies to build your route</div>
+        </div>
+      `;
+      optimizeBtn.style.display = 'none';
+      saveBtn.style.display = 'none';
+
+      // Hide map
+      if (map) {
+        mapContainer.style.display = 'none';
+        mapEmptyState.style.display = 'flex';
+      }
+
+      return;
+    }
+
+    // Show action buttons
+    if (routeStops.length >= 2) {
+      optimizeBtn.style.display = 'block';
+    }
+    saveBtn.style.display = 'block';
+
+    // Render stops
+    stopsContainer.innerHTML = routeStops.map((stop, index) => `
+      <div class="route-stop-item" data-stop-id="${stop.id}">
+        <div class="route-stop-number">${index + 1}</div>
+        <div class="route-stop-info">
+          <div class="route-stop-name">${stop.name}</div>
+          <div class="route-stop-address">${stop.address || 'No address'}</div>
+        </div>
+        <button class="route-stop-remove" data-stop-id="${stop.id}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+          </svg>
+        </button>
+      </div>
+    `).join('');
+
+    // Initialize sortable
+    if (sortable) {
+      sortable.destroy();
+    }
+
+    sortable = new Sortable(stopsContainer, {
+      animation: 150,
+      handle: '.route-stop-item',
+      ghostClass: 'sortable-ghost',
+      chosenClass: 'sortable-chosen',
+      onEnd: function () {
+        // Update routeStops array based on new order
+        const newOrder = [];
+        stopsContainer.querySelectorAll('.route-stop-item').forEach(item => {
+          const stopId = item.dataset.stopId;
+          const stop = routeStops.find(s => s.id === stopId);
+          if (stop) newOrder.push(stop);
+        });
+        routeStops = newOrder;
+        updateRouteDisplay();
       }
     });
 
-    if (nearestLocation) {
-      // Show recommendation
-      aiRecommendation.style.display = 'block';
-      aiRecommendationContent.innerHTML = `
-        <p>Based on your selection of <strong>${lastSelected.name}</strong>, nearest location is <strong>${nearestLocation.name}</strong> (${(shortestDistance / 1000).toFixed(2)} km away).</p>
-        <button class="btn btn-sm btn-primary" onclick="selectRecommendedLocation('${nearestLocation.id}')">
-          <i class="fas fa-plus"></i> Add it!
-        </button>
-      `;
-
-      // Highlight recommended location
-      document.querySelectorAll('.location-card').forEach(card => {
-        card.classList.remove('recommended');
-        if (card.getAttribute('data-id') === nearestLocation.id) {
-          card.classList.add('recommended');
-        }
+    // Add remove button listeners
+    stopsContainer.querySelectorAll('.route-stop-remove').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const stopId = btn.dataset.stopId;
+        removeStop(stopId);
       });
-    } else {
-      aiRecommendation.style.display = 'none';
+    });
+
+    // Calculate and update distance/time
+    updateRouteMetrics();
+
+    // Update map
+    updateMap();
+  }
+
+  function removeStop(stopId) {
+    routeStops = routeStops.filter(stop => stop.id !== stopId);
+
+    // Unmark company card
+    const card = companiesList.querySelector(`[data-company-id="${stopId}"]`);
+    if (card) {
+      card.classList.remove('added');
+      const btn = card.querySelector('.company-card-add-btn');
+      if (btn) btn.textContent = '+ Add';
+    }
+
+    updateRouteDisplay();
+  }
+
+  function updateRouteMetrics() {
+    if (routeStops.length < 2) {
+      document.getElementById('route-distance').textContent = '0 km';
+      document.getElementById('route-duration').textContent = '0 min';
+      return;
+    }
+
+    let totalDistance = 0;
+    for (let i = 0; i < routeStops.length - 1; i++) {
+      const dist = calculateDistance(
+        routeStops[i].latitude,
+        routeStops[i].longitude,
+        routeStops[i + 1].latitude,
+        routeStops[i + 1].longitude
+      );
+      totalDistance += dist;
+    }
+
+    const avgSpeed = 40; // km/h average speed
+    const estimatedTime = Math.round((totalDistance / avgSpeed) * 60);
+
+    document.getElementById('route-distance').textContent = totalDistance.toFixed(1) + ' km';
+    document.getElementById('route-duration').textContent = estimatedTime + ' min';
+  }
+
+  function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Earth's radius in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
+
+  function updateMap() {
+    if (routeStops.length === 0) return;
+
+    // Initialize map if needed
+    if (!map) {
+      mapEmptyState.style.display = 'none';
+      mapContainer.style.display = 'block';
+
+      map = L.map('route-planning-map').setView([routeStops[0].latitude, routeStops[0].longitude], 13);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+    }
+
+    // Clear existing markers and lines
+    markers.forEach(marker => map.removeLayer(marker));
+    markers = [];
+    if (routeLine) {
+      map.removeLayer(routeLine);
+    }
+
+    // Add markers for each stop
+    const bounds = [];
+    routeStops.forEach((stop, index) => {
+      const marker = L.marker([stop.latitude, stop.longitude], {
+        icon: L.divIcon({
+          className: 'custom-marker',
+          html: `<div style="background: #2f5fd0; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 3px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3);">${index + 1}</div>`,
+          iconSize: [32, 32]
+        })
+      }).addTo(map);
+
+      marker.bindPopup(`<strong>${stop.name}</strong><br>${stop.address || ''}`);
+      markers.push(marker);
+      bounds.push([stop.latitude, stop.longitude]);
+    });
+
+    // Draw route line
+    if (routeStops.length >= 2) {
+      const latlngs = routeStops.map(stop => [stop.latitude, stop.longitude]);
+      routeLine = L.polyline(latlngs, {
+        color: '#2f5fd0',
+        weight: 3,
+        opacity: 0.7
+      }).addTo(map);
+    }
+
+    // Fit map to bounds
+    if (bounds.length > 0) {
+      map.fitBounds(bounds, { padding: [50, 50] });
     }
   }
 
-  // Optimize route
-  optimizeBtn.addEventListener('click', async () => {
-    if (selectedLocations.length < 2) return;
+  // Optimize route (nearest neighbor algorithm)
+  optimizeBtn.addEventListener('click', () => {
+    if (routeStops.length < 2) return;
 
-    // Show loading state
-    optimizeBtn.disabled = true;
-    optimizeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Optimizing...';
+    const optimized = [routeStops[0]]; // Start with first stop
+    let remaining = routeStops.slice(1);
 
-    // Simple nearest neighbor algorithm for route optimization
-    optimizedRoute = optimizeRoute(selectedLocations);
+    while (remaining.length > 0) {
+      const current = optimized[optimized.length - 1];
+      let nearestIndex = 0;
+      let nearestDistance = Infinity;
 
-    // Display route on map
-    displayRouteOnMap(optimizedRoute);
+      remaining.forEach((stop, index) => {
+        const dist = calculateDistance(
+          current.latitude,
+          current.longitude,
+          stop.latitude,
+          stop.longitude
+        );
+        if (dist < nearestDistance) {
+          nearestDistance = dist;
+          nearestIndex = index;
+        }
+      });
 
-    // Show route order
-    displayRouteOrder(optimizedRoute);
+      optimized.push(remaining[nearestIndex]);
+      remaining.splice(nearestIndex, 1);
+    }
 
-    // Show save button
-    saveBtn.style.display = 'inline-flex';
-
-    // Reset button state
-    optimizeBtn.disabled = false;
-    optimizeBtn.innerHTML = 'Continue';
+    routeStops = optimized;
+    updateRouteDisplay();
+    showToast('Route optimized!', 'success');
   });
 
   // Save route
   saveBtn.addEventListener('click', async () => {
-    const routeName = document.getElementById('route-name').value.trim();
+    const routeName = routeNameInput.value.trim();
+    const assignedTo = routeRepSelect.value;
 
     if (!routeName) {
       showToast('Please enter a route name', 'error');
       return;
     }
 
-    if (selectedReps.length === 0) {
-      showToast('Please select at least one sales rep', 'error');
-      return;
-    }
-
-    if (selectedLocations.length === 0) {
-      showToast('Please select at least one location', 'error');
+    if (routeStops.length === 0) {
+      showToast('Please add at least one stop', 'error');
       return;
     }
 
@@ -4096,35 +4171,33 @@ function initRouteCreator(companies, salesReps) {
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
     try {
-      // Calculate total distance and estimated duration
+      // Calculate total distance
       let totalDistance = 0;
-      for (let i = 0; i < optimizedRoute.length - 1; i++) {
+      for (let i = 0; i < routeStops.length - 1; i++) {
         totalDistance += calculateDistance(
-          optimizedRoute[i].latitude,
-          optimizedRoute[i].longitude,
-          optimizedRoute[i + 1].latitude,
-          optimizedRoute[i + 1].longitude
+          routeStops[i].latitude,
+          routeStops[i].longitude,
+          routeStops[i + 1].latitude,
+          routeStops[i + 1].longitude
         );
       }
 
-      // Estimate duration (assuming average speed of 40 km/h in city)
-      const estimatedDuration = Math.round((totalDistance / 1000 / 40) * 60);
+      // Create route in database
+      const routeData = {
+        name: routeName,
+        assigned_to: assignedTo || null,
+        estimated_duration: parseInt(document.getElementById('route-duration').textContent),
+        total_distance: Math.round(totalDistance * 1000), // Convert to meters
+        created_by: currentUser.id
+      };
 
-      // Create route
       const { data: route, error: routeError } = await supabaseClient
         .from('routes')
-        .insert([{
-          name: routeName,
-          created_by: currentUser.id,
-          assigned_to: selectedReps[0].id, // Primary assignment
-          estimated_duration: estimatedDuration,
-          total_distance: Math.round(totalDistance)
-        }])
+        .insert([routeData])
         .select();
 
       if (routeError) throw routeError;
 
-      // Check if route was created successfully
       if (!route || route.length === 0) {
         throw new Error('Route was created but no data was returned');
       }
@@ -4132,9 +4205,9 @@ function initRouteCreator(companies, salesReps) {
       const newRouteId = route[0].id;
 
       // Create route locations
-      const routeLocationsData = optimizedRoute.map((location, index) => ({
+      const routeLocationsData = routeStops.map((stop, index) => ({
         route_id: newRouteId,
-        company_id: location.id,
+        company_id: stop.id,
         position: index + 1
       }));
 
@@ -4144,150 +4217,100 @@ function initRouteCreator(companies, salesReps) {
 
       if (locationsError) throw locationsError;
 
-      // Create route assignments for each selected rep
-      const routeAssignments = selectedReps.map(rep => ({
-        route_id: newRouteId,
-        rep_id: rep.id,
-        assigned_by: currentUser.id
-      }));
+      showToast('Route saved successfully!', 'success');
 
-      if (routeAssignments.length > 0) {
-        const { error: assignmentsError } = await supabaseClient
-          .from('route_assignments')
-          .insert(routeAssignments);
+      // Reset form
+      routeStops = [];
+      routeNameInput.value = '';
+      routeRepSelect.value = '';
 
-        if (assignmentsError) throw assignmentsError;
-      }
+      // Unmark all company cards
+      companiesList.querySelectorAll('.company-quick-card.added').forEach(card => {
+        card.classList.remove('added');
+        const btn = card.querySelector('.company-card-add-btn');
+        if (btn) btn.textContent = '+ Add';
+      });
 
-      showToast('Route created and assigned successfully!', 'success');
-      renderRoutePlanningView(); // Refresh view
+      // Clear stats
+      document.getElementById('route-stops-count').textContent = '0';
+      document.getElementById('route-distance').textContent = '0 km';
+      document.getElementById('route-duration').textContent = '0 min';
+
+      updateRouteDisplay();
+
+      // Refresh the entire view to show new route in the list
+      setTimeout(() => {
+        renderRoutePlanningView();
+      }, 500);
+
     } catch (error) {
-      console.error('Error creating route:', error);
-      showToast('Error creating route: ' + error.message, 'error');
+      console.error('Error saving route:', error);
+      showToast('Error saving route: ' + error.message, 'error');
     } finally {
       saveBtn.disabled = false;
       saveBtn.innerHTML = 'Save Route';
     }
   });
 
-  function resetRouteCreator() {
-    document.getElementById('route-name').value = '';
-    document.querySelectorAll('.multi-select-option input').forEach(cb => {
-      cb.checked = false;
-    });
-    selectedReps = [];
-    updateMultiSelectDisplay();
-    document.querySelectorAll('.location-card input[type="checkbox"]').forEach(cb => {
-      cb.checked = false;
-      cb.closest('.location-card').classList.remove('selected', 'recommended');
-    });
-    selectedLocations = [];
-    optimizedRoute = [];
-    optimizeBtn.disabled = true;
-    saveBtn.style.display = 'none';
-    routeMap.style.display = 'none';
-    routeOrder.style.display = 'none';
-    aiRecommendation.style.display = 'none';
-  }
+  // AI Nearest Location Recommendation
+  function showNearestLocationRecommendation() {
+    if (routeStops.length === 0) return;
 
-  function optimizeRoute(locations) {
-    if (locations.length <= 1) return locations;
+    const lastStop = routeStops[routeStops.length - 1];
+    let nearestCompany = null;
+    let shortestDistance = Infinity;
 
-    // Simple nearest neighbor algorithm
-    const route = [locations[0]];
-    const remaining = [...locations.slice(1)];
+    // Find nearest company that's not already in route
+    companies.forEach(company => {
+      // Skip if already in route
+      if (routeStops.find(stop => stop.id === company.id)) return;
 
-    while (remaining.length > 0) {
-      const current = route[route.length - 1];
-      let nearestIndex = 0;
-      let nearestDistance = Infinity;
+      const dist = calculateDistance(
+        lastStop.latitude,
+        lastStop.longitude,
+        parseFloat(company.latitude),
+        parseFloat(company.longitude)
+      );
 
-      remaining.forEach((location, index) => {
-        const distance = calculateDistance(
-          current.latitude, current.longitude,
-          location.latitude, location.longitude
-        );
-
-        if (distance < nearestDistance) {
-          nearestDistance = distance;
-          nearestIndex = index;
-        }
-      });
-
-      route.push(remaining[nearestIndex]);
-      remaining.splice(nearestIndex, 1);
-    }
-
-    return route;
-  }
-
-  function displayRouteOnMap(route) {
-    routeMap.style.display = 'block';
-
-    // Initialize map if not already done
-    if (!map) {
-      map = L.map('route-map').setView([route[0].latitude, route[0].longitude], 13);
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap'
-      }).addTo(map);
-    } else {
-      // Clear existing markers and route line
-      markers.forEach(marker => map.removeLayer(marker));
-      if (routeLine) map.removeLayer(routeLine);
-      markers = [];
-    }
-
-    // Add markers for each location
-    route.forEach((location, index) => {
-      const marker = L.marker([location.latitude, location.longitude])
-        .bindPopup(`<b>${index + 1}. ${location.name}</b><br>${location.description || 'No description'}`)
-        .addTo(map);
-
-      markers.push(marker);
-    });
-
-    // Draw route line
-    const latlngs = route.map(loc => [loc.latitude, loc.longitude]);
-    routeLine = L.polyline(latlngs, { color: '#4f46e5', weight: 4 }).addTo(map);
-
-    // Fit map to show entire route
-    const group = new L.featureGroup(markers);
-    map.fitBounds(group.getBounds().pad(0.1));
-  }
-
-  function displayRouteOrder(route) {
-    routeOrder.style.display = 'block';
-
-    sortableRoute.innerHTML = route.map((location, index) => `
-      <div class="sortable-item" data-id="${location.id}">
-        <div class="sortable-handle">
-          <i class="fas fa-grip-vertical"></i>
-        </div>
-        <div class="sortable-number">${index + 1}</div>
-        <div class="sortable-content">
-          <h4>${location.name}</h4>
-          <p>${location.description || 'No description'}</p>
-        </div>
-      </div>
-    `).join('');
-
-    // Make list sortable
-    new Sortable(sortableRoute, {
-      handle: '.sortable-handle',
-      animation: 150,
-      onEnd: function (evt) {
-        // Update optimizedRoute array based on new order
-        const newOrder = Array.from(sortableRoute.children).map(item => {
-          const locationId = item.getAttribute('data-id');
-          return route.find(loc => loc.id === locationId);
-        });
-
-        optimizedRoute = newOrder;
-        displayRouteOnMap(optimizedRoute);
+      if (dist < shortestDistance) {
+        shortestDistance = dist;
+        nearestCompany = company;
       }
     });
+
+    if (nearestCompany && shortestDistance < 50) { // Only show if within 50km
+      // Highlight the nearest company card
+      const nearestCard = companiesList.querySelector(`[data-company-id="${nearestCompany.id}"]`);
+      if (nearestCard && !nearestCard.classList.contains('added')) {
+        // Remove previous highlights
+        companiesList.querySelectorAll('.company-quick-card').forEach(card => {
+          card.style.boxShadow = '';
+          card.style.border = '';
+        });
+
+        // Highlight nearest
+        nearestCard.style.boxShadow = '0 0 0 2px var(--color-primary)';
+        nearestCard.style.border = '1.5px solid var(--color-primary)';
+
+        // Scroll into view
+        nearestCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        // Show toast with AI suggestion
+        showToast(`💡 AI Suggestion: ${nearestCompany.name} is ${shortestDistance.toFixed(1)}km away`, 'info', 5000);
+      }
+    }
   }
+
+  // Call AI recommendation after adding a stop
+  const originalUpdateRouteDisplay = updateRouteDisplay;
+  updateRouteDisplay = function () {
+    originalUpdateRouteDisplay();
+    if (routeStops.length > 0) {
+      setTimeout(() => showNearestLocationRecommendation(), 300);
+    }
+  };
 }
+
 
 // Global function to select recommended location
 window.selectRecommendedLocation = function (locationId) {
