@@ -5399,6 +5399,38 @@ function initKanbanBoard(tasks, salesReps) {
       }
     });
   });
+
+  // Header Search functionality
+  const searchInput = document.getElementById('task-search-input');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase();
+      document.querySelectorAll('.kanban-task-card').forEach(card => {
+        const title = card.querySelector('.task-card-title').textContent.toLowerCase();
+        const description = card.querySelector('.task-card-description')?.textContent.toLowerCase() || '';
+        const matches = title.includes(query) || description.includes(query);
+        card.style.display = matches ? 'flex' : 'none';
+      });
+      // Update column counts after filtering
+      updateColumnCounts();
+    });
+  }
+
+  // Header Add Task button
+  const addTaskBtn = document.getElementById('add-task-btn');
+  if (addTaskBtn) {
+    addTaskBtn.addEventListener('click', () => {
+      openTaskModal(null, salesReps);
+    });
+  }
+
+  // Header Filter button
+  const filterBtn = document.getElementById('filter-tasks-btn');
+  if (filterBtn) {
+    filterBtn.addEventListener('click', () => {
+      showToast('Task filtering is currently being enhanced!', 'info');
+    });
+  }
 }
 
 function updateColumnCounts() {
@@ -5738,7 +5770,7 @@ function initTaskActionButtons(tasks, salesReps) {
   });
 }
 
-function openTaskModal(task = null, salesReps = []) {
+function openTaskModal(task = null, salesReps = [], initialStatus = 'pending') {
   const modal = document.getElementById('task-modal');
   const modalTitle = document.getElementById('task-modal-title');
   const saveBtn = document.getElementById('save-task-btn');
@@ -5750,7 +5782,7 @@ function openTaskModal(task = null, salesReps = []) {
   document.getElementById('task-description').value = '';
   document.getElementById('task-due-date').value = '';
   document.getElementById('task-priority').value = 'medium';
-  document.getElementById('task-status').value = 'pending';
+  document.getElementById('task-status').value = initialStatus;
 
   // Populate sales reps dropdown for managers
   if (isManager && salesReps.length > 0) {
