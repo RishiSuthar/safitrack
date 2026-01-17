@@ -761,30 +761,14 @@ function openCompanyModal(company = null) {
     document.getElementById('company-longitude').value = company.longitude?.toString() || '';
     document.getElementById('company-radius').value = company.radius?.toString() || '200';
 
-    // Show manual coordinates section
-    document.getElementById('manual-coords-section').style.display = 'block';
-
     // Fill categories
     if (company.company_categories && company.company_categories.length > 0) {
       company.company_categories.forEach(c => {
         addCategory(c.categories.name);
       });
     }
-
-    // Show/hide geocode button based on whether coordinates exist
-    const geocodeBtn = document.getElementById('geocode-address-btn');
-    if (company.latitude && company.longitude) {
-      geocodeBtn.style.display = 'none';
-      document.getElementById('manual-coords-section').classList.remove('hidden');
-    } else {
-      geocodeBtn.style.display = 'block';
-      document.getElementById('manual-coords-section').classList.add('hidden');
-    }
   } else {
     modalTitle.innerHTML = 'New Company';
-    document.getElementById('manual-coords-section').classList.add('hidden');
-    const geocodeBtn = document.getElementById('geocode-address-btn');
-    if (geocodeBtn) geocodeBtn.style.display = 'block';
   }
 
   // Show modal
@@ -1402,32 +1386,26 @@ function openPersonModal(person = null) {
   const modal = document.getElementById('person-modal');
   const modalTitle = document.getElementById('person-modal-title');
   const saveBtn = document.getElementById('save-person-btn');
-  const companySelect = document.getElementById('person-company');
+  const companyInput = document.getElementById('person-company');
   const opportunitySelect = document.getElementById('person-opportunity');
 
   // Reset form
   document.getElementById('person-name').value = '';
   document.getElementById('person-email').value = '';
   document.getElementById('person-job-title').value = '';
+  companyInput.value = '';
+  companyInput.dataset.companyId = '';
 
   // Clear phone numbers
   document.getElementById('phone-numbers-container').innerHTML = `
     <div class="phone-number-input">
-      <input type="tel" class="phone-number" placeholder="Enter phone number">
+      <input type="tel" class="phone-number" placeholder="e.g., +254 712 345 678">
       <button type="button" class="btn btn-sm btn-ghost add-phone-btn">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
       </button>
     </div>
   `;
   personPhoneNumbers = [];
-
-  // Populate company dropdown using global data
-  if (window.companiesData) {
-    companySelect.innerHTML = '<option value="">Select a company</option>';
-    window.companiesData.forEach(company => {
-      companySelect.innerHTML += `<option value="${company.id}">${company.name}</option>`;
-    });
-  }
 
   // Populate opportunity dropdown using global data
   if (window.opportunitiesData) {
@@ -1447,7 +1425,12 @@ function openPersonModal(person = null) {
     document.getElementById('person-job-title').value = person.job_title || '';
 
     if (person.company_id) {
-      companySelect.value = person.company_id;
+      // Find and set company name
+      const company = window.companiesData?.find(c => c.id === person.company_id);
+      if (company) {
+        companyInput.value = company.name;
+        companyInput.dataset.companyId = person.company_id;
+      }
     }
 
     if (person.opportunity_id) {
@@ -1471,6 +1454,56 @@ function openPersonModal(person = null) {
 }
 
 function initPersonModalListeners(person) {
+  // Company search functionality
+  const companyInput = document.getElementById('person-company');
+  const searchResults = document.getElementById('person-company-search-results');
+
+  if (companyInput) {
+    companyInput.addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase().trim();
+
+      if (searchTerm.length === 0) {
+        searchResults.style.display = 'none';
+        companyInput.dataset.companyId = '';
+        return;
+      }
+
+      // Filter companies
+      const filteredCompanies = window.companiesData?.filter(company =>
+        company.name.toLowerCase().includes(searchTerm)
+      ) || [];
+
+      if (filteredCompanies.length > 0) {
+        searchResults.innerHTML = filteredCompanies.slice(0, 5).map(company => `
+          <div class="search-result-item" data-company-id="${company.id}" data-company-name="${company.name}">
+            <div class="search-result-name">${company.name}</div>
+            ${company.address ? `<div class="search-result-meta">${company.address}</div>` : ''}
+          </div>
+        `).join('');
+        searchResults.style.display = 'block';
+
+        // Add click handlers to results
+        searchResults.querySelectorAll('.search-result-item').forEach(item => {
+          item.addEventListener('click', () => {
+            companyInput.value = item.dataset.companyName;
+            companyInput.dataset.companyId = item.dataset.companyId;
+            searchResults.style.display = 'none';
+          });
+        });
+      } else {
+        searchResults.innerHTML = '<div class="search-result-empty">No companies found</div>';
+        searchResults.style.display = 'block';
+      }
+    });
+
+    // Hide results when clicking outside
+    document.addEventListener('click', (e) => {
+      if (!companyInput.contains(e.target) && !searchResults.contains(e.target)) {
+        searchResults.style.display = 'none';
+      }
+    });
+  }
+
   // Add phone number button
   const addPhoneBtn = document.querySelector('.add-phone-btn');
   if (addPhoneBtn) {
@@ -1488,7 +1521,7 @@ function initPersonModalListeners(person) {
   saveBtn.onclick = async () => {
     const name = document.getElementById('person-name').value.trim();
     const email = document.getElementById('person-email').value.trim();
-    const companyId = document.getElementById('person-company').value;
+    const companyId = companyInput.dataset.companyId; // Use dataset instead of value
     const jobTitle = document.getElementById('person-job-title').value.trim();
     const opportunityId = document.getElementById('person-opportunity').value;
 
@@ -9631,12 +9664,12 @@ async function renderNotesView() {
 
     // Initialize notes functionality
     initNotesView(notes, companies, people);
-    
+
     // Automatically create a new note
     setTimeout(() => {
       createNewNote();
     }, 100);
-    
+
     return;
   }
 
@@ -9714,12 +9747,12 @@ function initNotesView(notes, companies, people) {
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
       const query = e.target.value.toLowerCase();
-      
-      const filteredNotes = notes.filter(note => 
-        note.title.toLowerCase().includes(query) || 
+
+      const filteredNotes = notes.filter(note =>
+        note.title.toLowerCase().includes(query) ||
         note.content.toLowerCase().includes(query)
       );
-      
+
       renderNotesList(filteredNotes);
     });
   }
@@ -9744,7 +9777,7 @@ function createNewNote() {
   // Set flags immediately
   window.isCreatingNewNote = true;
   window.selectedNoteId = null;
-  
+
   // Update active state in sidebar immediately
   document.querySelectorAll('.note-item').forEach(item => {
     item.classList.remove('active');
@@ -9753,7 +9786,7 @@ function createNewNote() {
   // Get the note editor element
   const noteEditor = document.getElementById('note-editor');
   if (!noteEditor) return;
-  
+
   // Create the HTML once and set it directly
   const editorHTML = `
     <div class="note-editor-header">
@@ -9817,7 +9850,7 @@ function createNewNote() {
   // Use requestAnimationFrame for smoother initialization
   requestAnimationFrame(() => {
     initNewNoteEditor();
-    
+
     // Focus on the title input immediately
     const titleInput = document.getElementById('note-title');
     if (titleInput) {
@@ -9837,7 +9870,7 @@ function initNewNoteEditor() {
 
   // Auto-save functionality
   let autoSaveTimeout;
-  
+
   const autoSave = () => {
     clearTimeout(autoSaveTimeout);
     autoSaveTimeout = setTimeout(async () => {
@@ -9856,15 +9889,15 @@ function initNewNoteEditor() {
           // Get current selection
           const selection = window.getSelection();
           const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-          
+
           // Apply the formatting
           document.execCommand(command, false, null);
-          
+
           // Clear selection after applying format
           if (selection.rangeCount > 0) {
             selection.removeAllRanges();
           }
-          
+
           // Move cursor to the end of the formatted text
           if (range) {
             const newRange = document.createRange();
@@ -9872,7 +9905,7 @@ function initNewNoteEditor() {
             newRange.collapse(true);
             selection.addRange(newRange);
           }
-          
+
           if (contentDiv) contentDiv.focus();
           autoSave();
         }
@@ -9881,19 +9914,19 @@ function initNewNoteEditor() {
       const colorBtn = e.target.closest('.color-option');
       if (colorBtn) {
         const color = colorBtn.dataset.color;
-        
+
         // Get current selection
         const selection = window.getSelection();
         const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-        
+
         // Apply the color
         document.execCommand('foreColor', false, color);
-        
+
         // Clear selection after applying color
         if (selection.rangeCount > 0) {
           selection.removeAllRanges();
         }
-        
+
         // Move cursor to the end of the colored text
         if (range) {
           const newRange = document.createRange();
@@ -9901,7 +9934,7 @@ function initNewNoteEditor() {
           newRange.collapse(true);
           selection.addRange(newRange);
         }
-        
+
         if (contentDiv) contentDiv.focus();
         autoSave();
       }
@@ -9940,17 +9973,17 @@ function initNewNoteEditor() {
 async function saveNewNote(showNotification = true) {
   const titleInput = document.getElementById('note-title');
   const contentDiv = document.getElementById('note-content');
-  
+
   if (!titleInput || !contentDiv) return;
-  
+
   const title = titleInput.value.trim();
   const content = contentDiv.innerHTML;
-  
+
   if (!title || !content || content === '<br>') {
     showToast('Title and content are required', 'error');
     return;
   }
-  
+
   const noteData = {
     user_id: currentUser.id,
     title,
@@ -9958,27 +9991,27 @@ async function saveNewNote(showNotification = true) {
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   };
-  
+
   const { data, error } = await supabaseClient
     .from('notes')
     .insert([noteData])
     .select();
-  
+
   if (error) {
     showToast('Error creating note: ' + error.message, 'error');
     return;
   }
-  
+
   if (data && data.length > 0) {
     // Add to local data
     window.allNotesData.unshift(data[0]);
-    
+
     // Re-render notes list
     renderNotesList(window.allNotesData);
-    
+
     // Select the newly created note
     selectNote(data[0].id);
-    
+
     if (showNotification) {
       showToast('Note created successfully', 'success');
     }
@@ -9990,7 +10023,7 @@ async function saveNewNote(showNotification = true) {
 
 function renderNotesList(notes) {
   const notesList = document.getElementById('notes-list');
-  
+
   if (notes.length === 0) {
     notesList.innerHTML = `
       <div class="empty-state">
@@ -10039,13 +10072,13 @@ async function selectNote(noteId) {
 
   // Find the note data
   const note = window.allNotesData.find(n => n.id === noteId);
-  
+
   if (!note) return;
 
   // Render note editor
   const noteEditor = document.getElementById('note-editor');
   if (!noteEditor) return;
-  
+
   noteEditor.innerHTML = `
     <div class="note-editor-header">
       <input type="text" id="note-title" class="note-title-input" value="${note.title}">
@@ -10123,7 +10156,7 @@ function initNoteEditor(noteId) {
 
   // Auto-save functionality
   let autoSaveTimeout;
-  
+
   const autoSave = () => {
     clearTimeout(autoSaveTimeout);
     autoSaveTimeout = setTimeout(async () => {
@@ -10142,25 +10175,25 @@ function initNoteEditor(noteId) {
   }
 
   // Toolbar buttons
-// Update this part in both initNoteEditor and initNewNoteEditor functions
+  // Update this part in both initNoteEditor and initNewNoteEditor functions
 
   // Toolbar buttons
   document.querySelectorAll('.toolbar-btn[data-command]').forEach(btn => {
     btn.addEventListener('click', () => {
       const command = btn.dataset.command;
-      
+
       // Get current selection
       const selection = window.getSelection();
       const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-      
+
       // Apply the formatting
       document.execCommand(command, false, null);
-      
+
       // Clear selection after applying format
       if (selection.rangeCount > 0) {
         selection.removeAllRanges();
       }
-      
+
       // Move cursor to the end of the formatted text
       if (range) {
         const newRange = document.createRange();
@@ -10168,7 +10201,7 @@ function initNoteEditor(noteId) {
         newRange.collapse(true);
         selection.addRange(newRange);
       }
-      
+
       if (contentDiv) contentDiv.focus();
       autoSave();
     });
@@ -10178,19 +10211,19 @@ function initNoteEditor(noteId) {
   document.querySelectorAll('.color-option').forEach(btn => {
     btn.addEventListener('click', () => {
       const color = btn.dataset.color;
-      
+
       // Get current selection
       const selection = window.getSelection();
       const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-      
+
       // Apply the color
       document.execCommand('foreColor', false, color);
-      
+
       // Clear selection after applying color
       if (selection.rangeCount > 0) {
         selection.removeAllRanges();
       }
-      
+
       // Move cursor to the end of the colored text
       if (range) {
         const newRange = document.createRange();
@@ -10198,7 +10231,7 @@ function initNoteEditor(noteId) {
         newRange.collapse(true);
         selection.addRange(newRange);
       }
-      
+
       if (contentDiv) contentDiv.focus();
       autoSave();
     });
@@ -10225,10 +10258,10 @@ function initNoteEditor(noteId) {
       note.is_pinned = !note.is_pinned;
       pinBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pin-icon lucide-pin"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>`;
       pinBtn.title = note.is_pinned ? 'Unpin note' : 'Pin note';
-      
+
       // Re-render notes list to update pin status
       renderNotesList(window.allNotesData);
-      
+
       showToast(note.is_pinned ? 'Note pinned' : 'Note unpinned', 'success');
     });
   }
@@ -10255,10 +10288,10 @@ function initNoteEditor(noteId) {
 
       // Remove from local data
       window.allNotesData = window.allNotesData.filter(n => n.id !== noteId);
-      
+
       // Re-render notes list
       renderNotesList(window.allNotesData);
-      
+
       // Clear editor if this was the selected note
       if (window.selectedNoteId === noteId) {
         window.selectedNoteId = null;
@@ -10273,7 +10306,7 @@ function initNoteEditor(noteId) {
           `;
         }
       }
-      
+
       showToast('Note deleted successfully', 'success');
     });
   }
@@ -10289,54 +10322,54 @@ function handleTagging(e) {
   try {
     const contentDiv = e.target;
     const selection = window.getSelection();
-    
+
     // Get the current cursor position
     const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
     if (!range) return;
-    
+
     // Store the current range for later use
     mentionRange = range.cloneRange();
-    
+
     // Get the text content up to the cursor
     const preCaretRange = range.cloneRange();
     preCaretRange.selectNodeContents(contentDiv);
     preCaretRange.setEnd(range.endContainer, range.endOffset);
-    
+
     const text = preCaretRange.toString();
     const cursorPos = text.length;
-    
+
     // Check if user is typing a person mention (@)
     const personMatch = text.match(/@([^\s@]*)$/);
     if (personMatch) {
       currentMentionType = 'person';
       mentionStartPos = cursorPos - personMatch[0].length;
       const query = personMatch[1];
-      
+
       clearTimeout(taggingTimeout);
       taggingTimeout = setTimeout(() => {
         showPersonSuggestions(query, contentDiv);
       }, 300);
       return;
     }
-    
+
     // Check if user is typing a company name (no special symbol, just regular text)
     // Look for the last word that might be a company name
     const words = text.split(/\s+/);
     const lastWord = words[words.length - 1] || '';
-    
+
     // Only show company suggestions if the last word is at least 2 characters and doesn't start with @
     if (lastWord.length >= 2 && !lastWord.startsWith('@')) {
       currentMentionType = 'company';
       mentionStartPos = cursorPos - lastWord.length;
       const query = lastWord;
-      
+
       clearTimeout(taggingTimeout);
       taggingTimeout = setTimeout(() => {
         showCompanySuggestions(query, contentDiv);
       }, 300);
       return;
     }
-    
+
     // Hide suggestions if no match
     hideTaggingSuggestions();
   } catch (error) {
@@ -10348,53 +10381,53 @@ function handleTagging(e) {
 
 function showCompanySuggestions(query, contentDiv) {
   hideTaggingSuggestions();
-  
+
   if (query.length < 2) return;
-  
+
   const filteredCompanies = window.companiesData.filter(company =>
     company.name.toLowerCase().includes(query.toLowerCase())
   );
-  
+
   if (filteredCompanies.length === 0) return;
-  
+
   // Create suggestions popup
   const suggestions = document.createElement('div');
   suggestions.className = 'tagging-suggestions';
   suggestions.id = 'tagging-suggestions';
-  
+
   suggestions.innerHTML = filteredCompanies.slice(0, 5).map(company => `
     <div class="suggestion-item company-suggestion" data-id="${company.id}" data-name="${company.name}">
       <i class="fas fa-building"></i>
       <span>${company.name}</span>
     </div>
   `).join('');
-  
+
   document.body.appendChild(suggestions);
-  
+
   // Position suggestions near the cursor
   const rect = mentionRange.getBoundingClientRect();
-  
+
   suggestions.style.left = `${rect.left + window.scrollX}px`;
   suggestions.style.top = `${rect.bottom + window.scrollY + 5}px`;
-  
+
   // Add event listeners
   suggestions.querySelectorAll('.company-suggestion').forEach(item => {
     item.addEventListener('click', () => {
       const companyId = item.dataset.id;
       const companyName = item.dataset.name;
-      
+
       // Get current cursor position and content
       const selection = window.getSelection();
       const currentRange = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-      
+
       if (currentRange) {
         // Get all content as HTML
         const contentHTML = contentDiv.innerHTML;
-        
+
         // Create a temporary div to work with the content
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = contentHTML;
-        
+
         // Find all text nodes and replace the matching text
         const walker = document.createTreeWalker(
           tempDiv,
@@ -10402,75 +10435,75 @@ function showCompanySuggestions(query, contentDiv) {
           null,
           false
         );
-        
+
         let textNode;
         let totalOffset = 0;
         let foundMatch = false;
         let replacementNode = null;
-        
+
         while (textNode = walker.nextNode()) {
           const nodeText = textNode.textContent;
-          
+
           // Check if this text node contains our match
           const matchStart = Math.max(0, mentionStartPos - totalOffset);
           const matchEnd = Math.min(nodeText.length, matchStart + query.length);
-          
+
           if (matchEnd > matchStart && nodeText.substring(matchStart, matchEnd).toLowerCase() === query.toLowerCase()) {
             // Get text before and after the match
             const beforeText = nodeText.substring(0, matchStart);
             const afterText = nodeText.substring(matchEnd);
-            
+
             // Create the tag element
             const tagSpan = document.createElement('span');
             tagSpan.className = 'company-tag';
             tagSpan.setAttribute('data-id', companyId);
             tagSpan.contentEditable = false;
             tagSpan.textContent = companyName;
-            
+
             // Create a document fragment with the new content
             const fragment = document.createDocumentFragment();
-            
+
             if (beforeText) {
               fragment.appendChild(document.createTextNode(beforeText));
             }
-            
+
             fragment.appendChild(tagSpan);
-            
+
             // Add a space after the tag
             const spaceNode = document.createTextNode(' ');
             fragment.appendChild(spaceNode);
-            
+
             if (afterText) {
               fragment.appendChild(document.createTextNode(afterText));
             }
-            
+
             // Replace the text node with the fragment
             textNode.parentNode.replaceChild(fragment, textNode);
-            
+
             // Store reference to the space node for cursor positioning
             replacementNode = spaceNode;
-            
+
             foundMatch = true;
             break;
           }
-          
+
           totalOffset += nodeText.length;
         }
-        
+
         if (foundMatch) {
           // Update the content div with the new HTML
           contentDiv.innerHTML = tempDiv.innerHTML;
-          
+
           // Restore cursor position after the tag
           setTimeout(() => {
             if (replacementNode) {
               // Find the corresponding node in the updated DOM
               const tags = contentDiv.querySelectorAll('.company-tag');
-              const targetTag = Array.from(tags).find(tag => 
-                tag.getAttribute('data-id') === companyId && 
+              const targetTag = Array.from(tags).find(tag =>
+                tag.getAttribute('data-id') === companyId &&
                 tag.textContent === companyName
               );
-              
+
               if (targetTag && targetTag.nextSibling) {
                 const newRange = document.createRange();
                 newRange.setStart(targetTag.nextSibling, 0);
@@ -10486,16 +10519,16 @@ function showCompanySuggestions(query, contentDiv) {
                 selection.addRange(newRange);
               }
             }
-            
+
             contentDiv.focus();
           }, 0);
         }
       }
-      
+
       hideTaggingSuggestions();
     });
   });
-  
+
   // Hide suggestions when clicking outside
   setTimeout(() => {
     document.addEventListener('click', hideTaggingSuggestions, { once: true });
@@ -10506,20 +10539,20 @@ function showCompanySuggestions(query, contentDiv) {
 
 function showPersonSuggestions(query, contentDiv) {
   hideTaggingSuggestions();
-  
+
   if (query.length < 2) return;
-  
+
   const filteredPeople = window.peopleData.filter(person =>
     person.name.toLowerCase().includes(query.toLowerCase())
   );
-  
+
   if (filteredPeople.length === 0) return;
-  
+
   // Create suggestions popup
   const suggestions = document.createElement('div');
   suggestions.className = 'tagging-suggestions';
   suggestions.id = 'tagging-suggestions';
-  
+
   suggestions.innerHTML = filteredPeople.slice(0, 5).map(person => {
     const companyName = person.companies ? person.companies.name : '';
     return `
@@ -10532,33 +10565,33 @@ function showPersonSuggestions(query, contentDiv) {
       </div>
     `;
   }).join('');
-  
+
   document.body.appendChild(suggestions);
-  
+
   // Position suggestions near the cursor
   const rect = mentionRange.getBoundingClientRect();
-  
+
   suggestions.style.left = `${rect.left + window.scrollX}px`;
   suggestions.style.top = `${rect.bottom + window.scrollY + 5}px`;
-  
+
   // Add event listeners
   suggestions.querySelectorAll('.person-suggestion').forEach(item => {
     item.addEventListener('click', () => {
       const personId = item.dataset.id;
       const personName = item.dataset.name;
-      
+
       // Get current cursor position and content
       const selection = window.getSelection();
       const currentRange = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-      
+
       if (currentRange) {
         // Get all content as HTML
         const contentHTML = contentDiv.innerHTML;
-        
+
         // Create a temporary div to work with the content
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = contentHTML;
-        
+
         // Find all text nodes and replace the matching text
         const walker = document.createTreeWalker(
           tempDiv,
@@ -10566,75 +10599,75 @@ function showPersonSuggestions(query, contentDiv) {
           null,
           false
         );
-        
+
         let textNode;
         let totalOffset = 0;
         let foundMatch = false;
         let replacementNode = null;
-        
+
         while (textNode = walker.nextNode()) {
           const nodeText = textNode.textContent;
-          
+
           // Check if this text node contains our match (including @)
           const matchStart = Math.max(0, mentionStartPos - totalOffset);
           const matchEnd = Math.min(nodeText.length, matchStart + query.length + 1); // +1 for @
-          
+
           if (matchEnd > matchStart && nodeText.substring(matchStart, matchEnd).toLowerCase() === '@' + query.toLowerCase()) {
             // Get text before and after the match
             const beforeText = nodeText.substring(0, matchStart);
             const afterText = nodeText.substring(matchEnd);
-            
+
             // Create the tag element
             const tagSpan = document.createElement('span');
             tagSpan.className = 'person-tag';
             tagSpan.setAttribute('data-id', personId);
             tagSpan.contentEditable = false;
             tagSpan.textContent = personName;
-            
+
             // Create a document fragment with the new content
             const fragment = document.createDocumentFragment();
-            
+
             if (beforeText) {
               fragment.appendChild(document.createTextNode(beforeText));
             }
-            
+
             fragment.appendChild(tagSpan);
-            
+
             // Add a space after the tag
             const spaceNode = document.createTextNode(' ');
             fragment.appendChild(spaceNode);
-            
+
             if (afterText) {
               fragment.appendChild(document.createTextNode(afterText));
             }
-            
+
             // Replace the text node with the fragment
             textNode.parentNode.replaceChild(fragment, textNode);
-            
+
             // Store reference to the space node for cursor positioning
             replacementNode = spaceNode;
-            
+
             foundMatch = true;
             break;
           }
-          
+
           totalOffset += nodeText.length;
         }
-        
+
         if (foundMatch) {
           // Update the content div with the new HTML
           contentDiv.innerHTML = tempDiv.innerHTML;
-          
+
           // Restore cursor position after the tag
           setTimeout(() => {
             if (replacementNode) {
               // Find the corresponding node in the updated DOM
               const tags = contentDiv.querySelectorAll('.person-tag');
-              const targetTag = Array.from(tags).find(tag => 
-                tag.getAttribute('data-id') === personId && 
+              const targetTag = Array.from(tags).find(tag =>
+                tag.getAttribute('data-id') === personId &&
                 tag.textContent === personName
               );
-              
+
               if (targetTag && targetTag.nextSibling) {
                 const newRange = document.createRange();
                 newRange.setStart(targetTag.nextSibling, 0);
@@ -10650,16 +10683,16 @@ function showPersonSuggestions(query, contentDiv) {
                 selection.addRange(newRange);
               }
             }
-            
+
             contentDiv.focus();
           }, 0);
         }
       }
-      
+
       hideTaggingSuggestions();
     });
   });
-  
+
   // Hide suggestions when clicking outside
   setTimeout(() => {
     document.addEventListener('click', hideTaggingSuggestions, { once: true });
@@ -10678,17 +10711,17 @@ function hideTaggingSuggestions() {
 async function saveNote(noteId, showNotification = true) {
   const titleInput = document.getElementById('note-title');
   const contentDiv = document.getElementById('note-content');
-  
+
   if (!titleInput || !contentDiv) return;
-  
+
   const title = titleInput.value.trim();
   const content = contentDiv.innerHTML;
-  
+
   if (!title || !content) {
     showToast('Title and content are required', 'error');
     return;
   }
-  
+
   const { error } = await supabaseClient
     .from('notes')
     .update({
@@ -10697,12 +10730,12 @@ async function saveNote(noteId, showNotification = true) {
       updated_at: new Date().toISOString()
     })
     .eq('id', noteId);
-  
+
   if (error) {
     showToast('Error saving note: ' + error.message, 'error');
     return;
   }
-  
+
   // Update local data
   const note = window.allNotesData.find(n => n.id === noteId);
   if (note) {
@@ -10710,16 +10743,16 @@ async function saveNote(noteId, showNotification = true) {
     note.content = content;
     note.updated_at = new Date().toISOString();
   }
-  
+
   // Update the preview in the sidebar without repositioning
   updateNotePreview(noteId, title, content);
-  
+
   // Update date in footer
   const footer = document.querySelector('.note-editor-footer .text-muted');
   if (footer) {
     footer.textContent = `Last updated: ${formatDate(note.updated_at)}`;
   }
-  
+
   if (showNotification) {
     showToast('Note saved', 'success');
   }
@@ -10729,20 +10762,20 @@ async function saveNote(noteId, showNotification = true) {
 function updateNotePreview(noteId, title, content) {
   const noteItem = document.querySelector(`.note-item[data-id="${noteId}"]`);
   if (!noteItem) return;
-  
+
   // Update title
   const titleElement = noteItem.querySelector('.note-item-title');
   if (titleElement) {
     titleElement.textContent = title;
   }
-  
+
   // Update preview
   const previewElement = noteItem.querySelector('.note-item-preview');
   if (previewElement) {
     const preview = content.replace(/<[^>]*>/g, '').substring(0, 100);
     previewElement.textContent = `${preview}${preview.length >= 100 ? '...' : ''}`;
   }
-  
+
   // Update date
   const dateElement = noteItem.querySelector('.note-item-date');
   if (dateElement) {
@@ -10756,7 +10789,7 @@ function openNoteModal(note = null) {
   modal.className = 'modal';
   modal.style.display = 'flex';
   modal.id = 'note-modal';
-  
+
   modal.innerHTML = `
     <div class="modal-backdrop" onclick="closeModal('note-modal')"></div>
     <div class="modal-container" style="max-width: 600px;">
@@ -10782,39 +10815,39 @@ function openNoteModal(note = null) {
       </div>
     </div>
   `;
-  
+
   document.body.appendChild(modal);
-  
+
   // Initialize modal editor
   const contentDiv = document.getElementById('modal-note-content');
-  
+
   // Text selection popup
   contentDiv.addEventListener('mouseup', handleTextSelection);
   contentDiv.addEventListener('keyup', handleTextSelection);
-  
+
   // Tagging functionality
   contentDiv.addEventListener('input', handleTagging);
-  
+
   // Save button
   document.getElementById('save-modal-note-btn').addEventListener('click', async () => {
     const titleInput = document.getElementById('modal-note-title');
     const title = titleInput.value.trim();
     const content = contentDiv.innerHTML;
-    
+
     if (!title || !content) {
       showToast('Title and content are required', 'error');
       return;
     }
-    
+
     const noteData = {
       user_id: currentUser.id,
       title,
       content,
       updated_at: new Date().toISOString()
     };
-    
+
     let result;
-    
+
     if (note) {
       // Update existing note
       result = await supabaseClient
@@ -10827,12 +10860,12 @@ function openNoteModal(note = null) {
         .from('notes')
         .insert([noteData]);
     }
-    
+
     if (result.error) {
       showToast(`Error ${note ? 'updating' : 'creating'} note: ` + result.error.message, 'error');
       return;
     }
-    
+
     showToast(`Note ${note ? 'updated' : 'created'} successfully`, 'success');
     closeModal('note-modal');
     renderNotesView(); // Refresh the notes view

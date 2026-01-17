@@ -252,7 +252,16 @@
           </button>
 
           <button data-view="notes" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notebook-icon lucide-notebook"><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><rect width="16" height="20" x="4" y="2" rx="2"/><path d="M16 2v20"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-notebook-icon lucide-notebook">
+              <path d="M2 6h4" />
+              <path d="M2 10h4" />
+              <path d="M2 14h4" />
+              <path d="M2 18h4" />
+              <rect width="16" height="20" x="4" y="2" rx="2" />
+              <path d="M16 2v20" />
+            </svg>
             <span>Notes</span>
           </button>
 
@@ -553,71 +562,115 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="form-field">
-          <label for="company-name-input">Company Name *</label>
-          <input type="text" id="company-name-input" placeholder="e.g., Acme Corporation" required>
-        </div>
-
-        <div class="form-field">
-          <label for="company-description">Description</label>
-          <textarea id="company-description" placeholder="Brief description of company..." rows="3"></textarea>
-        </div>
-
-        <div class="form-field">
-          <label for="company-address">Location Address *</label>
-          <input type="text" id="company-address" placeholder="e.g., 123 Main St, City, Country" required>
-        </div>
-
-        <div class="form-field">
-          <label>Location Coordinates</label>
-          <div class="coord-inputs">
-            <div class="coord-input-group">
-              <input type="number" id="company-latitude" placeholder="Latitude" step="0.000001">
-              <input type="number" id="company-longitude" placeholder="Longitude" step="0.000001">
+        <!-- Basic Information Section -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-icon">
+              <i class="fas fa-info-circle"></i>
             </div>
-            <div class="coord-buttons">
-              <button type="button" id="geocode-address-btn" class="btn btn-secondary">
-                <span>Find Coordinates</span>
-              </button>
-              <button type="button" id="use-current-location-btn" class="btn btn-secondary">
-                <i class="fas fa-crosshairs"></i>
-                <span>Use Current Location</span>
-              </button>
+            <div>
+              <div class="form-section-title">Basic Information</div>
+              <div class="form-section-description">Essential company details</div>
             </div>
           </div>
-        </div>
 
-        <div class="form-field">
-          <label for="company-radius">Verification Radius (meters)</label>
-          <input type="number" id="company-radius" value="200" min="50" max="1000">
-        </div>
-
-        <div class="form-field">
-          <label>Categories</label>
-          <div class="categories-input-container" id="categories-container">
-            <input type="text" class="categories-input" id="categories-input" placeholder="Add category...">
-          </div>
-          <div class="category-suggestions">
-            <button type="button" class="tag-suggestion" onclick="addCategory('Supermarket')">Supermarket</button>
-            <button type="button" class="tag-suggestion" onclick="addCategory('Retail')">Retail</button>
-            <button type="button" class="tag-suggestion" onclick="addCategory('Education')">Education</button>
-            <button type="button" class="tag-suggestion" onclick="addCategory('Medical')">Medical</button>
-            <button type="button" class="tag-suggestion" onclick="addCategory('Manufacturing')">Manufacturing</button>
-            <button type="button" class="tag-suggestion" onclick="addCategory('Hotels')">Hotels</button>
-            <button type="button" class="tag-suggestion" onclick="addCategory('Telecommunications')">Telecommunications</button>
-            <button type="button" class="tag-suggestion" onclick="addCategory('Government & Public Sector')">Government & Public Sector</button>
-            <button type="button" class="tag-suggestion" onclick="addCategory('Food & Beverage')">Food & Beverage</button>
-          </div>
-        </div>
-
-        <div id="manual-coords-section" class="manual-coords-section hidden">
           <div class="form-field">
-            <label>Manual Coordinates</label>
-            <div class="coord-inputs">
-              <div class="coord-input-group">
-                <input type="number" id="company-latitude" placeholder="Latitude" step="0.000001">
-                <input type="number" id="company-longitude" placeholder="Longitude" step="0.000001">
-              </div>
+            <label for="company-name-input">
+              Company Name <span class="required-indicator">*</span>
+            </label>
+            <input type="text" id="company-name-input" placeholder="e.g., Acme Corporation" required>
+          </div>
+
+          <div class="form-field">
+            <label for="company-description">
+              Description <span class="optional-badge">Optional</span>
+            </label>
+            <textarea id="company-description" placeholder="Brief description of the company and what they do..."
+              rows="3"></textarea>
+            <div class="field-helper">
+              <i class="fas fa-lightbulb"></i>
+              <span>Add details about their business, industry, or key products</span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label>Categories <span class="optional-badge">Optional</span></label>
+            <div class="categories-input-container" id="categories-container">
+              <input type="text" class="categories-input" id="categories-input" placeholder="Add category...">
+            </div>
+            <div class="category-suggestions">
+              <button type="button" class="tag-suggestion" onclick="addCategory('Supermarket')">Supermarket</button>
+              <button type="button" class="tag-suggestion" onclick="addCategory('Retail')">Retail</button>
+              <button type="button" class="tag-suggestion" onclick="addCategory('Education')">Education</button>
+              <button type="button" class="tag-suggestion" onclick="addCategory('Medical')">Medical</button>
+              <button type="button" class="tag-suggestion" onclick="addCategory('Manufacturing')">Manufacturing</button>
+              <button type="button" class="tag-suggestion" onclick="addCategory('Hotels')">Hotels</button>
+              <button type="button" class="tag-suggestion"
+                onclick="addCategory('Telecommunications')">Telecommunications</button>
+              <button type="button" class="tag-suggestion"
+                onclick="addCategory('Government & Public Sector')">Government & Public Sector</button>
+              <button type="button" class="tag-suggestion" onclick="addCategory('Food & Beverage')">Food &
+                Beverage</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Location Section -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <div>
+              <div class="form-section-title">Location Details</div>
+              <div class="form-section-description">Address and coordinates for visit verification</div>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="company-address">
+              Location Address <span class="required-indicator">*</span>
+            </label>
+            <input type="text" id="company-address" placeholder="e.g., 123 Main St, Nairobi, Kenya" required>
+            <div class="field-helper">
+              <i class="fas fa-info-circle"></i>
+              <span>Enter the full physical address</span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label>Location Coordinates <span class="required-indicator">*</span></label>
+            <div class="field-group">
+              <input type="number" id="company-latitude" placeholder="Latitude" step="0.000001" required>
+              <input type="number" id="company-longitude" placeholder="Longitude" step="0.000001" required>
+            </div>
+            <div class="field-helper">
+              <i class="fas fa-satellite-dish"></i>
+              <span>GPS coordinates for precise location tracking</span>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <button type="button" id="geocode-address-btn" class="btn btn-secondary">
+              <i class="fas fa-search-location"></i>
+              <span>Find Coordinates</span>
+            </button>
+            <button type="button" id="use-current-location-btn" class="btn btn-secondary">
+              <i class="fas fa-crosshairs"></i>
+              <span>Use My Location</span>
+            </button>
+          </div>
+
+          <div style="margin-bottom: 1.5rem;"></div>
+
+          <div class="form-field">
+            <label for="company-radius">
+              Verification Radius <span class="optional-badge">Optional</span>
+            </label>
+            <input type="number" id="company-radius" value="200" min="50" max="1000">
+            <div class="field-helper">
+              <i class="fas fa-ruler"></i>
+              <span>Distance in meters for location verification (50-1000m)</span>
             </div>
           </div>
         </div>
@@ -644,57 +697,115 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="form-field">
-          <label for="person-name">Name *</label>
-          <input type="text" id="person-name" placeholder="Enter person's name" required>
-        </div>
+        <!-- Contact Information Section -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-icon">
+              <i class="fas fa-address-card"></i>
+            </div>
+            <div>
+              <div class="form-section-title">Contact Information</div>
+              <div class="form-section-description">Basic contact details</div>
+            </div>
+          </div>
 
-        <div class="form-field">
-          <label for="person-email">Email Address</label>
-          <input type="email" id="person-email" placeholder="Enter email address">
-        </div>
+          <div class="form-field">
+            <label for="person-name">
+              Name <span class="required-indicator">*</span>
+            </label>
+            <input type="text" id="person-name" placeholder="e.g., John Doe" required>
+          </div>
 
-        <div class="form-field">
-          <label for="person-company">Company *</label>
-          <select id="person-company" required>
-            <option value="">Select a company</option>
-          </select>
-        </div>
+          <div class="form-field">
+            <label for="person-email">
+              Email Address <span class="optional-badge">Optional</span>
+            </label>
+            <input type="email" id="person-email" placeholder="e.g., john.doe@company.com">
+            <div class="field-helper">
+              <i class="fas fa-envelope"></i>
+              <span>Professional email address</span>
+            </div>
+          </div>
 
-        <div class="form-field">
-          <label for="person-job-title">Job Title</label>
-          <input type="text" id="person-job-title" placeholder="Enter job title">
-        </div>
-
-        <div class="form-field">
-          <label for="person-phone">Phone Numbers</label>
-          <div class="phone-numbers-container" id="phone-numbers-container">
-            <div class="phone-number-input">
-              <input type="tel" class="phone-number" placeholder="Enter phone number">
-              <button type="button" class="btn btn-sm btn-ghost add-phone-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                  class="lucide lucide-plus-icon lucide-plus">
-                  <path d="M5 12h14" />
-                  <path d="M12 5v14" />
-                </svg>
-              </button>
+          <div class="form-field">
+            <label for="person-phone">
+              Phone Numbers <span class="optional-badge">Optional</span>
+            </label>
+            <div class="phone-numbers-container" id="phone-numbers-container">
+              <div class="phone-number-input">
+                <input type="tel" class="phone-number" placeholder="e.g., +254 712 345 678">
+                <button type="button" class="btn btn-sm btn-ghost add-phone-btn">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="lucide lucide-plus-icon lucide-plus">
+                    <path d="M5 12h14" />
+                    <path d="M12 5v14" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+            <div class="field-helper">
+              <i class="fas fa-phone"></i>
+              <span>Add multiple phone numbers if needed</span>
             </div>
           </div>
         </div>
 
-        <div class="form-field">
-          <label for="person-opportunity">Opportunity</label>
-          <select id="person-opportunity">
-            <option value="">Select an opportunity</option>
-          </select>
+        <!-- Professional Details Section -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-icon">
+              <i class="fas fa-briefcase"></i>
+            </div>
+            <div>
+              <div class="form-section-title">Professional Details</div>
+              <div class="form-section-description">Company and role information</div>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="person-company">
+              Company <span class="required-indicator">*</span>
+            </label>
+            <div class="search-container">
+              <i class="fas fa-search"></i>
+              <input type="text" id="person-company" placeholder="Search for a company..." required autocomplete="off">
+              <div id="person-company-search-results" class="search-results" style="display: none;"></div>
+            </div>
+            <div class="field-helper">
+              <i class="fas fa-building"></i>
+              <span>The company this person works for</span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="person-job-title">
+              Job Title <span class="optional-badge">Optional</span>
+            </label>
+            <input type="text" id="person-job-title" placeholder="e.g., Sales Manager, CEO, Procurement Officer">
+            <div class="field-helper">
+              <i class="fas fa-id-badge"></i>
+              <span>Their role or position in the company</span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="person-opportunity">
+              Linked Opportunity <span class="optional-badge">Optional</span>
+            </label>
+            <select id="person-opportunity">
+              <option value="">Select an opportunity</option>
+            </select>
+            <div class="field-helper">
+              <i class="fas fa-link"></i>
+              <span>Associate this contact with an active opportunity</span>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('person-modal')">Cancel</button>
-        <button class="btn btn-primary" id="save-person-btn">
-          Save Person
-        </button>
+        <button class="btn btn-primary" id="save-person-btn">Save Person</button>
       </div>
     </div>
   </div>
@@ -714,74 +825,157 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="form-field">
-          <label for="opportunity-name">Opportunity Name *</label>
-          <input type="text" id="opportunity-name" placeholder="e.g., Q4 Enterprise Software Deal" required>
-        </div>
+        <!-- Deal Information Section -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-icon">
+              <i class="fas fa-handshake"></i>
+            </div>
+            <div>
+              <div class="form-section-title">Deal Information</div>
+              <div class="form-section-description">Core opportunity details</div>
+            </div>
+          </div>
 
-        <div class="form-field">
-          <label for="opportunity-company">Company *</label>
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" id="opportunity-company" placeholder="Search for a company..." required>
-            <div id="opportunity-company-search-results" class="search-results" style="display: none;"></div>
+          <div class="form-field">
+            <label for="opportunity-name">
+              Opportunity Name <span class="required-indicator">*</span>
+            </label>
+            <input type="text" id="opportunity-name" placeholder="e.g., Q1 2024 Enterprise Software Deal" required>
+            <div class="field-helper">
+              <i class="fas fa-tag"></i>
+              <span>A descriptive name for this sales opportunity</span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="opportunity-company">
+              Company <span class="required-indicator">*</span>
+            </label>
+            <div class="search-container">
+              <i class="fas fa-search"></i>
+              <input type="text" id="opportunity-company" placeholder="Search for a company..." required>
+              <div id="opportunity-company-search-results" class="search-results" style="display: none;"></div>
+            </div>
+            <div class="field-helper">
+              <i class="fas fa-building"></i>
+              <span>The company associated with this opportunity</span>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="form-field">
+              <label for="opportunity-value">
+                Deal Value (Ksh) <span class="required-indicator">*</span>
+              </label>
+              <input type="number" id="opportunity-value" placeholder="0.00" min="0" step="0.01" required>
+              <div class="field-helper">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Total value in Kenyan Shillings</span>
+              </div>
+            </div>
+
+            <div class="form-field">
+              <label for="opportunity-stage">
+                Pipeline Stage <span class="required-indicator">*</span>
+              </label>
+              <select id="opportunity-stage" required>
+                <option value="prospecting">Discovery</option>
+                <option value="qualification">In Progress</option>
+                <option value="closed-won">Won/Invoiced 🎉</option>
+                <option value="closed-lost">Lost</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="opportunity-probability">
+              Win Probability (%) <span class="required-indicator">*</span>
+            </label>
+            <div class="probability-slider-container">
+              <input type="range" id="opportunity-probability" min="0" max="100" value="50" class="probability-slider">
+              <div class="probability-value"><span id="probability-display">50</span>%</div>
+            </div>
+            <div class="field-helper">
+              <i class="fas fa-percentage"></i>
+              <span>Estimated likelihood of closing this deal</span>
+            </div>
           </div>
         </div>
 
-        <div class="form-field">
-          <label for="opportunity-value">Deal Value (Ksh) *</label>
-          <input type="number" id="opportunity-value" placeholder="0.00" min="0" step="0.01" required>
-        </div>
+        <!-- Timeline & Next Steps Section -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-icon">
+              <i class="fas fa-calendar-check"></i>
+            </div>
+            <div>
+              <div class="form-section-title">Timeline & Next Steps</div>
+              <div class="form-section-description">Action items and deadlines</div>
+            </div>
+          </div>
 
-        <div class="form-field">
-          <label for="opportunity-probability">Win Probability (%) *</label>
-          <div class="probability-slider-container">
-            <input type="range" id="opportunity-probability" min="0" max="100" value="50" class="probability-slider">
-            <div class="probability-value"><span id="probability-display">50</span>%</div>
+          <div class="form-field">
+            <label for="opportunity-next-step">
+              Next Step <span class="optional-badge">Optional</span>
+            </label>
+            <input type="text" id="opportunity-next-step" placeholder="e.g., Schedule demo with decision makers">
+            <div class="field-helper">
+              <i class="fas fa-tasks"></i>
+              <span>What's the next action to move this forward?</span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="opportunity-next-step-date">
+              Next Step Due Date <span class="optional-badge">Optional</span>
+            </label>
+            <input type="date" id="opportunity-next-step-date">
           </div>
         </div>
 
-        <div class="form-field">
-          <label for="opportunity-stage">Pipeline Stage *</label>
-          <select id="opportunity-stage" required>
-            <option value="prospecting">Discovery</option>
-            <option value="qualification">In Progress</option>
-            <option value="closed-won">Won/Invoiced 🎉</option>
-            <option value="closed-lost">Lost</option>
-          </select>
-        </div>
-
-        <div class="form-field">
-          <label for="opportunity-next-step">Next Step</label>
-          <input type="text" id="opportunity-next-step" placeholder="e.g., Schedule demo with decision makers">
-        </div>
-
-        <div class="form-field">
-          <label for="opportunity-next-step-date">Next Step Due Date</label>
-          <input type="date" id="opportunity-next-step-date">
-        </div>
-
-        <div class="form-field">
-          <label for="opportunity-competitors">Competitors</label>
-          <div class="competitors-input-container" id="competitors-container">
-            <input type="text" class="competitors-input" id="competitors-input" placeholder="Add competitor...">
+        <!-- Additional Details Section -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-icon">
+              <i class="fas fa-clipboard-list"></i>
+            </div>
+            <div>
+              <div class="form-section-title">Additional Details</div>
+              <div class="form-section-description">Competitors and notes</div>
+            </div>
           </div>
-        </div>
 
-        <div class="form-field">
-          <label for="opportunity-notes">Notes</label>
-          <div class="mention-container">
-            <textarea id="opportunity-notes" placeholder="Additional details about this opportunity..."
-              rows="3"></textarea>
-            <div id="opportunity-mention-suggestions" class="mention-suggestions" style="display: none;"></div>
+          <div class="form-field">
+            <label>Competitors <span class="optional-badge">Optional</span></label>
+            <div class="competitors-input-container" id="competitors-container">
+              <input type="text" class="competitors-input" id="competitors-input" placeholder="Add competitor name...">
+            </div>
+            <div class="field-helper">
+              <i class="fas fa-users"></i>
+              <span>Other companies competing for this deal</span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="opportunity-notes">
+              Notes <span class="optional-badge">Optional</span>
+            </label>
+            <div class="mention-container">
+              <textarea id="opportunity-notes" placeholder="Additional details about this opportunity..."
+                rows="3"></textarea>
+              <div id="opportunity-mention-suggestions" class="mention-suggestions" style="display: none;"></div>
+            </div>
+            <div class="field-helper">
+              <i class="fas fa-sticky-note"></i>
+              <span>Any additional context or important information</span>
+            </div>
           </div>
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('opportunity-modal')">Cancel</button>
-        <button class="btn btn-primary" id="save-opportunity-btn">
-          Save Opportunity
-        </button>
+        <button class="btn btn-primary" id="save-opportunity-btn">Save Opportunity</button>
       </div>
     </div>
   </div>
@@ -790,7 +984,7 @@
     <div class="modal-backdrop"></div>
     <div class="modal-container" style="max-width: 600px;">
       <div class="modal-header">
-        <h3 id="task-modal-title"><i class="fa-solid fa-bars-progress"></i></i> New Task</h3>
+        <h3 id="task-modal-title">New Task</h3>
         <button class="modal-close" onclick="closeModal('task-modal')">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
             stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
@@ -801,51 +995,101 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="form-field">
-          <label for="task-title">Task Title *</label>
-          <input type="text" id="task-title" placeholder="Enter task title" required>
+        <!-- Task Details Section -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-icon">
+              <i class="fas fa-clipboard-check"></i>
+            </div>
+            <div>
+              <div class="form-section-title">Task Details</div>
+              <div class="form-section-description">What needs to be done</div>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="task-title">
+              Task Title <span class="required-indicator">*</span>
+            </label>
+            <input type="text" id="task-title" placeholder="e.g., Follow up with client about proposal" required>
+          </div>
+
+          <div class="form-field">
+            <label for="task-description">
+              Description <span class="optional-badge">Optional</span>
+            </label>
+            <textarea id="task-description" placeholder="Add more details about this task..." rows="3"></textarea>
+            <div class="field-helper">
+              <i class="fas fa-align-left"></i>
+              <span>Provide context or specific instructions</span>
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="form-field">
+              <label for="task-priority">
+                Priority <span class="optional-badge">Optional</span>
+              </label>
+              <select id="task-priority">
+                <option value="low">🟢 Low</option>
+                <option value="medium" selected>🟡 Medium</option>
+                <option value="high">🔴 High</option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="task-status">
+                Status <span class="optional-badge">Optional</span>
+              </label>
+              <select id="task-status">
+                <option value="pending" selected>Pending</option>
+                <option value="in_progress">In Progress</option>
+                <option value="completed">Completed</option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        <div class="form-field">
-          <label for="task-description">Description</label>
-          <textarea id="task-description" placeholder="Enter task description" rows="3"></textarea>
-        </div>
+        <!-- Assignment & Deadline Section -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-icon">
+              <i class="fas fa-user-clock"></i>
+            </div>
+            <div>
+              <div class="form-section-title">Assignment & Deadline</div>
+              <div class="form-section-description">Who and when</div>
+            </div>
+          </div>
 
-        <div class="form-field" id="task-assign-field" style="display:none;">
-          <label for="task-assign-to">Assign To</label>
-          <select id="task-assign-to">
-            <option value="">Select a sales rep</option>
-          </select>
-        </div>
+          <div class="form-field" id="task-assign-field" style="display:none;">
+            <label for="task-assign-to">
+              Assign To <span class="optional-badge">Optional</span>
+            </label>
+            <select id="task-assign-to">
+              <option value="">Select a sales rep</option>
+            </select>
+            <div class="field-helper">
+              <i class="fas fa-user"></i>
+              <span>Assign this task to a team member</span>
+            </div>
+          </div>
 
-        <div class="form-field">
-          <label for="task-due-date">Due Date</label>
-          <input type="datetime-local" id="task-due-date">
-        </div>
-
-        <div class="form-field">
-          <label for="task-priority">Priority</label>
-          <select id="task-priority">
-            <option value="low">Low</option>
-            <option value="medium" selected>Medium</option>
-            <option value="high">High</option>
-          </select>
-        </div>
-
-        <div class="form-field">
-          <label for="task-status">Status</label>
-          <select id="task-status">
-            <option value="pending" selected>Pending</option>
-            <option value="in_progress">In Progress</option>
-            <option value="completed">Completed</option>
-          </select>
+          <div class="form-field">
+            <label for="task-due-date">
+              Due Date <span class="optional-badge">Optional</span>
+            </label>
+            <input type="datetime-local" id="task-due-date">
+            <div class="field-helper">
+              <i class="fas fa-calendar-alt"></i>
+              <span>When should this task be completed?</span>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('task-modal')">Cancel</button>
-        <button class="btn btn-primary" id="save-task-btn">
-          Save Task
-        </button>
+        <button class="btn btn-primary" id="save-task-btn">Save Task</button>
       </div>
     </div>
   </div>
@@ -865,33 +1109,64 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="form-field">
-          <label for="reminder-title">Reminder Title *</label>
-          <input type="text" id="reminder-title" placeholder="Enter reminder title" required>
-        </div>
+        <!-- Reminder Details Section -->
+        <div class="form-section">
+          <div class="form-section-header">
+            <div class="form-section-icon">
+              <i class="fas fa-bell-on"></i>
+            </div>
+            <div>
+              <div class="form-section-title">Reminder Details</div>
+              <div class="form-section-description">What to be reminded about</div>
+            </div>
+          </div>
 
-        <div class="form-field">
-          <label for="reminder-description">Description</label>
-          <textarea id="reminder-description" placeholder="Enter reminder description" rows="3"></textarea>
-        </div>
+          <div class="form-field">
+            <label for="reminder-title">
+              Reminder Title <span class="required-indicator">*</span>
+            </label>
+            <input type="text" id="reminder-title" placeholder="e.g., Call client about contract renewal" required>
+          </div>
 
-        <div class="form-field" id="reminder-assign-field" style="display:none;">
-          <label for="reminder-assign-to">Assign To</label>
-          <select id="reminder-assign-to">
-            <option value="">Select a sales rep</option>
-          </select>
-        </div>
+          <div class="form-field">
+            <label for="reminder-description">
+              Description <span class="optional-badge">Optional</span>
+            </label>
+            <textarea id="reminder-description" placeholder="Add additional context..." rows="3"></textarea>
+            <div class="field-helper">
+              <i class="fas fa-sticky-note"></i>
+              <span>Any important details to remember</span>
+            </div>
+          </div>
 
-        <div class="form-field">
-          <label for="reminder-date">Reminder Date *</label>
-          <input type="datetime-local" id="reminder-date" required>
+          <div class="form-field">
+            <label for="reminder-date">
+              Reminder Date & Time <span class="required-indicator">*</span>
+            </label>
+            <input type="datetime-local" id="reminder-date" required>
+            <div class="field-helper">
+              <i class="fas fa-clock"></i>
+              <span>When should you be reminded?</span>
+            </div>
+          </div>
+
+          <div class="form-field" id="reminder-assign-field" style="display:none;">
+            <label for="reminder-assign-to">
+              Assign To <span class="optional-badge">Optional</span>
+            </label>
+            <select id="reminder-assign-to">
+              <option value="">Select a sales rep</option>
+            </select>
+            <div class="field-helper">
+              <i class="fas fa-user"></i>
+              <span>Assign this reminder to a team member</span>
+            </div>
+          </div>
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('reminder-modal')">Cancel</button>
-        <button class="btn btn-primary" id="save-reminder-btn">
-          Save Reminder
-        </button>
+        <button class="btn btn-primary" id="save-reminder-btn">Save Reminder</button>
       </div>
     </div>
   </div>
