@@ -3655,6 +3655,11 @@ async function renderUserManagementView() {
         <span class="tag ${user.role === 'manager' ? '' : 'text-muted'}" style="background: ${user.role === 'manager' ? 'var(--color-primary-bg)' : 'var(--bg-tertiary)'};">
           ${user.role === 'manager' ? 'Manager' : user.role === 'technician' ? 'Technician' : user.role === 'sales_rep' ? 'Sales Rep' : (user.role || '')}
         </span>
+        ${isCurrentUser ? `
+        <button class="btn btn-secondary btn-sm" onclick="openChangePasswordModal()" style="margin-left: 1rem; margin-right: 0.5rem;" title="Change your password">
+           Change Password
+        </button>
+        ` : ''}
         ${!isCurrentUser ? `
           <button class="btn btn-ghost btn-sm" onclick="deleteUser('${user.id}', '${user.first_name} ${user.last_name}')">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -11501,5 +11506,72 @@ async function renderProfessionalDashboardView() {
   } catch (err) {
     console.error('Error rendering dashboard:', err);
     viewContainer.innerHTML = renderError('Failed to load dashboard data: ' + err.message);
+  }
+}
+
+// ======================
+// CHANGE PASSWORD MODAL
+// ======================
+window.openChangePasswordModal = function () {
+  const modal = document.getElementById('change-password-modal');
+  if (modal) {
+    document.getElementById('change-password-form').reset();
+    modal.style.display = 'flex';
+
+    const saveBtn = document.getElementById('save-new-password-btn');
+    saveBtn.onclick = submitChangePassword;
+  }
+};
+
+
+// ======================
+// PASSWORD VISIBILITY TOGGLE (EXTERNAL BUTTON)
+// ======================
+window.togglePasswordVisibility = function (inputId, btn) {
+  const input = document.getElementById(inputId);
+  const icon = btn.querySelector('i');
+  if (input.type === 'password') {
+    input.type = 'text';
+    icon.classList.remove('fa-eye');
+    icon.classList.add('fa-eye-slash');
+  } else {
+    input.type = 'password';
+    icon.classList.remove('fa-eye-slash');
+    icon.classList.add('fa-eye');
+  }
+};
+
+async function submitChangePassword() {
+  const newPass = document.getElementById('new-password').value;
+  const confirmPass = document.getElementById('confirm-new-password').value;
+
+  if (newPass !== confirmPass) {
+    showToast('Passwords do not match', 'error');
+    return;
+  }
+
+  if (newPass.length < 6) {
+    showToast('Password must be at least 6 characters', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('save-new-password-btn');
+  const originalText = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+
+  const { data, error } = await supabaseClient.auth.updateUser({
+    password: newPass
+  });
+
+  if (error) {
+    showToast(error.message, 'error');
+    btn.disabled = false;
+    btn.innerHTML = originalText;
+  } else {
+    showToast('Password updated successfully', 'success');
+    closeModal('change-password-modal');
+    btn.disabled = false;
+    btn.innerHTML = originalText;
   }
 }

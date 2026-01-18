@@ -1250,6 +1250,59 @@
     </div>
   </div>
 
+  <div id="change-password-modal" class="modal" style="display:none;">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3>Change Password</h3>
+        <button class="modal-close" onclick="closeModal('change-password-modal')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-x-icon lucide-x">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="change-password-form" onsubmit="event.preventDefault();">
+          <div class="form-field">
+            <label for="new-password">New Password</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <div class="input-wrapper modern-input" style="flex: 1;">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="new-password" placeholder="Enter new password" required minlength="6">
+              </div>
+              <button type="button" class="toggle-password-external"
+                onclick="togglePasswordVisibility('new-password', this)">
+                <i class="far fa-eye"></i>
+              </button>
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="confirm-new-password">Confirm Password</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <div class="input-wrapper modern-input" style="flex: 1;">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="confirm-new-password" placeholder="Confirm new password" required
+                  minlength="6">
+              </div>
+              <!-- Optional: Add visibility toggle for confirm layout too, or keep it consistent -->
+              <button type="button" class="toggle-password-external"
+                onclick="togglePasswordVisibility('confirm-new-password', this)">
+                <i class="far fa-eye"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('change-password-modal')">Cancel</button>
+        <button class="btn btn-primary" id="save-new-password-btn">Update Password</button>
+      </div>
+    </div>
+  </div>
+
   <div id="toast-container"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>

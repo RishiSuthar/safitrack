@@ -563,10 +563,11 @@ body {
 /* Eye Icon Button */
 .toggle-password {
   position: absolute;
-  right: 12px;
-  /* Slightly more inside */
-  top: 50%;
-  transform: translateY(-50%);
+  right: 22px;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  height: 32px;
   border: none;
   background: transparent;
   padding: 6px;
@@ -6998,4 +6999,27 @@ button svg {
 .status-pill.info {
   background: rgba(59, 130, 246, 0.1);
   color: #2563eb;
+}
+
+/* External Toggle Button for Password */
+.toggle-password-external {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 48px;
+  /* Match input height */
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-muted);
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.toggle-password-external:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--bg-tertiary);
 }
