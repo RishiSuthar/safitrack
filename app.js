@@ -11550,11 +11550,6 @@ async function submitChangePassword() {
     return;
   }
 
-  if (newPass.length < 6) {
-    showToast('Password must be at least 6 characters', 'error');
-    return;
-  }
-
   const btn = document.getElementById('save-new-password-btn');
   const originalText = btn.innerHTML;
   btn.disabled = true;
