@@ -500,7 +500,7 @@ async function renderCompaniesView() {
                 <th>Company Name</th>
                 <th>Industry</th>
                 <th>Location</th>
-                <th>Last Interaction</th>
+                <th>Type</th>
                 ${isManager ? '<th>Actions</th>' : ''}
               </tr>
             </thead>
@@ -538,7 +538,7 @@ async function renderCompaniesView() {
             </td>
             <td>${categories || 'N/A'}</td>
             <td>${company.address || 'N/A'}</td>
-            <td>${company.last_interaction ? formatDate(company.last_interaction) : 'Never'}</td>
+            <td>${company.company_type || 'N/A'}</td>
             ${isManager ? `
               <td>
                 <div class="table-actions">
@@ -746,6 +746,7 @@ function openCompanyModal(company = null) {
 
   // Reset form
   document.getElementById('company-name-input').value = '';
+  document.getElementById('company-type').value = '';
   document.getElementById('company-description').value = '';
   document.getElementById('company-address').value = '';
   document.getElementById('company-latitude').value = '';
@@ -762,6 +763,7 @@ function openCompanyModal(company = null) {
 
     // Fill form with company data
     document.getElementById('company-name-input').value = company.name || '';
+    document.getElementById('company-type').value = company.company_type || '';
     document.getElementById('company-description').value = company.description || '';
     document.getElementById('company-address').value = company.address || '';
     document.getElementById('company-latitude').value = company.latitude?.toString() || '';
@@ -890,6 +892,7 @@ function initCompanyModalListeners(company) {
   // In initCompanyModalListeners function, update the save button handler:
   saveBtn.onclick = async () => {
     const name = document.getElementById('company-name-input').value.trim();
+    const companyType = document.getElementById('company-type').value.trim();
     const description = document.getElementById('company-description').value.trim();
     const address = document.getElementById('company-address').value.trim(); // This is correct
     const latitude = parseFloat(document.getElementById('company-latitude').value);
@@ -897,8 +900,8 @@ function initCompanyModalListeners(company) {
     const radius = parseInt(document.getElementById('company-radius').value);
 
     // Validate
-    if (!name || !address || (!latitude && !longitude)) {
-      showToast('Please enter company name, address, and coordinates', 'error');
+    if (!name || !companyType || !address || (!latitude && !longitude)) {
+      showToast('Please enter company name, type, address, and coordinates', 'error');
       return;
     }
 
@@ -908,6 +911,7 @@ function initCompanyModalListeners(company) {
     try {
       const companyData = {
         name,
+        company_type: companyType,
         description: description || null,
         address: address, // Make sure this is included
         latitude,
