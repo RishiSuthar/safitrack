@@ -3094,10 +3094,10 @@ function initOpportunityModalListeners(opportunity) {
         .ilike('name', `%${query}%`)
         .limit(5);
 
-      if (companies.length === 0) {
-        companySearchResults.innerHTML = '<div class="search-result-item">No companies found</div>';
-      } else {
-        companySearchResults.innerHTML = companies.map(company => `
+      let resultsHTML = '';
+
+      if (companies.length > 0) {
+        resultsHTML = companies.map(company => `
           <div class="search-result-item" onclick="selectOpportunityCompany('${company.name}')">
             <div class="search-result-icon"></div>
             <div>
@@ -3108,8 +3108,34 @@ function initOpportunityModalListeners(opportunity) {
         `).join('');
       }
 
+      // Always show option to use custom name if it's different from found companies
+      const customNameOption = `
+        <div class="search-result-item" onclick="selectOpportunityCompany('${e.target.value.trim()}')">
+          <div>
+            <div class="search-result-name">Use "${e.target.value.trim()}"</div>
+            <div class="search-result-role">Add as custom company name</div>
+          </div>
+        </div>
+      `;
+
+      companySearchResults.innerHTML = resultsHTML + customNameOption;
       companySearchResults.style.display = 'block';
     }, 300);
+  });
+
+  // Allow pressing Enter to confirm custom company name
+  newCompanyInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && newCompanyInput.value.trim()) {
+      e.preventDefault();
+      selectOpportunityCompany(newCompanyInput.value.trim());
+    }
+  });
+
+  // Close search results when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.search-container')) {
+      companySearchResults.style.display = 'none';
+    }
   });
 
   // Initialize mention system for notes
