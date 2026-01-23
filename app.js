@@ -3833,7 +3833,7 @@ async function renderRoutePlanningView() {
         
         <div class="route-actions">
           <button class="btn btn-secondary" id="optimize-route-btn" style="display: none;">
-            <i class="fas fa-magic"></i> Optimize
+            Optimize
           </button>
           <button class="btn btn-primary" id="save-route-btn" style="display: none;">
             Save Route
@@ -5548,11 +5548,11 @@ function showTaskDetail(task, salesReps) {
 
       <div class="task-detail-section">
         ${canEditDetails ? `
-        <button class="btn btn-primary" onclick="editTask('${task.id}')">
-          <i class="fas fa-edit"></i> Edit Task
+        <button class="btn btn-secondary" onclick="editTask('${task.id}')">
+          Edit Task
         </button>
-        <button class="btn btn-danger" onclick="deleteTask('${task.id}')" style="margin-left: 0.5rem;">
-          <i class="fas fa-trash"></i> Delete
+        <button class="btn btn-secondary" onclick="deleteTask('${task.id}')" style="margin-left: 0.5rem;">
+          Delete
         </button>
         ` : `
         <div class="alert alert-info">
