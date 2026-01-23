@@ -154,6 +154,56 @@ class OnboardingManager {
                     action: () => document.querySelector("button[data-view='user-management']").click()
                 }
             ];
+        } else if (this.role === 'technician') {
+            this.steps = [
+                {
+                    title: "Welcome, Technician!",
+                    icon: "🛠️",
+                    text: "This guide will show you how to manage your service tasks and visits efficiently.",
+                    target: ".header-brand",
+                    position: "bottom"
+                },
+                {
+                    title: "Your Checklist",
+                    icon: "✅",
+                    text: "Stay organized with your daily task list and operational check-items.",
+                    target: "button[data-view='tasks']",
+                    position: "right",
+                    action: () => document.querySelector("button[data-view='tasks']").click()
+                },
+                {
+                    title: "Service Reminders",
+                    icon: "🔔",
+                    text: "Get alerts for scheduled maintenance and urgent follow-up visits.",
+                    target: "button[data-view='reminders']",
+                    position: "right",
+                    action: () => document.querySelector("button[data-view='reminders']").click()
+                },
+                {
+                    title: "Field Notes",
+                    icon: "📝",
+                    text: "Record important details and observations from your service visits here.",
+                    target: "button[data-view='notes']",
+                    position: "right",
+                    action: () => document.querySelector("button[data-view='notes']").click()
+                },
+                {
+                    title: "Log Your Service",
+                    icon: "🔧",
+                    text: "The main tool for your day. Log your service visits, parts used, and work performed.",
+                    target: "button[data-view='technician-log-visit']",
+                    position: "right",
+                    action: () => document.querySelector("button[data-view='technician-log-visit']").click()
+                },
+                {
+                    title: "Visit History",
+                    icon: "📊",
+                    text: "Review your completed service visits and track your technical performance history.",
+                    target: "button[data-view='technician-activity']",
+                    position: "right",
+                    action: () => document.querySelector("button[data-view='technician-activity']").click()
+                }
+            ];
         } else {
             this.steps = [
                 ...commonSteps,
