@@ -165,6 +165,16 @@
               <span class="user-display-email" id="user-display-email">john@example.com</span>
             </div>
             <div class="user-dropdown-divider"></div>
+            <button id="help-guide-btn" class="user-dropdown-item">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-help-circle-icon lucide-help-circle">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                <path d="M12 17h.01" />
+              </svg>
+              <span>Help Guide</span>
+            </button>
             <button id="export-btn" class="user-dropdown-item">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                 stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
@@ -730,11 +740,25 @@
 
           <div class="field-group">
             <button type="button" id="geocode-address-btn" class="btn btn-secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search-icon lucide-search"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-search-icon lucide-search">
+                <path d="m21 21-4.34-4.34" />
+                <circle cx="11" cy="11" r="8" />
+              </svg>
               <span>Find Coordinates</span>
             </button>
             <button type="button" id="use-current-location-btn" class="btn btn-secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-locate-fixed-icon lucide-locate-fixed"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-locate-fixed-icon lucide-locate-fixed">
+                <line x1="2" x2="5" y1="12" y2="12" />
+                <line x1="19" x2="22" y1="12" y2="12" />
+                <line x1="12" x2="12" y1="2" y2="5" />
+                <line x1="12" x2="12" y1="19" y2="22" />
+                <circle cx="12" cy="12" r="7" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
               <span>Use My Location</span>
             </button>
           </div>
@@ -925,7 +949,8 @@
             </label>
             <div class="search-container">
               <i class="fas fa-search"></i>
-              <input type="text" id="opportunity-company" placeholder="Search for a company or enter custom name..." required>
+              <input type="text" id="opportunity-company" placeholder="Search for a company or enter custom name..."
+                required>
               <div id="opportunity-company-search-results" class="search-results" style="display: none;"></div>
             </div>
             <div class="field-helper">
@@ -1311,6 +1336,7 @@
   <script src="utils.js"></script>
   <script src="ai.js"></script>
   <script src="app.js"></script>
+  <script src="onboarding.js"></script>
 </body>
 
 </html>

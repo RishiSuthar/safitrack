@@ -138,6 +138,12 @@ function initEventListeners() {
 
   document.querySelector('.command-palette-backdrop')?.addEventListener('click', closeCommandPalette);
 
+  // Help Guide
+  document.getElementById('help-guide-btn')?.addEventListener('click', () => {
+    userMenu?.classList.remove('active');
+    if (window.onboarding) window.onboarding.start();
+  });
+
   // Export
   exportBtn?.addEventListener('click', () => {
     userMenu?.classList.remove('active');
@@ -231,6 +237,17 @@ async function initApp() {
 
   // Load the determined view
   await loadView(viewToLoad);
+
+  // Identify if onboarding should be shown (new user or forced)
+  const hasCompletedTour = localStorage.getItem('safitrack_onboarding_completed');
+
+  // Initialize onboarding system
+  if (window.onboarding) {
+    window.onboarding.init(profile.role);
+    if (!hasCompletedTour) {
+      setTimeout(() => window.onboarding.start(), 2000);
+    }
+  }
 }
 
 async function loadAllPeople() {
