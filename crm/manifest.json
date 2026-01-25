@@ -1,0 +1,21 @@
+{
+  "name": "SafiTrack CRM",
+  "short_name": "SafiTrack",
+  "description": "Intelligent Sales Management & Field Activity Tracker",
+  "start_url": "/crm/",
+  "display": "standalone",
+  "background_color": "#0f1117",
+  "theme_color": "#2f5fd0",
+  "icons": [
+    {
+      "src": "../assets/icons/whiteblue.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "../assets/icons/whiteblue.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

@@ -7996,3 +7996,58 @@ button svg {
   font-size: 1.5rem;
   margin-bottom: 0.75rem;
 }
+/* ===== PWA INSTALL BANNER ===== */
+.install-banner {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  max-width: 400px;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  z-index: var(--z-fixed);
+  padding: 12px;
+  animation: slideUp 0.4s ease-out;
+}
+
+@media (min-width: 901px) {
+  .install-banner {
+    bottom: 24px;
+  }
+}
+
+.install-banner-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.install-banner-text {
+  flex: 1;
+}
+
+.install-banner-text strong {
+  display: block;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.install-banner-text p {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.install-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+@keyframes slideUp {
+  from { transform: translate(-50%, 100%); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
+}

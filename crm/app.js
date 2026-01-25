@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initAuth();
   initEventListeners();
+  initPWA();
 });
 
 function initTheme() {
@@ -245,7 +246,13 @@ async function initApp() {
     window.onboarding.init(profile.role);
     if (!hasCompletedTour) {
       setTimeout(() => window.onboarding.start(), 2000);
+    } else {
+      // If already done, try showing PWA prompt
+      attemptShowPWABanner();
     }
+  } else {
+    // No onboarding module, show PWA prompt
+    attemptShowPWABanner();
   }
 }
 
@@ -11616,3 +11623,86 @@ async function submitChangePassword() {
     btn.innerHTML = originalText;
   }
 }
+
+// ======================
+// PWA LOGIC
+// ======================
+let deferredPrompt;
+
+function initPWA() {
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => console.log('SW: Registered', reg))
+        .catch(err => console.error('SW: Registration failed', err));
+    });
+  }
+
+  const installBtn = document.getElementById('pwa-install-btn');
+
+  // Listen for the install prompt
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+
+    // Show menu button always (non-intrusive)
+    if (installBtn) installBtn.style.display = 'flex';
+
+    // Attempt showing banner (checks onboarding)
+    attemptShowPWABanner();
+  });
+}
+
+function attemptShowPWABanner() {
+  const installBanner = document.getElementById('pwa-install-banner');
+  const bannerInstallBtn = document.getElementById('pwa-banner-install-btn');
+  const bannerCloseBtn = document.getElementById('pwa-banner-close-btn');
+
+  if (!deferredPrompt || !installBanner) return;
+
+  // DON'T show if onboarding is active (wait for reload/completion)
+  const hasCompletedTour = localStorage.getItem('safitrack_onboarding_completed');
+  if (!hasCompletedTour) return;
+
+  // DON'T show if user dismissed it recently
+  const isBannerDismissed = localStorage.getItem('pwa_banner_dismissed');
+  if (isBannerDismissed) return;
+
+  // All checks passed, show it after a short delay
+  setTimeout(() => {
+    installBanner.style.display = 'block';
+  }, 3000);
+
+  const triggerInstall = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    console.log(`User response to install prompt: ${outcome}`);
+    deferredPrompt = null;
+    const installBtn = document.getElementById('pwa-install-btn');
+    if (installBtn) installBtn.style.display = 'none';
+    if (installBanner) installBanner.style.display = 'none';
+  };
+
+  // Bind clicks
+  bannerInstallBtn.onclick = triggerInstall;
+  bannerCloseBtn.onclick = () => {
+    installBanner.style.display = 'none';
+    localStorage.setItem('pwa_banner_dismissed', 'true');
+  };
+
+  // Handle menu button too
+  const installBtn = document.getElementById('pwa-install-btn');
+  if (installBtn) installBtn.onclick = triggerInstall;
+}
+
+// Log when app is successfully installed
+window.addEventListener('appinstalled', (event) => {
+  console.log('App: Installed successfully');
+  const installBtn = document.getElementById('pwa-install-btn');
+  const installBanner = document.getElementById('pwa-install-banner');
+  if (installBtn) installBtn.style.display = 'none';
+  if (installBanner) installBanner.style.display = 'none';
+  showToast('SafiTrack CRM installed successfully!', 'success');
+});

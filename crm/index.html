@@ -5,6 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>SafiTrack CRM — Intelligent Sales Management</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2f5fd0">
   <link rel="icon" href="../assets/icons/whiteblue.ico" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -194,6 +196,16 @@
                 <path d="m7 10 5 5 5-5" />
               </svg>
               <span>Export Reports</span>
+            </button>
+            <button id="pwa-install-btn" class="user-dropdown-item" style="display: none;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                class="lucide lucide-download-cloud-icon lucide-download-cloud">
+                <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+                <path d="M12 12v9" />
+                <path d="m8 17 4 4 4-4" />
+              </svg>
+              <span>Install SafiTrack</span>
             </button>
             <button id="logout-btn" class="user-dropdown-item user-dropdown-item-danger">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
@@ -1329,6 +1341,20 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('change-password-modal')">Cancel</button>
         <button class="btn btn-primary" id="save-new-password-btn">Update Password</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="pwa-install-banner" class="install-banner" style="display: none;">
+    <div class="install-banner-content">
+      <img src="../assets/icons/whiteblue.png" alt="SafiTrack" width="40">
+      <div class="install-banner-text">
+        <strong>Install SafiTrack</strong>
+        <p>Add to your home screen for the full experience</p>
+      </div>
+      <div class="install-banner-actions">
+        <button id="pwa-banner-install-btn" class="btn btn-primary btn-sm">Install</button>
+        <button id="pwa-banner-close-btn" class="btn btn-ghost btn-sm">&times;</button>
       </div>
     </div>
   </div>
