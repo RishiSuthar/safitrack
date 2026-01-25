@@ -6801,7 +6801,7 @@ async function handleImageError(img) {
     const idx = src.indexOf(bucketMarker);
     if (idx === -1) {
       img.onerror = null;
-      img.src = 'assets/illustrations/image-missing.png';
+      img.src = '../assets/illustrations/image-missing.png';
       return;
     }
 
@@ -6815,11 +6815,11 @@ async function handleImageError(img) {
     }
 
     img.onerror = null;
-    img.src = 'assets/illustrations/image-missing.png';
+    img.src = '../assets/illustrations/image-missing.png';
   } catch (err) {
     console.error('handleImageError failed', err);
     img.onerror = null;
-    img.src = 'assets/illustrations/image-missing.png';
+    img.src = '../assets/illustrations/image-missing.png';
   }
 }
 

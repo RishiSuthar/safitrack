@@ -1,1342 +1,871 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>SafiTrack - Field Sales</title>
-  <link rel="icon" href="assets/icons/whiteblue.ico" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap"
-    rel="stylesheet">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="stylesheet" href="styles.css">
-
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafiTrack - Modern CRM for Sales Teams</title>
+    <link rel="icon" type="image/x-icon" href="assets/icons/whiteblue.ico">
+    <meta name="description"
+        content="Transform your sales process with SafiTrack - the CRM platform built for modern sales teams.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="landing.css">
+    <link rel="stylesheet" href="landing-scroll.css">
 </head>
 
 <body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="#" class="logo">
+                    <img src="assets/icons/whiteblue.png" alt="SafiTrack">
+                    <span class="logo-text">SafiTrack</span>
+                </a>
 
-  <div id="loading-screen" class="loading-overlay active">
-    <div class="loading-content">
-      <div class="loading-logo">
-        <img src="assets/icons/whiteblue.png" alt="SafiTrack" width="64">
-      </div>
-      <div class="loading-spinner"></div>
-      <p class="loading-text">Initializing safitrack</p>
-      <div class="loading-progress">
-        <div class="loading-progress-bar"></div>
-      </div>
-    </div>
-  </div>
+                <!-- Desktop Links -->
+                <div class="nav-links">
+                    <a href="#features">Features</a>
+                    <a href="#product">Product</a>
+                    <a href="#pricing">Pricing</a>
+                    <a href="/crm/" class="nav-link-app">Open App →</a>
+                </div>
+                <div class="nav-actions">
+                    <a href="/crm/" class="btn-primary">Get Started</a>
+                </div>
 
-  <div id="auth-screen" class="screen auth-screen">
-    <div class="auth-split-layout">
-      <!-- Left Side: Visual/Brand -->
-      <div class="auth-visual-side" style="background-image: url('assets/illustrations/mainpage.gif');">
-        <div class="auth-visual-overlay"></div>
-        <div class="auth-visual-content">
-          <div class="visual-brand-group">
-            <div class="visual-brand">
-              <img src="assets/icons/whiteblue.png" alt="SafiTrack" width="48" class="visual-logo">
-              <h1>SafiTrack</h1>
-            </div>
-            <!-- Secondary Logo -->
-            <div class="visual-sub-brand">
-              <img src="assets/icons/sangyug-logo.png" alt="Sangyug Enterprises" width="120"
-                style="filter: brightness(0) invert(1); opacity: 0.9;">
-            </div>
-          </div>
-
-          <div class="visual-quote">
-            <p>Empowering field sales teams with real-time data and intelligent insights.</p>
-          </div>
-
-          <div class="visual-footer-card">
-            <div class="glass-user-info">
-              <div class="glass-avatar">JD</div>
-              <div class="glass-text">
-                <span class="name">John reached his monthly target</span>
-                <span class="role">Sales Representative</span>
-              </div>
-            </div>
-            <div class="glass-badge">
-              <i class="fas fa-arrow-up"></i> 12%
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right Side: Login Form -->
-      <div class="auth-form-side">
-        <div class="auth-form-wrapper">
-          <div class="auth-header">
-            <div class="auth-logo-mobile">
-              <img src="assets/icons/transparentMain.png" alt="SafiTrack" width="120" class="mobile-logo-main">
-              <img src="assets/icons/sangyug-logo.png" alt="Sangyug Enterprises" width="100" class="mobile-logo-sub">
-            </div>
-            <h2>Welcome back</h2>
-            <p>Please enter your details to sign in.</p>
-          </div>
-
-          <form id="login-form" class="auth-form">
-            <div class="form-field">
-              <label for="login-email">Email</label>
-              <div class="input-wrapper modern-input">
-                <i class="far fa-envelope"></i>
-                <input type="email" id="login-email" placeholder="Enter your email" required autocomplete="email" />
-              </div>
-            </div>
-
-            <div class="form-field">
-              <label for="login-password">Password</label>
-              <div class="input-wrapper modern-input">
-                <!-- Lock Icon SVG -->
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                  class="lucide lucide-lock-icon lucide-lock left-icon">
-                  <rect width="18" height="11" x="3" y="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
-
-                <input type="password" id="login-password" placeholder="••••••••" required
-                  autocomplete="current-password" />
-
-                <button type="button" class="toggle-password" aria-label="Toggle password visibility">
-                  <!-- Eye Icon SVG -->
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-eye-icon lucide-eye">
-                    <path
-                      d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn" aria-label="Toggle Menu">
+                    <span></span>
+                    <span></span>
                 </button>
-              </div>
             </div>
-
-            <button type="submit" class="btn btn-primary btn-lg btn-block btn-glow">
-              Sign In
-            </button>
-          </form>
         </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="main-app" class="screen main-app" style="display:none;">
-
-    <header class="app-header">
-      <div class="header-left">
-        <button id="mobile-menu-toggle" class="mobile-menu-btn">
-          <i class="fas fa-bars"></i>
-        </button>
-
-        <div class="header-brand">
-          <img src="assets/icons/transparentMain.png" alt="SafiTrack" width="130">
-        </div>
-
-        <button id="sidebar-toggle" class="sidebar-toggle-btn" title="Toggle Sidebar">
-          <i></i>
-        </button>
-
-      </div>
-      <div class="header-right">
-        <button id="command-palette-btn" class="header-icon-btn" title="Search (Ctrl+K)">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-search-icon lucide-search">
-            <path d="m21 21-4.34-4.34" />
-            <circle cx="11" cy="11" r="8" />
-          </svg>
-        </button>
-        <button id="theme-toggle" class="header-icon-btn" title="Toggle theme">
-
-        </button>
-        <div class="user-menu" id="user-menu">
-          <button class="user-avatar-btn" id="user-avatar-btn">
-            <span class="user-avatar" id="user-avatar">JD</span>
-          </button>
-          <div class="user-dropdown" id="user-dropdown">
-            <div class="user-dropdown-header">
-              <span class="user-name" id="user-display-name">John Doe</span>
-              <span class="user-display-email" id="user-display-email">john@example.com</span>
-            </div>
-            <div class="user-dropdown-divider"></div>
-            <button id="help-guide-btn" class="user-dropdown-item">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-help-circle-icon lucide-help-circle">
-                <circle cx="12" cy="12" r="10" />
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                <path d="M12 17h.01" />
-              </svg>
-              <span>Help Guide</span>
-            </button>
-            <button id="export-btn" class="user-dropdown-item">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-download-icon lucide-download">
-                <path d="M12 15V3" />
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <path d="m7 10 5 5 5-5" />
-              </svg>
-              <span>Export Reports</span>
-            </button>
-            <button id="logout-btn" class="user-dropdown-item user-dropdown-item-danger">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-log-out-icon lucide-log-out">
-                <path d="m16 17 5-5-5-5" />
-                <path d="M21 12H9" />
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-              </svg>
-              <span>Sign Out</span>
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <aside class="sidebar" id="sidebar">
-      <div class="sidebar-overlay" id="sidebar-overlay"></div>
-      <nav class="sidebar-nav">
-        <div class="sidebar-header">
-          <img src="assets/icons/transparentMain.png" alt="SafiTrack" width="130">
-          <button class="sidebar-close" id="sidebar-close">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-x-icon lucide-x">
-              <path d="M18 6 6 18" />
-              <path d="m6 6 12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <div class="nav-section">
-          <span class="nav-section-title">Main Menu</span>
-
-          <button data-view="log-visit" class="nav-item active">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-circle-plus-icon lucide-circle-plus">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M8 12h8" />
-              <path d="M12 8v8" />
-            </svg>
-            <span>Log Visit</span>
-          </button>
-
-          <button data-view="my-activity" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-square-activity-icon lucide-square-activity">
-              <rect width="18" height="18" x="3" y="3" rx="2" />
-              <path d="M17 12h-2l-2 5-2-10-2 5H7" />
-            </svg>
-            <span>My Activity</span>
-          </button>
-
-          <button data-view="my-routes" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-route-icon lucide-route">
-              <circle cx="6" cy="19" r="3" />
-              <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
-              <circle cx="18" cy="5" r="3" />
-            </svg>
-            <span>My Routes</span>
-          </button>
-
-          <button data-view="tasks" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-square-check-icon lucide-square-check">
-              <rect width="18" height="18" x="3" y="3" rx="2" />
-              <path d="m9 12 2 2 4-4" />
-            </svg>
-            <span>Tasks</span>
-          </button>
-
-          <button data-view="reminders" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-bell-icon lucide-bell">
-              <path d="M10.268 21a2 2 0 0 0 3.464 0" />
-              <path
-                d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />
-            </svg>
-            <span>Reminders</span>
-          </button>
-
-          <button data-view="notes" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-notebook-icon lucide-notebook">
-              <path d="M2 6h4" />
-              <path d="M2 10h4" />
-              <path d="M2 14h4" />
-              <path d="M2 18h4" />
-              <rect width="16" height="20" x="4" y="2" rx="2" />
-              <path d="M16 2v20" />
-            </svg>
-            <span>Notes</span>
-          </button>
-
-
-        </div>
-
-
-
-        <div class="nav-section">
-          <span class="nav-section-title">Sales</span>
-          <button data-view="sales-funnel" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-funnel-icon lucide-funnel">
-              <path
-                d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z" />
-            </svg>
-            <span>Sales Funnel</span>
-          </button>
-
-          <button data-view="opportunity-pipeline" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-circle-dollar-sign-icon lucide-circle-dollar-sign">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
-              <path d="M12 18V6" />
-            </svg>
-            <span>Opportunities</span>
-          </button>
-        </div>
-
-
-        <div class="nav-section" id="manager-nav-section" style="display:none;">
-          <span class="nav-section-title">Management</span>
-
-          <button data-view="main-dashboard" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-layout-grid">
-              <rect width="7" height="7" x="3" y="3" rx="1" />
-              <rect width="7" height="7" x="14" y="3" rx="1" />
-              <rect width="7" height="7" x="14" y="14" rx="1" />
-              <rect width="7" height="7" x="3" y="14" rx="1" />
-            </svg>
-            <span>Dashboard</span>
-          </button>
-
-          <button data-view="team-dashboard" id="manager-view" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-clipboard-clock-icon lucide-clipboard-clock">
-              <path d="M16 14v2.2l1.6 1" />
-              <path d="M16 4h2a2 2 0 0 1 2 2v.832" />
-              <path d="M8 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h2" />
-              <circle cx="16" cy="16" r="6" />
-              <rect x="8" y="2" width="8" height="4" rx="1" />
-            </svg>
-            <span>Visits</span>
-          </button>
-
-
-          <button data-view="technicians-dashboard" class="nav-item" id="technicians-dashboard-view">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-wrench-icon lucide-wrench">
-              <path
-                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z" />
-            </svg>
-            <span>Technicians</span>
-          </button>
-
-
-          <button data-view="route-planning" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-map-pin-plus-icon lucide-map-pin-plus">
-              <path
-                d="M19.914 11.105A7.298 7.298 0 0 0 20 10a8 8 0 0 0-16 0c0 4.993 5.539 10.193 7.399 11.799a1 1 0 0 0 1.202 0 32 32 0 0 0 .824-.738" />
-              <circle cx="12" cy="10" r="3" />
-              <path d="M16 18h6" />
-              <path d="M19 15v6" />
-            </svg>
-            <span>Route Plan</span>
-          </button>
-        </div>
-
-        <div class="nav-section" id="technician-nav-section" style="display:none;">
-          <span class="nav-section-title">Technician</span>
-
-          <button data-view="technician-log-visit" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-circle-plus-icon lucide-circle-plus">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M8 12h8" />
-              <path d="M12 8v8" />
-            </svg>
-            <span>Log Service Visit</span>
-          </button>
-
-          <button data-view="technician-activity" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-clipboard-list-icon">
-              <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
-              <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-              <path d="M12 11h4" />
-              <path d="M12 16h4" />
-              <path d="M8 11h.01" />
-              <path d="M8 16h.01" />
-            </svg>
-            <span>My Service Visits</span>
-          </button>
-        </div>
-
-
-        <div class="nav-section">
-          <span class="nav-section-title">Records</span>
-
-          <button data-view="companies" class="nav-item">
-            <span class="icon-bg companies">
-              <svg viewBox="0 0 256 256" aria-hidden="true">
-                <path
-                  d="M232 224H208V32h8a8 8 0 0 0 0-16H40a8 8 0 0 0 0 16h8v192H24a8 8 0 0 0 0 16h208a8 8 0 0 0 0-16ZM88 56h24a8 8 0 0 1 0 16H88a8 8 0 0 1 0-16Zm0 40h24a8 8 0 0 1 0 16H88a8 8 0 0 1 0-16Zm-8 48a8 8 0 0 1 8-8h24a8 8 0 0 1 0 16H88a8 8 0 0 1-8-8Zm72 80h-48v-40h48Zm16-72h-24a8 8 0 0 1 0-16h24a8 8 0 0 1 0 16Zm0-40h-24a8 8 0 0 1 0-16h24a8 8 0 0 1 0 16Zm0-40h-24a8 8 0 0 1 0-16h24a8 8 0 0 1 0 16Z" />
-              </svg>
-            </span>
-            <span>Companies</span>
-          </button>
-
-          <button data-view="people" class="nav-item">
-            <span class="icon-bg people">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true">
-
-                <circle cx="12" cy="7" r="4" />
-
-                <path d="M8 13h8a4 4 0 0 1 4 4v4H4v-4a4 4 0 0 1 4-4Z" />
-              </svg>
-            </span>
-            <span>People</span>
-          </button>
-
-          <button data-view="user-management" id="admin-view" class="nav-item">
-            <span class="icon-bg users">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true">
-
-                <path d="M9 11a4 4 0 1 0-4-4a4 4 0 0 0 4 4Zm3 2H6a4 4 0 0 0-4 4v2h14v-2a4 4 0 0 0-4-4Z" />
-
-                <path
-                  d="M17 11a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 17 11Zm3 8v-2a3.5 3.5 0 0 0-3-3.44h-2.2a5.7 5.7 0 0 1 1.7 3.44v2Z" />
-              </svg>
-            </span>
-            <span>Users</span>
-          </button>
-
-        </div>
-
-        <div class="sidebar-footer">
-          <div class="sidebar-attribution">
-            <p>Sangyug Enterprises Limited</p>
-          </div>
-        </div>
-      </nav>
-    </aside>
-
-    <main class="main-content" id="view-container">
-
-    </main>
-
-    <nav class="bottom-nav">
-      <button data-view="log-visit" class="bottom-nav-item active">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-          class="lucide lucide-circle-plus-icon lucide-circle-plus">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M8 12h8" />
-          <path d="M12 8v8" />
-        </svg>
-        <span>Log</span>
-      </button>
-      <button data-view="my-activity" class="bottom-nav-item">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-          class="lucide lucide-square-activity-icon lucide-square-activity">
-          <rect width="18" height="18" x="3" y="3" rx="2" />
-          <path d="M17 12h-2l-2 5-2-10-2 5H7" />
-        </svg>
-        <span>Activity</span>
-      </button>
-      <button data-view="sales-funnel" class="bottom-nav-item">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-          class="lucide lucide-funnel-icon lucide-funnel">
-          <path
-            d="M10 20a1 1 0 0 0 .553.895l2 1A1 1 0 0 0 14 21v-7a2 2 0 0 1 .517-1.341L21.74 4.67A1 1 0 0 0 21 3H3a1 1 0 0 0-.742 1.67l7.225 7.989A2 2 0 0 1 10 14z" />
-        </svg>
-        <span>Funnel</span>
-      </button>
-      <button data-view="opportunity-pipeline" class="bottom-nav-item">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-          class="lucide lucide-circle-dollar-sign-icon lucide-circle-dollar-sign">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
-          <path d="M12 18V6" />
-        </svg>
-        <span>Pipeline</span>
-      </button>
-      <button data-view="team-dashboard" class="bottom-nav-item manager-only" style="display:none;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-          class="lucide lucide-layout-dashboard-icon lucide-layout-dashboard">
-          <rect width="7" height="9" x="3" y="3" rx="1" />
-          <rect width="7" height="5" x="14" y="3" rx="1" />
-          <rect width="7" height="9" x="14" y="12" rx="1" />
-          <rect width="7" height="5" x="3" y="16" rx="1" />
-        </svg>
-        <span>Dash</span>
-      </button>
-
-      <button data-view="technician-log-visit" class="bottom-nav-item technician-only" style="display:none;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-          class="lucide lucide-circle-plus-icon lucide-circle-plus">
-          <circle cx="12" cy="12" r="10" />
-          <path d="M8 12h8" />
-          <path d="M12 8v8" />
-        </svg>
-        <span>Service</span>
-      </button>
-      <button data-view="technician-activity" class="bottom-nav-item technician-only" style="display:none;">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-          class="lucide lucide-clipboard-list-icon lucide-clipboard-list">
-          <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
-          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-          <path d="M12 11h4" />
-          <path d="M12 16h4" />
-          <path d="M8 11h.01" />
-          <path d="M8 16h.01" />
-        </svg>
-        <span>My Visits</span>
-      </button>
-
     </nav>
-  </div>
 
-  <div id="command-palette" class="command-palette" style="display:none;">
-    <div class="command-palette-backdrop"></div>
-    <div class="command-palette-container">
-      <div class="command-palette-header">
-        <i class="fas fa-search"></i>
-        <input type="text" id="command-input" placeholder="Search or type a command..." autocomplete="off">
-        <kbd>ESC</kbd>
-      </div>
-      <div class="command-palette-results" id="command-results"></div>
-    </div>
-  </div>
-
-  <div id="export-modal" class="modal" style="display:none;">
-    <div class="modal-backdrop"></div>
-    <div class="modal-container">
-      <div class="modal-header">
-        <h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-sparkle-icon lucide-sparkle">
-            <path
-              d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" />
-          </svg>
-          Export Reports</h3>
-        <button class="modal-close" onclick="closeModal('export-modal')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-x-icon lucide-x">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
-          </svg>
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-nav-overlay">
+        <button class="mobile-close-btn" aria-label="Close Menu">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
         </button>
-      </div>
-      <div class="modal-body">
-        <div class="form-field">
-          <label>Export Format</label>
-          <div class="export-format-grid">
-            <label class="export-format-option">
-              <input type="radio" name="export-format" value="pdf" checked>
-              <div class="export-format-card">
-                <i class="fas fa-file-pdf"></i>
-                <span>PDF Report</span>
-              </div>
-            </label>
-            <label class="export-format-option">
-              <input type="radio" name="export-format" value="excel">
-              <div class="export-format-card">
-                <i class="fas fa-file-excel"></i>
-                <span>Excel</span>
-              </div>
-            </label>
-            <label class="export-format-option">
-              <input type="radio" name="export-format" value="csv">
-              <div class="export-format-card">
-                <i class="fas fa-file-csv"></i>
-                <span>CSV</span>
-              </div>
-            </label>
-          </div>
+        <div class="mobile-nav-content">
+            <a href="#features" class="mobile-link">Features</a>
+            <a href="#product" class="mobile-link">Product</a>
+            <a href="#pricing" class="mobile-link">Pricing</a>
+            <hr class="mobile-divider">
+            <a href="/crm/" class="mobile-link">Open App</a>
+            <a href="/crm/" class="btn-primary btn-block">Get Started</a>
         </div>
-        <div class="form-field">
-          <label>Date Range</label>
-          <div class="date-range-buttons">
-            <button class="date-range-btn active" onclick="setDateRange('today', this)">Today</button>
-            <button class="date-range-btn" onclick="setDateRange('week', this)">7 Days</button>
-            <button class="date-range-btn" onclick="setDateRange('month', this)">Month</button>
-            <button class="date-range-btn" onclick="setDateRange('quarter', this)">Quarter</button>
-          </div>
-        </div>
-        <div id="custom-date-range" class="form-field" style="display:none;">
-          <div class="date-inputs">
-            <div>
-              <label>From</label>
-              <input type="date" id="export-date-from">
-            </div>
-            <div>
-              <label>To</label>
-              <input type="date" id="export-date-to">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('export-modal')">Cancel</button>
-        <button class="btn btn-primary" onclick="executeExport()">
-          <i class="fas fa-download"></i>
-          Export
-        </button>
-      </div>
     </div>
-  </div>
 
-  <div id="company-modal" class="modal" style="display:none;">
-    <div class="modal-backdrop"></div>
-    <div class="modal-container" style="max-width: 600px;">
-      <div class="modal-header">
-        <h3 id="company-modal-title">New Company</h3>
-        <button class="modal-close" onclick="closeModal('company-modal')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-x-icon lucide-x">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <!-- Basic Information Section -->
-        <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i class="fas fa-info-circle"></i>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-badge">
+                    <span class="badge-dot"></span>
+                    <span>Professional CRM Platform</span>
+                </div>
+                <h1 class="hero-title">
+                    The CRM built for<br>modern sales teams
+                </h1>
+                <p class="hero-description">
+                    Close more deals with intelligent pipeline management, automated workflows,
+                    and powerful analytics. Everything your team needs in one place.
+                </p>
+                <div class="hero-actions">
+                    <a href="/crm/" class="btn-primary btn-lg">
+                        Get Started
+                    </a>
+                    <a href="#product" class="btn-secondary btn-lg">
+                        See How It Works
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-value">10K+</div>
+                        <div class="stat-label">Active Users</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-value">98%</div>
+                        <div class="stat-label">Customer Satisfaction</div>
+                    </div>
+                    <div class="stat-divider"></div>
+                    <div class="stat-item">
+                        <div class="stat-value">50+</div>
+                        <div class="stat-label">Countries</div>
+                    </div>
+                </div>
             </div>
-            <div>
-              <div class="form-section-title">Basic Information</div>
-              <div class="form-section-description">Essential company details</div>
+            <div class="hero-visual" data-scroll>
+                <div class="hero-image-wrapper">
+                    <img src="assets/safitrackscreenshots/screen1.png" alt="SafiTrack Pipeline" class="hero-screenshot">
+                </div>
             </div>
-          </div>
-
-          <div class="form-field">
-            <label for="company-name-input">
-              Company Name <span class="required-indicator">*</span>
-            </label>
-            <input type="text" id="company-name-input" placeholder="e.g., Acme Corporation" required>
-          </div>
-
-          <div class="form-field">
-            <label for="company-type">
-              Company Type <span class="required-indicator">*</span>
-            </label>
-            <select id="company-type" required>
-              <option value="">Select a type...</option>
-              <option value="Competitor">Competitor</option>
-              <option value="Customer">Customer</option>
-              <option value="Distributor">Distributor</option>
-              <option value="Investor">Investor</option>
-              <option value="Partner">Partner</option>
-              <option value="Reseller">Reseller</option>
-              <option value="Supplier">Supplier</option>
-              <option value="Vendor">Vendor</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-
-          <div class="form-field">
-            <label for="company-description">
-              Description <span class="optional-badge">Optional</span>
-            </label>
-            <textarea id="company-description" placeholder="Brief description of the company and what they do..."
-              rows="3"></textarea>
-            <div class="field-helper">
-              <span>Add details about their business, industry, or key products</span>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label>Categories <span class="optional-badge">Optional</span></label>
-            <div class="categories-input-container" id="categories-container">
-              <input type="text" class="categories-input" id="categories-input" placeholder="Add category...">
-            </div>
-            <div class="category-suggestions">
-              <button type="button" class="tag-suggestion" onclick="addCategory('Supermarket')">Supermarket</button>
-              <button type="button" class="tag-suggestion" onclick="addCategory('Retail')">Retail</button>
-              <button type="button" class="tag-suggestion" onclick="addCategory('Education')">Education</button>
-              <button type="button" class="tag-suggestion" onclick="addCategory('Medical')">Medical</button>
-              <button type="button" class="tag-suggestion" onclick="addCategory('Manufacturing')">Manufacturing</button>
-              <button type="button" class="tag-suggestion" onclick="addCategory('Hotels')">Hotels</button>
-              <button type="button" class="tag-suggestion"
-                onclick="addCategory('Telecommunications')">Telecommunications</button>
-              <button type="button" class="tag-suggestion"
-                onclick="addCategory('Government & Public Sector')">Government & Public Sector</button>
-              <button type="button" class="tag-suggestion" onclick="addCategory('Food & Beverage')">Food &
-                Beverage</button>
-            </div>
-          </div>
         </div>
+    </section>
 
-        <!-- Location Section -->
-        <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i class="fas fa-map-marker-alt"></i>
+    <!-- Companies Section -->
+    <section class="companies">
+        <div class="container">
+            <p class="companies-label">Trusted by industry leaders</p>
+            <div class="companies-grid">
+                <img src="assets/companylogos/camp.webp" alt="CAMP" class="company-logo">
+                <img src="assets/companylogos/carrefour.svg" alt="Carrefour" class="company-logo">
+                <img src="assets/companylogos/dd.png" alt="DD" class="company-logo">
+                <img src="assets/companylogos/ente.png" alt="Ente" class="company-logo">
+                <img src="assets/companylogos/sangyug.png" alt="Sangyug" class="company-logo">
+                <img src="assets/companylogos/yog.png" alt="Yog" class="company-logo">
             </div>
-            <div>
-              <div class="form-section-title">Location Details</div>
-              <div class="form-section-description">Address and coordinates for visit verification</div>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label for="company-address">
-              Location Address <span class="required-indicator">*</span>
-            </label>
-            <input type="text" id="company-address" placeholder="e.g., 123 Main St, Nairobi, Kenya" required>
-            <div class="field-helper">
-              <span>Enter the full physical address</span>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label>Location Coordinates <span class="required-indicator">*</span></label>
-            <div class="field-group">
-              <input type="number" id="company-latitude" placeholder="Latitude" step="0.000001" required>
-              <input type="number" id="company-longitude" placeholder="Longitude" step="0.000001" required>
-            </div>
-            <div class="field-helper">
-              <span>GPS coordinates for precise location tracking</span>
-            </div>
-          </div>
-
-          <div class="field-group">
-            <button type="button" id="geocode-address-btn" class="btn btn-secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-search-icon lucide-search">
-                <path d="m21 21-4.34-4.34" />
-                <circle cx="11" cy="11" r="8" />
-              </svg>
-              <span>Find Coordinates</span>
-            </button>
-            <button type="button" id="use-current-location-btn" class="btn btn-secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-locate-fixed-icon lucide-locate-fixed">
-                <line x1="2" x2="5" y1="12" y2="12" />
-                <line x1="19" x2="22" y1="12" y2="12" />
-                <line x1="12" x2="12" y1="2" y2="5" />
-                <line x1="12" x2="12" y1="19" y2="22" />
-                <circle cx="12" cy="12" r="7" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-              <span>Use My Location</span>
-            </button>
-          </div>
-
-          <div style="margin-bottom: 1.5rem;"></div>
-
-          <div class="form-field">
-            <label for="company-radius">
-              Verification Radius <span class="optional-badge">Optional</span>
-            </label>
-            <input type="number" id="company-radius" value="200" min="50" max="1000">
-            <div class="field-helper">
-              <span>Distance in meters for location verification (50-1000m)</span>
-            </div>
-          </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('company-modal')">Cancel</button>
-        <button class="btn btn-primary" id="save-company-btn">Save Company</button>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  <div id="person-modal" class="modal" style="display:none;">
-    <div class="modal-backdrop"></div>
-    <div class="modal-container" style="max-width: 600px;">
-      <div class="modal-header">
-        <h3 id="person-modal-title">New Person</h3>
-        <button class="modal-close" onclick="closeModal('person-modal')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-x-icon lucide-x">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <!-- Contact Information Section -->
-        <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i class="fas fa-address-card"></i>
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Everything you need to scale</h2>
+                <p class="section-subtitle">Powerful features designed for high-performing sales teams</p>
             </div>
-            <div>
-              <div class="form-section-title">Contact Information</div>
-              <div class="form-section-description">Basic contact details</div>
+            <div class="features-grid">
+                <div class="feature-card" data-scroll>
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <path d="M3 9h18M9 21V9" />
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Visual Pipeline</h3>
+                    <p class="feature-text">Intuitive Kanban boards with drag-and-drop simplicity. Track every deal
+                        through your sales process.</p>
+                </div>
+                <div class="feature-card" data-scroll>
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 6v6l4 2" />
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Smart Automation</h3>
+                    <p class="feature-text">Automate repetitive tasks and workflows. Let your team focus on what matters
+                        most.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                            <polyline points="7.5 4.21 12 6.81 16.5 4.21" />
+                            <polyline points="7.5 19.79 7.5 14.6 3 12" />
+                            <polyline points="21 12 16.5 14.6 16.5 19.79" />
+                            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+                            <line x1="12" y1="22.08" x2="12" y2="12" />
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Real-time Analytics</h3>
+                    <p class="feature-text">Make data-driven decisions with comprehensive dashboards and custom reports.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="8" r="5" />
+                            <path d="M20 21a8 8 0 1 0-16 0" />
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Contact Management</h3>
+                    <p class="feature-text">Centralize customer data and track every interaction in one unified
+                        platform.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Route Planning</h3>
+                    <p class="feature-text">Optimize field sales routes with intelligent mapping. Visit more clients
+                        efficiently.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                        </svg>
+                    </div>
+                    <h3 class="feature-title">Enterprise Security</h3>
+                    <p class="feature-text">Bank-level encryption and role-based access control to keep your data
+                        secure.</p>
+                </div>
             </div>
-          </div>
-
-          <div class="form-field">
-            <label for="person-name">
-              Name <span class="required-indicator">*</span>
-            </label>
-            <input type="text" id="person-name" placeholder="e.g., John Doe" required>
-          </div>
-
-          <div class="form-field">
-            <label for="person-email">
-              Email Address <span class="optional-badge">Optional</span>
-            </label>
-            <input type="email" id="person-email" placeholder="e.g., john.doe@company.com">
-            <div class="field-helper">
-              <span>Professional email address</span>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label for="person-phone">
-              Phone Numbers <span class="optional-badge">Optional</span>
-            </label>
-            <div class="phone-numbers-container" id="phone-numbers-container">
-              <div class="phone-number-input">
-                <input type="tel" class="phone-number" placeholder="e.g., +254 712 345 678">
-                <button type="button" class="btn btn-sm btn-ghost add-phone-btn">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-plus-icon lucide-plus">
-                    <path d="M5 12h14" />
-                    <path d="M12 5v14" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-            <div class="field-helper">
-              <span>Add multiple phone numbers if needed</span>
-            </div>
-          </div>
         </div>
+    </section>
 
-        <!-- Professional Details Section -->
-        <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i class="fas fa-briefcase"></i>
-            </div>
-            <div>
-              <div class="form-section-title">Professional Details</div>
-              <div class="form-section-description">Company and role information</div>
-            </div>
-          </div>
+    <!-- Premium Roles Showcase - REDESIGN -->
+    <section class="roles-showcase">
+        <div class="roles-bg-glow"></div>
+        <div class="container">
+            <div class="split-layout">
+                <!-- Left Column: Navigation & Context -->
+                <div class="role-nav-col">
+                    <div class="nav-sticky-content">
+                        <div class="section-label">Unified Platform</div>
+                        <h2 class="role-heading">One OS for your<br>entire team.</h2>
 
-          <div class="form-field">
-            <label for="person-company">
-              Company <span class="required-indicator">*</span>
-            </label>
-            <div class="search-container">
-              <i class="fas fa-search"></i>
-              <input type="text" id="person-company" placeholder="Search for a company..." required autocomplete="off">
-              <div id="person-company-search-results" class="search-results" style="display: none;"></div>
-            </div>
-            <div class="field-helper">
-              <span>The company this person works for</span>
-            </div>
-          </div>
+                        <div class="role-dock vertical">
+                            <button class="dock-btn active" data-role="manager">
+                                <span class="d-icon">📊</span>
+                                <div class="d-text">
+                                    <span class="d-title">Managers</span>
+                                    <span class="d-desc">Command Center</span>
+                                </div>
+                            </button>
+                            <button class="dock-btn" data-role="salesrep">
+                                <span class="d-icon">⚡️</span>
+                                <div class="d-text">
+                                    <span class="d-title">Sales Reps</span>
+                                    <span class="d-desc">Pipeline & Deals</span>
+                                </div>
+                            </button>
+                            <button class="dock-btn" data-role="technician">
+                                <span class="d-icon">📍</span>
+                                <div class="d-text">
+                                    <span class="d-title">Technicians</span>
+                                    <span class="d-desc">Field Operations</span>
+                                </div>
+                            </button>
+                        </div>
 
-          <div class="form-field">
-            <label for="person-job-title">
-              Job Title <span class="optional-badge">Optional</span>
-            </label>
-            <input type="text" id="person-job-title" placeholder="e.g., Sales Manager, CEO, Procurement Officer">
-            <div class="field-helper">
-              <span>Their role or position in the company</span>
-            </div>
-          </div>
+                        <!-- Dynamic Description Area -->
+                        <div class="role-context active" data-role="manager">
+                            <p class="context-desc">Get a bird's eye view of revenue, team performance, and field
+                                operations in real-time.</p>
+                            <div class="context-tags">
+                                <span>Revenue Pulse</span>
+                                <span>Team Activity</span>
+                                <span>Admin Controls</span>
+                            </div>
+                        </div>
+                        <div class="role-context" data-role="salesrep">
+                            <p class="context-desc">Move deals faster with a visual pipeline and AI-assisted workflows.
+                            </p>
+                            <div class="context-tags">
+                                <span>Kanban Board</span>
+                                <span>Deal Scoring</span>
+                                <span>One-click Actions</span>
+                            </div>
+                        </div>
+                        <div class="role-context" data-role="technician">
+                            <p class="context-desc">Optimize routes and log visits effortlessly with the mobile field
+                                app.</p>
+                            <div class="context-tags">
+                                <span>Smart Routing</span>
+                                <span>Visit Logging</span>
+                                <span>Photo Evidence</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-          <div class="form-field">
-            <label for="person-opportunity">
-              Linked Opportunity <span class="optional-badge">Optional</span>
-            </label>
-            <select id="person-opportunity">
-              <option value="">Select an opportunity</option>
-            </select>
-            <div class="field-helper">
-              <span>Associate this contact with an active opportunity</span>
+                <!-- Right Column: The App Window -->
+                <div class="role-visual-col">
+                    <div class="saas-window">
+                        <div class="saas-header">
+                            <div class="saas-controls"><span></span><span></span><span></span></div>
+                            <div class="saas-bar">SafiTrack OS</div>
+                            <div class="saas-actions">
+                                <div class="s-action"></div>
+                                <div class="s-action"></div>
+                            </div>
+                        </div>
+
+                        <div class="saas-content">
+                            <!-- MANAGER VIEW - MISSION CONTROL -->
+                            <div class="role-view active" id="view-manager">
+                                <div class="dashboard-grid">
+                                    <!-- Revenue Card (Full Width) -->
+                                    <div class="dash-widget revenue-main">
+                                        <div class="w-head">
+                                            <span>Revenue Overview</span>
+                                            <select class="mini-select">
+                                                <option>This Quarter</option>
+                                            </select>
+                                        </div>
+                                        <div class="rev-big-price">$1,240,500 <span class="trend up">+12%</span></div>
+                                        <div class="rev-chart-area">
+                                            <!-- Simple CSS Line Chart Representation -->
+                                            <svg viewBox="0 0 100 25" preserveAspectRatio="none" class="chart-svg">
+                                                <path
+                                                    d="M0 25 L10 20 L20 22 L30 15 L40 18 L50 10 L60 12 L70 5 L80 8 L90 2 L100 15 V25 H0 Z"
+                                                    fill="rgba(47, 95, 208, 0.1)" />
+                                                <path
+                                                    d="M0 25 L10 20 L20 22 L30 15 L40 18 L50 10 L60 12 L70 5 L80 8 L90 2 L100 15"
+                                                    fill="none" stroke="#2f5fd0" stroke-width="0.5" />
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    <!-- Team Status -->
+                                    <div class="dash-widget team-stat">
+                                        <div class="w-head">Active Agents</div>
+                                        <div class="team-avatars">
+                                            <div class="av">SC</div>
+                                            <div class="av">MR</div>
+                                            <div class="av">DK</div>
+                                            <div class="av count">+5</div>
+                                        </div>
+                                        <div class="online-indicator">
+                                            <span class="pulsing-dot"></span> 8 Online now
+                                        </div>
+                                    </div>
+
+                                    <!-- Live Feed -->
+                                    <div class="dash-widget live-list">
+                                        <div class="w-head">Live Activity</div>
+                                        <div class="activity-feed-scroller" id="manager-feed-list">
+                                            <div class="act-item">
+                                                <span class="act-icon">💰</span>
+                                                <div class="act-text"><strong>Sarah</strong> closed Acme deal</div>
+                                                <span class="act-time">2m</span>
+                                            </div>
+                                            <div class="act-item">
+                                                <span class="act-icon">📞</span>
+                                                <div class="act-text"><strong>Mike</strong> called Stark Ind</div>
+                                                <span class="act-time">5m</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- SALES VIEW - PIPELINE -->
+                            <div class="role-view" id="view-salesrep">
+                                <div class="pipeline-board">
+                                    <div class="pipe-col">
+                                        <div class="pipe-head">New Leads <span class="p-badge">3</span></div>
+                                        <div class="pipe-card">
+                                            <div class="pc-tag">Enterprise</div>
+                                            <div class="pc-title">Acme Corp</div>
+                                            <div class="pc-val">$45k</div>
+                                        </div>
+                                        <div class="pipe-card">
+                                            <div class="pc-tag urgent">Urgent</div>
+                                            <div class="pc-title">Globex</div>
+                                            <div class="pc-val">$12k</div>
+                                        </div>
+                                    </div>
+                                    <div class="pipe-col">
+                                        <div class="pipe-head">Discovery <span class="p-badge">1</span></div>
+                                        <div class="pipe-card active-drag">
+                                            <div class="pc-tag">SaaS</div>
+                                            <div class="pc-title">Stark Ind</div>
+                                            <div class="pc-val">$120k</div>
+                                            <div class="ai-insight">✨ 80% Win Prob</div>
+                                        </div>
+                                        <div class="drop-target"></div>
+                                    </div>
+                                    <div class="pipe-col">
+                                        <div class="pipe-head">Negotiation <span class="p-badge">2</span></div>
+                                        <div class="pipe-card">
+                                            <div class="pc-title">Wayne Ent</div>
+                                            <div class="pc-val">$85k</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TECHNICIAN VIEW - MAP -->
+                            <div class="role-view" id="view-technician">
+                                <div class="tech-map-interface">
+                                    <div class="map-layer"></div> <!-- CSS Pattern -->
+
+                                    <!-- Route Overlay -->
+                                    <svg class="route-overlay">
+                                        <path d="M 150 300 Q 250 250 350 150" fill="none" stroke="#10b981"
+                                            stroke-width="3" stroke-dasharray="6 4" stroke-linecap="round" />
+                                    </svg>
+
+                                    <!-- Top Bar -->
+                                    <div class="tech-top-bar">
+                                        <div class="route-info">
+                                            <span class="ri-icon">🚚</span>
+                                            <div>
+                                                <span class="ri-title">Route 4A</span>
+                                                <span class="ri-meta">3 Stops Remaining</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Pins -->
+                                    <div class="map-marker current" style="top: 60%; left: 30%;">
+                                        <div class="mm-pulse"></div>
+                                        <img src="assets/safitrackscreenshots/screen1.png" class="mm-avatar">
+                                    </div>
+                                    <div class="map-marker dest" style="top: 30%; left: 70%;">
+                                        <div class="mm-dot"></div>
+                                        <div class="mm-label">TechFlow HQ</div>
+                                    </div>
+
+                                    <!-- Bottom Card -->
+                                    <div class="tech-job-card">
+                                        <div class="tjc-head">
+                                            <span class="status-pill">En Route</span>
+                                            <span class="time-pill">12m away</span>
+                                        </div>
+                                        <div class="tjc-title">TechFlow HQ Maintenance</div>
+                                        <div class="tjc-address">123 Innovation Dr, Sector 7</div>
+                                        <button class="tjc-btn">Arrive at Site</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('person-modal')">Cancel</button>
-        <button class="btn btn-primary" id="save-person-btn">Save Person</button>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  <div id="opportunity-modal" class="modal" style="display:none;">
-    <div class="modal-backdrop"></div>
-    <div class="modal-container" style="max-width: 600px;">
-      <div class="modal-header">
-        <h3 id="opportunity-modal-title">New Opportunity</h3>
-        <button class="modal-close" onclick="closeModal('opportunity-modal')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-x-icon lucide-x">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <!-- Deal Information Section -->
-        <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i class="fas fa-handshake"></i>
+    <!-- Product Showcase -->
+    <section class="product" id="product">
+        <div class="container">
+            <div class="product-content">
+                <div class="product-text">
+                    <span class="product-label">Pipeline Management</span>
+                    <h2 class="product-title">Visual boards that keep deals moving</h2>
+                    <p class="product-description">
+                        Track opportunities through every stage of your sales process. Drag and drop deals,
+                        set custom stages, and never lose sight of what matters.
+                    </p>
+                    <ul class="product-features">
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Customizable pipeline stages</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Weighted revenue tracking</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Activity tracking and history</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="product-visual" data-scroll>
+                    <img src="assets/safitrackscreenshots/screen1.png" alt="Pipeline View" class="product-img">
+                </div>
             </div>
-            <div>
-              <div class="form-section-title">Deal Information</div>
-              <div class="form-section-description">Core opportunity details</div>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label for="opportunity-name">
-              Opportunity Name <span class="required-indicator">*</span>
-            </label>
-            <input type="text" id="opportunity-name" placeholder="e.g., Q1 2024 Enterprise Software Deal" required>
-            <div class="field-helper">
-              <span>A descriptive name for this sales opportunity</span>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label for="opportunity-company">
-              Company <span class="required-indicator">*</span>
-            </label>
-            <div class="search-container">
-              <i class="fas fa-search"></i>
-              <input type="text" id="opportunity-company" placeholder="Search for a company or enter custom name..."
-                required>
-              <div id="opportunity-company-search-results" class="search-results" style="display: none;"></div>
-            </div>
-            <div class="field-helper">
-              <span>Search for existing company or enter a custom name</span>
-            </div>
-          </div>
-
-          <div class="field-group">
-            <div class="form-field">
-              <label for="opportunity-value">
-                Deal Value (Ksh) <span class="required-indicator">*</span>
-              </label>
-              <input type="number" id="opportunity-value" placeholder="0.00" min="0" step="0.01" required>
-              <div class="field-helper">
-                <span>Total value in Kenyan Shillings</span>
-              </div>
-            </div>
-
-            <div class="form-field">
-              <label for="opportunity-stage">
-                Pipeline Stage <span class="required-indicator">*</span>
-              </label>
-              <select id="opportunity-stage" required>
-                <option value="prospecting">Discovery</option>
-                <option value="qualification">In Progress</option>
-                <option value="closed-won">Won/Invoiced 🎉</option>
-                <option value="closed-lost">Lost</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label for="opportunity-probability">
-              Win Probability (%) <span class="required-indicator">*</span>
-            </label>
-            <div class="probability-slider-container">
-              <input type="range" id="opportunity-probability" min="0" max="100" value="50" class="probability-slider">
-              <div class="probability-value"><span id="probability-display">50</span>%</div>
-            </div>
-            <div class="field-helper">
-              <span>Estimated likelihood of closing this deal</span>
-            </div>
-          </div>
         </div>
+    </section>
 
-        <!-- Timeline & Next Steps Section -->
-        <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i class="fas fa-calendar-check"></i>
+    <!-- Second Product Section -->
+    <section class="product product-reverse">
+        <div class="container">
+            <div class="product-content">
+                <div class="product-visual" data-scroll>
+                    <img src="assets/safitrackscreenshots/screen3.png" alt="Company Management" class="product-img">
+                </div>
+                <div class="product-text">
+                    <span class="product-label">Contact Management</span>
+                    <h2 class="product-title">Complete customer profiles at your fingertips</h2>
+                    <p class="product-description">
+                        Store all customer information in one place. Track companies, contacts, interactions,
+                        and deals with a unified view of your entire customer base.
+                    </p>
+                    <ul class="product-features">
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Comprehensive company profiles</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Interaction history tracking</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Advanced search and filtering</span>
+                        </li>
+                    </ul>
+                </div>
             </div>
-            <div>
-              <div class="form-section-title">Timeline & Next Steps</div>
-              <div class="form-section-description">Action items and deadlines</div>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label for="opportunity-next-step">
-              Next Step <span class="optional-badge">Optional</span>
-            </label>
-            <input type="text" id="opportunity-next-step" placeholder="e.g., Schedule demo with decision makers">
-            <div class="field-helper">
-              <span>What's the next action to move this forward?</span>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label for="opportunity-next-step-date">
-              Next Step Due Date <span class="optional-badge">Optional</span>
-            </label>
-            <input type="date" id="opportunity-next-step-date">
-          </div>
         </div>
+    </section>
 
-        <!-- Additional Details Section -->
-        <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i class="fas fa-clipboard-list"></i>
+    <!-- AI Feature Showcase -->
+    <section class="ai-feature">
+        <div class="container">
+            <div class="ai-feature-content">
+                <div class="ai-feature-text">
+                    <span class="product-label">AI-Powered Intelligence</span>
+                    <h2 class="ai-feature-title">Automatic visit summaries that write themselves</h2>
+                    <p class="ai-feature-description">
+                        Never miss a detail. Our AI analyzes your sales visits and generates comprehensive summaries
+                        automatically, capturing key points, action items, and next steps.
+                    </p>
+                    <ul class="product-features">
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Instant AI-generated summaries</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Extract key insights & action items</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Share with team instantly</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="ai-feature-visual">
+                    <div class="ai-demo-container">
+                        <div class="ai-input-section">
+                            <div class="ai-input-label">Sales Visit Notes</div>
+                            <div class="ai-input-box">
+                                <div class="typing-indicator">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                                <div class="ai-input-text">
+                                    Met with John at Acme Corp to discuss Q1 needs.
+                                    They're interested in expanding their team...
+                                </div>
+                            </div>
+                        </div>
+                        <div class="ai-arrow">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="5 12 19 12" />
+                                <polyline points="13 6 19 12 13 18" />
+                            </svg>
+                            <span class="ai-badge">AI Processing</span>
+                        </div>
+                        <div class="ai-output-section">
+                            <div class="ai-output-label">AI Summary</div>
+                            <div class="ai-output-box">
+                                <div class="ai-summary-item">
+                                    <div class="summary-tag">Key Points</div>
+                                    <p>Expanding team, Q1 budget approved</p>
+                                </div>
+                                <div class="ai-summary-item">
+                                    <div class="summary-tag">Action Items</div>
+                                    <p>Send proposal by Friday, schedule demo</p>
+                                </div>
+                                <div class="ai-summary-item">
+                                    <div class="summary-tag">Next Steps</div>
+                                    <p>Follow up next Tuesday, 2pm</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div>
-              <div class="form-section-title">Additional Details</div>
-              <div class="form-section-description">Competitors and notes</div>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label>Competitors <span class="optional-badge">Optional</span></label>
-            <div class="competitors-input-container" id="competitors-container">
-              <input type="text" class="competitors-input" id="competitors-input" placeholder="Add competitor name...">
-            </div>
-            <div class="field-helper">
-              <span>Other companies competing for this deal</span>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label for="opportunity-notes">
-              Notes <span class="optional-badge">Optional</span>
-            </label>
-            <div class="mention-container">
-              <textarea id="opportunity-notes" placeholder="Additional details about this opportunity..."
-                rows="3"></textarea>
-              <div id="opportunity-mention-suggestions" class="mention-suggestions" style="display: none;"></div>
-            </div>
-            <div class="field-helper">
-              <span>Any additional context or important information</span>
-            </div>
-          </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('opportunity-modal')">Cancel</button>
-        <button class="btn btn-primary" id="save-opportunity-btn">Save Opportunity</button>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  <div id="task-modal" class="modal" style="display:none;">
-    <div class="modal-backdrop"></div>
-    <div class="modal-container" style="max-width: 600px;">
-      <div class="modal-header">
-        <h3 id="task-modal-title">New Task</h3>
-        <button class="modal-close" onclick="closeModal('task-modal')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-x-icon lucide-x">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <!-- Task Details Section -->
-        <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i class="fas fa-clipboard-check"></i>
+    <!-- Testimonial Quote -->
+    <section class="testimonial-quote">
+        <div class="container">
+            <div class="quote-content">
+                <p class="quote-text">
+                    "SafiTrack transformed how our team manages the sales pipeline.
+                    The AI features alone have saved us 10+ hours per week."
+                </p>
+                <div class="quote-author">
+                    <strong>Sarah Chen</strong> · Head of Sales, TechFlow
+                </div>
             </div>
-            <div>
-              <div class="form-section-title">Task Details</div>
-              <div class="form-section-description">What needs to be done</div>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label for="task-title">
-              Task Title <span class="required-indicator">*</span>
-            </label>
-            <input type="text" id="task-title" placeholder="e.g., Follow up with client about proposal" required>
-          </div>
-
-          <div class="form-field">
-            <label for="task-description">
-              Description <span class="optional-badge">Optional</span>
-            </label>
-            <textarea id="task-description" placeholder="Add more details about this task..." rows="3"></textarea>
-            <div class="field-helper">
-              <span>Provide context or specific instructions</span>
-            </div>
-          </div>
-
-          <div class="field-group">
-            <div class="form-field">
-              <label for="task-priority">
-                Priority <span class="optional-badge">Optional</span>
-              </label>
-              <select id="task-priority">
-                <option value="low">🟢 Low</option>
-                <option value="medium" selected>🟡 Medium</option>
-                <option value="high">🔴 High</option>
-              </select>
-            </div>
-
-            <div class="form-field">
-              <label for="task-status">
-                Status <span class="optional-badge">Optional</span>
-              </label>
-              <select id="task-status">
-                <option value="pending" selected>Pending</option>
-                <option value="in_progress">In Progress</option>
-                <option value="completed">Completed</option>
-              </select>
-            </div>
-          </div>
         </div>
+    </section>
 
-        <!-- Assignment & Deadline Section -->
-        <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i class="fas fa-user-clock"></i>
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Simple, transparent pricing</h2>
+                <p class="section-subtitle">Choose the plan that fits your team size and needs</p>
             </div>
-            <div>
-              <div class="form-section-title">Assignment & Deadline</div>
-              <div class="form-section-description">Who and when</div>
-            </div>
-          </div>
+            <div class="pricing-grid">
+                <div class="price-card">
+                    <div class="price-header">
+                        <h3 class="price-name">Starter</h3>
+                        <div class="price-amount">
+                            <span class="price-currency">$</span>
+                            <span class="price-value">29</span>
+                            <span class="price-period">/user/mo</span>
+                        </div>
+                        <p class="price-description">Perfect for small teams getting started</p>
+                    </div>
+                    <ul class="price-features">
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Up to 5 users</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Contact management</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Pipeline tracking</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Basic reporting</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Email support</span>
+                        </li>
+                    </ul>
+                    <a href="index.html" class="btn-secondary btn-block">Get Started</a>
+                </div>
 
-          <div class="form-field" id="task-assign-field" style="display:none;">
-            <label for="task-assign-to">
-              Assign To <span class="optional-badge">Optional</span>
-            </label>
-            <select id="task-assign-to">
-              <option value="">Select a sales rep</option>
-            </select>
-            <div class="field-helper">
-              <span>Assign this task to a team member</span>
-            </div>
-          </div>
+                <div class="price-card price-card-featured">
+                    <div class="price-badge">Most Popular</div>
+                    <div class="price-header">
+                        <h3 class="price-name">Professional</h3>
+                        <div class="price-amount">
+                            <span class="price-currency">$</span>
+                            <span class="price-value">79</span>
+                            <span class="price-period">/user/mo</span>
+                        </div>
+                        <p class="price-description">For growing teams that need more power</p>
+                    </div>
+                    <ul class="price-features">
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Unlimited users</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Advanced analytics</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Route planning</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Custom workflows</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Priority support</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>API access</span>
+                        </li>
+                    </ul>
+                    <a href="index.html" class="btn-primary btn-block">Get Started</a>
+                </div>
 
-          <div class="form-field">
-            <label for="task-due-date">
-              Due Date <span class="optional-badge">Optional</span>
-            </label>
-            <input type="datetime-local" id="task-due-date">
-            <div class="field-helper">
-              <span>When should this task be completed?</span>
+                <div class="price-card">
+                    <div class="price-header">
+                        <h3 class="price-name">Enterprise</h3>
+                        <div class="price-amount">
+                            <span class="price-value price-custom">Custom</span>
+                        </div>
+                        <p class="price-description">For large organizations with complex needs</p>
+                    </div>
+                    <ul class="price-features">
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Everything in Professional</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Dedicated account manager</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Custom onboarding</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>Advanced security</span>
+                        </li>
+                        <li>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="20 6 9 17 4 12" />
+                            </svg>
+                            <span>SLA guarantee</span>
+                        </li>
+                    </ul>
+                    <a href="#" class="btn-secondary btn-block">Contact Sales</a>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('task-modal')">Cancel</button>
-        <button class="btn btn-primary" id="save-task-btn">Save Task</button>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  <div id="reminder-modal" class="modal" style="display:none;">
-    <div class="modal-backdrop"></div>
-    <div class="modal-container" style="max-width: 600px;">
-      <div class="modal-header">
-        <h3 id="reminder-modal-title">New Reminder</h3>
-        <button class="modal-close" onclick="closeModal('reminder-modal')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-x-icon lucide-x">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <!-- Reminder Details Section -->
-        <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i class="fa-regular fa-bell"></i>
+    <!-- CTA Section -->
+    <section class="cta">
+        <div class="container">
+            <div class="cta-content">
+                <h2 class="cta-title">Ready to transform your sales process?</h2>
+                <p class="cta-description">
+                    Join thousands of teams already using SafiTrack to close more deals.
+                </p>
+                <div class="cta-actions">
+                    <a href="index.html" class="btn-primary btn-lg">Get Started Free</a>
+                    <span class="cta-note">No credit card required</span>
+                </div>
             </div>
-            <div>
-              <div class="form-section-title">Reminder Details</div>
-              <div class="form-section-description">What to be reminded about</div>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label for="reminder-title">
-              Reminder Title <span class="required-indicator">*</span>
-            </label>
-            <input type="text" id="reminder-title" placeholder="e.g., Call client about contract renewal" required>
-          </div>
-
-          <div class="form-field">
-            <label for="reminder-description">
-              Description <span class="optional-badge">Optional</span>
-            </label>
-            <textarea id="reminder-description" placeholder="Add additional context..." rows="3"></textarea>
-            <div class="field-helper">
-              <span>Any important details to remember</span>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label for="reminder-date">
-              Reminder Date & Time <span class="required-indicator">*</span>
-            </label>
-            <input type="datetime-local" id="reminder-date" required>
-            <div class="field-helper">
-              <span>When should you be reminded?</span>
-            </div>
-          </div>
-
-          <div class="form-field" id="reminder-assign-field" style="display:none;">
-            <label for="reminder-assign-to">
-              Assign To <span class="optional-badge">Optional</span>
-            </label>
-            <select id="reminder-assign-to">
-              <option value="">Select a sales rep</option>
-            </select>
-            <div class="field-helper">
-              <span>Assign this reminder to a team member</span>
-            </div>
-          </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('reminder-modal')">Cancel</button>
-        <button class="btn btn-primary" id="save-reminder-btn">Save Reminder</button>
-      </div>
-    </div>
-  </div>
+    </section>
 
-  <div id="confirm-dialog" class="modal" style="display:none;">
-    <div class="modal-backdrop"></div>
-    <div class="modal-container confirm-dialog-container">
-      <div class="modal-header">
-        <h3 id="confirm-title">Confirm Action</h3>
-      </div>
-      <div class="modal-body">
-        <p id="confirm-message">Are you sure you want to proceed?</p>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" id="confirm-cancel">Cancel</button>
-        <button class="btn btn-primary" id="confirm-ok">Confirm</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="change-password-modal" class="modal" style="display:none;">
-    <div class="modal-backdrop"></div>
-    <div class="modal-container" style="max-width: 400px;">
-      <div class="modal-header">
-        <h3>Change Password</h3>
-        <button class="modal-close" onclick="closeModal('change-password-modal')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-x-icon lucide-x">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form id="change-password-form" onsubmit="event.preventDefault();">
-          <div class="form-field">
-            <label for="new-password">New Password</label>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <div class="input-wrapper modern-input" style="flex: 1;">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="new-password" placeholder="Enter new password" required>
-              </div>
-              <button type="button" class="toggle-password-external"
-                onclick="togglePasswordVisibility('new-password', this)">
-                <i class="far fa-eye"></i>
-              </button>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo-wrapper">
+                        <img src="assets/icons/whiteblue.png" alt="SafiTrack" class="footer-logo">
+                        <span class="footer-logo-text">SafiTrack</span>
+                    </div>
+                    <p class="footer-tagline">Modern CRM platform built for<br>high-performing sales teams</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Product</h4>
+                        <ul>
+                            <li><a href="#features">Features</a></li>
+                            <li><a href="#pricing">Pricing</a></li>
+                            <li><a href="index.html">Login</a></li>
+                            <li><a href="#">Integrations</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Company</h4>
+                        <ul>
+                            <li><a href="#">About</a></li>
+                            <li><a href="#">Blog</a></li>
+                            <li><a href="#">Careers</a></li>
+                            <li><a href="#">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Resources</h4>
+                        <ul>
+                            <li><a href="#">Documentation</a></li>
+                            <li><a href="#">Help Center</a></li>
+                            <li><a href="#">API Reference</a></li>
+                            <li><a href="#">Status</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Legal</h4>
+                        <ul>
+                            <li><a href="#">Privacy Policy</a></li>
+                            <li><a href="#">Terms of Service</a></li>
+                            <li><a href="#">Security</a></li>
+                            <li><a href="#">GDPR</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-          </div>
-          <div class="form-field">
-            <label for="confirm-new-password">Confirm Password</label>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <div class="input-wrapper modern-input" style="flex: 1;">
-                <i class="fas fa-lock"></i>
-                <input type="password" id="confirm-new-password" placeholder="Confirm new password" required>
-              </div>
-              <!-- Optional: Add visibility toggle for confirm layout too, or keep it consistent -->
-              <button type="button" class="toggle-password-external"
-                onclick="togglePasswordVisibility('confirm-new-password', this)">
-                <i class="far fa-eye"></i>
-              </button>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+                <div class="footer-social">
+                    <a href="#" aria-label="Twitter">Twitter</a>
+                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
+                    <a href="#" aria-label="GitHub">GitHub</a>
+                </div>
             </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('change-password-modal')">Cancel</button>
-        <button class="btn btn-primary" id="save-new-password-btn">Update Password</button>
-      </div>
-    </div>
-  </div>
+        </div>
+    </footer>
 
-  <div id="toast-container"></div>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-  <script src="utils.js"></script>
-  <script src="ai.js"></script>
-  <script src="app.js"></script>
-  <script src="onboarding.js"></script>
+    <script src="landing.js"></script>
 </body>
 
 </html>
