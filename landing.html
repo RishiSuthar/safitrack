@@ -24,6 +24,8 @@
                     <img src="assets/icons/whiteblue.png" alt="SafiTrack">
                     <span class="logo-text">SafiTrack</span>
                 </a>
+
+                <!-- Desktop Links -->
                 <div class="nav-links">
                     <a href="#features">Features</a>
                     <a href="#product">Product</a>
@@ -33,9 +35,32 @@
                 <div class="nav-actions">
                     <a href="index.html" class="btn-primary">Get Started</a>
                 </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn" aria-label="Toggle Menu">
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
         </div>
     </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-nav-overlay">
+        <button class="mobile-close-btn" aria-label="Close Menu">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <div class="mobile-nav-content">
+            <a href="#features" class="mobile-link">Features</a>
+            <a href="#product" class="mobile-link">Product</a>
+            <a href="#pricing" class="mobile-link">Pricing</a>
+            <hr class="mobile-divider">
+            <a href="index.html" class="mobile-link">Open App</a>
+            <a href="index.html" class="btn-primary btn-block">Get Started</a>
+        </div>
+    </div>
 
     <!-- Hero Section -->
     <section class="hero">

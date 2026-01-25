@@ -10,7 +10,42 @@ document.addEventListener('DOMContentLoaded', function () {
     initCounterAnimations();
     initRoleTabs();
     enhanceAccessibility();
+    initMobileMenu();
 });
+
+function initMobileMenu() {
+    const btn = document.querySelector('.mobile-menu-btn');
+    const closeBtn = document.querySelector('.mobile-close-btn');
+    const overlay = document.querySelector('.mobile-nav-overlay');
+    const links = document.querySelectorAll('.mobile-link');
+
+    if (btn && overlay) {
+        // Toggle Open
+        btn.addEventListener('click', () => {
+            overlay.classList.toggle('active');
+            btn.classList.toggle('open');
+            document.body.style.overflow = overlay.classList.contains('active') ? 'hidden' : '';
+        });
+
+        // Close Button
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                overlay.classList.remove('active');
+                btn.classList.remove('open');
+                document.body.style.overflow = '';
+            });
+        }
+
+        // Close on link click
+        links.forEach(link => {
+            link.addEventListener('click', () => {
+                overlay.classList.remove('active');
+                btn.classList.remove('open');
+                document.body.style.overflow = '';
+            });
+        });
+    }
+}
 
 // ===================================
 // NAVBAR - PROFESSIONAL

@@ -1859,19 +1859,368 @@ ul {
     cursor: pointer;
 }
 
-/* Responsive */
+
+/* ===================================
+   MOBILE RESPONSIVENESS (CONSOLIDATED)
+   =================================== */
+
+/* Hide Mobile Elements on Desktop */
+.mobile-menu-btn,
+.mobile-nav-overlay {
+    display: none;
+}
+
 @media (max-width: 900px) {
+
+    /* 1. Global Container & Typography */
+    .container {
+        padding: 0 20px;
+        /* Ensure no horizontal overflow at root */
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+
+    h1.hero-title {
+        font-size: 36px;
+        /* Scaled down further for narrow devices */
+        line-height: 1.1;
+    }
+
+    h2.role-heading,
+    .section-title {
+        font-size: 28px;
+    }
+
+    p {
+        font-size: 15px;
+        /* Default readable size */
+    }
+
+    /* 2. Navigation */
+    .nav-content {
+        padding: 0;
+        /* Container handles padding */
+    }
+
+    .nav-links,
+    .nav-actions {
+        display: none;
+    }
+
+    /* Burger Menu Fix */
+    .mobile-menu-btn {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        z-index: 2000;
+
+        /* Hit Area & Alignment */
+        padding: 12px;
+        margin-right: -12px;
+        /* Align visual right edge with container */
+        width: 48px;
+        height: 48px;
+        align-items: center;
+    }
+
+    .mobile-menu-btn span {
+        width: 24px;
+        height: 2px;
+        background: white;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border-radius: 2px;
+    }
+
+    /* Animate Burger Button */
+    .mobile-menu-btn.open span:nth-child(1) {
+        transform: rotate(45deg) translate(5px, 5px);
+    }
+
+    .mobile-menu-btn.open span:nth-child(2) {
+        transform: rotate(-45deg) translate(5px, -5px);
+    }
+
+    /* Mobile Overlay */
+    .mobile-nav-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 17, 23, 0.95);
+        backdrop-filter: blur(16px);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+    }
+
+    .mobile-nav-overlay.active {
+        opacity: 1;
+        pointer-events: all;
+        display: flex;
+    }
+
+    .mobile-close-btn {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        background: rgba(255, 255, 255, 0.1);
+        border: none;
+        border-radius: 50%;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        cursor: pointer;
+        z-index: 1001;
+    }
+
+    .mobile-nav-content {
+        display: flex;
+        flex-direction: column;
+        gap: 32px;
+        /* Larger gap for touch */
+        text-align: center;
+        width: 100%;
+        padding: 40px;
+    }
+
+    .mobile-link {
+        font-size: 28px;
+        font-weight: 700;
+        color: white;
+    }
+
+    .mobile-divider {
+        width: 60px;
+        border: 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        margin: 10px auto;
+    }
+
+    /* 3. Hero Section */
+    .hero-content {
+        grid-template-columns: 1fr;
+        gap: 32px;
+        text-align: center;
+        padding-top: 40px;
+    }
+
+    .hero-description {
+        margin: 0 auto 24px;
+        font-size: 16px;
+    }
+
+    .hero-actions {
+        justify-content: center;
+        flex-direction: column;
+        /* Stack buttons on very small screens */
+        gap: 16px;
+    }
+
+    .hero-actions .btn {
+        width: 100%;
+    }
+
+    .hero-stats {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .hero-visual {
+        margin-top: 20px;
+    }
+
+    /* 4. Roles Showcase (Stacked & Robust) */
+    .roles-showcase {
+        padding: 60px 0;
+    }
+
     .split-layout {
         grid-template-columns: 1fr;
-        gap: 40px;
+        gap: 32px;
     }
 
     .role-nav-col {
         position: static;
+        width: 100%;
+        margin-bottom: 0;
     }
 
     .role-heading {
-        font-size: 42px;
+        margin-bottom: 24px;
+    }
+
+    /* Roles Switcher: 3-Col Grid (No Scroll) */
+    .role-dock.vertical {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        /* Force 3 cols */
+        gap: 8px;
+
+        width: 100%;
+        margin: 0 0 24px 0;
+        padding: 0;
+
+        overflow: visible;
+        /* Disable scroll */
+    }
+
+    .dock-btn {
+        flex-direction: column;
+        /* Stack stack icon top */
+        align-items: center;
+        text-align: center;
+        justify-content: center;
+        padding: 12px 8px;
+        gap: 8px;
+        min-width: 0;
+        /* Allow shrinking */
+        width: 100%;
+
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+    }
+
+    .d-icon {
+        margin: 0;
+        /* Center it */
+        width: 24px;
+        height: 24px;
+        font-size: 16px;
+        order: -1;
+    }
+
+    .d-text {
+        align-items: center;
+        gap: 0;
+    }
+
+    .d-title {
+        font-size: 12px;
+        /* Smaller text to fit */
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .d-desc {
+        display: none;
+    }
+
+    /* Reduce Window Height */
+    .saas-window {
+        height: 60vh;
+        /* Responsive height */
+        min-height: 400px;
+        max-height: 600px;
+    }
+
+    /* Dashboard Stack - Manager */
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto 1fr;
+        gap: 16px;
+        padding: 16px;
+        overflow-y: auto;
+    }
+
+    .rev-main {
+        height: 160px;
+    }
+
+    .rev-big-price {
+        font-size: 28px;
+    }
+
+    /* Dashboard - Sales (Horizontal Scroll) */
+    .pipeline-board {
+        display: flex;
+        /* Flex is easier for horizontal scroll than grid here */
+        overflow-x: auto;
+        gap: 16px;
+        padding: 16px;
+        scroll-snap-type: x mandatory;
+    }
+
+    .pipe-col {
+        min-width: 85%;
+        /* Shows peeking next column */
+        scroll-snap-align: center;
+        flex-shrink: 0;
+    }
+
+    /* Technician Mobile Adjust */
+    .tech-job-card {
+        width: auto;
+        left: 16px;
+        right: 16px;
+        bottom: 16px;
+    }
+
+    /* 5. General Stacking & Features */
+    .features-grid,
+    .product-content,
+    .pricing-grid,
+    .ai-feature-content,
+    .cta-content,
+    .footer-content,
+    .companies-grid {
+        grid-template-columns: 1fr !important;
+        gap: 40px;
+    }
+
+    .companies-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        /* 2 col for logos */
+        gap: 20px;
+    }
+
+    .product-content {
+        gap: 32px;
+    }
+
+    .product-reverse .product-content {
+        direction: ltr;
+        /* Reset direction */
+    }
+
+    .product-visual {
+        order: -1;
+        /* Image first always */
+    }
+
+    .product-title {
+        font-size: 32px;
+    }
+
+    /* Footer Polishing */
+    .footer {
+        padding: 60px 0 30px;
+    }
+
+    .footer-content {
+        gap: 32px;
+    }
+
+    .footer-links {
+        grid-template-columns: 1fr 1fr;
+        /* 2 col links */
+        gap: 32px;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
     }
 }
 
@@ -2445,59 +2794,6 @@ ul {
         grid-template-columns: 1fr 1fr;
         gap: 40px;
     }
-}
-
-@media (max-width: 768px) {
-    .container {
-        padding: 0 20px;
-    }
-
-    .nav-links {
-        display: none;
-    }
-
-    .logo-text {
-        display: none;
-    }
-
-    .hero {
-        padding: 120px 0 80px;
-    }
-
-    .hero-title {
-        font-size: 40px;
-    }
-
-    .hero-description {
-        font-size: 18px;
-    }
-
-    .hero-actions {
-        flex-direction: column;
-        width: 100%;
-    }
-
-    .hero-actions .btn-lg {
-        width: 100%;
-    }
-
-    .hero-stats {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 24px;
-    }
-
-    .stat-divider {
-        display: none;
-    }
-
-    .companies-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-
-    .section-title {
-        font-size: 36px;
-    }
 
     .section-subtitle {
         font-size: 18px;
@@ -2566,5 +2862,10 @@ ul {
 
     .cta-title {
         font-size: 28px;
+    }
+
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 40px;
     }
 }
