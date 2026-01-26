@@ -51,7 +51,7 @@
                     <a href="/crm/" class="nav-link-app">Open App →</a>
                 </div>
                 <div class="nav-actions">
-                    <button class="btn-primary get-started-btn">Get Started</button>
+                    <a href="#pricing" class="btn-primary">Get Started</a>
                 </div>
 
                 <!-- Mobile Menu Button -->
@@ -96,11 +96,11 @@
                     and powerful analytics. Everything your team needs in one place.
                 </p>
                 <div class="hero-actions">
-                    <button class="btn-primary btn-lg get-started-btn">
+                    <a href="#pricing" class="btn-primary btn-lg">
                         Get Started
-                    </button>
-                    <a href="#product" class="btn-secondary btn-lg">
-                        See How It Works
+                    </a>
+                    <a href="/crm/" class="btn-secondary btn-lg">
+                        Open App
                     </a>
                 </div>
                 <div class="hero-stats">
@@ -651,8 +651,8 @@
                         <h3 class="price-name">Starter</h3>
                         <div class="price-amount">
                             <span class="price-currency">$</span>
-                            <span class="price-value">29</span>
-                            <span class="price-period">/user/mo</span>
+                            <span class="price-value">20</span>
+                            <span class="price-period"> USD/user/mo</span>
                         </div>
                         <p class="price-description">Perfect for small teams getting started</p>
                     </div>
@@ -693,7 +693,7 @@
                             <span>Email support</span>
                         </li>
                     </ul>
-                    <button class="btn-secondary btn-block get-started-btn" data-plan="Starter">Get Started</button>
+                    <button class="btn-secondary btn-block get-started-btn" data-plan="Starter">Try for free</button>
                 </div>
 
                 <div class="price-card price-card-featured">
@@ -703,7 +703,7 @@
                         <div class="price-amount">
                             <span class="price-currency">$</span>
                             <span class="price-value">79</span>
-                            <span class="price-period">/user/mo</span>
+                            <span class="price-period"> USD/user/mo</span>
                         </div>
                         <p class="price-description">For growing teams that need more power</p>
                     </div>
@@ -744,7 +744,7 @@
                             <span>Priority support</span>
                         </li>
                     </ul>
-                    <button class="btn-primary btn-block get-started-btn" data-plan="Professional">Get Started</button>
+                    <button class="btn-primary btn-block get-started-btn" data-plan="Professional">Try for free</button>
                 </div>
 
             </div>
@@ -753,43 +753,154 @@
 
     <!-- Contact Modal -->
     <div id="contact-modal" class="modal">
-        <div class="modal-content">
-            <button class="close-modal">&times;</button>
-            <div class="modal-header">
-                <h2>Get Started with SafiTrack</h2>
-                <p>Fill out the form below and we'll get you set up right away.</p>
+        <div class="modal-content premium-split">
+            <button class="close-modal" aria-label="Close Modal">&times;</button>
+
+            <!-- Left Side: Value Prop -->
+            <div class="modal-sidebar">
+                <div class="sidebar-badge">High Conversion</div>
+                <h2 class="sidebar-title">Ready to scale your sales?</h2>
+                <p class="sidebar-desc">Join 500+ fast-growing teams using SafiTrack to automate their pipeline and
+                    close deals faster.</p>
+
+                <ul class="modal-value-list">
+                    <li>
+                        <div class="v-icon">✨</div>
+                        <div class="v-text">
+                            <strong>Personalized Demo</strong>
+                            <span>See how SafiTrack fits your specific workflow.</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="v-icon">🚀</div>
+                        <div class="v-text">
+                            <strong>15-Min Setup</strong>
+                            <span>Get your whole team onboarded in minutes.</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="v-icon">🛡️</div>
+                        <div class="v-text">
+                            <strong>No Commitment</strong>
+                            <span>Start with a 14-day trial. No credit card required.</span>
+                        </div>
+                    </li>
+                </ul>
+
+                <div class="sidebar-footer">
+                    <div class="trust-avatars">
+                        <div class="t-av"></div>
+                        <div class="t-av"></div>
+                        <div class="t-av"></div>
+                        <span>Trusted by leading sales teams</span>
+                    </div>
+                </div>
             </div>
-            <form id="contact-form">
-                <input type="hidden" name="plan" id="selected-plan" value="General">
-                <div class="form-group">
-                    <label for="from_name">Full Name</label>
-                    <input type="text" id="from_name" name="from_name" placeholder="John Doe" required>
+
+            <!-- Right Side: The Form -->
+            <div class="modal-form-area">
+                <div class="form-header">
+                    <h3>Get Started</h3>
+                    <div class="step-indicator">
+                        <div class="step-dot active" data-step="1"></div>
+                        <div class="step-line"></div>
+                        <div class="step-dot" data-step="2"></div>
+                        <div class="step-line"></div>
+                        <div class="step-dot" data-step="3"></div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="from_email">Email Address</label>
-                    <input type="email" id="from_email" name="from_email" placeholder="john@example.com" required>
+
+                <form id="contact-form">
+                    <input type="hidden" name="plan" id="selected-plan" value="General">
+
+                    <!-- Step 1: Personal -->
+                    <div class="form-step active" data-step="1">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="first_name">First Name</label>
+                                <input type="text" id="first_name" name="first_name" placeholder="Eric" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="last_name">Last Name</label>
+                                <input type="text" id="last_name" name="last_name" placeholder="Brooks" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="job_title">Job Title</label>
+                            <input type="text" id="job_title" name="job_title" placeholder="Sales Director" required>
+                        </div>
+                        <div class="form-actions-step">
+                            <button type="button" class="btn-primary btn-block next-step">Continue →</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Company -->
+                    <div class="form-step" data-step="2">
+                        <div class="form-group">
+                            <label for="company_name">Company Name</label>
+                            <input type="text" id="company_name" name="company_name" placeholder="Acme Inc." required>
+                        </div>
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="company_size">Company Size</label>
+                                <select id="company_size" name="company_size" required>
+                                    <option value="" disabled selected>Select size</option>
+                                    <option value="1-10">1-10 employees</option>
+                                    <option value="11-50">11-50 employees</option>
+                                    <option value="51-200">51-200 employees</option>
+                                    <option value="201-500">201-500 employees</option>
+                                    <option value="501+">501+ employees</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="region">Country / Region</label>
+                                <input type="text" id="region" name="region" placeholder="United States" required>
+                            </div>
+                        </div>
+                        <div class="form-actions-step split">
+                            <button type="button" class="btn-secondary prev-step">Back</button>
+                            <button type="button" class="btn-primary next-step">Next Step →</button>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Final -->
+                    <div class="form-step" data-step="3">
+                        <div class="form-group">
+                            <label for="from_email">Work Email</label>
+                            <input type="email" id="from_email" name="from_email" placeholder="eric@company.com"
+                                required>
+                        </div>
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-container">
+                                <input type="checkbox" name="terms" required>
+                                <span class="checkmark"></span>
+                                <span class="checkbox-text">I agree to the <a href="#">Terms of Service</a> and <a
+                                        href="#">Privacy Policy</a>.</span>
+                            </label>
+                        </div>
+                        <div class="form-actions-step split">
+                            <button type="button" class="btn-secondary prev-step">Back</button>
+                            <button type="submit" class="btn-primary" id="submit-btn" style="flex: 2;">
+                                <span>Request Access →</span>
+                                <div class="btn-loader" style="display: none;"></div>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+
+                <div id="form-success" style="display: none;" class="form-feedback success">
+                    <div class="feedback-icon">✓</div>
+                    <h3>We've received your request!</h3>
+                    <p>One of our product specialists will reach out to your work email within 2 hours.</p>
+                    <button class="btn-secondary btn-block close-feedback">Back to Site</button>
                 </div>
-                <div class="form-group">
-                    <label for="message">Message</label>
-                    <textarea id="message" name="message" placeholder="Tell us about your team and needs..."
-                        required></textarea>
+
+                <div id="form-error" style="display: none;" class="form-feedback error">
+                    <div class="feedback-icon">✕</div>
+                    <h3>Connection Error</h3>
+                    <p>We couldn't process your request. Please check your connection and try again.</p>
+                    <button class="btn-secondary btn-block close-feedback">Try Again</button>
                 </div>
-                <button type="submit" class="btn-primary btn-block" id="submit-btn">
-                    <span>Send Request</span>
-                    <div class="btn-loader" style="display: none;"></div>
-                </button>
-            </form>
-            <div id="form-success" style="display: none;" class="form-feedback success">
-                <div class="feedback-icon">✓</div>
-                <h3>Message Sent!</h3>
-                <p>Thank you for your interest. We'll be in touch shortly.</p>
-                <button class="btn-secondary btn-block close-feedback">Close</button>
-            </div>
-            <div id="form-error" style="display: none;" class="form-feedback error">
-                <div class="feedback-icon">✕</div>
-                <h3>Something went wrong</h3>
-                <p>We couldn't send your message. Please try again or email us directly.</p>
-                <button class="btn-secondary btn-block close-feedback">Try Again</button>
             </div>
         </div>
     </div>
@@ -803,7 +914,7 @@
                     Join thousands of teams already using SafiTrack to close more deals.
                 </p>
                 <div class="cta-actions">
-                    <a href="index.html" class="btn-primary btn-lg">Get Started Free</a>
+                    <button class="btn-primary btn-lg get-started-btn">Get Started Free</button>
                     <span class="cta-note">No credit card required</span>
                 </div>
             </div>

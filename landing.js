@@ -378,16 +378,50 @@ function initContactModal() {
     const planInput = document.getElementById('selected-plan');
 
     // Initialize EmailJS with Public Key
-    // USER: Replace with your actual Public Key
     emailjs.init({
         publicKey: "gBlS97W9mCMXx6qRf",
     });
+
+    let currentStep = 1;
+    const steps = document.querySelectorAll('.form-step');
+    const dots = document.querySelectorAll('.step-dot');
+    const nextBtns = document.querySelectorAll('.next-step');
+    const prevBtns = document.querySelectorAll('.prev-step');
+
+    const updateStepUI = () => {
+        steps.forEach((step, idx) => {
+            step.classList.toggle('active', idx + 1 === currentStep);
+        });
+        dots.forEach((dot, idx) => {
+            dot.classList.toggle('active', idx + 1 === currentStep);
+            dot.classList.toggle('completed', idx + 1 < currentStep);
+        });
+    };
+
+    const validateStep = (stepNum) => {
+        const currentStepEl = document.querySelector(`.form-step[data-step="${stepNum}"]`);
+        const inputs = currentStepEl.querySelectorAll('input[required], select[required]');
+        let isValid = true;
+
+        inputs.forEach(input => {
+            if (!input.checkValidity()) {
+                input.reportValidity();
+                isValid = false;
+            }
+        });
+
+        return isValid;
+    };
 
     const openModal = (plan = 'General') => {
         if (!modal) return;
         planInput.value = plan;
         modal.classList.add('active');
         document.body.style.overflow = 'hidden';
+
+        // Reset to first step
+        currentStep = 1;
+        updateStepUI();
 
         // Reset form and feedback
         form.style.display = 'block';
@@ -401,6 +435,23 @@ function initContactModal() {
         modal.classList.remove('active');
         document.body.style.overflow = '';
     };
+
+    // Navigation Buttons
+    nextBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            if (validateStep(currentStep)) {
+                currentStep++;
+                updateStepUI();
+            }
+        });
+    });
+
+    prevBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentStep--;
+            updateStepUI();
+        });
+    });
 
     btns.forEach(btn => {
         btn.addEventListener('click', (e) => {
