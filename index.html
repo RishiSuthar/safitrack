@@ -30,6 +30,7 @@
         rel="stylesheet">
     <link rel="stylesheet" href="landing.css">
     <link rel="stylesheet" href="landing-scroll.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 
 <body>
@@ -50,7 +51,7 @@
                     <a href="/crm/" class="nav-link-app">Open App →</a>
                 </div>
                 <div class="nav-actions">
-                    <a href="/crm/" class="btn-primary">Get Started</a>
+                    <button class="btn-primary get-started-btn">Get Started</button>
                 </div>
 
                 <!-- Mobile Menu Button -->
@@ -75,7 +76,7 @@
             <a href="#pricing" class="mobile-link">Pricing</a>
             <hr class="mobile-divider">
             <a href="/crm/" class="mobile-link">Open App</a>
-            <a href="/crm/" class="btn-primary btn-block">Get Started</a>
+            <button class="btn-primary btn-block get-started-btn">Get Started</button>
         </div>
     </div>
 
@@ -95,9 +96,9 @@
                     and powerful analytics. Everything your team needs in one place.
                 </p>
                 <div class="hero-actions">
-                    <a href="/crm/" class="btn-primary btn-lg">
+                    <button class="btn-primary btn-lg get-started-btn">
                         Get Started
-                    </a>
+                    </button>
                     <a href="#product" class="btn-secondary btn-lg">
                         See How It Works
                     </a>
@@ -692,7 +693,7 @@
                             <span>Email support</span>
                         </li>
                     </ul>
-                    <a href="index.html" class="btn-secondary btn-block">Get Started</a>
+                    <button class="btn-secondary btn-block get-started-btn" data-plan="Starter">Get Started</button>
                 </div>
 
                 <div class="price-card price-card-featured">
@@ -742,67 +743,56 @@
                             </svg>
                             <span>Priority support</span>
                         </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>API access</span>
-                        </li>
                     </ul>
-                    <a href="index.html" class="btn-primary btn-block">Get Started</a>
+                    <button class="btn-primary btn-block get-started-btn" data-plan="Professional">Get Started</button>
                 </div>
 
-                <div class="price-card">
-                    <div class="price-header">
-                        <h3 class="price-name">Enterprise</h3>
-                        <div class="price-amount">
-                            <span class="price-value price-custom">Custom</span>
-                        </div>
-                        <p class="price-description">For large organizations with complex needs</p>
-                    </div>
-                    <ul class="price-features">
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Everything in Professional</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Dedicated account manager</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Custom onboarding</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Advanced security</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>SLA guarantee</span>
-                        </li>
-                    </ul>
-                    <a href="#" class="btn-secondary btn-block">Contact Sales</a>
-                </div>
             </div>
         </div>
     </section>
+
+    <!-- Contact Modal -->
+    <div id="contact-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal">&times;</button>
+            <div class="modal-header">
+                <h2>Get Started with SafiTrack</h2>
+                <p>Fill out the form below and we'll get you set up right away.</p>
+            </div>
+            <form id="contact-form">
+                <input type="hidden" name="plan" id="selected-plan" value="General">
+                <div class="form-group">
+                    <label for="from_name">Full Name</label>
+                    <input type="text" id="from_name" name="from_name" placeholder="John Doe" required>
+                </div>
+                <div class="form-group">
+                    <label for="from_email">Email Address</label>
+                    <input type="email" id="from_email" name="from_email" placeholder="john@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label for="message">Message</label>
+                    <textarea id="message" name="message" placeholder="Tell us about your team and needs..."
+                        required></textarea>
+                </div>
+                <button type="submit" class="btn-primary btn-block" id="submit-btn">
+                    <span>Send Request</span>
+                    <div class="btn-loader" style="display: none;"></div>
+                </button>
+            </form>
+            <div id="form-success" style="display: none;" class="form-feedback success">
+                <div class="feedback-icon">✓</div>
+                <h3>Message Sent!</h3>
+                <p>Thank you for your interest. We'll be in touch shortly.</p>
+                <button class="btn-secondary btn-block close-feedback">Close</button>
+            </div>
+            <div id="form-error" style="display: none;" class="form-feedback error">
+                <div class="feedback-icon">✕</div>
+                <h3>Something went wrong</h3>
+                <p>We couldn't send your message. Please try again or email us directly.</p>
+                <button class="btn-secondary btn-block close-feedback">Try Again</button>
+            </div>
+        </div>
+    </div>
 
     <!-- CTA Section -->
     <section class="cta">

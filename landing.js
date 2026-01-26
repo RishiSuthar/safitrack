@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initInteractiveScreenshots();
     initCounterAnimations();
     initRoleTabs();
+    initContactModal();
     enhanceAccessibility();
     initMobileMenu();
 });
@@ -363,6 +364,105 @@ function enhanceAccessibility() {
 // ===================================
 // PERFORMANCE MONITORING (OPTIONAL)
 // ===================================
+
+// ===================================
+// CONTACT MODAL & EMAILJS
+// ===================================
+
+function initContactModal() {
+    const modal = document.getElementById('contact-modal');
+    const form = document.getElementById('contact-form');
+    const btns = document.querySelectorAll('.get-started-btn');
+    const closeBtn = document.querySelector('.close-modal');
+    const feedbackBtns = document.querySelectorAll('.close-feedback');
+    const planInput = document.getElementById('selected-plan');
+
+    // Initialize EmailJS with Public Key
+    // USER: Replace with your actual Public Key
+    emailjs.init({
+        publicKey: "gBlS97W9mCMXx6qRf",
+    });
+
+    const openModal = (plan = 'General') => {
+        if (!modal) return;
+        planInput.value = plan;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        // Reset form and feedback
+        form.style.display = 'block';
+        document.getElementById('form-success').style.display = 'none';
+        document.getElementById('form-error').style.display = 'none';
+        form.reset();
+    };
+
+    const closeModal = () => {
+        if (!modal) return;
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    };
+
+    btns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const plan = btn.getAttribute('data-plan') || 'General';
+            openModal(plan);
+        });
+    });
+
+    if (closeBtn) closeBtn.addEventListener('click', closeModal);
+
+    feedbackBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (btn.closest('.error')) {
+                form.style.display = 'block';
+                document.getElementById('form-error').style.display = 'none';
+            } else {
+                closeModal();
+            }
+        });
+    });
+
+    // Close on outside click
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+
+    // Form Submission
+    if (form) {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submit-btn');
+            const submitText = submitBtn.querySelector('span');
+            const loader = submitBtn.querySelector('.btn-loader');
+
+            // Loading state
+            submitBtn.disabled = true;
+            submitText.style.display = 'none';
+            loader.style.display = 'block';
+
+            // Send via EmailJS
+            // USER: Replace Service ID and Template ID
+            emailjs.sendForm('service_5hj9xoc', 'template_suu7kp6', this)
+                .then(() => {
+                    form.style.display = 'none';
+                    document.getElementById('form-success').style.display = 'block';
+                })
+                .catch((error) => {
+                    console.error('EmailJS Error:', error);
+                    form.style.display = 'none';
+                    document.getElementById('form-error').style.display = 'block';
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitText.style.display = 'block';
+                    loader.style.display = 'none';
+                });
+        });
+    }
+}
 
 if (window.location.hostname === 'localhost') {
     window.addEventListener('load', () => {
