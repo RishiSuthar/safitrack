@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initCounterAnimations();
     initRoleTabs();
     initContactModal();
+    initIntelligenceHub();
     enhanceAccessibility();
     initMobileMenu();
 });
@@ -513,6 +514,47 @@ function initContactModal() {
                 });
         });
     }
+}
+
+// ===================================
+// CONNECTIVITY MESH - MINIMALIST
+// ===================================
+
+function initIntelligenceHub() {
+    const meshNodes = document.querySelectorAll('.mesh-node');
+    const meshLines = document.querySelectorAll('.mesh-line');
+
+    if (meshNodes.length === 0) return;
+
+    // Simple reveal animation
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                meshNodes.forEach((node, i) => {
+                    setTimeout(() => {
+                        node.style.opacity = '1';
+                        node.style.transform = 'translateY(0)';
+                    }, i * 150);
+                });
+
+                meshLines.forEach((line, i) => {
+                    setTimeout(() => {
+                        line.style.strokeOpacity = '0.15';
+                    }, i * 100);
+                });
+            }
+        });
+    }, { threshold: 0.2 });
+
+    const container = document.querySelector('.mesh-container');
+    if (container) observer.observe(container);
+
+    // Initial state
+    meshNodes.forEach(node => {
+        node.style.opacity = '0';
+        node.style.transform = 'translateY(20px)';
+        node.style.transition = 'all 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
+    });
 }
 
 if (window.location.hostname === 'localhost') {

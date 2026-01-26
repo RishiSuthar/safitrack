@@ -1,0 +1,219 @@
+/* ===================================
+   SAFITRACK CONNECTIVITY MESH
+   Minimalist & Premium Design
+   =================================== */
+
+.intelligence-hub {
+    padding: 100px 0;
+    background: var(--bg-primary);
+    position: relative;
+    overflow: hidden;
+}
+
+.mesh-container {
+    position: relative;
+    max-width: 900px;
+    height: 500px;
+    margin: 40px auto 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Background Grid & Lines */
+.mesh-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.mesh-line {
+    stroke: var(--color-primary);
+    stroke-width: 1.5;
+    stroke-opacity: 0.15;
+    stroke-dasharray: 4 4;
+    fill: none;
+    transition: stroke-opacity var(--transition-base);
+}
+
+.mesh-node:hover~.mesh-svg .mesh-line {
+    stroke-opacity: 0.3;
+}
+
+/* Central Core */
+.mesh-core {
+    position: relative;
+    z-index: 10;
+    width: 140px;
+    height: 140px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 32px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    transition: transform var(--transition-base);
+}
+
+.mesh-core:hover {
+    transform: translateY(-5px);
+    border-color: var(--color-primary);
+}
+
+.mesh-core img {
+    width: 60px;
+    filter: drop-shadow(0 0 15px rgba(47, 95, 208, 0.4));
+}
+
+.core-glow {
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    background: radial-gradient(circle, rgba(47, 95, 208, 0.12) 0%, transparent 70%);
+    z-index: -1;
+    animation: coreAura 4s ease-in-out infinite;
+}
+
+@keyframes coreAura {
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+}
+
+/* Connectivity Nodes */
+.mesh-node {
+    position: absolute;
+    z-index: 15;
+    background: rgba(22, 27, 34, 0.4);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 10px 18px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-secondary);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: default;
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+    animation: nodeFloat 6s ease-in-out infinite;
+}
+
+.mesh-node:hover {
+    color: var(--text-primary);
+    background: rgba(47, 95, 208, 0.1);
+    border-color: rgba(47, 95, 208, 0.4);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.mesh-node span {
+    font-size: 18px;
+}
+
+/* Node Specific Positions */
+.node-1 {
+    top: 10%;
+    left: 15%;
+    animation-delay: 0s;
+}
+
+.node-2 {
+    top: 15%;
+    right: 10%;
+    animation-delay: 1.5s;
+}
+
+.node-3 {
+    bottom: 15%;
+    left: 10%;
+    animation-delay: 3s;
+}
+
+.node-4 {
+    bottom: 20%;
+    right: 15%;
+    animation-delay: 4.5s;
+}
+
+.node-5 {
+    top: 45%;
+    left: 0%;
+    animation-delay: 0.5s;
+}
+
+.node-6 {
+    top: 48%;
+    right: -5%;
+    animation-delay: 2.5s;
+}
+
+@keyframes nodeFloat {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Dot Accents */
+.node-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    box-shadow: 0 0 10px var(--color-primary);
+}
+
+/* Responsiveness */
+@media (max-width: 900px) {
+    .mesh-container {
+        height: 400px;
+        scale: 0.85;
+    }
+
+    .node-5,
+    .node-6 {
+        display: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .mesh-container {
+        height: 500px;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .mesh-node {
+        position: relative;
+        top: auto !important;
+        left: auto !important;
+        right: auto !important;
+        bottom: auto !important;
+        margin: 5px 0;
+        animation: none;
+    }
+
+    .mesh-svg {
+        display: none;
+    }
+}
