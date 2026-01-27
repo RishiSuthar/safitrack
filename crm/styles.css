@@ -8212,31 +8212,32 @@ button svg {
 }
 
 /* Specific Outcome Colors */
-.outcome-option input[value="Connected"]:checked+.outcome-card {
-  background: var(--color-success-bg);
-  color: var(--color-success);
-  border-color: var(--color-success);
+.outcome-option input[value="Connected"]:checked + .outcome-card {
+  background: #D7F44A;
+  color: #1F2A00;
+  border-color: #D7F44A;
 }
 
-.outcome-option input[value="Voicemail"]:checked+.outcome-card {
-  background: var(--color-primary-bg);
-  color: var(--color-primary);
-  border-color: var(--color-primary);
+.outcome-option input[value="Voicemail"]:checked + .outcome-card {
+  background: #2F2E8B;
+  color: #E6E9FF;
+  border-color: #2F2E8B;
 }
 
-.outcome-option input[value="No Answer"]:checked+.outcome-card,
-.outcome-option input[value="Busy"]:checked+.outcome-card {
-  background: var(--color-warning-bg);
-  color: var(--color-warning);
-  border-color: var(--color-warning);
+.outcome-option input[value="No Answer"]:checked + .outcome-card,
+.outcome-option input[value="Busy"]:checked + .outcome-card {
+  background: #3A3F4B;
+  color: #E5E7EB;
+  border-color: #3A3F4B;
 }
 
-.outcome-option input[value="Wrong Number"]:checked+.outcome-card,
-.outcome-option input[value="Call Failed"]:checked+.outcome-card {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
-  border-color: var(--color-danger);
+.outcome-option input[value="Wrong Number"]:checked + .outcome-card,
+.outcome-option input[value="Call Failed"]:checked + .outcome-card {
+  background: #7A1E24;
+  color: #FFE6E8;
+  border-color: #7A1E24;
 }
+
 
 /* Live Search Results */
 .search-input-group {
