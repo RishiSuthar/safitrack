@@ -8337,14 +8337,15 @@ button svg {
   gap: 0.375rem;
 }
 
+
 .direction-badge.inbound {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
+  background: #ffef4d;
+  color: #353935;
 }
 
 .direction-badge.outbound {
-  background: var(--color-warning-bg);
-  color: var(--color-warning);
+  background: #353935;
+  color: #ffef4d;
 }
 
 /* Search Input Wrapper */
