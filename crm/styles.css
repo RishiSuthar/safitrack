@@ -8184,8 +8184,9 @@ button svg {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
-  min-height: 70px;
+  height: 50%;
+  width: 100%;
+  min-height: 20px;
   aspect-ratio: 1.2 / 1;
   background: var(--bg-secondary);
 }
