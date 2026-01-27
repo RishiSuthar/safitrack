@@ -8130,30 +8130,40 @@ button svg {
 }
 
 .outcome-badge.connected {
-  background: var(--color-success-bg);
-  color: var(--color-success);
+  background: #D7F44A;
+  color: #1F2A00;
 }
 
+/* Strong indigo – already good */
 .outcome-badge.voicemail {
-  background: var(--color-primary-bg);
-  color: var(--color-primary);
+  background: #2F2E8B;
+  color: #E6E9FF;
 }
 
+/* Neutral but solid (cool slate) */
 .outcome-badge.no-answer {
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
+  background: #3A3F4B;
+  color: #E5E7EB;
 }
 
+/* Warm amber, not washed out */
 .outcome-badge.busy {
-  background: var(--color-warning-bg);
-  color: var(--color-warning);
+  background: #8A5A00;
+  color: #FFF3D6;
 }
 
-.outcome-badge.wrong-number,
-.outcome-badge.call-failed {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
+/* Muted red, clearly invalid */
+.outcome-badge.wrong-number {
+  background: #6B1F1F;
+  color: #FFE4E4;
 }
+
+/* Strong failure red */
+.outcome-badge.call-failed {
+  background: #7A1E24;
+  color: #FFE6E8;
+}
+
 
 /* Outcome Grid in Modal */
 .outcome-grid {
