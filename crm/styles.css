@@ -7996,6 +7996,7 @@ button svg {
   font-size: 1.5rem;
   margin-bottom: 0.75rem;
 }
+
 /* ===== PWA INSTALL BANNER ===== */
 .install-banner {
   position: fixed;
@@ -8048,6 +8049,335 @@ button svg {
 }
 
 @keyframes slideUp {
-  from { transform: translate(-50%, 100%); opacity: 0; }
-  to { transform: translate(-50%, 0); opacity: 1; }
+  from {
+    transform: translate(-50%, 100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}
+
+/* ===== CALL LOGS VIEW ===== */
+.call-logs-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.call-logs-filters {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/* View Toggle for Managers */
+.view-toggle {
+  display: flex;
+  background: var(--bg-secondary);
+  padding: 0.25rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  gap: 0.25rem;
+}
+
+.toggle-btn {
+  padding: 0.4rem 0.875rem;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  white-space: nowrap;
+}
+
+.toggle-btn:hover {
+  color: var(--text-primary);
+}
+
+.toggle-btn.active {
+  background: var(--bg-elevated);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.filter-select {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 0.875rem;
+}
+
+.outcome-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.outcome-badge.connected {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.outcome-badge.voicemail {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+
+.outcome-badge.no-answer {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.outcome-badge.busy {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.outcome-badge.wrong-number,
+.outcome-badge.call-failed {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+/* Outcome Grid in Modal */
+.outcome-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.outcome-option {
+  display: block;
+  width: 100%;
+}
+
+.outcome-option input {
+  display: none;
+}
+
+.outcome-card {
+  padding: 1rem 0.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  text-align: center;
+  font-size: 0.8125rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 70px;
+  aspect-ratio: 1.2 / 1;
+  background: var(--bg-secondary);
+}
+
+.outcome-card:hover {
+  border-color: var(--text-muted);
+  background: var(--bg-tertiary);
+}
+
+.outcome-option input:checked+.outcome-card {
+  font-weight: 700;
+  box-shadow: 0 0 0 2px currentColor;
+}
+
+/* Specific Outcome Colors */
+.outcome-option input[value="Connected"]:checked+.outcome-card {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.outcome-option input[value="Voicemail"]:checked+.outcome-card {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.outcome-option input[value="No Answer"]:checked+.outcome-card,
+.outcome-option input[value="Busy"]:checked+.outcome-card {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+  border-color: var(--color-warning);
+}
+
+.outcome-option input[value="Wrong Number"]:checked+.outcome-card,
+.outcome-option input[value="Call Failed"]:checked+.outcome-card {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+/* Live Search Results */
+.search-input-group {
+  position: relative;
+}
+
+.live-search-results {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  z-index: 1000;
+  max-height: 250px;
+  overflow-y: auto;
+  display: none;
+}
+
+.live-search-results.active {
+  display: block;
+}
+
+.search-result-item {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  display: flex;
+  flex-direction: column;
+}
+
+.search-result-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.search-result-item .title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}
+
+.search-result-item .subtitle {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.search-result-item.add-new {
+  border-top: 1px solid var(--border-color);
+  color: var(--color-primary);
+  font-weight: 600;
+  background: var(--color-primary-bg);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+/* View Details Grid */
+.view-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.detail-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detail-field.full-row {
+  grid-column: 1 / -1;
+}
+
+.detail-field label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.detail-value {
+  font-size: 1rem;
+  color: var(--text-primary);
+  word-break: break-word;
+  padding: 0.75rem;
+  background: var(--bg-secondary);
+  border-radius: var(--radius-md);
+  min-height: 2.5rem;
+  display: flex;
+  align-items: center;
+}
+
+/* Direction Badge Styling */
+.direction-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.direction-badge.inbound {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.direction-badge.outbound {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+/* Search Input Wrapper */
+.search-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.search-input-wrapper input {
+  padding-left: 36px;
+  width: 100%;
+  height: 100%;
+}
+
+/* Call Log Modal specific adjustments */
+#call-log-modal .form-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+#call-log-modal .form-field:nth-child(n+7) {
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 600px) {
+  #call-log-modal .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .outcome-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }

@@ -14,6 +14,15 @@ let personPhoneNumbers = [];
 let mentionedPeople = [];
 let allPeople = [];
 let isTechnician = false;
+let managerCallLogViewMode = 'my'; // 'my' or 'team'
+
+// Call log filters
+let callLogFilters = {
+  search: '',
+  direction: '',
+  outcome: ''
+};
+let filterDebounceTimer = null;
 
 // ======================
 // DOM ELEMENTS
@@ -310,7 +319,7 @@ function updateNavigationForRole() {
       el.style.display = 'none';
     });
     // Hide views that technicians should not access
-    ['sales-funnel', 'opportunity-pipeline', 'companies', 'people', 'user-management'].forEach(view => {
+    ['sales-funnel', 'opportunity-pipeline', 'call-logs', 'companies', 'people', 'user-management'].forEach(view => {
       document.querySelectorAll(`.sidebar-nav [data-view="${view}"]`).forEach(el => el.style.display = 'none');
     });
     // Hide manager navigation
@@ -362,7 +371,7 @@ async function loadView(viewName) {
   updateActiveNav(viewName);
 
   // Prevent technicians from accessing certain views
-  const blockedForTechnician = ['sales-funnel', 'opportunity-pipeline', 'companies', 'people', 'user-management'];
+  const blockedForTechnician = ['sales-funnel', 'opportunity-pipeline', 'call-logs', 'companies', 'people', 'user-management'];
   if (isTechnician && blockedForTechnician.includes(viewName)) {
     showToast('You do not have permission to access this view', 'error');
     return;
@@ -454,6 +463,9 @@ async function loadView(viewName) {
       break;
     case 'reminders':
       await renderRemindersView();
+      break;
+    case 'call-logs':
+      await renderCallLogsView();
       break;
     default:
       viewContainer.innerHTML = renderNotFound();
@@ -11706,3 +11718,502 @@ window.addEventListener('appinstalled', (event) => {
   if (installBanner) installBanner.style.display = 'none';
   showToast('SafiTrack CRM installed successfully!', 'success');
 });
+
+// ======================
+// CALL LOGS VIEW
+// ======================
+
+async function renderCallLogsView() {
+  const viewContainer = document.getElementById('view-container');
+
+  // Fetch reps if manager
+  let reps = [];
+  if (isManager && managerCallLogViewMode === 'team') {
+    const { data } = await supabaseClient
+      .from('profiles')
+      .select('id, first_name, last_name')
+      .eq('role', 'sales_rep');
+    reps = data || [];
+  }
+
+  // Ensure companies are loaded for search fallback
+  if (!window.allCompaniesData) {
+    const { data: companies } = await supabaseClient
+      .from('companies')
+      .select('id, name, address')
+      .order('name', { ascending: true });
+    window.allCompaniesData = companies || [];
+  }
+
+  // Default fetch - order by newest first (descending by created_at)
+  let query = supabaseClient
+    .from('call_logs')
+    .select(`
+            *,
+            profiles:user_id(first_name, last_name),
+            people:contact_id(name),
+            companies:company_id(name)
+        `)
+    .order('created_at', { ascending: false });
+
+  if (!isManager || managerCallLogViewMode === 'my') {
+    query = query.eq('user_id', currentUser.id);
+  } else if (selectedRepId) {
+    query = query.eq('user_id', selectedRepId);
+  }
+
+  const { data: logs, error } = await query;
+
+  if (error) {
+    viewContainer.innerHTML = renderError(error.message);
+    return;
+  }
+
+  // Apply filters to logs
+  const filteredLogs = logs.filter(log => {
+    const contactName = log.people ? log.people.name : log.contact_name;
+    const companyName = log.companies ? log.companies.name : log.company_name;
+    
+    // Search filter
+    if (callLogFilters.search) {
+      const searchLower = callLogFilters.search.toLowerCase();
+      const matchesContact = (contactName || '').toLowerCase().includes(searchLower);
+      const matchesCompany = (companyName || '').toLowerCase().includes(searchLower);
+      if (!matchesContact && !matchesCompany) return false;
+    }
+    
+    // Direction filter
+    if (callLogFilters.direction && log.direction !== callLogFilters.direction) {
+      return false;
+    }
+    
+    // Outcome filter
+    if (callLogFilters.outcome && log.outcome !== callLogFilters.outcome) {
+      return false;
+    }
+    
+    return true;
+  });
+
+  let html = `
+        <div class="page-header">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+                <div>
+                    <h1 class="page-title">Call Logs</h1>
+                    <p class="page-subtitle">Track and manage customer calls</p>
+                </div>
+                <div class="call-logs-filters">
+                    ${isManager ? `
+                        <div class="view-toggle">
+                            <button class="toggle-btn ${managerCallLogViewMode === 'my' ? 'active' : ''}" id="view-my-logs">My Logs</button>
+                            <button class="toggle-btn ${managerCallLogViewMode === 'team' ? 'active' : ''}" id="view-team-logs">Team Logs</button>
+                        </div>
+                        ${managerCallLogViewMode === 'team' ? `
+                            <select id="rep-filter" class="filter-select">
+                                <option value="">All Representatives</option>
+                                ${reps.map(rep => `
+                                    <option value="${rep.id}" ${selectedRepId === rep.id ? 'selected' : ''}>
+                                        ${rep.first_name} ${rep.last_name}
+                                    </option>
+                                `).join('')}
+                            </select>
+                        ` : ''}
+                    ` : ''}
+                    ${(!isManager || managerCallLogViewMode === 'my') ? `
+                    <button class="btn btn-primary" id="log-call-btn" style="display: inline-flex; align-items: center; gap: 8px;">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon"><path d="M5 12h14"/><path d="M12 5v14"/></svg> <span>Log Call</span>
+                    </button>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="filters-section" style="padding: 1rem; border-bottom: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div class="search-input-wrapper">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search-icon" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">
+                        <path d="m21 21-4.34-4.34" />
+                        <circle cx="11" cy="11" r="8" />
+                    </svg>
+                    <input type="text" id="call-search" placeholder="Search by contact or company..." value="${callLogFilters.search}" style="padding-left: 36px; width: 100%;" class="filter-select">
+                </div>
+                
+                <select id="call-direction-filter" class="filter-select">
+                    <option value="">All Directions</option>
+                    <option value="Inbound" ${callLogFilters.direction === 'Inbound' ? 'selected' : ''}>Inbound</option>
+                    <option value="Outbound" ${callLogFilters.direction === 'Outbound' ? 'selected' : ''}>Outbound</option>
+                </select>
+                
+                <select id="call-outcome-filter" class="filter-select">
+                    <option value="">All Outcomes</option>
+                    <option value="Connected" ${callLogFilters.outcome === 'Connected' ? 'selected' : ''}>Connected</option>
+                    <option value="Voicemail" ${callLogFilters.outcome === 'Voicemail' ? 'selected' : ''}>Voicemail</option>
+                    <option value="No Answer" ${callLogFilters.outcome === 'No Answer' ? 'selected' : ''}>No Answer</option>
+                    <option value="Busy" ${callLogFilters.outcome === 'Busy' ? 'selected' : ''}>Busy</option>
+                    <option value="Wrong Number" ${callLogFilters.outcome === 'Wrong Number' ? 'selected' : ''}>Wrong Number</option>
+                    <option value="Call Failed" ${callLogFilters.outcome === 'Call Failed' ? 'selected' : ''}>Call Failed</option>
+                </select>
+
+                <div style="display: flex; gap: 0.5rem;">
+                    <button id="clear-filters" class="btn btn-secondary" style="flex: 1; padding: 0.5rem 1rem; font-size: 0.875rem;">
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>DateTime</th>
+                            ${(isManager && managerCallLogViewMode === 'team') ? '<th>Representative</th>' : ''}
+                            <th>Contact</th>
+                            <th>Company</th>
+                            <th>Direction</th>
+                            <th>Duration</th>
+                            <th>Outcome</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${filteredLogs.length === 0 ? `
+                            <tr>
+                                <td colspan="${(isManager && managerCallLogViewMode === 'team') ? '8' : '7'}" class="text-center">No call logs found</td>
+                            </tr>
+                        ` : filteredLogs.map(log => {
+    const outcomeClass = (log.outcome || '').toLowerCase().replace(' ', '-');
+    const contactName = log.people ? log.people.name : log.contact_name;
+    const companyName = log.companies ? log.companies.name : log.company_name;
+    const repName = log.profiles ? `${log.profiles.first_name} ${log.profiles.last_name}` : 'Unknown';
+
+    return `
+                                <tr>
+                                    <td>${formatDateWithTime(log.call_at)}</td>
+                                    ${(isManager && managerCallLogViewMode === 'team') ? `<td>${repName}</td>` : ''}
+                                    <td>${contactName || 'N/A'}</td>
+                                    <td>${companyName || 'N/A'}</td>
+                                    <td>
+                                        <span class="direction-badge ${log.direction === 'Inbound' ? 'inbound' : 'outbound'}">
+                                            ${log.direction === 'Inbound' ? `
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-down-left"><path d="M17 7 7 17"/><path d="M17 17H7V7"/></svg>
+                                            ` : `
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
+                                            `}
+                                            ${log.direction}
+                                        </span>
+                                    </td>
+                                    <td>${log.duration_seconds ? Math.floor(log.duration_seconds / 60) + 'm' : 'N/A'}</td>
+                                    <td>
+                                        <span class="outcome-badge ${outcomeClass}">${log.outcome}</span>
+                                    </td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <button class="action-btn view-call-log" data-id="${log.id}" title="View Log">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+                                            </button>
+                                            ${(!isManager || log.user_id === currentUser.id) ? `
+                                            <button class="action-btn edit-call-log" data-id="${log.id}" title="Edit Log">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+                                            </button>
+                                            <button class="action-btn delete-call-log" data-id="${log.id}" title="Delete Log">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                                            </button>
+                                            ` : ''}
+                                        </div>
+                                    </td>
+                                </tr>
+                            `;
+  }).join('')}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    `;
+
+  viewContainer.innerHTML = html;
+
+  // Listeners
+  document.getElementById('log-call-btn')?.addEventListener('click', () => openCallLogModal());
+
+  document.querySelectorAll('.view-call-log').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const log = logs.find(l => l.id === btn.dataset.id);
+      openCallLogViewModal(log);
+    });
+  });
+
+  document.querySelectorAll('.edit-call-log').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const log = logs.find(l => l.id === btn.dataset.id);
+      openCallLogModal(log);
+    });
+  });
+
+  if (isManager) {
+    document.getElementById('view-my-logs')?.addEventListener('click', () => {
+      managerCallLogViewMode = 'my';
+      renderCallLogsView();
+    });
+    document.getElementById('view-team-logs')?.addEventListener('click', () => {
+      managerCallLogViewMode = 'team';
+      renderCallLogsView();
+    });
+    document.getElementById('rep-filter')?.addEventListener('change', (e) => {
+      selectedRepId = e.target.value || null;
+      renderCallLogsView();
+    });
+  }
+
+  // Filter listeners
+  const searchInput = document.getElementById('call-search');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      callLogFilters.search = e.target.value;
+      // Debounce the search to avoid excessive re-renders
+      clearTimeout(filterDebounceTimer);
+      filterDebounceTimer = setTimeout(() => {
+        renderCallLogsView();
+      }, 300);
+    });
+  }
+
+  document.getElementById('call-direction-filter')?.addEventListener('change', (e) => {
+    callLogFilters.direction = e.target.value;
+    renderCallLogsView();
+  });
+
+  document.getElementById('call-outcome-filter')?.addEventListener('change', (e) => {
+    callLogFilters.outcome = e.target.value;
+    renderCallLogsView();
+  });
+
+  document.getElementById('clear-filters')?.addEventListener('click', () => {
+    callLogFilters = { search: '', direction: '', outcome: '' };
+    clearTimeout(filterDebounceTimer);
+    renderCallLogsView();
+  });
+
+  // Use event delegation for delete button
+  const tableContainer = viewContainer.querySelector('.table-container');
+  if (tableContainer) {
+    tableContainer.addEventListener('click', (e) => {
+      const deleteBtn = e.target.closest('.delete-call-log');
+      if (deleteBtn) {
+        e.preventDefault();
+        e.stopPropagation();
+        deleteCallLog(deleteBtn.dataset.id);
+      }
+    });
+  };
+}
+
+async function deleteCallLog(id) {
+  const confirmed = await showConfirmDialog('Delete Call Log', 'Are you sure you want to delete this call log?');
+  if (!confirmed) return;
+
+  try {
+    // Fetch the log to check ownership
+    const { data: log, error: fetchError } = await supabaseClient
+      .from('call_logs')
+      .select('user_id, id')
+      .eq('id', id)
+      .single();
+
+    if (fetchError || !log) {
+      showToast('Log not found', 'error');
+      return;
+    }
+    
+    // Check if user owns the log
+    if (log.user_id !== currentUser.id) {
+      showToast('You can only delete your own call logs', 'error');
+      return;
+    }
+
+    // Delete the log
+    const { error: deleteError } = await supabaseClient
+      .from('call_logs')
+      .delete()
+      .eq('id', id);
+
+    if (deleteError) {
+      showToast('Error deleting log: ' + deleteError.message, 'error');
+    } else {
+      showToast('Log deleted', 'success');
+      await new Promise(resolve => setTimeout(resolve, 500));
+      renderCallLogsView();
+    }
+  } catch (e) {
+    showToast('Error deleting log: ' + e.message, 'error');
+  }
+}
+
+function openCallLogViewModal(log) {
+  const modal = document.getElementById('call-log-view-modal');
+  if (!modal) {
+    showToast('View modal not found', 'error');
+    return;
+  }
+
+  // Populate view modal
+  const contactName = log.people ? log.people.name : log.contact_name;
+  const companyName = log.companies ? log.companies.name : log.company_name;
+  const repName = log.profiles ? `${log.profiles.first_name} ${log.profiles.last_name}` : 'Unknown';
+
+  document.getElementById('view-call-datetime').textContent = formatDateWithTime(log.call_at);
+  document.getElementById('view-call-contact').textContent = contactName || 'N/A';
+  document.getElementById('view-call-company').textContent = companyName || 'N/A';
+  document.getElementById('view-call-rep').textContent = repName;
+  document.getElementById('view-call-direction').textContent = log.direction;
+  document.getElementById('view-call-direction').className = `direction-badge ${log.direction === 'Inbound' ? 'inbound' : 'outbound'}`;
+  document.getElementById('view-call-duration').textContent = log.duration_seconds ? Math.floor(log.duration_seconds / 60) + ' minutes' : 'N/A';
+  document.getElementById('view-call-outcome').textContent = log.outcome;
+  const outcomeClass = (log.outcome || '').toLowerCase().replace(' ', '-');
+  document.getElementById('view-call-outcome').className = `outcome-badge ${outcomeClass}`;
+  document.getElementById('view-call-notes').textContent = log.notes || 'No notes';
+
+  modal.style.display = 'flex';
+}
+
+function openCallLogModal(log = null) {
+  const modal = document.getElementById('call-log-modal');
+  const title = document.getElementById('call-log-modal-title');
+  const saveBtn = document.getElementById('save-call-log-btn');
+
+  title.textContent = log ? 'Edit Call Log' : 'Log New Call';
+
+  // Reset form
+  document.getElementById('call-contact-input').value = log ? (log.people ? log.people.name : log.contact_name) : '';
+  document.getElementById('call-contact-id').value = log ? log.contact_id || '' : '';
+  document.getElementById('call-company-input').value = log ? (log.companies ? log.companies.name : log.company_name) : '';
+  document.getElementById('call-company-id').value = log ? log.company_id || '' : '';
+  document.getElementById('call-direction').value = log ? log.direction : 'Outbound';
+  document.getElementById('call-datetime').value = log ? new Date(log.call_at).toISOString().slice(0, 16) : new Date().toISOString().slice(0, 16);
+  document.getElementById('call-duration').value = log ? Math.floor(log.duration_seconds / 60) : '';
+  document.getElementById('call-notes').value = log ? log.notes || '' : '';
+
+  // Outcome selection
+  if (log) {
+    const radio = document.querySelector(`input[name = "call-outcome"][value = "${log.outcome}"]`);
+    if (radio) radio.checked = true;
+  } else {
+    document.querySelectorAll('input[name="call-outcome"]').forEach(r => r.checked = false);
+  }
+
+  modal.style.display = 'flex';
+
+  // Live Search Handlers
+  initCallLogSearch();
+
+  saveBtn.onclick = () => saveCallLog(log?.id);
+}
+
+function initCallLogSearch() {
+  const contactInput = document.getElementById('call-contact-input');
+  const contactResults = document.getElementById('call-contact-results');
+  const companyInput = document.getElementById('call-company-input');
+  const companyResults = document.getElementById('call-company-results');
+
+  const handleSearch = (input, resultsContainer, type, idField) => {
+    // Clear existing listeners by cloning
+    const newInput = input.cloneNode(true);
+    input.parentNode.replaceChild(newInput, input);
+
+    newInput.addEventListener('input', async (e) => {
+      const val = e.target.value.toLowerCase();
+      if (val.length < 1) {
+        resultsContainer.classList.remove('active');
+        return;
+      }
+
+      let matches = [];
+      if (type === 'people') {
+        matches = allPeople.filter(p => p.name.toLowerCase().includes(val)).slice(0, 5);
+      } else {
+        matches = (window.allCompaniesData || []).filter(c => c.name.toLowerCase().includes(val)).slice(0, 5);
+      }
+
+      let html = matches.map(m => `
+                    <div class="search-result-item" data-id="${m.id}" data-name="${m.name}">
+                      <span class="title">${m.name}</span>
+                      <span class="subtitle">${type === 'people' ? (m.companies?.name || 'N/A') : m.address}</span>
+                    </div>
+    `).join('');
+
+      html += `
+                    <div class="search-result-item add-new" data-id="" data-name="${e.target.value}">
+                      <span class="title">Use custom: "${e.target.value}"</span>
+                    </div>
+    `;
+
+      resultsContainer.innerHTML = html;
+      resultsContainer.classList.add('active');
+
+      resultsContainer.querySelectorAll('.search-result-item').forEach(item => {
+        item.addEventListener('click', () => {
+          newInput.value = item.dataset.name;
+          document.getElementById(idField).value = item.dataset.id;
+          resultsContainer.classList.remove('active');
+        });
+      });
+    });
+
+    // Close results on blur after short delay
+    newInput.addEventListener('blur', () => {
+      setTimeout(() => resultsContainer.classList.remove('active'), 200);
+    });
+  };
+
+  handleSearch(contactInput, contactResults, 'people', 'call-contact-id');
+  handleSearch(companyInput, companyResults, 'companies', 'call-company-id');
+}
+
+async function saveCallLog(logId = null) {
+  const contactName = document.getElementById('call-contact-input').value;
+  const contactId = document.getElementById('call-contact-id').value || null;
+  const companyName = document.getElementById('call-company-input').value;
+  const companyId = document.getElementById('call-company-id').value || null;
+  const direction = document.getElementById('call-direction').value;
+  const callAt = document.getElementById('call-datetime').value;
+  const durationMins = document.getElementById('call-duration').value;
+  const notes = document.getElementById('call-notes').value;
+  const outcomeEl = document.querySelector('input[name="call-outcome"]:checked');
+
+  if (!contactName || !outcomeEl) {
+    showToast('Contact and Outcome are required', 'error');
+    return;
+  }
+
+  const logData = {
+    user_id: currentUser.id,
+    contact_name: contactId ? null : contactName,
+    contact_id: contactId,
+    company_name: companyId ? null : companyName,
+    company_id: companyId,
+    direction,
+    call_at: new Date(callAt).toISOString(),
+    duration_seconds: durationMins ? durationMins * 60 : null,
+    outcome: outcomeEl.value,
+    notes
+  };
+
+  const saveBtn = document.getElementById('save-call-log-btn');
+  saveBtn.disabled = true;
+
+  let res;
+  if (logId) {
+    res = await supabaseClient.from('call_logs').update(logData).eq('id', logId);
+  } else {
+    res = await supabaseClient.from('call_logs').insert([logData]);
+  }
+
+  saveBtn.disabled = false;
+
+  if (res.error) {
+    showToast('Error saving log: ' + res.error.message, 'error');
+  } else {
+    showToast('Call log saved', 'success');
+    closeModal('call-log-modal');
+    renderCallLogsView();
+  }
+}

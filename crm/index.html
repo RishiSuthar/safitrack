@@ -344,6 +344,18 @@
             </svg>
             <span>Opportunities</span>
           </button>
+
+          <button data-view="call-logs" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-phone-call-icon lucide-phone-call">
+              <path
+                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+              <path d="M14.05 2a9 9 0 0 1 8 8" />
+              <path d="M14.05 6A5 5 0 0 1 18 10" />
+            </svg>
+            <span>Call Logs</span>
+          </button>
         </div>
 
 
@@ -1351,6 +1363,165 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('change-password-modal')">Cancel</button>
         <button class="btn btn-primary" id="save-new-password-btn">Update Password</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="call-log-view-modal" class="modal" style="display:none;">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3>Call Log Details</h3>
+        <button class="modal-close" onclick="closeModal('call-log-view-modal')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-x-icon lucide-x">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="view-details-grid">
+          <div class="detail-field">
+            <label>Date & Time</label>
+            <div id="view-call-datetime" class="detail-value"></div>
+          </div>
+          <div class="detail-field">
+            <label>Contact</label>
+            <div id="view-call-contact" class="detail-value"></div>
+          </div>
+          <div class="detail-field">
+            <label>Company</label>
+            <div id="view-call-company" class="detail-value"></div>
+          </div>
+          <div class="detail-field">
+            <label>Representative</label>
+            <div id="view-call-rep" class="detail-value"></div>
+          </div>
+          <div class="detail-field">
+            <label>Direction</label>
+            <div id="view-call-direction" class="detail-value"></div>
+          </div>
+          <div class="detail-field">
+            <label>Duration</label>
+            <div id="view-call-duration" class="detail-value"></div>
+          </div>
+          <div class="detail-field full-row">
+            <label>Outcome</label>
+            <div id="view-call-outcome" class="detail-value"></div>
+          </div>
+          <div class="detail-field full-row">
+            <label>Notes</label>
+            <div id="view-call-notes" class="detail-value"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('call-log-view-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="call-log-modal" class="modal" style="display:none;">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container" style="max-width: 900px;">
+      <div class="modal-header">
+        <h3 id="call-log-modal-title">Log Call</h3>
+        <button class="modal-close" onclick="closeModal('call-log-modal')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-x-icon lucide-x">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <!-- Contact Name -->
+          <div class="form-field">
+            <label for="call-contact-input">Contact Name <span class="required-indicator">*</span></label>
+            <div class="search-input-group">
+              <input type="text" id="call-contact-input" placeholder="Search people or type name..." autocomplete="off">
+              <div id="call-contact-results" class="live-search-results"></div>
+            </div>
+            <input type="hidden" id="call-contact-id">
+          </div>
+
+          <!-- Company -->
+          <div class="form-field">
+            <label for="call-company-input">Company <span class="required-indicator">*</span></label>
+            <div class="search-input-group">
+              <input type="text" id="call-company-input" placeholder="Search companies or type name..."
+                autocomplete="off">
+              <div id="call-company-results" class="live-search-results"></div>
+            </div>
+            <input type="hidden" id="call-company-id">
+          </div>
+
+          <!-- Call Direction -->
+          <div class="form-field">
+            <label for="call-direction">Call Direction</label>
+            <select id="call-direction">
+              <option value="Outbound">Outbound</option>
+              <option value="Inbound">Inbound</option>
+            </select>
+          </div>
+
+          <!-- Call Date & Time -->
+          <div class="form-field">
+            <label for="call-datetime">Date & Time</label>
+            <input type="datetime-local" id="call-datetime">
+          </div>
+
+          <!-- Call Duration -->
+          <div class="form-field">
+            <label for="call-duration">Duration (minutes)</label>
+            <input type="number" id="call-duration" placeholder="e.g., 5" min="0">
+          </div>
+
+          <!-- Call Outcome -->
+          <div class="form-field" style="grid-column: 1 / -1;">
+            <label>Call Outcome <span class="required-indicator">*</span></label>
+            <div class="outcome-grid" id="call-outcome-options">
+              <label class="outcome-option">
+                <input type="radio" name="call-outcome" value="Connected">
+                <div class="outcome-card">Connected</div>
+              </label>
+              <label class="outcome-option">
+                <input type="radio" name="call-outcome" value="Voicemail">
+                <div class="outcome-card">Voicemail</div>
+              </label>
+              <label class="outcome-option">
+                <input type="radio" name="call-outcome" value="No Answer">
+                <div class="outcome-card">No Answer</div>
+              </label>
+              <label class="outcome-option">
+                <input type="radio" name="call-outcome" value="Busy">
+                <div class="outcome-card">Busy</div>
+              </label>
+              <label class="outcome-option">
+                <input type="radio" name="call-outcome" value="Wrong Number">
+                <div class="outcome-card">Wrong Number</div>
+              </label>
+              <label class="outcome-option">
+                <input type="radio" name="call-outcome" value="Call Failed">
+                <div class="outcome-card">Call Failed</div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="form-field" style="grid-column: 1 / -1;">
+          <label for="call-notes">Notes</label>
+          <textarea id="call-notes" rows="4" placeholder="What was discussed?"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('call-log-modal')">Cancel</button>
+        <button class="btn btn-primary" id="save-call-log-btn">Save Log</button>
       </div>
     </div>
   </div>
