@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Features - SafiTrack CRM</title>
+    <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../landing.css">
+    <style>
+        /* Feature Page Specific Styles */
+        body {
+            background: var(--bg-primary);
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .feature-hero {
+            padding: 160px 0 100px;
+            text-align: center;
+            background: var(--gradient-glow);
+            position: relative;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border-glass);
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 24px;
+            box-shadow: var(--depth-subtle);
+        }
+
+        .hero-title {
+            font-size: 64px;
+            line-height: 1.1;
+            font-weight: 800;
+            background: var(--gradient-text);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 24px;
+            letter-spacing: -1.5px;
+        }
+
+        .hero-desc {
+            font-size: 20px;
+            color: var(--text-secondary);
+            max-width: 640px;
+            margin: 0 auto 48px;
+        }
+
+        /* Section Headers */
+        .suite-header {
+            margin: 120px 0 48px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 16px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 60px;
+        }
+
+        .suite-tag {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--color-primary-light);
+        }
+
+        .suite-title {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Bento Grid */
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .bento-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            display: flex;
+            flex-direction: column;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .bento-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--color-primary);
+            box-shadow: var(--shadow-premium);
+            z-index: 2;
+        }
+
+        /* Card Sizes */
+        .col-span-2 {
+            grid-column: span 2;
+        }
+
+        .row-span-2 {
+            grid-row: span 2;
+        }
+
+        .card-content {
+            padding: 32px;
+            flex-grow: 1;
+            z-index: 2;
+            position: relative;
+        }
+
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            border: 1px solid var(--border-glass);
+            box-shadow: var(--depth-subtle);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .card-desc {
+            font-size: 15px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .card-visual {
+            position: relative;
+            height: 200px;
+            width: 100%;
+            overflow: hidden;
+            background: var(--surface-sunken);
+            mask-image: linear-gradient(to top, rgba(0, 0, 0, 1) 0%, transparent 100%);
+            /* Fade out top */
+            border-top: 1px solid var(--border-color);
+        }
+
+        /* Visual Variations */
+        .visual-map {
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400' viewBox='0 0 100 100'%3E%3Cpath d='M20 80 Q 50 20 80 80' stroke='%232f5fd0' fill='none' stroke-width='2' stroke-dasharray='5 5'/%3E%3Ccircle cx='20' cy='80' r='3' fill='%2310b981'/%3E%3Ccircle cx='80' cy='80' r='3' fill='%23ec4899'/%3E%3C/svg%3E");
+            background-size: cover;
+            opacity: 0.5;
+        }
+
+        .bento-card.large .card-visual {
+            height: 100%;
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50%;
+            mask-image: linear-gradient(to left, rgba(0, 0, 0, 1) 0%, transparent 100%);
+            border-top: none;
+            border-left: 1px solid var(--border-color);
+        }
+
+        .bento-card.large .card-content {
+            width: 50%;
+            padding: 48px;
+            justify-content: center;
+        }
+
+        /* Productivity List */
+        .prod-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .mini-card {
+            padding: 24px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            transition: all 0.2s;
+        }
+
+        .mini-card:hover {
+            background: var(--bg-elevated);
+            border-color: var(--text-muted);
+        }
+
+        @media (max-width: 1024px) {
+            .bento-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .col-span-2 {
+                grid-column: span 1;
+            }
+
+            .bento-card.large .card-visual {
+                position: relative;
+                width: 100%;
+                height: 200px;
+                mask-image: linear-gradient(to top, rgba(0, 0, 0, 1), transparent);
+                border-left: none;
+                border-top: 1px solid var(--border-color);
+            }
+
+            .bento-card.large .card-content {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 40px;
+            }
+
+            .bento-grid,
+            .prod-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="../../index.html" class="logo">
+                    <img src="../../assets/icons/whiteblue.png" alt="SafiTrack">
+                    <span class="logo-text">SafiTrack</span>
+                </a>
+                <div class="nav-links">
+                    <a href="mainfeatures.html" class="active">Features</a>
+                    <a href="../../index.html#product">Product</a>
+                    <a href="../../pages/pricing.html">Pricing</a>
+                    <a href="../../crm/" class="btn-primary">Open App</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <header class="feature-hero">
+        <div class="container">
+            <div class="hero-badge">✨ V2.0 Release</div>
+            <h1 class="hero-title">The Operating System<br>for Field Sales</h1>
+            <p class="hero-desc">SafiTrack isn't just a database. It's an intelligent command center that bridges the
+                gap between your office strategy and your field reality.</p>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- SUITE 1: Field Intelligence -->
+        <div class="suite-header">
+            <span class="suite-tag">Field Intelligence</span>
+            <h2 class="suite-title">Own the territory</h2>
+        </div>
+
+        <div class="bento-grid">
+            <!-- Large Feature -->
+            <a href="sales-visits-feature.html" class="bento-card col-span-2 row-span-2 large">
+                <div class="card-content">
+                    <div class="card-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Smart Sales Visits</h3>
+                    <p class="card-desc">Geofenced check-ins ensure your data is real. AI-powered summaries turn your
+                        raw notes into polished reports.</p>
+                </div>
+                <div class="card-visual visual-map"
+                    style="background: var(--surface-sunken); display: flex; align-items: center; justify-content: center;">
+                    <!-- Abstract UI Representation -->
+                    <div
+                        style="width: 200px; height: 140px; background: var(--bg-elevated); border-radius: 12px; border: 1px solid var(--border-glass); padding: 16px; box-shadow: var(--shadow-premium); transform: perspective(800px) rotateY(-10deg) rotateX(10deg);">
+                        <div
+                            style="width: 40px; height: 40px; background: rgba(16,185,129,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+                            📍</div>
+                        <div
+                            style="height: 8px; width: 80%; background: var(--border-color); border-radius: 4px; margin-bottom: 8px;">
+                        </div>
+                        <div style="height: 8px; width: 50%; background: var(--border-color); border-radius: 4px;">
+                        </div>
+                    </div>
+                </div>
+            </a>
+
+            <!-- Feature -->
+            <a href="route-plans-feature.html" class="bento-card">
+                <div class="card-content">
+                    <div class="card-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"></polygon>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Route Optimization</h3>
+                    <p class="card-desc">Save hours of drive time. Our algorithms prioritize stops to build the perfect
+                        day.</p>
+                </div>
+                <div class="card-visual"></div>
+            </a>
+
+            <!-- Feature -->
+            <a href="technician-visits-feature.html" class="bento-card">
+                <div class="card-content">
+                    <div class="card-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z">
+                            </path>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Service Reports</h3>
+                    <p class="card-desc">Generate professional PDFs on-site. Capture signatures and photos instantly.
+                    </p>
+                </div>
+                <div class="card-visual"></div>
+            </a>
+        </div>
+
+        <!-- SUITE 2: Pipeline Command -->
+        <div class="suite-header">
+            <span class="suite-tag">Pipeline Command</span>
+            <h2 class="suite-title">Forecast with confidence</h2>
+        </div>
+
+        <div class="bento-grid">
+            <!-- Feature -->
+            <a href="opportunities-feature.html" class="bento-card">
+                <div class="card-content">
+                    <div class="card-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23"></line>
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Opportunities</h3>
+                    <p class="card-desc">Visual Kanban boards that help you spot bottlenecks and visualize revenue.</p>
+                </div>
+            </a>
+            <!-- Feature -->
+            <a href="companies-feature.html" class="bento-card">
+                <div class="card-content">
+                    <div class="card-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 21h18M5 21V7l8-4 8 4v14M8 21v-4h8v4"></path>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">Company Director</h3>
+                    <p class="card-desc">A unified view of every account, structured relationship, and history.</p>
+                </div>
+            </a>
+            <!-- Feature -->
+            <a href="people-feature.html" class="bento-card">
+                <div class="card-content">
+                    <div class="card-icon">
+                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <h3 class="card-title">People & Contacts</h3>
+                    <p class="card-desc">Map the stakeholders. Know the champions from the blockers.</p>
+                </div>
+            </a>
+        </div>
+
+        <!-- SUITE 3: Productivity Core -->
+        <div class="suite-header">
+            <span class="suite-tag">Productivity Core</span>
+            <h2 class="suite-title">Move faster</h2>
+        </div>
+
+        <div class="prod-grid" style="margin-bottom: 120px;">
+            <a href="notes-feature.html" class="mini-card">
+                <div class="card-icon" style="width: 40px; height: 40px; margin-bottom: 16px;"><svg width="20"
+                        height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg></div>
+                <h3 class="card-title" style="font-size: 16px;">Super Notes</h3>
+            </a>
+            <a href="tasks-feature.html" class="mini-card">
+                <div class="card-icon" style="width: 40px; height: 40px; margin-bottom: 16px;"><svg width="20"
+                        height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                    </svg></div>
+                <h3 class="card-title" style="font-size: 16px;">Tasks</h3>
+            </a>
+            <a href="call-logs-feature.html" class="mini-card">
+                <div class="card-icon" style="width: 40px; height: 40px; margin-bottom: 16px;"><svg width="20"
+                        height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path
+                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67">
+                        </path>
+                    </svg></div>
+                <h3 class="card-title" style="font-size: 16px;">Call Log</h3>
+            </a>
+            <a href="reminders-feature.html" class="mini-card">
+                <div class="card-icon" style="width: 40px; height: 40px; margin-bottom: 16px;"><svg width="20"
+                        height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg></div>
+                <h3 class="card-title" style="font-size: 16px;">Reminders</h3>
+            </a>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo-wrapper">
+                        <img src="../../assets/icons/whiteblue.png" alt="SafiTrack" class="footer-logo">
+                        <span class="footer-logo-text">SafiTrack</span>
+                    </div>
+                    <p class="footer-tagline">Modern CRM platform built for<br>high-performing sales teams</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Product</h4>
+                        <ul>
+                            <li><a href="mainfeatures.html">Features</a></li>
+                            <li><a href="../../pages/pricing.html">Pricing</a></li>
+                            <li><a href="../../crm/">Login</a></li>
+                            <li><a href="#">Integrations</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Company</h4>
+                        <ul>
+                            <li><a href="#">About</a></li>
+                            <li><a href="#">Blog</a></li>
+                            <li><a href="#">Careers</a></li>
+                            <li><a href="#">Contact</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Resources</h4>
+                        <ul>
+                            <li><a href="#">Documentation</a></li>
+                            <li><a href="#">Help Center</a></li>
+                            <li><a href="#">API Reference</a></li>
+                            <li><a href="#">Status</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Legal</h4>
+                        <ul>
+                            <li><a href="../../pages/legal/privacy.html">Privacy Policy</a></li>
+                            <li><a href="../../pages/legal/terms.html">Terms of Service</a></li>
+                            <li><a href="#">Security</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+                <div class="footer-social">
+                    <a href="#" aria-label="Twitter">Twitter</a>
+                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
+                    <a href="#" aria-label="GitHub">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

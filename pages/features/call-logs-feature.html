@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasks & Todos - SafiTrack CRM</title>
+    <title>Call Logs - SafiTrack CRM</title>
     <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,9 +27,9 @@
         .f-badge {
             display: inline-block;
             padding: 6px 12px;
-            background: rgba(139, 92, 246, 0.1);
-            color: #8b5cf6;
-            border: 1px solid rgba(139, 92, 246, 0.2);
+            background: rgba(47, 95, 208, 0.15);
+            color: #7da2f8;
+            border: 1px solid rgba(47, 95, 208, 0.3);
             border-radius: 100px;
             font-size: 13px;
             font-weight: 600;
@@ -44,6 +44,7 @@
             margin-bottom: 24px;
             background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -56,7 +57,7 @@
         }
 
         .mockup-container {
-            max-width: 1000px;
+            max-width: 900px;
             margin: 0 auto;
         }
 
@@ -64,13 +65,38 @@
             background: var(--bg-secondary);
             border-radius: 20px;
             border: 1px solid var(--border-glass);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 40px 80px -10px rgba(0, 0, 0, 0.5);
             position: relative;
             overflow: hidden;
-            height: 500px;
+            display: flex;
+            flex-direction: column;
+            text-align: left;
+        }
+
+        /* Call Log Specific Styles for Mockup */
+        .cl-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-tertiary);
+        }
+
+        .cl-row:last-child {
+            border-bottom: none;
+        }
+
+        .cl-avatar {
+            width: 40px;
+            height: 40px;
+            background: #2f5fd0;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
+            color: white;
+            font-weight: 700;
         }
 
         .story-section {
@@ -115,7 +141,7 @@
         }
 
         .story-list svg {
-            color: #8b5cf6;
+            color: #2f5fd0;
             flex-shrink: 0;
         }
 
@@ -171,7 +197,7 @@
         .big-cta {
             padding: 120px 0;
             text-align: center;
-            background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
+            background: radial-gradient(circle at 50% 50%, rgba(47, 95, 208, 0.15) 0%, transparent 60%);
         }
 
         .big-cta h2 {
@@ -192,10 +218,6 @@
 
             .story-block.reversed {
                 direction: ltr;
-            }
-
-            .mockup-flat {
-                height: 300px;
             }
         }
     </style>
@@ -218,143 +240,123 @@
     </nav>
     <header class="f-hero">
         <div class="container">
-            <span class="f-badge">Productivity</span>
-            <h1 class="f-title">Nothing falls through<br>the cracks.</h1>
-            <p class="f-subtitle">A unified task list for follow-ups, calls, and admin work. Prioritize your day and
-                check things off with satisfaction.</p>
+            <span class="f-badge">Call Center</span>
+            <h1 class="f-title">Every conversation<br>accounted for.</h1>
+            <p class="f-subtitle">Track every conversation. Log durations, outcomes, and notes in one place to maintain
+                a complete history of client interactions.</p>
+
             <div class="mockup-container">
                 <div class="mockup-flat">
+                    <!-- Standard Mac window dots -->
                     <div
-                        style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--bg-primary);">
+                        style="padding: 16px 24px; border-bottom: 1px solid var(--border-color); background: var(--bg-tertiary); display:flex; gap:8px;">
+                        <div style="width:10px; height:10px; border-radius:50%; background:#ff5f56;"></div>
+                        <div style="width:10px; height:10px; border-radius:50%; background:#ffbd2e;"></div>
+                        <div style="width:10px; height:10px; border-radius:50%; background:#27c93f;"></div>
+                    </div>
+
+                    <div style="flex-grow: 1; padding: 32px; display: flex; flex-direction: column;">
                         <div
-                            style="width: 400px; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-xl);">
-                            <div style="font-size: 18px; font-weight: 700; margin-bottom: 24px;">My Tasks (3)</div>
-                            <!-- Task 1 -->
-                            <div
-                                style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px;">
-                                <div style="width: 20px; height: 20px; border: 2px solid #8b5cf6; border-radius: 6px;">
-                                </div>
-                                <div style="flex-grow: 1;">
-                                    <div style="font-size: 14px; font-weight: 600;">Email proposal to Nike</div>
-                                    <div style="font-size: 12px; color: #ef4444;">Due Today</div>
+                            style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+                            <div style="display:flex; gap:16px; align-items:center;">
+                                <div class="cl-avatar">SM</div>
+                                <div>
+                                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">Discovery Call
+                                    </div>
+                                    <div style="color: var(--text-secondary);">with Sarah Miller • Acme Corp</div>
                                 </div>
                             </div>
-                            <!-- Task List -->
-                            <div style="flex-grow: 1; padding: 24px; display: flex; flex-direction: column; gap: 12px;">
-                                <div
-                                    style="display: flex; gap: 12px; align-items: center; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-color);">
-                                    <div
-                                        style="width: 20px; height: 20px; border: 2px solid var(--border-color); border-radius: 6px;">
-                                    </div>
-                                    <div style="flex-grow: 1; font-size: 14px; font-weight: 500;">Prepare Q3
-                                        Presentation</div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">14m 20s
                                 </div>
-                                <div
-                                    style="display: flex; gap: 12px; align-items: center; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-color);">
-                                    <div
-                                        style="width: 20px; height: 20px; background: #3b82f6; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
-                                        <svg width="12" height="12" fill="none" stroke="white" stroke-width="3"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
-                                        </svg>
-                                    </div>
-                                    <div
-                                        style="flex-grow: 1; font-size: 14px; color: var(--text-muted); text-decoration: line-through;">
-                                        Email Sarah about contract</div>
-                                </div>
+                                <div style="font-size: 12px; color: var(--text-muted);">Outbound</div>
                             </div>
+                        </div>
+                        <!-- Outcome Badge -->
+                        <div style="margin-bottom: 24px;">
+                            <span
+                                style="display: inline-block; padding: 4px 12px; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 100px; font-size: 13px; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.2);">Connected</span>
+                        </div>
+                        <!-- Notes -->
+                        <div
+                            style="flex-grow: 1; background: var(--bg-primary); border-radius: 12px; border: 1px solid var(--border-color); padding: 20px;">
+                            <p style="color: var(--text-secondary); line-height: 1.6; font-size: 14px;">Discussed the
+                                new
+                                requirement for API access. Sarah mentioned budget approval is expected next Tuesday.
+                                Need
+                                to send the updated spec sheet before then.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </header>
+
     <section class="story-section container">
         <div class="story-block">
             <div class="story-text">
-                <h3>Efficient Workflow</h3>
-                <p>Spend less time managing tasks and more time doing them. Create tasks in seconds and mark them
-                    complete with a single click.</p>
+                <h3>Outcome Analysis</h3>
+                <p>Know exactly why deals are stalling. Track call outcomes (Connected, Voicemail, Busy) to analyze
+                    connection rates and optimize calling times.</p>
                 <ul class="story-list">
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> One-click completion</li>
+                        </svg> Connection rate tracking</li>
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Easy categorization</li>
+                        </svg> Disposition reporting</li>
                 </ul>
             </div>
             <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
-                <div
-                    style="width: 250px; background: var(--bg-secondary); border-radius: 12px; padding: 20px; border: 1px solid var(--border-color);">
-                    <div style="display: flex; gap: 12px; align-items: center;">
-                        <div
-                            style="width: 24px; height: 24px; border: 2px solid #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #3b82f6;">
-                            +</div>
-                        <span style="font-size: 14px; color: var(--text-secondary);">Add new task...</span>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 80%;">
+                    <div
+                        style="background: var(--bg-tertiary); padding: 16px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color);">
+                        <div style="font-size: 24px; font-weight: 700; color: #10b981; margin-bottom: 4px;">42%</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">Connection Rate</div>
+                    </div>
+                    <div
+                        style="background: var(--bg-tertiary); padding: 16px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color);">
+                        <div style="font-size: 24px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">
+                            180</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">Calls This Week</div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="story-block reversed">
-            <div class="story-text">
-                <h3>Automated To-Dos</h3>
-                <p>Set it and forget it. Create sequences that automatically generate tasks for you when a deal moves to
-                    a new stage or a lead goes quiet.</p>
-                <ul class="story-list">
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Workflow automation</li>
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Recurring tasks</li>
-                </ul>
-            </div>
-            <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                    <div
-                        style="padding: 12px 24px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px;">
-                        Deal moved to "Proposal"</div>
-                    <div style="height: 20px; width: 2px; background: var(--border-color);"></div>
-                    <div
-                        style="padding: 12px 24px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #8b5cf6; border-radius: 8px; font-size: 14px; font-weight: 600;">
-                        ⚡ Auto-Create Task: "Send Design"</div>
-                </div>
-            </div>
-        </div>
     </section>
+
     <section class="power-grid-section">
         <div class="container">
             <div class="power-header">
-                <h2>For Action Takers</h2>
+                <h2>Why you'll love it</h2>
             </div>
             <div class="power-grid">
                 <div class="power-card">
-                    <h4>Due Date Logic</h4>
-                    <p class="f-subtitle">Quickly add tasks, set due dates, and organize your day. Keep your to-do list
-                        clean and your focus sharp.</p>
+                    <h4>Quick Logging</h4>
+                    <p>Start calls with one tap. The system dialer integration makes it easy to log outcomes
+                        immediately.</p>
                 </div>
                 <div class="power-card">
-                    <h4>Delegation</h4>
-                    <p>Assign tasks to teammates and track their completion status.</p>
+                    <h4>Manager Review</h4>
+                    <p>Managers can review call activity and leave coaching notes on specific outcomes.</p>
                 </div>
                 <div class="power-card">
-                    <h4>Priority Views</h4>
-                    <p>Focus mode hides everything except what is due today and high priority.</p>
+                    <h4>Outcome Tracking</h4>
+                    <p>See which reps are booking the most meetings and analyze call outcomes at scale.</p>
                 </div>
             </div>
         </div>
     </section>
+
     <section class="big-cta">
         <div class="container">
-            <h2>Get things done.</h2>
+            <h2>Make every call count.</h2>
             <a href="../../crm/" class="btn-primary" style="padding: 16px 32px; font-size: 18px;">Start Free Trial</a>
         </div>
     </section>
+
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
@@ -369,9 +371,9 @@
                     <div class="footer-column">
                         <h4 class="footer-heading">Product</h4>
                         <ul>
-                            <li><a href="/pages/features/mainfeatures.html">Features</a></li>
-                            <li><a href="/pages/pricing.html">Pricing</a></li>
-                            <li><a href="index.html">Login</a></li>
+                            <li><a href="mainfeatures.html">Features</a></li>
+                            <li><a href="../../pages/pricing.html">Pricing</a></li>
+                            <li><a href="../../index.html">Login</a></li>
                             <li><a href="#">Integrations</a></li>
                         </ul>
                     </div>
@@ -396,8 +398,8 @@
                     <div class="footer-column">
                         <h4 class="footer-heading">Legal</h4>
                         <ul>
-                            <li><a href="pages/legal/privacy.html">Privacy Policy</a></li>
-                            <li><a href="pages/legal/terms.html">Terms of Service</a></li>
+                            <li><a href="../../pages/legal/privacy.html">Privacy Policy</a></li>
+                            <li><a href="../../pages/legal/terms.html">Terms of Service</a></li>
                             <li><a href="#">Security</a></li>
                         </ul>
                     </div>

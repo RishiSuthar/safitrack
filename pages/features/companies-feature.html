@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasks & Todos - SafiTrack CRM</title>
+    <title>Company Directory - SafiTrack CRM</title>
     <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,9 +27,9 @@
         .f-badge {
             display: inline-block;
             padding: 6px 12px;
-            background: rgba(139, 92, 246, 0.1);
-            color: #8b5cf6;
-            border: 1px solid rgba(139, 92, 246, 0.2);
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
             border-radius: 100px;
             font-size: 13px;
             font-weight: 600;
@@ -115,7 +115,7 @@
         }
 
         .story-list svg {
-            color: #8b5cf6;
+            color: #3b82f6;
             flex-shrink: 0;
         }
 
@@ -171,7 +171,7 @@
         .big-cta {
             padding: 120px 0;
             text-align: center;
-            background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
+            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
         }
 
         .big-cta h2 {
@@ -218,49 +218,87 @@
     </nav>
     <header class="f-hero">
         <div class="container">
-            <span class="f-badge">Productivity</span>
-            <h1 class="f-title">Nothing falls through<br>the cracks.</h1>
-            <p class="f-subtitle">A unified task list for follow-ups, calls, and admin work. Prioritize your day and
-                check things off with satisfaction.</p>
+            <span class="f-badge">Accounts</span>
+            <h1 class="f-title">Your universe of<br>customer data.</h1>
+            <p class="f-subtitle">A unified directory of every vendor, partner, and prospect. Filter by revenue,
+                location, or relationship status instantly.</p>
             <div class="mockup-container">
                 <div class="mockup-flat">
-                    <div
-                        style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--bg-primary);">
+                    <div style="width: 100%; height: 100%; display: flex; flex-direction: column;">
+                        <!-- Filter Bar -->
                         <div
-                            style="width: 400px; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-xl);">
-                            <div style="font-size: 18px; font-weight: 700; margin-bottom: 24px;">My Tasks (3)</div>
-                            <!-- Task 1 -->
+                            style="height: 60px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); padding: 0 24px; display: flex; align-items: center; gap: 12px;">
+                            <button
+                                style="padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; color: var(--text-secondary); font-size: 13px;">Filter</button>
+                            <div style="width: 1px; height: 24px; background: var(--border-color);"></div>
                             <div
-                                style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px;">
-                                <div style="width: 20px; height: 20px; border: 2px solid #8b5cf6; border-radius: 6px;">
+                                style="padding: 4px 10px; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-radius: 4px; font-size: 12px;">
+                                Type: Vendor x</div>
+                            <div
+                                style="padding: 4px 10px; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-radius: 4px; font-size: 12px;">
+                                City: New York x</div>
+                        </div>
+                        <!-- Grid -->
+                        <div
+                            style="flex-grow: 1; padding: 24px; background: var(--bg-elevated); display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-content: start;">
+                            <!-- Card 1 -->
+                            <div
+                                style="background: var(--bg-primary); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+                                <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;">
+                                    <div style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 8px;">
+                                    </div>
+                                    <div>
+                                        <div style="font-weight: 700;">Acme Corp</div>
+                                        <div style="font-size: 12px; color: var(--text-secondary);">Construction</div>
+                                    </div>
                                 </div>
-                                <div style="flex-grow: 1;">
-                                    <div style="font-size: 14px; font-weight: 600;">Email proposal to Nike</div>
-                                    <div style="font-size: 12px; color: #ef4444;">Due Today</div>
+                                <div style="display: flex; gap: 8px;">
+                                    <div
+                                        style="font-size: 11px; padding: 2px 8px; background: #1e293b; border-radius: 4px; color: var(--text-muted);">
+                                        Tier 1</div>
+                                    <div
+                                        style="font-size: 11px; padding: 2px 8px; background: #1e293b; border-radius: 4px; color: var(--text-muted);">
+                                        NYC</div>
                                 </div>
                             </div>
-                            <!-- Task List -->
-                            <div style="flex-grow: 1; padding: 24px; display: flex; flex-direction: column; gap: 12px;">
-                                <div
-                                    style="display: flex; gap: 12px; align-items: center; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-color);">
-                                    <div
-                                        style="width: 20px; height: 20px; border: 2px solid var(--border-color); border-radius: 6px;">
+                            <!-- Card 2 -->
+                            <div
+                                style="background: var(--bg-primary); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+                                <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;">
+                                    <div style="width: 40px; height: 40px; background: #475569; border-radius: 8px;">
                                     </div>
-                                    <div style="flex-grow: 1; font-size: 14px; font-weight: 500;">Prepare Q3
-                                        Presentation</div>
+                                    <div>
+                                        <div style="font-weight: 700;">Stark Ind</div>
+                                        <div style="font-size: 12px; color: var(--text-secondary);">Technology</div>
+                                    </div>
                                 </div>
-                                <div
-                                    style="display: flex; gap: 12px; align-items: center; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-color);">
+                                <div style="display: flex; gap: 8px;">
                                     <div
-                                        style="width: 20px; height: 20px; background: #3b82f6; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
-                                        <svg width="12" height="12" fill="none" stroke="white" stroke-width="3"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
-                                        </svg>
+                                        style="font-size: 11px; padding: 2px 8px; background: #1e293b; border-radius: 4px; color: var(--text-muted);">
+                                        VIP</div>
+                                    <div
+                                        style="font-size: 11px; padding: 2px 8px; background: #1e293b; border-radius: 4px; color: var(--text-muted);">
+                                        CA</div>
+                                </div>
+                            </div>
+                            <!-- Card 3 -->
+                            <div
+                                style="background: var(--bg-primary); padding: 20px; border-radius: 12px; border: 1px solid var(--border-color);">
+                                <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;">
+                                    <div style="width: 40px; height: 40px; background: #3b82f6; border-radius: 8px;">
                                     </div>
+                                    <div>
+                                        <div style="font-weight: 700;">Globex</div>
+                                        <div style="font-size: 12px; color: var(--text-secondary);">Logistics</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 8px;">
                                     <div
-                                        style="flex-grow: 1; font-size: 14px; color: var(--text-muted); text-decoration: line-through;">
-                                        Email Sarah about contract</div>
+                                        style="font-size: 11px; padding: 2px 8px; background: #1e293b; border-radius: 4px; color: var(--text-muted);">
+                                        Vendor</div>
+                                    <div
+                                        style="font-size: 11px; padding: 2px 8px; background: #1e293b; border-radius: 4px; color: var(--text-muted);">
+                                        TX</div>
                                 </div>
                             </div>
                         </div>
@@ -272,86 +310,101 @@
     <section class="story-section container">
         <div class="story-block">
             <div class="story-text">
-                <h3>Efficient Workflow</h3>
-                <p>Spend less time managing tasks and more time doing them. Create tasks in seconds and mark them
-                    complete with a single click.</p>
+                <h3>Rich Profiles</h3>
+                <p>Go beyond just a name and number. Store custom data fields, recent activity, financial history, and
+                    organizational charts for every company.</p>
                 <ul class="story-list">
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> One-click completion</li>
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg> Unlimited custom fields</li>
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Easy categorization</li>
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg> Document storage</li>
                 </ul>
             </div>
-            <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
+            <div class="story-visual">
                 <div
-                    style="width: 250px; background: var(--bg-secondary); border-radius: 12px; padding: 20px; border: 1px solid var(--border-color);">
-                    <div style="display: flex; gap: 12px; align-items: center;">
-                        <div
-                            style="width: 24px; height: 24px; border: 2px solid #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #3b82f6;">
-                            +</div>
-                        <span style="font-size: 14px; color: var(--text-secondary);">Add new task...</span>
+                    style="width: 80%; background: var(--bg-tertiary); padding: 24px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div
+                        style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 8px;">
+                        About</div>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">Acme Corp is a leading
+                        supplier of industrial aggregates in the Northeast region. Key partner for Q3 expansion.</p>
+                    <div style="margin-top: 16px; display: flex; gap: 16px;">
+                        <div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Revenue</div>
+                            <div style="font-size: 14px; font-weight: 600;">$50M - $100M</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 11px; color: var(--text-muted);">Employees</div>
+                            <div style="font-size: 14px; font-weight: 600;">250+</div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
         <div class="story-block reversed">
             <div class="story-text">
-                <h3>Automated To-Dos</h3>
-                <p>Set it and forget it. Create sequences that automatically generate tasks for you when a deal moves to
-                    a new stage or a lead goes quiet.</p>
+                <h3>Stakeholder Management</h3>
+                <p>Understand who knows who. Map individual contacts to their respective departments and track decision
+                    makers.</p>
                 <ul class="story-list">
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Workflow automation</li>
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg> Role tracking</li>
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Recurring tasks</li>
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg> Department grouping</li>
                 </ul>
             </div>
             <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                    <div
-                        style="padding: 12px 24px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px;">
-                        Deal moved to "Proposal"</div>
-                    <div style="height: 20px; width: 2px; background: var(--border-color);"></div>
-                    <div
-                        style="padding: 12px 24px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #8b5cf6; border-radius: 8px; font-size: 14px; font-weight: 600;">
-                        ⚡ Auto-Create Task: "Send Design"</div>
-                </div>
+                <svg width="300" height="200" viewBox="0 0 300 200">
+                    <rect x="100" y="20" width="100" height="40" rx="4" fill="#1e293b" stroke="#334155" />
+                    <text x="150" y="45" text-anchor="middle" fill="white" font-size="12">Holding Corp</text>
+                    <line x1="150" y1="60" x2="150" y2="100" stroke="#475569" />
+                    <line x1="80" y1="100" x2="220" y2="100" stroke="#475569" />
+                    <line x1="80" y1="100" x2="80" y2="120" stroke="#475569" />
+                    <line x1="220" y1="100" x2="220" y2="120" stroke="#475569" />
+                    <rect x="30" y="120" width="100" height="40" rx="4" fill="#3b82f6" stroke="#2563eb" />
+                    <text x="80" y="145" text-anchor="middle" fill="white" font-size="12">East Division</text>
+                    <rect x="170" y="120" width="100" height="40" rx="4" fill="#3b82f6" stroke="#2563eb" />
+                    <text x="220" y="145" text-anchor="middle" fill="white" font-size="12">West Division</text>
+                </svg>
             </div>
         </div>
     </section>
     <section class="power-grid-section">
         <div class="container">
             <div class="power-header">
-                <h2>For Action Takers</h2>
+                <h2>For Ops Leaders</h2>
             </div>
             <div class="power-grid">
                 <div class="power-card">
-                    <h4>Due Date Logic</h4>
-                    <p class="f-subtitle">Quickly add tasks, set due dates, and organize your day. Keep your to-do list
-                        clean and your focus sharp.</p>
+                    <h4>Flexible Input</h4>
+                    <p>Easily create new accounts manually or via API. Keep your database clean and organized.</p>
                 </div>
                 <div class="power-card">
-                    <h4>Delegation</h4>
-                    <p>Assign tasks to teammates and track their completion status.</p>
+                    <h4>Detailed Profiles</h4>
+                    <p>Store everything from logos to social links and firmographic data.</p>
                 </div>
                 <div class="power-card">
-                    <h4>Priority Views</h4>
-                    <p>Focus mode hides everything except what is due today and high priority.</p>
+                    <h4>Territory Filters</h4>
+                    <p>Quickly find companies by location, industry, or custom tags.</p>
                 </div>
             </div>
         </div>
     </section>
     <section class="big-cta">
         <div class="container">
-            <h2>Get things done.</h2>
+            <h2>Organize your business.</h2>
             <a href="../../crm/" class="btn-primary" style="padding: 16px 32px; font-size: 18px;">Start Free Trial</a>
         </div>
     </section>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasks & Todos - SafiTrack CRM</title>
+    <title>Sales Visits - SafiTrack CRM</title>
     <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,6 +17,7 @@
             overflow-x: hidden;
         }
 
+        /* Feature V2 Standard Styles */
         .f-hero {
             padding: 180px 0 100px;
             text-align: center;
@@ -27,9 +28,9 @@
         .f-badge {
             display: inline-block;
             padding: 6px 12px;
-            background: rgba(139, 92, 246, 0.1);
-            color: #8b5cf6;
-            border: 1px solid rgba(139, 92, 246, 0.2);
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.2);
             border-radius: 100px;
             font-size: 13px;
             font-weight: 600;
@@ -55,6 +56,7 @@
             line-height: 1.6;
         }
 
+        /* 3D Mockup Container - FLATTENED */
         .mockup-container {
             max-width: 1000px;
             margin: 0 auto;
@@ -73,6 +75,9 @@
             justify-content: center;
         }
 
+        /* Removed rotation/hover transform */
+
+        /* Story Section (Z-Pattern) */
         .story-section {
             padding: 120px 0;
         }
@@ -89,6 +94,7 @@
             direction: rtl;
         }
 
+        /* Quick hack for swapping, fix text alignment below */
         .story-block.reversed .story-text {
             direction: ltr;
         }
@@ -115,7 +121,7 @@
         }
 
         .story-list svg {
-            color: #8b5cf6;
+            color: #10b981;
             flex-shrink: 0;
         }
 
@@ -127,11 +133,9 @@
             position: relative;
             overflow: hidden;
             box-shadow: var(--shadow-xl);
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
+        /* Power Grid */
         .power-grid-section {
             background: var(--bg-secondary);
             padding: 100px 0;
@@ -168,16 +172,125 @@
             color: var(--text-secondary);
         }
 
+        /* CTA */
         .big-cta {
             padding: 120px 0;
             text-align: center;
-            background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
+            background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.15) 0%, transparent 60%);
         }
 
         .big-cta h2 {
             font-size: 48px;
             font-weight: 800;
             margin-bottom: 32px;
+        }
+
+        /* UI INTERNAL MOCKUPS (The "Genuine" Stuff) */
+        .mobile-frame {
+            width: 320px;
+            height: 100%;
+            border-right: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .mf-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .map-view {
+            flex-grow: 1;
+            background: #1e293b;
+            position: relative;
+        }
+
+        .map-pin {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            background: #10b981;
+            border: 3px solid white;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .visit-card-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: var(--bg-secondary);
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-glass);
+            animation: slideUp 0.5s ease forwards 0.5s;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        /* Animation Keyframes */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+            }
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Typewriter effect for story */
+        .typing-effect {
+            overflow: hidden;
+            border-right: 2px solid #10b981;
+            white-space: nowrap;
+            animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
+            display: inline-block;
+            max-width: 0;
+            animation-fill-mode: forwards;
+        }
+
+        @keyframes typing {
+            from {
+                width: 0
+            }
+
+            to {
+                width: 100%
+            }
+        }
+
+        @keyframes blink-caret {
+
+            from,
+            to {
+                border-color: transparent
+            }
+
+            50% {
+                border-color: #10b981;
+            }
         }
 
         @media (max-width: 768px) {
@@ -202,11 +315,14 @@
 </head>
 
 <body>
+    <!-- Navbar -->
     <nav class="navbar" id="navbar">
         <div class="container">
             <div class="nav-content">
-                <a href="../../index.html" class="logo"><img src="../../assets/icons/whiteblue.png"
-                        alt="SafiTrack"><span class="logo-text">SafiTrack</span></a>
+                <a href="../../index.html" class="logo">
+                    <img src="../../assets/icons/whiteblue.png" alt="SafiTrack">
+                    <span class="logo-text">SafiTrack</span>
+                </a>
                 <div class="nav-links">
                     <a href="mainfeatures.html" class="active">Features</a>
                     <a href="../../index.html#product">Product</a>
@@ -216,51 +332,69 @@
             </div>
         </div>
     </nav>
+
+    <!-- Hero -->
     <header class="f-hero">
         <div class="container">
-            <span class="f-badge">Productivity</span>
-            <h1 class="f-title">Nothing falls through<br>the cracks.</h1>
-            <p class="f-subtitle">A unified task list for follow-ups, calls, and admin work. Prioritize your day and
-                check things off with satisfaction.</p>
+            <span class="f-badge">Field Intelligence</span>
+            <h1 class="f-title">Prove you were there.<br>Capture what matters.</h1>
+            <p class="f-subtitle">The first mobile CRM experience designed for the reality of field sales. GPS
+                verification, one-tap check-ins, and AI that analyzes.</p>
+
             <div class="mockup-container">
                 <div class="mockup-flat">
-                    <div
-                        style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--bg-primary);">
+                    <!-- Complex Internal UI Mockup -->
+                    <div style="display: flex; width: 100%; height: 100%;">
+                        <!-- Left Sidebar (Desktop View) -->
                         <div
-                            style="width: 400px; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-xl);">
-                            <div style="font-size: 18px; font-weight: 700; margin-bottom: 24px;">My Tasks (3)</div>
-                            <!-- Task 1 -->
+                            style="width: 240px; border-right: 1px solid var(--border-color); background: var(--bg-tertiary); padding: 20px; display: flex; flex-direction: column; gap: 16px;">
                             <div
-                                style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px;">
-                                <div style="width: 20px; height: 20px; border: 2px solid #8b5cf6; border-radius: 6px;">
-                                </div>
-                                <div style="flex-grow: 1;">
-                                    <div style="font-size: 14px; font-weight: 600;">Email proposal to Nike</div>
-                                    <div style="font-size: 12px; color: #ef4444;">Due Today</div>
-                                </div>
+                                style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+                                Today's Route</div>
+                            <div
+                                style="padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2); color: #e1e4e8; font-size: 14px;">
+                                📍 Highland Industries</div>
+                            <div style="padding: 12px; color: var(--text-secondary); font-size: 14px;">🏢 Acme Corp HQ
                             </div>
-                            <!-- Task List -->
-                            <div style="flex-grow: 1; padding: 24px; display: flex; flex-direction: column; gap: 12px;">
+                            <div style="padding: 12px; color: var(--text-secondary); font-size: 14px;">🏭 Delta
+                                Manufacturing</div>
+                        </div>
+
+                        <!-- Main Content -->
+                        <div style="flex-grow: 1; display: flex; flex-direction: column;">
+                            <div
+                                style="height: 60px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); display: flex; align-items: center; justify-content: space-between; padding: 0 24px;">
+                                <div style="font-weight: 700;">Visit: Highland Industries</div>
                                 <div
-                                    style="display: flex; gap: 12px; align-items: center; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-color);">
-                                    <div
-                                        style="width: 20px; height: 20px; border: 2px solid var(--border-color); border-radius: 6px;">
-                                    </div>
-                                    <div style="flex-grow: 1; font-size: 14px; font-weight: 500;">Prepare Q3
-                                        Presentation</div>
+                                    style="padding: 6px 12px; background: #10b981; color: white; font-weight: 600; border-radius: 6px; font-size: 13px;">
+                                    Check In</div>
+                            </div>
+                            <div style="flex-grow: 1; background: #0f1117; position: relative; overflow: hidden;">
+                                <!-- Map Background -->
+                                <div
+                                    style="position: absolute; inset: 0; opacity: 0.3; background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 20px 20px;">
                                 </div>
+                                <!-- Center Card -->
                                 <div
-                                    style="display: flex; gap: 12px; align-items: center; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-color);">
-                                    <div
-                                        style="width: 20px; height: 20px; background: #3b82f6; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
-                                        <svg width="12" height="12" fill="none" stroke="white" stroke-width="3"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
-                                        </svg>
+                                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-xl);">
+                                    <div style="display: flex; gap: 16px; margin-bottom: 16px;">
+                                        <div
+                                            style="width: 48px; height: 48px; background: #334155; border-radius: 8px;">
+                                        </div>
+                                        <div>
+                                            <div style="font-weight: 700; font-size: 16px;">Highland Industries</div>
+                                            <div style="color: var(--text-secondary); font-size: 13px;">10:00 AM - 11:30
+                                                AM</div>
+                                        </div>
+                                    </div>
+                                    <div style="font-size: 14px; margin-bottom: 16px; color: var(--text-muted);">
+                                        <span style="color: #10b981;">●</span> Verified on-site
                                     </div>
                                     <div
-                                        style="flex-grow: 1; font-size: 14px; color: var(--text-muted); text-decoration: line-through;">
-                                        Email Sarah about contract</div>
+                                        style="padding: 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-glass); font-size: 13px; color: var(--text-secondary); font-family: monospace;">
+                                        <span class="typing-effect" style="width: 100%;">AI Summary: Client interested
+                                            in Q4 expansion...</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -269,92 +403,107 @@
             </div>
         </div>
     </header>
+
+    <!-- Deep Dive (Z-Pattern) -->
     <section class="story-section container">
+
+        <!-- Block 1 -->
         <div class="story-block">
             <div class="story-text">
-                <h3>Efficient Workflow</h3>
-                <p>Spend less time managing tasks and more time doing them. Create tasks in seconds and mark them
-                    complete with a single click.</p>
+                <h3>Geofenced Verification</h3>
+                <p>Trust but verify. SafiTrack uses GPS geofencing to automatically log when a rep arrives at a client
+                    site and when they leave. No more manual time logs or guessing games.</p>
                 <ul class="story-list">
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> One-click completion</li>
+                        </svg> Automatic perimeter detection</li>
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Easy categorization</li>
+                        </svg> Fraud-proof location history</li>
                 </ul>
             </div>
-            <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
-                <div
-                    style="width: 250px; background: var(--bg-secondary); border-radius: 12px; padding: 20px; border: 1px solid var(--border-color);">
-                    <div style="display: flex; gap: 12px; align-items: center;">
-                        <div
-                            style="width: 24px; height: 24px; border: 2px solid #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #3b82f6;">
-                            +</div>
-                        <span style="font-size: 14px; color: var(--text-secondary);">Add new task...</span>
+            <div class="story-visual">
+                <div style="width: 100%; height: 100%; position: relative; background: #1e293b;">
+                    <div class="map-pin"></div>
+                    <!-- Radar ripple -->
+                    <div
+                        style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 200px; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 50%;">
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Block 2 (Reversed) -->
         <div class="story-block reversed">
             <div class="story-text">
-                <h3>Automated To-Dos</h3>
-                <p>Set it and forget it. Create sequences that automatically generate tasks for you when a deal moves to
-                    a new stage or a lead goes quiet.</p>
+                <h3>Meeting Intelligence</h3>
+                <p>Log visits in seconds, not minutes. Use our smart quick-entry fields to capture the key details, and
+                    let our AI generate the executive summary for you.</p>
                 <ul class="story-list">
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Workflow automation</li>
+                        </svg> Smart quick-entry</li>
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Recurring tasks</li>
+                        </svg> Auto-detected follow ups</li>
                 </ul>
             </div>
-            <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                    <div
-                        style="padding: 12px 24px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px;">
-                        Deal moved to "Proposal"</div>
-                    <div style="height: 20px; width: 2px; background: var(--border-color);"></div>
-                    <div
-                        style="padding: 12px 24px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #8b5cf6; border-radius: 8px; font-size: 14px; font-weight: 600;">
-                        ⚡ Auto-Create Task: "Send Design"</div>
+            <div class="story-visual"
+                style="background: var(--bg-secondary); display: flex; align-items: center; justify-content: center;">
+                <div
+                    style="width: 80%; background: var(--bg-tertiary); padding: 24px; border-radius: 12px; border: 1px solid var(--border-color);">
+                    <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;">
+                        <div
+                            style="width: 32px; height: 32px; background: rgba(16,185,129,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                            ✨</div>
+                        <div style="font-weight: 700; color: #10b981;">AI Extracted</div>
+                    </div>
+                    <div style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">
+                        "John mentioned budget approval next Tuesday. <strong
+                            style="color:white; background:rgba(255,255,255,0.1);">Action Item: Send proposal by
+                            Friday.</strong>"
+                    </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Power Grid -->
     <section class="power-grid-section">
         <div class="container">
             <div class="power-header">
-                <h2>For Action Takers</h2>
+                <h2>Built for power users</h2>
             </div>
             <div class="power-grid">
                 <div class="power-card">
-                    <h4>Due Date Logic</h4>
-                    <p class="f-subtitle">Quickly add tasks, set due dates, and organize your day. Keep your to-do list
-                        clean and your focus sharp.</p>
+                    <h4>Offline Mode</h4>
+                    <p>Works flawlessly without signal. Data syncs automatically when you're back online.</p>
                 </div>
                 <div class="power-card">
-                    <h4>Delegation</h4>
-                    <p>Assign tasks to teammates and track their completion status.</p>
+                    <h4>Photo Capture</h4>
+                    <p>Snap photos of shelf displays or equipment and attach them directly to the visit log.</p>
                 </div>
                 <div class="power-card">
-                    <h4>Priority Views</h4>
-                    <p>Focus mode hides everything except what is due today and high priority.</p>
+                    <h4>Competitor Intel</h4>
+                    <p>Dedicated fields to log competitor pricing or presence seen on-site.</p>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Big CTA -->
     <section class="big-cta">
         <div class="container">
-            <h2>Get things done.</h2>
+            <h2>Ready to hit the road?</h2>
             <a href="../../crm/" class="btn-primary" style="padding: 16px 32px; font-size: 18px;">Start Free Trial</a>
         </div>
     </section>
+
+    <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">

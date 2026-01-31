@@ -46,6 +46,21 @@
 
     /* Typography */
     --font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+
+    /* PREMIUM V2 TOKENS */
+    --bg-glass: rgba(22, 27, 34, 0.7);
+    --bg-glass-strong: rgba(13, 17, 23, 0.85);
+    --border-glass: rgba(255, 255, 255, 0.08);
+    --surface-sunken: #090c10;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, #2f5fd0 0%, #8b5cf6 100%);
+    --gradient-glow: radial-gradient(circle at 50% 0%, rgba(47, 95, 208, 0.15) 0%, transparent 70%);
+    --gradient-text: linear-gradient(180deg, #fff 0%, #cbd5e1 100%);
+
+    /* 3D & Depth */
+    --depth-subtle: 0 1px 0 rgba(255, 255, 255, 0.05) inset;
+    --shadow-premium: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-glass);
 }
 
 /* ===================================

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasks & Todos - SafiTrack CRM</title>
+    <title>Technician Visits - SafiTrack CRM</title>
     <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,9 +27,9 @@
         .f-badge {
             display: inline-block;
             padding: 6px 12px;
-            background: rgba(139, 92, 246, 0.1);
-            color: #8b5cf6;
-            border: 1px solid rgba(139, 92, 246, 0.2);
+            background: rgba(236, 72, 153, 0.1);
+            color: #ec4899;
+            border: 1px solid rgba(236, 72, 153, 0.2);
             border-radius: 100px;
             font-size: 13px;
             font-weight: 600;
@@ -115,7 +115,7 @@
         }
 
         .story-list svg {
-            color: #8b5cf6;
+            color: #ec4899;
             flex-shrink: 0;
         }
 
@@ -171,7 +171,7 @@
         .big-cta {
             padding: 120px 0;
             text-align: center;
-            background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
+            background: radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.15) 0%, transparent 60%);
         }
 
         .big-cta h2 {
@@ -198,6 +198,17 @@
                 height: 300px;
             }
         }
+
+        /* PDF Animation */
+        @keyframes progress {
+            0% {
+                width: 0;
+            }
+
+            100% {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 
@@ -218,50 +229,41 @@
     </nav>
     <header class="f-hero">
         <div class="container">
-            <span class="f-badge">Productivity</span>
-            <h1 class="f-title">Nothing falls through<br>the cracks.</h1>
-            <p class="f-subtitle">A unified task list for follow-ups, calls, and admin work. Prioritize your day and
-                check things off with satisfaction.</p>
+            <span class="f-badge">Field Service</span>
+            <h1 class="f-title">Job done.<br>Signed, sealed, delivered.</h1>
+            <p class="f-subtitle">Empower your technicians to close jobs faster. Generate professional PDF reports,
+                capture signatures, and invoice instantly from the field.</p>
             <div class="mockup-container">
                 <div class="mockup-flat">
-                    <div
-                        style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--bg-primary);">
+                    <div style="width: 100%; height: 100%; display: flex; flex-direction: column;">
                         <div
-                            style="width: 400px; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-xl);">
-                            <div style="font-size: 18px; font-weight: 700; margin-bottom: 24px;">My Tasks (3)</div>
-                            <!-- Task 1 -->
+                            style="padding: 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-weight: 700;">Job #4829 - HVAC Repair</div>
+                            <button
+                                style="padding: 8px 16px; background: #ec4899; color: white; border-radius: 6px; font-weight: 600; font-size: 13px;">Generate
+                                Report</button>
+                        </div>
+                        <div
+                            style="flex-grow: 1; padding: 40px; background: var(--bg-elevated); display: flex; justify-content: center; align-items: center;">
                             <div
-                                style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px;">
-                                <div style="width: 20px; height: 20px; border: 2px solid #8b5cf6; border-radius: 6px;">
-                                </div>
-                                <div style="flex-grow: 1;">
-                                    <div style="font-size: 14px; font-weight: 600;">Email proposal to Nike</div>
-                                    <div style="font-size: 12px; color: #ef4444;">Due Today</div>
-                                </div>
-                            </div>
-                            <!-- Task List -->
-                            <div style="flex-grow: 1; padding: 24px; display: flex; flex-direction: column; gap: 12px;">
+                                style="width: 340px; background: white; color: #1e293b; border-radius: 4px; height: 440px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); padding: 32px; position: relative;">
+                                <div style="height: 40px; background: #e2e8f0; width: 40%; margin-bottom: 24px;"></div>
+                                <div style="height: 12px; background: #e2e8f0; width: 100%; margin-bottom: 8px;"></div>
+                                <div style="height: 12px; background: #e2e8f0; width: 90%; margin-bottom: 8px;"></div>
+                                <div style="height: 12px; background: #e2e8f0; width: 70%; margin-bottom: 32px;"></div>
                                 <div
-                                    style="display: flex; gap: 12px; align-items: center; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-color);">
-                                    <div
-                                        style="width: 20px; height: 20px; border: 2px solid var(--border-color); border-radius: 6px;">
-                                    </div>
-                                    <div style="flex-grow: 1; font-size: 14px; font-weight: 500;">Prepare Q3
-                                        Presentation</div>
-                                </div>
+                                    style="border: 2px dashed #94a3b8; height: 100px; display: flex; align-items: center; justify-content: center; color: #64748b; font-size: 12px; margin-bottom: 32px;">
+                                    Site Photos Attached (3)</div>
                                 <div
-                                    style="display: flex; gap: 12px; align-items: center; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-color);">
-                                    <div
-                                        style="width: 20px; height: 20px; background: #3b82f6; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
-                                        <svg width="12" height="12" fill="none" stroke="white" stroke-width="3"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
-                                        </svg>
-                                    </div>
-                                    <div
-                                        style="flex-grow: 1; font-size: 14px; color: var(--text-muted); text-decoration: line-through;">
-                                        Email Sarah about contract</div>
-                                </div>
+                                    style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: #64748b; margin-bottom: 8px;">
+                                    Customer Signature</div>
+                                <div
+                                    style="height: 60px; border-bottom: 1px solid #e2e8f0; font-family: cursive; font-size: 24px; color: #1e293b;">
+                                    John Smith</div>
+                                <!-- Success Badge -->
+                                <div
+                                    style="position: absolute; top: -10px; right: -10px; background: #10b981; color: white; padding: 8px 16px; border-radius: 100px; font-weight: 700; font-size: 12px; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+                                    SENT</div>
                             </div>
                         </div>
                     </div>
@@ -272,57 +274,58 @@
     <section class="story-section container">
         <div class="story-block">
             <div class="story-text">
-                <h3>Efficient Workflow</h3>
-                <p>Spend less time managing tasks and more time doing them. Create tasks in seconds and mark them
-                    complete with a single click.</p>
+                <h3>Instant Reporting</h3>
+                <p>No more paperwork at the kitchen table. Technicians can turn their checklist into a branded PDF
+                    report with one tap, right in front of the customer.</p>
                 <ul class="story-list">
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> One-click completion</li>
+                        </svg> Custom PDF templates</li>
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Easy categorization</li>
+                        </svg> Instant PDF export</li>
                 </ul>
             </div>
-            <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
-                <div
-                    style="width: 250px; background: var(--bg-secondary); border-radius: 12px; padding: 20px; border: 1px solid var(--border-color);">
-                    <div style="display: flex; gap: 12px; align-items: center;">
+            <div class="story-visual">
+                <div style="text-align: center;">
+                    <button
+                        style="background: #2f3640; color: white; padding: 16px 32px; border-radius: 12px; font-weight: 600; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.1);">
                         <div
-                            style="width: 24px; height: 24px; border: 2px solid #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #3b82f6;">
-                            +</div>
-                        <span style="font-size: 14px; color: var(--text-secondary);">Add new task...</span>
-                    </div>
+                            style="width: 20px; height: 2px; background: #ec4899; animation: progress 2s infinite ease-out;">
+                        </div>
+                        Generating PDF...
+                    </button>
                 </div>
             </div>
         </div>
         <div class="story-block reversed">
             <div class="story-text">
-                <h3>Automated To-Dos</h3>
-                <p>Set it and forget it. Create sequences that automatically generate tasks for you when a deal moves to
-                    a new stage or a lead goes quiet.</p>
+                <h3>Proof of Service</h3>
+                <p>Avoid disputes before they happen. Require photos and signatures for job completion so you have an
+                    undeniable record of work done.</p>
                 <ul class="story-list">
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Workflow automation</li>
+                        </svg> Mandatory photo uploads</li>
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
                             <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Recurring tasks</li>
+                        </svg> Digital signature capture</li>
                 </ul>
             </div>
             <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                    <div
-                        style="padding: 12px 24px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px;">
-                        Deal moved to "Proposal"</div>
-                    <div style="height: 20px; width: 2px; background: var(--border-color);"></div>
-                    <div
-                        style="padding: 12px 24px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #8b5cf6; border-radius: 8px; font-size: 14px; font-weight: 600;">
-                        ⚡ Auto-Create Task: "Send Design"</div>
+                <div
+                    style="width: 240px; height: 140px; border: 2px dashed #475569; border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: #94a3b8;">
+                    <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                        <polyline points="21 15 16 10 5 21"></polyline>
+                    </svg>
+                    <span style="font-size: 13px;">Tap to add photo</span>
                 </div>
             </div>
         </div>
@@ -330,28 +333,27 @@
     <section class="power-grid-section">
         <div class="container">
             <div class="power-header">
-                <h2>For Action Takers</h2>
+                <h2>For Service Teams</h2>
             </div>
             <div class="power-grid">
                 <div class="power-card">
-                    <h4>Due Date Logic</h4>
-                    <p class="f-subtitle">Quickly add tasks, set due dates, and organize your day. Keep your to-do list
-                        clean and your focus sharp.</p>
+                    <h4>Parts Log</h4>
+                    <p>Record parts and materials used on the job for accurate billing.</p>
                 </div>
                 <div class="power-card">
-                    <h4>Delegation</h4>
-                    <p>Assign tasks to teammates and track their completion status.</p>
+                    <h4>Job Duration</h4>
+                    <p>Track start and end times to calculate billable hours effectively.</p>
                 </div>
                 <div class="power-card">
-                    <h4>Priority Views</h4>
-                    <p>Focus mode hides everything except what is due today and high priority.</p>
+                    <h4>Dispatch View</h4>
+                    <p>Dispatchers can see real-time job status (En Route, In Progress, Completed).</p>
                 </div>
             </div>
         </div>
     </section>
     <section class="big-cta">
         <div class="container">
-            <h2>Get things done.</h2>
+            <h2>Streamline your field ops.</h2>
             <a href="../../crm/" class="btn-primary" style="padding: 16px 32px; font-size: 18px;">Start Free Trial</a>
         </div>
     </section>

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasks & Todos - SafiTrack CRM</title>
+    <title>People & Contacts - SafiTrack CRM</title>
     <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,9 +27,9 @@
         .f-badge {
             display: inline-block;
             padding: 6px 12px;
-            background: rgba(139, 92, 246, 0.1);
-            color: #8b5cf6;
-            border: 1px solid rgba(139, 92, 246, 0.2);
+            background: rgba(59, 130, 246, 0.1);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.2);
             border-radius: 100px;
             font-size: 13px;
             font-weight: 600;
@@ -115,7 +115,7 @@
         }
 
         .story-list svg {
-            color: #8b5cf6;
+            color: #3b82f6;
             flex-shrink: 0;
         }
 
@@ -171,7 +171,7 @@
         .big-cta {
             padding: 120px 0;
             text-align: center;
-            background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
+            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
         }
 
         .big-cta h2 {
@@ -218,49 +218,77 @@
     </nav>
     <header class="f-hero">
         <div class="container">
-            <span class="f-badge">Productivity</span>
-            <h1 class="f-title">Nothing falls through<br>the cracks.</h1>
-            <p class="f-subtitle">A unified task list for follow-ups, calls, and admin work. Prioritize your day and
-                check things off with satisfaction.</p>
+            <span class="f-badge">Contacts</span>
+            <h1 class="f-title">People power your<br>business pipeline.</h1>
+            <p class="f-subtitle">Manage relationships with ease. Track every email, call, and coffee, and know exactly
+                when to reach out next.</p>
             <div class="mockup-container">
                 <div class="mockup-flat">
-                    <div
-                        style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--bg-primary);">
+                    <div style="width: 100%; height: 100%; display: flex; flex-direction: column;">
+                        <!-- Header -->
                         <div
-                            style="width: 400px; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-xl);">
-                            <div style="font-size: 18px; font-weight: 700; margin-bottom: 24px;">My Tasks (3)</div>
-                            <!-- Task 1 -->
-                            <div
-                                style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px;">
-                                <div style="width: 20px; height: 20px; border: 2px solid #8b5cf6; border-radius: 6px;">
-                                </div>
-                                <div style="flex-grow: 1;">
-                                    <div style="font-size: 14px; font-weight: 600;">Email proposal to Nike</div>
-                                    <div style="font-size: 12px; color: #ef4444;">Due Today</div>
-                                </div>
+                            style="height: 60px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); padding: 0 24px; display: flex; align-items: center; justify-content: space-between;">
+                            <div style="font-weight: 700;">Eleanor Pena</div>
+                            <div style="display: flex; gap: 8px;">
+                                <div
+                                    style="padding: 6px 12px; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-radius: 6px; font-size: 13px;">
+                                    Email</div>
+                                <div
+                                    style="padding: 6px 12px; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 6px; font-size: 13px;">
+                                    Call</div>
                             </div>
-                            <!-- Task List -->
-                            <div style="flex-grow: 1; padding: 24px; display: flex; flex-direction: column; gap: 12px;">
+                        </div>
+                        <!-- Content -->
+                        <div style="flex-grow: 1; padding: 24px; display: flex; background: var(--bg-elevated);">
+                            <!-- Left Profile -->
+                            <div
+                                style="width: 250px; background: var(--bg-primary); border-radius: 12px; border: 1px solid var(--border-color); padding: 24px; margin-right: 24px;">
                                 <div
-                                    style="display: flex; gap: 12px; align-items: center; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-color);">
-                                    <div
-                                        style="width: 20px; height: 20px; border: 2px solid var(--border-color); border-radius: 6px;">
-                                    </div>
-                                    <div style="flex-grow: 1; font-size: 14px; font-weight: 500;">Prepare Q3
-                                        Presentation</div>
+                                    style="width: 80px; height: 80px; background: #3b82f6; border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
+                                    EP</div>
+                                <div style="text-align: center; font-weight: 700; margin-bottom: 4px;">Eleanor Pena
                                 </div>
                                 <div
-                                    style="display: flex; gap: 12px; align-items: center; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-color);">
+                                    style="text-align: center; font-size: 13px; color: var(--text-secondary); margin-bottom: 24px;">
+                                    VP of Procurement</div>
+
+                                <div
+                                    style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
+                                    Contact Info</div>
+                                <div style="font-size: 13px; margin-bottom: 8px;">eleanor@acme.com</div>
+                                <div style="font-size: 13px; margin-bottom: 24px;">+1 (555) 012-3456</div>
+                            </div>
+                            <!-- Right Activity -->
+                            <div
+                                style="flex-grow: 1; background: var(--bg-primary); border-radius: 12px; border: 1px solid var(--border-color); padding: 24px;">
+                                <div style="font-weight: 700; margin-bottom: 16px;">Activity Stream</div>
+                                <!-- Item 1 -->
+                                <div style="display: flex; gap: 12px; margin-bottom: 24px; position: relative;">
                                     <div
-                                        style="width: 20px; height: 20px; background: #3b82f6; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
-                                        <svg width="12" height="12" fill="none" stroke="white" stroke-width="3"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
-                                        </svg>
+                                        style="position: absolute; top: 0; bottom: -24px; left: 16px; width: 1px; background: var(--border-color);">
                                     </div>
                                     <div
-                                        style="flex-grow: 1; font-size: 14px; color: var(--text-muted); text-decoration: line-through;">
-                                        Email Sarah about contract</div>
+                                        style="width: 32px; height: 32px; background: #3b82f6; border-radius: 50%; flex-shrink: 0; z-index: 1;">
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 14px; font-weight: 600;">Email Sent: Proposal Review
+                                        </div>
+                                        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">
+                                            Sent the latest Q3 breakdown as requested.</div>
+                                        <div style="font-size: 12px; color: var(--text-muted);">Today at 10:42 AM</div>
+                                    </div>
+                                </div>
+                                <!-- Item 2 -->
+                                <div style="display: flex; gap: 12px; margin-bottom: 0px;">
+                                    <div
+                                        style="width: 32px; height: 32px; background: #10b981; border-radius: 50%; flex-shrink: 0; z-index: 1;">
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 14px; font-weight: 600;">Call Logged</div>
+                                        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">
+                                            Discussed budget constraints for the upcoming project.</div>
+                                        <div style="font-size: 12px; color: var(--text-muted);">Yesterday</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -272,57 +300,68 @@
     <section class="story-section container">
         <div class="story-block">
             <div class="story-text">
-                <h3>Efficient Workflow</h3>
-                <p>Spend less time managing tasks and more time doing them. Create tasks in seconds and mark them
-                    complete with a single click.</p>
+                <h3>360° View</h3>
+                <p>See the full picture. Calls, notes, and visits are automatically aggregated into a single timeline so
+                    you never miss a beat.</p>
                 <ul class="story-list">
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> One-click completion</li>
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg> Interaction history</li>
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Easy categorization</li>
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg> Centralized notes</li>
                 </ul>
             </div>
-            <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
+            <div class="story-visual" style="display: flex; justify-content: center; align-items: center;">
                 <div
-                    style="width: 250px; background: var(--bg-secondary); border-radius: 12px; padding: 20px; border: 1px solid var(--border-color);">
-                    <div style="display: flex; gap: 12px; align-items: center;">
-                        <div
-                            style="width: 24px; height: 24px; border: 2px solid #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #3b82f6;">
-                            +</div>
-                        <span style="font-size: 14px; color: var(--text-secondary);">Add new task...</span>
-                    </div>
-                </div>
+                    style="width: 60px; height: 60px; background: #ea4335; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 24px; margin-right: -10px; z-index: 1;">
+                    M</div>
+                <div
+                    style="width: 60px; height: 60px; background: #0078d4; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 24px; margin-left: -10px; z-index: 2;">
+                    O</div>
             </div>
         </div>
         <div class="story-block reversed">
             <div class="story-text">
-                <h3>Automated To-Dos</h3>
-                <p>Set it and forget it. Create sequences that automatically generate tasks for you when a deal moves to
-                    a new stage or a lead goes quiet.</p>
+                <h3>Smart Segmentation</h3>
+                <p>Slice and dice your contact list. Create dynamic lists based on criteria like "Last Contacted,"
+                    "Title," or "Location" to send targeted outreach.</p>
                 <ul class="story-list">
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Workflow automation</li>
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg> Dynamic filters</li>
                     <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
                             stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Recurring tasks</li>
+                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                        </svg> Save custom views</li>
                 </ul>
             </div>
             <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                    <div
-                        style="padding: 12px 24px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px;">
-                        Deal moved to "Proposal"</div>
-                    <div style="height: 20px; width: 2px; background: var(--border-color);"></div>
-                    <div
-                        style="padding: 12px 24px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #8b5cf6; border-radius: 8px; font-size: 14px; font-weight: 600;">
-                        ⚡ Auto-Create Task: "Send Design"</div>
+                <div
+                    style="padding: 16px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px;">
+                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Dynamic List</div>
+                    <div style="font-weight: 700; margin-bottom: 12px;">"CEOs in California"</div>
+                    <div style="display: flex; gap: -8px;">
+                        <div
+                            style="width: 24px; height: 24px; border-radius: 50%; background: #475569; border: 2px solid var(--bg-primary);">
+                        </div>
+                        <div
+                            style="width: 24px; height: 24px; border-radius: 50%; background: #3b82f6; border: 2px solid var(--bg-primary); margin-left: -8px;">
+                        </div>
+                        <div
+                            style="width: 24px; height: 24px; border-radius: 50%; background: #f59e0b; border: 2px solid var(--bg-primary); margin-left: -8px;">
+                        </div>
+                        <div
+                            style="width: 24px; height: 24px; border-radius: 50%; background: #1e293b; border: 2px solid var(--bg-primary); margin-left: -8px; font-size: 10px; display: flex; align-items: center; justify-content: center; color: white;">
+                            +42</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -330,28 +369,27 @@
     <section class="power-grid-section">
         <div class="container">
             <div class="power-header">
-                <h2>For Action Takers</h2>
+                <h2>For Networkers</h2>
             </div>
             <div class="power-grid">
                 <div class="power-card">
-                    <h4>Due Date Logic</h4>
-                    <p class="f-subtitle">Quickly add tasks, set due dates, and organize your day. Keep your to-do list
-                        clean and your focus sharp.</p>
+                    <h4>Social Profiling</h4>
+                    <p>Store LinkedIn, Twitter, and other social profile links for quick access.</p>
                 </div>
                 <div class="power-card">
-                    <h4>Delegation</h4>
-                    <p>Assign tasks to teammates and track their completion status.</p>
+                    <h4>Important Dates</h4>
+                    <p>Track birthdays and anniversaries to build deeper personal relationships.</p>
                 </div>
                 <div class="power-card">
-                    <h4>Priority Views</h4>
-                    <p>Focus mode hides everything except what is due today and high priority.</p>
+                    <h4>Last Contacted</h4>
+                    <p>Sort by relationship decay to see who you need to reconnect with.</p>
                 </div>
             </div>
         </div>
     </section>
     <section class="big-cta">
         <div class="container">
-            <h2>Get things done.</h2>
+            <h2>Know your network.</h2>
             <a href="../../crm/" class="btn-primary" style="padding: 16px 32px; font-size: 18px;">Start Free Trial</a>
         </div>
     </section>
