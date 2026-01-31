@@ -144,140 +144,374 @@
         </div>
     </section>
 
-    <!-- Connectivity Mesh Section (Premium Minimalist) -->
+    <!-- Connectivity Mesh Section (Enhanced Premium) -->
     <section class="intelligence-hub">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">The Connectivity Mesh</h2>
-                <p class="section-subtitle">A invisible layer of intelligence connecting your team, data, and deals.</p>
+                <h2 class="section-title">The Intelligence Layer</h2>
+                <p class="section-subtitle">An invisible network connecting every piece of your sales operation</p>
             </div>
 
             <div class="mesh-container">
+                <!-- Animated background grid -->
+                <div class="mesh-grid-bg"></div>
+
+                <!-- Core glow effect -->
                 <div class="core-glow"></div>
 
-                <!-- Central Core -->
-                <div class="mesh-core">
-                    <img src="assets/icons/whiteblue.png" alt="SafiTrack Core">
-                </div>
-
-                <!-- Connection Lines (SVG) -->
+                <!-- Connection Lines (SVG) with animated flow -->
                 <svg class="mesh-svg">
-                    <!-- Lines are drawn between nodes and the center -->
-                    <line class="mesh-line l1" x1="50%" y1="50%" x2="20%" y2="15%" />
-                    <line class="mesh-line l2" x1="50%" y1="50%" x2="85%" y2="20%" />
-                    <line class="mesh-line l3" x1="50%" y1="50%" x2="15%" y2="80%" />
-                    <line class="mesh-line l4" x1="50%" y1="50%" x2="80%" y2="75%" />
-                    <line class="mesh-line l5" x1="50%" y1="50%" x2="5%" y2="50%" />
-                    <line class="mesh-line l6" x1="50%" y1="50%" x2="95%" y2="52%" />
+                    <defs>
+                        <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:rgba(47,95,208,0.1);stop-opacity:1" />
+                            <stop offset="50%" style="stop-color:rgba(47,95,208,0.4);stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:rgba(47,95,208,0.1);stop-opacity:1" />
+                        </linearGradient>
+
+                        <!-- Animated pulse circle -->
+                        <circle id="pulseCircle" r="3" fill="#2f5fd0">
+                            <animate attributeName="r" values="3;6;3" dur="2s" repeatCount="indefinite" />
+                            <animate attributeName="opacity" values="1;0;1" dur="2s" repeatCount="indefinite" />
+                        </circle>
+                    </defs>
+
+                    <!-- Connection lines -->
+                    <line class="mesh-line" x1="50%" y1="50%" x2="18%" y2="12%" stroke="url(#lineGradient)" />
+                    <line class="mesh-line" x1="50%" y1="50%" x2="82%" y2="18%" stroke="url(#lineGradient)" />
+                    <line class="mesh-line" x1="50%" y1="50%" x2="12%" y2="82%" stroke="url(#lineGradient)" />
+                    <line class="mesh-line" x1="50%" y1="50%" x2="85%" y2="78%" stroke="url(#lineGradient)" />
+                    <line class="mesh-line" x1="50%" y1="50%" x2="8%" y2="48%" stroke="url(#lineGradient)" />
+                    <line class="mesh-line" x1="50%" y1="50%" x2="92%" y2="52%" stroke="url(#lineGradient)" />
+
+                    <!-- Animated data pulses on lines -->
+                    <use href="#pulseCircle" class="data-pulse pulse-1">
+                        <animateMotion dur="3s" repeatCount="indefinite">
+                            <mpath href="#path1" />
+                        </animateMotion>
+                    </use>
+
+                    <!-- Hidden paths for pulse animation -->
+                    <path id="path1" d="M 50% 50% L 18% 12%" fill="none" opacity="0" />
                 </svg>
 
-                <!-- Data Nodes -->
-                <div class="mesh-node node-1">
-                    <span>💰</span> Deals Sync
+                <!-- Central Core (Enhanced) -->
+                <div class="mesh-core">
+                    <div class="core-icon-wrapper">
+                        <img src="assets/icons/whiteblue.png" alt="SafiTrack Core">
+                    </div>
+                    <div class="core-label">SafiTrack Core</div>
+                    <div class="core-status">
+                        <span class="status-dot pulsing"></span>
+                        <span>Active</span>
+                    </div>
                 </div>
-                <div class="mesh-node node-2">
-                    <div class="node-dot"></div> AI Scoring
+
+                <!-- Enhanced Data Nodes with Icons -->
+                <div class="mesh-node node-1" data-color="blue">
+                    <div class="node-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                        </svg>
+                    </div>
+                    <div class="node-content">
+                        <div class="node-title">Deal Sync</div>
+                        <div class="node-subtitle">Real-time updates</div>
+                    </div>
                 </div>
-                <div class="mesh-node node-3">
-                    <span>⚡</span> Automations
+
+                <div class="mesh-node node-2" data-color="purple">
+                    <div class="node-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="12" y1="8" x2="12" y2="12" />
+                            <line x1="12" y1="16" x2="12.01" y2="16" />
+                        </svg>
+                    </div>
+                    <div class="node-content">
+                        <div class="node-title">AI Scoring</div>
+                        <div class="node-subtitle">Smart predictions</div>
+                    </div>
                 </div>
-                <div class="mesh-node node-4">
-                    <span>📍</span> Field Insights
+
+                <div class="mesh-node node-3" data-color="orange">
+                    <div class="node-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 18 22 12 16 6" />
+                            <polyline points="8 6 2 12 8 18" />
+                        </svg>
+                    </div>
+                    <div class="node-content">
+                        <div class="node-title">Automation</div>
+                        <div class="node-subtitle">Workflow engine</div>
+                    </div>
                 </div>
-                <div class="mesh-node node-5">
-                    <span>🤖</span> GPT Engine
+
+                <div class="mesh-node node-4" data-color="green">
+                    <div class="node-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z" />
+                            <circle cx="12" cy="10" r="3" />
+                        </svg>
+                    </div>
+                    <div class="node-content">
+                        <div class="node-title">Field Data</div>
+                        <div class="node-subtitle">Location tracking</div>
+                    </div>
                 </div>
-                <div class="mesh-node node-6">
-                    <span>📞</span> Talk Log
+
+                <div class="mesh-node node-5" data-color="cyan">
+                    <div class="node-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            <circle cx="9" cy="10" r="1" fill="currentColor" />
+                            <circle cx="12" cy="10" r="1" fill="currentColor" />
+                            <circle cx="15" cy="10" r="1" fill="currentColor" />
+                        </svg>
+                    </div>
+                    <div class="node-content">
+                        <div class="node-title">AI Assistant</div>
+                        <div class="node-subtitle">GPT-powered</div>
+                    </div>
+                </div>
+
+                <div class="mesh-node node-6" data-color="pink">
+                    <div class="node-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                        </svg>
+                    </div>
+                    <div class="node-content">
+                        <div class="node-title">Call Logs</div>
+                        <div class="node-subtitle">Communication hub</div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Premium Roles Showcase -->
-    <section class="features" id="features">
+    <!-- Before/After Transformation Section -->
+    <section class="transformation-split" id="features">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Everything you need to scale</h2>
-                <p class="section-subtitle">Powerful features designed for high-performing sales teams</p>
+                <h2 class="section-title">The transformation is real</h2>
+                <p class="section-subtitle">See the difference SafiTrack makes for sales teams</p>
             </div>
-            <div class="features-grid">
-                <div class="feature-card" data-scroll>
-                    <div class="feature-icon">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="3" width="18" height="18" rx="2" />
-                            <path d="M3 9h18M9 21V9" />
-                        </svg>
+
+            <div class="split-container">
+                <!-- BEFORE Side -->
+                <div class="split-side before-side" data-scroll>
+                    <div class="side-label">
+                        <span class="label-badge before">Before SafiTrack</span>
                     </div>
-                    <h3 class="feature-title">See your deals clearly</h3>
-                    <p class="feature-text">Our visual boards make tracking every lead a total breeze. Just drag, drop,
-                        and you're done.</p>
+
+                    <div class="chaos-visualization">
+                        <!-- Scattered sticky notes -->
+                        <div class="chaos-item sticky-note note-1">
+                            <div class="note-content">
+                                <div class="note-text">Follow up with...</div>
+                                <div class="note-date">2 weeks ago</div>
+                            </div>
+                        </div>
+
+                        <div class="chaos-item sticky-note note-2">
+                            <div class="note-content">
+                                <div class="note-text">Call client</div>
+                                <div class="note-urgent">URGENT!</div>
+                            </div>
+                        </div>
+
+                        <div class="chaos-item sticky-note note-3">
+                            <div class="note-content">
+                                <div class="note-text">Send proposal</div>
+                                <div class="note-date">Overdue</div>
+                            </div>
+                        </div>
+
+                        <!-- Messy spreadsheet preview -->
+                        <div class="chaos-item spreadsheet">
+                            <div class="spreadsheet-header">
+                                <div class="sheet-icon">
+                                    <svg width="16" height="16" fill="currentColor">
+                                        <rect x="2" y="2" width="12" height="12" rx="1" fill="none"
+                                            stroke="currentColor" stroke-width="1.5" />
+                                        <line x1="2" y1="6" x2="14" y2="6" stroke="currentColor" stroke-width="1" />
+                                        <line x1="7" y1="2" x2="7" y2="14" stroke="currentColor" stroke-width="1" />
+                                    </svg>
+                                </div>
+                                <span>deals_final_v3_FINAL.xlsx</span>
+                            </div>
+                            <div class="spreadsheet-rows">
+                                <div class="sheet-row error">
+                                    <span>???</span>
+                                    <span>$45,000</span>
+                                    <span class="missing">—</span>
+                                </div>
+                                <div class="sheet-row">
+                                    <span>Acme</span>
+                                    <span class="missing">—</span>
+                                    <span>Maybe?</span>
+                                </div>
+                                <div class="sheet-row error">
+                                    <span>Client X</span>
+                                    <span>$12k</span>
+                                    <span class="missing">—</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Alert indicators -->
+                        <div class="chaos-item alert-badge alert-1">
+                            <svg width="14" height="14" fill="currentColor">
+                                <path d="M7 0L8.5 4.5L13 6L8.5 7.5L7 12L5.5 7.5L1 6L5.5 4.5Z" />
+                            </svg>
+                            <span>3 missed calls</span>
+                        </div>
+
+                        <div class="chaos-item alert-badge alert-2">
+                            <svg width="14" height="14" fill="currentColor">
+                                <circle cx="7" cy="7" r="6" fill="none" stroke="currentColor" stroke-width="2" />
+                                <path d="M7 3v5l3 2" stroke="currentColor" stroke-width="1.5" fill="none" />
+                            </svg>
+                            <span>Deal expired</span>
+                        </div>
+                    </div>
+
+                    <div class="side-stats">
+                        <div class="stat-row negative">
+                            <span class="stat-icon">📉</span>
+                            <span class="stat-text">Lost deals to disorganization</span>
+                        </div>
+                        <div class="stat-row negative">
+                            <span class="stat-icon">⏰</span>
+                            <span class="stat-text">Hours wasted on admin work</span>
+                        </div>
+                        <div class="stat-row negative">
+                            <span class="stat-icon">😓</span>
+                            <span class="stat-text">Team burnout & frustration</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="feature-card" data-scroll>
-                    <div class="feature-icon">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10" />
-                            <path d="M12 6v6l4 2" />
+
+                <!-- Center Divider -->
+                <div class="split-divider">
+                    <div class="divider-badge">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="5 12 10 7 15 12" />
                         </svg>
                     </div>
-                    <h3 class="feature-title">Put things on autopilot</h3>
-                    <p class="feature-text">Stop doing the same thing twice. Let our automations handle the busy work
-                        while you focus on the fun part.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path
-                                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
-                            <polyline points="7.5 4.21 12 6.81 16.5 4.21" />
-                            <polyline points="7.5 19.79 7.5 14.6 3 12" />
-                            <polyline points="21 12 16.5 14.6 16.5 19.79" />
-                            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
-                            <line x1="12" y1="22.08" x2="12" y2="12" />
-                        </svg>
+
+                <!-- AFTER Side -->
+                <div class="split-side after-side" data-scroll>
+                    <div class="side-label">
+                        <span class="label-badge after">With SafiTrack</span>
                     </div>
-                    <h3 class="feature-title">Insights you'll actually use</h3>
-                    <p class="feature-text">Simple, powerful dashboards that give you the full picture without the
-                        data-science degree.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="8" r="5" />
-                            <path d="M20 21a8 8 0 1 0-16 0" />
-                        </svg>
+
+                    <div class="success-visualization">
+                        <!-- Clean pipeline board -->
+                        <div class="success-item pipeline-preview">
+                            <div class="pipeline-header">
+                                <div class="pipeline-title">
+                                    <div class="app-icon">
+                                        <svg width="16" height="16" fill="currentColor">
+                                            <rect x="2" y="2" width="12" height="12" rx="2" />
+                                        </svg>
+                                    </div>
+                                    <span>Sales Pipeline</span>
+                                </div>
+                                <div class="pipeline-status">
+                                    <span class="status-dot"></span>
+                                    <span>Live</span>
+                                </div>
+                            </div>
+
+                            <div class="pipeline-columns">
+                                <div class="pipeline-col">
+                                    <div class="col-header">
+                                        <span>Qualified</span>
+                                        <span class="col-badge">3</span>
+                                    </div>
+                                    <div class="deal-card">
+                                        <div class="deal-tag success">Hot</div>
+                                        <div class="deal-name">Acme Corp</div>
+                                        <div class="deal-value">$45k</div>
+                                    </div>
+                                </div>
+
+                                <div class="pipeline-col">
+                                    <div class="col-header">
+                                        <span>Proposal</span>
+                                        <span class="col-badge">2</span>
+                                    </div>
+                                    <div class="deal-card">
+                                        <div class="deal-name">TechCo</div>
+                                        <div class="deal-value">$32k</div>
+                                    </div>
+                                </div>
+
+                                <div class="pipeline-col">
+                                    <div class="col-header">
+                                        <span>Closing</span>
+                                        <span class="col-badge">1</span>
+                                    </div>
+                                    <div class="deal-card win">
+                                        <div class="deal-tag win">Won</div>
+                                        <div class="deal-name">Globex</div>
+                                        <div class="deal-value">$58k</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Success metrics -->
+                        <div class="success-item metrics-display">
+                            <div class="metric-row">
+                                <div class="metric-icon success">
+                                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polyline points="3 12 8 7 13 12" />
+                                    </svg>
+                                </div>
+                                <div class="metric-data">
+                                    <div class="metric-number">$135k</div>
+                                    <div class="metric-label">Pipeline value</div>
+                                </div>
+                                <div class="metric-trend up">+22%</div>
+                            </div>
+                        </div>
+
+                        <!-- Automation indicator -->
+                        <div class="success-item automation-badge">
+                            <div class="auto-icon">
+                                <svg width="16" height="16" fill="currentColor">
+                                    <circle cx="8" cy="8" r="7" fill="none" stroke="currentColor" stroke-width="1.5" />
+                                    <path d="M5 8l2 2 4-4" stroke="currentColor" stroke-width="2" fill="none" />
+                                </svg>
+                            </div>
+                            <span>Auto-reminders active</span>
+                        </div>
                     </div>
-                    <h3 class="feature-title">Contact Management</h3>
-                    <p class="feature-text">Centralize customer data and track every interaction in one unified
-                        platform.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                            <circle cx="12" cy="10" r="3" />
-                        </svg>
+
+                    <div class="side-stats">
+                        <div class="stat-row positive">
+                            <span class="stat-icon">✅</span>
+                            <span class="stat-text">Every deal tracked & visible</span>
+                        </div>
+                        <div class="stat-row positive">
+                            <span class="stat-icon">⚡</span>
+                            <span class="stat-text">Automated follow-ups & tasks</span>
+                        </div>
+                        <div class="stat-row positive">
+                            <span class="stat-icon">📈</span>
+                            <span class="stat-text">Clear insights & progress</span>
+                        </div>
                     </div>
-                    <h3 class="feature-title">Route Planning</h3>
-                    <p class="feature-text">Optimize field sales routes with intelligent mapping. Visit more clients
-                        efficiently.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                        </svg>
-                    </div>
-                    <h3 class="feature-title">Enterprise Security</h3>
-                    <p class="feature-text">Bank-level encryption and role-based access control to keep your data
-                        secure.</p>
                 </div>
             </div>
         </div>
