@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initIntelligenceHub();
     enhanceAccessibility();
     initMobileMenu();
+    initTestimonialCarousel();
 });
 
 function initMobileMenu() {
@@ -565,4 +566,74 @@ if (window.location.hostname === 'localhost') {
             console.log(`Page load time: ${pageLoadTime}ms`);
         }, 0);
     });
+}
+
+// ===================================
+// PREMIUM TESTIMONIAL CAROUSEL
+// ===================================
+
+function initTestimonialCarousel() {
+    const slides = document.querySelectorAll('.t-slide');
+    const progressFill = document.querySelector('.t-progress-fill');
+
+    if (slides.length === 0) return;
+
+    let currentIndex = 0;
+    const duration = 5000; // 5 seconds per slide
+    const intervalTime = 50; // Update progress every 50ms
+    let progress = 0;
+    let timer;
+    let progressTimer;
+
+    const showSlide = (index) => {
+        slides.forEach(slide => slide.classList.remove('active'));
+        slides[index].classList.add('active');
+
+        // Reset progress
+        progress = 0;
+        if (progressFill) progressFill.style.width = '0%';
+    };
+
+    const nextSlide = () => {
+        currentIndex = (currentIndex + 1) % slides.length;
+        showSlide(currentIndex);
+    };
+
+    const startCarousel = () => {
+        // Main slide switch timer
+        timer = setInterval(nextSlide, duration);
+
+        // Progress animation for current segment
+        const segments = document.querySelectorAll('.t-seg-fill');
+        const currentDisplay = document.querySelector('.t-current');
+
+        if (segments.length > 0) {
+            // Reset logic periodically
+            progressTimer = setInterval(() => {
+                progress += (intervalTime / duration) * 100;
+
+                // Update segments visually
+                segments.forEach((seg, idx) => {
+                    if (idx < currentIndex) {
+                        seg.style.width = '100%';
+                    } else if (idx === currentIndex) {
+                        seg.style.width = `${Math.min(progress, 100)}%`;
+                    } else {
+                        seg.style.width = '0%';
+                    }
+                });
+
+                // Update number
+                if (currentDisplay) {
+                    currentDisplay.textContent = `0${currentIndex + 1}`;
+                }
+
+            }, intervalTime);
+        }
+    };
+
+    // Initial start
+    startCarousel();
+
+    // No pause on hover (cinematic feel)
 }
