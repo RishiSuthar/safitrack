@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Careers - SafiTrack | Join the Team</title>
+    <title>Help Center - SafiTrack | Support & Knowledge Base</title>
     <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -49,7 +49,7 @@
         }
 
         .container {
-            max-width: 1280px;
+            max-width: 1100px;
             margin: 0 auto;
             padding: 0 24px;
         }
@@ -68,7 +68,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 10px 20px;
+            padding: 12px 24px;
             font-size: 15px;
             font-weight: 600;
             border-radius: var(--radius-md);
@@ -95,10 +95,6 @@
 
         .btn-secondary:hover {
             background: var(--bg-secondary);
-        }
-
-        .btn-block {
-            width: 100%;
         }
 
         /* ===================================
@@ -155,224 +151,222 @@
             color: var(--text-primary);
         }
 
-        .nav-link-app {
-            color: var(--color-primary) !important;
-        }
-
-        .nav-actions {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        /* Mobile Menu Button */
-        .mobile-menu-btn {
-            display: none;
-            flex-direction: column;
-            justify-content: center;
-            gap: 5px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            z-index: 2000;
-            padding: 12px;
-            width: 48px;
-            height: 48px;
-            align-items: center;
-        }
-
-        .mobile-menu-btn span {
-            width: 24px;
-            height: 2px;
-            background: white;
-            transition: all 0.3s ease;
-            border-radius: 2px;
-        }
-
-        .mobile-menu-btn.open span:nth-child(1) {
-            transform: rotate(45deg) translate(5px, 5px);
-        }
-
-        .mobile-menu-btn.open span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .mobile-menu-btn.open span:nth-child(3) {
-            transform: rotate(-45deg) translate(5px, -5px);
-        }
-
-        /* Mobile Overlay */
-        .mobile-nav-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(15, 17, 23, 0.95);
-            backdrop-filter: blur(16px);
-            z-index: 1000;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s ease;
-        }
-
-        .mobile-nav-overlay.active {
-            opacity: 1;
-            pointer-events: all;
-            display: flex;
-        }
-
-        .mobile-nav-content {
-            display: flex;
-            flex-direction: column;
-            gap: 32px;
-            text-align: center;
-            width: 100%;
-            padding: 40px;
-        }
-
-        .mobile-link {
-            font-size: 28px;
-            font-weight: 700;
-            color: white;
-        }
-
-        /* Careers Custom Content */
-        .careers-hero {
+        /* =================================== 
+           HELP CENTER HERO
+           =================================== */
+        .help-hero {
             padding: 160px 0 100px;
-            background: radial-gradient(circle at 50% 0%, rgba(47, 95, 208, 0.1), transparent 70%);
+            background: radial-gradient(circle at 50% 100%, rgba(47, 95, 208, 0.12), transparent 60%);
             text-align: center;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .hero-badge {
             display: inline-flex;
-            align-items: center;
-            gap: 8px;
             padding: 6px 14px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
+            background: rgba(47, 95, 208, 0.1);
+            border: 1px solid rgba(47, 95, 208, 0.2);
             border-radius: 100px;
-            font-size: 14px;
-            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--color-primary-light);
             margin-bottom: 24px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
 
         .hero-title {
-            font-size: 64px;
+            font-size: 48px;
             font-weight: 800;
-            line-height: 1.1;
-            letter-spacing: -0.03em;
-            margin-bottom: 24px;
-            background: linear-gradient(180deg, #fff 0%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            margin-bottom: 32px;
+            letter-spacing: -0.02em;
         }
 
-        .hero-description {
-            font-size: 20px;
-            color: var(--text-secondary);
-            max-width: 600px;
+        /* Search Bar */
+        .search-container {
+            max-width: 640px;
             margin: 0 auto;
+            position: relative;
         }
 
-        .values-section {
+        .search-input {
+            width: 100%;
+            padding: 18px 24px 18px 56px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            color: var(--text-primary);
+            font-size: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            background: var(--bg-tertiary);
+            box-shadow: 0 0 0 4px rgba(47, 95, 208, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        /* =================================== 
+           CATEGORY GRID
+           =================================== */
+        .category-section {
             padding: 100px 0;
         }
 
-        .section-header {
-            text-align: center;
-            margin-bottom: 64px;
-        }
-
-        .section-header h2 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 16px;
-        }
-
-        .values-grid {
+        .category-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
+            gap: 24px;
         }
 
-        .value-card {
-            padding: 40px;
+        .category-card {
             background: var(--bg-secondary);
             border: 1px solid var(--border-color);
             border-radius: var(--radius-xl);
-            transition: transform var(--transition-base);
+            padding: 32px;
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
 
-        .value-card:hover {
-            transform: translateY(-8px);
+        .category-card:hover {
+            transform: translateY(-4px);
             border-color: var(--color-primary);
+            background: var(--bg-tertiary);
         }
 
-        .value-icon {
+        .category-icon {
             width: 48px;
             height: 48px;
             background: rgba(47, 95, 208, 0.1);
             border-radius: 12px;
-            margin-bottom: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--color-primary);
+            margin-bottom: 20px;
+            color: var(--color-primary-light);
         }
 
-        .jobs-section {
-            padding: 100px 0;
-            background: var(--bg-secondary);
+        .category-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 12px;
         }
 
-        .jobs-container {
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-xl);
-            overflow: hidden;
+        .category-card p {
+            font-size: 15px;
+            color: var(--text-secondary);
         }
 
-        .job-row {
+        /* =================================== 
+           FEATURED ARTICLES
+           =================================== */
+        .articles-section {
+            padding-bottom: 100px;
+        }
+
+        .section-header {
+            margin-bottom: 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .section-header h2 {
+            font-size: 28px;
+            font-weight: 800;
+        }
+
+        .view-all {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--color-primary-light);
+        }
+
+        .article-list {
             display: grid;
-            grid-template-columns: 2fr 1fr 1fr auto;
-            align-items: center;
-            padding: 24px 32px;
-            border-bottom: 1px solid var(--border-color);
-            transition: background 0.2s ease;
-            cursor: pointer;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
         }
 
-        .job-row:last-child {
-            border-bottom: none;
-        }
-
-        .job-row:hover {
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .job-title {
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .job-dept,
-        .job-loc {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        .job-link {
-            color: var(--color-primary);
-            font-weight: 600;
-            font-size: 14px;
+        .article-item {
             display: flex;
             align-items: center;
-            gap: 4px;
+            padding: 24px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            transition: all 0.2s ease;
         }
 
+        .article-item:hover {
+            border-color: var(--border-light);
+            background: var(--bg-tertiary);
+        }
+
+        .article-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--color-primary);
+            margin-right: 20px;
+        }
+
+        .article-title {
+            font-size: 16px;
+            font-weight: 600;
+            flex: 1;
+        }
+
+        .article-chevron {
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        /* =================================== 
+           SUPPORT CTA
+           =================================== */
+        .support-cta {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
+            border: 1px solid var(--border-color);
+            border-radius: 32px;
+            padding: 80px 40px;
+            text-align: center;
+            margin-bottom: 120px;
+        }
+
+        .support-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 16px;
+        }
+
+        .support-desc {
+            color: var(--text-secondary);
+            margin-bottom: 40px;
+            font-size: 18px;
+        }
+
+        .support-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* ===================================
+           FOOTER (MATCHES INDEX)
+           =================================== */
         .footer {
             padding: 80px 0 40px;
             background: var(--bg-secondary);
@@ -461,21 +455,25 @@
             color: var(--text-muted);
         }
 
-        .footer-social {
-            display: flex;
-            gap: 24px;
-        }
-
         @media (max-width: 900px) {
-
-            .nav-links,
-            .nav-actions .btn-secondary,
-            .nav-actions .btn-primary {
+            .nav-links {
                 display: none;
             }
 
-            .mobile-menu-btn {
-                display: flex;
+            .hero-title {
+                font-size: 36px;
+            }
+
+            .category-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .article-list {
+                grid-template-columns: 1fr;
+            }
+
+            .support-grid {
+                grid-template-columns: 1fr;
             }
 
             .footer-content {
@@ -486,20 +484,6 @@
             .footer-links {
                 grid-column: 1 / 3;
                 grid-template-columns: 1fr 1fr;
-            }
-
-            .values-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .job-row {
-                grid-template-columns: 1fr;
-                gap: 12px;
-                padding: 24px;
-            }
-
-            .hero-title {
-                font-size: 42px;
             }
         }
     </style>
@@ -517,99 +501,117 @@
                 </a>
                 <div class="nav-links">
                     <a href="features/mainfeatures.html">Features</a>
-                    <a href="../index.html#product">Product</a>
                     <a href="pricing.html">Pricing</a>
-                    <a href="../crm/" class="nav-link-app">Open App →</a>
-                </div>
-                <div class="nav-actions">
-                    <a href="../index.html" class="btn-secondary">Log In</a>
-                    <a href="#" class="btn-primary">Get Started</a>
-                    <button class="mobile-menu-btn" aria-label="Toggle Menu">
-                        <span></span><span></span><span></span>
-                    </button>
+                    <a href="documentation.html">Documentation</a>
+                    <a href="../crm/" class="btn-primary" style="padding: 8px 16px;">Log In</a>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- Mobile Menu Overlay -->
-    <div class="mobile-nav-overlay">
-        <div class="mobile-nav-content">
-            <a href="features/mainfeatures.html" class="mobile-link">Features</a>
-            <a href="../index.html#product" class="mobile-link">Product</a>
-            <a href="pricing.html" class="mobile-link">Pricing</a>
-            <a href="../crm/" class="mobile-link">Open App</a>
-            <a href="#" class="btn-primary btn-block">Get Started</a>
+    <section class="help-hero">
+        <div class="container">
+            <div class="hero-badge">SafiTrack Support</div>
+            <h1 class="hero-title">How can we help you today?</h1>
+            <div class="search-container">
+                <div class="search-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8" />
+                        <path d="m21 21-4.3-4.3" />
+                    </svg>
+                </div>
+                <input type="text" class="search-input" placeholder="Search for articles, guides, and tutorials...">
+            </div>
         </div>
+    </section>
+
+    <div class="container">
+        <!-- Categories -->
+        <section class="category-section">
+            <div class="category-grid">
+                <div class="category-card">
+                    <div class="category-icon">🚀</div>
+                    <h3>Getting Started</h3>
+                    <p>New to SafiTrack? Here's everything you need to know to hit the ground running.</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">📱</div>
+                    <h3>Field Operations</h3>
+                    <p>Guides for technicians and sales reps using the mobile application in the field.</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">⚙️</div>
+                    <h3>Administration</h3>
+                    <p>Setup users, permissions, territories, and customize your organization settings.</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">📊</div>
+                    <h3>Reporting & AI</h3>
+                    <p>Master our advanced analytics and predictive lead scoring engine.</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">💳</div>
+                    <h3>Billing & Plans</h3>
+                    <p>Manage your subscription, invoices, and per-user licensing details.</p>
+                </div>
+                <div class="category-card">
+                    <div class="category-icon">🔌</div>
+                    <h3>Integrations</h3>
+                    <p>Connect SafiTrack with Salesforce, HubSpot, SAP, and other enterprise tools.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Featured Articles -->
+        <section class="articles-section">
+            <div class="section-header">
+                <h2>Popular Articles</h2>
+                <a href="#" class="view-all">View all 148 articles →</a>
+            </div>
+            <div class="article-list">
+                <a href="#" class="article-item">
+                    <div class="article-dot"></div>
+                    <span class="article-title">How to perform your first field check-in</span>
+                    <span class="article-chevron">→</span>
+                </a>
+                <a href="#" class="article-item">
+                    <div class="article-dot"></div>
+                    <span class="article-title">Setting up geofencing for automatic visit verification</span>
+                    <span class="article-chevron">→</span>
+                </a>
+                <a href="#" class="article-item">
+                    <div class="article-dot"></div>
+                    <span class="article-title">Importing your company records from CSV</span>
+                    <span class="article-chevron">→</span>
+                </a>
+                <a href="#" class="article-item">
+                    <div class="article-dot"></div>
+                    <span class="article-title">Troubleshooting location accuracy issues</span>
+                    <span class="article-chevron">→</span>
+                </a>
+                <a href="#" class="article-item">
+                    <div class="article-dot"></div>
+                    <span class="article-title">Customizing the sales funnel for your business</span>
+                    <span class="article-chevron">→</span>
+                </a>
+                <a href="#" class="article-item">
+                    <div class="article-dot"></div>
+                    <span class="article-title">Managing offline sync for remote areas</span>
+                    <span class="article-chevron">→</span>
+                </a>
+            </div>
+        </section>
+
+        <!-- Support CTA -->
+        <section class="support-cta">
+            <h2 class="support-title">Still need help?</h2>
+            <p class="support-desc">Our dedicated support team is available 24/7 for Enterprise customers.</p>
+            <div class="support-grid">
+                <a href="mailto:support@safitrack.com" class="btn-primary">Email Support</a>
+                <a href="#" class="btn-secondary">Live Chat</a>
+            </div>
+        </section>
     </div>
-
-    <section class="careers-hero">
-        <div class="container">
-            <div class="hero-badge">Join the movement</div>
-            <h1 class="hero-title">Help us build the future<br>of field operations.</h1>
-            <p class="hero-description">We're looking for world-class designers, engineers, and product minds to join
-                our mission.</p>
-        </div>
-    </section>
-
-    <section class="values-section">
-        <div class="container">
-            <div class="section-header">
-                <h2>Why SafiTrack?</h2>
-            </div>
-            <div class="values-grid">
-                <div class="value-card">
-                    <div class="value-icon">🌍</div>
-                    <h3>Remote First</h3>
-                    <p>Work from anywhere. We value results over hours at a desk. Our team is global by design.</p>
-                </div>
-                <div class="value-card">
-                    <div class="value-icon">💎</div>
-                    <h3>High Craft</h3>
-                    <p>We care deeply about details. Quality is at the core of everything we ship.</p>
-                </div>
-                <div class="value-card">
-                    <div class="value-icon">🚀</div>
-                    <h3>Real Impact</h3>
-                    <p>Your work directly improves the lives of thousands of field operators every single day.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="jobs-section" id="open-roles">
-        <div class="container">
-            <div class="section-header">
-                <h2>Open Positions</h2>
-            </div>
-            <div class="jobs-container">
-                <div class="job-row">
-                    <div class="job-title">Senior Software Engineer, Frontend</div>
-                    <div class="job-dept">Engineering</div>
-                    <div class="job-loc">Remote (Global)</div>
-                    <a href="#" class="job-link">View Role →</a>
-                </div>
-                <div class="job-row">
-                    <div class="job-title">Product Designer</div>
-                    <div class="job-dept">Design</div>
-                    <div class="job-loc">Remote (EU/US)</div>
-                    <a href="#" class="job-link">View Role →</a>
-                </div>
-                <div class="job-row">
-                    <div class="job-title">Backend Platform Lead</div>
-                    <div class="job-dept">Engineering</div>
-                    <div class="job-loc">Remote</div>
-                    <a href="#" class="job-link">View Role →</a>
-                </div>
-                <div class="job-row">
-                    <div class="job-title">Customer Success Manager</div>
-                    <div class="job-dept">Operations</div>
-                    <div class="job-loc">London / New York</div>
-                    <a href="#" class="job-link">View Role →</a>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Footer -->
     <footer class="footer">
@@ -628,7 +630,7 @@
                         <ul>
                             <li><a href="features/mainfeatures.html">Features</a></li>
                             <li><a href="pricing.html">Pricing</a></li>
-                            <li><a href="../index.html">Login</a></li>
+                            <li><a href="../crm/">Login</a></li>
                             <li><a href="#">Integrations</a></li>
                         </ul>
                     </div>
@@ -670,26 +672,6 @@
             </div>
         </div>
     </footer>
-
-    <script>
-        const mobileBtn = document.querySelector('.mobile-menu-btn');
-        const mobileOverlay = document.querySelector('.mobile-nav-overlay');
-        const mobileLinks = document.querySelectorAll('.mobile-link');
-
-        mobileBtn.addEventListener('click', () => {
-            mobileBtn.classList.toggle('open');
-            mobileOverlay.classList.toggle('active');
-            document.body.style.overflow = mobileOverlay.classList.contains('active') ? 'hidden' : '';
-        });
-
-        mobileLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                mobileBtn.classList.remove('open');
-                mobileOverlay.classList.remove('active');
-                document.body.style.overflow = '';
-            });
-        });
-    </script>
 </body>
 
 </html>
