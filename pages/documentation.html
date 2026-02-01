@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation - SafiTrack | Developer & User Guides</title>
+    <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ===================================
+           CSS FROM LANDING.CSS (SHARED STYLES)
+           =================================== */
+        :root {
+            --color-primary: #2f5fd0;
+            --color-primary-dark: #244bb0;
+            --color-primary-light: #7da2f8;
+            --bg-primary: #0f1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #1a2027;
+            --bg-elevated: #21262d;
+            --text-primary: #e1e4e8;
+            --text-secondary: #bac4d0;
+            --text-muted: #8b949e;
+            --border-color: #30363d;
+            --border-light: #21262d;
+            --radius-md: 12px;
+            --radius-lg: 14px;
+            --radius-xl: 20px;
+            --transition-base: 200ms ease;
+            --font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        ul {
+            list-style: none;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: var(--radius-md);
+            transition: all var(--transition-base);
+            white-space: nowrap;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--color-primary);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        /* ===================================
+           HEADER (MATCHES INDEX)
+           =================================== */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(15, 17, 23, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .nav-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo img {
+            height: 28px;
+        }
+
+        .logo-text {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .nav-links a {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            transition: color var(--transition-base);
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        /* =================================== 
+           DOCS LAYOUT
+           =================================== */
+        .docs-wrapper {
+            display: flex;
+            margin-top: 64px;
+            min-height: calc(100vh - 64px);
+        }
+
+        /* Sidebar */
+        .docs-sidebar {
+            width: 280px;
+            height: calc(100vh - 64px);
+            position: fixed;
+            top: 64px;
+            left: 0;
+            background: var(--bg-primary);
+            border-right: 1px solid var(--border-color);
+            padding: 32px 24px;
+            overflow-y: auto;
+        }
+
+        .sidebar-section {
+            margin-bottom: 32px;
+        }
+
+        .sidebar-title {
+            font-size: 12px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            padding: 0 8px;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 8px 12px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .sidebar-link:hover {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        .sidebar-link.active {
+            background: rgba(47, 95, 208, 0.1);
+            color: var(--color-primary-light);
+            font-weight: 600;
+        }
+
+        /* Main Content */
+        .docs-main {
+            flex: 1;
+            margin-left: 280px;
+            padding: 64px 80px 120px;
+            max-width: 1000px;
+        }
+
+        .doc-section {
+            margin-bottom: 64px;
+        }
+
+        h1 {
+            font-size: 40px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            letter-spacing: -0.02em;
+        }
+
+        h2 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            margin-top: 48px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 12px;
+        }
+
+        p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+
+        /* Code Blocks */
+        pre {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            margin: 24px 0;
+            overflow-x: auto;
+        }
+
+        code {
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: #7da2f8;
+        }
+
+        /* Alerts */
+        .alert {
+            padding: 16px 24px;
+            border-radius: var(--radius-md);
+            margin: 24px 0;
+            display: flex;
+            gap: 16px;
+        }
+
+        .alert-tip {
+            background: rgba(47, 95, 208, 0.1);
+            border-left: 4px solid var(--color-primary);
+        }
+
+        .alert-warning {
+            background: rgba(234, 179, 8, 0.1);
+            border-left: 4px solid #eab308;
+        }
+
+        .alert-icon {
+            font-size: 20px;
+        }
+
+        /* Table */
+        .docs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 32px 0;
+            font-size: 14px;
+        }
+
+        .docs-table th {
+            text-align: left;
+            padding: 12px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .docs-table td {
+            padding: 12px 16px;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        /* Mobile Menu Button */
+        .mobile-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            color: white;
+            padding: 10px;
+            cursor: pointer;
+        }
+
+        /* Footer override for docs */
+        .docs-footer {
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        @media (max-width: 1000px) {
+            .docs-sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 1000;
+            }
+
+            .docs-sidebar.active {
+                transform: translateX(0);
+            }
+
+            .docs-main {
+                margin-left: 0;
+                padding: 40px 24px;
+            }
+
+            .mobile-toggle {
+                display: block;
+            }
+
+            h1 {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Header Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <button class="mobile-toggle" id="sidebar-toggle">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M4 6h16M4 12h16M4 18h16" />
+                        </svg>
+                    </button>
+                    <a href="../index.html" class="logo">
+                        <img src="../assets/icons/whiteblue.png" alt="SafiTrack">
+                        <span class="logo-text">SafiTrack</span>
+                    </a>
+                </div>
+                <div class="nav-links">
+                    <a href="features/mainfeatures.html">Features</a>
+                    <a href="pricing.html">Pricing</a>
+                    <a href="../crm/" class="btn-primary">Open Application</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="docs-wrapper">
+        <!-- Sidebar -->
+        <aside class="docs-sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <div class="sidebar-title">Introduction</div>
+                <a href="#getting-started" class="sidebar-link active">Getting Started</a>
+                <a href="#core-concepts" class="sidebar-link">Core Concepts</a>
+                <a href="#architecture" class="sidebar-link">Architecture</a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">Features</div>
+                <a href="#field-sales" class="sidebar-link">Field Sales Tracking</a>
+                <a href="#territory-mgmt" class="sidebar-link">Territory Management</a>
+                <a href="#inventory" class="sidebar-link">Real-time Inventory</a>
+            </div>
+            <div class="sidebar-section">
+                <div class="sidebar-title">API Reference</div>
+                <a href="#authentication" class="sidebar-link">Authentication</a>
+                <a href="#endpoints" class="sidebar-link">Endpoints</a>
+                <a href="#webhooks" class="sidebar-link">Webhooks</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="docs-main">
+            <section id="getting-started" class="doc-section">
+                <h1>Getting Started with SafiTrack</h1>
+                <p>Welcome to the SafiTrack documentation. This guide will help you set up your organization and start
+                    tracking field activities in under 10 minutes.</p>
+
+                <div class="alert alert-tip">
+                    <div class="alert-icon">💡</div>
+                    <div class="alert-content">
+                        <strong>New to SafiTrack?</strong> Check out our <a href="blog.html"
+                            style="color: var(--color-primary-light); text-decoration: underline;">onboarding tips</a>
+                        for high-performing teams.
+                    </div>
+                </div>
+
+                <h2>Quick Install</h2>
+                <p>For mobile users, SafiTrack is a Progressive Web App (PWA). You can install it directly from your
+                    browser without visiting an app store.</p>
+
+                <pre><code>// To integrate with our JS SDK
+npm install @safitrack/sdk-core
+
+// Initialize with your API key
+const safi = new SafiTrack({
+  apiKey: 'st_live_...',
+  region: 'africa-west-1'
+});</code></pre>
+
+                <h2>Authentication</h2>
+                <p>All API requests must include a Bearer token in the <code>Authorization</code> header. You can
+                    generate tokens in your Organization Settings.</p>
+
+                <table class="docs-table">
+                    <thead>
+                        <tr>
+                            <th>Parameter</th>
+                            <th>Type</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>api_key</code></td>
+                            <td>String</td>
+                            <td>Your unique organization identifier</td>
+                        </tr>
+                        <tr>
+                            <td><code>env</code></td>
+                            <td>Enum</td>
+                            <td>Either <code>production</code> or <code>sandbox</code></td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="alert alert-warning">
+                    <div class="alert-icon">⚠️</div>
+                    <div class="alert-content">
+                        <strong>Important:</strong> Never expose your secret API keys in client-side code (frontend
+                        JavaScript).
+                    </div>
+                </div>
+
+                <h2>Core Concepts</h2>
+                <p>SafiTrack is built around three primary entities that allow for maximum flexibility in tracking field
+                    workflows.</p>
+                <ul>
+                    <li style="margin-bottom: 12px;"><strong>Companies:</strong> Professional entities that your sales
+                        reps visit or service.</li>
+                    <li style="margin-bottom: 12px;"><strong>People:</strong> Individual contacts within those
+                        companies.</li>
+                    <li style="margin-bottom: 12px;"><strong>Visits:</strong> Verified geolocation check-ins performed
+                        by your field team.</li>
+                </ul>
+            </section>
+
+            <div class="docs-footer">
+                <div>&copy; 2026 SafiTrack Documentation</div>
+                <div>Last updated: Jan 20, 2026</div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const toggle = document.getElementById('sidebar-toggle');
+        const links = document.querySelectorAll('.sidebar-link');
+
+        toggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        links.forEach(link => {
+            link.addEventListener('click', () => {
+                links.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
+                if (window.innerWidth < 1000) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
