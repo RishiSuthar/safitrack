@@ -511,11 +511,9 @@ async function renderCompaniesView() {
       <div class="card">
         <div class="card-header">
           <h3 class="card-title">Companies</h3>
-          ${isManager ? `
-            <button class="btn btn-primary" id="add-company-btn">
-              <i class="fas fa-plus"></i> Add Company
-            </button>
-          ` : ''}
+          <button class="btn btn-primary" id="add-company-btn">
+            <i class="fas fa-plus"></i> Add Company
+          </button>
         </div>
         
         <!-- Add search bar -->
@@ -536,7 +534,7 @@ async function renderCompaniesView() {
                 <th>Industry</th>
                 <th>Location</th>
                 <th>Type</th>
-                ${isManager ? '<th>Actions</th>' : ''}
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -550,11 +548,9 @@ async function renderCompaniesView() {
               <i class="fas fa-building empty-state-icon"></i>
               <h3 class="empty-state-title">No companies found</h3>
               <p class="empty-state-description">Try adjusting your search terms or add a new company.</p>
-              ${isManager ? `
                 <button class="btn btn-primary" onclick="openCompanyModal()">
                   <i class="fas fa-plus"></i> Add Company
                 </button>
-              ` : ''}
             </div>
           </td>
         </tr>
@@ -574,7 +570,6 @@ async function renderCompaniesView() {
             <td>${categories || 'N/A'}</td>
             <td>${company.address || 'N/A'}</td>
             <td>${company.company_type || 'N/A'}</td>
-            ${isManager ? `
               <td>
                 <div class="table-actions">
                   <button class="action-btn edit-company" data-id="${company.id}" title="Edit company">
@@ -585,7 +580,6 @@ async function renderCompaniesView() {
                   </button>
                 </div>
               </td>
-            ` : ''}
           </tr>
         `;
       });
@@ -11773,7 +11767,7 @@ async function renderCallLogsView() {
   const filteredLogs = logs.filter(log => {
     const contactName = log.people ? log.people.name : log.contact_name;
     const companyName = log.companies ? log.companies.name : log.company_name;
-    
+
     // Search filter
     if (callLogFilters.search) {
       const searchLower = callLogFilters.search.toLowerCase();
@@ -11781,17 +11775,17 @@ async function renderCallLogsView() {
       const matchesCompany = (companyName || '').toLowerCase().includes(searchLower);
       if (!matchesContact && !matchesCompany) return false;
     }
-    
+
     // Direction filter
     if (callLogFilters.direction && log.direction !== callLogFilters.direction) {
       return false;
     }
-    
+
     // Outcome filter
     if (callLogFilters.outcome && log.outcome !== callLogFilters.outcome) {
       return false;
     }
-    
+
     return true;
   });
 
@@ -12023,7 +12017,7 @@ async function deleteCallLog(id) {
       showToast('Log not found', 'error');
       return;
     }
-    
+
     // Check if user owns the log
     if (log.user_id !== currentUser.id) {
       showToast('You can only delete your own call logs', 'error');
