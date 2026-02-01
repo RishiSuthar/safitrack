@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Status - SafiTrack</title>
+    <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            /* SafiTrack Premium Slate Palette */
+            --color-primary: #2f5fd0;
+            --color-primary-dark: #244bb0;
+            --color-primary-light: #7da2f8;
+            --color-success: #10b981;
+            --color-warning: #f59e0b;
+            --color-error: #ef4444;
+
+            /* Dark Theme Backgrounds */
+            --bg-primary: #0b0e14;
+            --bg-secondary: #131720;
+            --bg-tertiary: #1a1f29;
+            --bg-elevated: #232a36;
+
+            /* Text */
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+
+            /* Borders */
+            --border-color: #1e293b;
+            --border-light: #334155;
+
+            --radius-md: 12px;
+            --radius-lg: 16px;
+            --transition-base: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+            --font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 80px 24px;
+        }
+
+        /* ===================================
+           HEADER
+           =================================== */
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 48px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .logo img {
+            height: 32px;
+            width: auto;
+        }
+
+        .logo-text {
+            font-size: 20px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .back-link {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color var(--transition-base);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .back-link:hover {
+            color: var(--color-primary-light);
+        }
+
+        /* ===================================
+           GLOBAL STATUS
+           =================================== */
+        .global-status {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            margin-bottom: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+        }
+
+        .global-status::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--color-success);
+        }
+
+        .status-info h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .status-info p {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 16px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 100px;
+            color: var(--color-success);
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--color-success);
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .pulse-dot::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            border-radius: inherit;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
+        /* ===================================
+           COMPONENTS
+           =================================== */
+        .components-section {
+            margin-bottom: 48px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+        }
+
+        .component-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            margin-bottom: 16px;
+            transition: transform var(--transition-base), border-color var(--transition-base);
+        }
+
+        .component-card:hover {
+            border-color: var(--border-light);
+        }
+
+        .component-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .component-name {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .component-status {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--color-success);
+        }
+
+        /* Uptime History Bars */
+        .uptime-history {
+            display: flex;
+            gap: 3px;
+            height: 32px;
+            margin-bottom: 12px;
+        }
+
+        .uptime-bar {
+            flex: 1;
+            background: var(--color-success);
+            border-radius: 2px;
+            opacity: 0.8;
+            transition: opacity 200ms ease;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .uptime-bar:hover {
+            opacity: 1;
+            transform: scaleY(1.1);
+        }
+
+        .uptime-bar.minor {
+            background: var(--color-warning);
+        }
+
+        .uptime-bar.major {
+            background: var(--color-error);
+        }
+
+        .uptime-footer {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        /* Tooltip simple */
+        .uptime-bar::before {
+            content: attr(data-date);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 4px 8px;
+            background: #000;
+            color: #fff;
+            font-size: 10px;
+            border-radius: 4px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 200ms ease;
+            margin-bottom: 8px;
+        }
+
+        .uptime-bar:hover::before {
+            opacity: 1;
+        }
+
+        /* ===================================
+           INCIDENTS
+           =================================== */
+        .incidents-section {
+            padding-top: 32px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .incident-card {
+            padding: 24px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .incident-date {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .incident-item {
+            display: flex;
+            gap: 16px;
+        }
+
+        .incident-badge {
+            flex-shrink: 0;
+            width: 8px;
+            height: 8px;
+            background: var(--color-primary);
+            border-radius: 50%;
+            margin-top: 8px;
+        }
+
+        .incident-content h3 {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .incident-content p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+        }
+
+        .incident-update {
+            font-size: 13px;
+            color: var(--text-muted);
+            padding-left: 12px;
+            border-left: 2px solid var(--border-color);
+        }
+
+        .no-incidents {
+            color: var(--text-muted);
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        /* ===================================
+           FOOTER
+           =================================== */
+        .footer {
+            margin-top: 80px;
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .footer p {
+            margin-bottom: 8px;
+        }
+
+        .footer a {
+            color: var(--color-primary-light);
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 40px 20px;
+            }
+
+            .global-status {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="status-header">
+            <a href="../index.html" class="logo">
+                <img src="../assets/icons/whiteblue.png" alt="SafiTrack">
+                <span class="logo-text">SafiTrack</span>
+            </a>
+            <a href="../index.html" class="back-link">
+                ← Back to Dashboard
+            </a>
+        </header>
+
+        <!-- Global Status Bar -->
+        <div class="global-status">
+            <div class="status-info">
+                <h1>All Systems Operational</h1>
+                <p>Real-time status of SafiTrack infrastructure and services.</p>
+            </div>
+            <div class="status-indicator">
+                <div class="pulse-dot"></div>
+                OPERATIONAL
+            </div>
+        </div>
+
+        <!-- Components Section -->
+        <section class="components-section">
+            <h2 class="section-title">Core Components</h2>
+
+            <!-- Component 1: CRM Platform -->
+            <div class="component-card">
+                <div class="component-header">
+                    <span class="component-name">CRM Core Platform</span>
+                    <span class="component-status">Operational</span>
+                </div>
+                <div class="uptime-history" id="crm-uptime">
+                    <!-- Bars generated by JS -->
+                </div>
+                <div class="uptime-footer">
+                    <span>90 days ago</span>
+                    <span>100% uptime</span>
+                    <span>Today</span>
+                </div>
+            </div>
+
+            <!-- Component 2: Intelligence Hub -->
+            <div class="component-card">
+                <div class="component-header">
+                    <span class="component-name">Intelligence Hub (AI Engine)</span>
+                    <span class="component-status">Operational</span>
+                </div>
+                <div class="uptime-history" id="ai-uptime">
+                    <!-- Bars generated by JS -->
+                </div>
+                <div class="uptime-footer">
+                    <span>90 days ago</span>
+                    <span>99.98% uptime</span>
+                    <span>Today</span>
+                </div>
+            </div>
+
+            <!-- Component 3: Field Ops API -->
+            <div class="component-card">
+                <div class="component-header">
+                    <span class="component-name">Field Operations API</span>
+                    <span class="component-status">Operational</span>
+                </div>
+                <div class="uptime-history" id="api-uptime">
+                    <!-- Bars generated by JS -->
+                </div>
+                <div class="uptime-footer">
+                    <span>90 days ago</span>
+                    <span>100% uptime</span>
+                    <span>Today</span>
+                </div>
+            </div>
+
+            <!-- Component 4: Database Infrastructure -->
+            <div class="component-card">
+                <div class="component-header">
+                    <span class="component-name">Real-time Database Cluster</span>
+                    <span class="component-status">Operational</span>
+                </div>
+                <div class="uptime-history" id="db-uptime">
+                    <!-- Bars generated by JS -->
+                </div>
+                <div class="uptime-footer">
+                    <span>90 days ago</span>
+                    <span>100% uptime</span>
+                    <span>Today</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Incident History -->
+        <section class="incidents-section">
+            <h2 class="section-title">Incident History</h2>
+
+            <div class="incident-card">
+                <div class="incident-date" id="current-date-label">January 31, 2026</div>
+                <div class="no-incidents">No incidents reported today.</div>
+            </div>
+
+            <div class="incident-card">
+                <div class="incident-date">January 28, 2026</div>
+                <div class="incident-item">
+                    <div class="incident-badge"></div>
+                    <div class="incident-content">
+                        <h3>Intelligence Hub Maintenance</h3>
+                        <p>Scheduled maintenance to upgrade AI deal scoring models.</p>
+                        <div class="incident-update">
+                            <strong>Resolved</strong> - Maintenance completed successfully. No downtime recorded.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="incident-card">
+                <div class="incident-date">January 20, 2026</div>
+                <div class="no-incidents">No incidents reported.</div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>&copy; 2026 SafiTrack Inc. All rights reserved.</p>
+            <p>Questions? Contact our <a href="mailto:support@safitrack.com">Support Team</a></p>
+        </footer>
+    </div>
+
+    <script>
+        // Generate Uptime Visualization
+        function generateUptimeBars(containerId, data) {
+            const container = document.getElementById(containerId);
+            const totalBars = 90;
+
+            for (let i = 0; i < totalBars; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'uptime-bar';
+
+                // Set date logic for tooltip
+                const date = new Date();
+                date.setDate(date.getDate() - (totalBars - i));
+                const dateStr = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+                // Randomly add some "minor" or "major" events for realism (demo only)
+                // Real implementation would fetch this from an API
+                const rand = Math.random();
+                if (data.includes(i)) {
+                    bar.classList.add('minor');
+                    bar.setAttribute('data-date', `${dateStr}: Minor Latency`);
+                } else if (data.includes(-i)) {
+                    bar.classList.add('major');
+                    bar.setAttribute('data-date', `${dateStr}: Partial Outage`);
+                } else {
+                    bar.setAttribute('data-date', `${dateStr}: 100% Uptime`);
+                }
+
+                container.appendChild(bar);
+            }
+        }
+
+        // Simulating some historical hiccups for demo impact
+        generateUptimeBars('crm-uptime', [12, 45]);
+        generateUptimeBars('ai-uptime', [28, 62, 85]);
+        generateUptimeBars('api-uptime', []);
+        generateUptimeBars('db-uptime', [5]);
+
+        // Set current date dynamically
+        const dateOptions = { month: 'long', day: 'numeric', year: 'numeric' };
+        document.getElementById('current-date-label').textContent = new Date().toLocaleDateString('en-US', dateOptions);
+    </script>
+</body>
+
+</html>
