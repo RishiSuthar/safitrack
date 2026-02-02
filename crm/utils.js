@@ -42,7 +42,14 @@ function debounce(func, wait) {
 
 // FORMAT DATE
 function formatDate(dateString) {
-  const date = new Date(dateString);
+  if (!dateString) return '';
+  let date;
+  if (typeof dateString === 'string' && dateString.length === 10 && dateString.includes('-')) {
+    const [y, m, d] = dateString.split('-').map(Number);
+    date = new Date(y, m - 1, d, 12, 0, 0);
+  } else {
+    date = new Date(dateString);
+  }
   const now = new Date();
   const diffTime = Math.abs(now - date);
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));

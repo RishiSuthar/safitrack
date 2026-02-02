@@ -18,8 +18,7 @@ class CustomCalendar {
 
         this.isOpen = false;
         this.currentView = 'days'; // days, months, years
-        this.selectedDate = this.input.value ? new Date(this.input.value) : new Date();
-        if (isNaN(this.selectedDate.getTime())) this.selectedDate = new Date();
+        this.selectedDate = this.parseInputValue(this.input.value);
 
         this.viewDate = new Date(this.selectedDate);
         this.viewDate.setDate(1);
@@ -83,12 +82,9 @@ class CustomCalendar {
 
         // Sync with input value if it exists
         if (this.input.value) {
-            const date = new Date(this.input.value);
-            if (!isNaN(date.getTime())) {
-                this.selectedDate = date;
-                this.viewDate = new Date(this.selectedDate);
-                this.viewDate.setDate(1);
-            }
+            this.selectedDate = this.parseInputValue(this.input.value);
+            this.viewDate = new Date(this.selectedDate);
+            this.viewDate.setDate(1);
         }
 
         this.currentView = 'days';
@@ -133,10 +129,44 @@ class CustomCalendar {
         let top = rect.bottom;
         if (top + pickerHeight > windowHeight) {
             top = rect.top - pickerHeight - 10;
+            // Prevent jumping off the top of the screen
+            if (top < 10) top = 10;
         }
 
         this.picker.style.top = `${top}px`;
         this.picker.style.left = `${rect.left}px`;
+    }
+
+    parseInputValue(value) {
+        if (!value) {
+            const d = new Date();
+            d.setHours(12, 0, 0, 0);
+            return d;
+        }
+
+        try {
+            const nums = value.match(/\d+/g);
+            if (nums && nums.length >= 3) {
+                const year = parseInt(nums[0]);
+                const month = parseInt(nums[1]) - 1;
+                const day = parseInt(nums[2]);
+                const date = new Date(year, month, day, 12, 0, 0); // Local time midday
+
+                if (nums.length >= 5 && this.options.type === 'datetime-local') {
+                    date.setHours(parseInt(nums[3]), parseInt(nums[4]), 0, 0);
+                }
+
+                if (!isNaN(date.getTime())) return date;
+            }
+        } catch (e) {
+            console.error("Error parsing date locally:", e);
+        }
+
+        const date = new Date(value);
+        if (!isNaN(date.getTime()) && value.length <= 10 && !value.includes('T')) {
+            return new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 12, 0, 0);
+        }
+        return isNaN(date.getTime()) ? new Date() : date;
     }
 
     render() {
@@ -310,10 +340,18 @@ class CustomCalendar {
                 dayEl.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const day = parseInt(dayEl.dataset.day);
-                    this.selectedDate.setDate(day);
-                    this.selectedDate.setMonth(this.viewDate.getMonth());
-                    this.selectedDate.setYear(this.viewDate.getFullYear());
-                    this.render();
+                    this.selectedDate.setFullYear(
+                        this.viewDate.getFullYear(),
+                        this.viewDate.getMonth(),
+                        day
+                    );
+
+                    if (this.options.type === 'date') {
+                        this.applySelection();
+                        this.close();
+                    } else {
+                        this.render();
+                    }
                 });
             });
 

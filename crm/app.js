@@ -263,8 +263,13 @@ async function initApp() {
     attemptShowPWABanner();
   }
 
-  // Initialize custom calendar for task due date
+  // Initialize custom calendar for all date/time inputs
   initCustomCalendar('#task-due-date', { type: 'datetime-local' });
+  initCustomCalendar('#reminder-date', { type: 'datetime-local' });
+  initCustomCalendar('#call-datetime', { type: 'datetime-local' });
+  initCustomCalendar('#opportunity-next-step-date', { type: 'date' });
+  initCustomCalendar('#export-date-from', { type: 'date' });
+  initCustomCalendar('#export-date-to', { type: 'date' });
 }
 
 async function loadAllPeople() {
@@ -6858,7 +6863,16 @@ function getInitials(name) {
 }
 
 function formatDate(dateString, shortFormat = false) {
-  const date = new Date(dateString);
+  if (!dateString) return '';
+
+  // Safe local date parsing for YYYY-MM-DD format
+  let date;
+  if (typeof dateString === 'string' && dateString.length === 10 && dateString.includes('-')) {
+    const [y, m, d] = dateString.split('-').map(Number);
+    date = new Date(y, m - 1, d, 12, 0, 0); // Midday local
+  } else {
+    date = new Date(dateString);
+  }
 
   if (shortFormat) {
     return date.toLocaleDateString('en-US', {
