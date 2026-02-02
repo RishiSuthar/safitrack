@@ -259,10 +259,12 @@ async function initApp() {
       // If already done, try showing PWA prompt
       attemptShowPWABanner();
     }
-  } else {
     // No onboarding module, show PWA prompt
     attemptShowPWABanner();
   }
+
+  // Initialize custom calendar for task due date
+  initCustomCalendar('#task-due-date', { type: 'datetime-local' });
 }
 
 async function loadAllPeople() {
@@ -11773,7 +11775,7 @@ async function renderCallLogsView() {
   const filteredLogs = logs.filter(log => {
     const contactName = log.people ? log.people.name : log.contact_name;
     const companyName = log.companies ? log.companies.name : log.company_name;
-    
+
     // Search filter
     if (callLogFilters.search) {
       const searchLower = callLogFilters.search.toLowerCase();
@@ -11781,17 +11783,17 @@ async function renderCallLogsView() {
       const matchesCompany = (companyName || '').toLowerCase().includes(searchLower);
       if (!matchesContact && !matchesCompany) return false;
     }
-    
+
     // Direction filter
     if (callLogFilters.direction && log.direction !== callLogFilters.direction) {
       return false;
     }
-    
+
     // Outcome filter
     if (callLogFilters.outcome && log.outcome !== callLogFilters.outcome) {
       return false;
     }
-    
+
     return true;
   });
 
@@ -12023,7 +12025,7 @@ async function deleteCallLog(id) {
       showToast('Log not found', 'error');
       return;
     }
-    
+
     // Check if user owns the log
     if (log.user_id !== currentUser.id) {
       showToast('You can only delete your own call logs', 'error');
