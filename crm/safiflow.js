@@ -43,7 +43,6 @@ async function renderSafiFlowInventoryView() {
         <div class="safiflow-header-content">
           <div>
             <h2 class="page-title">
-              <i class="fas fa-shopping-cart"></i>
               Product Catalog & Inventory
             </h2>
             <p class="page-subtitle">Manage products, categories, and company-specific MOQs</p>
@@ -776,7 +775,7 @@ async function openProductModal(productId = null) {
           <div class="modal-footer">
             <button class="btn btn-secondary" onclick="closeSafiFlowModal('product-modal')">Cancel</button>
             <button class="btn btn-primary" id="save-product-btn" onclick="saveProduct('${productId || ''}')">
-              <i class="fas fa-save"></i> ${productId ? 'Update Product' : 'Create Product'}
+              ${productId ? 'Update Product' : 'Create Product'}
             </button>
           </div>
         </div>
@@ -1097,7 +1096,6 @@ async function renderSafiFlowProposalsView() {
         <div class="safiflow-header-content">
           <div>
             <h2 class="page-title">
-              <i class="fas fa-flask-conical"></i>
               ${isManager ? 'Proposal Management' : 'My Proposals'}
             </h2>
             <p class="page-subtitle">${isManager ? 'Review and approve stock proposals from sales reps' : 'View and create stock reports'}</p>
@@ -1386,7 +1384,6 @@ async function loadProposals() {
     if (filteredProposals.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <i class="fas fa-clipboard-list"></i>
           <h3>No proposals found</h3>
           <p>${safiflowState.filters.searchTerm || safiflowState.filters.status !== 'all'
           ? 'Try adjusting your filters'
@@ -1627,7 +1624,7 @@ async function viewProposalDetails(proposalId) {
 
             <!-- Products Table -->
             <div class="products-section">
-              <h4><i class="fas fa-list"></i> Stock Report Details</h4>
+              <h4>Stock Report Details</h4>
               <div class="table-container">
                 <table class="data-table proposal-items-table">
                   <thead>
@@ -1673,7 +1670,7 @@ async function viewProposalDetails(proposalId) {
             <!-- Manager Actions Section -->
             ${canManage ? `
               <div class="manager-actions-section">
-                <h4><i class="fas fa-shield-alt"></i> Manager Review</h4>
+                <h4>Manager Review</h4>
                 <div class="form-field">
                   <label>Manager Notes (Internal)</label>
                   <textarea id="manager-notes" rows="3" placeholder="Add notes about this proposal..." style="background: var(--bg-secondary);">${proposal.manager_notes || ''}</textarea>
@@ -1773,7 +1770,6 @@ async function startNewProposal() {
       <div class="card proposal-wizard-card">
         <div class="wizard-header">
           <h2 class="wizard-title">
-            <i class="fas fa-clipboard-list"></i>
             New Stock Proposal
           </h2>
           <p class="wizard-subtitle">Select a company and verify your location to begin</p>
@@ -1812,7 +1808,7 @@ async function startNewProposal() {
             <div class="wizard-actions">
               <button class="btn btn-secondary" onclick="renderSafiFlowProposalsView()">Cancel</button>
               <button class="btn btn-primary" id="continue-to-products-btn" disabled onclick="continueToProducts()">
-                Continue to Products <i class="fas fa-arrow-right"></i>
+                Continue to Products
               </button>
             </div>
           </div>
@@ -1986,7 +1982,6 @@ async function continueToProducts() {
       <label>Search & Add Products</label>
       <div class="searchable-select-container">
         <div class="search-input-wrapper">
-          <i class="fas fa-plus-circle"></i>
           <input 
             type="text" 
             id="product-search-input" 
@@ -2008,7 +2003,7 @@ async function continueToProducts() {
     <div class="wizard-actions">
       <button class="btn btn-secondary" onclick="backToCompanySelection()">Back</button>
       <button class="btn btn-primary" id="submit-proposal-btn" disabled onclick="submitProposal()">
-        <i class="fas fa-paper-plane"></i> Submit Proposal
+        Submit Proposal
       </button>
     </div>
   `;
