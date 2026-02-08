@@ -315,6 +315,17 @@ function updateNavigationForRole() {
     });
     // Hide technician views for managers
     technicianNavSection.style.display = 'none';
+
+    // SafiFlow: Show all for managers
+    const safiflowNav = document.getElementById('safiflow-nav-section');
+    if (safiflowNav) safiflowNav.style.display = 'block';
+    const inventoryNav = document.getElementById('safiflow-inventory-nav');
+    if (inventoryNav) inventoryNav.style.display = 'flex';
+
+    // Ensure records are shown
+    ['companies', 'people', 'user-management'].forEach(view => {
+      document.querySelectorAll(`.sidebar-nav [data-view="${view}"]`).forEach(el => el.style.display = 'flex');
+    });
   } else if (isTechnician) {
     // Show technician navigation
     technicianNavSection.style.display = 'block';
@@ -326,16 +337,30 @@ function updateNavigationForRole() {
       el.style.display = 'none';
     });
     // Hide views that technicians should not access
-    ['sales-funnel', 'opportunity-pipeline', 'call-logs', 'companies', 'people', 'user-management'].forEach(view => {
+    ['sales-funnel', 'opportunity-pipeline', 'call-logs', 'companies', 'people', 'user-management', 'safiflow-proposals', 'safiflow-inventory'].forEach(view => {
       document.querySelectorAll(`.sidebar-nav [data-view="${view}"]`).forEach(el => el.style.display = 'none');
     });
     // Hide manager navigation
     managerNavSection.style.display = 'none';
+    // Hide safiflow for technicians
+    const safiflowNav = document.getElementById('safiflow-nav-section');
+    if (safiflowNav) safiflowNav.style.display = 'none';
   } else {
     // Sales rep view
     managerNavSection.style.display = 'none';
     technicianNavSection.style.display = 'none';
     if (managerBottomNav) managerBottomNav.style.display = 'none';
+
+    // SafiFlow: Show proposals, hide inventory management for reps
+    const safiflowNav = document.getElementById('safiflow-nav-section');
+    if (safiflowNav) safiflowNav.style.display = 'block';
+    const inventoryNav = document.getElementById('safiflow-inventory-nav');
+    if (inventoryNav) inventoryNav.style.display = 'none';
+
+    // Ensure records are shown
+    ['companies', 'people'].forEach(view => {
+      document.querySelectorAll(`.sidebar-nav [data-view="${view}"]`).forEach(el => el.style.display = 'flex');
+    });
   }
   if (isTechnician) {
     technicianBottomNav.forEach(el => el.style.display = 'flex');
@@ -473,6 +498,16 @@ async function loadView(viewName) {
       break;
     case 'call-logs':
       await renderCallLogsView();
+      break;
+    case 'safiflow-proposals':
+      await renderSafiFlowProposalsView();
+      break;
+    case 'safiflow-inventory':
+      if (isManager) {
+        await renderSafiFlowInventoryView();
+      } else {
+        viewContainer.innerHTML = renderAccessDenied();
+      }
       break;
     default:
       viewContainer.innerHTML = renderNotFound();
