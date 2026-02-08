@@ -1228,7 +1228,7 @@ input:checked+.toggle-slider:before {
 
 .item-inputs {
     display: grid;
-    grid-template-columns: 140px 1fr;
+    grid-template-columns: 200px 1fr;
     gap: 16px;
 }
 
@@ -1577,26 +1577,27 @@ input:checked+.toggle-slider:before {
 .mt-6 {
     margin-top: 24px !important;
 }
+
 /* No Results Message */
 .no-results-message {
-  padding: 32px 20px;
-  text-align: center;
-  background: var(--bg-secondary);
-  border: 2px dashed var(--border-color);
-  border-radius: 12px;
-  margin: 16px 0;
-  color: var(--text-muted);
+    padding: 32px 20px;
+    text-align: center;
+    background: var(--bg-secondary);
+    border: 2px dashed var(--border-color);
+    border-radius: 12px;
+    margin: 16px 0;
+    color: var(--text-muted);
 }
 
 .no-results-message i {
-  font-size: 32px;
-  margin-bottom: 12px;
-  opacity: 0.5;
-  display: block;
+    font-size: 32px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+    display: block;
 }
 
 .no-results-message p {
-  margin: 0;
-  font-size: 14px;
-  font-style: italic;
+    margin: 0;
+    font-size: 14px;
+    font-style: italic;
 }
