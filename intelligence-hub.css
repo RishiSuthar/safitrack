@@ -778,4 +778,33 @@
     .rc-team-grid {
         grid-template-columns: 1fr;
     }
+
+    .rc-tabs {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        padding: 6px;
+    }
+
+    .rc-tab {
+        height: 36px;
+        font-size: 0.82rem;
+    }
+
+    .rc-feed-row {
+        padding: 11px 12px;
+        gap: 10px;
+    }
+
+    .rc-feed-label {
+        font-size: 0.82rem;
+    }
+
+    .rc-feed-value {
+        font-size: 0.9rem;
+    }
+
+    .rc-mini-bars {
+        height: 116px;
+        gap: 8px;
+    }
 }

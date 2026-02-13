@@ -4963,3 +4963,225 @@ body {
         font-size: 0.75rem;
     }
 }
+
+@media (max-width: 900px) {
+    .hero-actions .btn-primary,
+    .hero-actions .btn-secondary {
+        width: 100%;
+    }
+
+    .hero-ai-launch {
+        max-width: 100%;
+        grid-template-columns: 64px 1fr;
+        gap: 12px;
+        padding: 12px 14px;
+    }
+
+    .hero-ai-visual {
+        width: 64px;
+        height: 64px;
+        transform: translateY(-6px);
+    }
+
+    .hero-ai-content {
+        transform: translateY(-6px);
+        gap: 5px;
+    }
+
+    .hero-ai-title {
+        font-size: 20px;
+    }
+
+    .hero-ai-copy {
+        font-size: 0.88rem;
+        line-height: 1.5;
+    }
+
+    .hero-ai-badge-inline {
+        transform: translateY(4px);
+    }
+
+    .scroll-manifesto {
+        height: 150vh;
+    }
+
+    .scroll-manifesto-stage {
+        padding: 52px 0;
+    }
+
+    .sm-quote {
+        font-size: clamp(1.85rem, 8.5vw, 2.7rem);
+        line-height: 1.18;
+    }
+}
+
+@media (max-width: 640px) {
+    .container {
+        padding: 0 16px;
+    }
+
+    .mobile-nav-content {
+        padding: 32px 24px;
+        gap: 24px;
+    }
+
+    .mobile-link {
+        font-size: 22px;
+    }
+
+    .hero {
+        padding-top: 116px;
+        padding-bottom: 72px;
+    }
+
+    .hero .container {
+        gap: 38px;
+    }
+
+    .hero-actions {
+        width: 100%;
+    }
+
+    .hero-ai-launch {
+        grid-template-columns: 52px 1fr;
+        gap: 10px;
+        padding: 11px 12px;
+    }
+
+    .hero-ai-visual {
+        width: 52px;
+        height: 52px;
+        border-radius: 10px;
+        transform: translateY(-4px);
+    }
+
+    .hero-ai-content {
+        transform: translateY(-4px);
+    }
+
+    .hero-ai-title {
+        font-size: 18px;
+        line-height: 1.2;
+    }
+
+    .hero-ai-copy {
+        font-size: 0.84rem;
+        line-height: 1.45;
+    }
+
+    .hero-ai-badge {
+        height: 20px;
+        padding: 0 8px;
+        font-size: 10px;
+    }
+
+    .hero-ai-badge-inline {
+        transform: translateY(2px);
+    }
+
+    .revenue-control {
+        border-radius: 12px;
+    }
+
+    .split-side {
+        padding: 24px 16px;
+        min-height: auto;
+    }
+
+    .chaos-visualization,
+    .success-visualization {
+        min-height: 280px;
+    }
+
+    .roles-showcase {
+        padding: 52px 0;
+    }
+
+    .role-dock.vertical {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .dock-btn {
+        padding: 10px 6px;
+    }
+
+    .d-title {
+        font-size: 11px;
+    }
+
+    .saas-window {
+        min-height: 360px;
+        height: 58vh;
+    }
+
+    .dashboard-grid {
+        padding: 12px;
+        gap: 12px;
+    }
+
+    .px-stage {
+        padding: 16px;
+    }
+
+    .px-headline-row {
+        flex-wrap: wrap;
+    }
+
+    .px-timeline li {
+        grid-template-columns: 44px 1fr;
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .px-bubble {
+        font-size: 0.82rem;
+        padding: 10px;
+    }
+
+    .t-content {
+        padding: 28px 18px 72px;
+    }
+
+    .t-quote {
+        font-size: 20px;
+        line-height: 1.35;
+    }
+
+    .pricing {
+        padding: 84px 0;
+    }
+
+    .price-card {
+        padding: 22px;
+    }
+
+    .cta {
+        padding: 88px 0;
+    }
+}
+
+@media (max-width: 420px) {
+    .role-dock.vertical {
+        grid-template-columns: 1fr;
+    }
+
+    .dock-btn {
+        flex-direction: row;
+        justify-content: flex-start;
+        padding: 10px 12px;
+        text-align: left;
+    }
+
+    .d-icon {
+        order: 0;
+    }
+
+    .d-text {
+        align-items: flex-start;
+    }
+
+    .d-desc {
+        display: block;
+        font-size: 11px;
+    }
+}
