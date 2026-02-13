@@ -998,6 +998,15 @@ body {
   pointer-events: none;
 }
 
+/* Predictable interaction states across controls */
+:where(.btn, .toolbar-btn, .toolbar-btn-primary, .task-filter, .reminder-filter, .toggle-btn, .filter-select, .action-btn, .search-clear-btn) {
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
+}
+
+:where(.btn, .toolbar-btn, .toolbar-btn-primary, .task-filter, .reminder-filter, .toggle-btn, .filter-select, .action-btn, .search-clear-btn):active {
+  transform: translateY(0);
+}
+
 /* Primary Button - Main CTA, Professional Blue */
 .btn-primary {
   background: var(--color-primary);
@@ -1013,7 +1022,7 @@ body {
 
 .btn-primary:active:not(:disabled) {
   box-shadow: 0 1px 3px rgba(47, 95, 208, 0.2);
-  transform: scale(0.98);
+  transform: translateY(1px);
 }
 
 [data-theme="dark"] .btn-primary {
@@ -1039,7 +1048,7 @@ body {
 }
 
 .btn-secondary:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: translateY(1px);
   border-color: var(--color-primary-dark);
 }
 
@@ -1068,7 +1077,7 @@ body {
 
 .btn-danger:active:not(:disabled) {
   box-shadow: 0 1px 3px rgba(200, 58, 58, 0.2);
-  transform: scale(0.98);
+  transform: translateY(1px);
 }
 
 [data-theme="dark"] .btn-danger {
@@ -1089,7 +1098,7 @@ body {
 }
 
 .btn-ghost:active:not(:disabled) {
-  transform: scale(0.98);
+  transform: translateY(1px);
 }
 
 [data-theme="dark"] .btn-ghost:hover:not(:disabled) {
@@ -1131,7 +1140,7 @@ body {
 
 .btn-success:active:not(:disabled) {
   box-shadow: 0 1px 3px rgba(31, 157, 110, 0.2);
-  transform: scale(0.98);
+  transform: translateY(1px);
 }
 
 /* Warning Button - For cautious actions */
@@ -1149,7 +1158,7 @@ body {
 
 .btn-warning:active:not(:disabled) {
   box-shadow: 0 1px 3px rgba(198, 132, 26, 0.2);
-  transform: scale(0.98);
+  transform: translateY(1px);
 }
 
 /* Icon Button - For toolbar/header actions */
@@ -2914,14 +2923,19 @@ select {
 .toast {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem;
+  gap: var(--space-3);
+  padding: 0.75rem 0.875rem;
   background: var(--bg-elevated);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  animation: toast-in 0.3s ease, toast-out 0.3s ease 2.7s forwards;
+  border-radius: var(--btn-radius);
+  box-shadow: var(--shadow-md);
+  animation: toast-in 0.22s ease, toast-out 0.24s ease var(--toast-timeout, 2700ms) forwards;
   pointer-events: auto;
+}
+
+.toast.subtle {
+  border-color: var(--border-color-light);
+  box-shadow: var(--shadow-sm);
 }
 
 .toast-icon {
@@ -2942,8 +2956,26 @@ select {
 
 .toast-message {
   flex: 1;
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
   color: var(--text-primary);
+}
+
+.ui-success-flash {
+  animation: ui-success-flash 850ms ease;
+}
+
+@keyframes ui-success-flash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(31, 157, 110, 0);
+  }
+
+  20% {
+    box-shadow: 0 0 0 3px rgba(31, 157, 110, 0.2);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(31, 157, 110, 0);
+  }
 }
 
 @keyframes toast-in {
@@ -4645,15 +4677,22 @@ select {
 }
 
 .sortable-ghost {
-  opacity: 0.32 !important;
+  opacity: 0.24 !important;
 }
 
 .sortable-chosen {
   cursor: grabbing !important;
+  transition: transform 80ms ease, box-shadow 120ms ease;
 }
 
 .sortable-drag {
-  transform: none;
+  transform: scale(1.01);
+}
+
+body.is-dragging,
+body.is-dragging * {
+  cursor: grabbing !important;
+  user-select: none;
 }
 
 @media (min-width: 768px) {
@@ -7012,7 +7051,7 @@ button svg {
 
 .route-stop-item.sortable-chosen {
   cursor: grabbing;
-  opacity: 0.5;
+  opacity: 0.68;
 }
 
 .route-stop-number {
@@ -7335,7 +7374,7 @@ button svg {
 }
 
 .kanban-task-card.sortable-chosen {
-  opacity: 0.5;
+  opacity: 0.68;
   cursor: grabbing;
 }
 

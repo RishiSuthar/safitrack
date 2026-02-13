@@ -15,6 +15,7 @@ let mentionedPeople = [];
 let allPeople = [];
 let isTechnician = false;
 let managerCallLogViewMode = 'my'; // 'my' or 'team'
+let lastToastMeta = { key: '', at: 0 };
 
 // Call log filters
 let callLogFilters = {
@@ -206,8 +207,7 @@ function makeCellEditable(cell, rowId, tableName) {
         } else {
           cell.innerText = newValue || '-';
         }
-
-        showToast('Updated successfully', 'success');
+        showInlineSuccess(cellWrapper || cell);
       } else {
         cell.innerText = initialValue || '-';
         cell.dataset.value = initialValue; // Revert data-value
@@ -3347,20 +3347,24 @@ function initPipelineDragAndDrop(opportunities) {
   opportunityLists.forEach(list => {
     new Sortable(list, {
       group: 'pipeline',
-      animation: 0,
+      animation: 110,
       easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
       swapThreshold: 0.2,
       invertSwap: false,
       emptyInsertThreshold: 6,
+      delayOnTouchOnly: true,
+      touchStartThreshold: 4,
       draggable: '.opportunity-card',
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
       dragClass: 'sortable-drag',
       filter: '.readonly, .opportunity-actions', // Prevent dragging readonly cards or non-card controls
       onStart: function (evt) {
+        document.body.classList.add('is-dragging');
         evt.item.classList.add('dragging');
       },
       onEnd: function (evt) {
+        document.body.classList.remove('is-dragging');
         evt.item.classList.remove('dragging');
       },
       onAdd: async function (evt) {
@@ -3406,8 +3410,8 @@ function initPipelineDragAndDrop(opportunities) {
                 stageAgeText.textContent = '0d in stage';
               }
             }
-
-            showToast('Opportunity moved successfully', 'success');
+            showInlineSuccess(evt.item);
+            showToast('Opportunity moved', 'success', { subtle: true, duration: 1400, dedupeMs: 1200 });
 
             // Update stage counts
             updatePipelineStageCounts();
@@ -4640,11 +4644,19 @@ function initRoutePlanning(companies, salesReps) {
     }
 
     sortable = new Sortable(stopsContainer, {
-      animation: 150,
+      animation: 120,
+      easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+      delayOnTouchOnly: true,
+      touchStartThreshold: 4,
       handle: '.route-stop-item',
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
+      dragClass: 'sortable-drag',
+      onStart: function () {
+        document.body.classList.add('is-dragging');
+      },
       onEnd: function () {
+        document.body.classList.remove('is-dragging');
         // Update routeStops array based on new order
         const newOrder = [];
         stopsContainer.querySelectorAll('.route-stop-item').forEach(item => {
@@ -5967,10 +5979,16 @@ function initKanbanBoard(tasks, salesReps) {
 
     new Sortable(container, {
       group: 'kanban',
-      animation: 150,
+      animation: 120,
+      easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+      delayOnTouchOnly: true,
+      touchStartThreshold: 4,
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
       dragClass: 'sortable-drag',
+      onStart: function () {
+        document.body.classList.add('is-dragging');
+      },
       onAdd: function (evt) {
         // Remove empty state if present
         const emptyState = evt.to.querySelector('.kanban-empty-state');
@@ -5996,6 +6014,7 @@ function initKanbanBoard(tasks, salesReps) {
         updateColumnCounts();
       },
       onEnd: async function (evt) {
+        document.body.classList.remove('is-dragging');
         const taskId = evt.item.dataset.taskId;
         const newStatus = statusMap[evt.to.id.replace('kanban-', '')];
         const oldStatus = evt.item.dataset.status;
@@ -6022,6 +6041,7 @@ function initKanbanBoard(tasks, salesReps) {
 
             // Update DOM attributes
             evt.item.dataset.status = newStatus;
+            showInlineSuccess(evt.item);
 
             // If the card has a status badge/text that needs updating, we can do it here
             // But currently the column implies status. 
@@ -7835,10 +7855,51 @@ function updateThemeIcon(theme) {
   btn.innerHTML = (theme === 'dark') ? darkModeIcon : lightModeIcon;
 }
 
-function showToast(message, type = 'info') {
+function showInlineSuccess(elementOrSelector) {
+  const element = typeof elementOrSelector === 'string'
+    ? document.querySelector(elementOrSelector)
+    : elementOrSelector;
+  if (!element) return;
+
+  element.classList.remove('ui-success-flash');
+  void element.offsetWidth;
+  element.classList.add('ui-success-flash');
+  setTimeout(() => element.classList.remove('ui-success-flash'), 850);
+}
+
+function showToast(message, type = 'info', options = {}) {
   const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const normalizedMessage = String(message || '').trim();
+  if (!normalizedMessage) return;
+
+  const now = Date.now();
+  const toastKey = `${type}:${normalizedMessage.toLowerCase()}`;
+  const dedupeMs = Number.isFinite(options.dedupeMs)
+    ? options.dedupeMs
+    : (type === 'success' ? 1800 : 1200);
+
+  if ((type === 'success' || type === 'info') &&
+    lastToastMeta.key === toastKey &&
+    now - lastToastMeta.at < dedupeMs) {
+    return;
+  }
+
+  const maxVisible = Number.isFinite(options.maxVisible)
+    ? options.maxVisible
+    : 2;
+  if ((type === 'success' || type === 'info') && container.children.length >= maxVisible) {
+    const removableToast = container.querySelector('.toast:not(.error)') || container.firstElementChild;
+    if (removableToast) removableToast.remove();
+  }
+
+  lastToastMeta.key = toastKey;
+  lastToastMeta.at = now;
+
   const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
+  const isSubtle = options.subtle === true || type === 'success';
+  toast.className = `toast ${type}${isSubtle ? ' subtle' : ''}`;
 
   const iconMap = {
     success: 'fa-check-circle',
@@ -7848,14 +7909,19 @@ function showToast(message, type = 'info') {
 
   toast.innerHTML = `
     <i class="fas ${iconMap[type] || iconMap.info} toast-icon"></i>
-    <span class="toast-message">${message}</span>
+    <span class="toast-message">${normalizedMessage}</span>
   `;
 
   container.appendChild(toast);
 
+  const timeoutMs = Number.isFinite(options.duration)
+    ? options.duration
+    : (type === 'success' ? 1800 : type === 'info' ? 2300 : 3200);
+  toast.style.setProperty('--toast-timeout', `${Math.max(900, timeoutMs)}ms`);
+
   setTimeout(() => {
     toast.remove();
-  }, 3000);
+  }, Math.max(900, timeoutMs) + 120);
 }
 
 // Try to repair broken image links from Supabase storage by requesting a signed URL
