@@ -52,6 +52,11 @@ const commandPalette = document.getElementById('command-palette');
 const exportBtn = document.getElementById('export-btn');
 const logoutBtn = document.getElementById('logout-btn');
 
+const APP_BOOT_STARTED_AT = performance.now();
+const FAST_BOOT_SKIP_MS = 500;
+const LOADER_FADE_MS = 180;
+let authBootstrapHandled = false;
+
 // ======================
 // SPREADSHEET ENGINE
 // ======================
@@ -368,22 +373,46 @@ function initTheme() {
 }
 
 function initAuth() {
-  supabaseClient.auth.getSession().then(({ data: { session } }) => {
-    setTimeout(() => {
+  const finishBootstrap = (session) => {
+    if (authBootstrapHandled) return;
+    authBootstrapHandled = true;
+
+    const elapsed = performance.now() - APP_BOOT_STARTED_AT;
+    const skipFade = elapsed <= FAST_BOOT_SKIP_MS;
+
+    const continueInit = () => {
       if (session) {
         currentUser = session.user;
-        loadingScreen.classList.add('hidden');
         initApp();
       } else {
-        loadingScreen.classList.add('hidden');
         authScreen.style.display = 'flex';
       }
-    }, 1500);
-  });
+    };
+
+    if (skipFade) {
+      loadingScreen.style.display = 'none';
+      continueInit();
+      return;
+    }
+
+    loadingScreen.classList.add('hidden');
+    setTimeout(() => {
+      loadingScreen.style.display = 'none';
+      continueInit();
+    }, LOADER_FADE_MS);
+  };
+
+  supabaseClient.auth.getSession()
+    .then(({ data: { session } }) => finishBootstrap(session))
+    .catch((error) => {
+      console.error('Session bootstrap error:', error);
+      finishBootstrap(null);
+    });
 
   supabaseClient.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN') {
       currentUser = session.user;
+      loadingScreen.style.display = 'none';
       authScreen.style.display = 'none';
       initApp();
     } else if (event === 'SIGNED_OUT') {
