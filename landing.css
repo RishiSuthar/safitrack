@@ -314,6 +314,93 @@ ul {
     gap: 32px;
 }
 
+.hero-ai-launch {
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    align-items: center;
+    gap: 14px;
+    width: fit-content;
+    max-width: 540px;
+    padding: 14px 16px;
+    border: 1px solid rgba(138, 149, 163, 0.2);
+    background: rgba(18, 25, 35, 0.66);
+    border-radius: 14px;
+}
+
+.hero-ai-visual {
+    width: 72px;
+    height: 72px;
+    border-radius: 12px;
+    border: 1px solid rgba(125, 162, 248, 0.25);
+    background: rgba(8, 12, 20, 0.8);
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    transform: translateY(-10px);
+}
+
+.hero-ai-orb-gif {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.92;
+}
+
+.hero-ai-content {
+    display: grid;
+    gap: 6px;
+    transform: translateY(-10px);
+}
+
+.hero-ai-topline {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.hero-ai-badge {
+    width: fit-content;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(125, 162, 248, 0.4);
+    background: rgba(47, 95, 208, 0.18);
+    color: #c7d8ff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.hero-ai-badge-inline {
+    margin-left: auto;
+    transform: translateY(7px);
+}
+
+.hero-ai-title {
+    font-size: 24px;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.hero-ai-copy {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-ai-orb-gif {
+        animation: none;
+    }
+}
+
 .stat-item {
     display: flex;
     flex-direction: column;
@@ -398,6 +485,64 @@ ul {
 
 .logo-ente {
     height: 64px;
+}
+
+/* ===================================
+   SCROLL MANIFESTO SECTION
+   =================================== */
+
+.scroll-manifesto {
+    position: relative;
+    height: 240vh;
+    background: radial-gradient(circle at 50% 12%, rgba(125, 162, 248, 0.1), transparent 46%), var(--bg-primary);
+    border-top: 1px solid var(--border-light);
+    border-bottom: 1px solid var(--border-light);
+}
+
+.scroll-manifesto-sticky {
+    position: sticky;
+    top: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+}
+
+.scroll-manifesto-stage {
+    max-width: 980px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 84px 0;
+}
+
+.sm-kicker {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    margin-bottom: 24px;
+}
+
+.sm-quote {
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    color: rgba(182, 192, 204, 0.28);
+}
+
+.sm-word {
+    display: inline-block;
+    color: #dce6ff;
+    opacity: 0.16;
+    transform: translateY(2px);
+    transition: opacity 180ms linear, transform 180ms linear, text-shadow 180ms linear;
+}
+
+.sm-word.active {
+    opacity: 1;
+    transform: translateY(0);
+    text-shadow: 0 0 22px rgba(125, 162, 248, 0.16);
 }
 
 /* ===================================
@@ -3448,6 +3593,10 @@ body {
     width: fit-content;
 }
 
+.hero-ai-launch {
+    width: fit-content;
+}
+
 .stat-value {
     font-size: 28px;
     letter-spacing: -0.02em;
@@ -3564,6 +3713,10 @@ body {
     .hero-stats {
         width: 100%;
         justify-content: space-between;
+    }
+
+    .hero-ai-launch {
+        width: 100%;
     }
 }
 
@@ -4775,6 +4928,18 @@ body {
 }
 
 @media (max-width: 1024px) {
+    .scroll-manifesto {
+        height: 185vh;
+    }
+
+    .scroll-manifesto-stage {
+        padding: 64px 0;
+    }
+
+    .sm-quote {
+        line-height: 1.14;
+    }
+
     .px-shell {
         grid-template-columns: 1fr;
     }
@@ -4786,5 +4951,15 @@ body {
 
     .px-kanban {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 720px) {
+    .scroll-manifesto {
+        height: 165vh;
+    }
+
+    .sm-kicker {
+        font-size: 0.75rem;
     }
 }

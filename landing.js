@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initNavbar();
     initSmoothScroll();
     initScrollAnimations();
+    initScrollManifesto();
     initInteractiveScreenshots();
     initCounterAnimations();
     initRoleTabs();
@@ -123,6 +124,80 @@ function initScrollAnimations() {
     });
 
     scrollElements.forEach(el => observer.observe(el));
+}
+
+function initScrollManifesto() {
+    const section = document.querySelector('[data-scroll-manifesto-section]');
+    const stage = section?.querySelector('[data-scroll-manifesto]');
+    const quote = section?.querySelector('[data-manifesto-quote]');
+
+    if (!section || !stage || !quote) return;
+
+    const sourceText = quote.textContent.trim();
+    const words = sourceText.split(/\s+/).filter(Boolean);
+    const wordNodes = [];
+
+    quote.textContent = '';
+    words.forEach((word, index) => {
+        const span = document.createElement('span');
+        span.className = 'sm-word';
+        span.textContent = word;
+        quote.appendChild(span);
+        wordNodes.push(span);
+
+        if (index < words.length - 1) {
+            quote.appendChild(document.createTextNode(' '));
+        }
+    });
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        wordNodes.forEach(wordNode => {
+            wordNode.classList.add('active');
+            wordNode.style.opacity = '1';
+        });
+        return;
+    }
+
+    const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
+    let ticking = false;
+
+    const updateProgress = () => {
+        const rect = section.getBoundingClientRect();
+        const scrollable = Math.max(rect.height - window.innerHeight, 1);
+        const passed = clamp(-rect.top, 0, scrollable);
+        const progress = passed / scrollable;
+
+        if (wordNodes.length) {
+            const reveal = progress * wordNodes.length;
+            const revealFloor = Math.floor(reveal);
+            const revealFraction = reveal - revealFloor;
+
+            wordNodes.forEach((wordNode, index) => {
+                if (index < revealFloor) {
+                    wordNode.classList.add('active');
+                    wordNode.style.opacity = '1';
+                } else if (index === revealFloor) {
+                    wordNode.classList.add('active');
+                    wordNode.style.opacity = (0.2 + revealFraction * 0.8).toFixed(3);
+                } else {
+                    wordNode.classList.remove('active');
+                    wordNode.style.opacity = '0.16';
+                }
+            });
+        }
+
+        ticking = false;
+    };
+
+    const requestUpdate = () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(updateProgress);
+    };
+
+    window.addEventListener('scroll', requestUpdate, { passive: true });
+    window.addEventListener('resize', requestUpdate);
+    requestUpdate();
 }
 
 // ===================================
