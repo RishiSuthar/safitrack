@@ -32,6 +32,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="custom-calendar.css">
+  <link rel="stylesheet" href="spreadsheet.css">
 
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
 </head>
@@ -154,7 +155,7 @@
     <header class="app-header">
       <div class="header-left">
         <button id="mobile-menu-toggle" class="mobile-menu-btn">
-          <i class="fas fa-bars"></i>
+          <i data-lucide="menu"></i>
         </button>
 
         <div class="header-brand">
@@ -162,7 +163,7 @@
         </div>
 
         <button id="sidebar-toggle" class="sidebar-toggle-btn" title="Toggle Sidebar">
-          <i></i>
+          <i data-lucide="panel-left"></i>
         </button>
 
       </div>
@@ -461,9 +462,7 @@
           <button data-view="people" class="nav-item">
             <span class="icon-bg people">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true">
-
                 <circle cx="12" cy="7" r="4" />
-
                 <path d="M8 13h8a4 4 0 0 1 4 4v4H4v-4a4 4 0 0 1 4-4Z" />
               </svg>
             </span>
@@ -473,9 +472,7 @@
           <button data-view="user-management" id="admin-view" class="nav-item">
             <span class="icon-bg users">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ffffff" aria-hidden="true">
-
                 <path d="M9 11a4 4 0 1 0-4-4a4 4 0 0 0 4 4Zm3 2H6a4 4 0 0 0-4 4v2h14v-2a4 4 0 0 0-4-4Z" />
-
                 <path
                   d="M17 11a3.5 3.5 0 1 0-3.5-3.5A3.5 3.5 0 0 0 17 11Zm3 8v-2a3.5 3.5 0 0 0-3-3.44h-2.2a5.7 5.7 0 0 1 1.7 3.44v2Z" />
               </svg>
@@ -614,21 +611,21 @@
             <label class="export-format-option">
               <input type="radio" name="export-format" value="pdf" checked>
               <div class="export-format-card">
-                <i class="fas fa-file-pdf"></i>
+                <i data-lucide="file-text"></i>
                 <span>PDF Report</span>
               </div>
             </label>
             <label class="export-format-option">
               <input type="radio" name="export-format" value="excel">
               <div class="export-format-card">
-                <i class="fas fa-file-excel"></i>
+                <i data-lucide="table"></i>
                 <span>Excel</span>
               </div>
             </label>
             <label class="export-format-option">
               <input type="radio" name="export-format" value="csv">
               <div class="export-format-card">
-                <i class="fas fa-file-csv"></i>
+                <i data-lucide="file-spreadsheet"></i>
                 <span>CSV</span>
               </div>
             </label>
@@ -659,7 +656,7 @@
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('export-modal')">Cancel</button>
         <button class="btn btn-primary" onclick="executeExport()">
-          <i class="fas fa-download"></i>
+          <i data-lucide="download"></i>
           Export
         </button>
       </div>
@@ -685,7 +682,7 @@
         <div class="form-section">
           <div class="form-section-header">
             <div class="form-section-icon">
-              <i class="fas fa-info-circle"></i>
+              <i data-lucide="info"></i>
             </div>
             <div>
               <div class="form-section-title">Basic Information</div>
@@ -755,7 +752,7 @@
         <div class="form-section">
           <div class="form-section-header">
             <div class="form-section-icon">
-              <i class="fas fa-map-marker-alt"></i>
+              <i data-lucide="map-pin"></i>
             </div>
             <div>
               <div class="form-section-title">Location Details</div>
@@ -786,12 +783,7 @@
 
           <div class="field-group">
             <button type="button" id="geocode-address-btn" class="btn btn-secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-search-icon lucide-search">
-                <path d="m21 21-4.34-4.34" />
-                <circle cx="11" cy="11" r="8" />
-              </svg>
+              <i data-lucide="search" style="width: 16px; height: 16px;"></i>
               <span>Find Coordinates</span>
             </button>
             <button type="button" id="use-current-location-btn" class="btn btn-secondary">
@@ -848,7 +840,7 @@
         <div class="form-section">
           <div class="form-section-header">
             <div class="form-section-icon">
-              <i class="fas fa-address-card"></i>
+              <i data-lucide="contact"></i>
             </div>
             <div>
               <div class="form-section-title">Contact Information</div>
@@ -900,7 +892,7 @@
         <div class="form-section">
           <div class="form-section-header">
             <div class="form-section-icon">
-              <i class="fas fa-briefcase"></i>
+              <i data-lucide="briefcase"></i>
             </div>
             <div>
               <div class="form-section-title">Professional Details</div>
@@ -971,7 +963,7 @@
         <div class="form-section">
           <div class="form-section-header">
             <div class="form-section-icon">
-              <i class="fas fa-handshake"></i>
+              <i data-lucide="handshake"></i>
             </div>
             <div>
               <div class="form-section-title">Deal Information</div>
@@ -1046,7 +1038,7 @@
         <div class="form-section">
           <div class="form-section-header">
             <div class="form-section-icon">
-              <i class="fas fa-calendar-check"></i>
+              <i data-lucide="calendar-check"></i>
             </div>
             <div>
               <div class="form-section-title">Timeline & Next Steps</div>
@@ -1076,7 +1068,7 @@
         <div class="form-section">
           <div class="form-section-header">
             <div class="form-section-icon">
-              <i class="fas fa-clipboard-list"></i>
+              <i data-lucide="clipboard-list"></i>
             </div>
             <div>
               <div class="form-section-title">Additional Details</div>
@@ -1135,7 +1127,7 @@
         <div class="form-section">
           <div class="form-section-header">
             <div class="form-section-icon">
-              <i class="fas fa-clipboard-check"></i>
+              <i data-lucide="clipboard-check"></i>
             </div>
             <div>
               <div class="form-section-title">Task Details</div>
@@ -1189,7 +1181,7 @@
         <div class="form-section">
           <div class="form-section-header">
             <div class="form-section-icon">
-              <i class="fas fa-user-clock"></i>
+              <i data-lucide="clock-3"></i>
             </div>
             <div>
               <div class="form-section-title">Assignment & Deadline</div>
@@ -1551,6 +1543,7 @@
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
 
   <script src="utils.js"></script>
   <script src="custom-calendar.js"></script>

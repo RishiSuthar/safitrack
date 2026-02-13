@@ -24,6 +24,14 @@ let callLogFilters = {
 };
 let filterDebounceTimer = null;
 
+// Spreadsheet State
+let currentSortKey = 'name';
+let currentSortDir = 'asc';
+let currentFilters = {
+  company_type: '',
+  person_company: ''
+};
+
 // ======================
 // DOM ELEMENTS
 // ======================
@@ -43,6 +51,304 @@ const commandPaletteBtn = document.getElementById('command-palette-btn');
 const commandPalette = document.getElementById('command-palette');
 const exportBtn = document.getElementById('export-btn');
 const logoutBtn = document.getElementById('logout-btn');
+
+// ======================
+// SPREADSHEET ENGINE
+// ======================
+
+/**
+ * Universal Editable Data Table
+ * @param {Array} data - Paginated data array
+ * @param {Array} columns - Column definitions
+ * @param {string} tableId - Unique ID for the table
+ * @param {string} supabaseTable - Supabase table name for updates
+ */
+function renderEditableDataTable(data, columns, tableId, supabaseTable) {
+  let html = `
+    <div class="spreadsheet-container">
+      <table class="spreadsheet-table" id="${tableId}">
+        <thead>
+      <tr>
+        ${columns.map(col => {
+          const columnWidth = col.width || '160px';
+          const isSortable = col.sortable !== false;
+          const sortIcon = isSortable
+            ? `<i data-lucide="${currentSortKey === col.key ? (currentSortDir === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}" 
+                 style="width: 12px; height: 12px; opacity: ${currentSortKey === col.key ? 1 : 0.3};"></i>`
+            : '';
+          return `
+          <th style="width: ${columnWidth}; min-width: ${columnWidth}; max-width: ${columnWidth}; position: relative; cursor: ${isSortable ? 'pointer' : 'default'};" 
+              ${isSortable ? `onclick="handleHeaderSort('${col.key}', true)"` : ''}
+              class="sortable-header ${isSortable && currentSortKey === col.key ? 'active-sort' : ''}">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              ${col.icon ? `<i data-lucide="${col.icon}" style="width: 14px; height: 14px; opacity: 0.6;"></i>` : ''}
+              <span style="flex: 1; overflow: hidden; text-overflow: ellipsis;">${col.label}</span>
+              ${sortIcon}
+            </div>
+            <div class="resize-handle" onmousedown="initResize(event, this)"></div>
+          </th>
+        `;
+        }).join('')}
+      </tr>
+    </thead>
+        <tbody>
+  `;
+
+  if (data.length === 0) {
+    html += `<tr><td colspan="${columns.length}" style="text-align: center; padding: 40px; color: var(--text-muted);">No records found</td></tr>`;
+  } else {
+    data.forEach((row, rowIndex) => {
+      html += `<tr data-row-id="${row.id}">`;
+      columns.forEach(col => {
+        const rawValue = getDeepValue(row, col.key); // Get the raw value for data-value
+        const displayValue = col.render ? col.render(rawValue, row) : (rawValue || '-');
+        const isReadOnly = col.readOnly ? 'true' : 'false';
+        const type = col.type || 'text';
+        const options = JSON.stringify(col.options || []);
+        const columnWidth = col.width || '160px';
+
+        html += `<td class="spreadsheet-cell-wrapper" style="width: ${columnWidth}; min-width: ${columnWidth}; max-width: ${columnWidth};">
+          <div class="spreadsheet-cell"
+               data-row-id="${row.id}"
+               data-column="${col.key}"
+               data-read-only="${isReadOnly}"
+               data-type="${type}"
+               data-options='${options}'
+               data-value="${rawValue !== undefined && rawValue !== null ? rawValue : ''}"
+               onclick="if(this.dataset.readOnly !== 'true') makeCellEditable(this, '${row.id}', '${supabaseTable}')">
+            ${displayValue}
+          </div>
+        </td>`;
+      });
+      html += `</tr>`;
+    });
+  }
+
+  html += `
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  return html;
+}
+
+function getDeepValue(obj, path) {
+  return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+}
+
+function makeCellEditable(cell, rowId, tableName) {
+  if (cell.classList.contains('editing')) return;
+
+  const column = cell.dataset.column;
+  const type = cell.dataset.type;
+  const options = JSON.parse(cell.dataset.options || '[]');
+  const initialValue = cell.dataset.value || ''; // Use data-value for initial value
+  const cellWrapper = cell.closest('.spreadsheet-cell-wrapper');
+
+  cell.classList.add('editing');
+  cellWrapper?.classList.add('editing-cell');
+
+  let input;
+  if (type === 'select') {
+    input = document.createElement('select');
+    options.forEach(opt => {
+      const option = document.createElement('option');
+      option.value = opt;
+      option.text = opt;
+      if (opt === initialValue) option.selected = true;
+      input.appendChild(option);
+    });
+  } else {
+    input = document.createElement('input');
+    input.type = type || 'text';
+    input.value = initialValue;
+    input.classList.add('spreadsheet-inline-editor');
+  }
+
+  cell.innerHTML = '';
+  cell.appendChild(input);
+  input.focus();
+
+  // Select all text if it's an input
+  if (input.select) input.select();
+
+  const save = async () => {
+    const newValue = input.value;
+    if (newValue !== initialValue) { // Compare with initialValue
+      cell.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+      const success = await handleCellUpdate(tableName, rowId, column, newValue); // Use 'column'
+      if (success) {
+        // Re-render the cell content based on column definition
+        // We'll use a simplified version for now or find the col def
+        cell.dataset.value = newValue;
+
+        // Find column definition to see if we need special render (like avatars)
+        let colDef;
+        if (tableName === 'companies') {
+          // We might need to pass col defs or find them
+        }
+
+        // For now, let's just refresh the view or re-render row content
+        // A simple fix for avatars: if it's 'name' and we see an avatar, re-gen it
+        if (column === 'name' && cell.querySelector('.mention-avatar')) {
+          cell.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <div class="mention-avatar" style="width: 24px; height: 24px; font-size: 0.75rem;">${getInitials(newValue)}</div>
+              <span>${newValue}</span>
+            </div>
+          `;
+        } else {
+          cell.innerText = newValue || '-';
+        }
+
+        showToast('Updated successfully', 'success');
+      } else {
+        cell.innerText = initialValue || '-';
+        cell.dataset.value = initialValue; // Revert data-value
+      }
+    } else {
+      cell.innerText = initialValue || '-';
+    }
+    cell.classList.remove('editing');
+    cellWrapper?.classList.remove('editing-cell');
+  };
+
+  input.onblur = save;
+  input.onkeydown = (e) => {
+    if (e.key === 'Enter') input.blur();
+    if (e.key === 'Escape') {
+      cell.innerText = initialValue || '-';
+      cell.dataset.value = initialValue; // Revert data-value
+      cell.classList.remove('editing');
+      cellWrapper?.classList.remove('editing-cell');
+    }
+  };
+}
+
+// Column Resizing Logic
+let currentResizer;
+let currentTh;
+let startX;
+let startWidth;
+
+function initResize(e, resizer) {
+  currentResizer = resizer;
+  currentTh = resizer.parentElement;
+  startX = e.pageX;
+  startWidth = currentTh.offsetWidth;
+
+  currentResizer.classList.add('resizing');
+  document.addEventListener('mousemove', handleResizeMove);
+  document.addEventListener('mouseup', stopResize);
+
+  // Prevent text selection during resize
+  document.body.style.userSelect = 'none';
+  document.body.style.cursor = 'col-resize';
+}
+
+function handleResizeMove(e) {
+  if (!currentTh) return;
+  const diff = e.pageX - startX;
+  const newWidth = Math.max(50, startWidth + diff);
+  currentTh.style.width = newWidth + 'px';
+  currentTh.style.minWidth = newWidth + 'px';
+  currentTh.style.maxWidth = newWidth + 'px';
+
+  const table = currentTh.closest('table');
+  if (!table) return;
+
+  const columnIndex = currentTh.cellIndex + 1;
+  table.querySelectorAll(`tbody tr td:nth-child(${columnIndex})`).forEach(td => {
+    td.style.width = newWidth + 'px';
+    td.style.minWidth = newWidth + 'px';
+    td.style.maxWidth = newWidth + 'px';
+  });
+}
+
+function stopResize() {
+  if (currentResizer) currentResizer.classList.remove('resizing');
+  document.removeEventListener('mousemove', handleResizeMove);
+  document.removeEventListener('mouseup', stopResize);
+  document.body.style.userSelect = '';
+  document.body.style.cursor = '';
+  currentResizer = null;
+  currentTh = null;
+}
+
+async function handleCellUpdate(tableName, rowId, key, value) {
+  const column = key.includes('.') ? key.split('.')[0] : key;
+
+  // Phone numbers bug fix: if column is phone_numbers and value is a string, check if it should be an array
+  let finalValue = value;
+  if (column === 'phone_numbers' && typeof value === 'string') {
+    finalValue = value.split(',').map(p => p.trim()).filter(p => p !== '');
+  }
+
+  const { error } = await supabaseClient
+    .from(tableName)
+    .update({ [column]: finalValue })
+    .eq('id', rowId);
+
+  if (error) {
+    console.error('Update error:', error);
+    showToast('Failed to update: ' + error.message, 'error');
+    return false;
+  }
+
+  // Update local window data
+  if (tableName === 'companies') {
+    const item = window.allCompaniesData.find(c => c.id === rowId);
+    if (item) item[column] = finalValue;
+  } else if (tableName === 'people') {
+    const item = window.allPeopleData.find(p => p.id === rowId);
+    if (item) item[column] = finalValue;
+  }
+
+  return true;
+}
+
+// Full Sort & Filter Logic
+function sortData(data, key, direction = 'asc') {
+  return [...data].sort((a, b) => {
+    let valA = getDeepValue(a, key);
+    let valB = getDeepValue(b, key);
+
+    if (valA == null) valA = '';
+    if (valB == null) valB = '';
+
+    if (typeof valA === 'string') valA = valA.toLowerCase();
+    if (typeof valB === 'string') valB = valB.toLowerCase();
+
+    if (valA < valB) return direction === 'asc' ? -1 : 1;
+    if (valA > valB) return direction === 'asc' ? 1 : -1;
+    return 0;
+  });
+}
+
+function handleHeaderSort(key, isSortable = true) {
+  if (!isSortable) return;
+
+  if (currentSortKey === key) {
+    currentSortDir = currentSortDir === 'asc' ? 'desc' : 'asc';
+  } else {
+    currentSortKey = key;
+    currentSortDir = 'asc';
+  }
+
+  refreshCurrentView();
+}
+
+function refreshCurrentView() {
+  const activeNavItem = document.querySelector('.nav-item.active');
+  const view = activeNavItem ? activeNavItem.dataset.view : '';
+
+  if (view === 'companies') {
+    renderCompaniesView();
+  } else if (view === 'people') {
+    renderPeopleView();
+  }
+}
 
 // ======================
 // INITIALIZATION
@@ -490,6 +796,11 @@ async function loadView(viewName) {
       viewContainer.innerHTML = renderNotFound();
   }
   checkDueReminders();
+
+  // Always try to initialize Lucide icons after a view switch
+  if (window.lucide) {
+    setTimeout(() => lucide.createIcons(), 0);
+  }
 }
 
 // ======================
@@ -497,6 +808,13 @@ async function loadView(viewName) {
 // ======================
 
 async function renderCompaniesView() {
+  const sortableCompanyColumns = ['name', 'address', 'company_type'];
+  const safeSortKey = sortableCompanyColumns.includes(currentSortKey) ? currentSortKey : 'name';
+  if (currentSortKey !== safeSortKey) {
+    currentSortKey = safeSortKey;
+    currentSortDir = 'asc';
+  }
+
   // Fetch all companies (we'll paginate in the UI)
   const { data: companies, error } = await supabaseClient
     .from('companies')
@@ -509,7 +827,7 @@ async function renderCompaniesView() {
         )
       )
     `)
-    .order('name', { ascending: true });
+    .order(safeSortKey, { ascending: currentSortDir === 'asc' });
 
   if (error) {
     viewContainer.innerHTML = renderError(error.message);
@@ -521,100 +839,70 @@ async function renderCompaniesView() {
 
   // Initial pagination state
   let currentPage = 1;
-  const recordsPerPage = 10; // Number of records per page
+  const recordsPerPage = 15; // Number of records per page
   let searchQuery = ''; // Separate search state
 
   // Function to render the companies table
   function renderCompaniesTable(companiesToRender, paginationInfo) {
+    const columns = [
+      { key: 'rank', label: '#', width: '50px', readOnly: true, sortable: false, render: (val, row) => (paginationInfo.currentPage - 1) * paginationInfo.recordsPerPage + companiesToRender.indexOf(row) + 1 },
+      { key: 'name', label: 'Company Name', width: '250px', icon: 'building', sortable: true },
+      { key: 'industry', label: 'Industry', width: '150px', readOnly: true, icon: 'briefcase', sortable: false, render: (val, row) => val || row.company_categories?.map(c => c.categories.name).join(', ') || 'N/A' },
+      { key: 'address', label: 'Location', width: '190px', icon: 'map-pin' },
+      {
+        key: 'company_type',
+        label: 'Type',
+        width: '120px',
+        icon: 'tag',
+        sortable: true,
+        type: 'select',
+        options: ['Competitor', 'Customer', 'Distributor', 'Investor', 'Partner', 'Reseller', 'Supplier', 'Vendor', 'Other']
+      },
+      {
+        key: 'actions', label: 'Actions', width: '100px', readOnly: true, sortable: false, render: (val, row) => `
+        <div class="table-actions">
+          <button class="action-btn edit-company" data-id="${row.id}" title="Edit company"><i data-lucide="square-pen"></i></button>
+          <button class="action-btn delete-company" data-id="${row.id}" title="Delete company"><i data-lucide="trash-2"></i></button>
+        </div>
+      `}
+    ];
+
     let html = `
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">Companies</h3>
-          <button class="btn btn-primary" id="add-company-btn">
-            <i class="fas fa-plus"></i> Add Company
+      <div class="view-header-minimal">
+        <div class="view-breadcrumb">
+          <span>Companies</span>
+        </div>
+        <div class="view-actions">
+          <button class="toolbar-btn" onclick="showToast('Import/Export coming soon', 'info')">
+            <i data-lucide="file-up"></i> Import / Export
           </button>
         </div>
-        
-        <!-- Add search bar -->
-        <div class="form-field">
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" id="companies-search" placeholder="Search companies by name or description...">
+      </div>
+
+      <div class="view-toolbar">
+        <div class="search-container" style="flex: 1; max-width: 320px;">
+          <i data-lucide="search" style="width: 16px; height: 16px; margin-left: 12px; color: var(--text-muted);"></i>
+          <input type="text" id="companies-search" placeholder="Search companies...">
+          <div id="clear-companies-search" class="search-clear-btn hidden" title="Clear search">
+            <i data-lucide="x" style="width: 16px; height: 16px;"></i>
           </div>
         </div>
         
-        <!-- Companies Table -->
-        <div class="table-container" id="companies-table-container">
-          <table class="data-table" id="companies-table">
-            <thead>
-              <tr>
-                <th width="50">#</th>
-                <th>Company Name</th>
-                <th>Industry</th>
-                <th>Location</th>
-                <th>Type</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-    `;
-
-    if (companiesToRender.length === 0) {
-      html += `
-        <tr>
-          <td colspan="${isManager ? '6' : '5'}" class="text-center">
-            <div class="empty-state">
-              <i class="fas fa-building empty-state-icon"></i>
-              <h3 class="empty-state-title">No companies found</h3>
-              <p class="empty-state-description">Try adjusting your search terms or add a new company.</p>
-                <button class="btn btn-primary" onclick="openCompanyModal()">
-                  <i class="fas fa-plus"></i> Add Company
-                </button>
-            </div>
-          </td>
-        </tr>
-      `;
-    } else {
-      companiesToRender.forEach((company, index) => {
-        const categories = company.company_categories.map(c => c.categories.name).join(', ');
-        const actualRowNumber = (paginationInfo.currentPage - 1) * paginationInfo.recordsPerPage + index + 1;
-
-        html += `
-          <tr data-id="${company.id}" data-name="${company.name.toLowerCase()}" data-description="${(company.description || '').toLowerCase()}">
-            <td>${actualRowNumber}</td>
-            <td>
-              <div class="company-name-cell">${company.name}</div>
-              ${company.description ? `<div class="company-description">${company.description}</div>` : ''}
-            </td>
-            <td>${categories || 'N/A'}</td>
-            <td>${company.address || 'N/A'}</td>
-            <td>${company.company_type || 'N/A'}</td>
-              <td>
-                <div class="table-actions">
-                  <button class="action-btn edit-company" data-id="${company.id}" title="Edit company">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen-icon lucide-square-pen"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
-                  </button>
-                  <button class="action-btn delete-company" data-id="${company.id}" title="Delete company">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                  </button>
-                </div>
-              </td>
-          </tr>
-        `;
-      });
-    }
-
-    html += `
-            </tbody>
-          </table>
-        </div>
-        
-        <!-- Pagination Container -->
-        <div id="companies-pagination"></div>
+        <div style="flex: 1;"></div>
+        <button class="toolbar-btn toolbar-btn-primary" id="add-company-btn">
+          <i data-lucide="plus" style="width: 16px; height: 16px;"></i> New Company
+        </button>
       </div>
+      
+      ${renderEditableDataTable(companiesToRender, columns, 'companies-spreadsheet', 'companies')}
+      
+      <div id="companies-pagination" style="padding: 16px;"></div>
     `;
 
     viewContainer.innerHTML = html;
+
+    // Initialize Lucide icons immediately
+    if (window.lucide) lucide.createIcons();
 
     // Restore search value after rendering
     const searchInput = document.getElementById('companies-search');
@@ -771,17 +1059,100 @@ async function renderCompaniesView() {
         }
       });
     });
+
+    // Clear search event
+    const clearSearchBtn = document.getElementById('clear-companies-search');
+    if (clearSearchBtn) {
+      if (searchQuery) clearSearchBtn.classList.remove('hidden');
+      clearSearchBtn.onclick = () => {
+        searchQuery = '';
+        searchInput.value = '';
+        clearSearchBtn.classList.add('hidden');
+        currentPage = 1;
+        const result = searchAndPaginate(
+          window.allCompaniesData,
+          searchQuery,
+          1,
+          recordsPerPage,
+          (item, query) => filterAndSearchCompany(item, query)
+        );
+        renderCompaniesTable(result.data, result);
+      };
+    }
+
+    // Company type filter event
+    const typeFilter = document.getElementById('company-type-filter');
+    if (typeFilter) {
+      typeFilter.value = currentFilters.company_type || '';
+      typeFilter.onchange = (e) => {
+        currentFilters.company_type = e.target.value;
+        currentPage = 1;
+        const result = searchAndPaginate(
+          window.allCompaniesData,
+          searchQuery,
+          1,
+          recordsPerPage,
+          (item, query) => filterAndSearchCompany(item, query)
+        );
+        renderCompaniesTable(result.data, result);
+      };
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        if (searchQuery) {
+          clearSearchBtn?.classList.remove('hidden');
+        } else {
+          clearSearchBtn?.classList.add('hidden');
+        }
+
+        currentPage = 1;
+        const result = searchAndPaginate(
+          window.allCompaniesData,
+          searchQuery,
+          1,
+          recordsPerPage,
+          (item, query) => filterAndSearchCompany(item, query)
+        );
+        renderCompaniesTable(result.data, result);
+      });
+    }
+
+    // Sort event
+    const sortBtn = document.getElementById('companies-sort-btn');
+    if (sortBtn) {
+      sortBtn.onclick = () => {
+        handleHeaderSort('name');
+      };
+    }
   }
 
-  // Initial render
-  const initialResult = searchAndPaginate(
+  // Helper for combined filter/search
+
+  // Initialize Lucide icons
+  if (window.lucide) lucide.createIcons();
+  // Initial data processing
+  const initialData = searchAndPaginate(
     window.allCompaniesData,
     searchQuery,
-    1, // Explicitly set to 1
+    1,
     recordsPerPage,
-    (company, query) => true // No initial filter
+    (item, query) => filterAndSearchCompany(item, query)
   );
-  renderCompaniesTable(initialResult.data, initialResult);
+  renderCompaniesTable(initialData.data, initialData);
+
+  // Explicitly initialize icons after rendering table
+  if (window.lucide) lucide.createIcons();
+  // Helper for combined filter/search
+  function filterAndSearchCompany(company, query) {
+    if (currentFilters.company_type && company.company_type !== currentFilters.company_type) return false;
+    if (!query) return true;
+    const q = query.toLowerCase();
+    return company.name.toLowerCase().includes(q) ||
+      (company.description && company.description.toLowerCase().includes(q)) ||
+      (company.address && company.address.toLowerCase().includes(q));
+  }
 }
 
 
@@ -1116,6 +1487,15 @@ function renderCategories() {
 // ======================
 
 async function renderPeopleView() {
+  currentFilters.person_company = '';
+
+  const sortablePeopleColumns = ['name', 'email', 'job_title', 'phone_numbers'];
+  const safeSortKey = sortablePeopleColumns.includes(currentSortKey) ? currentSortKey : 'name';
+  if (currentSortKey !== safeSortKey) {
+    currentSortKey = safeSortKey;
+    currentSortDir = 'asc';
+  }
+
   const [peopleResult, companiesResult, opportunitiesResult] = await Promise.all([
     supabaseClient
       .from('people')
@@ -1130,7 +1510,7 @@ async function renderPeopleView() {
           name
         )
       `)
-      .order('name', { ascending: true }),
+      .order(safeSortKey, { ascending: currentSortDir === 'asc' }),
     supabaseClient
       .from('companies')
       .select('id, name')
@@ -1157,111 +1537,70 @@ async function renderPeopleView() {
 
   // Initial pagination state
   let currentPage = 1;
-  const recordsPerPage = 10; // Number of records per page
+  const recordsPerPage = 15; // Number of records per page
   let searchQuery = ''; // Separate search state
 
   // Function to render the people table
   function renderPeopleTable(peopleToRender, paginationInfo) {
+    const columns = [
+      { key: 'rank', label: '#', width: '50px', readOnly: true, sortable: false, render: (val, row) => (paginationInfo.currentPage - 1) * paginationInfo.recordsPerPage + peopleToRender.indexOf(row) + 1 },
+      {
+        key: 'name', label: 'Name', width: '210px', icon: 'user', sortable: true, render: (val) => `
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <div class="mention-avatar" style="width: 24px; height: 24px; font-size: 0.75rem;">${getInitials(val)}</div>
+          <span>${val}</span>
+        </div>
+      `},
+      { key: 'email', label: 'Email', width: '250px', icon: 'mail', sortable: true },
+      { key: 'company.name', label: 'Company', width: '160px', icon: 'building', readOnly: true, sortable: false, render: (val, row) => row.company ? row.company.name : 'No company' },
+      { key: 'job_title', label: 'Job Title', width: '150px', icon: 'briefcase', sortable: true },
+      { key: 'phone_numbers', label: 'Phone', width: '150px', icon: 'phone', sortable: true, render: (phones) => phones && Array.isArray(phones) ? phones.join(', ') : (phones || 'N/A') },
+      { key: 'opportunity.name', label: 'Opportunity', width: '180px', icon: 'target', readOnly: true, sortable: false, render: (val, row) => row.opportunity ? row.opportunity.name : 'N/A' },
+      {
+        key: 'actions', label: 'Actions', width: '100px', readOnly: true, sortable: false, render: (val, row) => `
+        <div class="table-actions">
+          <button class="action-btn edit-person" data-id="${row.id}" title="Edit person"><i data-lucide="square-pen"></i></button>
+          <button class="action-btn delete-person" data-id="${row.id}" title="Delete person"><i data-lucide="trash-2"></i></button>
+        </div>
+      `}
+    ];
+
     let html = `
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">People</h3>
-          <button class="btn btn-primary" id="add-person-btn">
-            <i class="fas fa-plus"></i> Add Person
+      <div class="view-header-minimal">
+        <div class="view-breadcrumb">
+          <span>People</span>
+        </div>
+        <div class="view-actions">
+          <button class="toolbar-btn" onclick="showToast('Import/Export coming soon', 'info')">
+            <i data-lucide="file-up"></i> Import / Export
           </button>
         </div>
-        
-        <!-- Add search bar -->
-        <div class="form-field">
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" id="people-search" placeholder="Search people by name, email, or company...">
+      </div>
+
+      <div class="view-toolbar">
+        <div class="search-container" style="flex: 1; max-width: 320px;">
+          <i data-lucide="search" style="width: 16px; height: 16px; margin-left: 12px; color: var(--text-muted);"></i>
+          <input type="text" id="people-search" placeholder="Search people...">
+          <div id="clear-people-search" class="search-clear-btn hidden" title="Clear search">
+            <i data-lucide="x" style="width: 16px; height: 16px;"></i>
           </div>
         </div>
         
-        <!-- People Table -->
-        <div class="table-container" id="people-table-container">
-          <table class="data-table" id="people-table">
-            <thead>
-              <tr>
-                <th width="50">#</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Company</th>
-                <th>Job Title</th>
-                <th>Phone</th>
-                <th>Opportunity</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-    `;
-
-    if (peopleToRender.length === 0) {
-      html += `
-        <tr>
-          <td colspan="8" class="text-center">
-            <div class="empty-state">
-              <i class="fas fa-user empty-state-icon"></i>
-              <h3 class="empty-state-title">No people found</h3>
-              <p class="empty-state-description">Try adjusting your search terms or add a new person.</p>
-              <button class="btn btn-primary" onclick="openPersonModal()">
-                <i class="fas fa-plus"></i> Add Person
-              </button>
-            </div>
-          </td>
-        </tr>
-      `;
-    } else {
-      peopleToRender.forEach((person, index) => {
-        const companyName = person.company ? person.company.name : 'No company';
-        const opportunityName = person.opportunity ? person.opportunity.name : '';
-        const phoneNumbers = person.phone_numbers && person.phone_numbers.length > 0
-          ? person.phone_numbers.join(', ')
-          : 'N/A';
-        const actualRowNumber = (paginationInfo.currentPage - 1) * paginationInfo.recordsPerPage + index + 1;
-
-        html += `
-          <tr data-id="${person.id}" 
-              data-name="${person.name.toLowerCase()}" 
-              data-email="${(person.email || '').toLowerCase()}" 
-              data-company="${companyName.toLowerCase()}"
-              data-job-title="${(person.job_title || '').toLowerCase()}">
-            <td>${actualRowNumber}</td>
-            <td>
-              <div class="person-name-cell">${person.name}</div>
-            </td>
-            <td>${person.email || 'N/A'}</td>
-            <td>${companyName}</td>
-            <td>${person.job_title || 'N/A'}</td>
-            <td>${phoneNumbers}</td>
-            <td>${opportunityName || 'N/A'}</td>
-            <td>
-              <div class="table-actions">
-                <button class="action-btn edit-person" data-id="${person.id}" title="Edit person">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen-icon lucide-square-pen"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
-                </button>
-                <button class="action-btn delete-person" data-id="${person.id}" title="Delete person">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                </button>
-              </div>
-            </td>
-          </tr>
-        `;
-      });
-    }
-
-    html += `
-            </tbody>
-          </table>
-        </div>
-        
-        <!-- Pagination Container -->
-        <div id="people-pagination"></div>
+        <div style="flex: 1;"></div>
+        <button class="toolbar-btn toolbar-btn-primary" id="add-person-btn">
+          <i data-lucide="plus" style="width: 16px; height: 16px;"></i> New Person
+        </button>
       </div>
+      
+      ${renderEditableDataTable(peopleToRender, columns, 'people-spreadsheet', 'people')}
+      
+      <div id="people-pagination" style="padding: 16px;"></div>
     `;
 
     viewContainer.innerHTML = html;
+
+    // Initialize Lucide icons immediately
+    if (window.lucide) lucide.createIcons();
 
     // Restore search value after rendering
     const searchInput = document.getElementById('people-search');
@@ -1300,52 +1639,89 @@ async function renderPeopleView() {
   // Separate function to initialize event listeners
   function initializePeopleEventListeners() {
     const searchInput = document.getElementById('people-search');
-    if (searchInput) {
-      // Remove any existing listeners by cloning and replacing
-      const newSearchInput = searchInput.cloneNode(true);
-      searchInput.parentNode.replaceChild(newSearchInput, searchInput);
+    // Clear search event
+    const clearSearchBtn = document.getElementById('clear-people-search');
+    if (clearSearchBtn) {
+      if (searchQuery) clearSearchBtn.classList.remove('hidden');
+      clearSearchBtn.onclick = () => {
+        searchQuery = '';
+        searchInput.value = '';
+        clearSearchBtn.classList.add('hidden');
+        currentPage = 1;
+        const result = searchAndPaginate(
+          window.allPeopleData,
+          searchQuery,
+          1,
+          recordsPerPage,
+          (item, query) => filterAndSearchPerson(item, query)
+        );
+        renderPeopleTable(result.data, result);
+      };
+    }
 
-      // Add new listener
-      newSearchInput.addEventListener('input', (e) => {
-        // Store the current cursor position
+    // Company filter event
+    const companyFilter = document.getElementById('people-company-filter');
+    if (companyFilter) {
+      companyFilter.onchange = (e) => {
+        currentFilters.person_company = e.target.value;
+        currentPage = 1;
+        const result = searchAndPaginate(
+          window.allPeopleData,
+          searchQuery,
+          1,
+          recordsPerPage,
+          (item, query) => filterAndSearchPerson(item, query)
+        );
+        renderPeopleTable(result.data, result);
+      };
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
         const cursorPosition = e.target.selectionStart;
         const searchValue = e.target.value;
 
         searchQuery = searchValue;
+        if (searchQuery) {
+          clearSearchBtn?.classList.remove('hidden');
+        } else {
+          clearSearchBtn?.classList.add('hidden');
+        }
 
-        // Use a small delay to avoid too many rapid searches
-        clearTimeout(newSearchInput.searchTimeout);
-        newSearchInput.searchTimeout = setTimeout(() => {
-          currentPage = 1; // Reset to first page when searching
-          const result = searchAndPaginate(
-            window.allPeopleData,
-            searchQuery,
-            currentPage,
-            recordsPerPage,
-            (person, query) =>
-              person.name.toLowerCase().includes(query) ||
-              (person.email && person.email.toLowerCase().includes(query)) ||
-              (person.company && person.company.name && person.company.name.toLowerCase().includes(query)) ||
-              (person.job_title && person.job_title.toLowerCase().includes(query))
-          );
+        clearTimeout(searchInput.searchTimeout);
+        searchInput.searchTimeout = setTimeout(() => {
+          currentPage = 1;
 
-          // Store the active element and cursor position before re-rendering
           const activeElement = document.activeElement;
           const wasSearchInput = activeElement && activeElement.id === 'people-search';
 
+          const result = searchAndPaginate(
+            window.allPeopleData,
+            searchQuery,
+            1,
+            recordsPerPage,
+            (item, query) => filterAndSearchPerson(item, query)
+          );
           renderPeopleTable(result.data, result);
 
-          // Restore focus and cursor position to the search input if it was the active element
           if (wasSearchInput) {
             setTimeout(() => {
               const searchElement = document.getElementById('people-search');
+              if (!searchElement) return;
               searchElement.focus();
-              // Set the cursor position to where it was before
               searchElement.setSelectionRange(cursorPosition, cursorPosition);
             }, 0);
           }
-        }, 300); // 300ms delay
+        }, 250);
       });
+    }
+
+    // Sort event
+    const sortBtn = document.getElementById('people-sort-btn');
+    if (sortBtn) {
+      sortBtn.onclick = () => {
+        handleHeaderSort('name');
+      };
     }
 
     // Add person button
@@ -1428,15 +1804,29 @@ async function renderPeopleView() {
     });
   }
 
-  // Initial render
-  const initialResult = searchAndPaginate(
+  // Helper for combined filter/search
+  function filterAndSearchPerson(person, query) {
+    if (currentFilters.person_company && person.company_id !== currentFilters.person_company) return false;
+    if (!query) return true;
+    const q = query.toLowerCase();
+    return person.name.toLowerCase().includes(q) ||
+      (person.email && person.email.toLowerCase().includes(q)) ||
+      (person.job_title && person.job_title.toLowerCase().includes(q)) ||
+      (person.company && person.company.name && person.company.name.toLowerCase().includes(q));
+  }
+
+  // Initial data processing
+  const initialPeopleData = searchAndPaginate(
     window.allPeopleData,
     searchQuery,
-    1, // Explicitly set to 1
+    1,
     recordsPerPage,
-    (person, query) => true // No initial filter
+    (item, query) => filterAndSearchPerson(item, query)
   );
-  renderPeopleTable(initialResult.data, initialResult);
+  renderPeopleTable(initialPeopleData.data, initialPeopleData);
+
+  // Explicitly initialize icons after rendering table
+  if (window.lucide) lucide.createIcons();
 }
 
 
@@ -4916,7 +5306,7 @@ async function startRouteNavigation(routeId) {
       <div class="route-navigation">
         <div class="route-navigation-header">
           <button class="btn btn-ghost" onclick="loadView('my-routes')">
-            <i class="fas fa-arrow-left"></i> Back
+            <i data-lucide="arrow-left"></i> Back
           </button>
           <h2>${route.name}</h2>
           <button class="btn btn-secondary" id="complete-route-btn">
@@ -6098,7 +6488,7 @@ async function renderRemindersView() {
       <div class="card-header">
         <h3 class="card-title">Reminders</h3>
         <button class="btn btn-primary" id="add-reminder-btn">
-          <i class="fas fa-plus"></i> New Reminder
+          <i data-lucide="plus"></i> New Reminder
         </button>
       </div>
       
@@ -6175,7 +6565,7 @@ async function renderRemindersView() {
         <h3 class="empty-state-title">No reminders yet</h3>
         <p class="empty-state-description">Create your first reminder to get started.</p>
         <button class="btn btn-primary" onclick="openReminderModal()">
-          <i class="fas fa-plus"></i> Add Reminder
+          <i data-lucide="plus"></i> Add Reminder
         </button>
       </div>
     `;
@@ -6211,7 +6601,7 @@ async function renderRemindersView() {
               <div class="reminder-meta-item">
                 <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-icon lucide-calendar"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
                 <span>${formatDate(reminder.reminder_date)}</span>
-                ${isOverdue ? '<i class="fas fa-exclamation-triangle"></i>' : ''}
+                ${isOverdue ? '<i data-lucide="alert-triangle"></i>' : ''}
               </div>
             ` : ''}
             
@@ -6232,7 +6622,7 @@ async function renderRemindersView() {
           
           <div class="reminder-actions">
             <div class="reminder-date">
-              <i class="fas fa-bell"></i>
+              <i data-lucide="bell"></i>
               ${formatDate(reminder.reminder_date, true)}
             </div>
             <div class="reminder-action-buttons">
@@ -6256,7 +6646,7 @@ async function renderRemindersView() {
           
           ${!isManager && isCreatedByManager ? `
             <div class="reminder-assigned-to">
-              <i class="fas fa-info-circle"></i>
+              <i data-lucide="info"></i>
               <span>This reminder was assigned to you by a manager</span>
             </div>
           ` : ''}
@@ -6988,7 +7378,7 @@ function getLeadScoreBadge(score) {
     label = 'Medium';
   }
 
-  return `<span class="lead-score-badge ${className}"> Lead Score : <i class="fas fa-bullseye"></i> ${label}(${score}%)</span>`;
+  return `<span class="lead-score-badge ${className}"> Lead Score : <i data-lucide="target" style="width:14px; height:14px; vertical-align:middle;"></i> ${label}(${score}%)</span>`;
 }
 
 function parseMarkdown(text) {
@@ -7029,7 +7419,7 @@ function renderError(message) {
   return `
     <div class="card">
       <div class="empty-state">
-        <i class="fas fa-exclamation-circle empty-state-icon text-danger"></i>
+        <i data-lucide="alert-circle" class="empty-state-icon text-danger"></i>
         <h3 class="empty-state-title">Error</h3>
         <p class="empty-state-description">${message}</p>
       </div>
@@ -7041,7 +7431,7 @@ function renderAccessDenied() {
   return `
     <div class="card">
       <div class="empty-state">
-        <i class="fas fa-lock empty-state-icon"></i>
+        <i data-lucide="lock" class="empty-state-icon"></i>
         <h3 class="empty-state-title">Access Denied</h3>
         <p class="empty-state-description">You don't have permission to view this page.</p>
       </div>
@@ -7053,7 +7443,7 @@ function renderNotFound() {
   return `
     <div class="card">
       <div class="empty-state">
-        <i class="fas fa-search empty-state-icon"></i>
+        <i data-lucide="search" class="empty-state-icon"></i>
         <h3 class="empty-state-title">Not Found</h3>
         <p class="empty-state-description">The requested page does not exist.</p>
       </div>
@@ -7254,7 +7644,7 @@ async function renderTechnicianLogVisitView() {
         <div class="form-field">
           <label for="technician-company-name">Company Name *</label>
           <div class="search-container">
-            <i class="fas fa-search"></i>
+            <i data-lucide="search"></i>
             <input type="text" id="technician-company-name" placeholder="Search for a company..." required />
             <div id="technician-company-search-results" class="search-results" style="display: none;"></div>
           </div>
@@ -7351,7 +7741,7 @@ async function renderTechnicianLogVisitView() {
 
         <div class="form-field flex gap-2">
           <button class="btn btn-secondary flex-1 prev-step" data-prev="1">
-            <i class="fas fa-arrow-left"></i> Back
+            <i data-lucide="arrow-left"></i> Back
           </button>
           <button class="btn btn-primary flex-1 next-step" data-next="3">
             Next: Photos
@@ -7378,7 +7768,7 @@ async function renderTechnicianLogVisitView() {
 
         <div class="form-field flex gap-2">
           <button class="btn btn-secondary flex-1 prev-step" data-prev="2">
-            <i class="fas fa-arrow-left"></i> Back
+            <i data-lucide="arrow-left"></i> Back
           </button>
           <button class="btn btn-primary flex-1 next-step" data-next="4">
             Next: Signatures
@@ -7433,7 +7823,7 @@ async function renderTechnicianLogVisitView() {
 
         <div class="form-field flex gap-2">
           <button class="btn btn-secondary flex-1 prev-step" data-prev="3">
-            <i class="fas fa-arrow-left"></i> Back
+            <i data-lucide="arrow-left"></i> Back
           </button>
           <button class="btn btn-primary flex-1 next-step" data-next="5" id="next-to-review" disabled>
             Next: Review
@@ -7475,7 +7865,7 @@ async function renderTechnicianLogVisitView() {
 
         <div class="form-field flex gap-2">
           <button class="btn btn-secondary flex-1 prev-step" data-prev="4">
-            <i class="fas fa-arrow-left"></i> Back
+            <i data-lucide="arrow-left"></i> Back
           </button>
           <button class="btn btn-primary flex-1" id="submit-technician-visit" disabled>
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Submit Visit
@@ -7576,10 +7966,12 @@ function initTechnicianLogVisitForm(companies) {
     }
 
     verifyLocationBtn.disabled = true;
-    verifyLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Capturing location...';
+    verifyLocationBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Capturing location...';
+    if (window.lucide) lucide.createIcons();
     locationStatus.style.display = 'flex';
     locationStatus.className = 'location-status';
-    locationStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting your location...';
+    locationStatus.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Getting your location...';
+    if (window.lucide) lucide.createIcons();
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -8168,7 +8560,8 @@ function initTechnicianLogVisitForm(companies) {
 
     const submitBtn = document.getElementById('submit-technician-visit');
     submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
+    submitBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Submitting...';
+    if (window.lucide) lucide.createIcons();
 
     try {
       // Upload photos to storage
@@ -8355,11 +8748,11 @@ async function renderTechnicianActivityView() {
     html += `
       <div class="card">
         <div class="empty-state">
-          <i class="fas fa-tools empty-state-icon"></i>
+          <i data-lucide="construction" class="empty-state-icon"></i>
           <h3 class="empty-state-title">No service visits yet</h3>
           <p class="empty-state-description">Start logging your service visits to see them here.</p>
           <button class="btn btn-primary" onclick="loadView('technician-log-visit')">
-            <i class="fas fa-plus"></i> Log Your First Visit
+            <i data-lucide="plus"></i> Log Your First Visit
           </button>
         </div>
       </div>
@@ -8428,7 +8821,7 @@ function renderTechnicianVisitCard(visit) {
       ${visit.follow_up_notes ? `
         <div class="ai-insight">
           <div class="ai-insight-header">
-            <i class="fas fa-exclamation-circle"></i> Follow-up Required
+            <i data-lucide="alert-circle"></i> Follow-up Required
           </div>
           <div class="ai-insight-content">${visit.follow_up_notes}</div>
         </div>
@@ -8568,7 +8961,7 @@ function renderTechnicianVisitCard(visit) {
         
         ${isManager ? `
           <button class="btn btn-sm btn-secondary" onclick="generateTechnicianVisitPDF('${visit.id}')">
-            <i class="fas fa-file-pdf"></i> PDF
+            <i data-lucide="file-text"></i> PDF
           </button>
         ` : ''}
       </div>
@@ -8967,7 +9360,7 @@ function initTechnicianFilters(visits, technicians) {
     if (visitsToShow.length === 0) {
       container.innerHTML = `
         <div class="empty-state">
-          <i class="fas fa-search empty-state-icon"></i>
+          <i data-lucide="search" class="empty-state-icon"></i>
           <h3 class="empty-state-title">No visits found</h3>
           <p class="empty-state-description">Try adjusting your filters</p>
         </div>
