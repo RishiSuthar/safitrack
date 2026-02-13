@@ -12457,205 +12457,326 @@ function openNoteModal(note = null) {
 
 async function renderProfessionalDashboardView() {
   const viewContainer = document.getElementById('view-container');
-  // Set header title for dashboard
   const headerTitle = document.querySelector('.header-title');
   if (headerTitle) headerTitle.textContent = 'Dashboard';
 
-
   try {
-    // 1. Fetch Stats
-    // Parallel requests for speed
-    const [
-      { count: contactsCount },
-      { count: companiesCount },
-      { count: tasksCount },
-      { data: opportunities },
-      { data: recentExchanges } // Using visits table
-    ] = await Promise.all([
-      supabaseClient.from('people').select('*', { count: 'exact', head: true }),
-      supabaseClient.from('companies').select('*', { count: 'exact', head: true }),
-      supabaseClient.from('tasks').select('*', { count: 'exact', head: true }).neq('status', 'completed'),
-      supabaseClient.from('opportunities').select('value, stage, created_at').order('created_at', { ascending: true }),
-      supabaseClient.from('visits')
-        .select('*, profiles(first_name, last_name, email)') // Join with profiles
-        .order('created_at', { ascending: false })
-        .limit(5)
-    ]);
+   const [
+    contactsResult,
+    companiesResult,
+    tasksResult,
+    opportunitiesResult,
+    visitsResult,
+    repsResult
+   ] = await Promise.all([
+    supabaseClient.from('people').select('*', { count: 'exact', head: true }),
+    supabaseClient.from('companies').select('*', { count: 'exact', head: true }),
+    supabaseClient.from('tasks').select('id, status, due_date, created_at'),
+    supabaseClient.from('opportunities').select('id, value, stage, created_at, updated_at'),
+    supabaseClient
+      .from('visits')
+        .select('id, user_id, company_name, visit_type, lead_score, created_at, profiles(first_name, last_name)')
+      .order('created_at', { ascending: false })
+      .limit(100),
+    supabaseClient.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'sales_rep')
+   ]);
 
-    // Calculate Financials
-    const totalPipelineValue = opportunities?.reduce((sum, opp) => sum + (opp.value || 0), 0) || 0;
-    const wonOpportunities = opportunities?.filter(o => o.stage === 'closed_won') || [];
-    const revenue = wonOpportunities.reduce((sum, opp) => sum + (opp.value || 0), 0);
+   if (contactsResult.error || companiesResult.error || tasksResult.error || opportunitiesResult.error || visitsResult.error || repsResult.error) {
+    throw new Error(
+      contactsResult.error?.message ||
+      companiesResult.error?.message ||
+      tasksResult.error?.message ||
+      opportunitiesResult.error?.message ||
+      visitsResult.error?.message ||
+      repsResult.error?.message ||
+      'Unable to load dashboard data'
+    );
+   }
 
-    // --- REAL CHART DATA PREP ---
+   const contactsCount = contactsResult.count || 0;
+   const companiesCount = companiesResult.count || 0;
+   const tasks = tasksResult.data || [];
+   const opportunities = opportunitiesResult.data || [];
+   const recentVisits = visitsResult.data || [];
+   const totalSalesReps = repsResult.count || 0;
 
-    // 1. Revenue/Pipeline Trend (Last 6 Months)
-    const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    const today = new Date();
-    const last6Months = [];
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(today.getFullYear(), today.getMonth() - i, 1);
-      last6Months.push({
-        name: monthNames[d.getMonth()],
-        year: d.getFullYear(),
-        monthIdx: d.getMonth(),
-        value: 0
-      });
+   const normalizeStage = (stage) => {
+    const value = String(stage || '').toLowerCase().replace(/_/g, '-');
+    if (value === 'closed-won') return 'closed-won';
+    if (value === 'closed-lost') return 'closed-lost';
+    if (['prospecting', 'qualification', 'proposal', 'negotiation'].includes(value)) return value;
+    return 'prospecting';
+   };
+
+   const formatMoney = (amount) => `$${Math.round(amount || 0).toLocaleString()}`;
+   const now = new Date();
+   const todayYMD = now.toISOString().slice(0, 10);
+   const weekStart = new Date(now);
+   weekStart.setDate(now.getDate() - 6);
+   weekStart.setHours(0, 0, 0, 0);
+
+   const completedTasks = tasks.filter(t => String(t.status || '').toLowerCase() === 'completed').length;
+   const openTasks = tasks.length - completedTasks;
+   const taskCompletionRate = tasks.length > 0 ? (completedTasks / tasks.length) * 100 : 0;
+
+   const enrichedOpps = opportunities.map(opp => ({
+    ...opp,
+    normalizedStage: normalizeStage(opp.stage),
+    numericValue: Number(opp.value) || 0
+   }));
+
+   const openOpps = enrichedOpps.filter(o => !['closed-won', 'closed-lost'].includes(o.normalizedStage));
+   const wonOpps = enrichedOpps.filter(o => o.normalizedStage === 'closed-won');
+   const closedOpps = enrichedOpps.filter(o => ['closed-won', 'closed-lost'].includes(o.normalizedStage));
+   const pipelineOpenValue = openOpps.reduce((sum, o) => sum + o.numericValue, 0);
+   const wonRevenue = wonOpps.reduce((sum, o) => sum + o.numericValue, 0);
+   const winRate = closedOpps.length > 0 ? (wonOpps.length / closedOpps.length) * 100 : 0;
+   const avgDealSize = openOpps.length > 0 ? pipelineOpenValue / openOpps.length : 0;
+
+   const visitsToday = recentVisits.filter(v => {
+    const visitDate = (v.date || v.created_at || '').toString().slice(0, 10);
+    return visitDate === todayYMD;
+   }).length;
+
+   const visitsThisWeek = recentVisits.filter(v => {
+    const visitDate = new Date(v.date || v.created_at);
+    return !Number.isNaN(visitDate.getTime()) && visitDate >= weekStart;
+   }).length;
+
+   const activeRepIds30d = new Set(
+    recentVisits
+      .filter(v => {
+       const visitDate = new Date(v.date || v.created_at);
+       const daysAgo = (now - visitDate) / (1000 * 60 * 60 * 24);
+       return !Number.isNaN(visitDate.getTime()) && daysAgo <= 30;
+      })
+      .map(v => v.user_id)
+      .filter(Boolean)
+   );
+
+   const leadScoreValues = recentVisits
+    .map(v => Number(v.lead_score))
+    .filter(score => Number.isFinite(score) && score > 0);
+   const avgLeadScore = leadScoreValues.length
+    ? (leadScoreValues.reduce((sum, score) => sum + score, 0) / leadScoreValues.length)
+    : 0;
+
+   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+   const trendMonths = [];
+   for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    trendMonths.push({
+      key: `${d.getFullYear()}-${d.getMonth()}`,
+      name: monthNames[d.getMonth()],
+      pipelineValue: 0,
+      wonValue: 0
+    });
+   }
+
+   enrichedOpps.forEach(opp => {
+    const createdAt = new Date(opp.created_at);
+    const createdKey = `${createdAt.getFullYear()}-${createdAt.getMonth()}`;
+    const createdBucket = trendMonths.find(m => m.key === createdKey);
+    if (createdBucket) createdBucket.pipelineValue += opp.numericValue;
+
+    if (opp.normalizedStage === 'closed-won') {
+      const wonAt = new Date(opp.updated_at || opp.created_at);
+      const wonKey = `${wonAt.getFullYear()}-${wonAt.getMonth()}`;
+      const wonBucket = trendMonths.find(m => m.key === wonKey);
+      if (wonBucket) wonBucket.wonValue += opp.numericValue;
     }
+   });
 
-    // Bucket opportunities by creation month
-    opportunities?.forEach(opp => {
-      const created = new Date(opp.created_at);
-      const monthCtx = last6Months.find(m => m.monthIdx === created.getMonth() && m.year === created.getFullYear());
-      if (monthCtx) {
-        monthCtx.value += (opp.value || 0);
-      }
+   const maxTrendValue = Math.max(...trendMonths.map(m => Math.max(m.pipelineValue, m.wonValue)), 1);
+
+   const stageMeta = [
+    { key: 'prospecting', label: 'Prospecting', color: '#3b82f6' },
+    { key: 'qualification', label: 'Qualification', color: '#8b5cf6' },
+    { key: 'proposal', label: 'Proposal', color: '#f59e0b' },
+    { key: 'negotiation', label: 'Negotiation', color: '#f97316' },
+    { key: 'closed-won', label: 'Closed Won', color: '#10b981' },
+    { key: 'closed-lost', label: 'Closed Lost', color: '#ef4444' }
+   ];
+
+   const stageSummary = stageMeta.map(meta => {
+    const stageOpps = enrichedOpps.filter(o => o.normalizedStage === meta.key);
+    return {
+      ...meta,
+      count: stageOpps.length,
+      value: stageOpps.reduce((sum, o) => sum + o.numericValue, 0)
+    };
+   });
+
+   const donutTotal = Math.max(enrichedOpps.length, 1);
+   let running = 0;
+   const donutSegments = stageSummary
+    .filter(item => item.count > 0)
+    .map(item => {
+      const start = running;
+      const pct = (item.count / donutTotal) * 100;
+      running += pct;
+      return `${item.color} ${start}% ${running}%`;
     });
-
-    // Find absolute max for scaling height
-    const maxValue = Math.max(...last6Months.map(m => m.value), 10); // avoid div by 0
-
-    // 2. Stage Distribution (Donut)
-    const stages = { 'prospecting': 0, 'qualification': 0, 'proposal': 0, 'negotiation': 0, 'closed_won': 0 };
-    let totalOpps = 0;
-    opportunities?.forEach(opp => {
-      if (stages.hasOwnProperty(opp.stage)) {
-        stages[opp.stage]++;
-      } else {
-        // group others
-        stages['prospecting']++;
-      }
-      totalOpps++;
-    });
-
-    // Calculate percentages for donut conic-gradient
-    // We will simplify to: Early(Blue), Middle(Orange), Won(Green)
-    const earlyCount = stages.prospecting + stages.qualification;
-    const midCount = stages.proposal + stages.negotiation;
-    const wonCount = stages.closed_won;
-    const totalForChart = totalOpps || 1;
-
-    const earlyPct = (earlyCount / totalForChart) * 100;
-    const midPct = (midCount / totalForChart) * 100;
-    // Gradient stops
-    const stop1 = earlyPct;
-    const stop2 = earlyPct + midPct;
-
-
-    // --- RENDER HTML ---
+   const donutBackground = donutSegments.length
+    ? `conic-gradient(${donutSegments.join(', ')})`
+    : 'conic-gradient(#e5e7eb 0% 100%)';
 
     const html = `
       <div class="dashboard-container">
         <div class="dashboard-header">
            <div>
-             <h1 class="dashboard-title">Dashboard</h1>
-             <p style="color:var(--text-muted);">Welcome back, ${currentUser.first_name || 'User'}</p>
+         <h1 class="dashboard-title">Revenue & Activity Overview</h1>
+         <p class="dashboard-subtitle">Live metrics from contacts, tasks, opportunities, and visits</p>
            </div>
            <div class="dashboard-actions">
-              <!-- Removed Buttons as requested -->
+          <button class="btn btn-secondary btn-sm" id="dashboard-refresh-btn">
+           <i class="fas fa-rotate-right"></i>
+           Refresh
+          </button>
            </div>
         </div>
 
-        <!-- Stats Grid -->
         <div class="stats-grid">
-           <!-- Contacts -->
            <div class="stat-card">
               <div class="stat-header">
-                 <span class="stat-title">Total Contacts</span>
+            <span class="stat-title">Open Pipeline</span>
+            <div class="stat-icon green"><i class="fas fa-sack-dollar"></i></div>
+          </div>
+          <div class="stat-value-container">
+            <span class="stat-value">${formatMoney(pipelineOpenValue)}</span>
+          </div>
+          <div class="stat-meta">${openOpps.length} open opportunities</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Closed Revenue</span>
+            <div class="stat-icon blue"><i class="fas fa-chart-line"></i></div>
+          </div>
+          <div class="stat-value-container">
+            <span class="stat-value">${formatMoney(wonRevenue)}</span>
+          </div>
+          <div class="stat-meta">Win rate ${winRate.toFixed(1)}%</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Task Completion</span>
+            <div class="stat-icon orange"><i class="fas fa-list-check"></i></div>
+          </div>
+          <div class="stat-value-container">
+            <span class="stat-value">${taskCompletionRate.toFixed(0)}%</span>
+          </div>
+          <div class="stat-meta">${openTasks} open • ${completedTasks} done</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Visits</span>
+            <div class="stat-icon purple"><i class="fas fa-handshake"></i></div>
+          </div>
+          <div class="stat-value-container">
+            <span class="stat-value">${visitsThisWeek}</span>
+          </div>
+          <div class="stat-meta">${visitsToday} today</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-title">Active Reps (30d)</span>
                  <div class="stat-icon purple"><i class="fas fa-address-book"></i></div>
               </div>
               <div class="stat-value-container">
-                 <span class="stat-value">${contactsCount || 0}</span>
+            <span class="stat-value">${activeRepIds30d.size}</span>
               </div>
+          <div class="stat-meta">of ${totalSalesReps} sales reps</div>
            </div>
 
-           <!-- Ongoing Tasks -->
            <div class="stat-card">
               <div class="stat-header">
-                 <span class="stat-title">Ongoing Tasks</span>
-                 <div class="stat-icon orange"><i class="fas fa-tasks"></i></div>
+            <span class="stat-title">Coverage</span>
+            <div class="stat-icon blue"><i class="fas fa-building"></i></div>
               </div>
               <div class="stat-value-container">
-                 <span class="stat-value">${tasksCount || 0}</span>
+            <span class="stat-value">${contactsCount}</span>
               </div>
-           </div>
-
-           <!-- Pipeline Value -->
-           <div class="stat-card">
-              <div class="stat-header">
-                 <span class="stat-title">Pipeline Value</span>
-                 <div class="stat-icon green"><i class="fas fa-dollar-sign"></i></div>
-              </div>
-              <div class="stat-value-container">
-                 <span class="stat-value">$${totalPipelineValue.toLocaleString()}</span>
-              </div>
-           </div>
-
-           <!-- Companies -->
-           <div class="stat-card">
-              <div class="stat-header">
-                 <span class="stat-title">Active Companies</span>
-                 <div class="stat-icon blue"><i class="fas fa-building"></i></div>
-              </div>
-              <div class="stat-value-container">
-                 <span class="stat-value">${companiesCount || 0}</span>
-              </div>
+          <div class="stat-meta">${companiesCount} companies • avg lead ${avgLeadScore.toFixed(0)}%</div>
            </div>
         </div>
 
-        <!-- Charts Grid -->
         <div class="charts-grid">
-           <!-- Real Revenue Chart -->
            <div class="chart-card">
               <div class="chart-header">
-                 <h3 class="chart-title">Pipeline Trend</h3>
+            <h3 class="chart-title">6-Month Opportunity Value Trend</h3>
+            <span class="chart-caption">Created vs Closed Won</span>
               </div>
-              <div class="chart-placeholder">
-                 <div class="css-chart">
-                    ${last6Months.map(m => {
-      const heightPct = (m.value / maxValue) * 100;
-      const displayVal = m.value > 1000 ? (m.value / 1000).toFixed(1) + 'k' : m.value;
-      const finalHeight = Math.max(heightPct, 5);
+          <div class="chart-placeholder trend-chart-placeholder">
+            <div class="css-chart dual-series-chart">
+              ${trendMonths.map(m => {
+    const createdHeight = Math.max((m.pipelineValue / maxTrendValue) * 100, m.pipelineValue > 0 ? 5 : 0);
+    const wonHeight = Math.max((m.wonValue / maxTrendValue) * 100, m.wonValue > 0 ? 5 : 0);
       return `
                         <div class="chart-bar-group">
-                            <div class="chart-bar" style="height: ${finalHeight}%;" data-value="$${displayVal}"></div>
+                   <div class="chart-bars-pair">
+                    <div class="chart-bar chart-bar-created" style="height: ${createdHeight}%;" data-value="Created ${formatMoney(m.pipelineValue)}"></div>
+                    <div class="chart-bar chart-bar-won" style="height: ${wonHeight}%;" data-value="Won ${formatMoney(m.wonValue)}"></div>
+                   </div>
                             <span class="chart-label">${m.name}</span>
                         </div>
                         `;
     }).join('')}
                  </div>
+            <div class="trend-legend">
+              <span><span class="legend-dot created"></span>Created</span>
+              <span><span class="legend-dot won"></span>Closed Won</span>
+            </div>
               </div>
            </div>
 
-           <!-- Real Pie Chart -->
            <div class="chart-card">
               <div class="chart-header">
                  <h3 class="chart-title">Pipeline Stages</h3>
               </div>
               <div class="donut-chart-container">
-                 <div class="donut-chart" style="background: conic-gradient(
-                    #3b82f6 0% ${stop1}%, 
-                    #f97316 ${stop1}% ${stop2}%, 
-                    #10b981 ${stop2}% 100%
-                 );">
+            <div class="donut-chart" style="background: ${donutBackground};">
                     <div class="donut-inner">
-                       <span class="donut-total">${totalOpps}</span>
+                <span class="donut-total">${enrichedOpps.length}</span>
                        <span class="donut-label">Opportunities</span>
                     </div>
                  </div>
                  <div class="donut-legend">
-                    <div class="legend-item"><div class="legend-dot" style="background:#3b82f6;"></div> Early</div>
-                    <div class="legend-item"><div class="legend-dot" style="background:#f97316;"></div> Mid</div>
-                    <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div> Won</div>
+              ${stageSummary.map(item => `
+               <div class="legend-item">
+                <div class="legend-dot" style="background:${item.color};"></div>
+                ${item.label} (${item.count})
+               </div>
+              `).join('')}
                  </div>
               </div>
            </div>
         </div>
 
-        <!-- Recent Activities Table -->
+      <div class="stage-breakdown-card">
+       <div class="chart-header">
+        <h3 class="chart-title">Stage Value Breakdown</h3>
+       </div>
+       <div class="stage-breakdown-grid">
+        ${stageSummary.map(item => `
+          <div class="stage-breakdown-item">
+           <div class="stage-breakdown-top">
+            <span class="legend-dot" style="background:${item.color};"></span>
+            <span>${item.label}</span>
+           </div>
+           <div class="stage-breakdown-value">${formatMoney(item.value)}</div>
+           <div class="stage-breakdown-count">${item.count} deals</div>
+          </div>
+        `).join('')}
+       </div>
+      </div>
+
         <div class="recent-activity-card">
            <div class="chart-header">
-               <h3 class="chart-title">Recent Visits</h3>
+          <h3 class="chart-title">Recent Visit Activity</h3>
            </div>
            <div class="table-responsive">
               <table class="dashboard-table">
@@ -12663,15 +12784,18 @@ async function renderProfessionalDashboardView() {
                     <tr>
                        <th>Representative</th>
                        <th>Company</th>
-                       <th>Purpose</th>
+                <th>Visit Type</th>
+                <th>Lead Score</th>
                        <th>Date</th>
-                       <th>Status</th>
                     </tr>
                  </thead>
                  <tbody>
-                    ${recentExchanges?.map(visit => {
+              ${recentVisits.slice(0, 8).map(visit => {
       const repName = visit.profiles ? `${visit.profiles.first_name} ${visit.profiles.last_name}` : 'Unknown';
       const initials = repName.split(' ').map(n => n[0]).join('').substring(0, 2);
+    const score = Number(visit.lead_score);
+    const scoreClass = Number.isFinite(score) && score >= 80 ? 'high' : Number.isFinite(score) && score >= 50 ? 'medium' : 'low';
+    const visitDate = new Date(visit.date || visit.created_at);
       return `
                         <tr>
                            <td>
@@ -12681,12 +12805,12 @@ async function renderProfessionalDashboardView() {
                               </div>
                            </td>
                            <td>${visit.company_name || 'N/A'}</td>
-                           <td>${visit.notes ? (visit.notes.length > 30 ? visit.notes.substring(0, 30) + '...' : visit.notes) : 'Visit'}</td>
-                           <td>${new Date(visit.date).toLocaleDateString()}</td>
-                           <td><span class="status-pill success">Completed</span></td>
+                  <td>${visit.visit_type || 'General Visit'}</td>
+                  <td>${Number.isFinite(score) ? `<span class="lead-score-pill ${scoreClass}">${score}%</span>` : '<span class="text-muted">—</span>'}</td>
+                  <td>${Number.isNaN(visitDate.getTime()) ? '—' : visitDate.toLocaleDateString()}</td>
                         </tr>
                         `;
-    }).join('') || '<tr><td colspan="5">No recent visits</td></tr>'}
+   }).join('') || '<tr><td colspan="5">No recent visits</td></tr>'}
                  </tbody>
               </table>
            </div>
@@ -12696,6 +12820,11 @@ async function renderProfessionalDashboardView() {
     `;
 
     viewContainer.innerHTML = html;
+
+   document.getElementById('dashboard-refresh-btn')?.addEventListener('click', () => {
+    renderProfessionalDashboardView();
+    showToast('Dashboard refreshed', 'success', { subtle: true, duration: 1200 });
+   });
 
   } catch (err) {
     console.error('Error rendering dashboard:', err);
