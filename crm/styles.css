@@ -4167,7 +4167,7 @@ select {
   font-weight: 500;
   cursor: pointer;
   margin-top: 0.2rem;
-  order: -1;
+  margin-bottom: 0.3rem;
 }
 
 .pipeline-inline-add:hover {
@@ -4184,7 +4184,6 @@ select {
   transition: transform 0.14s ease, border-color 0.14s ease, box-shadow 0.14s ease;
   will-change: transform;
   margin-bottom: 0;
-  order: 0;
 }
 
 .opportunity-card:hover {
@@ -4570,9 +4569,9 @@ select {
 }
 
 .opportunity-card.dragging {
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
   z-index: 1000;
-  transform: scale(0.985);
+  transform: none;
 }
 
 .opportunity-card.dragging-active {
@@ -4580,8 +4579,7 @@ select {
 }
 
 .sortable-ghost {
-  opacity: 0.45 !important;
-  border-style: dashed !important;
+  opacity: 0.32 !important;
 }
 
 .sortable-chosen {
@@ -4589,13 +4587,13 @@ select {
 }
 
 .sortable-drag {
-  transform: rotate(0.2deg);
+  transform: none;
 }
 
 @media (min-width: 768px) {
   .opportunity-list {
     min-height: 100px;
-    transition: all 0.3s ease;
+    transition: none;
   }
 
   .opportunity-list:hover {

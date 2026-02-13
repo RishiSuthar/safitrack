@@ -3115,8 +3115,8 @@ async function renderOpportunityPipelineView() {
           <div class="pipeline-stage-count">${stageData.opportunities.length}</div>
         </div>
         <div class="pipeline-stage-value">Ksh ${stageData.totalValue.toLocaleString()}</div>
+        <button class="pipeline-inline-add" data-stage="${stage.id}">+ New Deal</button>
         <div class="opportunity-list" id="opportunities-${stage.id}">
-          <button class="pipeline-inline-add" data-stage="${stage.id}">+ New Deal</button>
     `;
 
     // Render opportunities in this stage
@@ -3187,7 +3187,7 @@ async function renderOpportunityPipelineView() {
             </div>
           ` : ''}
 
-          <div class="opportunity-stage-age"><i data-lucide="hourglass"></i> ${stageDays}d in stage</div>
+          <div class="opportunity-stage-age"><i data-lucide="hourglass"></i><span>${stageDays}d in stage</span></div>
           
           ${competitors.length > 0 ? `
             <div class="opportunity-competitors">
@@ -3347,7 +3347,7 @@ function initPipelineDragAndDrop(opportunities) {
   opportunityLists.forEach(list => {
     new Sortable(list, {
       group: 'pipeline',
-      animation: 70,
+      animation: 0,
       easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
       swapThreshold: 0.2,
       invertSwap: false,
@@ -3356,21 +3356,12 @@ function initPipelineDragAndDrop(opportunities) {
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
       dragClass: 'sortable-drag',
-      filter: '.readonly, .opportunity-actions, .pipeline-inline-add', // Prevent dragging readonly cards or non-card controls
+      filter: '.readonly, .opportunity-actions', // Prevent dragging readonly cards or non-card controls
       onStart: function (evt) {
         evt.item.classList.add('dragging');
-        evt.from.closest('.pipeline-stage')?.classList.add('is-drop-origin');
       },
       onEnd: function (evt) {
         evt.item.classList.remove('dragging');
-        document.querySelectorAll('.pipeline-stage').forEach(stage => {
-          stage.classList.remove('is-drop-origin');
-          stage.classList.remove('is-drop-target');
-        });
-      },
-      onMove: function (evt) {
-        document.querySelectorAll('.pipeline-stage').forEach(stage => stage.classList.remove('is-drop-target'));
-        evt.to.closest('.pipeline-stage')?.classList.add('is-drop-target');
       },
       onAdd: async function (evt) {
         const opportunityId = evt.item.dataset.id;
@@ -3410,9 +3401,9 @@ function initPipelineDragAndDrop(opportunities) {
 
             const stageAgeEl = evt.item.querySelector('.opportunity-stage-age');
             if (stageAgeEl) {
-              stageAgeEl.innerHTML = '<i data-lucide="hourglass"></i> 0d in stage';
-              if (window.lucide) {
-                lucide.createIcons();
+              const stageAgeText = stageAgeEl.querySelector('span');
+              if (stageAgeText) {
+                stageAgeText.textContent = '0d in stage';
               }
             }
 
