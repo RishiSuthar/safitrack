@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initRoleTabs();
     initContactModal();
     initIntelligenceHub();
+    initProductExperience();
     enhanceAccessibility();
     initMobileMenu();
     initTestimonialCarousel();
@@ -522,40 +523,244 @@ function initContactModal() {
 // ===================================
 
 function initIntelligenceHub() {
-    const meshNodes = document.querySelectorAll('.mesh-node');
-    const meshLines = document.querySelectorAll('.mesh-line');
+    const tabs = document.querySelectorAll('.rc-tab');
+    const panes = document.querySelectorAll('.rc-pane');
+    const feedValues = document.querySelectorAll('.rc-feed-value');
 
-    if (meshNodes.length === 0) return;
+    if (tabs.length && panes.length) {
+        let activePane = tabs[0]?.dataset.pane;
+        let autoRotate;
 
-    // Simple reveal animation
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                meshNodes.forEach((node, i) => {
-                    setTimeout(() => {
-                        node.style.opacity = '1';
-                        node.style.transform = 'translateY(0)';
-                    }, i * 150);
-                });
+        const setActivePane = (pane) => {
+            activePane = pane;
+            tabs.forEach(tab => {
+                const isActive = tab.dataset.pane === pane;
+                tab.classList.toggle('active', isActive);
+                tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            });
 
-                meshLines.forEach((line, i) => {
-                    setTimeout(() => {
-                        line.style.strokeOpacity = '0.15';
-                    }, i * 100);
-                });
-            }
+            panes.forEach(panel => {
+                panel.classList.toggle('active', panel.dataset.pane === pane);
+            });
+        };
+
+        tabs.forEach(tab => {
+            tab.addEventListener('click', () => {
+                setActivePane(tab.dataset.pane);
+            });
         });
-    }, { threshold: 0.2 });
 
-    const container = document.querySelector('.mesh-container');
-    if (container) observer.observe(container);
+        const paneOrder = Array.from(tabs).map(tab => tab.dataset.pane);
+        const startAutoRotate = () => {
+            clearInterval(autoRotate);
+            autoRotate = setInterval(() => {
+                const idx = paneOrder.indexOf(activePane);
+                const nextPane = paneOrder[(idx + 1) % paneOrder.length];
+                setActivePane(nextPane);
+            }, 4500);
+        };
 
-    // Initial state
-    meshNodes.forEach(node => {
-        node.style.opacity = '0';
-        node.style.transform = 'translateY(20px)';
-        node.style.transition = 'all 0.8s cubic-bezier(0.23, 1, 0.32, 1)';
+        const panelRoot = document.querySelector('.revenue-control');
+        panelRoot?.addEventListener('mouseenter', () => clearInterval(autoRotate));
+        panelRoot?.addEventListener('mouseleave', startAutoRotate);
+
+        setActivePane(activePane);
+        startAutoRotate();
+    }
+
+    if (feedValues.length) {
+        const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+        setInterval(() => {
+            feedValues.forEach(el => {
+                const key = el.dataset.feed;
+                if (key === 'risk') {
+                    const value = randomInt(120, 175);
+                    el.textContent = `$${value}K`;
+                } else if (key === 'actions') {
+                    el.textContent = String(randomInt(18, 36));
+                } else if (key === 'moved') {
+                    el.textContent = String(randomInt(7, 15));
+                }
+            });
+        }, 3200);
+    }
+}
+
+function initProductExperience() {
+    const tabs = document.querySelectorAll('.px-tab');
+    const views = document.querySelectorAll('.px-view');
+    const counters = document.querySelectorAll('.px-count');
+    const dynamicChips = document.querySelectorAll('.px-dynamic-chip');
+
+    if (!tabs.length || !views.length) return;
+
+    let activeView = tabs[0].dataset.view;
+    let autoTimer;
+    let typewriterTimer;
+    let userSelectedView = false;
+
+    const aiTypeBox = document.getElementById('px-ai-typebox');
+    const aiSummaryEl = aiTypeBox?.querySelector('.px-type-summary');
+    const aiNextEl = aiTypeBox?.querySelector('.px-type-next');
+
+    const aiScriptVariants = [
+        {
+            summary: 'Stakeholders agreed on rollout scope for 2 regions.',
+            next: 'Send revised commercial terms and schedule security review.'
+        },
+        {
+            summary: 'Client confirmed budget and requested implementation timeline details.',
+            next: 'Share timeline draft and book a technical validation call tomorrow.'
+        },
+        {
+            summary: 'Buying committee aligned on priorities and success criteria.',
+            next: 'Prepare final proposal package and assign owner for procurement follow-up.'
+        }
+    ];
+
+    const typeText = (el, text, delay = 18) => {
+        if (!el) return Promise.resolve();
+        el.textContent = '';
+        el.classList.add('typing');
+
+        return new Promise(resolve => {
+            let index = 0;
+            const tick = () => {
+                if (index < text.length) {
+                    el.textContent += text.charAt(index);
+                    index += 1;
+                    typewriterTimer = window.setTimeout(tick, delay);
+                } else {
+                    el.classList.remove('typing');
+                    resolve();
+                }
+            };
+            tick();
+        });
+    };
+
+    const runAiTyping = async () => {
+        if (!aiTypeBox || !aiSummaryEl || !aiNextEl) return;
+
+        if (typewriterTimer) {
+            clearTimeout(typewriterTimer);
+        }
+
+        aiSummaryEl.classList.remove('typing');
+        aiNextEl.classList.remove('typing');
+
+        const variant = aiScriptVariants[Math.floor(Math.random() * aiScriptVariants.length)];
+        aiTypeBox.dataset.summary = variant.summary;
+        aiTypeBox.dataset.next = variant.next;
+
+        await typeText(aiSummaryEl, variant.summary, 15);
+        await typeText(aiNextEl, variant.next, 13);
+    };
+
+    const setView = (viewName) => {
+        activeView = viewName;
+
+        tabs.forEach(tab => {
+            const isActive = tab.dataset.view === viewName;
+            tab.classList.toggle('active', isActive);
+            tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+        });
+
+        views.forEach(view => {
+            view.classList.toggle('active', view.dataset.view === viewName);
+        });
+
+        if (viewName === 'ai') {
+            runAiTyping();
+        }
+    };
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            userSelectedView = true;
+            clearInterval(autoTimer);
+            setView(tab.dataset.view);
+        });
     });
+
+    const order = Array.from(tabs).map(tab => tab.dataset.view);
+    const root = document.querySelector('.px-shell');
+
+    const startAutoRotate = () => {
+        clearInterval(autoTimer);
+        if (userSelectedView) return;
+        autoTimer = setInterval(() => {
+            const currentIndex = order.indexOf(activeView);
+            const next = order[(currentIndex + 1) % order.length];
+            setView(next);
+        }, 4200);
+    };
+
+    root?.addEventListener('mouseenter', () => clearInterval(autoTimer));
+    root?.addEventListener('mouseleave', startAutoRotate);
+
+    setView(activeView);
+    startAutoRotate();
+
+    if (activeView === 'ai') {
+        runAiTyping();
+    }
+
+    if (counters.length) {
+        const animateCount = (el, target) => {
+            const start = Number.parseInt(el.textContent, 10) || 0;
+            const duration = 450;
+            const startTime = performance.now();
+
+            el.classList.add('is-updating');
+
+            const tick = (time) => {
+                const progress = Math.min((time - startTime) / duration, 1);
+                const nextValue = Math.round(start + (target - start) * progress);
+                el.textContent = String(nextValue);
+
+                if (progress < 1) {
+                    requestAnimationFrame(tick);
+                } else {
+                    setTimeout(() => el.classList.remove('is-updating'), 180);
+                }
+            };
+
+            requestAnimationFrame(tick);
+        };
+
+        setInterval(() => {
+            counters.forEach(counter => {
+                const min = Number.parseInt(counter.dataset.min || '0', 10);
+                const max = Number.parseInt(counter.dataset.max || '10', 10);
+                const target = Math.floor(Math.random() * (max - min + 1)) + min;
+                animateCount(counter, target);
+            });
+        }, 2600);
+    }
+
+    if (dynamicChips.length) {
+        const chipVariants = {
+            pipeline: ['2 deals moved', '1 deal won', '3 follow-ups due', 'Forecast updated'],
+            contacts: ['Updated now', '2 notes added', 'New contact synced', 'Timeline refreshed'],
+            ai: ['3 insights generated', 'Next action suggested', 'Summary ready', '2 tasks created']
+        };
+
+        setInterval(() => {
+            dynamicChips.forEach(chip => {
+                const key = chip.dataset.chip;
+                const variants = chipVariants[key] || [];
+                if (!variants.length) return;
+
+                const next = variants[Math.floor(Math.random() * variants.length)];
+                chip.textContent = next;
+                chip.classList.remove('flash');
+                void chip.offsetWidth;
+                chip.classList.add('flash');
+            });
+        }, 3000);
+    }
 }
 
 if (window.location.hostname === 'localhost') {
