@@ -51,6 +51,28 @@
   --radius-xl: 20px;
   --radius-full: 9999px;
 
+  /* Unified spacing scale */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-7: 2rem;
+
+  /* Unified control + icon sizes */
+  --control-height-sm: 30px;
+  --control-height-md: 34px;
+  --control-height-lg: 40px;
+  --icon-xs: 12px;
+  --icon-sm: 14px;
+  --icon-md: 16px;
+
+  /* Button hierarchy tokens */
+  --btn-radius: 10px;
+  --btn-font-size: 0.88rem;
+  --btn-font-weight: 500;
+
   /* Transitions */
   --transition-fast: 120ms ease;
   --transition-base: 200ms ease;
@@ -938,13 +960,13 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
-  height: 34px;
-  padding: 0 0.85rem;
+  gap: var(--space-2);
+  height: var(--control-height-md);
+  padding: 0 var(--space-4);
   border: none;
-  border-radius: 10px;
-  font-size: 0.88rem;
-  font-weight: 500;
+  border-radius: var(--btn-radius);
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
   font-family: inherit;
   cursor: pointer;
   transition: all var(--transition-base);
@@ -952,6 +974,12 @@ body {
   position: relative;
   overflow: hidden;
   letter-spacing: 0.3px;
+}
+
+.btn i,
+.btn svg {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
 }
 
 .btn::before {
@@ -1071,15 +1099,15 @@ body {
 
 /* Size Variants */
 .btn-lg {
-  height: 34px;
-  padding: 0 0.95rem;
-  font-size: 0.88rem;
+  height: var(--control-height-md);
+  padding: 0 calc(var(--space-4) + var(--space-1));
+  font-size: var(--btn-font-size);
   letter-spacing: 0.3px;
 }
 
 .btn-sm {
-  height: 30px;
-  padding: 0 0.7rem;
+  height: var(--control-height-sm);
+  padding: 0 var(--space-3);
   font-size: 0.8125rem;
   letter-spacing: 0.2px;
 }
@@ -1126,10 +1154,10 @@ body {
 
 /* Icon Button - For toolbar/header actions */
 .btn-icon {
-  width: 34px;
-  height: 34px;
+  width: var(--control-height-md);
+  height: var(--control-height-md);
   padding: 0;
-  border-radius: 10px;
+  border-radius: var(--btn-radius);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1665,8 +1693,8 @@ body {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: 1.5rem;
-  margin-bottom: 1rem;
+  padding: var(--space-6);
+  margin-bottom: var(--space-4);
   box-shadow: var(--shadow-sm);
 }
 
@@ -1674,8 +1702,8 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1.25rem;
-  padding-bottom: 1rem;
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--border-color);
 }
 
@@ -1696,20 +1724,55 @@ body {
 
 /* ===== PAGE HEADER ===== */
 .page-header {
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-6);
+}
+
+.page-header.flex {
+  align-items: flex-start;
+  gap: var(--space-4);
+  flex-wrap: wrap;
 }
 
 .page-title {
   font-size: 1.375rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
+  margin-bottom: var(--space-2);
   letter-spacing: -0.3px;
 }
 
 .page-subtitle {
   font-size: 0.9375rem;
   color: var(--text-secondary);
+}
+
+/* Shared page shell helpers for consistent module structure */
+.crm-page-shell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.crm-page-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.crm-page-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.crm-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
 }
 
 /* ===== STATS GRID ===== */
@@ -4897,21 +4960,26 @@ select {
 .task-filters,
 .reminder-filters {
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .task-filter,
 .reminder-filter {
-  padding: 0.5rem 1rem;
+  height: var(--control-height-md);
+  padding: 0 var(--space-4);
   border: 1px solid var(--border-color);
   background: var(--bg-primary);
   color: var(--text-secondary);
-  border-radius: var(--radius-md);
+  border-radius: var(--btn-radius);
   font-size: 0.8125rem;
   font-weight: 500;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: var(--transition-fast);
 }
 
@@ -8359,15 +8427,16 @@ button svg {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-7);
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .call-logs-filters {
   display: flex;
-  gap: 1rem;
+  gap: var(--space-3);
   align-items: center;
+  flex-wrap: wrap;
 }
 
 /* View Toggle for Managers */
@@ -8404,8 +8473,9 @@ button svg {
 }
 
 .filter-select {
-  padding: 0.5rem 1rem;
-  border-radius: var(--radius-md);
+  height: var(--control-height-md);
+  padding: 0 var(--space-4);
+  border-radius: var(--btn-radius);
   border: 1px solid var(--border-color);
   background: var(--bg-primary);
   color: var(--text-primary);

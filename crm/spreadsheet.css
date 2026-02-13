@@ -77,20 +77,20 @@
 .view-toolbar {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 24px;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-6);
     background: var(--bg-primary);
-    min-height: 56px;
+    min-height: calc(var(--control-height-lg) + var(--space-4));
 }
 
 .toolbar-btn {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 0 16px;
-    height: 36px;
-    border-radius: var(--radius-md);
+    gap: var(--space-2);
+    padding: 0 var(--space-4);
+    height: var(--control-height-md);
+    border-radius: var(--btn-radius);
     background: var(--bg-secondary);
     border: 1px solid var(--spreadsheet-border);
     color: var(--text-primary);
@@ -112,9 +112,9 @@
 }
 
 .toolbar-select {
-    height: 36px;
-    padding: 0 32px 0 12px;
-    border-radius: var(--radius-md);
+    height: var(--control-height-md);
+    padding: 0 32px 0 var(--space-4);
+    border-radius: var(--btn-radius);
     background: var(--bg-secondary);
     border: 1px solid var(--spreadsheet-border);
     color: var(--text-primary);
@@ -148,11 +148,10 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
-    padding: 0 16px;
-    height: 36px;
-    /* Match toolbar-btn height */
-    border-radius: var(--radius-md);
+    gap: var(--space-2);
+    padding: 0 var(--space-4);
+    height: var(--control-height-md);
+    border-radius: var(--btn-radius);
     background: #2f5fd0;
     color: #ffffff !important;
     border: none;
@@ -188,10 +187,10 @@
 .view-toolbar .search-container {
     display: flex;
     align-items: center;
-    height: 38px;
+    height: var(--control-height-lg);
     background: var(--bg-secondary);
     border: 1px solid var(--spreadsheet-border);
-    border-radius: var(--radius-md);
+    border-radius: var(--btn-radius);
     margin-bottom: 0;
     overflow: hidden;
 }
