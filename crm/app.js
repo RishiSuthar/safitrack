@@ -2952,9 +2952,9 @@ async function renderOpportunityPipelineView() {
 
   // Define pipeline stages - simplified to 4 columns as requested
   const pipelineStages = [
-    { id: 'prospecting', title: 'Discovery', color: '#6b7280' },
-    { id: 'qualification', title: 'In Progress', color: '#3b82f6' },
-    { id: 'closed-won', title: 'Won/Invoiced 🎉', color: '#10b981' },
+    { id: 'prospecting', title: 'Lead', color: '#3b82f6' },
+    { id: 'qualification', title: 'In Progress', color: '#ec4899' },
+    { id: 'closed-won', title: 'Won 🎉', color: '#10b981' },
     { id: 'closed-lost', title: 'Lost', color: '#ef4444' }
   ];
 
@@ -2997,60 +2997,109 @@ async function renderOpportunityPipelineView() {
   const wonValue = opportunitiesByStage['closed-won'].totalValue;
   const lostValue = opportunitiesByStage['closed-lost'].totalValue;
   const activeValue = totalValue - wonValue - lostValue;
+  const weightedForecast = opportunities.reduce((sum, opp) => {
+    const value = parseFloat(opp.value || 0);
+    const probability = parseFloat(opp.probability || 0);
+    return sum + (value * probability) / 100;
+  }, 0);
+  const closedCount = opportunities.filter(opp => opp.mappedStage === 'closed-won' || opp.mappedStage === 'closed-lost').length;
+  const wonCount = opportunities.filter(opp => opp.mappedStage === 'closed-won').length;
+  const winRate = closedCount > 0 ? Math.round((wonCount / closedCount) * 100) : 0;
+  const activeCount = opportunities.filter(opp => opp.mappedStage !== 'closed-won' && opp.mappedStage !== 'closed-lost').length;
+  const ownerOptions = isManager
+    ? Array.from(new Map(opportunities.map(opp => {
+      const user = opp.profiles;
+      const ownerName = user ? `${user.first_name} ${user.last_name}` : 'Unknown';
+      return [opp.user_id, ownerName];
+    })).entries())
+    : [];
+
+  const getStageDays = (opp) => {
+    const stageAnchor = opp.updated_at || opp.created_at;
+    if (!stageAnchor) return 0;
+    const stageDate = new Date(stageAnchor);
+    if (Number.isNaN(stageDate.getTime())) return 0;
+    const diffMs = Date.now() - stageDate.getTime();
+    return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
+  };
 
   let html = `
-    <div class="page-header">
-      <h1 class="page-title">Opportunity Pipeline</h1>
+    <div class="page-header deals-page-header">
+      <h1 class="page-title">Deals</h1>
       <p class="page-subtitle">
-        ${opportunities.length} ${isManager ? 'total' : 'active'} opportunities
+        ${opportunities.length} ${isManager ? 'team' : 'your'} deals
         ${isManager ? '<span class="text-muted"> (Team View)</span>' : ''}
       </p>
     </div>
 
     <div class="pipeline-summary">
       <div class="pipeline-summary-card">
-        <div class="pipeline-summary-title">Total Pipeline Value</div>
+        <div class="pipeline-summary-title">Pipeline</div>
         <div class="pipeline-summary-value">Ksh ${totalValue.toLocaleString()}</div>
         <div class="pipeline-summary-change">
-          <i class="fas fa-arrow-up"></i> 12% from last month
+          <i class="fas fa-briefcase"></i> Active Ksh ${Math.max(activeValue, 0).toLocaleString()}
         </div>
       </div>
       <div class="pipeline-summary-card">
-        <div class="pipeline-summary-title">Active Opportunities</div>
-        <div class="pipeline-summary-value">${opportunities.filter(opp => opp.mappedStage !== 'closed-won' && opp.mappedStage !== 'closed-lost').length}</div>
+        <div class="pipeline-summary-title">Active</div>
+        <div class="pipeline-summary-value">${activeCount}</div>
         <div class="pipeline-summary-change">
-          <i class="fas fa-arrow-up"></i> 3 new this week
+          <i class="fas fa-flag-checkered"></i> Won: ${wonCount}
         </div>
       </div>
       <div class="pipeline-summary-card">
-        <div class="pipeline-summary-title">Avg. Win Probability</div>
-        <div class="pipeline-summary-value">${Math.round(avgProbability)}%</div>
-        <div class="pipeline-summary-change negative">
-          <i class="fas fa-arrow-down"></i> 5% from last month
-        </div>
-      </div>
-      <div class="pipeline-summary-card">
-        <div class="pipeline-summary-title">Won This Month</div>
-        <div class="pipeline-summary-value">Ksh ${wonValue.toLocaleString()}</div>
+        <div class="pipeline-summary-title">Weighted Forecast</div>
+        <div class="pipeline-summary-value">Ksh ${Math.round(weightedForecast).toLocaleString()}</div>
         <div class="pipeline-summary-change">
-          <i class="fas fa-arrow-up"></i> 8% from last month
+          <i class="fas fa-percent"></i> Avg probability: ${Math.round(avgProbability)}%
+        </div>
+      </div>
+      <div class="pipeline-summary-card">
+        <div class="pipeline-summary-title">Win Rate</div>
+        <div class="pipeline-summary-value">${winRate}%</div>
+        <div class="pipeline-summary-change">
+          <i class="fas fa-trophy"></i> Closed won value: Ksh ${wonValue.toLocaleString()}
         </div>
       </div>
     </div>
 
-    <div class="pipeline-header">
+    <div class="pipeline-toolbar">
       <div class="pipeline-filters">
-        <button class="pipeline-filter active" data-filter="all">All Opportunities</button>
-        <button class="pipeline-filter" data-filter="high-value">High Value (Ksh 100k+)</button>
-        <button class="pipeline-filter" data-filter="high-probability">High Probability (70%+)</button>
-        <button class="pipeline-filter" data-filter="next-step-due">Next Step Due</button>
+        <button class="pipeline-filter active" data-filter="all"><i data-lucide="arrow-down-up"></i> Sorted by Created at</button>
+        <button class="pipeline-filter" data-filter="high-value"><i data-lucide="funnel"></i> High Value</button>
+        <button class="pipeline-filter" data-filter="high-probability"><i data-lucide="sparkles"></i> High Probability</button>
+        <button class="pipeline-filter" data-filter="next-step-due"><i data-lucide="clock-3"></i> Next Step Due</button>
         ${isManager ? `
-          <button class="pipeline-filter" data-filter="my-reps">My Only</button>
+          <button class="pipeline-filter" data-filter="my-reps"><i data-lucide="users"></i> Sales Reps</button>
         ` : ''}
       </div>
-      <button class="btn btn-primary" id="add-opportunity-btn">
-        <i class="fas fa-plus"></i> New 
-      </button>
+
+      <div class="pipeline-controls">
+        <div class="pipeline-search">
+          <i data-lucide="search"></i>
+          <input type="text" id="pipeline-search" placeholder="Search company, deal, notes...">
+        </div>
+
+        ${isManager ? `
+          <select id="pipeline-owner-filter" class="pipeline-select">
+            <option value="all">All Owners</option>
+            ${ownerOptions.map(([id, name]) => `<option value="${id}">${name}</option>`).join('')}
+          </select>
+        ` : ''}
+
+        <select id="pipeline-sort" class="pipeline-select">
+          <option value="newest">Sort: Newest</option>
+          <option value="oldest">Sort: Oldest</option>
+          <option value="value-desc">Sort: Highest Value</option>
+          <option value="value-asc">Sort: Lowest Value</option>
+          <option value="probability-desc">Sort: Highest Probability</option>
+          <option value="next-step">Sort: Next Step Due</option>
+        </select>
+
+        <button class="btn btn-primary" id="add-opportunity-btn">
+          <i class="fas fa-plus"></i> New Deal
+        </button>
+      </div>
     </div>
 
     <div class="pipeline-stages">
@@ -3062,11 +3111,12 @@ async function renderOpportunityPipelineView() {
     html += `
       <div class="pipeline-stage" data-stage="${stage.id}">
         <div class="pipeline-stage-header">
-          <div class="pipeline-stage-title">${stage.title}</div>
+          <div class="pipeline-stage-title"><span class="pipeline-stage-dot" style="background:${stage.color}"></span>${stage.title}</div>
           <div class="pipeline-stage-count">${stageData.opportunities.length}</div>
         </div>
         <div class="pipeline-stage-value">Ksh ${stageData.totalValue.toLocaleString()}</div>
         <div class="opportunity-list" id="opportunities-${stage.id}">
+          <button class="pipeline-inline-add" data-stage="${stage.id}">+ New Deal</button>
     `;
 
     // Render opportunities in this stage
@@ -3074,6 +3124,7 @@ async function renderOpportunityPipelineView() {
       const isOverdue = opp.next_step_date && new Date(opp.next_step_date) < new Date();
       const competitors = opp.competitors ? JSON.parse(opp.competitors) : [];
       const isOwnOpportunity = !isManager || opp.user_id === currentUser.id;
+      const stageDays = getStageDays(opp);
 
       // Get user info from joined data
       const user = opp.profiles;
@@ -3106,6 +3157,11 @@ async function renderOpportunityPipelineView() {
         <div class="opportunity-card ${!isOwnOpportunity ? 'readonly' : ''}" 
             data-id="${opp.id}" 
             data-user-id="${opp.user_id}"
+            data-owner-id="${opp.user_id}"
+            data-value="${parseFloat(opp.value || 0)}"
+            data-probability="${parseInt(opp.probability || 0, 10)}"
+            data-created-ts="${new Date(opp.created_at).getTime() || 0}"
+            data-next-step-ts="${opp.next_step_date ? new Date(opp.next_step_date).getTime() : ''}"
             draggable="${isOwnOpportunity}">
           <div class="opportunity-company">${opp.company_name}</div>
           <div class="opportunity-name">${opp.name}</div>
@@ -3114,7 +3170,7 @@ async function renderOpportunityPipelineView() {
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${ownerName}
             </div>
           ` : ''}
-          <div class="opportunity-value">Ksh ${parseFloat(opp.value || 0).toLocaleString()}</div>
+          <div class="opportunity-value"><i data-lucide="circle-dollar-sign"></i> Ksh ${parseFloat(opp.value || 0).toLocaleString()}</div>
           
           <div class="opportunity-probability">
             <div class="probability-bar">
@@ -3125,11 +3181,13 @@ async function renderOpportunityPipelineView() {
           
           ${opp.next_step ? `
             <div class="opportunity-next-step ${isOverdue ? 'overdue' : ''}">
-              <i class="fas fa-clock"></i>
+              <i data-lucide="check-square"></i>
               <span>${opp.next_step}</span>
               ${opp.next_step_date ? `<span> (${formatDate(opp.next_step_date)})</span>` : ''}
             </div>
           ` : ''}
+
+          <div class="opportunity-stage-age"><i data-lucide="hourglass"></i> ${stageDays}d in stage</div>
           
           ${competitors.length > 0 ? `
             <div class="opportunity-competitors">
@@ -3147,7 +3205,7 @@ async function renderOpportunityPipelineView() {
           ` : ''}
           
           <div class="opportunity-actions">
-            <div class="opportunity-date">${formatDate(opp.created_at)}</div>
+            <div class="opportunity-date"><i data-lucide="clock-3"></i> ${formatDate(opp.created_at)}</div>
             <div class="opportunity-menu">
               ${isOwnOpportunity ? `
                 <button class="opportunity-action-btn edit-opportunity" data-id="${opp.id}">
@@ -3177,6 +3235,10 @@ async function renderOpportunityPipelineView() {
 
   viewContainer.innerHTML = html;
 
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+
   // Initialize drag and drop with a small delay to ensure DOM is ready
   setTimeout(() => {
     initPipelineDragAndDrop(opportunities);
@@ -3189,6 +3251,20 @@ function initOpportunityEventListeners(opportunities) {
   // Add opportunity button
   document.getElementById('add-opportunity-btn')?.addEventListener('click', () => {
     openOpportunityModal();
+  });
+
+  document.querySelectorAll('.pipeline-inline-add').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const stage = btn.dataset.stage || 'prospecting';
+      openOpportunityModal();
+      setTimeout(() => {
+        const stageField = document.getElementById('opportunity-stage');
+        if (stageField) {
+          stageField.value = stage;
+        }
+      }, 0);
+    });
   });
 
   // Edit opportunity buttons
@@ -3271,16 +3347,30 @@ function initPipelineDragAndDrop(opportunities) {
   opportunityLists.forEach(list => {
     new Sortable(list, {
       group: 'pipeline',
-      animation: 150,
+      animation: 70,
+      easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
+      swapThreshold: 0.2,
+      invertSwap: false,
+      emptyInsertThreshold: 6,
+      draggable: '.opportunity-card',
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
       dragClass: 'sortable-drag',
-      filter: '.readonly, .opportunity-actions', // Prevent dragging readonly cards or action buttons
+      filter: '.readonly, .opportunity-actions, .pipeline-inline-add', // Prevent dragging readonly cards or non-card controls
       onStart: function (evt) {
         evt.item.classList.add('dragging');
+        evt.from.closest('.pipeline-stage')?.classList.add('is-drop-origin');
       },
       onEnd: function (evt) {
         evt.item.classList.remove('dragging');
+        document.querySelectorAll('.pipeline-stage').forEach(stage => {
+          stage.classList.remove('is-drop-origin');
+          stage.classList.remove('is-drop-target');
+        });
+      },
+      onMove: function (evt) {
+        document.querySelectorAll('.pipeline-stage').forEach(stage => stage.classList.remove('is-drop-target'));
+        evt.to.closest('.pipeline-stage')?.classList.add('is-drop-target');
       },
       onAdd: async function (evt) {
         const opportunityId = evt.item.dataset.id;
@@ -3304,6 +3394,7 @@ function initPipelineDragAndDrop(opportunities) {
             const opportunity = opportunities.find(opp => opp.id === opportunityId);
             if (opportunity) {
               opportunity.stage = newStage;
+              opportunity.updated_at = new Date().toISOString();
 
               // Map old stage values to new ones for the mappedStage property
               const stageMapping = {
@@ -3315,6 +3406,14 @@ function initPipelineDragAndDrop(opportunities) {
                 'closed-lost': 'closed-lost'
               };
               opportunity.mappedStage = stageMapping[newStage] || newStage;
+            }
+
+            const stageAgeEl = evt.item.querySelector('.opportunity-stage-age');
+            if (stageAgeEl) {
+              stageAgeEl.innerHTML = '<i data-lucide="hourglass"></i> 0d in stage';
+              if (window.lucide) {
+                lucide.createIcons();
+              }
             }
 
             showToast('Opportunity moved successfully', 'success');
@@ -3372,8 +3471,12 @@ function updatePipelineSummary() {
 
   let totalValue = 0;
   let wonValue = 0;
+  let lostValue = 0;
+  let weightedForecast = 0;
   let totalProbability = 0;
   let activeCount = 0;
+  let closedCount = 0;
+  let wonCount = 0;
 
   visibleCards.forEach(card => {
     const valueText = card.querySelector('.opportunity-value')?.textContent;
@@ -3383,66 +3486,119 @@ function updatePipelineSummary() {
     const probText = card.querySelector('.probability-text')?.textContent;
     const probability = parseInt(probText?.replace('%', '') || 0);
     totalProbability += probability;
+    weightedForecast += (value * probability) / 100;
 
     const stageId = card.closest('.pipeline-stage')?.dataset.stage;
     if (stageId === 'closed-won') {
       wonValue += value;
+      closedCount++;
+      wonCount++;
+    } else if (stageId === 'closed-lost') {
+      lostValue += value;
+      closedCount++;
     } else if (stageId !== 'closed-lost') {
       activeCount++;
     }
   });
 
   const avgProbability = visibleCards.length > 0 ? Math.round(totalProbability / visibleCards.length) : 0;
+  const winRate = closedCount > 0 ? Math.round((wonCount / closedCount) * 100) : 0;
 
   // Update DOM elements
   const summaryValues = document.querySelectorAll('.pipeline-summary-value');
   if (summaryValues.length >= 4) {
     summaryValues[0].textContent = `Ksh ${totalValue.toLocaleString()}`;
     summaryValues[1].textContent = activeCount;
-    summaryValues[2].textContent = `${avgProbability}%`;
-    summaryValues[3].textContent = `Ksh ${wonValue.toLocaleString()}`;
+    summaryValues[2].textContent = `Ksh ${Math.round(weightedForecast).toLocaleString()}`;
+    summaryValues[3].textContent = `${winRate}%`;
+
+    const summaryChanges = document.querySelectorAll('.pipeline-summary-change');
+    if (summaryChanges.length >= 4) {
+      summaryChanges[0].innerHTML = `<i class="fas fa-briefcase"></i> Active: Ksh ${Math.max(totalValue - wonValue - lostValue, 0).toLocaleString()}`;
+      summaryChanges[1].innerHTML = `<i class="fas fa-flag-checkered"></i> Won: ${wonCount}`;
+      summaryChanges[2].innerHTML = `<i class="fas fa-percent"></i> Avg probability: ${avgProbability}%`;
+      summaryChanges[3].innerHTML = `<i class="fas fa-trophy"></i> Closed won value: Ksh ${wonValue.toLocaleString()}`;
+    }
   }
 }
 
 function initPipelineFilters(opportunities) {
   const filterButtons = document.querySelectorAll('.pipeline-filter');
+  const searchInput = document.getElementById('pipeline-search');
+  const ownerSelect = document.getElementById('pipeline-owner-filter');
+  const sortSelect = document.getElementById('pipeline-sort');
+
+  const compareBySort = (a, b, sort) => {
+    const aValue = Number(a.dataset.value || 0);
+    const bValue = Number(b.dataset.value || 0);
+    const aProb = Number(a.dataset.probability || 0);
+    const bProb = Number(b.dataset.probability || 0);
+    const aCreated = Number(a.dataset.createdTs || 0);
+    const bCreated = Number(b.dataset.createdTs || 0);
+    const aNext = Number(a.dataset.nextStepTs || Number.MAX_SAFE_INTEGER);
+    const bNext = Number(b.dataset.nextStepTs || Number.MAX_SAFE_INTEGER);
+
+    if (sort === 'oldest') return aCreated - bCreated;
+    if (sort === 'value-desc') return bValue - aValue;
+    if (sort === 'value-asc') return aValue - bValue;
+    if (sort === 'probability-desc') return bProb - aProb;
+    if (sort === 'next-step') return aNext - bNext;
+    return bCreated - aCreated;
+  };
+
+  const applyPipelineControls = () => {
+    const activeFilter = document.querySelector('.pipeline-filter.active')?.dataset.filter || 'all';
+    const query = (searchInput?.value || '').trim().toLowerCase();
+    const owner = ownerSelect?.value || 'all';
+    const sort = sortSelect?.value || 'newest';
+
+    document.querySelectorAll('.opportunity-card').forEach(card => {
+      let show = true;
+
+      if (activeFilter === 'my-reps') {
+        const opportunity = opportunities.find(opp => opp.id === card.dataset.id);
+        show = opportunity && opportunity.profiles && opportunity.profiles.role === 'sales_rep';
+      } else if (activeFilter === 'high-value') {
+        show = Number(card.dataset.value || 0) >= 100000;
+      } else if (activeFilter === 'high-probability') {
+        show = Number(card.dataset.probability || 0) >= 70;
+      } else if (activeFilter === 'next-step-due') {
+        show = !!card.querySelector('.opportunity-next-step');
+      }
+
+      if (show && owner !== 'all') {
+        show = card.dataset.ownerId === owner;
+      }
+
+      if (show && query) {
+        show = (card.textContent || '').toLowerCase().includes(query);
+      }
+
+      card.style.display = show ? 'block' : 'none';
+    });
+
+    document.querySelectorAll('.opportunity-list').forEach(list => {
+      const visibleCards = Array.from(list.querySelectorAll('.opportunity-card')).filter(card => card.style.display !== 'none');
+      visibleCards.sort((a, b) => compareBySort(a, b, sort));
+      visibleCards.forEach(card => list.appendChild(card));
+    });
+
+    updatePipelineStageCounts();
+  };
 
   filterButtons.forEach(btn => {
     btn.addEventListener('click', () => {
-      // Update active state
       filterButtons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-
-      const filter = btn.dataset.filter;
-
-      // Apply filter
-      document.querySelectorAll('.opportunity-card').forEach(card => {
-        let show = true;
-
-        if (filter === 'my-reps') {
-          // Only show opportunities of sales reps (not managers)
-          const userId = card.dataset.userId;
-          const opportunity = opportunities.find(opp => opp.id === card.dataset.id);
-          show = opportunity && opportunity.profiles && opportunity.profiles.role === 'sales_rep';
-        } else if (filter === 'high-value') {
-          const valueText = card.querySelector('.opportunity-value').textContent;
-          const value = parseCurrencyValue(valueText);
-          show = value >= 100000;
-        } else if (filter === 'high-probability') {
-          const probText = card.querySelector('.probability-text').textContent;
-          const probability = parseInt(probText.replace('%', ''));
-          show = probability >= 70;
-        } else if (filter === 'next-step-due') {
-          show = !!card.querySelector('.opportunity-next-step');
-        }
-
-        card.style.display = show ? 'block' : 'none';
-      });
-
-      // Update counts and summary after filtering
-      updatePipelineStageCounts();
+      applyPipelineControls();
     });
   });
+
+  searchInput?.addEventListener('input', applyPipelineControls);
+  ownerSelect?.addEventListener('change', applyPipelineControls);
+  sortSelect?.addEventListener('change', applyPipelineControls);
+
+  applyPipelineControls();
 }
 
 function openOpportunityModal(opportunity = null, readOnly = false) {
@@ -6420,12 +6576,10 @@ function initTaskModalListeners(task) {
 // ======================
 
 async function renderRemindersView() {
-  // Fetch reminders based on user role
   let reminders;
   let error;
 
   if (isManager) {
-
     const result = await supabaseClient
       .from('reminders')
       .select(`
@@ -6438,9 +6592,7 @@ async function renderRemindersView() {
 
     reminders = result.data;
     error = result.error;
-
   } else {
-    // Sales reps only see reminders assigned to them or created by them
     const result = await supabaseClient
       .from('reminders')
       .select(`
@@ -6455,13 +6607,11 @@ async function renderRemindersView() {
     error = result.error;
   }
 
-
   if (error) {
     viewContainer.innerHTML = renderError(error.message);
     return;
   }
 
-  // Fetch sales reps for assignment dropdown (managers only)
   let salesReps = [];
   if (isManager) {
     const { data: reps } = await supabaseClient
@@ -6473,323 +6623,248 @@ async function renderRemindersView() {
     salesReps = reps || [];
   }
 
-  // Calculate reminder statistics
-  const totalReminders = reminders.length;
-  const pendingReminders = reminders.filter(r => !r.is_completed).length;
-  const completedReminders = reminders.filter(r => r.is_completed).length;
-  const todayReminders = reminders.filter(r => {
-    const reminderDate = new Date(r.reminder_date).toDateString();
-    const today = new Date().toDateString();
-    return reminderDate === today && !r.is_completed;
-  }).length;
-  const overdueReminders = reminders.filter(r => {
-    return new Date(r.reminder_date) < new Date() && !r.is_completed;
-  }).length;
+  const now = new Date();
+  const startToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const endToday = new Date(startToday);
+  endToday.setDate(endToday.getDate() + 1);
 
-  let html = `
-    <div class="page-header">
-      <h1 class="page-title">Reminders</h1>
-      <p class="page-subtitle">${totalReminders} total reminders</p>
-    </div>
-
-    <div class="reminder-stats">
-      <div class="reminder-stat-card">
-        <div class="reminder-stat-title">Total Reminders</div>
-        <div class="reminder-stat-value">${totalReminders}</div>
-      </div>
-      <div class="reminder-stat-card">
-        <div class="reminder-stat-title">Pending</div>
-        <div class="reminder-stat-value">${pendingReminders}</div>
-      </div>
-      <div class="reminder-stat-card">
-        <div class="reminder-stat-title">Today</div>
-        <div class="reminder-stat-value">${todayReminders}</div>
-      </div>
-      <div class="reminder-stat-card">
-        <div class="reminder-stat-title">Completed</div>
-        <div class="reminder-stat-value">${completedReminders}</div>
-      </div>
-      ${overdueReminders > 0 ? `
-        <div class="reminder-stat-card">
-          <div class="reminder-stat-title task-overdue">Overdue</div>
-          <div class="reminder-stat-value task-overdue">${overdueReminders}</div>
-        </div>
-      ` : ''}
-    </div>
-
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">Reminders</h3>
-        <button class="btn btn-primary" id="add-reminder-btn">
-          <i data-lucide="plus"></i> New Reminder
-        </button>
-      </div>
-      
-      <div class="reminder-filters">
-        <button class="reminder-filter active" data-filter="all">All Reminders</button>
-        <button class="reminder-filter" data-filter="pending">Pending</button>
-        <button class="reminder-filter" data-filter="completed">Completed</button>
-        <button class="reminder-filter" data-filter="today">Today</button>
-        <button class="reminder-filter" data-filter="overdue">Overdue</button>
-        ${isManager ? `
-          <button class="reminder-filter" data-filter="assigned">Assigned by Me</button>
-        ` : ''}
-      </div>
-      
-      <div id="reminders-container">
-  `;
-
-  // Check for due reminders and show notification
-  // Check for due reminders and show notification
-  const dueReminders = reminders.filter(r => {
-    const reminderDate = new Date(r.reminder_date);
-    const now = new Date();
-    return reminderDate <= now && !r.is_completed;
+  const remindersSorted = [...(reminders || [])].sort((a, b) => {
+    const aTs = a.reminder_date ? new Date(a.reminder_date).getTime() : Number.MAX_SAFE_INTEGER;
+    const bTs = b.reminder_date ? new Date(b.reminder_date).getTime() : Number.MAX_SAFE_INTEGER;
+    return aTs - bTs;
   });
 
-  if (dueReminders.length > 0) {
-    html += `
-      <div class="reminder-notification" id="reminder-notification">
-        <div class="reminder-notification-header">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-ring-icon lucide-bell-ring"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M22 8c0-2.3-.8-4.3-2-6"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/><path d="M4 2C2.8 3.7 2 5.7 2 8"/></svg>
-          <span>You have ${dueReminders.length} due reminder${dueReminders.length > 1 ? 's' : ''}</span>
-          <button class="reminder-notification-close" id="close-notification">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-          </button>
-        </div>
-        <div class="reminder-notification-content">
-          ${dueReminders.slice(0, 3).map(reminder => {
-      // Check if current user is assigned to this reminder
-      const isAssignedToCurrentUser = reminder.assigned_to === currentUser.id;
+  const totalReminders = remindersSorted.length;
+  const pendingReminders = remindersSorted.filter(item => !item.is_completed).length;
+  const completedReminders = remindersSorted.filter(item => item.is_completed).length;
+  const todayReminders = remindersSorted.filter(item => !item.is_completed && item.reminder_date && new Date(item.reminder_date) >= startToday && new Date(item.reminder_date) < endToday).length;
+  const overdueReminders = remindersSorted.filter(item => !item.is_completed && item.reminder_date && new Date(item.reminder_date) < now).length;
+  const dueNow = remindersSorted.filter(item => !item.is_completed && item.reminder_date && new Date(item.reminder_date) <= now);
 
-      return `
-              <div class="reminder-notification-item">
-                <div class="reminder-notification-title">${reminder.title}</div>
-                <div class="reminder-notification-time">${formatDate(reminder.reminder_date, true)}</div>
-                <div class="reminder-notification-actions">
-                  ${isAssignedToCurrentUser ? `
-                    <button class="btn btn-sm btn-primary complete-reminder-notification" data-id="${reminder.id}">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Complete
-                    </button>
-                  ` : `
-                    <span class="text-muted" style="font-size: 0.875rem;">Assigned to ${reminder.assigned_to_profile ? reminder.assigned_to_profile.first_name + ' ' + reminder.assigned_to_profile.last_name : 'someone else'}</span>
-                  `}
-                  <button class="btn btn-sm btn-secondary dismiss-reminder-notification" data-id="${reminder.id}">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-off-icon lucide-bell-off"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M17 17H4a1 1 0 0 1-.74-1.673C4.59 13.956 6 12.499 6 8a6 6 0 0 1 .258-1.742"/><path d="m2 2 20 20"/><path d="M8.668 3.01A6 6 0 0 1 18 8c0 2.687.77 4.653 1.707 6.05"/></svg>
-                    Dismiss
-                  </button>
-                </div>
-              </div>
-            `;
-    }).join('')}
-          ${dueReminders.length > 3 ? `
-            <div class="reminder-notification-more">
-              And ${dueReminders.length - 3} more...
-            </div>
-          ` : ''}
-        </div>
-      </div>
-    `;
-  }
-
-  if (reminders.length === 0) {
-    html += `
-      <div class="empty-state">
-        <h3 class="empty-state-title">No reminders yet</h3>
-        <p class="empty-state-description">Create your first reminder to get started.</p>
-        <button class="btn btn-primary" onclick="openReminderModal()">
-          <i data-lucide="plus"></i> Add Reminder
-        </button>
-      </div>
-    `;
-  } else {
-    reminders.forEach(reminder => {
-      const isOverdue = reminder.reminder_date && new Date(reminder.reminder_date) < new Date();
-      const isAssignedToMe = reminder.assigned_to === currentUser.id;
-      const isCreatedByMe = reminder.created_by === currentUser.id;
-      // Only show complete button if the reminder is assigned to the current user
-      const canComplete = isAssignedToMe;
-
-      const isCreatedByManager = isManager && reminder.created_by !== currentUser.id;
-
-      // Get user info from joined data
-      const assignedToUser = reminder.assigned_to_profile;
-      const assignedToName = assignedToUser ? `${assignedToUser.first_name} ${assignedToUser.last_name}` : 'Unknown';
-      const createdByUser = reminder.created_by_profile;
-      const createdByName = createdByUser ? `${createdByUser.first_name} ${createdByUser.last_name}` : 'Unknown';
-
-      html += `
-        <div class="reminder-card" data-id="${reminder.id}" data-completed="${reminder.is_completed}">
-          <div class="reminder-header">
-            <div class="reminder-title">${reminder.title}</div>
-            <div class="reminder-status ${reminder.is_completed ? 'completed' : 'pending'}">
-              ${reminder.is_completed ? 'Completed' : 'Pending'}
-            </div>
-          </div>
-          
-          ${reminder.description ? `<div class="reminder-description">${reminder.description}</div>` : ''}
-          
-          <div class="reminder-meta">
-            ${reminder.reminder_date ? `
-              <div class="reminder-meta-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-icon lucide-calendar"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
-                <span>${formatDate(reminder.reminder_date)}</span>
-                ${isOverdue ? '<i data-lucide="alert-triangle"></i>' : ''}
-              </div>
-            ` : ''}
-            
-            ${!isManager && reminder.created_by !== currentUser.id && reminder.created_by_profile ? `
-              <div class="reminder-meta-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                <span>Assigned by: ${reminder.created_by_profile.first_name} ${reminder.created_by_profile.last_name}</span>
-              </div>
-            ` : ''}
-            
-            ${isManager && reminder.assigned_to_profile ? `
-              <div class="reminder-meta-item">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                <span>Assigned to: ${reminder.assigned_to_profile.first_name} ${reminder.assigned_to_profile.last_name}</span>
-              </div>
-            ` : ''}
-          </div>
-          
-          <div class="reminder-actions">
-            <div class="reminder-date">
-              <i data-lucide="bell"></i>
-              ${formatDate(reminder.reminder_date, true)}
-            </div>
-            <div class="reminder-action-buttons">
-              ${(isManager && isCreatedByMe) || (!isManager && (isAssignedToMe || isCreatedByMe)) ? `
-                <button class="reminder-action-btn edit-reminder" data-id="${reminder.id}">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen-icon lucide-square-pen"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
-                </button>
-              ` : ''}
-              ${canComplete && !reminder.is_completed ? `
-                <button class="reminder-action-btn complete-reminder" data-id="${reminder.id}">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
-                </button>
-              ` : ''}
-              ${(isManager && isCreatedByMe) || (!isManager && isCreatedByMe) ? `
-                <button class="reminder-action-btn delete-reminder" data-id="${reminder.id}">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                </button>
-              ` : ''}
-            </div>
-          </div>
-          
-          ${!isManager && isCreatedByManager ? `
-            <div class="reminder-assigned-to">
-              <i data-lucide="info"></i>
-              <span>This reminder was assigned to you by a manager</span>
-            </div>
-          ` : ''}
-        </div>
-      `;
+  const formatReminderDue = (isoDate) => {
+    if (!isoDate) return 'No due date';
+    const date = new Date(isoDate);
+    if (Number.isNaN(date.getTime())) return 'Invalid date';
+    return date.toLocaleString([], {
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
     });
-  }
+  };
 
-  html += `
+  const cardsMarkup = remindersSorted.map(reminder => {
+    const dueDate = reminder.reminder_date ? new Date(reminder.reminder_date) : null;
+    const dueTs = dueDate && !Number.isNaN(dueDate.getTime()) ? dueDate.getTime() : 0;
+    const isOverdue = !reminder.is_completed && dueTs > 0 && dueTs < now.getTime();
+    const isToday = !reminder.is_completed && dueTs >= startToday.getTime() && dueTs < endToday.getTime();
+    const isAssignedToMe = reminder.assigned_to === currentUser.id;
+    const isCreatedByMe = reminder.created_by === currentUser.id;
+    const canComplete = isAssignedToMe;
+    const canEdit = (isManager && isCreatedByMe) || (!isManager && (isAssignedToMe || isCreatedByMe));
+    const canDelete = (isManager && isCreatedByMe) || (!isManager && isCreatedByMe);
+
+    const assignedToText = reminder.assigned_to_profile
+      ? `${reminder.assigned_to_profile.first_name} ${reminder.assigned_to_profile.last_name}`
+      : 'Unassigned';
+
+    const assignedByText = reminder.created_by_profile
+      ? `${reminder.created_by_profile.first_name} ${reminder.created_by_profile.last_name}`
+      : 'Unknown';
+
+    return `
+      <article class="remx-card reminder-card ${reminder.is_completed ? 'is-completed' : ''} ${isOverdue ? 'is-overdue' : ''}"
+               data-id="${reminder.id}"
+               data-completed="${reminder.is_completed}"
+               data-reminder-date="${reminder.reminder_date || ''}"
+               data-due-ts="${dueTs}"
+               data-created-by="${reminder.created_by || ''}">
+        <div class="remx-card-head reminder-header">
+          <h4 class="remx-title reminder-title">${reminder.title}</h4>
+          <span class="remx-state reminder-status ${reminder.is_completed ? 'completed' : 'pending'}">
+            ${reminder.is_completed ? 'Completed' : (isOverdue ? 'Overdue' : (isToday ? 'Today' : 'Pending'))}
+          </span>
+        </div>
+
+        ${reminder.description ? `<p class="remx-desc reminder-description">${reminder.description}</p>` : ''}
+
+        <div class="remx-meta reminder-meta">
+          <span class="remx-chip reminder-meta-item"><i data-lucide="calendar"></i> ${formatReminderDue(reminder.reminder_date)}</span>
+          ${isManager ? `<span class="remx-chip reminder-meta-item"><i data-lucide="user"></i> Assigned to: ${assignedToText}</span>` : `<span class="remx-chip reminder-meta-item"><i data-lucide="user"></i> Assigned by: ${assignedByText}</span>`}
+        </div>
+
+        <div class="remx-actions reminder-actions">
+          <div class="remx-due reminder-date"><i data-lucide="bell"></i> ${formatDate(reminder.reminder_date, true)}</div>
+          <div class="reminder-action-buttons">
+            ${canEdit ? `
+              <button class="reminder-action-btn edit-reminder" data-id="${reminder.id}" title="Edit reminder">
+                <i data-lucide="square-pen"></i>
+              </button>
+            ` : ''}
+            ${canComplete && !reminder.is_completed ? `
+              <button class="reminder-action-btn complete-reminder" data-id="${reminder.id}" title="Mark completed">
+                <i data-lucide="check"></i>
+              </button>
+            ` : ''}
+            ${canDelete ? `
+              <button class="reminder-action-btn delete-reminder" data-id="${reminder.id}" title="Delete reminder">
+                <i data-lucide="trash-2"></i>
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
+
+  const dueNowMarkup = dueNow.slice(0, 6).map(reminder => {
+    const dueText = formatReminderDue(reminder.reminder_date);
+    const canComplete = reminder.assigned_to === currentUser.id;
+    return `
+      <div class="remx-focus-item">
+        <div>
+          <div class="remx-focus-title">${reminder.title}</div>
+          <div class="remx-focus-time">${dueText}</div>
+        </div>
+        ${canComplete ? `<button class="reminder-action-btn complete-reminder" data-id="${reminder.id}" title="Complete"><i data-lucide="check"></i></button>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  viewContainer.innerHTML = `
+    <div class="remx-page">
+      <div class="remx-header">
+        <div>
+          <h1 class="page-title">Reminders</h1>
+          <p class="page-subtitle">Prioritize follow-ups, track deadlines, and keep ownership clear.</p>
+        </div>
+        <button class="btn btn-primary" id="add-reminder-btn"><i data-lucide="plus"></i> New Reminder</button>
+      </div>
+
+      <section class="remx-kpis reminder-stats">
+        <div class="reminder-stat-card"><div class="reminder-stat-title">Total</div><div class="reminder-stat-value">${totalReminders}</div><div class="reminder-stat-meta">All reminders</div></div>
+        <div class="reminder-stat-card"><div class="reminder-stat-title">Pending</div><div class="reminder-stat-value">${pendingReminders}</div><div class="reminder-stat-meta">Awaiting action</div></div>
+        <div class="reminder-stat-card"><div class="reminder-stat-title">Due Today</div><div class="reminder-stat-value">${todayReminders}</div><div class="reminder-stat-meta">Must close today</div></div>
+        <div class="reminder-stat-card"><div class="reminder-stat-title">Completed</div><div class="reminder-stat-value">${completedReminders}</div><div class="reminder-stat-meta">Finished items</div></div>
+        <div class="reminder-stat-card ${overdueReminders > 0 ? 'reminder-stat-card-overdue' : ''}"><div class="reminder-stat-title">Overdue</div><div class="reminder-stat-value ${overdueReminders > 0 ? 'task-overdue' : ''}">${overdueReminders}</div><div class="reminder-stat-meta">Past due</div></div>
+      </section>
+
+      <div class="remx-layout">
+        <aside class="remx-focus">
+          <div class="remx-focus-card">
+            <div class="remx-focus-head">
+              <h3>Due Now</h3>
+              <span>${dueNow.length}</span>
+            </div>
+            ${dueNow.length === 0 ? '<p class="remx-focus-empty">No reminders due right now. Great momentum.</p>' : `<div class="remx-focus-list">${dueNowMarkup}</div>`}
+          </div>
+        </aside>
+
+        <section class="remx-main">
+          <div class="remx-toolbar">
+            <div class="reminder-filters">
+              <button class="reminder-filter active" data-filter="all">All</button>
+              <button class="reminder-filter" data-filter="pending">Pending</button>
+              <button class="reminder-filter" data-filter="today">Today</button>
+              <button class="reminder-filter" data-filter="overdue">Overdue</button>
+              <button class="reminder-filter" data-filter="completed">Completed</button>
+              ${isManager ? '<button class="reminder-filter" data-filter="assigned">Assigned by Me</button>' : ''}
+            </div>
+            <div class="remx-search">
+              <i data-lucide="search"></i>
+              <input type="text" id="reminder-search" placeholder="Search reminders...">
+            </div>
+          </div>
+
+          <div id="remx-filter-empty" class="remx-filter-empty" style="display:none;">No reminders match the current filter/search.</div>
+
+          <div id="reminders-container" class="remx-cards">
+            ${totalReminders === 0 ? `
+              <div class="empty-state reminder-empty-state">
+                <h3 class="empty-state-title">No reminders yet</h3>
+                <p class="empty-state-description">Create your first reminder with a due date to start tracking follow-ups.</p>
+                <button class="btn btn-primary" onclick="openReminderModal()"><i data-lucide="plus"></i> Add Reminder</button>
+              </div>
+            ` : cardsMarkup}
+          </div>
+        </section>
       </div>
     </div>
   `;
 
-  viewContainer.innerHTML = html;
-
-  // Store for global access
   window.salesRepsData = salesReps;
 
-  // Initialize event listeners
   document.getElementById('add-reminder-btn')?.addEventListener('click', () => {
     openReminderModal(null, salesReps);
   });
 
-  // Initialize reminder action buttons
   initReminderActionButtons(reminders, salesReps);
-
-  // Initialize reminder filters
   initReminderFilters(reminders);
 
-  // Initialize notification close button
-  if (dueReminders.length > 0) {
-    document.getElementById('close-notification').addEventListener('click', () => {
-      document.getElementById('reminder-notification').style.display = 'none';
-    });
-
-    // Initialize notification action buttons
-    document.querySelectorAll('.complete-reminder-notification').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const reminderId = btn.dataset.id;
-
-        const { error } = await supabaseClient
-          .from('reminders')
-          .update({ is_completed: true, updated_at: new Date().toISOString() })
-          .eq('id', reminderId);
-
-        if (error) {
-          showToast('Error completing reminder: ' + error.message, 'error');
-          return;
-        }
-
-        showToast('Reminder completed successfully', 'success');
-        renderRemindersView();
-      });
-    });
-
-    document.querySelectorAll('.dismiss-reminder-notification').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const reminderId = btn.dataset.id;
-
-        // Store dismissed reminder in localStorage with a timestamp
-        const dismissedReminders = JSON.parse(localStorage.getItem('dismissedReminders') || '[]');
-        dismissedReminders.push({
-          id: reminderId,
-          dismissedAt: new Date().toISOString()
-        });
-        localStorage.setItem('dismissedReminders', JSON.stringify(dismissedReminders));
-
-        // Hide notification
-        document.getElementById('reminder-notification').style.display = 'none';
-
-        showToast('Reminder dismissed', 'info');
-      });
-    });
-  }
+  if (window.lucide) lucide.createIcons();
 }
 
 function initReminderFilters(reminders) {
   const filterButtons = document.querySelectorAll('.reminder-filter');
+  const searchInput = document.getElementById('reminder-search');
+  const cards = document.querySelectorAll('.reminder-card');
+  const emptyState = document.getElementById('remx-filter-empty');
+
+  const applyFilters = () => {
+    const activeFilter = document.querySelector('.reminder-filter.active')?.dataset.filter || 'all';
+    const query = (searchInput?.value || '').trim().toLowerCase();
+    const now = Date.now();
+    const startToday = new Date();
+    startToday.setHours(0, 0, 0, 0);
+    const endToday = new Date(startToday);
+    endToday.setDate(endToday.getDate() + 1);
+
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+      const completed = card.dataset.completed === 'true';
+      const dueTs = Number(card.dataset.dueTs || 0);
+      const createdBy = card.dataset.createdBy || '';
+      const contentText = (card.textContent || '').toLowerCase();
+
+      let show = true;
+
+      if (activeFilter === 'assigned') {
+        show = createdBy === currentUser.id;
+      } else if (activeFilter === 'today') {
+        show = !completed && dueTs >= startToday.getTime() && dueTs < endToday.getTime();
+      } else if (activeFilter === 'overdue') {
+        show = !completed && dueTs > 0 && dueTs < now;
+      } else if (activeFilter === 'completed') {
+        show = completed;
+      } else if (activeFilter === 'pending') {
+        show = !completed;
+      }
+
+      if (show && query) {
+        show = contentText.includes(query);
+      }
+
+      card.style.display = show ? 'block' : 'none';
+      if (show) visibleCount++;
+    });
+
+    if (emptyState) {
+      emptyState.style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+  };
 
   filterButtons.forEach(btn => {
     btn.addEventListener('click', () => {
-      // Update active state
       filterButtons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
-
-      const filter = btn.dataset.filter;
-
-      // Apply filter
-      document.querySelectorAll('.reminder-card').forEach(card => {
-        let show = true;
-
-        if (filter === 'assigned') {
-          // Only show reminders created by current user
-          const reminderId = card.dataset.id;
-          const reminder = reminders.find(r => r.id === reminderId);
-          show = reminder && reminder.created_by === currentUser.id;
-        } else if (filter === 'overdue') {
-          const isOverdue = card.dataset.completed === 'false' && new Date(card.dataset.reminderDate) < new Date();
-          show = isOverdue;
-        } else {
-          const isCompleted = card.dataset.completed === 'true';
-          show = isCompleted === (filter === 'completed');
-        }
-
-        card.style.display = show ? 'block' : 'none';
-      });
+      applyFilters();
     });
   });
+
+  searchInput?.addEventListener('input', applyFilters);
+
+  applyFilters();
 }
 
 function initReminderActionButtons(reminders, salesReps) {
