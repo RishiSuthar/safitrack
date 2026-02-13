@@ -810,9 +810,9 @@ body {
   text-decoration: underline;
 }
 
-/* Button */
-.btn-primary.btn-lg {
-  height: 34px;
+/* Login screen primary button */
+.auth-form .btn-primary.btn-lg {
+  height: 40px;
   font-size: 0.88rem;
   font-weight: 500;
   border-radius: 10px;
@@ -824,12 +824,12 @@ body {
   letter-spacing: 0.3px;
 }
 
-.btn-primary.btn-lg:hover {
+.auth-form .btn-primary.btn-lg:hover {
   background: var(--color-primary-dark);
   box-shadow: 0 4px 12px rgba(47, 95, 208, 0.25);
 }
 
-.btn-primary.btn-lg:active {
+.auth-form .btn-primary.btn-lg:active {
   box-shadow: 0 1px 3px rgba(47, 95, 208, 0.2);
   transform: scale(0.99);
 }
