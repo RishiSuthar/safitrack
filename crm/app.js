@@ -16,6 +16,16 @@ let allPeople = [];
 let isTechnician = false;
 let managerCallLogViewMode = 'my'; // 'my' or 'team'
 let lastToastMeta = { key: '', at: 0 };
+let dueNotificationsPollId = null;
+let duePopupHideTimers = [];
+
+const DUE_NOTIFIED_STORAGE_KEY = 'safitrack_due_notified_v1';
+const DUE_READ_STORAGE_KEY = 'safitrack_due_read_v1';
+
+let dueNotificationState = {
+  items: [],
+  unreadCount: 0
+};
 
 const CRM_DEBUG = false;
 function crmDebugLog(label, payload) {
@@ -57,6 +67,11 @@ const commandPaletteBtn = document.getElementById('command-palette-btn');
 const commandPalette = document.getElementById('command-palette');
 const exportBtn = document.getElementById('export-btn');
 const logoutBtn = document.getElementById('logout-btn');
+const notificationsMenu = document.getElementById('notifications-menu');
+const notificationsBtn = document.getElementById('notifications-btn');
+const notificationsCount = document.getElementById('notifications-count');
+const notificationsList = document.getElementById('notifications-list');
+const notificationsEnableBtn = document.getElementById('enable-notifications-btn');
 
 const APP_BOOT_STARTED_AT = performance.now();
 const FAST_BOOT_SKIP_MS = 500;
@@ -424,6 +439,7 @@ function initAuth() {
       authScreen.style.display = 'none';
       initApp();
     } else if (event === 'SIGNED_OUT') {
+      stopDueNotificationsMonitor();
       currentUser = null;
       mainApp.style.display = 'none';
       authScreen.style.display = 'flex';
@@ -463,12 +479,41 @@ function initEventListeners() {
   // User menu
   userAvatarBtn?.addEventListener('click', (e) => {
     e.stopPropagation();
+    notificationsMenu?.classList.remove('active');
     userMenu.classList.toggle('active');
+  });
+
+  notificationsBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    userMenu?.classList.remove('active');
+    notificationsMenu?.classList.toggle('active');
+    if (notificationsMenu?.classList.contains('active')) {
+      markAllDueNotificationsRead();
+    }
+  });
+
+  notificationsEnableBtn?.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    await requestNotificationPermission();
+    updateNotificationPermissionCTA();
+  });
+
+  notificationsList?.addEventListener('click', async (e) => {
+    const itemEl = e.target.closest('.notification-item');
+    if (!itemEl) return;
+    const targetView = itemEl.dataset.view;
+    notificationsMenu?.classList.remove('active');
+    if (targetView && targetView !== currentView) {
+      await loadView(targetView);
+    }
   });
 
   document.addEventListener('click', (e) => {
     if (!userMenu?.contains(e.target)) {
       userMenu?.classList.remove('active');
+    }
+    if (!notificationsMenu?.contains(e.target)) {
+      notificationsMenu?.classList.remove('active');
     }
   });
 
@@ -539,6 +584,7 @@ async function handleLogin(e) {
 }
 
 async function handleLogout() {
+  stopDueNotificationsMonitor();
   await supabaseClient.auth.signOut();
   location.reload();
 }
@@ -589,6 +635,9 @@ async function initApp() {
 
   // Load the determined view
   await loadView(viewToLoad);
+
+  // Start sitewide due notifications monitor (tasks, reminders, deals)
+  startDueNotificationsMonitor();
 
   // Identify if onboarding should be shown (new user or forced)
   const hasCompletedTour = localStorage.getItem('safitrack_onboarding_completed');
@@ -4432,8 +4481,7 @@ function getProbabilityColor(probability) {
 }
 
 function scheduleNextStepReminder(opportunityName, nextStep, dueDate) {
-  // In a real implementation, this would set up a notification system
-  // For now, we'll just store reminder in localStorage
+  // Keep legacy local reminder support for existing flows
   const reminders = JSON.parse(localStorage.getItem('opportunityReminders') || '[]');
 
   reminders.push({
@@ -4445,26 +4493,402 @@ function scheduleNextStepReminder(opportunityName, nextStep, dueDate) {
 
   localStorage.setItem('opportunityReminders', JSON.stringify(reminders));
 
-  // Check if reminder is due today
-  const today = new Date().toISOString().split('T')[0];
-  if (dueDate === today) {
-    showToast(`Reminder: ${nextStep} for ${opportunityName} is due today!`, 'info');
+  refreshDueNotifications({ forcePopup: true });
+}
+
+function getNotificationPermission() {
+  if (!('Notification' in window)) return 'unsupported';
+  return Notification.permission;
+}
+
+async function requestNotificationPermission() {
+  if (!('Notification' in window)) {
+    showToast('This browser does not support notifications.', 'error');
+    return 'unsupported';
+  }
+
+  if (Notification.permission === 'granted') {
+    return 'granted';
+  }
+
+  const permission = await Notification.requestPermission();
+
+  if (permission === 'granted') {
+    showToast('Device notifications enabled.', 'success');
+  } else if (permission === 'denied') {
+    showToast('Notifications blocked. You can enable them in browser settings.', 'error');
+  }
+
+  return permission;
+}
+
+function readJsonStorage(key, fallback = {}) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function writeJsonStorage(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    // no-op
+  }
+}
+
+function formatDueLabel(dateObj) {
+  if (!(dateObj instanceof Date) || Number.isNaN(dateObj.getTime())) return '';
+  return dateObj.toLocaleString([], {
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+}
+
+function getDueStatus(dueAt) {
+  const now = Date.now();
+  const dueTs = dueAt.getTime();
+
+  if (dueTs < now) return 'overdue';
+
+  const startToday = new Date();
+  startToday.setHours(0, 0, 0, 0);
+  const endToday = new Date(startToday);
+  endToday.setDate(endToday.getDate() + 1);
+
+  if (dueTs >= startToday.getTime() && dueTs < endToday.getTime()) {
+    return 'due-today';
+  }
+
+  return 'due-soon';
+}
+
+function mapTaskToDueNotification(task) {
+  const dueAt = task?.due_date ? new Date(task.due_date) : null;
+  if (!dueAt || Number.isNaN(dueAt.getTime())) return null;
+  if (task.status === 'completed') return null;
+
+  return {
+    key: `task:${task.id}:${dueAt.toISOString()}`,
+    id: String(task.id),
+    entityType: 'task',
+    view: 'tasks',
+    title: task.title || 'Task due',
+    message: `Task due ${formatDueLabel(dueAt)}`,
+    dueAt,
+    status: getDueStatus(dueAt)
+  };
+}
+
+function mapReminderToDueNotification(reminder) {
+  const dueAt = reminder?.reminder_date ? new Date(reminder.reminder_date) : null;
+  if (!dueAt || Number.isNaN(dueAt.getTime())) return null;
+  if (reminder.is_completed) return null;
+
+  return {
+    key: `reminder:${reminder.id}:${dueAt.toISOString()}`,
+    id: String(reminder.id),
+    entityType: 'reminder',
+    view: 'reminders',
+    title: reminder.title || 'Reminder due',
+    message: `Reminder due ${formatDueLabel(dueAt)}`,
+    dueAt,
+    status: getDueStatus(dueAt)
+  };
+}
+
+function mapOpportunityToDueNotification(opportunity) {
+  const dueAt = opportunity?.next_step_date ? new Date(opportunity.next_step_date) : null;
+  if (!dueAt || Number.isNaN(dueAt.getTime())) return null;
+
+  const stageRaw = String(opportunity.stage || '').toLowerCase();
+  if (stageRaw === 'closed-won' || stageRaw === 'closed-lost') return null;
+
+  const company = opportunity.company_name || 'Deal';
+  const step = opportunity.next_step || 'Next step';
+
+  return {
+    key: `deal:${opportunity.id}:${dueAt.toISOString()}`,
+    id: String(opportunity.id),
+    entityType: 'deal',
+    view: 'opportunity-pipeline',
+    title: company,
+    message: `${step} due ${formatDueLabel(dueAt)}`,
+    dueAt,
+    status: getDueStatus(dueAt)
+  };
+}
+
+async function fetchDueNotificationItems() {
+  if (!currentUser?.id) return [];
+
+  const horizon = new Date();
+  horizon.setDate(horizon.getDate() + 1);
+  const horizonIso = horizon.toISOString();
+  const horizonDate = horizonIso.split('T')[0];
+
+  const tasksQuery = supabaseClient
+    .from('tasks')
+    .select('id, title, due_date, status, assigned_to, created_by')
+    .not('due_date', 'is', null)
+    .neq('status', 'completed')
+    .lte('due_date', horizonIso)
+    .or(`assigned_to.eq.${currentUser.id},created_by.eq.${currentUser.id}`);
+
+  const remindersQuery = supabaseClient
+    .from('reminders')
+    .select('id, title, reminder_date, is_completed, assigned_to, created_by')
+    .not('reminder_date', 'is', null)
+    .neq('is_completed', true)
+    .lte('reminder_date', horizonIso)
+    .or(`assigned_to.eq.${currentUser.id},created_by.eq.${currentUser.id}`);
+
+  let opportunitiesQuery = supabaseClient
+    .from('opportunities')
+    .select('id, name, company_name, next_step, next_step_date, stage, user_id')
+    .not('next_step_date', 'is', null)
+    .lte('next_step_date', horizonDate)
+    .neq('stage', 'closed-won')
+    .neq('stage', 'closed-lost');
+
+  if (!isManager) {
+    opportunitiesQuery = opportunitiesQuery.eq('user_id', currentUser.id);
+  }
+
+  const [tasksRes, remindersRes, opportunitiesRes] = await Promise.all([
+    tasksQuery,
+    remindersQuery,
+    opportunitiesQuery
+  ]);
+
+  const taskItems = (tasksRes.data || []).map(mapTaskToDueNotification).filter(Boolean);
+  const reminderItems = (remindersRes.data || []).map(mapReminderToDueNotification).filter(Boolean);
+  const dealItems = (opportunitiesRes.data || []).map(mapOpportunityToDueNotification).filter(Boolean);
+
+  return [...taskItems, ...reminderItems, ...dealItems]
+    .sort((a, b) => a.dueAt.getTime() - b.dueAt.getTime())
+    .slice(0, 25);
+}
+
+function renderDueNotificationsUI() {
+  if (!notificationsList || !notificationsCount) return;
+
+  const readMap = readJsonStorage(DUE_READ_STORAGE_KEY, {});
+  const unreadCount = dueNotificationState.items.filter(item => !readMap[item.key]).length;
+  dueNotificationState.unreadCount = unreadCount;
+
+  if (unreadCount > 0) {
+    notificationsCount.style.display = 'inline-flex';
+    notificationsCount.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+  } else {
+    notificationsCount.style.display = 'none';
+  }
+
+  if (dueNotificationState.items.length === 0) {
+    notificationsList.innerHTML = '<div class="notifications-empty">No due alerts right now.</div>';
+    return;
+  }
+
+  notificationsList.innerHTML = dueNotificationState.items.map(item => {
+    const unreadClass = readMap[item.key] ? '' : ' unread';
+    const typeLabel = item.entityType === 'deal' ? 'Deal' : (item.entityType === 'task' ? 'Task' : 'Reminder');
+    const timeLabel = formatDueLabel(item.dueAt);
+    return `
+      <button class="notification-item ${item.status}${unreadClass}" data-view="${item.view}">
+        <div class="notification-item-head">
+          <span class="notification-item-type">${typeLabel}</span>
+          <span class="notification-item-time">${timeLabel}</span>
+        </div>
+        <div class="notification-item-title">${item.title}</div>
+        <div class="notification-item-message">${item.message}</div>
+      </button>
+    `;
+  }).join('');
+}
+
+function updateNotificationPermissionCTA() {
+  if (!notificationsEnableBtn) return;
+
+  const permission = getNotificationPermission();
+  if (permission === 'default') {
+    notificationsEnableBtn.style.display = 'inline-flex';
+    notificationsEnableBtn.textContent = 'Enable device alerts';
+  } else if (permission === 'denied') {
+    notificationsEnableBtn.style.display = 'inline-flex';
+    notificationsEnableBtn.textContent = 'Alerts blocked in browser';
+  } else {
+    notificationsEnableBtn.style.display = 'none';
+  }
+}
+
+async function pushDeviceNotification(item) {
+  if (!('serviceWorker' in navigator)) return;
+  if (getNotificationPermission() !== 'granted') return;
+
+  const registration = await navigator.serviceWorker.getRegistration();
+  if (!registration) return;
+
+  const titlePrefix = item.status === 'overdue' ? 'Overdue' : (item.status === 'due-today' ? 'Due today' : 'Due soon');
+  const title = `${titlePrefix}: ${item.entityType === 'deal' ? 'Deal' : (item.entityType === 'task' ? 'Task' : 'Reminder')}`;
+
+  await registration.showNotification(title, {
+    body: `${item.title} — ${item.message}`,
+    icon: '/assets/icons/whiteblue.png',
+    badge: '/assets/icons/whiteblue.png',
+    tag: item.key,
+    renotify: false,
+    data: {
+      url: `/crm/`,
+      view: item.view
+    }
+  });
+}
+
+function getDuePopupContainer() {
+  let container = document.getElementById('due-popup-container');
+  if (container) return container;
+
+  container = document.createElement('div');
+  container.id = 'due-popup-container';
+  container.className = 'due-popup-container';
+  document.body.appendChild(container);
+  return container;
+}
+
+function clearDuePopupTimers() {
+  duePopupHideTimers.forEach(timer => clearTimeout(timer));
+  duePopupHideTimers = [];
+}
+
+function showDuePopup(items) {
+  if (!Array.isArray(items) || items.length === 0) return;
+
+  const container = getDuePopupContainer();
+  clearDuePopupTimers();
+
+  const renderItems = items.slice(0, 3);
+  container.innerHTML = renderItems.map((item) => {
+    const typeLabel = item.entityType === 'deal' ? 'Deal' : (item.entityType === 'task' ? 'Task' : 'Reminder');
+    const dueText = formatDueLabel(item.dueAt);
+    return `
+      <button class="due-popup-card ${item.status}" data-view="${item.view}">
+        <div class="due-popup-head">
+          <span class="due-popup-type">${typeLabel}</span>
+          <span class="due-popup-time">${dueText}</span>
+        </div>
+        <div class="due-popup-title">${item.title}</div>
+        <div class="due-popup-message">${item.message}</div>
+      </button>
+    `;
+  }).join('');
+
+  container.classList.add('active');
+
+  container.onclick = async (e) => {
+    const card = e.target.closest('.due-popup-card');
+    if (!card) return;
+    const view = card.dataset.view;
+    container.classList.remove('active');
+    if (view && view !== currentView) {
+      await loadView(view);
+    }
+  };
+
+  const hideTimer = setTimeout(() => {
+    container.classList.remove('active');
+  }, 6000);
+  duePopupHideTimers.push(hideTimer);
+}
+
+async function notifyForNewDueItems(items, forcePopup = false) {
+  const now = Date.now();
+  const notifiedMap = readJsonStorage(DUE_NOTIFIED_STORAGE_KEY, {});
+  const fresh = [];
+
+  items.forEach(item => {
+    if (!notifiedMap[item.key]) {
+      fresh.push(item);
+      notifiedMap[item.key] = now;
+    }
+  });
+
+  const retentionMs = 7 * 24 * 60 * 60 * 1000;
+  Object.keys(notifiedMap).forEach(key => {
+    if (now - notifiedMap[key] > retentionMs) {
+      delete notifiedMap[key];
+    }
+  });
+
+  writeJsonStorage(DUE_NOTIFIED_STORAGE_KEY, notifiedMap);
+
+  if (fresh.length === 0 && !forcePopup) return;
+
+  const toNotify = fresh.slice(0, 3);
+  for (const item of toNotify) {
+    await pushDeviceNotification(item);
+  }
+
+  const dueNowItems = items.filter(item => item.status === 'overdue' || item.status === 'due-today');
+  const popupItems = fresh.length > 0 ? fresh : dueNowItems;
+
+  if (popupItems.length > 0) {
+    showDuePopup(popupItems);
+  }
+}
+
+function markAllDueNotificationsRead() {
+  const readMap = readJsonStorage(DUE_READ_STORAGE_KEY, {});
+  dueNotificationState.items.forEach(item => {
+    readMap[item.key] = Date.now();
+  });
+  writeJsonStorage(DUE_READ_STORAGE_KEY, readMap);
+  renderDueNotificationsUI();
+}
+
+async function refreshDueNotifications({ forcePopup = false } = {}) {
+  try {
+    const items = await fetchDueNotificationItems();
+    dueNotificationState.items = items;
+    renderDueNotificationsUI();
+    updateNotificationPermissionCTA();
+    await notifyForNewDueItems(items, forcePopup);
+  } catch (error) {
+    console.error('Due notifications refresh failed:', error);
+  }
+}
+
+function startDueNotificationsMonitor() {
+  stopDueNotificationsMonitor();
+
+  refreshDueNotifications();
+
+  dueNotificationsPollId = window.setInterval(() => {
+    refreshDueNotifications();
+  }, 120000);
+
+  document.addEventListener('visibilitychange', handleDueNotificationVisibility);
+}
+
+function stopDueNotificationsMonitor() {
+  if (dueNotificationsPollId) {
+    clearInterval(dueNotificationsPollId);
+    dueNotificationsPollId = null;
+  }
+  document.removeEventListener('visibilitychange', handleDueNotificationVisibility);
+}
+
+function handleDueNotificationVisibility() {
+  if (!document.hidden) {
+    refreshDueNotifications();
   }
 }
 
 function checkDueReminders() {
-  // Check for due reminders on app load
-  const reminders = JSON.parse(localStorage.getItem('opportunityReminders') || '[]');
-  const today = new Date().toISOString().split('T')[0];
-
-  reminders.forEach(reminder => {
-    if (!reminder.acknowledged && reminder.dueDate === today) {
-      showToast(`Reminder: ${reminder.nextStep} for ${reminder.opportunityName} is due today!`, 'info');
-      reminder.acknowledged = true;
-    }
-  });
-
-  localStorage.setItem('opportunityReminders', JSON.stringify(reminders));
+  refreshDueNotifications();
 }
 
 // ======================
