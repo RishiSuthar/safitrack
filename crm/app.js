@@ -17,14 +17,9 @@ let isTechnician = false;
 let managerCallLogViewMode = 'my'; // 'my' or 'team'
 let lastToastMeta = { key: '', at: 0 };
 
-const CRM_DEBUG = true;
+const CRM_DEBUG = false;
 function crmDebugLog(label, payload) {
-  if (!CRM_DEBUG) return;
-  if (payload !== undefined) {
-    console.log(`[CRM DEBUG] ${label}`, payload);
-    return;
-  }
-  console.log(`[CRM DEBUG] ${label}`);
+  return;
 }
 
 // Call log filters
@@ -9917,21 +9912,21 @@ async function renderTechniciansDashboardView() {
       <div class="card-header">
         <h3 class="card-title">Filter Visits</h3>
       </div>
-      <div class="flex flex-wrap gap-2">
-        <select class="form-control" style="width: auto;" id="filter-technician">
+      <div class="technician-filters-row">
+        <select class="technician-filter-control" id="filter-technician">
           <option value="">All Technicians</option>
           ${technicians.map(tech => `
             <option value="${tech.id}">${tech.first_name} ${tech.last_name}</option>
           `).join('')}
         </select>
-        <select class="form-control" style="width: auto;" id="filter-status">
+        <select class="technician-filter-control" id="filter-status">
           <option value="">All Status</option>
           <option value="completed">Completed</option>
           <option value="partially_completed">Partially Completed</option>
           <option value="pending">Pending</option>
           <option value="follow_up">Follow-up Required</option>
         </select>
-        <select class="form-control" style="width: auto;" id="filter-type">
+        <select class="technician-filter-control" id="filter-type">
           <option value="">All Types</option>
           <option value="installation">Installation</option>
           <option value="maintenance">Maintenance</option>
@@ -9939,7 +9934,7 @@ async function renderTechniciansDashboardView() {
           <option value="inspection">Inspection</option>
           <option value="emergency">Emergency</option>
         </select>
-        <input type="date" class="form-control" style="width: auto;" id="filter-date">
+        <input type="date" class="technician-filter-control" id="filter-date">
         <button class="btn btn-secondary" id="clear-filters">
           Clear Filters
         </button>
@@ -11269,13 +11264,6 @@ async function compressImage(file, quality = 0.6, maxWidth = 1200, maxHeight = 1
                 lastModified: Date.now()
               }
             );
-
-            // Log compression results
-            const originalSize = (file.size / 1024 / 1024).toFixed(2);
-            const compressedSize = (blob.size / 1024 / 1024).toFixed(2);
-            const savings = ((1 - blob.size / file.size) * 100).toFixed(0);
-
-            console.log(`Image compression: ${originalSize}MB → ${compressedSize}MB (${savings}% reduction)`);
 
             resolve(compressedFile);
           } else {
@@ -13065,7 +13053,6 @@ function initPWA() {
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('sw.js')
-        .then(reg => console.log('SW: Registered', reg))
         .catch(err => console.error('SW: Registration failed', err));
     });
   }
@@ -13108,8 +13095,7 @@ function attemptShowPWABanner() {
   const triggerInstall = async () => {
     if (!deferredPrompt) return;
     deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User response to install prompt: ${outcome}`);
+    await deferredPrompt.userChoice;
     deferredPrompt = null;
     const installBtn = document.getElementById('pwa-install-btn');
     if (installBtn) installBtn.style.display = 'none';
@@ -13130,7 +13116,6 @@ function attemptShowPWABanner() {
 
 // Log when app is successfully installed
 window.addEventListener('appinstalled', (event) => {
-  console.log('App: Installed successfully');
   const installBtn = document.getElementById('pwa-install-btn');
   const installBanner = document.getElementById('pwa-install-banner');
   if (installBtn) installBtn.style.display = 'none';

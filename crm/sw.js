@@ -15,7 +15,6 @@ const ASSETS = [
 self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
-            console.log('SW: Caching static assets');
             return cache.addAll(ASSETS);
         })
     );
