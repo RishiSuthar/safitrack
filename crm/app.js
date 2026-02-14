@@ -2252,7 +2252,6 @@ async function renderLogVisitView() {
   viewContainer.innerHTML = `
     <div class="page-header">
       <h1 class="page-title">Log Visit</h1>
-      <p class="page-subtitle">Record your field visit details</p>
     </div>
 
     <div class="card">
@@ -2849,7 +2848,6 @@ async function renderMyActivityView() {
   let html = `
     <div class="page-header">
       <h1 class="page-title">My Activity</h1>
-      <p class="page-subtitle">${visits.length} visits logged</p>
     </div>
   `;
 
@@ -2970,7 +2968,6 @@ async function renderSalesFunnelView() {
   let html = `
     <div class="page-header">
       <h1 class="page-title">Sales Funnel</h1>
-      <p class="page-subtitle">Track your leads through the pipeline</p>
     </div>
 
     <div class="funnel-container">
@@ -3149,10 +3146,6 @@ async function renderOpportunityPipelineView() {
   let html = `
     <div class="page-header deals-page-header">
       <h1 class="page-title">Deals</h1>
-      <p class="page-subtitle">
-        ${opportunities.length} ${isManager ? 'team' : 'your'} deals
-        ${isManager ? '<span class="text-muted"> (Team View)</span>' : ''}
-      </p>
     </div>
 
     <div class="pipeline-summary">
@@ -4412,7 +4405,6 @@ async function renderUserManagementView() {
   let html = `
     <div class="page-header">
       <h1 class="page-title">User Management</h1>
-      <p class="page-subtitle">${users.length} team members</p>
     </div>
   `;
 
@@ -5310,7 +5302,6 @@ async function renderMyRoutesView() {
     let html = `
       <div class="page-header">
         <h1 class="page-title">My Routes</h1>
-        <p class="page-subtitle">${routes.length} assigned routes</p>
       </div>
     `;
 
@@ -6870,7 +6861,6 @@ async function renderRemindersView() {
       <div class="remx-header">
         <div>
           <h1 class="page-title">Reminders</h1>
-          <p class="page-subtitle">Prioritize follow-ups, track deadlines, and keep ownership clear.</p>
         </div>
         <button class="btn btn-primary" id="add-reminder-btn"><i data-lucide="plus"></i> New Reminder</button>
       </div>
@@ -8234,7 +8224,6 @@ function renderSkeletonCards(count = 3) {
   // UPDATE: Add data-hide-scrollbar to the first div
   html += `<div class="page-header" data-hide-scrollbar>
     <h1 class="page-title">Loading...</h1>
-    <p class="page-subtitle">Please wait</p>
   </div>`; // Make sure this div closes! 
 
   // ... rest of the function remains the same
@@ -8446,7 +8435,6 @@ async function renderTechnicianLogVisitView() {
   viewContainer.innerHTML = `
     <div class="page-header">
       <h1 class="page-title">Log Service Visit</h1>
-      <p class="page-subtitle">Record your technical service details</p>
     </div>
 
     <!-- Step Progress -->
@@ -9577,7 +9565,6 @@ async function renderTechnicianActivityView() {
   let html = `
     <div class="page-header">
       <h1 class="page-title">My Service Visits</h1>
-      <p class="page-subtitle">${visits.length} service visits logged</p>
     </div>
   `;
 
@@ -13204,7 +13191,6 @@ async function renderCallLogsView() {
             <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
                 <div>
                     <h1 class="page-title">Call Logs</h1>
-                    <p class="page-subtitle">Track and manage customer calls</p>
                 </div>
                 <div class="call-logs-filters">
                     ${isManager ? `

@@ -1729,7 +1729,9 @@ body {
 
 /* ===== PAGE HEADER ===== */
 .page-header {
-  margin-bottom: var(--space-6);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .page-header.flex {
@@ -1742,13 +1744,40 @@ body {
   font-size: 1.375rem;
   font-weight: 700;
   color: var(--text-primary);
-  margin-bottom: var(--space-2);
+  margin-bottom: 0;
   letter-spacing: -0.3px;
 }
 
 .page-subtitle {
-  font-size: 0.9375rem;
-  color: var(--text-secondary);
+  display: none;
+}
+
+.view-header-minimal {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-5);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.view-breadcrumb {
+  display: flex;
+  align-items: center;
+}
+
+.view-breadcrumb span {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.3px;
+}
+
+.view-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 /* Shared page shell helpers for consistent module structure */
@@ -2801,6 +2830,66 @@ select {
   :is(#call-log-modal, #note-modal, #companies-transfer-modal) .modal-header,
   :is(#call-log-modal, #note-modal, #companies-transfer-modal) .modal-body,
   :is(#call-log-modal, #note-modal, #companies-transfer-modal) .modal-footer {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Remaining CRM Modals (Unified) */
+:is(#export-modal, #change-password-modal, #call-log-view-modal, #route-details-modal, #location-modal, #visit-details-modal, #photo-modal) .modal-container {
+  border-radius: 24px;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 18px 48px rgba(10, 22, 45, 0.2);
+}
+
+:is(#export-modal, #change-password-modal, #call-log-view-modal, #route-details-modal, #location-modal, #visit-details-modal, #photo-modal) .modal-header {
+  padding: 1.15rem 1.5rem;
+  background: linear-gradient(145deg, var(--bg-primary), var(--bg-secondary));
+}
+
+:is(#export-modal, #change-password-modal, #call-log-view-modal, #route-details-modal, #location-modal, #visit-details-modal, #photo-modal) .modal-header h3 {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+:is(#export-modal, #change-password-modal, #call-log-view-modal, #route-details-modal, #location-modal, #visit-details-modal, #photo-modal) .modal-body {
+  padding: 1.25rem 1.5rem 1.4rem;
+  background: linear-gradient(to bottom, var(--bg-secondary), var(--bg-primary));
+  max-height: calc(88vh - 148px);
+}
+
+:is(#export-modal, #change-password-modal, #call-log-view-modal, #route-details-modal, #location-modal, #visit-details-modal, #photo-modal) .modal-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 2;
+  padding: 0.9rem 1.5rem;
+  background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--border-color);
+}
+
+:is(#change-password-modal, #route-details-modal, #visit-details-modal) .modal-body h4 {
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+:is(#route-details-modal, #visit-details-modal) .modal-body p {
+  color: var(--text-secondary);
+}
+
+@media (max-width: 767px) {
+
+  :is(#export-modal, #change-password-modal, #call-log-view-modal, #route-details-modal, #location-modal, #visit-details-modal, #photo-modal) .modal-container {
+    width: 100%;
+    max-width: 100% !important;
+    border-radius: 16px 16px 0 0;
+  }
+
+  :is(#export-modal, #change-password-modal, #call-log-view-modal, #route-details-modal, #location-modal, #visit-details-modal, #photo-modal) .modal-header,
+  :is(#export-modal, #change-password-modal, #call-log-view-modal, #route-details-modal, #location-modal, #visit-details-modal, #photo-modal) .modal-body,
+  :is(#export-modal, #change-password-modal, #call-log-view-modal, #route-details-modal, #location-modal, #visit-details-modal, #photo-modal) .modal-footer {
     padding-left: 1rem;
     padding-right: 1rem;
   }
@@ -7780,7 +7869,8 @@ button svg {
 .task-detail-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
   display: none;
   align-items: center;
   justify-content: center;
@@ -7794,20 +7884,22 @@ button svg {
 
 .task-detail-container {
   background: var(--bg-primary);
-  border-radius: var(--radius-lg);
+  border-radius: 24px;
   max-width: 700px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--border-color);
+  box-shadow: 0 18px 48px rgba(10, 22, 45, 0.2);
 }
 
 .task-detail-header {
-  padding: 1.5rem;
+  padding: 1.15rem 1.5rem;
   border-bottom: 1px solid var(--border-color);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
+  background: linear-gradient(145deg, var(--bg-primary), var(--bg-secondary));
 }
 
 .task-detail-title {
@@ -7837,7 +7929,8 @@ button svg {
 }
 
 .task-detail-body {
-  padding: 1.5rem;
+  padding: 1.25rem 1.5rem 1.4rem;
+  background: linear-gradient(to bottom, var(--bg-secondary), var(--bg-primary));
 }
 
 .task-detail-section {
