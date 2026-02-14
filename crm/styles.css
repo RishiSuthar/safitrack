@@ -922,10 +922,6 @@ body {
     width: 100%;
   }
 
-  .auth-logo-mobile .mobile-logo-main {
-    /* Main logo styles if needed */
-  }
-
   /* Invert Sangyug logo for mobile (assuming light/dark mode needs) 
      Adjust filter based on background. If mobile background is white (light mode default), 
      we need a dark logo. The logo is likely white by default if reused from dark sidebar? 
@@ -9225,5 +9221,180 @@ button svg {
 
   .remx-search {
     width: 100%;
+  }
+}
+
+/* ===== GLOBAL MOBILE HARDENING ===== */
+@media (max-width: 767px) {
+  html,
+  body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  img,
+  svg,
+  canvas,
+  video {
+    max-width: 100%;
+  }
+
+  .app-header {
+    padding-top: env(safe-area-inset-top);
+    padding-left: calc(0.65rem + env(safe-area-inset-left));
+    padding-right: calc(0.65rem + env(safe-area-inset-right));
+    gap: 0.5rem;
+  }
+
+  .header-brand img {
+    width: 108px;
+    height: auto;
+  }
+
+  .header-right {
+    gap: 0.3rem;
+  }
+
+  .header-icon-btn,
+  .mobile-menu-btn,
+  .sidebar-close,
+  .sidebar-toggle-btn,
+  .bottom-nav-item,
+  .user-avatar-btn,
+  button,
+  .btn {
+    min-height: 40px;
+  }
+
+  .user-dropdown {
+    width: min(92vw, 320px);
+    right: 0;
+  }
+
+  .main-content {
+    padding: 0.75rem;
+    margin-bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom));
+  }
+
+  .card,
+  .stat-card,
+  .visit-card,
+  .task-card,
+  .reminder-card,
+  .form-section,
+  .pipeline-stage {
+    padding: 0.9rem;
+  }
+
+  .card-header,
+  .visit-header,
+  .task-header,
+  .reminder-header,
+  .funnel-stage-header,
+  .crm-page-head,
+  .crm-page-actions,
+  .crm-filter-bar,
+  .pipeline-view-row,
+  .pipeline-view-right,
+  .phone-number-input,
+  .coord-inputs,
+  .coord-buttons,
+  .signature-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .stats-grid,
+  .pipeline-summary,
+  .pipeline-stages {
+    grid-template-columns: 1fr;
+  }
+
+  .command-palette {
+    padding-top: max(7vh, 3.5rem);
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  .command-palette-container {
+    max-width: 100%;
+    max-height: 80vh;
+  }
+
+  .modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .modal-container,
+  #confirm-dialog .modal-container {
+    width: 100%;
+    max-width: 100%;
+    margin: 0;
+    border-radius: 16px 16px 0 0;
+    max-height: 100dvh;
+  }
+
+  .modal-header {
+    padding: 1rem;
+  }
+
+  .modal-body {
+    padding: 1rem;
+    max-height: calc(100dvh - 140px);
+  }
+
+  .view-toolbar,
+  .view-header-minimal,
+  .table-actions {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .view-toolbar .search-container {
+    width: 100%;
+  }
+
+  .toolbar-btn,
+  .toolbar-btn-primary,
+  .toolbar-select {
+    min-height: 38px;
+  }
+
+  .spreadsheet-container {
+    margin-left: -0.25rem;
+    margin-right: -0.25rem;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
+  .spreadsheet-table {
+    min-width: 100%;
+  }
+
+  .spreadsheet-table th,
+  .spreadsheet-cell {
+    font-size: 0.85rem;
+    padding: 8px 10px;
+  }
+
+  .resize-handle {
+    display: none;
+  }
+
+  .spreadsheet-cell .spreadsheet-inline-editor {
+    min-width: max(100%, 220px);
+  }
+
+  .auth-form-side {
+    padding: 1rem;
+    padding-top: max(2.5rem, env(safe-area-inset-top));
+  }
+
+  .auth-form-wrapper {
+    padding: 0;
   }
 }

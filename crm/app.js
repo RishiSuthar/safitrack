@@ -17,6 +17,16 @@ let isTechnician = false;
 let managerCallLogViewMode = 'my'; // 'my' or 'team'
 let lastToastMeta = { key: '', at: 0 };
 
+const CRM_DEBUG = true;
+function crmDebugLog(label, payload) {
+  if (!CRM_DEBUG) return;
+  if (payload !== undefined) {
+    console.log(`[CRM DEBUG] ${label}`, payload);
+    return;
+  }
+  console.log(`[CRM DEBUG] ${label}`);
+}
+
 // Call log filters
 let callLogFilters = {
   search: '',
@@ -70,13 +80,16 @@ let authBootstrapHandled = false;
  * @param {string} supabaseTable - Supabase table name for updates
  */
 function renderEditableDataTable(data, columns, tableId, supabaseTable) {
+  const isMobileView = window.matchMedia('(max-width: 767px)').matches;
+  const defaultColumnWidth = isMobileView ? '120px' : '160px';
+
   let html = `
     <div class="spreadsheet-container">
       <table class="spreadsheet-table" id="${tableId}">
         <thead>
       <tr>
         ${columns.map(col => {
-          const columnWidth = col.width || '160px';
+          const columnWidth = col.width || defaultColumnWidth;
           const isSortable = col.sortable !== false;
           const sortIcon = isSortable
             ? `<i data-lucide="${currentSortKey === col.key ? (currentSortDir === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}" 
@@ -91,7 +104,7 @@ function renderEditableDataTable(data, columns, tableId, supabaseTable) {
               <span style="flex: 1; overflow: hidden; text-overflow: ellipsis;">${col.label}</span>
               ${sortIcon}
             </div>
-            <div class="resize-handle" onmousedown="initResize(event, this)"></div>
+            ${isMobileView ? '' : '<div class="resize-handle" onmousedown="initResize(event, this)"></div>'}
           </th>
         `;
         }).join('')}
@@ -111,7 +124,7 @@ function renderEditableDataTable(data, columns, tableId, supabaseTable) {
         const isReadOnly = col.readOnly ? 'true' : 'false';
         const type = col.type || 'text';
         const options = JSON.stringify(col.options || []);
-        const columnWidth = col.width || '160px';
+        const columnWidth = col.width || defaultColumnWidth;
 
         html += `<td class="spreadsheet-cell-wrapper" style="width: ${columnWidth}; min-width: ${columnWidth}; max-width: ${columnWidth};">
           <div class="spreadsheet-cell"
@@ -608,17 +621,50 @@ async function initApp() {
 }
 
 async function loadAllPeople() {
-  const { data: people, error } = await supabaseClient
-    .from('people')
-    .select('id, name, email, company_id, companies(name)')
-    .order('name', { ascending: true });
+  const [peopleResult, companiesResult] = await Promise.all([
+    supabaseClient
+      .from('people')
+      .select('id, name, email, company_id')
+      .order('name', { ascending: true }),
+    supabaseClient
+      .from('companies')
+      .select('id, name')
+  ]);
+
+  const { data: people, error } = peopleResult;
+  crmDebugLog('loadAllPeople.peopleResult', {
+    error,
+    count: Array.isArray(people) ? people.length : 0,
+    sample: Array.isArray(people) && people.length > 0 ? people[0] : null
+  });
 
   if (error) {
     console.error('Error loading people:', error);
     return;
   }
 
-  allPeople = people || [];
+  const companies = companiesResult.data || [];
+  crmDebugLog('loadAllPeople.companiesResult', {
+    error: companiesResult.error || null,
+    count: companies.length,
+    sample: companies.length > 0 ? companies[0] : null
+  });
+
+  const companiesById = new Map(companies.map((company) => [String(company.id), company]));
+
+  allPeople = (people || []).map((person) => {
+    const company = person.company_id ? companiesById.get(String(person.company_id)) || null : null;
+    return {
+      ...person,
+      company,
+      companies: company
+    };
+  });
+
+  crmDebugLog('loadAllPeople.mappedPeople', {
+    count: allPeople.length,
+    sample: allPeople.length > 0 ? allPeople[0] : null
+  });
 }
 
 function updateUserDisplay(profile) {
@@ -837,6 +883,8 @@ async function loadView(viewName) {
 // ======================
 
 async function renderCompaniesView() {
+  currentFilters.company_type = '';
+
   const sortableCompanyColumns = ['name', 'address', 'company_type'];
   const safeSortKey = sortableCompanyColumns.includes(currentSortKey) ? currentSortKey : 'name';
   if (currentSortKey !== safeSortKey) {
@@ -845,7 +893,11 @@ async function renderCompaniesView() {
   }
 
   // Fetch all companies (we'll paginate in the UI)
-  const { data: companies, error } = await supabaseClient
+  // Primary query includes category relation for industry labels.
+  let companies = [];
+  let error = null;
+
+  const primaryQuery = await supabaseClient
     .from('companies')
     .select(`
       *,
@@ -858,13 +910,45 @@ async function renderCompaniesView() {
     `)
     .order(safeSortKey, { ascending: currentSortDir === 'asc' });
 
+  companies = primaryQuery.data || [];
+  error = primaryQuery.error;
+  crmDebugLog('renderCompaniesView.primaryQuery', {
+    error,
+    count: companies.length,
+    sample: companies.length > 0 ? companies[0] : null
+  });
+
+  // Fallback: if relation query returns no rows without an explicit error,
+  // retry a flat companies query so table data is never blocked by relation access.
+  if (!error && companies.length === 0) {
+    const fallbackQuery = await supabaseClient
+      .from('companies')
+      .select('*')
+      .order(safeSortKey, { ascending: currentSortDir === 'asc' });
+
+    crmDebugLog('renderCompaniesView.fallbackQuery', {
+      error: fallbackQuery.error || null,
+      count: Array.isArray(fallbackQuery.data) ? fallbackQuery.data.length : 0,
+      sample: Array.isArray(fallbackQuery.data) && fallbackQuery.data.length > 0 ? fallbackQuery.data[0] : null
+    });
+
+    if (!fallbackQuery.error && Array.isArray(fallbackQuery.data) && fallbackQuery.data.length > 0) {
+      companies = fallbackQuery.data;
+    }
+  }
+
   if (error) {
+    crmDebugLog('renderCompaniesView.error', error);
     viewContainer.innerHTML = renderError(error.message);
     return;
   }
 
   // Store for global access
-  window.allCompaniesData = companies;
+  window.allCompaniesData = Array.isArray(companies) ? companies : [];
+  crmDebugLog('renderCompaniesView.window.allCompaniesData', {
+    count: window.allCompaniesData.length,
+    sample: window.allCompaniesData.length > 0 ? window.allCompaniesData[0] : null
+  });
 
   // Initial pagination state
   let currentPage = 1;
@@ -1532,17 +1616,7 @@ async function renderPeopleView() {
   const [peopleResult, companiesResult, opportunitiesResult] = await Promise.all([
     supabaseClient
       .from('people')
-      .select(`
-        *,
-        company:companies(
-          id,
-          name
-        ),
-        opportunity:opportunities(
-          id,
-          name
-        )
-      `)
+      .select('*')
       .order(safeSortKey, { ascending: currentSortDir === 'asc' }),
     supabaseClient
       .from('companies')
@@ -1558,15 +1632,53 @@ async function renderPeopleView() {
   const { data: companies } = companiesResult;
   const { data: opportunities } = opportunitiesResult;
 
+  crmDebugLog('renderPeopleView.peopleResult', {
+    error: peopleError || null,
+    count: Array.isArray(people) ? people.length : 0,
+    sample: Array.isArray(people) && people.length > 0 ? people[0] : null
+  });
+  crmDebugLog('renderPeopleView.companiesResult', {
+    error: companiesResult.error || null,
+    count: Array.isArray(companies) ? companies.length : 0,
+    sample: Array.isArray(companies) && companies.length > 0 ? companies[0] : null
+  });
+  crmDebugLog('renderPeopleView.opportunitiesResult', {
+    error: opportunitiesResult.error || null,
+    count: Array.isArray(opportunities) ? opportunities.length : 0,
+    sample: Array.isArray(opportunities) && opportunities.length > 0 ? opportunities[0] : null
+  });
+
   if (peopleError) {
+    crmDebugLog('renderPeopleView.error', peopleError);
     viewContainer.innerHTML = renderError(peopleError.message);
     return;
   }
 
   // Store for global access
-  window.allPeopleData = people;
-  window.companiesData = companies;
-  window.opportunitiesData = opportunities;
+  window.companiesData = companies || [];
+  window.opportunitiesData = opportunities || [];
+
+  const companiesById = new Map((window.companiesData || []).map((company) => [String(company.id), company]));
+  const opportunitiesById = new Map((window.opportunitiesData || []).map((opportunity) => [String(opportunity.id), opportunity]));
+
+  window.allPeopleData = (people || []).map((person) => {
+    const company = person.company_id ? companiesById.get(String(person.company_id)) || null : null;
+    const opportunity = person.opportunity_id ? opportunitiesById.get(String(person.opportunity_id)) || null : null;
+
+    return {
+      ...person,
+      company,
+      companies: company,
+      opportunity
+    };
+  });
+
+  crmDebugLog('renderPeopleView.windowData', {
+    peopleCount: window.allPeopleData.length,
+    companiesCount: window.companiesData.length,
+    opportunitiesCount: window.opportunitiesData.length,
+    samplePerson: window.allPeopleData.length > 0 ? window.allPeopleData[0] : null
+  });
 
   // Initial pagination state
   let currentPage = 1;
@@ -1839,7 +1951,7 @@ async function renderPeopleView() {
 
   // Helper for combined filter/search
   function filterAndSearchPerson(person, query) {
-    if (currentFilters.person_company && person.company_id !== currentFilters.person_company) return false;
+    if (currentFilters.person_company && String(person.company_id || '') !== String(currentFilters.person_company)) return false;
     if (!query) return true;
     const q = query.toLowerCase();
     return person.name.toLowerCase().includes(q) ||
@@ -1941,6 +2053,11 @@ function initPersonModalListeners(person) {
   const searchResults = document.getElementById('person-company-search-results');
 
   if (companyInput) {
+    crmDebugLog('personModal.init', {
+      companiesDataCount: Array.isArray(window.companiesData) ? window.companiesData.length : 0,
+      companiesDataSample: Array.isArray(window.companiesData) && window.companiesData.length > 0 ? window.companiesData[0] : null
+    });
+
     companyInput.addEventListener('input', (e) => {
       const searchTerm = e.target.value.toLowerCase().trim();
 
@@ -1954,6 +2071,13 @@ function initPersonModalListeners(person) {
       const filteredCompanies = window.companiesData?.filter(company =>
         company.name.toLowerCase().includes(searchTerm)
       ) || [];
+
+      crmDebugLog('personModal.companySearch', {
+        term: searchTerm,
+        companiesDataCount: Array.isArray(window.companiesData) ? window.companiesData.length : 0,
+        matchCount: filteredCompanies.length,
+        firstMatch: filteredCompanies.length > 0 ? filteredCompanies[0] : null
+      });
 
       if (filteredCompanies.length > 0) {
         searchResults.innerHTML = filteredCompanies.slice(0, 5).map(company => `
@@ -1975,6 +2099,10 @@ function initPersonModalListeners(person) {
       } else {
         searchResults.innerHTML = '<div class="search-result-empty">No companies found</div>';
         searchResults.style.display = 'block';
+        crmDebugLog('personModal.companySearch.noMatches', {
+          term: searchTerm,
+          companiesDataCount: Array.isArray(window.companiesData) ? window.companiesData.length : 0
+        });
       }
     });
 
@@ -9688,21 +9816,10 @@ function renderTechnicianVisitCard(visit) {
 // ======================
 
 async function renderTechniciansDashboardView() {
-  // Fetch all technician visits with technician and company details
-  const { data: visits, error: visitsError } = await supabaseClient
+  // Fetch technician visits without relation joins (avoids FK alias/schema cache issues)
+  const { data: rawVisits, error: visitsError } = await supabaseClient
     .from('technician_visits')
-    .select(`
-      *,
-      technician:profiles!technician_visits_technician_id_fkey(
-        first_name,
-        last_name,
-        email
-      ),
-      companies(
-        name,
-        description
-      )
-    `)
+    .select('*')
     .order('created_at', { ascending: false });
 
   // Fetch all technicians
@@ -9713,24 +9830,61 @@ async function renderTechniciansDashboardView() {
     .order('first_name', { ascending: true });
 
   if (visitsError || techError) {
+    crmDebugLog('renderTechniciansDashboardView.error', {
+      visitsError,
+      techError
+    });
     viewContainer.innerHTML = renderError('Error loading technician data');
     return;
   }
 
+  const visits = rawVisits || [];
+
+  const companyIds = [...new Set(visits.map((visit) => visit.company_id).filter(Boolean))];
+  let companiesById = new Map();
+
+  if (companyIds.length > 0) {
+    const { data: companies, error: companiesError } = await supabaseClient
+      .from('companies')
+      .select('id, name, description')
+      .in('id', companyIds);
+
+    if (companiesError) {
+      crmDebugLog('renderTechniciansDashboardView.companiesError', companiesError);
+    } else {
+      companiesById = new Map((companies || []).map((company) => [String(company.id), company]));
+    }
+  }
+
+  const techniciansById = new Map((technicians || []).map((technician) => [String(technician.id), technician]));
+
+  const hydratedVisits = visits.map((visit) => ({
+    ...visit,
+    technician: techniciansById.get(String(visit.technician_id)) || null,
+    companies: visit.company_id ? companiesById.get(String(visit.company_id)) || null : null
+  }));
+
+  crmDebugLog('renderTechniciansDashboardView.data', {
+    visitsCount: hydratedVisits.length,
+    techniciansCount: (technicians || []).length,
+    companyRefsCount: companyIds.length,
+    sampleVisit: hydratedVisits.length > 0 ? hydratedVisits[0] : null
+  });
+
   // Calculate statistics
-  const totalVisits = visits.length;
+  const totalVisits = hydratedVisits.length;
   const totalTechnicians = technicians.length;
-  const todayVisits = visits.filter(v => {
+  const todayVisits = hydratedVisits.filter(v => {
     const visitDate = new Date(v.created_at).toDateString();
     return visitDate === new Date().toDateString();
   }).length;
 
   // Group visits by work status
   const statusCounts = {
-    completed: visits.filter(v => v.work_status === 'completed').length,
-    partially_completed: visits.filter(v => v.work_status === 'partially_completed').length,
-    pending: visits.filter(v => v.work_status === 'pending').length,
-    follow_up: visits.filter(v => v.work_status === 'follow_up').length
+    completed: hydratedVisits.filter(v => v.work_status === 'completed').length,
+    partially_completed: hydratedVisits.filter(v => v.work_status === 'partially_completed').length,
+    pending: hydratedVisits.filter(v => v.work_status === 'pending').length,
+    follow_up: hydratedVisits.filter(v => v.work_status === 'follow_up').length
   };
 
   let html = `
@@ -9796,13 +9950,13 @@ async function renderTechniciansDashboardView() {
     <div class="card">
       <div class="card-header">
         <h3 class="card-title">Recent Service Visits</h3>
-        <span class="text-muted">${visits.length} total visits</span>
+        <span class="text-muted">${hydratedVisits.length} total visits</span>
       </div>
       
       <div id="technician-visits-list">
   `;
 
-  if (visits.length === 0) {
+  if (hydratedVisits.length === 0) {
     html += `
       <div class="empty-state">
         <i class="fas fa-tools empty-state-icon"></i>
@@ -9811,17 +9965,17 @@ async function renderTechniciansDashboardView() {
       </div>
     `;
   } else {
-    visits.slice(0, 20).forEach(visit => {
+    hydratedVisits.slice(0, 20).forEach(visit => {
       html += renderTechnicianVisitCardForManager(visit);
     });
   }
 
   html += `
       </div>
-      ${visits.length > 20 ? `
+      ${hydratedVisits.length > 20 ? `
         <div class="text-center mt-3">
           <button class="btn btn-secondary" id="load-more-visits">
-            Load More (${visits.length - 20} remaining)
+            Load More (${hydratedVisits.length - 20} remaining)
           </button>
         </div>
       ` : ''}
@@ -9833,7 +9987,7 @@ async function renderTechniciansDashboardView() {
   // Technician locations map removed per request
 
   // Initialize filters
-  initTechnicianFilters(visits, technicians);
+  initTechnicianFilters(hydratedVisits, technicians);
 }
 
 function renderTechnicianVisitCardForManager(visit) {
@@ -11199,11 +11353,18 @@ async function renderNotesView() {
   // Fetch companies and people for tagging
   const [companiesResult, peopleResult] = await Promise.all([
     supabaseClient.from('companies').select('id, name').order('name'),
-    supabaseClient.from('people').select('id, name, company_id, companies(name)').order('name')
+    supabaseClient.from('people').select('id, name, company_id').order('name')
   ]);
 
   const companies = companiesResult.data || [];
-  const people = peopleResult.data || [];
+  const people = (peopleResult.data || []).map((person) => {
+    const company = companies.find((item) => String(item.id) === String(person.company_id)) || null;
+    return {
+      ...person,
+      company,
+      companies: company
+    };
+  });
 
   // Check if user has no notes
   if (notes.length === 0) {
