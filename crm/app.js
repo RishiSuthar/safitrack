@@ -3646,7 +3646,7 @@ async function renderOpportunityPipelineView() {
           ` : ''}
           
           ${opp.notes ? `
-            <div class="opportunity-notes" style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;">
+            <div class="opportunity-notes text-clamp-2">
               ${processedNotes.substring(0, 150)}${processedNotes.length > 150 ? '...' : ''}
             </div>
           ` : ''}
@@ -4692,7 +4692,7 @@ async function renderTeamDashboardView() {
             </select>
           </div>
           
-          <div class="visits-filter-group" style="grid-column: span 2;">
+          <div class="visits-filter-group span-2">
             <label class="visits-filter-label">Date Range</label>
             <div class="visits-date-range">
               <input type="date" id="filter-date-from">
@@ -4933,7 +4933,7 @@ function renderVisitsTimeline(visits) {
           const userName = visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : 'Unknown';
           const time = new Date(visit.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
           return `
-            <div class="visit-card-premium" data-visit-id="${visit.id}" onclick="openVisitDetail('${visit.id}')" style="margin-left: 1rem;">
+            <div class="visit-card-premium timeline-visit-card" data-visit-id="${visit.id}" onclick="openVisitDetail('${visit.id}')">
               <div class="visit-card-top">
                 <div class="visit-card-main">
                   <div class="visit-card-company">${visit.company_name || 'Unknown'}</div>
@@ -5773,25 +5773,27 @@ async function renderUserManagementView() {
     const isCurrentUser = user.id === currentUser.id;
 
     html += `
-      <div class="card" style="display: flex; align-items: center; gap: 1rem; padding: 1rem;">
+      <div class="card user-card">
         <div class="user-avatar" style="width: 48px; height: 48px; font-size: 1rem;">${initials}</div>
-        <div style="flex: 1;">
-          <div style="font-weight: 600;">${user.first_name} ${user.last_name}</div>
-          <div class="text-muted" style="font-size: 0.875rem;">${user.email}</div>
+        <div class="user-card-info">
+          <div class="user-card-name">${user.first_name} ${user.last_name}</div>
+          <div class="user-card-email">${user.email}</div>
         </div>
-        <span class="tag ${user.role === 'manager' ? '' : 'text-muted'}" style="background: ${user.role === 'manager' ? 'var(--color-primary-bg)' : 'var(--bg-tertiary)'};">
-          ${user.role === 'manager' ? 'Manager' : user.role === 'technician' ? 'Technician' : user.role === 'sales_rep' ? 'Sales Rep' : (user.role || '')}
-        </span>
-        ${isCurrentUser ? `
-        <button class="btn btn-secondary btn-sm" onclick="openChangePasswordModal()" style="margin-left: 1rem; margin-right: 0.5rem;" title="Change your password">
-           Change Password
-        </button>
-        ` : ''}
-        ${!isCurrentUser ? `
-          <button class="btn btn-ghost btn-sm" onclick="deleteUser('${user.id}', '${user.first_name} ${user.last_name}')">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        <div class="user-card-actions">
+          <span class="tag ${user.role === 'manager' ? '' : 'text-muted'}" style="background: ${user.role === 'manager' ? 'var(--color-primary-bg)' : 'var(--bg-tertiary)'};">
+            ${user.role === 'manager' ? 'Manager' : user.role === 'technician' ? 'Technician' : user.role === 'sales_rep' ? 'Sales Rep' : (user.role || '')}
+          </span>
+          ${isCurrentUser ? `
+          <button class="btn btn-secondary btn-sm" onclick="openChangePasswordModal()" title="Change your password">
+             Change Password
           </button>
-        ` : ''}
+          ` : ''}
+          ${!isCurrentUser ? `
+            <button class="btn btn-ghost btn-sm" onclick="deleteUser('${user.id}', '${user.first_name} ${user.last_name}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+          ` : ''}
+        </div>
       </div>
     `;
   });
@@ -8611,17 +8613,17 @@ window.openCompaniesImportExportModal = function () {
             <div class="field-helper" style="margin-top: 0.5rem;">
               <span><strong>Categories format:</strong> separate multiple values with <code>|</code> (example: Retail|Supermarket)</span>
             </div>
-            <div class="field-helper" style="margin-top: 0.5rem;">
+            <div class="field-helper mt-sm">
               <span><strong>Supported company types:</strong> ${COMPANY_IMPORT_TYPES.join(', ')}</span>
             </div>
 
-            <div style="display:flex; gap:0.75rem; margin-top:1rem; flex-wrap: wrap;">
+            <div class="btn-group-inline mt-md">
               <button type="button" class="btn btn-secondary" id="download-companies-sample-btn">
                 <i data-lucide="download"></i> Download Sample CSV
               </button>
             </div>
 
-            <div class="form-field" style="margin-top:1rem;">
+            <div class="form-field mt-md">
               <label for="companies-import-file">Upload CSV File</label>
               <input type="file" id="companies-import-file" accept=".csv,text/csv">
               <div class="field-helper">
@@ -8632,7 +8634,7 @@ window.openCompaniesImportExportModal = function () {
             <div id="companies-import-feedback" class="field-helper" style="display:none;"></div>
             <div id="companies-import-errors" style="display:none;"></div>
 
-            <div style="display:flex; justify-content:flex-end; margin-top:1rem;">
+            <div class="btn-group-end mt-md">
               <button type="button" class="btn btn-primary" id="run-companies-import-btn">
                 <i data-lucide="upload"></i> Import Companies
               </button>
@@ -8647,11 +8649,11 @@ window.openCompaniesImportExportModal = function () {
                 <div class="form-section-description">Download all company data as CSV, including categories</div>
               </div>
             </div>
-            <div class="field-helper" style="margin-top: 0;">
+            <div class="field-helper">
               <span>This export includes: name, type, description, address, latitude, longitude, radius, categories.</span>
             </div>
 
-            <div style="display:flex; justify-content:flex-end; margin-top:1rem;">
+            <div class="btn-group-end mt-md">
               <button type="button" class="btn btn-primary" id="run-companies-export-btn">
                 <i data-lucide="download"></i> Export Companies CSV
               </button>
@@ -11052,14 +11054,14 @@ function renderTechnicianVisitCard(visit) {
       ` : ''}
 
           ${visit.photos && visit.photos.length > 0 ? `
-        <div class="photo-grid mb-2" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="photo-grid photo-grid-3 mb-2">
           ${visit.photos.map((photo, index) => `
             <div class="photo-item" onclick="openPhotoModal('${photo}')">
-              <img src="${photo}" alt="Visit photo ${index + 1}" style="width: 100%; height: 100%; object-fit: cover;" onerror="handleImageError(this)">
+              <img src="${photo}" alt="Visit photo ${index + 1}" onerror="handleImageError(this)">
             </div>
           `).join('')}
           ${visit.photos.length > 3 ? `
-            <div class="photo-item" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center;">
+            <div class="photo-item photo-item-more">
               <span class="text-muted">+${visit.photos.length - 3} more</span>
             </div>
           ` : ''}
@@ -11155,14 +11157,14 @@ function renderTechnicianVisitCard(visit) {
       ` : ''}
 
           ${visit.photos && visit.photos.length > 0 ? `
-        <div class="photo-grid mb-2" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="photo-grid photo-grid-3 mb-2">
           ${visit.photos.slice(0, 3).map(photo => `
             <div class="photo-item">
               <img src="${photo}" alt="Visit photo" onclick="openPhotoModal('${photo}')" onerror="handleImageError(this)">
             </div>
           `).join('')}
           ${visit.photos.length > 3 ? `
-            <div class="photo-item" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center;">
+            <div class="photo-item photo-item-more">
               <span class="text-muted">+${visit.photos.length - 3} more</span>
             </div>
           ` : ''}
@@ -12309,14 +12311,14 @@ window.viewTechnicianVisitDetails = async function (visitId) {
           ${visit.photos && visit.photos.length > 0 ? `
             <div class="mt-4">
               <h4>Photos (${visit.photos.length})</h4>
-              <div class="photo-grid" style="grid-template-columns: repeat(3, 1fr);">
+              <div class="photo-grid photo-grid-3">
                 ${visit.photos.slice(0, 3).map(photo => `
                   <div class="photo-item">
                     <img src="${photo}" alt="Visit photo" onclick="openPhotoModal('${photo}')" onerror="handleImageError(this)">
                   </div>
                 `).join('')}
                 ${visit.photos.length > 3 ? `
-                  <div class="photo-item" style="background: var(--bg-tertiary); display: flex; align-items: center; justify-content: center;">
+                  <div class="photo-item photo-item-more">
                     <span class="text-muted">+${visit.photos.length - 3} more</span>
                   </div>
                 ` : ''}
@@ -14588,7 +14590,7 @@ async function renderCallLogsView() {
 
   let html = `
         <div class="page-header">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; width: 100%;">
+            <div class="page-header-row">
                 <div>
                     <h1 class="page-title">Call Logs</h1>
                 </div>
@@ -14610,7 +14612,7 @@ async function renderCallLogsView() {
                         ` : ''}
                     ` : ''}
                     ${(!isManager || managerCallLogViewMode === 'my') ? `
-                    <button class="btn btn-primary" id="log-call-btn" style="display: inline-flex; align-items: center; gap: 8px;">
+                    <button class="btn btn-primary" id="log-call-btn">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon"><path d="M5 12h14"/><path d="M12 5v14"/></svg> <span>Log Call</span>
                     </button>
                     ` : ''}
@@ -14619,13 +14621,13 @@ async function renderCallLogsView() {
         </div>
 
         <div class="card">
-            <div class="filters-section" style="padding: 1rem; border-bottom: 1px solid var(--border-color); display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <div class="filters-section">
                 <div class="search-input-wrapper">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search-icon" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-muted);">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search-icon search-icon">
                         <path d="m21 21-4.34-4.34" />
                         <circle cx="11" cy="11" r="8" />
                     </svg>
-                    <input type="text" id="call-search" placeholder="Search by contact or company..." value="${callLogFilters.search}" style="padding-left: 36px; width: 100%;" class="filter-select">
+                    <input type="text" id="call-search" placeholder="Search by contact or company..." value="${callLogFilters.search}" class="filter-select search-input-padded">
                 </div>
                 
                 <select id="call-direction-filter" class="filter-select">
@@ -14644,8 +14646,8 @@ async function renderCallLogsView() {
                     <option value="Call Failed" ${callLogFilters.outcome === 'Call Failed' ? 'selected' : ''}>Call Failed</option>
                 </select>
 
-                <div style="display: flex; gap: 0.5rem;">
-                    <button id="clear-filters" class="btn btn-secondary" style="flex: 1; padding: 0.5rem 1rem; font-size: 0.875rem;">
+                <div class="filter-actions">
+                    <button id="clear-filters" class="btn btn-secondary">
                         Clear Filters
                     </button>
                 </div>
