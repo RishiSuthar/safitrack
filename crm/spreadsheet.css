@@ -1,14 +1,16 @@
 /* ===== UNIVERSAL SPREADSHEET ENGINE ===== */
 
 :root {
-    --cell-padding-x: 12px;
-    --cell-padding-y: 10px;
+    --cell-padding-x: 10px;
+    --cell-padding-y: 8px;
     --spreadsheet-bg: var(--bg-primary);
     --spreadsheet-border: var(--border-color);
     --cell-hover: var(--bg-tertiary);
     --cell-active: var(--bg-elevated);
     --editing-bg: var(--bg-elevated);
     --editing-shadow: 0 0 0 2px var(--color-primary);
+    --row-zebra: color-mix(in srgb, var(--bg-secondary) 72%, transparent);
+    --row-hover: color-mix(in srgb, var(--color-primary-bg) 35%, var(--bg-tertiary));
 }
 
 /* Minimalist Header and Toolbar */
@@ -16,7 +18,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 12px 24px;
+    padding: 10px 20px;
     background: var(--bg-primary);
     border-bottom: 1px solid var(--spreadsheet-border);
 }
@@ -41,12 +43,16 @@
     border: none;
     color: var(--text-muted);
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
 }
 
 .action-btn:hover {
     background: var(--bg-tertiary);
     color: var(--color-primary);
+}
+
+.action-btn:active {
+    transform: translateY(var(--motion-distance-press));
 }
 
 .action-btn.delete-company:hover,
@@ -78,9 +84,9 @@
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    padding: var(--space-3) var(--space-6);
+    padding: var(--space-2) var(--space-5);
     background: var(--bg-primary);
-    min-height: calc(var(--control-height-lg) + var(--space-4));
+    min-height: calc(var(--control-height-md) + var(--space-4));
 }
 
 .toolbar-btn {
@@ -93,11 +99,11 @@
     border-radius: var(--btn-radius);
     background: var(--bg-secondary);
     border: 1px solid var(--spreadsheet-border);
-    color: var(--text-primary);
+    color: var(--text-secondary);
     font-size: 0.8125rem;
     font-weight: 500;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast);
     white-space: nowrap;
     flex-shrink: 0;
     width: auto !important;
@@ -107,8 +113,13 @@
 }
 
 .toolbar-btn:hover {
-    background: var(--bg-tertiary);
-    border-color: var(--text-muted);
+    background: color-mix(in srgb, var(--color-primary-bg) 45%, var(--bg-secondary));
+    border-color: var(--color-primary);
+    color: var(--text-primary);
+}
+
+.toolbar-btn:active {
+    transform: translateY(var(--motion-distance-press));
 }
 
 .toolbar-select {
@@ -128,7 +139,7 @@
     background-repeat: no-repeat;
     background-position: right 10px center;
     background-size: 14px;
-    transition: all var(--transition-fast);
+    transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .toolbar-select:hover {
@@ -159,24 +170,24 @@
     /* Match toolbar-btn font size */
     font-weight: 500;
     cursor: pointer;
-    transition: all var(--transition-fast);
+    transition: background-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
     white-space: nowrap;
     flex-shrink: 0;
     width: auto !important;
     min-width: max-content;
-    box-shadow: 0 2px 4px rgba(47, 95, 208, 0.1);
+    box-shadow: 0 4px 12px rgba(47, 95, 208, 0.2);
     font-family: inherit;
     letter-spacing: normal;
 }
 
 .toolbar-btn-primary:hover {
     background: #254db1;
-    box-shadow: 0 4px 8px rgba(47, 95, 208, 0.2);
-    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(47, 95, 208, 0.28);
+    transform: translateY(var(--motion-distance-hover));
 }
 
 .toolbar-btn-primary:active {
-    transform: translateY(0);
+    transform: translateY(var(--motion-distance-press));
 }
 
 .toolbar-btn-primary i {
@@ -221,12 +232,16 @@
     color: var(--text-muted);
     cursor: pointer;
     border-radius: var(--radius-sm);
-    transition: all var(--transition-fast);
+    transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
 }
 
 .search-clear-btn:hover {
     background: var(--bg-tertiary);
     color: var(--text-primary);
+}
+
+.search-clear-btn:active {
+    transform: translateY(var(--motion-distance-press));
 }
 
 .search-clear-btn.hidden {
@@ -258,10 +273,10 @@
 .spreadsheet-table th {
     position: sticky;
     top: 0;
-    background: var(--bg-primary);
-    color: var(--text-muted);
+    background: linear-gradient(to bottom, var(--bg-secondary), var(--bg-primary));
+    color: var(--text-primary);
     font-weight: 600;
-    padding: 10px 12px;
+    padding: 8px 10px;
     text-align: left;
     border-bottom: 1px solid var(--spreadsheet-border);
     border-right: 1px solid var(--spreadsheet-border);
@@ -271,6 +286,7 @@
     max-width: 100%;
     /* Avoid blowout */
     overflow: hidden;
+    box-shadow: inset 0 -1px 0 var(--spreadsheet-border);
 }
 
 /* Resize Handle */
@@ -307,13 +323,17 @@
 }
 
 .spreadsheet-table tr:hover td {
-    background: var(--cell-hover);
+    background: var(--row-hover);
+}
+
+.spreadsheet-table tbody tr:nth-child(even) td {
+    background: var(--row-zebra);
 }
 
 /* Cell Content */
 .spreadsheet-cell {
-    padding: 10px 12px;
-    min-height: 40px;
+    padding: 8px 10px;
+    min-height: 36px;
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -335,7 +355,27 @@
 }
 
 .spreadsheet-cell:hover {
-    background: var(--cell-active);
+    background: var(--row-hover);
+}
+
+/* Keep action column visible during horizontal scroll */
+.spreadsheet-table th:last-child,
+.spreadsheet-table td:last-child {
+    position: sticky;
+    right: 0;
+    z-index: 11;
+    background: var(--bg-primary);
+    box-shadow: -8px 0 12px -10px rgba(15, 23, 42, 0.25);
+}
+
+.spreadsheet-table th:last-child {
+    z-index: 12;
+    background: linear-gradient(to bottom, var(--bg-secondary), var(--bg-primary));
+}
+
+.spreadsheet-table tr:hover td:last-child,
+.spreadsheet-table tbody tr:nth-child(even) td:last-child {
+    background: var(--bg-primary);
 }
 
 /* Editing State */
@@ -350,7 +390,7 @@
 .spreadsheet-cell input,
 .spreadsheet-cell select {
     width: 100%;
-    height: 44px;
+    height: 40px;
     padding: 0 var(--cell-padding-x);
     border: none;
     background: transparent;
@@ -472,5 +512,11 @@
 
     .spreadsheet-cell .spreadsheet-inline-editor {
         min-width: max(100%, 220px);
+    }
+
+    .spreadsheet-table th:last-child,
+    .spreadsheet-table td:last-child {
+        position: static;
+        box-shadow: none;
     }
 }

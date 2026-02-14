@@ -665,7 +665,7 @@
 
   <div id="company-modal" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>
-    <div class="modal-container" style="max-width: 600px;">
+    <div class="modal-container modal-size-md">
       <div class="modal-header">
         <h3 id="company-modal-title">New Company</h3>
         <button class="modal-close" onclick="closeModal('company-modal')">
@@ -801,7 +801,7 @@
             </button>
           </div>
 
-          <div style="margin-bottom: 1.5rem;"></div>
+          <div class="u-spacer-md"></div>
 
           <div class="form-field">
             <label for="company-radius">
@@ -823,7 +823,7 @@
 
   <div id="person-modal" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>
-    <div class="modal-container" style="max-width: 600px;">
+    <div class="modal-container modal-size-md">
       <div class="modal-header">
         <h3 id="person-modal-title">New Person</h3>
         <button class="modal-close" onclick="closeModal('person-modal')">
@@ -946,7 +946,7 @@
 
   <div id="opportunity-modal" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>
-    <div class="modal-container" style="max-width: 600px;">
+    <div class="modal-container modal-size-md">
       <div class="modal-header">
         <h3 id="opportunity-modal-title">New Opportunity</h3>
         <button class="modal-close" onclick="closeModal('opportunity-modal')">
@@ -1110,7 +1110,7 @@
 
   <div id="task-modal" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>
-    <div class="modal-container" style="max-width: 600px;">
+    <div class="modal-container modal-size-md">
       <div class="modal-header">
         <h3 id="task-modal-title">New Task</h3>
         <button class="modal-close" onclick="closeModal('task-modal')">
@@ -1221,7 +1221,7 @@
 
   <div id="reminder-modal" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>
-    <div class="modal-container" style="max-width: 600px;">
+    <div class="modal-container modal-size-md">
       <div class="modal-header">
         <h3 id="reminder-modal-title">New Reminder</h3>
         <button class="modal-close" onclick="closeModal('reminder-modal')">
@@ -1295,14 +1295,16 @@
 
   <div id="confirm-dialog" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>
-    <div class="modal-container confirm-dialog-container">
-      <div class="modal-header">
-        <h3 id="confirm-title">Confirm Action</h3>
+    <div class="modal-container confirm-dialog-container" role="dialog" aria-modal="true" aria-labelledby="confirm-title" aria-describedby="confirm-message confirm-helper">
+      <div class="confirm-dialog-content">
+        <div class="confirm-dialog-icon" aria-hidden="true"></div>
+        <div class="confirm-dialog-copy">
+          <h3 id="confirm-title">Confirm Action</h3>
+          <p id="confirm-message">Are you sure you want to proceed?</p>
+          <p id="confirm-helper" class="confirm-helper-text">This action cannot be undone.</p>
+        </div>
       </div>
-      <div class="modal-body">
-        <p id="confirm-message">Are you sure you want to proceed?</p>
-      </div>
-      <div class="modal-footer">
+      <div class="modal-footer confirm-dialog-actions">
         <button class="btn btn-secondary" id="confirm-cancel">Cancel</button>
         <button class="btn btn-primary" id="confirm-ok">Confirm</button>
       </div>
@@ -1311,7 +1313,7 @@
 
   <div id="change-password-modal" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>
-    <div class="modal-container" style="max-width: 400px;">
+    <div class="modal-container modal-size-sm">
       <div class="modal-header">
         <h3>Change Password</h3>
         <button class="modal-close" onclick="closeModal('change-password-modal')">
@@ -1327,8 +1329,8 @@
         <form id="change-password-form" onsubmit="event.preventDefault();">
           <div class="form-field">
             <label for="new-password">New Password</label>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <div class="input-wrapper modern-input" style="flex: 1;">
+            <div class="u-inline-form-row">
+              <div class="input-wrapper modern-input u-flex-1">
                 <i class="fas fa-lock"></i>
                 <input type="password" id="new-password" placeholder="Enter new password" required>
               </div>
@@ -1340,8 +1342,8 @@
           </div>
           <div class="form-field">
             <label for="confirm-new-password">Confirm Password</label>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <div class="input-wrapper modern-input" style="flex: 1;">
+            <div class="u-inline-form-row">
+              <div class="input-wrapper modern-input u-flex-1">
                 <i class="fas fa-lock"></i>
                 <input type="password" id="confirm-new-password" placeholder="Confirm new password" required>
               </div>
@@ -1363,7 +1365,7 @@
 
   <div id="call-log-view-modal" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>
-    <div class="modal-container" style="max-width: 600px;">
+    <div class="modal-container modal-size-md">
       <div class="modal-header">
         <h3>Call Log Details</h3>
         <button class="modal-close" onclick="closeModal('call-log-view-modal')">
@@ -1419,7 +1421,7 @@
 
   <div id="call-log-modal" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>
-    <div class="modal-container" style="max-width: 900px;">
+    <div class="modal-container modal-size-xl">
       <div class="modal-header">
         <h3 id="call-log-modal-title">Log Call</h3>
         <button class="modal-close" onclick="closeModal('call-log-modal')">
@@ -1476,7 +1478,7 @@
           </div>
 
           <!-- Call Outcome -->
-          <div class="form-field" style="grid-column: 1 / -1;">
+          <div class="form-field u-grid-col-full">
             <label>Call Outcome <span class="required-indicator">*</span></label>
             <div class="outcome-grid" id="call-outcome-options">
               <label class="outcome-option">
@@ -1508,7 +1510,7 @@
         </div>
 
         <!-- Notes -->
-        <div class="form-field" style="grid-column: 1 / -1;">
+        <div class="form-field u-grid-col-full">
           <label for="call-notes">Notes</label>
           <textarea id="call-notes" rows="4" placeholder="What was discussed?"></textarea>
         </div>

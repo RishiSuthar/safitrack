@@ -988,23 +988,23 @@ async function renderCompaniesView() {
       </div>
 
       <div class="view-toolbar">
-        <div class="search-container" style="flex: 1; max-width: 320px;">
-          <i data-lucide="search" style="width: 16px; height: 16px; margin-left: 12px; color: var(--text-muted);"></i>
+        <div class="search-container u-flex-1 u-maxw-320">
+          <i data-lucide="search" class="u-icon-16 u-search-icon-muted"></i>
           <input type="text" id="companies-search" placeholder="Search companies...">
           <div id="clear-companies-search" class="search-clear-btn hidden" title="Clear search">
-            <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+            <i data-lucide="x" class="u-icon-16"></i>
           </div>
         </div>
         
-        <div style="flex: 1;"></div>
+        <div class="u-flex-1"></div>
         <button class="toolbar-btn toolbar-btn-primary" id="add-company-btn">
-          <i data-lucide="plus" style="width: 16px; height: 16px;"></i> New Company
+          <i data-lucide="plus" class="u-icon-16"></i> New Company
         </button>
       </div>
       
       ${renderEditableDataTable(companiesToRender, columns, 'companies-spreadsheet', 'companies')}
       
-      <div id="companies-pagination" style="padding: 16px;"></div>
+      <div id="companies-pagination" class="u-p-md"></div>
     `;
 
     viewContainer.innerHTML = html;
@@ -1718,23 +1718,23 @@ async function renderPeopleView() {
       </div>
 
       <div class="view-toolbar">
-        <div class="search-container" style="flex: 1; max-width: 320px;">
-          <i data-lucide="search" style="width: 16px; height: 16px; margin-left: 12px; color: var(--text-muted);"></i>
+        <div class="search-container u-flex-1 u-maxw-320">
+          <i data-lucide="search" class="u-icon-16 u-search-icon-muted"></i>
           <input type="text" id="people-search" placeholder="Search people...">
           <div id="clear-people-search" class="search-clear-btn hidden" title="Clear search">
-            <i data-lucide="x" style="width: 16px; height: 16px;"></i>
+            <i data-lucide="x" class="u-icon-16"></i>
           </div>
         </div>
         
-        <div style="flex: 1;"></div>
+        <div class="u-flex-1"></div>
         <button class="toolbar-btn toolbar-btn-primary" id="add-person-btn">
-          <i data-lucide="plus" style="width: 16px; height: 16px;"></i> New Person
+          <i data-lucide="plus" class="u-icon-16"></i> New Person
         </button>
       </div>
       
       ${renderEditableDataTable(peopleToRender, columns, 'people-spreadsheet', 'people')}
       
-      <div id="people-pagination" style="padding: 16px;"></div>
+      <div id="people-pagination" class="u-p-md"></div>
     `;
 
     viewContainer.innerHTML = html;
@@ -2254,91 +2254,122 @@ async function renderLogVisitView() {
       <h1 class="page-title">Log Visit</h1>
     </div>
 
-    <div class="card">
-      <div class="form-field">
-        <label for="company-name">Company Name *</label>
-        <div class="search-container">
-          <i class="fas fa-search"></i>
-          <input type="text" id="company-name" placeholder="Search for a company..." required />
-          <div id="company-search-results" class="search-results" style="display: none;"></div>
-        </div>
-      </div>
+    <div class="log-visit-shell">
+      <div class="log-visit-flow">
+        <section class="log-visit-step" data-step="1">
+          <div class="log-visit-step-head">
+            <span class="log-visit-step-num">1</span>
+            <h3 class="log-visit-section-title">Choose Company</h3>
+          </div>
 
-      <div class="form-field" id="selected-company" style="display: none;">
-        <div class="selected-location-info">
-          <div id="selected-company-name"></div>
-          <div id="selected-company-address" class="text-muted"></div>
-        </div>
-      </div>
-      
-      <br>
+          <div class="form-field">
+            <label for="company-name">Company Name *</label>
+            <div class="search-container">
+              <i class="fas fa-search"></i>
+              <input type="text" id="company-name" placeholder="Search for a company..." required />
+              <div id="company-search-results" class="search-results" style="display: none;"></div>
+            </div>
+          </div>
 
-      <div class="form-field">
-        <label for="contact-name">Contact Person</label>
-        <input type="text" id="contact-name" placeholder="Client contact name" />
-      </div>
+          <div class="form-field" id="selected-company" style="display: none;">
+            <div class="selected-location-info log-visit-selected-company">
+              <div id="selected-company-name"></div>
+              <div id="selected-company-address" class="text-muted"></div>
+            </div>
+          </div>
 
-      <div class="form-field">
-        <label for="visit-type">Visit Type</label>
-        <select id="visit-type">
-          <option value="new_lead">New Lead</option>
-          <option value="follow_up">Follow-up</option>
-          <option value="demo">Product Demo</option>
-          <option value="closing">Closing</option>
-          <option value="support">Customer Support</option>
-        </select>
-      </div>
+          <button type="button" id="verify-location" class="btn btn-secondary w-full" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+            Verify Location
+          </button>
 
-      <div class="form-field">
-        <label for="notes">Visit Notes *</label>
-        <div class="mention-container">
-          <textarea id="notes" placeholder="What happened during the visit? Key takeaways, objections, next steps..." rows="5" required></textarea>
-          <div id="mention-suggestions" class="mention-suggestions" style="display: none;"></div>
-        </div>
-        <div class="text-right text-muted mt-1"><span id="char-count">0</span>/1000</div>
-      </div>
+          <div id="location-status" class="location-status" style="display: none;"></div>
+          <div id="location-map" class="location-map" style="display: none;"></div>
+        </section>
 
-      <div class="form-field">
-        <label>Tags</label>
-        <div class="tags-input-container" id="tags-container">
-          <input type="text" class="tags-input" id="tags-input" placeholder="Add tags...">
-        </div>
-        <div class="tag-suggestions">
-          <button type="button" class="tag-suggestion" onclick="addTag('urgent')">urgent</button>
-          <button type="button" class="tag-suggestion" onclick="addTag('high-value')">high-value</button>
-          <button type="button" class="tag-suggestion" onclick="addTag('decision-maker')">decision-maker</button>
-          <button type="button" class="tag-suggestion" onclick="addTag('follow-up')">follow-up</button>
-        </div>
-      </div>
+        <section class="log-visit-step" data-step="2">
+          <div class="log-visit-step-head">
+            <span class="log-visit-step-num">2</span>
+            <h3 class="log-visit-section-title">Visit Details</h3>
+          </div>
 
-      <div class="form-field">
-        <label>Visit Photo</label>
-        <input type="file" id="visit-photo" accept="image/*" style="display: none;" />
-        <div class="photo-upload-area" id="photo-upload-area">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera-icon lucide-camera"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"/><circle cx="12" cy="13" r="3"/></svg>
-          <span>Tap to take photo</span>
-        </div>
-        <div id="photo-preview" class="photo-preview"></div>
-      </div>
+          <div class="log-visit-row">
+            <div class="form-field">
+              <label for="contact-name">Contact Person</label>
+              <input type="text" id="contact-name" placeholder="Client contact name" />
+            </div>
 
-      <div class="form-field">
-        <label>Location Verification *</label>
-        <button type="button" id="verify-location" class="btn btn-secondary w-full" disabled>
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
-          Verify Location
-        </button>
-        <div id="location-status" class="location-status" style="display: none;"></div>
-        <div id="location-map" class="location-map" style="display: none;"></div>
-      </div>
+            <div class="form-field">
+              <label for="visit-type">Visit Type</label>
+              <select id="visit-type">
+                <option value="new_lead">New Lead</option>
+                <option value="follow_up">Follow-up</option>
+                <option value="demo">Product Demo</option>
+                <option value="closing">Closing</option>
+                <option value="support">Customer Support</option>
+              </select>
+            </div>
 
-      <div class="form-field">
-        <label for="travel-time">Travel Time (minutes)</label>
-        <input type="number" id="travel-time" placeholder="How long did it take to get here?" min="0" />
-      </div>
+            <div class="form-field log-visit-row-span">
+              <label for="travel-time">Travel Time (minutes)</label>
+              <input type="number" id="travel-time" placeholder="How long did it take to get here?" min="0" />
+            </div>
+          </div>
+        </section>
 
-      <button type="button" id="submit-visit" class="btn btn-primary btn-lg w-full mt-3" disabled>
-        Save Visit
-      </button>
+        <section class="log-visit-step" data-step="3">
+          <div class="log-visit-step-head">
+            <span class="log-visit-step-num">3</span>
+            <h3 class="log-visit-section-title">Notes & Tags</h3>
+          </div>
+
+          <div class="form-field">
+            <label for="notes">Notes *</label>
+            <div class="mention-container">
+              <textarea id="notes" class="mention-input" placeholder="What happened during the visit? Key takeaways, objections, and next steps..." rows="6" required></textarea>
+              <div id="mention-suggestions" class="mention-suggestions" style="display: none;"></div>
+            </div>
+            <div class="text-right text-muted mt-1"><span id="char-count">0</span>/1000</div>
+          </div>
+
+          <div class="form-field">
+            <label>Tags</label>
+            <div class="tags-input-container" id="tags-container">
+              <input type="text" class="tags-input" id="tags-input" placeholder="Add tags...">
+            </div>
+            <div class="tag-suggestions">
+              <button type="button" class="tag-suggestion" onclick="addTag('urgent')">urgent</button>
+              <button type="button" class="tag-suggestion" onclick="addTag('high-value')">high-value</button>
+              <button type="button" class="tag-suggestion" onclick="addTag('decision-maker')">decision-maker</button>
+              <button type="button" class="tag-suggestion" onclick="addTag('follow-up')">follow-up</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="log-visit-step" data-step="4">
+          <div class="log-visit-step-head">
+            <span class="log-visit-step-num">4</span>
+            <h3 class="log-visit-section-title">Evidence & Save</h3>
+          </div>
+
+          <div class="form-field">
+            <label>Visit Photo</label>
+            <input type="file" id="visit-photo" accept="image/*" style="display: none;" />
+            <div class="photo-upload-area" id="photo-upload-area">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera-icon lucide-camera"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"/><circle cx="12" cy="13" r="3"/></svg>
+              <span>Tap to take photo</span>
+            </div>
+            <div id="photo-preview" class="photo-preview"></div>
+          </div>
+
+          <div class="log-visit-actionbar">
+            <button type="button" id="submit-visit" class="btn btn-primary btn-lg log-visit-submit" disabled>
+              Save Visit
+            </button>
+          </div>
+          <p id="log-visit-submit-hint" class="log-visit-submit-hint">Select a company and verify location to enable saving.</p>
+        </section>
+      </div>
     </div>
   `;
 
@@ -2358,6 +2389,14 @@ function initLogVisitForm(companies) {
   const locationStatus = document.getElementById('location-status');
   const locationMapEl = document.getElementById('location-map');
   const submitBtn = document.getElementById('submit-visit');
+  const submitHint = document.getElementById('log-visit-submit-hint');
+  const contactNameInput = document.getElementById('contact-name');
+  const visitTypeSelect = document.getElementById('visit-type');
+  const travelTimeInput = document.getElementById('travel-time');
+  const stepOneEl = document.querySelector('.log-visit-step[data-step="1"]');
+  const stepTwoEl = document.querySelector('.log-visit-step[data-step="2"]');
+  const stepThreeEl = document.querySelector('.log-visit-step[data-step="3"]');
+  const stepFourEl = document.querySelector('.log-visit-step[data-step="4"]');
   const photoUploadArea = document.getElementById('photo-upload-area');
   const photoInput = document.getElementById('visit-photo');
   const photoPreview = document.getElementById('photo-preview');
@@ -2368,6 +2407,47 @@ function initLogVisitForm(companies) {
   let map = null;
   let mentionStartIndex = -1;
   let currentMentionQuery = '';
+  const defaultVisitType = visitTypeSelect?.value || '';
+
+  const resetLocationVerificationState = () => {
+    locationVerified = false;
+    submitBtn.disabled = true;
+    locationStatus.style.display = 'none';
+    locationMapEl.style.display = 'none';
+    if (map) {
+      map.remove();
+      map = null;
+    }
+    verifyLocationBtn.disabled = !window.selectedCompanyData;
+    verifyLocationBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Verify Location';
+  };
+
+  const updateLogVisitStepState = () => {
+    const hasCompany = Boolean(window.selectedCompanyData && window.selectedCompanyData.id);
+    const hasDetails = Boolean(
+      (contactNameInput?.value || '').trim() ||
+      (travelTimeInput?.value || '').trim() ||
+      (visitTypeSelect?.value || '') !== defaultVisitType
+    );
+    const hasNotes = Boolean((notesEl?.value || '').trim().length > 0);
+
+    stepOneEl?.classList.toggle('is-complete', hasCompany);
+    stepTwoEl?.classList.toggle('is-complete', hasDetails);
+    stepThreeEl?.classList.toggle('is-complete', hasNotes);
+    stepFourEl?.classList.toggle('is-complete', locationVerified);
+
+    if (submitHint) {
+      if (!hasCompany) {
+        submitHint.textContent = 'Select a company first.';
+      } else if (!locationVerified) {
+        submitHint.textContent = 'Verify location to enable saving.';
+      } else {
+        submitHint.textContent = 'Ready to save this visit.';
+      }
+    }
+  };
+
+  window.updateLogVisitStepState = updateLogVisitStepState;
 
   // Store for global access
   window.companiesData = companies;
@@ -2375,6 +2455,13 @@ function initLogVisitForm(companies) {
   // Company search functionality
   companyNameInput.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase().trim();
+
+    if (window.selectedCompanyData && e.target.value.trim() !== window.selectedCompanyData.name) {
+      window.selectedCompanyData = null;
+      selectedCompanyDiv.style.display = 'none';
+      resetLocationVerificationState();
+      updateLogVisitStepState();
+    }
 
     if (query.length === 0) {
       companySearchResults.style.display = 'none';
@@ -2405,7 +2492,12 @@ function initLogVisitForm(companies) {
   // Character counter
   notesEl.addEventListener('input', () => {
     charCountEl.textContent = notesEl.value.length;
+    updateLogVisitStepState();
   });
+
+  contactNameInput?.addEventListener('input', updateLogVisitStepState);
+  visitTypeSelect?.addEventListener('change', updateLogVisitStepState);
+  travelTimeInput?.addEventListener('input', updateLogVisitStepState);
 
   // Initialize mention system for notes
   notesEl.addEventListener('input', (e) => {
@@ -2635,6 +2727,8 @@ function initLogVisitForm(companies) {
           submitBtn.disabled = true;
         }
 
+        updateLogVisitStepState();
+
         verifyLocationBtn.disabled = false;
         verifyLocationBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Verify Location';
       },
@@ -2646,8 +2740,11 @@ function initLogVisitForm(companies) {
 
         locationStatus.className = 'location-status error';
         locationStatus.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> ${errorMsg}`;
+        locationVerified = false;
+        submitBtn.disabled = true;
         verifyLocationBtn.disabled = false;
         verifyLocationBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Verify Location';
+        updateLogVisitStepState();
         showToast(errorMsg, 'error');
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -2759,6 +2856,8 @@ function initLogVisitForm(companies) {
       submitBtn.innerHTML = 'Save Visit';
     }
   });
+
+  updateLogVisitStepState();
 }
 
 async function geocodeAddress(address) {
@@ -2825,6 +2924,9 @@ window.selectCompany = function (companyId) {
 
   // Enable verify location button
   document.getElementById('verify-location').disabled = false;
+  if (typeof window.updateLogVisitStepState === 'function') {
+    window.updateLogVisitStepState();
+  }
 };
 
 // Allow selecting a custom company entered by the user in the Log Visit form
@@ -3180,21 +3282,30 @@ async function renderOpportunityPipelineView() {
     </div>
 
     <div class="pipeline-toolbar">
-      <div class="pipeline-filters">
-        <button class="pipeline-filter active" data-filter="all"><i data-lucide="arrow-down-up"></i> Sorted by Created at</button>
-        <button class="pipeline-filter" data-filter="high-value"><i data-lucide="funnel"></i> High Value</button>
-        <button class="pipeline-filter" data-filter="high-probability"><i data-lucide="sparkles"></i> High Probability</button>
-        <button class="pipeline-filter" data-filter="next-step-due"><i data-lucide="clock-3"></i> Next Step Due</button>
-        ${isManager ? `
-          <button class="pipeline-filter" data-filter="my-reps"><i data-lucide="users"></i> Sales Reps</button>
-        ` : ''}
-      </div>
-
-      <div class="pipeline-controls">
+      <div class="pipeline-controls pipeline-controls-primary">
         <div class="pipeline-search">
           <i data-lucide="search"></i>
           <input type="text" id="pipeline-search" placeholder="Search company, deal, notes...">
         </div>
+
+        <select id="pipeline-quick-filter" class="pipeline-select pipeline-quick-filter">
+          <option value="all">All Deals</option>
+          <option value="high-value">High Value</option>
+          <option value="high-probability">High Probability</option>
+          <option value="next-step-due">Next Step Due</option>
+          ${isManager ? '<option value="my-reps">Sales Reps</option>' : ''}
+        </select>
+
+        <button class="btn btn-secondary" id="pipeline-advanced-toggle" aria-expanded="false">
+          <i data-lucide="sliders-horizontal"></i> More Filters
+        </button>
+
+        <button class="btn btn-primary pipeline-add-btn" id="add-opportunity-btn">
+          <i class="fas fa-plus"></i> New Deal
+        </button>
+      </div>
+
+      <div class="pipeline-controls pipeline-controls-advanced" id="pipeline-advanced-controls" hidden>
 
         ${isManager ? `
           <select id="pipeline-owner-filter" class="pipeline-select">
@@ -3212,8 +3323,8 @@ async function renderOpportunityPipelineView() {
           <option value="next-step">Sort: Next Step Due</option>
         </select>
 
-        <button class="btn btn-primary" id="add-opportunity-btn">
-          <i class="fas fa-plus"></i> New Deal
+        <button class="btn btn-ghost" id="pipeline-reset-controls">
+          Reset
         </button>
       </div>
     </div>
@@ -3634,10 +3745,13 @@ function updatePipelineSummary() {
 }
 
 function initPipelineFilters(opportunities) {
-  const filterButtons = document.querySelectorAll('.pipeline-filter');
+  const quickFilterSelect = document.getElementById('pipeline-quick-filter');
   const searchInput = document.getElementById('pipeline-search');
   const ownerSelect = document.getElementById('pipeline-owner-filter');
   const sortSelect = document.getElementById('pipeline-sort');
+  const advancedToggle = document.getElementById('pipeline-advanced-toggle');
+  const advancedControls = document.getElementById('pipeline-advanced-controls');
+  const resetBtn = document.getElementById('pipeline-reset-controls');
 
   const compareBySort = (a, b, sort) => {
     const aValue = Number(a.dataset.value || 0);
@@ -3658,7 +3772,7 @@ function initPipelineFilters(opportunities) {
   };
 
   const applyPipelineControls = () => {
-    const activeFilter = document.querySelector('.pipeline-filter.active')?.dataset.filter || 'all';
+    const activeFilter = quickFilterSelect?.value || 'all';
     const query = (searchInput?.value || '').trim().toLowerCase();
     const owner = ownerSelect?.value || 'all';
     const sort = sortSelect?.value || 'newest';
@@ -3697,14 +3811,28 @@ function initPipelineFilters(opportunities) {
     updatePipelineStageCounts();
   };
 
-  filterButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      applyPipelineControls();
-    });
+  advancedToggle?.addEventListener('click', () => {
+    const isHidden = advancedControls?.hasAttribute('hidden');
+    if (isHidden) {
+      advancedControls?.removeAttribute('hidden');
+      advancedToggle.setAttribute('aria-expanded', 'true');
+      advancedToggle.classList.add('is-open');
+    } else {
+      advancedControls?.setAttribute('hidden', '');
+      advancedToggle.setAttribute('aria-expanded', 'false');
+      advancedToggle.classList.remove('is-open');
+    }
   });
 
+  resetBtn?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    if (quickFilterSelect) quickFilterSelect.value = 'all';
+    if (ownerSelect) ownerSelect.value = 'all';
+    if (sortSelect) sortSelect.value = 'newest';
+    applyPipelineControls();
+  });
+
+  quickFilterSelect?.addEventListener('change', applyPipelineControls);
   searchInput?.addEventListener('input', applyPipelineControls);
   ownerSelect?.addEventListener('change', applyPipelineControls);
   sortSelect?.addEventListener('change', applyPipelineControls);
@@ -4328,7 +4456,7 @@ window.selectRep = function (repId) {
 
   const container = document.getElementById('rep-visits-container');
   if (repVisits.length === 0) {
-    container.innerHTML = '<p class="text-muted text-center" style="padding: 2rem;">No visits logged yet</p>';
+    container.innerHTML = '<p class="text-muted text-center u-p-xl">No visits logged yet</p>';
   } else {
     container.innerHTML = repVisits.map(visit => renderVisitCard(visit)).join('');
   }
@@ -4342,7 +4470,7 @@ window.selectRep = function (repId) {
 function renderTeamVisits(visits) {
   const container = document.getElementById('team-visits-container');
   if (visits.length === 0) {
-    container.innerHTML = '<p class="text-muted text-center" style="padding: 2rem;">No visits yet</p>';
+    container.innerHTML = '<p class="text-muted text-center u-p-xl">No visits yet</p>';
   } else {
     container.innerHTML = visits.map(visit => renderVisitCard(visit, true)).join('');
   }
@@ -4602,7 +4730,7 @@ async function renderRoutePlanningView() {
       </div>
       <div class="routes-list">
         ${routes.length === 0 ?
-      '<p class="text-muted text-center" style="padding: 2rem;">No routes created yet</p>' :
+      '<p class="text-muted text-center u-p-xl">No routes created yet</p>' :
       routes.map(route => `
             <div class="route-item" data-id="${route.id}">
               <div class="route-info">
@@ -5195,7 +5323,7 @@ async function viewRouteDetails(routeId) {
     modal.id = 'route-details-modal';
     modal.innerHTML = `
       <div class="modal-backdrop" onclick="closeModal('route-details-modal')"></div>
-      <div class="modal-container" style="max-width: 800px;">
+      <div class="modal-container modal-size-lg">
         <div class="modal-header">
           <h3>${route.name}</h3>
           <button class="modal-close" onclick="closeModal('route-details-modal')">
@@ -5212,7 +5340,7 @@ async function viewRouteDetails(routeId) {
               ${route.total_distance ? `<p><strong>Total distance:</strong> ${(route.total_distance / 1000).toFixed(2)} km</p>` : ''}
             </div>
             
-            <div class="route-map" id="route-details-map" style="height: 300px; margin: 1rem 0;"></div>
+            <div class="route-map u-map-md u-my-md" id="route-details-map"></div>
             
             <h4>Route Stops</h4>
             <ol class="route-stops">
@@ -5268,7 +5396,7 @@ async function viewRouteDetails(routeId) {
       } else {
         const mapElement = document.getElementById('route-details-map');
         if (mapElement) {
-          mapElement.innerHTML = '<div class="text-center" style="padding: 2rem;">No valid location data available for this route</div>';
+          mapElement.innerHTML = '<div class="text-center u-p-xl">No valid location data available for this route</div>';
         }
       }
     }, 100);
@@ -5491,14 +5619,14 @@ async function renderMyRoutesView() {
             console.error('Error initializing map for route', route.id, ':', e);
             const mapElement = document.getElementById(`route-preview-${route.id}`);
             if (mapElement) {
-              mapElement.innerHTML = '<div class="text-center" style="padding: 2rem;">Map unavailable</div>';
+              mapElement.innerHTML = '<div class="text-center u-p-xl">Map unavailable</div>';
             }
           }
         }, 100);
       } else {
         const mapElement = document.getElementById(`route-preview-${route.id}`);
         if (mapElement) {
-          mapElement.innerHTML = '<div class="text-center" style="padding: 2rem;">No valid location data</div>';
+          mapElement.innerHTML = '<div class="text-center u-p-xl">No valid location data</div>';
         }
       }
     }
@@ -5749,7 +5877,7 @@ async function startRouteNavigation(routeId) {
         console.error('Error initializing map:', e);
         const mapElement = document.getElementById('navigation-map');
         if (mapElement) {
-          mapElement.innerHTML = '<div class="text-center" style="padding: 2rem;">Map unavailable</div>';
+          mapElement.innerHTML = '<div class="text-center u-p-xl">Map unavailable</div>';
         }
       }
     }, 100);
@@ -7205,7 +7333,7 @@ window.openCompaniesImportExportModal = function () {
     modal.style.display = 'none';
     modal.innerHTML = `
       <div class="modal-backdrop" onclick="closeModal('companies-transfer-modal')"></div>
-      <div class="modal-container companies-transfer-modal-container" style="max-width: 760px;">
+      <div class="modal-container companies-transfer-modal-container modal-size-transfer">
         <div class="modal-header">
           <h3><i data-lucide="file-up"></i> Companies Import / Export</h3>
           <button class="modal-close" onclick="closeModal('companies-transfer-modal')">
@@ -8244,7 +8372,7 @@ function renderSkeletonCards(count = 3) {
 function renderError(message) {
   return `
     <div class="card">
-      <div class="empty-state">
+      <div class="empty-state empty-state-alert">
         <i data-lucide="alert-circle" class="empty-state-icon text-danger"></i>
         <h3 class="empty-state-title">Error</h3>
         <p class="empty-state-description">${message}</p>
@@ -8256,7 +8384,7 @@ function renderError(message) {
 function renderAccessDenied() {
   return `
     <div class="card">
-      <div class="empty-state">
+      <div class="empty-state empty-state-alert">
         <i data-lucide="lock" class="empty-state-icon"></i>
         <h3 class="empty-state-title">Access Denied</h3>
         <p class="empty-state-description">You don't have permission to view this page.</p>
@@ -8268,7 +8396,7 @@ function renderAccessDenied() {
 function renderNotFound() {
   return `
     <div class="card">
-      <div class="empty-state">
+      <div class="empty-state empty-state-alert">
         <i data-lucide="search" class="empty-state-icon"></i>
         <h3 class="empty-state-title">Not Found</h3>
         <p class="empty-state-description">The requested page does not exist.</p>
@@ -8320,17 +8448,30 @@ function renderTags() {
 window.showConfirmDialog = function (title, message) {
   return new Promise((resolve) => {
     const dialog = document.getElementById('confirm-dialog');
+    const container = dialog?.querySelector('.confirm-dialog-container');
+    const backdrop = dialog?.querySelector('.modal-backdrop');
     const titleEl = document.getElementById('confirm-title');
     const messageEl = document.getElementById('confirm-message');
+    const helperEl = document.getElementById('confirm-helper');
     const cancelBtn = document.getElementById('confirm-cancel');
     const okBtn = document.getElementById('confirm-ok');
+    const isDestructive = /\b(delete|remove)\b/i.test(`${title} ${message}`);
 
     // Set content
     titleEl.textContent = title;
     messageEl.textContent = message;
+    if (helperEl) {
+      helperEl.textContent = 'This action cannot be undone.';
+    }
+    okBtn.textContent = isDestructive ? 'Delete' : 'Confirm';
+    okBtn.classList.toggle('btn-danger', isDestructive);
+    okBtn.classList.toggle('btn-primary', !isDestructive);
+    container?.classList.toggle('confirm-dialog-danger', isDestructive);
+    container?.setAttribute('data-intent', isDestructive ? 'danger' : 'default');
 
     // Show dialog
     dialog.style.display = 'flex';
+    cancelBtn.focus();
 
     // Handle buttons
     const handleCancel = () => {
@@ -8345,13 +8486,40 @@ window.showConfirmDialog = function (title, message) {
       resolve(true);
     };
 
+    const handleBackdropClick = (event) => {
+      if (event.target === dialog || event.target === backdrop) {
+        handleCancel();
+      }
+    };
+
+    const handleKeydown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        handleCancel();
+      }
+
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        handleOk();
+      }
+    };
+
     const cleanup = () => {
       cancelBtn.removeEventListener('click', handleCancel);
       okBtn.removeEventListener('click', handleOk);
+      dialog.removeEventListener('click', handleBackdropClick);
+      document.removeEventListener('keydown', handleKeydown);
+      container?.classList.remove('confirm-dialog-danger');
+      container?.removeAttribute('data-intent');
+      okBtn.classList.remove('btn-danger');
+      okBtn.classList.add('btn-primary');
+      okBtn.textContent = 'Confirm';
     };
 
     cancelBtn.addEventListener('click', handleCancel);
     okBtn.addEventListener('click', handleOk);
+    dialog.addEventListener('click', handleBackdropClick);
+    document.addEventListener('keydown', handleKeydown);
   });
 };
 
@@ -10765,7 +10933,7 @@ window.viewLocationOnMap = function (latitude, longitude, title) {
 
   modal.innerHTML = `
     <div class="modal-backdrop" onclick="closeModal('location-modal')"></div>
-    <div class="modal-container" style="max-width: 800px;">
+    <div class="modal-container modal-size-lg">
       <div class="modal-header">
         <h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-locate-fixed-icon lucide-locate-fixed"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg>${title || 'Location'}</h3>
         <button class="modal-close" onclick="closeModal('location-modal')">
@@ -10773,7 +10941,7 @@ window.viewLocationOnMap = function (latitude, longitude, title) {
         </button>
       </div>
       <div class="modal-body">
-        <div id="location-modal-map" style="height: 400px;"></div>
+        <div id="location-modal-map" class="u-map-lg"></div>
         <div class="mt-3">
           <p><strong>Coordinates:</strong> ${latitude.toFixed(6)}, ${longitude.toFixed(6)}</p>
           <a href="https://www.google.com/maps?q=${latitude},${longitude}" target="_blank" class="btn btn-sm btn-primary mt-2">
@@ -10857,7 +11025,7 @@ window.viewTechnicianVisitDetails = async function (visitId) {
 
     modal.innerHTML = `
       <div class="modal-backdrop" onclick="closeModal('visit-details-modal')"></div>
-      <div class="modal-container" style="max-width: 800px;">
+      <div class="modal-container modal-size-lg">
         <div class="modal-header">
           <h3>Service Visit Details</h3>
           <div class="flex gap-2">
@@ -10888,7 +11056,7 @@ window.viewTechnicianVisitDetails = async function (visitId) {
           ${visit.latitude && visit.longitude ? `
             <div class="mt-4">
               <h4>Location</h4>
-              <div id="visit-details-map" style="height: 200px; margin-top: 1rem;"></div>
+              <div id="visit-details-map" class="u-map-sm u-mt-md"></div>
             </div>
           ` : ''}
 
@@ -10997,15 +11165,15 @@ window.openPhotoModal = function (photoUrl) {
 
   modal.innerHTML = `
     <div class="modal-backdrop" onclick="closeModal('photo-modal')"></div>
-    <div class="modal-container" style="max-width: 90%; max-height: 90%;">
+    <div class="modal-container modal-size-photo">
       <div class="modal-header">
         <h3><i class="fas fa-camera"></i> Photo</h3>
         <button class="modal-close" onclick="closeModal('photo-modal')">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
       </div>
-      <div class="modal-body" style="display: flex; justify-content: center; align-items: center;">
-        <img src="${photoUrl}" alt="Visit photo" style="max-width: 100%; max-height: 70vh; object-fit: contain;" onerror="handleImageError(this)">
+      <div class="modal-body u-flex-center">
+        <img src="${photoUrl}" alt="Visit photo" class="u-photo-contain" onerror="handleImageError(this)">
       </div>
     </div>
   `;
@@ -12508,7 +12676,7 @@ function openNoteModal(note = null) {
 
   modal.innerHTML = `
     <div class="modal-backdrop" onclick="closeModal('note-modal')"></div>
-    <div class="modal-container" style="max-width: 600px;">
+    <div class="modal-container modal-size-md">
       <div class="modal-header">
         <h3>${note ? 'Edit Note' : 'New Note'}</h3>
         <button class="modal-close" onclick="closeModal('note-modal')">
