@@ -18,6 +18,20 @@ let managerCallLogViewMode = 'my'; // 'my' or 'team'
 let lastToastMeta = { key: '', at: 0 };
 let dueNotificationsPollId = null;
 let duePopupHideTimers = [];
+let currentUserProfile = null;
+let safiNudgeChannel = null;
+let safiNudgeSubscribed = false;
+let safiNudgeQueue = [];
+let safiNudgeShowing = false;
+let safiNudgeTimers = [];
+let safiNudgeLastStatus = 'idle';
+let safiNudgeReconnectTimer = null;
+let safiNudgeReconnectAttempt = 0;
+let safiNudgeStarting = false;
+
+const SAFI_NUDGE_EVENT = 'safi-nudge';
+const SAFI_NUDGE_CHANNEL = 'safitrack-team-nudges';
+const SAFI_NUDGE_BOT_GIF = 'https://assets-v2.lottiefiles.com/a/b942abb8-d62e-11ee-a179-af4105107ebe/tPZDd31PcO.gif';
 
 const DUE_NOTIFIED_STORAGE_KEY = 'safitrack_due_notified_v1';
 const DUE_READ_STORAGE_KEY = 'safitrack_due_read_v1';
@@ -27,10 +41,40 @@ let dueNotificationState = {
   unreadCount: 0
 };
 
-const CRM_DEBUG = false;
-function crmDebugLog(label, payload) {
-  return;
+function isCrmDebugEnabled() {
+  try {
+    return localStorage.getItem('safitrack_debug') === '1';
+  } catch (e) {
+    return false;
+  }
 }
+
+function crmDebugLog(label, payload) {
+  const forceSafiNudgeLog = typeof label === 'string' && label.startsWith('SafiNudge.');
+  if (!forceSafiNudgeLog && !isCrmDebugEnabled()) return;
+  const timestamp = new Date().toISOString();
+  const scope = forceSafiNudgeLog ? 'SAFI DEBUG' : 'CRM DEBUG';
+  console.warn(`[${scope}][${timestamp}] ${label}`, payload ?? '');
+}
+
+window.setSafiDebug = function (enabled) {
+  const value = enabled ? '1' : '0';
+  localStorage.setItem('safitrack_debug', value);
+  console.log(`[SafiNudge] Debug ${enabled ? 'enabled' : 'disabled'}. Reload to apply.`);
+};
+
+window.getSafiNudgeDebugState = function () {
+  const state = {
+    hasCurrentUser: Boolean(currentUser?.id),
+    userId: currentUser?.id || null,
+    hasChannel: Boolean(safiNudgeChannel),
+    subscribed: safiNudgeSubscribed,
+    queueLength: safiNudgeQueue.length,
+    showing: safiNudgeShowing
+  };
+  console.log('[SafiNudge] State snapshot', state);
+  return state;
+};
 
 // Call log filters
 let callLogFilters = {
@@ -85,6 +129,7 @@ const notificationsBtn = document.getElementById('notifications-btn');
 const notificationsCount = document.getElementById('notifications-count');
 const notificationsList = document.getElementById('notifications-list');
 const notificationsEnableBtn = document.getElementById('enable-notifications-btn');
+const safiNudgeLauncher = document.getElementById('safi-nudge-launcher');
 
 const APP_BOOT_STARTED_AT = performance.now();
 const FAST_BOOT_SKIP_MS = 500;
@@ -520,7 +565,9 @@ function initAuth() {
       initApp();
     } else if (event === 'SIGNED_OUT') {
       stopDueNotificationsMonitor();
+      stopSafiNudgeRealtime();
       currentUser = null;
+      currentUserProfile = null;
       mainApp.style.display = 'none';
       authScreen.style.display = 'flex';
     }
@@ -570,6 +617,13 @@ function initEventListeners() {
     if (notificationsMenu?.classList.contains('active')) {
       markAllDueNotificationsRead();
     }
+  });
+
+  safiNudgeLauncher?.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    userMenu?.classList.remove('active');
+    notificationsMenu?.classList.remove('active');
+    await window.openSafiNudgeComposer();
   });
 
   notificationsEnableBtn?.addEventListener('click', async (e) => {
@@ -665,6 +719,7 @@ async function handleLogin(e) {
 
 async function handleLogout() {
   stopDueNotificationsMonitor();
+  stopSafiNudgeRealtime();
   await supabaseClient.auth.signOut();
   location.reload();
 }
@@ -690,6 +745,7 @@ async function initApp() {
 
   isManager = profile.role === 'manager';
   isTechnician = profile.role === 'technician';
+  currentUserProfile = profile;
 
   // Update UI based on role
   updateUserDisplay(profile);
@@ -718,6 +774,7 @@ async function initApp() {
 
   // Start sitewide due notifications monitor (tasks, reminders, deals)
   startDueNotificationsMonitor();
+  startSafiNudgeRealtime();
 
   // Identify if onboarding should be shown (new user or forced)
   const hasCompletedTour = localStorage.getItem('safitrack_onboarding_completed');
@@ -837,8 +894,11 @@ function updateNavigationForRole() {
       el.style.display = 'none';
     });
     // Hide views that technicians should not access
-    ['sales-funnel', 'opportunity-pipeline', 'call-logs', 'companies', 'people', 'user-management'].forEach(view => {
+    ['sales-funnel', 'opportunity-pipeline', 'call-logs', 'companies', 'people'].forEach(view => {
       document.querySelectorAll(`.sidebar-nav [data-view="${view}"]`).forEach(el => el.style.display = 'none');
+    });
+    document.querySelectorAll('.sidebar-nav [data-view="user-management"]').forEach(el => {
+      el.style.display = 'flex';
     });
     // Hide manager navigation
     managerNavSection.style.display = 'none';
@@ -850,7 +910,7 @@ function updateNavigationForRole() {
 
 
     // Ensure records are shown
-    ['companies', 'people'].forEach(view => {
+    ['companies', 'people', 'user-management'].forEach(view => {
       document.querySelectorAll(`.sidebar-nav [data-view="${view}"]`).forEach(el => el.style.display = 'flex');
     });
   }
@@ -895,7 +955,7 @@ async function loadView(viewName) {
   updateActiveNav(viewName);
 
   // Prevent technicians from accessing certain views
-  const blockedForTechnician = ['sales-funnel', 'opportunity-pipeline', 'call-logs', 'companies', 'people', 'user-management'];
+  const blockedForTechnician = ['sales-funnel', 'opportunity-pipeline', 'call-logs', 'companies', 'people'];
   if (isTechnician && blockedForTechnician.includes(viewName)) {
     showToast('You do not have permission to access this view', 'error');
     return;
@@ -5100,6 +5160,607 @@ function checkDueReminders() {
   refreshDueNotifications();
 }
 
+function getDisplayNameFromProfile(profileLike) {
+  if (!profileLike) return 'Teammate';
+  const first = String(profileLike.first_name || '').trim();
+  const last = String(profileLike.last_name || '').trim();
+  const full = `${first} ${last}`.trim();
+  if (full) return full;
+  return String(profileLike.email || 'Teammate');
+}
+
+function escapeHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function clearSafiNudgeTimers() {
+  safiNudgeTimers.forEach((timer) => clearTimeout(timer));
+  safiNudgeTimers = [];
+}
+
+function getSafiNudgeContainer() {
+  let container = document.getElementById('safi-nudge-container');
+  if (container) return container;
+
+  container = document.createElement('div');
+  container.id = 'safi-nudge-container';
+  container.className = 'safi-nudge-container';
+  document.body.appendChild(container);
+  return container;
+}
+
+function queueSafiNudge(nudge) {
+  safiNudgeQueue.push(nudge);
+  if (!safiNudgeShowing) {
+    renderNextSafiNudge();
+  }
+}
+
+function hideSafiNudgeCard() {
+  const container = document.getElementById('safi-nudge-container');
+  if (!container) return;
+
+  container.classList.remove('show-message');
+  container.classList.remove('active');
+
+  const completeHideTimer = window.setTimeout(() => {
+    if (!safiNudgeShowing) {
+      container.innerHTML = '';
+      return;
+    }
+    safiNudgeShowing = false;
+    renderNextSafiNudge();
+  }, 320);
+
+  safiNudgeTimers.push(completeHideTimer);
+}
+
+function renderNextSafiNudge() {
+  if (safiNudgeQueue.length === 0) {
+    safiNudgeShowing = false;
+    const container = document.getElementById('safi-nudge-container');
+    if (container) {
+      container.classList.remove('active');
+      container.innerHTML = '';
+    }
+    return;
+  }
+
+  safiNudgeShowing = true;
+  clearSafiNudgeTimers();
+
+  const nudge = safiNudgeQueue.shift();
+  const container = getSafiNudgeContainer();
+  const fromName = escapeHtml(nudge.fromName || 'Teammate');
+  const message = escapeHtml(nudge.message || 'You got a SafiNudge ✨');
+
+  container.innerHTML = `
+    <div class="safi-nudge-stage" role="status" aria-live="polite">
+      <div class="safi-nudge-bot" aria-hidden="true">
+        <img class="safi-nudge-bot-gif" src="${SAFI_NUDGE_BOT_GIF}" alt="" loading="eager" decoding="async">
+        <span class="safi-nudge-bot-sparkle">✨</span>
+      </div>
+      <div class="safi-nudge-bubble">
+        <div class="safi-nudge-title">SafiNudge from ${fromName}</div>
+        <div class="safi-nudge-message">${message}</div>
+      </div>
+    </div>
+  `;
+
+  container.classList.add('active');
+
+  const revealTimer = window.setTimeout(() => {
+    container.classList.add('show-message');
+  }, 520);
+  safiNudgeTimers.push(revealTimer);
+
+  container.onclick = () => {
+    hideSafiNudgeCard();
+  };
+
+  const hideTimer = window.setTimeout(() => {
+    hideSafiNudgeCard();
+  }, 5600);
+  safiNudgeTimers.push(hideTimer);
+}
+
+function handleIncomingSafiNudge(payload) {
+  crmDebugLog('SafiNudge.handleIncoming.payload', payload);
+  if (!payload || !currentUser?.id) return;
+  if (String(payload.toUserId || '') !== String(currentUser.id)) return;
+  if (String(payload.fromUserId || '') === String(currentUser.id)) return;
+
+  crmDebugLog('SafiNudge.handleIncoming.accepted', {
+    toUserId: payload.toUserId,
+    currentUserId: currentUser.id,
+    fromUserId: payload.fromUserId
+  });
+  queueSafiNudge(payload);
+}
+
+function stopSafiNudgeRealtime() {
+  crmDebugLog('SafiNudge.stopRealtime.begin', {
+    hasChannel: Boolean(safiNudgeChannel),
+    subscribed: safiNudgeSubscribed
+  });
+  if (safiNudgeChannel) {
+    supabaseClient.removeChannel(safiNudgeChannel);
+    safiNudgeChannel = null;
+  }
+  safiNudgeSubscribed = false;
+  safiNudgeLastStatus = 'stopped';
+  safiNudgeStarting = false;
+  safiNudgeReconnectAttempt = 0;
+  if (safiNudgeReconnectTimer) {
+    clearTimeout(safiNudgeReconnectTimer);
+    safiNudgeReconnectTimer = null;
+  }
+  safiNudgeQueue = [];
+  safiNudgeShowing = false;
+  clearSafiNudgeTimers();
+
+  const container = document.getElementById('safi-nudge-container');
+  if (container) {
+    container.classList.remove('active');
+    container.innerHTML = '';
+  }
+  crmDebugLog('SafiNudge.stopRealtime.done');
+}
+
+function scheduleSafiNudgeReconnect(reason = 'unknown') {
+  if (!currentUser?.id) return;
+  if (safiNudgeReconnectTimer) return;
+
+  safiNudgeReconnectAttempt += 1;
+  const delayMs = Math.min(4000, 500 + (safiNudgeReconnectAttempt - 1) * 700);
+  crmDebugLog('SafiNudge.reconnect.scheduled', {
+    reason,
+    attempt: safiNudgeReconnectAttempt,
+    delayMs
+  });
+
+  safiNudgeReconnectTimer = window.setTimeout(() => {
+    safiNudgeReconnectTimer = null;
+    startSafiNudgeRealtime();
+  }, delayMs);
+}
+
+async function startSafiNudgeRealtime() {
+  if (!currentUser?.id) return;
+  if (safiNudgeStarting) {
+    crmDebugLog('SafiNudge.startRealtime.skippedAlreadyStarting');
+    return;
+  }
+
+  safiNudgeStarting = true;
+  crmDebugLog('SafiNudge.startRealtime.begin', { userId: currentUser.id });
+  if (safiNudgeReconnectTimer) {
+    clearTimeout(safiNudgeReconnectTimer);
+    safiNudgeReconnectTimer = null;
+  }
+
+  if (safiNudgeChannel) {
+    supabaseClient.removeChannel(safiNudgeChannel);
+    safiNudgeChannel = null;
+  }
+  safiNudgeSubscribed = false;
+  safiNudgeLastStatus = 'starting';
+
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session?.access_token && supabaseClient.realtime?.setAuth) {
+      supabaseClient.realtime.setAuth(session.access_token);
+      crmDebugLog('SafiNudge.startRealtime.authBound', { hasAccessToken: true });
+    }
+
+    if (supabaseClient.realtime?.connect) {
+      supabaseClient.realtime.connect();
+      crmDebugLog('SafiNudge.startRealtime.socketConnectCalled');
+    }
+  } catch (error) {
+    crmDebugLog('SafiNudge.startRealtime.prepError', {
+      message: error?.message || String(error)
+    });
+  }
+
+  safiNudgeChannel = supabaseClient.channel(SAFI_NUDGE_CHANNEL, {
+    config: {
+      broadcast: { self: false }
+    }
+  });
+
+  safiNudgeChannel
+    .on('broadcast', { event: SAFI_NUDGE_EVENT }, ({ payload }) => {
+      crmDebugLog('SafiNudge.realtime.event', payload);
+      handleIncomingSafiNudge(payload);
+    })
+    .subscribe((status) => {
+      crmDebugLog('SafiNudge.realtime.status', { status });
+      safiNudgeLastStatus = status;
+      safiNudgeSubscribed = status === 'SUBSCRIBED';
+
+      if (status === 'SUBSCRIBED') {
+        safiNudgeStarting = false;
+        safiNudgeReconnectAttempt = 0;
+        return;
+      }
+
+      if (status === 'TIMED_OUT' || status === 'CHANNEL_ERROR' || status === 'CLOSED') {
+        safiNudgeStarting = false;
+        safiNudgeSubscribed = false;
+        scheduleSafiNudgeReconnect(status);
+      }
+    });
+
+  window.setTimeout(() => {
+    if (safiNudgeLastStatus === 'starting') {
+      safiNudgeStarting = false;
+      scheduleSafiNudgeReconnect('startup-no-status');
+    }
+  }, 2600);
+}
+
+async function ensureSafiNudgeReady(timeoutMs = 5200) {
+  crmDebugLog('SafiNudge.ensureReady.begin', {
+    timeoutMs,
+    hasCurrentUser: Boolean(currentUser?.id),
+    hasChannel: Boolean(safiNudgeChannel),
+    subscribed: safiNudgeSubscribed
+  });
+  if (!currentUser?.id) return false;
+
+  if (!safiNudgeChannel) {
+    crmDebugLog('SafiNudge.ensureReady.startChannel');
+    await startSafiNudgeRealtime();
+  }
+
+  if (safiNudgeSubscribed) {
+    crmDebugLog('SafiNudge.ensureReady.alreadySubscribed');
+    return true;
+  }
+
+  const startedAt = Date.now();
+  let iterations = 0;
+  while (Date.now() - startedAt < timeoutMs) {
+    iterations += 1;
+    await new Promise((resolve) => setTimeout(resolve, 120));
+    if (safiNudgeSubscribed) {
+      crmDebugLog('SafiNudge.ensureReady.success', {
+        waitedMs: Date.now() - startedAt,
+        iterations
+      });
+      return true;
+    }
+  }
+
+  crmDebugLog('SafiNudge.ensureReady.timeout', {
+    waitedMs: Date.now() - startedAt,
+    iterations,
+    hasChannel: Boolean(safiNudgeChannel),
+    subscribed: safiNudgeSubscribed,
+    lastStatus: safiNudgeLastStatus
+  });
+  return false;
+}
+
+function getSafiNudgeModal() {
+  let modal = document.getElementById('safi-nudge-modal');
+  if (modal) return modal;
+
+  modal = document.createElement('div');
+  modal.id = 'safi-nudge-modal';
+  modal.className = 'modal';
+  modal.style.display = 'none';
+  modal.innerHTML = `
+    <div class="modal-backdrop"></div>
+    <div class="modal-container safi-nudge-modal-container">
+      <div class="modal-header">
+        <h3><i data-lucide="sparkles"></i> Send SafiNudge</h3>
+        <button class="modal-close" type="button" id="safi-nudge-close" aria-label="Close">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="safi-nudge-composer-hero">
+          <img class="safi-nudge-composer-bot" src="${SAFI_NUDGE_BOT_GIF}" alt="SafiNudge Bot" loading="eager" decoding="async">
+          <div class="safi-nudge-composer-copy">
+            <div class="safi-nudge-composer-title">Time to send good vibes ✨</div>
+            <div class="safi-nudge-composer-subtitle">Tiny note, big smile. Just fun human energy.</div>
+            <div class="safi-nudge-composer-tip">🤖 SafiBot tip: Say something that would make you grin too.</div>
+          </div>
+        </div>
+        <div class="form-field safi-nudge-field">
+          <label>Who gets the sparkle?</label>
+          <select id="safi-nudge-target-select">
+            <option value="">Loading teammates…</option>
+          </select>
+        </div>
+        <div class="form-field safi-nudge-field">
+          <label>Your hype line</label>
+          <textarea id="safi-nudge-message" rows="3" maxlength="160" placeholder="Type a tiny fun note…"></textarea>
+          <div class="safi-nudge-counter"><span id="safi-nudge-count">0</span>/160</div>
+        </div>
+        <div class="safi-nudge-quick-row">
+          <button type="button" class="btn btn-ghost btn-sm safi-nudge-quick" data-msg="hey bestie">👯 hey bestie</button>
+          <button type="button" class="btn btn-ghost btn-sm safi-nudge-quick" data-msg="hello human">🤖 hello human</button>
+          <button type="button" class="btn btn-ghost btn-sm safi-nudge-quick" data-msg="sending vibes">✨ sending vibes</button>
+          <button type="button" class="btn btn-ghost btn-sm safi-nudge-quick" data-msg="truly impressive">🌟 truly impressive</button>
+          <button type="button" class="btn btn-ghost btn-sm safi-nudge-quick" data-msg="sending motivation">💪 sending motivation</button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" type="button" id="safi-nudge-cancel">Cancel</button>
+        <button class="btn btn-primary" type="button" id="safi-nudge-send">Go Safibot!</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+
+  const closeModal = () => {
+    modal.style.display = 'none';
+    modal.removeAttribute('data-target-id');
+    modal.removeAttribute('data-target-name');
+  };
+
+  modal.querySelector('#safi-nudge-close')?.addEventListener('click', closeModal);
+  modal.querySelector('#safi-nudge-cancel')?.addEventListener('click', closeModal);
+  modal.querySelector('.modal-backdrop')?.addEventListener('click', closeModal);
+
+  const messageInput = modal.querySelector('#safi-nudge-message');
+  const countEl = modal.querySelector('#safi-nudge-count');
+  messageInput?.addEventListener('input', () => {
+    if (countEl) countEl.textContent = String(messageInput.value.length);
+  });
+
+  modal.querySelectorAll('.safi-nudge-quick').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (!messageInput) return;
+      messageInput.value = btn.dataset.msg || '';
+      messageInput.dispatchEvent(new Event('input'));
+      messageInput.focus();
+    });
+  });
+
+  modal.querySelector('#safi-nudge-send')?.addEventListener('click', async () => {
+    const targetSelect = modal.querySelector('#safi-nudge-target-select');
+    const targetId = targetSelect?.value || '';
+    const targetName = targetSelect?.selectedOptions?.[0]?.textContent?.trim() || 'Teammate';
+    const rawMessage = messageInput?.value || '';
+    const message = rawMessage.trim();
+
+    if (!targetId) {
+      showToast('Choose a teammate first', 'error');
+      return;
+    }
+
+    if (!message) {
+      showToast('Add a message before sending your nudge', 'error');
+      return;
+    }
+
+    const ok = await sendSafiNudge(targetId, targetName, message);
+    if (ok) {
+      closeModal();
+    }
+  });
+
+  return modal;
+}
+
+async function populateSafiNudgeRecipients(selectEl, preselectedUserId = null) {
+  if (!selectEl) return;
+
+  selectEl.innerHTML = '<option value="">Loading teammates…</option>';
+
+  const teammateMap = new Map();
+
+  const addTeammate = (profileLike) => {
+    if (!profileLike?.id) return;
+    const id = String(profileLike.id);
+    if (id === String(currentUser?.id || '')) return;
+
+    const name = `${profileLike.first_name || ''} ${profileLike.last_name || ''}`.trim() || profileLike.email || 'Teammate';
+    if (!teammateMap.has(id)) {
+      teammateMap.set(id, {
+        id,
+        name,
+        email: profileLike.email || ''
+      });
+    }
+  };
+
+  // Primary source: direct profiles (works when policy allows)
+  const { data: users, error } = await supabaseClient
+    .from('profiles')
+    .select('id, first_name, last_name, email')
+    .order('first_name', { ascending: true });
+
+  if (!error && Array.isArray(users)) {
+    users.forEach(addTeammate);
+  }
+
+  // Fallback sources for restricted roles (e.g., sales reps with limited profiles visibility)
+  if (teammateMap.size === 0) {
+    crmDebugLog('SafiNudge.populateRecipients.fallbackStart', {
+      reason: error ? error.message : 'no-visible-profiles'
+    });
+
+    const [tasksRes, remindersRes, routesRes] = await Promise.all([
+      supabaseClient
+        .from('tasks')
+        .select(`
+          assigned_to_profile:profiles!tasks_assigned_to_fkey(id, first_name, last_name, email),
+          created_by_profile:profiles!tasks_created_by_fkey(id, first_name, last_name, email)
+        `)
+        .limit(400),
+      supabaseClient
+        .from('reminders')
+        .select(`
+          assigned_to_profile:profiles!reminders_assigned_to_fkey(id, first_name, last_name, email),
+          created_by_profile:profiles!reminders_created_by_fkey(id, first_name, last_name, email)
+        `)
+        .limit(400),
+      supabaseClient
+        .from('routes')
+        .select(`
+          assigned_to_profile:profiles!routes_assigned_to_fkey(id, first_name, last_name, email),
+          created_by_profile:profiles!routes_created_by_fkey(id, first_name, last_name, email)
+        `)
+        .limit(400)
+    ]);
+
+    (tasksRes.data || []).forEach((item) => {
+      addTeammate(item.assigned_to_profile);
+      addTeammate(item.created_by_profile);
+    });
+
+    (remindersRes.data || []).forEach((item) => {
+      addTeammate(item.assigned_to_profile);
+      addTeammate(item.created_by_profile);
+    });
+
+    (routesRes.data || []).forEach((item) => {
+      addTeammate(item.assigned_to_profile);
+      addTeammate(item.created_by_profile);
+    });
+  }
+
+  const teammates = Array.from(teammateMap.values())
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  if (teammates.length === 0) {
+    selectEl.innerHTML = '<option value="">No teammates visible for your role</option>';
+    showToast('Could not find visible teammates to nudge yet', 'error');
+    return;
+  }
+
+  selectEl.innerHTML = '<option value="">Choose a teammate</option>' + teammates.map((user) => {
+    return `<option value="${user.id}">${escapeHtml(user.name)}</option>`;
+  }).join('');
+
+  if (preselectedUserId) {
+    selectEl.value = String(preselectedUserId);
+  }
+}
+
+window.openSafiNudgeComposer = async function (targetUserId = '', targetUserName = '') {
+  if (!currentUser?.id) return;
+  if (targetUserId && String(targetUserId) === String(currentUser.id)) {
+    showToast('Choose another teammate to nudge', 'error');
+    return;
+  }
+
+  const modal = getSafiNudgeModal();
+  const targetSelect = modal.querySelector('#safi-nudge-target-select');
+  const messageInput = modal.querySelector('#safi-nudge-message');
+  const countEl = modal.querySelector('#safi-nudge-count');
+
+  modal.dataset.targetId = String(targetUserId || '');
+  modal.dataset.targetName = String(targetUserName || '');
+  if (messageInput) messageInput.value = '';
+  if (countEl) countEl.textContent = '0';
+
+  await populateSafiNudgeRecipients(targetSelect, targetUserId || null);
+
+  if (targetSelect && !targetUserId) {
+    targetSelect.value = '';
+  }
+
+  modal.style.display = 'flex';
+  if (window.lucide) lucide.createIcons();
+  if (targetSelect && !targetSelect.value) {
+    targetSelect.focus();
+  } else {
+    messageInput?.focus();
+  }
+};
+
+async function sendSafiNudge(toUserId, toUserName, message) {
+  crmDebugLog('SafiNudge.send.begin', {
+    toUserId,
+    toUserName,
+    messageLength: String(message || '').trim().length,
+    hasChannel: Boolean(safiNudgeChannel),
+    subscribed: safiNudgeSubscribed
+  });
+
+  const isReady = await ensureSafiNudgeReady();
+  if (!isReady || !safiNudgeChannel) {
+    crmDebugLog('SafiNudge.send.blockedNotReady', {
+      isReady,
+      hasChannel: Boolean(safiNudgeChannel),
+      subscribed: safiNudgeSubscribed,
+      lastStatus: safiNudgeLastStatus
+    });
+    showToast(`SafiNudge could not connect (status: ${safiNudgeLastStatus}).`, 'error');
+    return false;
+  }
+
+  const safeMessage = String(message || '').trim().slice(0, 160);
+  if (!safeMessage) {
+    showToast('Nudge message cannot be empty', 'error');
+    return false;
+  }
+
+  const fromName = getDisplayNameFromProfile(currentUserProfile);
+  const payload = {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    fromUserId: currentUser.id,
+    fromName,
+    toUserId,
+    toUserName,
+    message: safeMessage,
+    sentAt: new Date().toISOString()
+  };
+
+  crmDebugLog('SafiNudge.send.payload', payload);
+
+  try {
+    const result = await safiNudgeChannel.send({
+      type: 'broadcast',
+      event: SAFI_NUDGE_EVENT,
+      payload
+    });
+
+    crmDebugLog('SafiNudge.send.result', { result });
+
+    if (result !== 'ok') {
+      showToast('Could not deliver SafiNudge right now', 'error');
+      return false;
+    }
+
+    showToast(`SafiNudge sent to ${toUserName} ✨`, 'success');
+    return true;
+  } catch (error) {
+    crmDebugLog('SafiNudge.send.error', {
+      message: error?.message || String(error),
+      error
+    });
+    showToast('Failed to send SafiNudge: ' + error.message, 'error');
+    return false;
+  }
+}
+
+window.sendTestSafiNudge = function () {
+  if (!currentUser?.id) return;
+
+  queueSafiNudge({
+    id: `test-${Date.now()}`,
+    fromUserId: 'safibot',
+    fromName: 'SafiBot',
+    toUserId: currentUser.id,
+    toUserName: getDisplayNameFromProfile(currentUserProfile),
+    message: 'Debug ping! Your SafiNudge bot is alive and adorable ✨',
+    sentAt: new Date().toISOString()
+  });
+
+  showToast('Test SafiNudge triggered', 'info', { subtle: true, duration: 1400, dedupeMs: 800 });
+};
+
 // ======================
 // VISITS HUB - PREMIUM MANAGER VIEW
 // ======================
@@ -6401,16 +7062,19 @@ async function renderUserManagementView() {
     </div>
   `;
 
+  const canManageUsers = isManager;
+
   users.forEach(user => {
     const initials = getInitials(`${user.first_name} ${user.last_name}`);
     const isCurrentUser = user.id === currentUser.id;
     const canDeleteUser = user.role !== 'manager';
+    const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email || 'Teammate';
 
     html += `
       <div class="card user-card">
         <div class="user-avatar" style="width: 48px; height: 48px; font-size: 1rem;">${initials}</div>
         <div class="user-card-info">
-          <div class="user-card-name">${user.first_name} ${user.last_name}</div>
+          <div class="user-card-name">${fullName}</div>
           <div class="user-card-email">${user.email}</div>
         </div>
         <div class="user-card-actions">
@@ -6422,7 +7086,7 @@ async function renderUserManagementView() {
              Change Password
           </button>
           ` : ''}
-          ${!isCurrentUser && canDeleteUser ? `
+          ${canManageUsers && !isCurrentUser && canDeleteUser ? `
             <button class="btn btn-ghost btn-sm" onclick="deleteUser('${user.id}', '${user.first_name} ${user.last_name}', '${user.role || ''}')">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
             </button>
@@ -6433,9 +7097,16 @@ async function renderUserManagementView() {
   });
 
   viewContainer.innerHTML = html;
+
+  if (window.lucide) lucide.createIcons();
 }
 
 window.deleteUser = async function (userId, userName, userRole = '') {
+  if (!isManager) {
+    showToast('Only managers can delete users', 'error');
+    return;
+  }
+
   if (userRole === 'manager') {
     showToast('Managers cannot delete other managers', 'error');
     return;
