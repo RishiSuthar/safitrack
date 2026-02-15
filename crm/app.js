@@ -179,6 +179,26 @@ function getDeepValue(obj, path) {
   return path.split('.').reduce((acc, part) => acc && acc[part], obj);
 }
 
+function normalizeSearchText(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim();
+}
+
+function matchesTokenizedQuery(query, ...fields) {
+  const normalizedQuery = normalizeSearchText(query);
+  if (!normalizedQuery) return true;
+
+  const tokens = normalizedQuery.split(/\s+/).filter(Boolean);
+  if (tokens.length === 0) return true;
+
+  const haystack = normalizeSearchText(fields.filter(Boolean).join(' '));
+  if (!haystack) return false;
+
+  return tokens.every(token => haystack.includes(token));
+}
+
 function makeCellEditable(cell, rowId, tableName) {
   if (cell.classList.contains('editing')) return;
 
@@ -1096,9 +1116,7 @@ async function renderCompaniesView() {
           searchQuery,
           currentPage,
           recordsPerPage,
-          (company, query) =>
-            company.name.toLowerCase().includes(query) ||
-            (company.description && company.description.toLowerCase().includes(query))
+          (item, query) => filterAndSearchCompany(item, query)
         );
         renderCompaniesTable(result.data, result);
       }
@@ -1140,9 +1158,7 @@ async function renderCompaniesView() {
             searchQuery,
             currentPage,
             recordsPerPage,
-            (company, query) =>
-              company.name.toLowerCase().includes(query) ||
-              (company.description && company.description.toLowerCase().includes(query))
+            (item, query) => filterAndSearchCompany(item, query)
           );
 
           // Store the active element and cursor position before re-rendering
@@ -1214,9 +1230,7 @@ async function renderCompaniesView() {
           searchQuery,
           currentPage,
           recordsPerPage,
-          (company, query) =>
-            company.name.toLowerCase().includes(query) ||
-            (company.description && company.description.toLowerCase().includes(query))
+          (item, query) => filterAndSearchCompany(item, query)
         );
 
         // Adjust current page if necessary
@@ -1227,9 +1241,7 @@ async function renderCompaniesView() {
             searchQuery,
             currentPage,
             recordsPerPage,
-            (company, query) =>
-              company.name.toLowerCase().includes(query) ||
-              (company.description && company.description.toLowerCase().includes(query))
+            (item, query) => filterAndSearchCompany(item, query)
           );
           renderCompaniesTable(adjustedResult.data, adjustedResult);
         } else {
@@ -1332,10 +1344,12 @@ async function renderCompaniesView() {
   function filterAndSearchCompany(company, query) {
     if (currentFilters.company_type && company.company_type !== currentFilters.company_type) return false;
     if (!query) return true;
-    const q = query.toLowerCase();
-    return company.name.toLowerCase().includes(q) ||
-      (company.description && company.description.toLowerCase().includes(q)) ||
-      (company.address && company.address.toLowerCase().includes(q));
+    return matchesTokenizedQuery(
+      query,
+      company.name,
+      company.description,
+      company.address
+    );
   }
 }
 
@@ -1346,6 +1360,7 @@ function openCompanyModal(company = null) {
   const modal = document.getElementById('company-modal');
   const modalTitle = document.getElementById('company-modal-title');
   const saveBtn = document.getElementById('save-company-btn');
+  const addMoreWrapper = document.getElementById('company-add-more-wrapper');
 
   // Reset form
   document.getElementById('company-name-input').value = '';
@@ -1363,6 +1378,7 @@ function openCompanyModal(company = null) {
   // Set modal title and show manual coordinates section
   if (company) {
     modalTitle.innerHTML = 'Edit Company';
+    if (addMoreWrapper) addMoreWrapper.style.display = 'none';
 
     // Fill form with company data
     document.getElementById('company-name-input').value = company.name || '';
@@ -1381,6 +1397,7 @@ function openCompanyModal(company = null) {
     }
   } else {
     modalTitle.innerHTML = 'New Company';
+    if (addMoreWrapper) addMoreWrapper.style.display = 'inline-flex';
   }
 
   // Show modal
@@ -1616,9 +1633,17 @@ function initCompanyModalListeners(company) {
         }
       }
 
+      const shouldAddMore = !company && Boolean(document.getElementById('company-add-more-toggle')?.checked);
+
       showToast(`Company ${company ? 'updated' : 'created'} successfully!`, 'success');
       closeModal('company-modal');
-      renderCompaniesView();
+      await renderCompaniesView();
+
+      if (shouldAddMore) {
+        openCompanyModal();
+        const addMoreToggle = document.getElementById('company-add-more-toggle');
+        if (addMoreToggle) addMoreToggle.checked = true;
+      }
 
     } catch (error) {
       console.error('Error saving company:', error);
@@ -1836,11 +1861,7 @@ async function renderPeopleView() {
           searchQuery,
           currentPage,
           recordsPerPage,
-          (person, query) =>
-            person.name.toLowerCase().includes(query) ||
-            (person.email && person.email.toLowerCase().includes(query)) ||
-            (person.company && person.company.name && person.company.name.toLowerCase().includes(query)) ||
-            (person.job_title && person.job_title.toLowerCase().includes(query))
+          (item, query) => filterAndSearchPerson(item, query)
         );
         renderPeopleTable(result.data, result);
       }
@@ -1995,11 +2016,7 @@ async function renderPeopleView() {
           searchQuery,
           currentPage,
           recordsPerPage,
-          (person, query) =>
-            person.name.toLowerCase().includes(query) ||
-            (person.email && person.email.toLowerCase().includes(query)) ||
-            (person.company && person.company.name && person.company.name.toLowerCase().includes(query)) ||
-            (person.job_title && person.job_title.toLowerCase().includes(query))
+          (item, query) => filterAndSearchPerson(item, query)
         );
 
         // Adjust current page if necessary
@@ -2010,11 +2027,7 @@ async function renderPeopleView() {
             searchQuery,
             currentPage,
             recordsPerPage,
-            (person, query) =>
-              person.name.toLowerCase().includes(query) ||
-              (person.email && person.email.toLowerCase().includes(query)) ||
-              (person.company && person.company.name && person.company.name.toLowerCase().includes(query)) ||
-              (person.job_title && person.job_title.toLowerCase().includes(query))
+            (item, query) => filterAndSearchPerson(item, query)
           );
           renderPeopleTable(adjustedResult.data, adjustedResult);
         } else {
@@ -2028,11 +2041,13 @@ async function renderPeopleView() {
   function filterAndSearchPerson(person, query) {
     if (currentFilters.person_company && String(person.company_id || '') !== String(currentFilters.person_company)) return false;
     if (!query) return true;
-    const q = query.toLowerCase();
-    return person.name.toLowerCase().includes(q) ||
-      (person.email && person.email.toLowerCase().includes(q)) ||
-      (person.job_title && person.job_title.toLowerCase().includes(q)) ||
-      (person.company && person.company.name && person.company.name.toLowerCase().includes(q));
+    return matchesTokenizedQuery(
+      query,
+      person.name,
+      person.email,
+      person.job_title,
+      person.company && person.company.name
+    );
   }
 
   // Initial data processing
@@ -2057,6 +2072,7 @@ function openPersonModal(person = null) {
   const saveBtn = document.getElementById('save-person-btn');
   const companyInput = document.getElementById('person-company');
   const opportunitySelect = document.getElementById('person-opportunity');
+  const addMoreWrapper = document.getElementById('person-add-more-wrapper');
 
   // Reset form
   document.getElementById('person-name').value = '';
@@ -2087,6 +2103,7 @@ function openPersonModal(person = null) {
   // Set modal title
   if (person) {
     modalTitle.innerHTML = 'Edit Person';
+    if (addMoreWrapper) addMoreWrapper.style.display = 'none';
 
     // Fill form with person data
     document.getElementById('person-name').value = person.name || '';
@@ -2113,6 +2130,7 @@ function openPersonModal(person = null) {
     }
   } else {
     modalTitle.innerHTML = 'New Person';
+    if (addMoreWrapper) addMoreWrapper.style.display = 'inline-flex';
   }
 
   // Show modal
@@ -2264,9 +2282,17 @@ function initPersonModalListeners(person) {
 
       if (result.error) throw result.error;
 
+      const shouldAddMore = !person && Boolean(document.getElementById('person-add-more-toggle')?.checked);
+
       showToast(`Person ${person ? 'updated' : 'created'} successfully!`, 'success');
       closeModal('person-modal');
-      renderPeopleView();
+      await renderPeopleView();
+
+      if (shouldAddMore) {
+        openPersonModal();
+        const addMoreToggle = document.getElementById('person-add-more-toggle');
+        if (addMoreToggle) addMoreToggle.checked = true;
+      }
     } catch (error) {
       showToast(`Error ${person ? 'updating' : 'creating'} person: ${error.message}`, 'error');
     } finally {

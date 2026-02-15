@@ -838,9 +838,18 @@
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('company-modal')">Cancel</button>
-        <button class="btn btn-primary" id="save-company-btn">Save Company</button>
+      <div class="modal-footer modal-footer-with-option">
+        <label class="add-more-toggle" id="company-add-more-wrapper" for="company-add-more-toggle">
+          <span class="add-more-label">Add More</span>
+          <span class="ios-toggle">
+            <input type="checkbox" id="company-add-more-toggle">
+            <span class="ios-toggle-slider" aria-hidden="true"></span>
+          </span>
+        </label>
+        <div class="modal-footer-actions">
+          <button class="btn btn-secondary" onclick="closeModal('company-modal')">Cancel</button>
+          <button class="btn btn-primary" id="save-company-btn">Save Company</button>
+        </div>
       </div>
     </div>
   </div>
@@ -961,9 +970,18 @@
           </div>
         </div>
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('person-modal')">Cancel</button>
-        <button class="btn btn-primary" id="save-person-btn">Save Person</button>
+      <div class="modal-footer modal-footer-with-option">
+        <label class="add-more-toggle" id="person-add-more-wrapper" for="person-add-more-toggle">
+          <span class="add-more-label">Add More</span>
+          <span class="ios-toggle">
+            <input type="checkbox" id="person-add-more-toggle">
+            <span class="ios-toggle-slider" aria-hidden="true"></span>
+          </span>
+        </label>
+        <div class="modal-footer-actions">
+          <button class="btn btn-secondary" onclick="closeModal('person-modal')">Cancel</button>
+          <button class="btn btn-primary" id="save-person-btn">Save Person</button>
+        </div>
       </div>
     </div>
   </div>

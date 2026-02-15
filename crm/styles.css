@@ -3509,6 +3509,86 @@ select {
   box-shadow: 0 4px 12px rgba(200, 58, 58, 0.25);
 }
 
+.modal-footer-with-option {
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.modal-footer-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-left: auto;
+}
+
+.add-more-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+}
+
+.add-more-label {
+  line-height: 1;
+}
+
+.ios-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ios-toggle input[type="checkbox"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
+}
+
+.ios-toggle-slider {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--border-color);
+  transition: background-color 0.2s ease;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text-muted) 30%, transparent);
+}
+
+.ios-toggle-slider::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(15, 20, 25, 0.22);
+  transition: transform 0.2s ease;
+}
+
+.ios-toggle input[type="checkbox"]:checked + .ios-toggle-slider {
+  background: var(--color-primary);
+}
+
+.ios-toggle input[type="checkbox"]:checked + .ios-toggle-slider::after {
+  transform: translateX(18px);
+}
+
+.ios-toggle input[type="checkbox"]:focus-visible + .ios-toggle-slider {
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
 /* CRM Add-Entity Modals (Company, Person, Opportunity, Task, Reminder) */
 :is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal) .modal-container {
   max-width: min(760px, 94vw) !important;
@@ -3622,6 +3702,10 @@ select {
 
   :is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal) .field-group {
     grid-template-columns: 1fr;
+  }
+
+  .modal-footer-with-option {
+    flex-wrap: wrap;
   }
 }
 
