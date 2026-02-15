@@ -199,6 +199,53 @@ function matchesTokenizedQuery(query, ...fields) {
   return tokens.every(token => haystack.includes(token));
 }
 
+function normalizeEmailValue(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function normalizePhoneValue(value) {
+  return String(value || '').replace(/\D+/g, '');
+}
+
+function findDuplicateCompanyByName(name, excludeCompanyId = null) {
+  const normalizedName = normalizeSearchText(name);
+  if (!normalizedName) return null;
+
+  const companies = Array.isArray(window.allCompaniesData) ? window.allCompaniesData : [];
+  return companies.find((item) => {
+    if (!item) return false;
+    if (excludeCompanyId && String(item.id) === String(excludeCompanyId)) return false;
+    return normalizeSearchText(item.name) === normalizedName;
+  }) || null;
+}
+
+function findDuplicatePersonContact({ name, email, phoneNumbers, companyId, excludePersonId = null }) {
+  const normalizedName = normalizeSearchText(name);
+  const normalizedEmail = normalizeEmailValue(email);
+  const normalizedPhones = (phoneNumbers || [])
+    .map(normalizePhoneValue)
+    .filter((phone) => phone.length >= 7);
+
+  if (!normalizedName || !companyId) return null;
+  if (!normalizedEmail && normalizedPhones.length === 0) return null;
+
+  const people = Array.isArray(window.allPeopleData) ? window.allPeopleData : [];
+  return people.find((item) => {
+    if (!item) return false;
+    if (excludePersonId && String(item.id) === String(excludePersonId)) return false;
+    if (String(item.company_id || '') !== String(companyId)) return false;
+    if (normalizeSearchText(item.name) !== normalizedName) return false;
+
+    const emailMatches = normalizedEmail && normalizeEmailValue(item.email) === normalizedEmail;
+    const existingPhones = (Array.isArray(item.phone_numbers) ? item.phone_numbers : [])
+      .map(normalizePhoneValue)
+      .filter((phone) => phone.length >= 7);
+    const phoneMatches = normalizedPhones.length > 0 && normalizedPhones.some((phone) => existingPhones.includes(phone));
+
+    return Boolean(emailMatches || phoneMatches);
+  }) || null;
+}
+
 function makeCellEditable(cell, rowId, tableName) {
   if (cell.classList.contains('editing')) return;
 
@@ -1411,6 +1458,31 @@ function openCompanyModal(company = null) {
 function initCompanyModalListeners(company) {
   const categoriesInput = document.getElementById('categories-input');
   const saveBtn = document.getElementById('save-company-btn');
+  const companyNameInput = document.getElementById('company-name-input');
+  const duplicateWarning = document.getElementById('company-duplicate-warning');
+
+  function updateCompanyDuplicateState() {
+    if (company) {
+      if (duplicateWarning) {
+        duplicateWarning.textContent = '';
+        duplicateWarning.classList.add('hidden');
+      }
+      return false;
+    }
+
+    const duplicate = findDuplicateCompanyByName(companyNameInput?.value || '');
+    if (duplicateWarning) {
+      if (duplicate) {
+        duplicateWarning.textContent = `Duplicate detected: ${duplicate.name}`;
+        duplicateWarning.classList.remove('hidden');
+      } else {
+        duplicateWarning.textContent = '';
+        duplicateWarning.classList.add('hidden');
+      }
+    }
+
+    return Boolean(duplicate);
+  }
 
   // Get buttons after they exist in the DOM
   const geocodeBtn = document.getElementById('geocode-address-btn');
@@ -1424,6 +1496,12 @@ function initCompanyModalListeners(company) {
       categoriesInput.value = '';
     }
   });
+
+  if (companyNameInput) {
+    companyNameInput.addEventListener('input', updateCompanyDuplicateState);
+  }
+
+  updateCompanyDuplicateState();
 
   // Geocode button (Updated to use OpenStreetMap Nominatim)
   if (geocodeBtn) {
@@ -1522,6 +1600,11 @@ function initCompanyModalListeners(company) {
     // Validate
     if (!name || !companyType || !address || (!latitude && !longitude)) {
       showToast('Please enter company name, type, address, and coordinates', 'error');
+      return;
+    }
+
+    if (!company && updateCompanyDuplicateState()) {
+      showToast('Potential duplicate company found. Please review before saving.', 'error');
       return;
     }
 
@@ -1652,6 +1735,7 @@ function initCompanyModalListeners(company) {
     } finally {
       saveBtn.disabled = false;
       saveBtn.innerHTML = 'Save Company';
+      if (!company) updateCompanyDuplicateState();
     }
   };
 }
@@ -2144,6 +2228,43 @@ function initPersonModalListeners(person) {
   // Company search functionality
   const companyInput = document.getElementById('person-company');
   const searchResults = document.getElementById('person-company-search-results');
+  const nameInput = document.getElementById('person-name');
+  const emailInput = document.getElementById('person-email');
+  const duplicateWarning = document.getElementById('person-duplicate-warning');
+
+  function updatePersonDuplicateState() {
+    if (person) {
+      if (duplicateWarning) {
+        duplicateWarning.textContent = '';
+        duplicateWarning.classList.add('hidden');
+      }
+      return false;
+    }
+
+    const phoneInputs = document.querySelectorAll('#phone-numbers-container .phone-number');
+    const phoneNumbers = Array.from(phoneInputs)
+      .map((input) => input.value.trim())
+      .filter((phone) => phone !== '');
+
+    const duplicate = findDuplicatePersonContact({
+      name: nameInput?.value || '',
+      email: emailInput?.value || '',
+      phoneNumbers,
+      companyId: companyInput?.dataset?.companyId || ''
+    });
+
+    if (duplicateWarning) {
+      if (duplicate) {
+        duplicateWarning.textContent = `Duplicate detected: ${duplicate.name}`;
+        duplicateWarning.classList.remove('hidden');
+      } else {
+        duplicateWarning.textContent = '';
+        duplicateWarning.classList.add('hidden');
+      }
+    }
+
+    return Boolean(duplicate);
+  }
 
   if (companyInput) {
     crmDebugLog('personModal.init', {
@@ -2157,6 +2278,7 @@ function initPersonModalListeners(person) {
       if (searchTerm.length === 0) {
         searchResults.style.display = 'none';
         companyInput.dataset.companyId = '';
+        updatePersonDuplicateState();
         return;
       }
 
@@ -2187,6 +2309,7 @@ function initPersonModalListeners(person) {
             companyInput.value = item.dataset.companyName;
             companyInput.dataset.companyId = item.dataset.companyId;
             searchResults.style.display = 'none';
+            updatePersonDuplicateState();
           });
         });
       } else {
@@ -2197,6 +2320,8 @@ function initPersonModalListeners(person) {
           companiesDataCount: Array.isArray(window.companiesData) ? window.companiesData.length : 0
         });
       }
+
+      updatePersonDuplicateState();
     });
 
     // Hide results when clicking outside
@@ -2215,8 +2340,29 @@ function initPersonModalListeners(person) {
     newAddPhoneBtn.addEventListener('click', (e) => {
       e.preventDefault();
       addPhoneNumber();
+      setTimeout(updatePersonDuplicateState, 0);
     });
   }
+
+  if (nameInput) nameInput.addEventListener('input', updatePersonDuplicateState);
+  if (emailInput) emailInput.addEventListener('input', updatePersonDuplicateState);
+
+  const phoneNumbersContainer = document.getElementById('phone-numbers-container');
+  if (phoneNumbersContainer) {
+    phoneNumbersContainer.addEventListener('input', (event) => {
+      if (event.target && event.target.classList && event.target.classList.contains('phone-number')) {
+        updatePersonDuplicateState();
+      }
+    });
+    phoneNumbersContainer.addEventListener('click', (event) => {
+      const removeBtn = event.target.closest('.remove-phone-btn');
+      if (removeBtn) {
+        setTimeout(updatePersonDuplicateState, 0);
+      }
+    });
+  }
+
+  updatePersonDuplicateState();
 
   // Save person
   const saveBtn = document.getElementById('save-person-btn');
@@ -2237,6 +2383,11 @@ function initPersonModalListeners(person) {
     // Validate
     if (!name || !companyId) {
       showToast('Please enter a name and select a company', 'error');
+      return;
+    }
+
+    if (!person && updatePersonDuplicateState()) {
+      showToast('Potential duplicate person found. Please review before saving.', 'error');
       return;
     }
 
@@ -2298,6 +2449,7 @@ function initPersonModalListeners(person) {
     } finally {
       saveBtn.disabled = false;
       saveBtn.innerHTML = 'Save Person';
+      if (!person) updatePersonDuplicateState();
     }
   };
 }

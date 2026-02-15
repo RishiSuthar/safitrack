@@ -3515,6 +3515,13 @@ select {
   gap: 1rem;
 }
 
+.modal-footer-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
 .modal-footer-actions {
   display: flex;
   align-items: center;
@@ -3587,6 +3594,13 @@ select {
 
 .ios-toggle input[type="checkbox"]:focus-visible + .ios-toggle-slider {
   box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.duplicate-warning {
+  font-size: 0.78rem;
+  line-height: 1.2;
+  color: var(--color-danger);
+  font-weight: 600;
 }
 
 /* CRM Add-Entity Modals (Company, Person, Opportunity, Task, Reminder) */
@@ -3706,6 +3720,10 @@ select {
 
   .modal-footer-with-option {
     flex-wrap: wrap;
+  }
+
+  .modal-footer-meta {
+    width: 100%;
   }
 }
 
