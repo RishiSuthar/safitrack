@@ -48,6 +48,19 @@ let currentFilters = {
   person_company: ''
 };
 
+const tableViewState = {
+  companies: {
+    searchQuery: '',
+    currentPage: 1,
+    companyType: ''
+  },
+  people: {
+    searchQuery: '',
+    currentPage: 1,
+    companyId: ''
+  }
+};
+
 // ======================
 // DOM ELEMENTS
 // ======================
@@ -927,7 +940,8 @@ async function loadView(viewName) {
 // ======================
 
 async function renderCompaniesView() {
-  currentFilters.company_type = '';
+  const companiesState = tableViewState.companies;
+  currentFilters.company_type = companiesState.companyType || '';
 
   const sortableCompanyColumns = ['name', 'address', 'company_type'];
   const safeSortKey = sortableCompanyColumns.includes(currentSortKey) ? currentSortKey : 'name';
@@ -995,9 +1009,9 @@ async function renderCompaniesView() {
   });
 
   // Initial pagination state
-  let currentPage = 1;
+  let currentPage = companiesState.currentPage || 1;
   const recordsPerPage = 15; // Number of records per page
-  let searchQuery = ''; // Separate search state
+  let searchQuery = companiesState.searchQuery || ''; // Separate search state
 
   // Function to render the companies table
   function renderCompaniesTable(companiesToRender, paginationInfo) {
@@ -1076,6 +1090,7 @@ async function renderCompaniesView() {
       'companies-pagination',
       (newPage) => {
         currentPage = newPage;
+        companiesState.currentPage = currentPage;
         const result = searchAndPaginate(
           window.allCompaniesData,
           searchQuery,
@@ -1113,11 +1128,13 @@ async function renderCompaniesView() {
         const searchValue = e.target.value;
 
         searchQuery = searchValue;
+        companiesState.searchQuery = searchQuery;
 
         // Use a small delay to avoid too many rapid searches
         clearTimeout(newSearchInput.searchTimeout);
         newSearchInput.searchTimeout = setTimeout(() => {
           currentPage = 1; // Reset to first page when searching
+          companiesState.currentPage = currentPage;
           const result = searchAndPaginate(
             window.allCompaniesData,
             searchQuery,
@@ -1227,9 +1244,11 @@ async function renderCompaniesView() {
       if (searchQuery) clearSearchBtn.classList.remove('hidden');
       clearSearchBtn.onclick = () => {
         searchQuery = '';
+        companiesState.searchQuery = searchQuery;
         searchInput.value = '';
         clearSearchBtn.classList.add('hidden');
         currentPage = 1;
+        companiesState.currentPage = currentPage;
         const result = searchAndPaginate(
           window.allCompaniesData,
           searchQuery,
@@ -1247,7 +1266,9 @@ async function renderCompaniesView() {
       typeFilter.value = currentFilters.company_type || '';
       typeFilter.onchange = (e) => {
         currentFilters.company_type = e.target.value;
+        companiesState.companyType = currentFilters.company_type;
         currentPage = 1;
+        companiesState.currentPage = currentPage;
         const result = searchAndPaginate(
           window.allCompaniesData,
           searchQuery,
@@ -1262,6 +1283,7 @@ async function renderCompaniesView() {
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
         searchQuery = e.target.value;
+        companiesState.searchQuery = searchQuery;
         if (searchQuery) {
           clearSearchBtn?.classList.remove('hidden');
         } else {
@@ -1269,6 +1291,7 @@ async function renderCompaniesView() {
         }
 
         currentPage = 1;
+        companiesState.currentPage = currentPage;
         const result = searchAndPaginate(
           window.allCompaniesData,
           searchQuery,
@@ -1297,7 +1320,7 @@ async function renderCompaniesView() {
   const initialData = searchAndPaginate(
     window.allCompaniesData,
     searchQuery,
-    1,
+    currentPage,
     recordsPerPage,
     (item, query) => filterAndSearchCompany(item, query)
   );
@@ -1648,7 +1671,8 @@ function renderCategories() {
 // ======================
 
 async function renderPeopleView() {
-  currentFilters.person_company = '';
+  const peopleState = tableViewState.people;
+  currentFilters.person_company = peopleState.companyId || '';
 
   const sortablePeopleColumns = ['name', 'email', 'job_title', 'phone_numbers'];
   const safeSortKey = sortablePeopleColumns.includes(currentSortKey) ? currentSortKey : 'name';
@@ -1725,9 +1749,9 @@ async function renderPeopleView() {
   });
 
   // Initial pagination state
-  let currentPage = 1;
+  let currentPage = peopleState.currentPage || 1;
   const recordsPerPage = 15; // Number of records per page
-  let searchQuery = ''; // Separate search state
+  let searchQuery = peopleState.searchQuery || ''; // Separate search state
 
   // Function to render the people table
   function renderPeopleTable(peopleToRender, paginationInfo) {
@@ -1806,6 +1830,7 @@ async function renderPeopleView() {
       'people-pagination',
       (newPage) => {
         currentPage = newPage;
+        peopleState.currentPage = currentPage;
         const result = searchAndPaginate(
           window.allPeopleData,
           searchQuery,
@@ -1834,9 +1859,11 @@ async function renderPeopleView() {
       if (searchQuery) clearSearchBtn.classList.remove('hidden');
       clearSearchBtn.onclick = () => {
         searchQuery = '';
+        peopleState.searchQuery = searchQuery;
         searchInput.value = '';
         clearSearchBtn.classList.add('hidden');
         currentPage = 1;
+        peopleState.currentPage = currentPage;
         const result = searchAndPaginate(
           window.allPeopleData,
           searchQuery,
@@ -1853,7 +1880,9 @@ async function renderPeopleView() {
     if (companyFilter) {
       companyFilter.onchange = (e) => {
         currentFilters.person_company = e.target.value;
+        peopleState.companyId = currentFilters.person_company;
         currentPage = 1;
+        peopleState.currentPage = currentPage;
         const result = searchAndPaginate(
           window.allPeopleData,
           searchQuery,
@@ -1871,6 +1900,7 @@ async function renderPeopleView() {
         const searchValue = e.target.value;
 
         searchQuery = searchValue;
+        peopleState.searchQuery = searchQuery;
         if (searchQuery) {
           clearSearchBtn?.classList.remove('hidden');
         } else {
@@ -1880,6 +1910,7 @@ async function renderPeopleView() {
         clearTimeout(searchInput.searchTimeout);
         searchInput.searchTimeout = setTimeout(() => {
           currentPage = 1;
+          peopleState.currentPage = currentPage;
 
           const activeElement = document.activeElement;
           const wasSearchInput = activeElement && activeElement.id === 'people-search';
@@ -2008,7 +2039,7 @@ async function renderPeopleView() {
   const initialPeopleData = searchAndPaginate(
     window.allPeopleData,
     searchQuery,
-    1,
+    currentPage,
     recordsPerPage,
     (item, query) => filterAndSearchPerson(item, query)
   );
