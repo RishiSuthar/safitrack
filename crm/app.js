@@ -50,31 +50,10 @@ function isCrmDebugEnabled() {
 }
 
 function crmDebugLog(label, payload) {
-  const forceSafiNudgeLog = typeof label === 'string' && label.startsWith('SafiNudge.');
-  if (!forceSafiNudgeLog && !isCrmDebugEnabled()) return;
+  if (!isCrmDebugEnabled()) return;
   const timestamp = new Date().toISOString();
-  const scope = forceSafiNudgeLog ? 'SAFI DEBUG' : 'CRM DEBUG';
-  console.warn(`[${scope}][${timestamp}] ${label}`, payload ?? '');
+  console.warn(`[${timestamp}] ${label}`, payload ?? '');
 }
-
-window.setSafiDebug = function (enabled) {
-  const value = enabled ? '1' : '0';
-  localStorage.setItem('safitrack_debug', value);
-  console.log(`[SafiNudge] Debug ${enabled ? 'enabled' : 'disabled'}. Reload to apply.`);
-};
-
-window.getSafiNudgeDebugState = function () {
-  const state = {
-    hasCurrentUser: Boolean(currentUser?.id),
-    userId: currentUser?.id || null,
-    hasChannel: Boolean(safiNudgeChannel),
-    subscribed: safiNudgeSubscribed,
-    queueLength: safiNudgeQueue.length,
-    showing: safiNudgeShowing
-  };
-  console.log('[SafiNudge] State snapshot', state);
-  return state;
-};
 
 // Call log filters
 let callLogFilters = {
@@ -2344,7 +2323,7 @@ function initPersonModalListeners(person) {
 
       // Filter companies
       const filteredCompanies = window.companiesData?.filter(company =>
-        company.name.toLowerCase().includes(searchTerm)
+        matchesTokenizedQuery(searchTerm, company.name, company.description, company.address)
       ) || [];
 
       crmDebugLog('personModal.companySearch', {
@@ -2787,7 +2766,7 @@ function initLogVisitForm(companies) {
     }
 
     const filtered = companies.filter(company =>
-      company.name.toLowerCase().includes(query)
+      matchesTokenizedQuery(query, company.name, company.description, company.address)
     );
 
     if (filtered.length === 0) {
@@ -2898,7 +2877,7 @@ function initLogVisitForm(companies) {
 
   function showMentionSuggestions(query) {
     const filteredPeople = allPeople.filter(person =>
-      person.name.toLowerCase().includes(query.toLowerCase())
+      matchesTokenizedQuery(query, person.name, person.email, person.job_title, person.companies?.name)
     );
 
     if (filteredPeople.length === 0) {
@@ -4491,17 +4470,27 @@ function initOpportunityModalListeners(opportunity) {
     // Use a small delay for search
     clearTimeout(companyInput.searchTimeout);
     companyInput.searchTimeout = setTimeout(async () => {
-      // Fetch companies for company search
-      const { data: companies } = await supabaseClient
-        .from('companies')
-        .select('*')
-        .ilike('name', `%${query}%`)
-        .limit(5);
+      let companies = window.allCompaniesData || [];
+      
+      // If companies not loaded, fetch them
+      if (companies.length === 0) {
+        const { data } = await supabaseClient
+          .from('companies')
+          .select('*')
+          .order('name', { ascending: true });
+        companies = data || [];
+        window.allCompaniesData = companies; // Cache for future use
+      }
+
+      // Filter companies using tokenized search
+      const filteredCompanies = companies.filter(company =>
+        matchesTokenizedQuery(query, company.name, company.description, company.address)
+      ).slice(0, 5);
 
       let resultsHTML = '';
 
-      if (companies.length > 0) {
-        resultsHTML = companies.map(company => `
+      if (filteredCompanies.length > 0) {
+        resultsHTML = filteredCompanies.map(company => `
           <div class="search-result-item" onclick="selectOpportunityCompany('${company.name}')">
             <div class="search-result-icon"></div>
             <div>
@@ -5270,24 +5259,14 @@ function renderNextSafiNudge() {
 }
 
 function handleIncomingSafiNudge(payload) {
-  crmDebugLog('SafiNudge.handleIncoming.payload', payload);
   if (!payload || !currentUser?.id) return;
   if (String(payload.toUserId || '') !== String(currentUser.id)) return;
   if (String(payload.fromUserId || '') === String(currentUser.id)) return;
 
-  crmDebugLog('SafiNudge.handleIncoming.accepted', {
-    toUserId: payload.toUserId,
-    currentUserId: currentUser.id,
-    fromUserId: payload.fromUserId
-  });
   queueSafiNudge(payload);
 }
 
 function stopSafiNudgeRealtime() {
-  crmDebugLog('SafiNudge.stopRealtime.begin', {
-    hasChannel: Boolean(safiNudgeChannel),
-    subscribed: safiNudgeSubscribed
-  });
   if (safiNudgeChannel) {
     supabaseClient.removeChannel(safiNudgeChannel);
     safiNudgeChannel = null;
@@ -5309,7 +5288,6 @@ function stopSafiNudgeRealtime() {
     container.classList.remove('active');
     container.innerHTML = '';
   }
-  crmDebugLog('SafiNudge.stopRealtime.done');
 }
 
 function scheduleSafiNudgeReconnect(reason = 'unknown') {
@@ -5318,11 +5296,6 @@ function scheduleSafiNudgeReconnect(reason = 'unknown') {
 
   safiNudgeReconnectAttempt += 1;
   const delayMs = Math.min(4000, 500 + (safiNudgeReconnectAttempt - 1) * 700);
-  crmDebugLog('SafiNudge.reconnect.scheduled', {
-    reason,
-    attempt: safiNudgeReconnectAttempt,
-    delayMs
-  });
 
   safiNudgeReconnectTimer = window.setTimeout(() => {
     safiNudgeReconnectTimer = null;
@@ -5333,12 +5306,10 @@ function scheduleSafiNudgeReconnect(reason = 'unknown') {
 async function startSafiNudgeRealtime() {
   if (!currentUser?.id) return;
   if (safiNudgeStarting) {
-    crmDebugLog('SafiNudge.startRealtime.skippedAlreadyStarting');
     return;
   }
 
   safiNudgeStarting = true;
-  crmDebugLog('SafiNudge.startRealtime.begin', { userId: currentUser.id });
   if (safiNudgeReconnectTimer) {
     clearTimeout(safiNudgeReconnectTimer);
     safiNudgeReconnectTimer = null;
@@ -5355,17 +5326,13 @@ async function startSafiNudgeRealtime() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session?.access_token && supabaseClient.realtime?.setAuth) {
       supabaseClient.realtime.setAuth(session.access_token);
-      crmDebugLog('SafiNudge.startRealtime.authBound', { hasAccessToken: true });
     }
 
     if (supabaseClient.realtime?.connect) {
       supabaseClient.realtime.connect();
-      crmDebugLog('SafiNudge.startRealtime.socketConnectCalled');
     }
   } catch (error) {
-    crmDebugLog('SafiNudge.startRealtime.prepError', {
-      message: error?.message || String(error)
-    });
+    // Error during realtime setup
   }
 
   safiNudgeChannel = supabaseClient.channel(SAFI_NUDGE_CHANNEL, {
@@ -5376,11 +5343,9 @@ async function startSafiNudgeRealtime() {
 
   safiNudgeChannel
     .on('broadcast', { event: SAFI_NUDGE_EVENT }, ({ payload }) => {
-      crmDebugLog('SafiNudge.realtime.event', payload);
       handleIncomingSafiNudge(payload);
     })
     .subscribe((status) => {
-      crmDebugLog('SafiNudge.realtime.status', { status });
       safiNudgeLastStatus = status;
       safiNudgeSubscribed = status === 'SUBSCRIBED';
 
@@ -5406,21 +5371,13 @@ async function startSafiNudgeRealtime() {
 }
 
 async function ensureSafiNudgeReady(timeoutMs = 5200) {
-  crmDebugLog('SafiNudge.ensureReady.begin', {
-    timeoutMs,
-    hasCurrentUser: Boolean(currentUser?.id),
-    hasChannel: Boolean(safiNudgeChannel),
-    subscribed: safiNudgeSubscribed
-  });
   if (!currentUser?.id) return false;
 
   if (!safiNudgeChannel) {
-    crmDebugLog('SafiNudge.ensureReady.startChannel');
     await startSafiNudgeRealtime();
   }
 
   if (safiNudgeSubscribed) {
-    crmDebugLog('SafiNudge.ensureReady.alreadySubscribed');
     return true;
   }
 
@@ -5430,21 +5387,10 @@ async function ensureSafiNudgeReady(timeoutMs = 5200) {
     iterations += 1;
     await new Promise((resolve) => setTimeout(resolve, 120));
     if (safiNudgeSubscribed) {
-      crmDebugLog('SafiNudge.ensureReady.success', {
-        waitedMs: Date.now() - startedAt,
-        iterations
-      });
       return true;
     }
   }
 
-  crmDebugLog('SafiNudge.ensureReady.timeout', {
-    waitedMs: Date.now() - startedAt,
-    iterations,
-    hasChannel: Boolean(safiNudgeChannel),
-    subscribed: safiNudgeSubscribed,
-    lastStatus: safiNudgeLastStatus
-  });
   return false;
 }
 
@@ -5585,9 +5531,6 @@ async function populateSafiNudgeRecipients(selectEl, preselectedUserId = null) {
 
   // Fallback sources for restricted roles (e.g., sales reps with limited profiles visibility)
   if (teammateMap.size === 0) {
-    crmDebugLog('SafiNudge.populateRecipients.fallbackStart', {
-      reason: error ? error.message : 'no-visible-profiles'
-    });
 
     const [tasksRes, remindersRes, routesRes] = await Promise.all([
       supabaseClient
@@ -5680,22 +5623,8 @@ window.openSafiNudgeComposer = async function (targetUserId = '', targetUserName
 };
 
 async function sendSafiNudge(toUserId, toUserName, message) {
-  crmDebugLog('SafiNudge.send.begin', {
-    toUserId,
-    toUserName,
-    messageLength: String(message || '').trim().length,
-    hasChannel: Boolean(safiNudgeChannel),
-    subscribed: safiNudgeSubscribed
-  });
-
   const isReady = await ensureSafiNudgeReady();
   if (!isReady || !safiNudgeChannel) {
-    crmDebugLog('SafiNudge.send.blockedNotReady', {
-      isReady,
-      hasChannel: Boolean(safiNudgeChannel),
-      subscribed: safiNudgeSubscribed,
-      lastStatus: safiNudgeLastStatus
-    });
     showToast(`SafiNudge could not connect (status: ${safiNudgeLastStatus}).`, 'error');
     return false;
   }
@@ -5717,16 +5646,12 @@ async function sendSafiNudge(toUserId, toUserName, message) {
     sentAt: new Date().toISOString()
   };
 
-  crmDebugLog('SafiNudge.send.payload', payload);
-
   try {
     const result = await safiNudgeChannel.send({
       type: 'broadcast',
       event: SAFI_NUDGE_EVENT,
       payload
     });
-
-    crmDebugLog('SafiNudge.send.result', { result });
 
     if (result !== 'ok') {
       showToast('Could not deliver SafiNudge right now', 'error');
@@ -5736,10 +5661,6 @@ async function sendSafiNudge(toUserId, toUserName, message) {
     showToast(`SafiNudge sent to ${toUserName} ✨`, 'success');
     return true;
   } catch (error) {
-    crmDebugLog('SafiNudge.send.error', {
-      message: error?.message || String(error),
-      error
-    });
     showToast('Failed to send SafiNudge: ' + error.message, 'error');
     return false;
   }
@@ -7404,7 +7325,7 @@ async function renderRoutePlanningView() {
   initRouteList();
 
   // Initialize AI SAFI PLAN
-  initAISafiPlan(validCompanies, salesReps);
+  initAISafiPlan(companies, salesReps);
 }
 
 function initRoutePlanning(companies, salesReps) {
@@ -8344,9 +8265,9 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
   companySearch.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
     companyGrid.querySelectorAll('.company-select-card').forEach(card => {
-      const name = card.querySelector('.company-select-name').textContent.toLowerCase();
-      const address = card.querySelector('.company-select-address').textContent.toLowerCase();
-      const match = name.includes(query) || address.includes(query);
+      const companyId = card.dataset.companyId;
+      const company = companies.find(c => c.id === companyId);
+      const match = !query || (company && matchesTokenizedQuery(query, company.name, company.description, company.address));
       card.style.display = match ? '' : 'none';
     });
   });
@@ -12674,7 +12595,7 @@ function initTechnicianLogVisitForm(companies) {
     }
 
     const filtered = companies.filter(company =>
-      company.name.toLowerCase().includes(query)
+      matchesTokenizedQuery(query, company.name, company.description, company.address)
     );
 
     if (filtered.length === 0) {
@@ -14950,7 +14871,7 @@ window.openPhotoModal = function (photoUrl) {
 
 function showMentionSuggestions(query, container) {
   const filteredPeople = allPeople.filter(person =>
-    person.name.toLowerCase().includes(query.toLowerCase())
+    matchesTokenizedQuery(query, person.name, person.email, person.job_title, person.companies?.name)
   );
 
 
@@ -16034,7 +15955,7 @@ function showCompanySuggestions(query, contentDiv) {
   if (query.length < 2) return;
 
   const filteredCompanies = window.companiesData.filter(company =>
-    company.name.toLowerCase().includes(query.toLowerCase())
+    matchesTokenizedQuery(query, company.name, company.description, company.address)
   );
 
   if (filteredCompanies.length === 0) return;
@@ -16192,7 +16113,7 @@ function showPersonSuggestions(query, contentDiv) {
   if (query.length < 2) return;
 
   const filteredPeople = window.peopleData.filter(person =>
-    person.name.toLowerCase().includes(query.toLowerCase())
+    matchesTokenizedQuery(query, person.name, person.email, person.job_title, person.companies?.name)
   );
 
   if (filteredPeople.length === 0) return;
@@ -17451,9 +17372,9 @@ function initCallLogSearch() {
 
       let matches = [];
       if (type === 'people') {
-        matches = allPeople.filter(p => p.name.toLowerCase().includes(val)).slice(0, 5);
+        matches = allPeople.filter(p => matchesTokenizedQuery(val, p.name, p.email, p.job_title, p.companies?.name)).slice(0, 5);
       } else {
-        matches = (window.allCompaniesData || []).filter(c => c.name.toLowerCase().includes(val)).slice(0, 5);
+        matches = (window.allCompaniesData || []).filter(c => matchesTokenizedQuery(val, c.name, c.description, c.address)).slice(0, 5);
       }
 
       let html = matches.map(m => `
