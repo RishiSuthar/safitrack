@@ -12403,8 +12403,9 @@ async function renderTechnicianCompanyDashboard(locationData) {
 
   viewContainer.innerHTML = `
     <div class="page-header">
-      <button class="btn btn-ghost mb-2" onclick="renderTechnicianLogVisitView()">
-        <i data-lucide="arrow-left"></i> Change Location
+      <button class="btn btn-back mb-2" onclick="renderTechnicianLogVisitView()" aria-label="Change location" title="Change location">
+        <span class="btn-back-icon"><i data-lucide="arrow-left"></i></span>
+        <span class="btn-back-text">Change Location</span>
       </button>
       <h1 class="page-title">${locationData.name}</h1>
       <p class="text-muted">${locationData.address || 'Custom Location'}</p>
@@ -12442,28 +12443,12 @@ async function renderTechnicianCompanyDashboard(locationData) {
         </div>
       </div>
     </div>
-
-    <!-- Recent History for this Location -->
-    <div class="section-header flex justify-between items-center mb-4">
-      <h2 class="text-xl font-bold">Recent History</h2>
-      <select id="location-history-filter" class="form-select text-sm w-auto">
-        <option value="all">All Time</option>
-        <option value="today">Today</option>
-      </select>
-    </div>
-
-    <div id="location-history-list" class="space-y-4">
-      <div class="text-center py-8">
-        <i data-lucide="loader" class="animate-spin mb-2"></i>
-        <p class="text-muted">Loading history...</p>
-      </div>
     </div>
   `;
 
   if (window.lucide) lucide.createIcons();
 
-  // Load history
-  loadLocationHistory(locationData);
+  // history removed per design revamp
 }
 
 // Helper to load history
@@ -12541,8 +12526,9 @@ window.renderTechnicianForm = function (formType, locationDataStr) {
 
   viewContainer.innerHTML = `
     <div class="page-header">
-      <button class="btn btn-ghost mb-2" onclick='renderTechnicianCompanyDashboard(${JSON.stringify(locationData)})'>
-        <i data-lucide="arrow-left"></i> Back to Dashboard
+      <button class="btn btn-back mb-2" onclick='renderTechnicianCompanyDashboard(${JSON.stringify(locationData)})' aria-label="Back to dashboard" title="Back to dashboard">
+        <span class="btn-back-icon"><i data-lucide="arrow-left"></i></span>
+        <span class="btn-back-text">Back to Dashboard</span>
       </button>
       <h1 class="page-title">${formatFormType(formType)}</h1>
       <p class="text-muted">${locationData.name}</p>
@@ -12567,8 +12553,9 @@ window.renderTechnicianForm = function (formType, locationDataStr) {
 function renderSurveyVisitForm(locationData) {
   viewContainer.innerHTML = `
     <div class="page-header">
-      <button class="btn btn-ghost mb-2" onclick='renderTechnicianCompanyDashboard(${JSON.stringify(locationData)})'>
-        <i data-lucide="arrow-left"></i> Back to Dashboard
+      <button class="btn btn-back mb-2" onclick='renderTechnicianCompanyDashboard(${JSON.stringify(locationData)})' aria-label="Back to dashboard" title="Back to dashboard">
+        <span class="btn-back-icon"><i data-lucide="arrow-left"></i></span>
+        <span class="btn-back-text">Back to Dashboard</span>
       </button>
       <h1 class="page-title">Survey Visit</h1>
       <p class="text-muted">${locationData.name}</p>
@@ -13014,8 +13001,9 @@ const INVERTER_MODELS = {
 function renderInstallationVisitForm(locationData) {
   viewContainer.innerHTML = `
     <div class="page-header">
-      <button class="btn btn-ghost mb-2" onclick='renderTechnicianCompanyDashboard(${JSON.stringify(locationData)})'>
-        <i data-lucide="arrow-left"></i> Back to Dashboard
+      <button class="btn btn-back mb-2" onclick='renderTechnicianCompanyDashboard(${JSON.stringify(locationData)})' aria-label="Back to dashboard" title="Back to dashboard">
+        <span class="btn-back-icon"><i data-lucide="arrow-left"></i></span>
+        <span class="btn-back-text">Back to Dashboard</span>
       </button>
       <h1 class="page-title">Installation Visit</h1>
       <p class="text-muted">${locationData.name}</p>

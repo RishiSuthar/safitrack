@@ -1796,6 +1796,52 @@ body {
   overflow: hidden;
 }
 
+/* ==========================
+   TECHNICIAN FORMS - PREMIUM
+   Focused styles to modernize and unify
+   Survey / Installation / Maintenance forms
+   Non-functional visual improvements only
+   ========================== */
+.card.max-w-3xl { max-width: 980px; }
+.card .card-body { padding: 28px; }
+.section-container { background: linear-gradient(180deg, rgba(255,255,255,0.01), transparent); border-radius: 12px; padding: 18px; margin-bottom: 18px; border: 1px solid rgba(255,255,255,0.03); }
+.section-container h3.card-title { display:flex; align-items:center; gap:12px; margin:0 0 12px 0; font-size:1.02rem; }
+.section-container h3.card-title i { width:20px; height:20px; opacity:0.9 }
+.form-field { display:block; margin-bottom:12px; }
+.form-field label { display:block; font-weight:600; margin-bottom:8px; color:var(--text-primary); }
+.form-field input[type="text"], .form-field input[type="email"], .form-field input[type="tel"], .form-field input[type="number"], .form-field input[type="date"], .form-field input[type="datetime-local"], .form-field select, .form-field textarea { width:100%; padding:10px 12px; border-radius:10px; border:1px solid rgba(255,255,255,0.06); background:var(--bg-secondary); color:var(--text-primary); box-shadow: var(--shadow-sm); transition:box-shadow .15s, border-color .12s; }
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus { outline:none; border-color: rgba(47,95,208,0.9); box-shadow: 0 8px 24px rgba(47,95,208,0.06); }
+.field-helper { font-size:12px; color:var(--text-secondary); margin-top:6px; }
+.grid > .form-field.md\:col-span-2 { grid-column: span 2; }
+
+.photo-upload-multiple { display:flex; align-items:center; justify-content:center; flex-direction:column; gap:8px; padding:18px; border-radius:10px; border:1px dashed rgba(255,255,255,0.05); background:linear-gradient(180deg, rgba(255,255,255,0.01), transparent); cursor:pointer; color:var(--text-secondary); }
+.photo-upload-multiple:hover { border-color: rgba(47,95,208,0.35); box-shadow: 0 8px 24px rgba(47,95,208,0.05); }
+.photo-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; }
+.photo-grid .relative, .photo-grid img, .photo-grid .photo-item { width:100%; aspect-ratio:1/1; object-fit:cover; border-radius:8px; overflow:hidden; }
+
+.signature-container { border-radius:10px; overflow:hidden; position:relative; border:1px solid rgba(255,255,255,0.04); box-shadow: 0 6px 18px rgba(2,6,23,0.5); }
+.signature-canvas { width:100% !important; height:100% !important; display:block; }
+.signature-placeholder { color:var(--text-secondary); font-weight:600; }
+
+.card .form-field .btn { border-radius:10px; }
+
+/* Better spacing for submit area */
+.card .form-field.mt-8 { margin-top:20px; }
+.btn-primary.w-full { width:100%; }
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+  .photo-grid { grid-template-columns: repeat(2, 1fr); }
+  .card.max-w-3xl { padding-left:12px; padding-right:12px; }
+  .signature-container { height:220px !important; }
+}
+
+@media (max-width: 480px) {
+  .photo-grid { grid-template-columns: repeat(1, 1fr); }
+  .section-container { padding:14px; }
+  .card .card-body { padding:18px; }
+}
+
 .safi-nudge-modal-container .modal-header {
   background: linear-gradient(135deg, rgba(47, 95, 208, 0.16), rgba(139, 92, 246, 0.12));
   border-bottom: 1px solid rgba(47, 95, 208, 0.2);
@@ -1873,6 +1919,103 @@ body {
   border-color: rgba(47, 95, 208, 0.28);
   background: color-mix(in srgb, var(--bg-elevated) 92%, var(--color-primary-bg));
 }
+
+/* Additional polish for technician forms */
+/* Form grid: make two-column layout for wider screens inside technician cards */
+.card.max-w-3xl .section-container .grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.card.max-w-3xl .section-container .grid .form-field { margin-bottom:0; }
+
+/* Accent header stripe and subtle icon background */
+.section-container h3.card-title {
+  position: relative;
+  padding-left: 8px;
+}
+.section-container h3.card-title::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 6px;
+  bottom: 6px;
+  width: 4px;
+  border-radius: 4px;
+  background: linear-gradient(180deg, rgba(47,95,208,0.9), rgba(139,92,246,0.75));
+  opacity: 0.14;
+}
+
+/* Checklist cards - pill hover and active state */
+.section-container label.group {
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
+}
+.section-container label.group:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(2,6,23,0.12); }
+.section-container label.group input[type="checkbox"]:checked + span,
+.section-container label.group input[type="checkbox"]:checked ~ span { color: var(--color-primary); font-weight:700; }
+
+/* Submit button prominence inside forms */
+.card.max-w-3xl .btn-primary {
+  padding: 14px 18px;
+  font-size: 1.03rem;
+  border-radius: 12px;
+  letter-spacing: 0.2px;
+}
+
+/* Signature improvements */
+.signature-placeholder { font-size: 0.98rem; display:flex; align-items:center; justify-content:center; height:100%; }
+.signature-container { min-height: 160px; }
+
+/* Photo grid hover / focus */
+.photo-grid .photo-item img { transition: transform .18s ease, box-shadow .18s ease; }
+.photo-grid .photo-item img:hover { transform: scale(1.03); box-shadow: 0 12px 30px rgba(2,6,23,0.18); }
+
+/* Compact mobile layout for technician forms */
+@media (max-width: 520px) {
+  .card.max-w-3xl { max-width: 100%; margin: 0 12px; }
+  .card.max-w-3xl .card-body { padding: 14px; }
+  .card.max-w-3xl .section-container { padding: 12px; margin-bottom: 12px; }
+  .card.max-w-3xl .section-container .grid { grid-template-columns: 1fr; gap: 12px; }
+  .form-field label { font-size: 0.95rem; }
+  .form-field input, .form-field select, .form-field textarea { padding: 10px; font-size: 0.95rem; }
+  .signature-container { height:180px !important; }
+  .photo-upload-multiple { padding:12px; }
+}
+
+/* Accessibility: ensure contrast for helpers on small screens */
+@media (max-width: 420px) {
+  .field-helper { font-size:11px; color: var(--text-secondary); }
+}
+
+/* End of technician form polish */
+
+/* ==========================
+   Back button (pill) design
+   Used for "Change Location" and "Back to Dashboard"
+   ========================== */
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  border: 1px solid rgba(255,255,255,0.04);
+  color: var(--text-primary);
+  font-weight: 700;
+  box-shadow: 0 6px 18px rgba(2,6,23,0.06);
+  transition: transform .12s ease, box-shadow .12s ease, background .12s ease;
+}
+.btn-back:hover { transform: translateY(-2px); box-shadow: 0 12px 36px rgba(2,6,23,0.09); }
+.btn-back:active { transform: translateY(0); }
+.btn-back-icon i { width: 16px; height: 16px; display: inline-block; }
+.btn-back-text { font-size: 0.95rem; }
+
+@media (max-width: 640px) {
+  .btn-back { padding: 8px 10px; gap:8px; }
+  .btn-back-text { display: inline-block; }
+}
+
 
 .safi-nudge-field select:focus,
 .safi-nudge-field textarea:focus {
