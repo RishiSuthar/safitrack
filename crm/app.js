@@ -136,13 +136,13 @@ function renderEditableDataTable(data, columns, tableId, supabaseTable) {
         <thead>
       <tr>
         ${columns.map(col => {
-          const columnWidth = col.width || defaultColumnWidth;
-          const isSortable = col.sortable !== false;
-          const sortIcon = isSortable
-            ? `<i data-lucide="${currentSortKey === col.key ? (currentSortDir === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}" 
+    const columnWidth = col.width || defaultColumnWidth;
+    const isSortable = col.sortable !== false;
+    const sortIcon = isSortable
+      ? `<i data-lucide="${currentSortKey === col.key ? (currentSortDir === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}" 
                  style="width: 12px; height: 12px; opacity: ${currentSortKey === col.key ? 1 : 0.3};"></i>`
-            : '';
-          return `
+      : '';
+    return `
           <th style="width: ${columnWidth}; min-width: ${columnWidth}; max-width: ${columnWidth}; position: relative; cursor: ${isSortable ? 'pointer' : 'default'};" 
               ${isSortable ? `onclick="handleHeaderSort('${col.key}', true)"` : ''}
               class="sortable-header ${isSortable && currentSortKey === col.key ? 'active-sort' : ''}">
@@ -154,7 +154,7 @@ function renderEditableDataTable(data, columns, tableId, supabaseTable) {
             ${isMobileView ? '' : '<div class="resize-handle" onmousedown="initResize(event, this)"></div>'}
           </th>
         `;
-        }).join('')}
+  }).join('')}
       </tr>
     </thead>
         <tbody>
@@ -3382,13 +3382,13 @@ async function renderSalesFunnelView() {
   const thisWeekVisits = visits.filter(v => isThisWeek(new Date(v.created_at))).length;
   const lastWeekVisits = visits.filter(v => isLastWeek(new Date(v.created_at))).length;
   const weekTrend = lastWeekVisits > 0 ? Math.round(((thisWeekVisits - lastWeekVisits) / lastWeekVisits) * 100) : 100;
-  
+
   // Calculate conversion rates
   const newLeads = funnelStages.new_lead.visits.length;
   const followUps = funnelStages.follow_up.visits.length;
   const demos = funnelStages.demo.visits.length;
   const closings = funnelStages.closing.visits.length;
-  
+
   const leadToFollowUp = newLeads > 0 ? Math.round((followUps / newLeads) * 100) : 0;
   const followUpToDemo = followUps > 0 ? Math.round((demos / followUps) * 100) : 0;
   const demoToClose = demos > 0 ? Math.round((closings / demos) * 100) : 0;
@@ -3396,7 +3396,7 @@ async function renderSalesFunnelView() {
 
   // High priority leads
   const highPriorityLeads = visits.filter(v => v.lead_score && v.lead_score >= 70).slice(0, 6);
-  
+
   // Recent activity
   const recentVisits = visits.slice(0, 8);
 
@@ -3470,11 +3470,11 @@ async function renderSalesFunnelView() {
             
             <div class="funnel-visual">
               ${Object.entries(funnelStages).map(([key, stage], index) => {
-                const count = stage.visits.length;
-                const percentage = totalVisits > 0 ? Math.round((count / totalVisits) * 100) : 0;
-                const width = 100 - (index * 12);
-                
-                return `
+    const count = stage.visits.length;
+    const percentage = totalVisits > 0 ? Math.round((count / totalVisits) * 100) : 0;
+    const width = 100 - (index * 12);
+
+    return `
                   <div class="funnel-level" style="--funnel-width: ${width}%; --funnel-color: ${stage.color};">
                     <div class="funnel-level-bar">
                       <div class="funnel-level-fill" style="background: ${stage.gradient};"></div>
@@ -3492,7 +3492,7 @@ async function renderSalesFunnelView() {
                     ` : ''}
                   </div>
                 `;
-              }).join('')}
+  }).join('')}
             </div>
           </div>
 
@@ -3533,11 +3533,11 @@ async function renderSalesFunnelView() {
           <!-- Stage Cards -->
           <div class="funnel-stages-grid">
             ${Object.entries(funnelStages).map(([key, stage]) => {
-              const count = stage.visits.length;
-              const percentage = totalVisits > 0 ? Math.round((count / totalVisits) * 100) : 0;
-              const recentInStage = stage.visits.slice(0, 3);
-              
-              return `
+    const count = stage.visits.length;
+    const percentage = totalVisits > 0 ? Math.round((count / totalVisits) * 100) : 0;
+    const recentInStage = stage.visits.slice(0, 3);
+
+    return `
                 <div class="funnel-stage-card" style="--stage-color: ${stage.color};">
                   <div class="funnel-stage-card-header">
                     <div class="funnel-stage-card-icon" style="background: ${stage.gradient};">
@@ -3568,7 +3568,7 @@ async function renderSalesFunnelView() {
                   `}
                 </div>
               `;
-            }).join('')}
+  }).join('')}
           </div>
         </div>
 
@@ -3617,9 +3617,9 @@ async function renderSalesFunnelView() {
             
             <div class="funnel-activity-timeline">
               ${recentVisits.map(visit => {
-                const stageColor = funnelStages[visit.visit_type]?.color || '#6b7280';
-                const stageTitle = funnelStages[visit.visit_type]?.title || 'Visit';
-                return `
+    const stageColor = funnelStages[visit.visit_type]?.color || '#6b7280';
+    const stageTitle = funnelStages[visit.visit_type]?.title || 'Visit';
+    return `
                   <div class="funnel-activity-item">
                     <div class="funnel-activity-dot" style="background: ${stageColor};"></div>
                     <div class="funnel-activity-content">
@@ -3631,7 +3631,7 @@ async function renderSalesFunnelView() {
                     </div>
                   </div>
                 `;
-              }).join('')}
+  }).join('')}
             </div>
           </div>
         </div>
@@ -4471,7 +4471,7 @@ function initOpportunityModalListeners(opportunity) {
     clearTimeout(companyInput.searchTimeout);
     companyInput.searchTimeout = setTimeout(async () => {
       let companies = window.allCompaniesData || [];
-      
+
       // If companies not loaded, fetch them
       if (companies.length === 0) {
         const { data } = await supabaseClient
@@ -5708,7 +5708,7 @@ async function renderTeamDashboardView() {
   viewContainer.innerHTML = `
     <div class="visits-hub">
       <div class="visits-hero">
-        ${[1,2,3,4].map(() => '<div class="visits-skeleton" style="height: 120px;"></div>').join('')}
+        ${[1, 2, 3, 4].map(() => '<div class="visits-skeleton" style="height: 120px;"></div>').join('')}
       </div>
       <div class="visits-skeleton" style="height: 60px;"></div>
       <div class="visits-skeleton" style="height: 400px;"></div>
@@ -5759,7 +5759,7 @@ async function renderTeamDashboardView() {
   const weekVisits = visitsWithProfiles.filter(v => isThisWeek(new Date(v.created_at))).length;
   const lastWeekVisits = visitsWithProfiles.filter(v => isLastWeek(new Date(v.created_at))).length;
   const weekTrend = lastWeekVisits > 0 ? Math.round(((weekVisits - lastWeekVisits) / lastWeekVisits) * 100) : 100;
-  
+
   const avgLeadScore = visitsWithProfiles.filter(v => v.lead_score).length > 0
     ? Math.round(visitsWithProfiles.reduce((sum, v) => sum + (v.lead_score || 0), 0) / visitsWithProfiles.filter(v => v.lead_score).length)
     : 0;
@@ -6058,7 +6058,7 @@ function renderVisitsCards(visits) {
     const initials = getInitials(userName);
     const relativeTime = getRelativeTime(new Date(visit.created_at));
     const dateStr = formatDate(visit.created_at);
-    
+
     const visitTypeLabels = {
       'new_lead': 'New Lead',
       'follow_up': 'Follow-up',
@@ -6133,9 +6133,9 @@ function renderVisitsTimeline(visits) {
   let html = '';
   Object.entries(grouped).forEach(([dateKey, dayVisits]) => {
     const date = new Date(dateKey);
-    const dateLabel = isToday(date) ? 'Today' : 
-                      isYesterday(date) ? 'Yesterday' : 
-                      date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+    const dateLabel = isToday(date) ? 'Today' :
+      isYesterday(date) ? 'Yesterday' :
+        date.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
 
     html += `
       <div class="timeline-group">
@@ -6145,9 +6145,9 @@ function renderVisitsTimeline(visits) {
           <span class="timeline-group-count">${dayVisits.length} visit${dayVisits.length !== 1 ? 's' : ''}</span>
         </div>
         ${dayVisits.map(visit => {
-          const userName = visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : 'Unknown';
-          const time = new Date(visit.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
-          return `
+      const userName = visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : 'Unknown';
+      const time = new Date(visit.created_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      return `
             <div class="visit-card-premium timeline-visit-card" data-visit-id="${visit.id}" onclick="openVisitDetail('${visit.id}')">
               <div class="visit-card-top">
                 <div class="visit-card-main">
@@ -6158,7 +6158,7 @@ function renderVisitsTimeline(visits) {
               ${visit.notes ? `<div class="visit-card-notes">${visit.notes}</div>` : ''}
             </div>
           `;
-        }).join('')}
+    }).join('')}
       </div>
     `;
   });
@@ -6176,9 +6176,9 @@ function renderActivityTimeline(activities) {
   return activities.map(activity => {
     const userName = activity.user ? `${activity.user.first_name}` : 'Someone';
     const relativeTime = getRelativeTime(new Date(activity.time));
-    const iconClass = activity.score && activity.score >= 70 ? 'success' : 
-                      activity.type === 'closing' ? 'success' : '';
-    
+    const iconClass = activity.score && activity.score >= 70 ? 'success' :
+      activity.type === 'closing' ? 'success' : '';
+
     return `
       <div class="activity-timeline-item">
         <div class="activity-timeline-icon ${iconClass}">
@@ -6199,7 +6199,7 @@ function renderLeaderboard(leaderboard) {
   return leaderboard.map((rep, index) => {
     const name = `${rep.first_name} ${rep.last_name}`;
     const initials = getInitials(name);
-    
+
     return `
       <div class="leaderboard-item">
         <div class="leaderboard-rank">${index + 1}</div>
@@ -6297,7 +6297,7 @@ function initVisitsHub() {
     tab.addEventListener('click', () => {
       document.querySelectorAll('.activity-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
-      
+
       const tabName = tab.dataset.tab;
       document.getElementById('activity-tab-content').style.display = tabName === 'activity' ? 'block' : 'none';
       document.getElementById('leaderboard-tab-content').style.display = tabName === 'leaderboard' ? 'block' : 'none';
@@ -6327,17 +6327,17 @@ function initVisitsHub() {
 
 function switchVisitsView(view) {
   visitsHubState.currentView = view;
-  
+
   // Update buttons
   document.querySelectorAll('.visits-view-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.view === view);
   });
-  
+
   // Update visible container
   document.getElementById('visits-cards-view').style.display = view === 'cards' ? 'block' : 'none';
   document.getElementById('visits-timeline-view').classList.toggle('active', view === 'timeline');
   document.getElementById('visits-map-view').classList.toggle('active', view === 'map');
-  
+
   // Initialize map if needed
   if (view === 'map') {
     initVisitsMap();
@@ -6350,7 +6350,7 @@ function updateFilterState() {
   visitsHubState.filters.scoreMin = document.getElementById('filter-score')?.value || '';
   visitsHubState.filters.dateFrom = document.getElementById('filter-date-from')?.value || '';
   visitsHubState.filters.dateTo = document.getElementById('filter-date-to')?.value || '';
-  
+
   // Update filter count
   const activeFilters = Object.values(visitsHubState.filters).filter(v => v).length;
   const countEl = document.getElementById('filters-count');
@@ -6363,27 +6363,27 @@ function updateFilterState() {
 function applyVisitsFilters() {
   let filtered = [...visitsHubState.visits];
   const { search, rep, type, scoreMin, dateFrom, dateTo } = visitsHubState.filters;
-  
+
   // Search filter
   if (search) {
-    filtered = filtered.filter(v => 
+    filtered = filtered.filter(v =>
       (v.company_name || '').toLowerCase().includes(search) ||
       (v.notes || '').toLowerCase().includes(search) ||
       (v.user?.first_name || '').toLowerCase().includes(search) ||
       (v.user?.last_name || '').toLowerCase().includes(search)
     );
   }
-  
+
   // Rep filter
   if (rep) {
     filtered = filtered.filter(v => v.user_id === rep);
   }
-  
+
   // Type filter
   if (type) {
     filtered = filtered.filter(v => v.visit_type === type);
   }
-  
+
   // Score filter
   if (scoreMin) {
     const min = parseInt(scoreMin);
@@ -6395,7 +6395,7 @@ function applyVisitsFilters() {
       filtered = filtered.filter(v => !v.lead_score || v.lead_score < 40);
     }
   }
-  
+
   // Date filter
   if (dateFrom) {
     const fromDate = new Date(dateFrom);
@@ -6406,7 +6406,7 @@ function applyVisitsFilters() {
     toDate.setHours(23, 59, 59, 999);
     filtered = filtered.filter(v => new Date(v.created_at) <= toDate);
   }
-  
+
   // Sort
   switch (visitsHubState.sortBy) {
     case 'oldest':
@@ -6424,12 +6424,12 @@ function applyVisitsFilters() {
     default: // newest
       filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
   }
-  
+
   visitsHubState.filteredVisits = filtered;
-  
+
   // Update count
   document.getElementById('visits-count').textContent = `${filtered.length} visit${filtered.length !== 1 ? 's' : ''}`;
-  
+
   // Re-render views
   document.getElementById('visits-cards-view').innerHTML = renderVisitsCards(filtered);
   document.getElementById('visits-timeline-view').innerHTML = renderVisitsTimeline(filtered);
@@ -6444,7 +6444,7 @@ function clearAllFilters() {
     dateTo: '',
     scoreMin: ''
   };
-  
+
   // Reset form elements
   document.getElementById('visits-search').value = '';
   document.getElementById('filter-rep').value = '';
@@ -6453,29 +6453,23 @@ function clearAllFilters() {
   document.getElementById('filter-date-from').value = '';
   document.getElementById('filter-date-to').value = '';
   document.getElementById('filters-count').style.display = 'none';
-  
+
   applyVisitsFilters();
 }
 
-window.openVisitDetail = function(visitId) {
-  console.log('openVisitDetail called with:', visitId);
-  console.log('Available visits:', visitsHubState.visits.length);
-  
+window.openVisitDetail = function (visitId) {
   const visit = visitsHubState.visits.find(v => v.id === visitId || v.id === parseInt(visitId));
   if (!visit) {
-    console.error('Visit not found for ID:', visitId);
-    console.log('Visit IDs available:', visitsHubState.visits.map(v => v.id));
+    showToast('Visit not found', 'error');
     return;
   }
-  
-  console.log('Found visit:', visit);
   visitsHubState.selectedVisitId = visitId;
-  
+
   const userName = visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : 'Unknown';
-  const dateStr = new Date(visit.created_at).toLocaleDateString('en-US', { 
+  const dateStr = new Date(visit.created_at).toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit'
   });
-  
+
   const visitTypeLabels = {
     'new_lead': 'New Lead',
     'follow_up': 'Follow-up',
@@ -6573,22 +6567,22 @@ window.openVisitDetail = function(visitId) {
       </div>
     ` : ''}
   `;
-  
+
   // Show panel
   const panel = document.getElementById('visit-detail-panel');
   const backdrop = document.getElementById('visit-detail-backdrop');
-  
+
   if (!panel || !backdrop) {
     console.error('Detail panel elements not found!');
     console.log('Panel:', panel);
     console.log('Backdrop:', backdrop);
     return;
   }
-  
+
   panel.classList.add('open');
   backdrop.classList.add('open');
   console.log('Panel opened successfully');
-  
+
   // Initialize mini map if coordinates exist
   if (visit.latitude && visit.longitude) {
     setTimeout(() => {
@@ -6628,7 +6622,7 @@ function openPhotoModal(photoUrl) {
     `;
     document.body.appendChild(modal);
   }
-  
+
   modal.querySelector('.photo-modal-image').src = photoUrl;
   modal.classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -6645,23 +6639,23 @@ function closePhotoModal() {
 function initVisitsMap() {
   const mapEl = document.getElementById('visits-map');
   if (!mapEl || typeof L === 'undefined') return;
-  
+
   // Skip if already initialized
   if (mapEl.dataset.initialized) return;
   mapEl.dataset.initialized = 'true';
-  
+
   const visitsWithCoords = visitsHubState.filteredVisits.filter(v => v.latitude && v.longitude);
-  
+
   if (visitsWithCoords.length === 0) {
     mapEl.innerHTML = '<div class="visits-empty-state"><h3>No visits with location data</h3></div>';
     return;
   }
-  
+
   const map = L.map(mapEl).setView([visitsWithCoords[0].latitude, visitsWithCoords[0].longitude], 10);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap'
   }).addTo(map);
-  
+
   const typeColors = {
     'new_lead': '#3b82f6',
     'follow_up': '#8b5cf6',
@@ -6669,7 +6663,7 @@ function initVisitsMap() {
     'closing': '#10b981',
     'support': '#6b7280'
   };
-  
+
   visitsWithCoords.forEach(visit => {
     const color = typeColors[visit.visit_type] || '#3b82f6';
     const marker = L.circleMarker([visit.latitude, visit.longitude], {
@@ -6680,7 +6674,7 @@ function initVisitsMap() {
       opacity: 1,
       fillOpacity: 0.8
     }).addTo(map);
-    
+
     const userName = visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : 'Unknown';
     marker.bindPopup(`
       <strong>${visit.company_name || 'Unknown'}</strong><br>
@@ -6688,19 +6682,19 @@ function initVisitsMap() {
       <small>${formatDate(visit.created_at)}</small>
     `);
   });
-  
+
   // Fit bounds
   const bounds = L.latLngBounds(visitsWithCoords.map(v => [v.latitude, v.longitude]));
   map.fitBounds(bounds, { padding: [50, 50] });
 }
 
-window.exportVisitsToCSV = function() {
+window.exportVisitsToCSV = function () {
   const visits = visitsHubState.filteredVisits;
   if (visits.length === 0) {
     showToast('No visits to export', 'warning');
     return;
   }
-  
+
   const headers = ['Date', 'Company', 'Sales Rep', 'Visit Type', 'Contact', 'Lead Score', 'Notes', 'Location Verified'];
   const rows = visits.map(v => [
     new Date(v.created_at).toISOString(),
@@ -6712,7 +6706,7 @@ window.exportVisitsToCSV = function() {
     (v.notes || '').replace(/"/g, '""'),
     v.location_verified ? 'Yes' : 'No'
   ]);
-  
+
   const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
@@ -6721,7 +6715,7 @@ window.exportVisitsToCSV = function() {
   a.download = `visits-export-${new Date().toISOString().split('T')[0]}.csv`;
   a.click();
   URL.revokeObjectURL(url);
-  
+
   showToast('Export complete', 'success');
 };
 
@@ -6828,7 +6822,7 @@ async function generateVisitPDF(visitId) {
 
     // ===== PAGE 1 =====
     addGradientHeader();
-    
+
     // Title
     doc.setFontSize(24);
     doc.setTextColor(...colors.white);
@@ -7075,13 +7069,13 @@ window.deleteUser = async function (userId, userName, userRole = '') {
 function groupRoutesByLocations(routes, routeLocations) {
   // Create a map of route_id to its location signature (sorted company IDs)
   const routeSignatures = {};
-  
+
   routes.forEach(route => {
     const locations = routeLocations
       .filter(loc => loc.route_id === route.id)
       .sort((a, b) => a.position - b.position)
       .map(loc => loc.company_id);
-    
+
     // Create a signature from the company IDs in order
     routeSignatures[route.id] = locations.join(',');
   });
@@ -7107,7 +7101,7 @@ function groupRoutesByLocations(routes, routeLocations) {
     }
 
     groups[groupKey].routeIds.push(route.id);
-    
+
     if (route.assigned_to) {
       // Avoid duplicates
       const existing = groups[groupKey].assignees.find(a => a.id === route.assigned_to.id);
@@ -7118,7 +7112,7 @@ function groupRoutesByLocations(routes, routeLocations) {
   });
 
   // Convert to array and sort by created date
-  return Object.values(groups).sort((a, b) => 
+  return Object.values(groups).sort((a, b) =>
     new Date(b.created_at) - new Date(a.created_at)
   );
 }
@@ -7284,7 +7278,7 @@ async function renderRoutePlanningView() {
                   <span class="route-assignees-label">Assigned to:</span>
                   <div class="route-assignees-list">
                     ${group.assignees.length === 0 ? '<span class="text-muted">Unassigned</span>' :
-                      group.assignees.map(assignee => `
+          group.assignees.map(assignee => `
                         <span class="route-assignee-tag">
                           <span class="assignee-avatar">${assignee.first_name.charAt(0)}${assignee.last_name.charAt(0)}</span>
                           ${assignee.first_name} ${assignee.last_name}
@@ -7821,7 +7815,7 @@ function initRouteList() {
       const routeName = btn.dataset.routeName || routeItem.querySelector('h4').textContent;
       const assigneeCount = routeIds.length;
 
-      const confirmMessage = assigneeCount > 1 
+      const confirmMessage = assigneeCount > 1
         ? `Are you sure you want to delete route "${routeName}"? This will remove it for all ${assigneeCount} assigned reps.`
         : `Are you sure you want to delete route "${routeName}"?`;
 
@@ -8181,7 +8175,7 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
 
   selectAllBtn.addEventListener('click', () => {
     const allSelected = selectedReps.length === salesReps.length;
-    
+
     repGrid.querySelectorAll('.rep-selection-card').forEach(card => {
       const checkbox = card.querySelector('input[type="checkbox"]');
       checkbox.checked = !allSelected;
@@ -8384,13 +8378,13 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
       const stepEl = modal.querySelector(`#${stepId}`);
       stepEl.classList.add('active');
       stepEl.querySelector('svg').innerHTML = '<circle cx="12" cy="12" r="10" class="spinner-circle"/>';
-      
+
       const messages = aiMessages[stepKey];
       for (let i = 0; i < messages.length; i++) {
         statusText.textContent = messages[i] + '...';
         await delay(200);
       }
-      
+
       progressFill.style.width = `${progress}%`;
       stepEl.classList.remove('active');
       stepEl.classList.add('completed');
@@ -8463,7 +8457,7 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
 
       // Build optimized route excluding far locations
       const { optimized, excluded } = optimizeRouteWithDistanceLimit(routeCompanies, OUTLIER_THRESHOLD_KM);
-      
+
       // Add excluded to outliers
       excluded.forEach(company => {
         outliers.push({
@@ -8673,8 +8667,8 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
               <label>Assigned to:</label>
               <div class="assigned-reps-container" data-route-index="${routeIndex}">
                 ${route.assignedReps.map(repId => {
-                  const rep = allReps.find(r => r.id === repId);
-                  return rep ? `
+      const rep = allReps.find(r => r.id === repId);
+      return rep ? `
                     <div class="assigned-rep-tag switchable" data-rep-id="${repId}" data-route-index="${routeIndex}" title="Click to switch rep">
                       <span class="rep-avatar-sm">${rep.first_name.charAt(0)}${rep.last_name.charAt(0)}</span>
                       <span>${rep.first_name} ${rep.last_name}</span>
@@ -8682,7 +8676,7 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
                       ${route.assignedReps.length > 1 ? `<button class="remove-rep-btn" data-rep-id="${repId}">×</button>` : ''}
                     </div>
                   ` : '';
-                }).join('')}
+    }).join('')}
                 <button class="add-rep-btn" data-route-index="${routeIndex}">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
                   Add Rep
@@ -8743,7 +8737,7 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
       tag.addEventListener('click', (e) => {
         // Don't trigger if clicking remove button
         if (e.target.closest('.remove-rep-btn')) return;
-        
+
         const routeIndex = parseInt(tag.dataset.routeIndex);
         const currentRepId = tag.dataset.repId;
         showSwitchRepDropdown(tag, routeIndex, currentRepId, allReps, generatedRoutes, container, outliers);
@@ -12280,6 +12274,10 @@ window.executeCommand = function (commandId) {
 // TECHNICIAN LOG VISIT VIEW
 // ======================
 
+// ======================
+// TECHNICIAN LOG VISIT VIEW (LOCATION SELECT)
+// ======================
+
 async function renderTechnicianLogVisitView() {
   const { data: companies } = await supabaseClient
     .from('companies')
@@ -12288,1114 +12286,1572 @@ async function renderTechnicianLogVisitView() {
 
   viewContainer.innerHTML = `
     <div class="page-header">
-      <h1 class="page-title">Log Service Visit</h1>
+      <h1 class="page-title">Select Work Location</h1>
+      <p class="text-muted">Choose a company or enter a custom location to proceed.</p>
     </div>
 
-    <!-- Step Progress -->
-    <div class="form-steps">
-      <div class="step active" data-step="1">
-        <div class="step-number">1</div>
-        <div class="step-title">Location & Company</div>
+    <div class="card max-w-2xl mx-auto">
+      <div class="form-field">
+        <label for="technician-company-name">Search Company</label>
+        <div class="search-container">
+          <i data-lucide="search"></i>
+          <input type="text" id="technician-company-name" placeholder="Search for a company..." autocomplete="off" />
+          <div id="technician-company-search-results" class="search-results" style="display: none;"></div>
+        </div>
       </div>
-      <div class="step" data-step="2">
-        <div class="step-number">2</div>
-        <div class="step-title">Visit Details</div>
+
+      <div class="text-center my-4 text-muted">- OR -</div>
+
+      <div class="form-field">
+        <label for="technician-custom-location">Custom Location</label>
+        <input type="text" id="technician-custom-location" placeholder="Enter custom location name" />
       </div>
-      <div class="step" data-step="3">
-        <div class="step-number">3</div>
-        <div class="step-title">Photos</div>
-      </div>
-      <div class="step" data-step="4">
-        <div class="step-number">4</div>
-        <div class="step-title">Signatures</div>
-      </div>
-      <div class="step" data-step="5">
-        <div class="step-number">5</div>
-        <div class="step-title">Review</div>
+
+      <div class="form-field mt-6">
+        <button id="continue-to-dashboard-btn" class="btn btn-primary w-full" disabled>
+          Continue to Dashboard
+        </button>
       </div>
     </div>
+  `;
 
-    <!-- Step 1: Location & Company -->
-    <div class="step-container active" id="step-1">
-      <div class="card">
-        <h3 class="card-title">Location & Company</h3>
-        
-        <div class="form-field">
-          <label for="technician-company-name">Company Name *</label>
-          <div class="search-container">
-            <i data-lucide="search"></i>
-            <input type="text" id="technician-company-name" placeholder="Search for a company..." required />
-            <div id="technician-company-search-results" class="search-results" style="display: none;"></div>
+  if (window.lucide) lucide.createIcons();
+
+  initTechnicianLocationSelect(companies);
+}
+
+function initTechnicianLocationSelect(companies) {
+  const searchInput = document.getElementById('technician-company-name');
+  const resultsDiv = document.getElementById('technician-company-search-results');
+  const customInput = document.getElementById('technician-custom-location');
+  const continueBtn = document.getElementById('continue-to-dashboard-btn');
+
+  let selectedCompany = null;
+
+  // Search Logic
+  searchInput.addEventListener('input', (e) => {
+    const query = e.target.value.toLowerCase().trim();
+    if (customInput.value) customInput.value = ''; // Clear custom if searching
+    selectedCompany = null;
+    checkContinue();
+
+    if (query.length === 0) {
+      resultsDiv.style.display = 'none';
+      return;
+    }
+
+    const filtered = companies.filter(c =>
+      c.name.toLowerCase().includes(query) ||
+      (c.address && c.address.toLowerCase().includes(query))
+    );
+
+    if (filtered.length === 0) {
+      resultsDiv.innerHTML = '<div class="search-result-item">No companies found</div>';
+    } else {
+      resultsDiv.innerHTML = filtered.map(c => `
+         <div class="search-result-item" onclick="selectTechnicianCompanySelection('${c.id}')">
+           <div class="search-result-icon"><i data-lucide="building"></i></div>
+           <div>
+             <div class="search-result-name">${c.name}</div>
+             <div class="search-result-role">${c.address || 'No address'}</div>
+           </div>
+         </div>
+       `).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+    resultsDiv.style.display = 'block';
+  });
+
+  // Global handler for selection
+  window.selectTechnicianCompanySelection = (id) => {
+    const company = companies.find(c => c.id === id);
+    if (!company) return;
+    selectedCompany = company;
+    searchInput.value = company.name;
+    resultsDiv.style.display = 'none';
+    checkContinue();
+  };
+
+  customInput.addEventListener('input', () => {
+    if (searchInput.value) searchInput.value = '';
+    selectedCompany = null;
+    checkContinue();
+  });
+
+  function checkContinue() {
+    const customValue = customInput.value.trim();
+    if (selectedCompany || customValue.length > 0) {
+      continueBtn.disabled = false;
+    } else {
+      continueBtn.disabled = true;
+    }
+  }
+
+  continueBtn.addEventListener('click', () => {
+    const locationData = selectedCompany ?
+      { type: 'company', id: selectedCompany.id, name: selectedCompany.name, address: selectedCompany.address } :
+      { type: 'custom', id: null, name: customInput.value.trim(), address: 'Custom Location' };
+
+    renderTechnicianCompanyDashboard(locationData);
+  });
+}
+
+// ======================
+// TECHNICIAN LOCATION DASHBOARD
+// ======================
+
+async function renderTechnicianCompanyDashboard(locationData) {
+  // locationData: { type: 'company'|'custom', id, name, address }
+
+  viewContainer.innerHTML = `
+    <div class="page-header">
+      <button class="btn btn-ghost mb-2" onclick="renderTechnicianLogVisitView()">
+        <i data-lucide="arrow-left"></i> Change Location
+      </button>
+      <h1 class="page-title">${locationData.name}</h1>
+      <p class="text-muted">${locationData.address || 'Custom Location'}</p>
+    </div>
+
+    <!-- Actions Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <div class="card hover:shadow-lg transition-all cursor-pointer" onclick="renderTechnicianForm('survey_visit', '${encodeURIComponent(JSON.stringify(locationData))}')">
+        <div class="flex flex-col items-center text-center p-4">
+          <div class="w-12 h-12 rounded-full bg-blue-100 flex items-center justify-center mb-3 text-blue-600">
+            <i data-lucide="clipboard-list" style="width: 24px; height: 24px;"></i>
           </div>
+          <h3 class="font-semibold text-lg">Survey Visit</h3>
+          <p class="text-sm text-muted mt-1">Standard site survey</p>
         </div>
+      </div>
 
-        <div class="form-field" id="selected-technician-company" style="display: none;">
-          <div class="selected-location-info">
-            <div id="selected-technician-company-name"></div>
-            <div id="selected-technician-company-address" class="text-muted"></div>
+      <div class="card hover:shadow-lg transition-all cursor-pointer" onclick="renderTechnicianForm('installation_visit', '${encodeURIComponent(JSON.stringify(locationData))}')">
+        <div class="flex flex-col items-center text-center p-4">
+          <div class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center mb-3 text-green-600">
+            <i data-lucide="zap" style="width: 24px; height: 24px;"></i>
           </div>
+          <h3 class="font-semibold text-lg">Installation Visit</h3>
+          <p class="text-sm text-muted mt-1">Full system installation</p>
         </div>
+      </div>
 
-        <div class="form-field">
-          <label for="technician-custom-location">Custom Location (optional)</label>
-          <input type="text" id="technician-custom-location" placeholder="Enter custom company or location name" />
-          <div class="text-muted mt-1">Technicians may enter a custom location if the company isn't listed.</div>
-        </div>
-
-        <div class="form-field">
-          <label>Location Verification</label>
-          <div class="location-verification">
-            <button type="button" id="verify-technician-location" class="btn btn-secondary w-full">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
-              Capture Current Location
-            </button>
-            <div id="technician-location-status" class="location-status" style="display: none;"></div>
-            <div id="technician-location-map" class="location-map" style="display: none; height: 200px;"></div>
+      <div class="card hover:shadow-lg transition-all cursor-pointer" onclick="renderTechnicianForm('maintenance_visit', '${encodeURIComponent(JSON.stringify(locationData))}')">
+        <div class="flex flex-col items-center text-center p-4">
+          <div class="w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center mb-3 text-purple-600">
+            <i data-lucide="settings" style="width: 24px; height: 24px;"></i>
           </div>
-          <small class="text-muted">Your location will be captured and displayed on the map for the manager</small>
-        </div>
-
-        <div class="form-field">
-          <button class="btn btn-primary w-full next-step" data-next="2">
-            Next: Visit Details
-          </button>
+          <h3 class="font-semibold text-lg">Maintenance Visit</h3>
+          <p class="text-sm text-muted mt-1">Routine AMC & Repair</p>
         </div>
       </div>
     </div>
 
-    <!-- Step 2: Visit Details -->
-    <div class="step-container" id="step-2">
-      <div class="card">
-        <h3 class="card-title">Visit Details</h3>
-        
-        <div class="form-field">
-          <label for="visit-type">Visit Type *</label>
-          <select id="visit-type" required>
-            <option value="">Select visit type</option>
-            <option value="installation">Installation</option>
-            <option value="maintenance">Maintenance</option>
-            <option value="repair">Repair</option>
-            <option value="inspection">Inspection</option>
-            <option value="emergency">Emergency / Call-out</option>
-          </select>
-        </div>
-
-        <div class="form-field">
-          <label for="work-category">Work Category *</label>
-          <select id="work-category" required>
-            <option value="">Select category</option>
-            <option value="electrical">Electrical</option>
-            <option value="solar">Solar</option>
-            <option value="networking">Networking</option>
-            <option value="mechanical">Mechanical</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-
-        <div class="form-field" id="other-category-field" style="display: none;">
-          <label for="other-category">Specify Other Category</label>
-          <input type="text" id="other-category" placeholder="Enter category">
-        </div>
-
-        <div class="form-field">
-          <label for="work-status">Work Status *</label>
-          <select id="work-status" required>
-            <option value="">Select status</option>
-            <option value="completed">Completed</option>
-            <option value="partially_completed">Partially Completed</option>
-            <option value="pending">Pending</option>
-            <option value="follow_up">Follow-up Required</option>
-          </select>
-        </div>
-
-        <div class="form-field" id="follow-up-field" style="display: none;">
-          <label for="follow-up-notes">Follow-up & Next Actions *</label>
-          <textarea id="follow-up-notes" placeholder="Describe required follow-up actions..." rows="3"></textarea>
-        </div>
-
-        <div class="form-field">
-          <label for="visit-notes">Visit Notes *</label>
-          <textarea id="visit-notes" placeholder="Describe the work performed, findings, recommendations..." rows="5" required></textarea>
-        </div>
-
-        <div class="form-field flex gap-2">
-          <button class="btn btn-secondary flex-1 prev-step" data-prev="1">
-            <i data-lucide="arrow-left"></i> Back
-          </button>
-          <button class="btn btn-primary flex-1 next-step" data-next="3">
-            Next: Photos
-          </button>
-        </div>
-      </div>
+    <!-- Recent History for this Location -->
+    <div class="section-header flex justify-between items-center mb-4">
+      <h2 class="text-xl font-bold">Recent History</h2>
+      <select id="location-history-filter" class="form-select text-sm w-auto">
+        <option value="all">All Time</option>
+        <option value="today">Today</option>
+      </select>
     </div>
 
-    <!-- Step 3: Photos -->
-    <div class="step-container" id="step-3">
-      <div class="card">
-        <h3 class="card-title">Photos</h3>
-        <p class="text-muted mb-3">Photos will be automatically deleted after 30 days</p>
-        
-        <input type="file" id="technician-photos" accept="image/*" multiple style="display: none;" />
-        
-        <div class="photo-upload-multiple" id="photo-upload-multiple">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-camera-icon lucide-camera"><path d="M13.997 4a2 2 0 0 1 1.76 1.05l.486.9A2 2 0 0 0 18.003 7H20a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h1.997a2 2 0 0 0 1.759-1.048l.489-.904A2 2 0 0 1 10.004 4z"/><circle cx="12" cy="13" r="3"/></svg>
-          <p>Tap to add photos (multiple selection supported)</p>
-          <small class="text-muted">Maximum 10 photos, 5MB each</small>
-        </div>
-
-        <div class="photo-grid" id="photo-preview-grid"></div>
-
-        <div class="form-field flex gap-2">
-          <button class="btn btn-secondary flex-1 prev-step" data-prev="2">
-            <i data-lucide="arrow-left"></i> Back
-          </button>
-          <button class="btn btn-primary flex-1 next-step" data-next="4">
-            Next: Signatures
-          </button>
-        </div>
+    <div id="location-history-list" class="space-y-4">
+      <div class="text-center py-8">
+        <i data-lucide="loader" class="animate-spin mb-2"></i>
+        <p class="text-muted">Loading history...</p>
       </div>
     </div>
+  `;
 
-    <!-- Step 4: Signatures -->
-    <div class="step-container" id="step-4">
-      <div class="card">
-        <h3 class="card-title">Signatures</h3>
-        <p class="text-muted mb-3">Both signatures are required to submit the visit</p>
+  if (window.lucide) lucide.createIcons();
+
+  // Load history
+  loadLocationHistory(locationData);
+}
+
+// Helper to load history
+async function loadLocationHistory(locationData) {
+  const listContainer = document.getElementById('location-history-list');
+
+  let query = supabaseClient
+    .from('technician_visits')
+    .select(`
+      *,
+      technician:users!technician_id(name)
+    `)
+    .order('created_at', { ascending: false })
+    .limit(10);
+
+  if (locationData.type === 'company') {
+    query = query.eq('company_id', locationData.id);
+  } else {
+    // For custom locations, we filter by name for now
+    query = query.eq('company_name', locationData.name);
+  }
+
+  const { data: visits, error } = await query;
+
+  if (error || !visits || visits.length === 0) {
+    listContainer.innerHTML = `
+      <div class="card p-6 text-center">
+        <p class="text-muted">No recent forms found for this location.</p>
+      </div>
+    `;
+    return;
+  }
+
+  listContainer.innerHTML = visits.map(visit => `
+    <div class="card p-4 flex justify-between items-center">
+      <div>
+        <div class="font-medium">${formatFormType(visit.form_type)}</div>
+        <div class="text-sm text-muted">
+          ${formatDate(visit.created_at)} • ${visit.technician?.name || 'Unknown User'}
+        </div>
+      </div>
+      <div class="text-sm">
+        <span class="badge badge-outline">Submitted</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function formatFormType(type) {
+  if (type === 'survey_visit') return 'Survey Visit';
+  if (type === 'installation_visit') return 'Installation Visit';
+  if (type === 'maintenance_visit') return 'Maintenance Visit';
+  return type || 'Unknown Form';
+}
+
+// ======================
+// GENERIC FORM RENDERER
+// ======================
+
+window.renderTechnicianForm = function (formType, locationDataStr) {
+  const locationData = JSON.parse(decodeURIComponent(locationDataStr));
+
+  if (formType === 'survey_visit') {
+    renderSurveyVisitForm(locationData);
+    return;
+  }
+  if (formType === 'installation_visit') {
+    renderInstallationVisitForm(locationData);
+    return;
+  }
+  if (formType === 'maintenance_visit') {
+    renderMaintenanceVisitForm(locationData);
+    return;
+  }
+
+  viewContainer.innerHTML = `
+    <div class="page-header">
+      <button class="btn btn-ghost mb-2" onclick='renderTechnicianCompanyDashboard(${JSON.stringify(locationData)})'>
+        <i data-lucide="arrow-left"></i> Back to Dashboard
+      </button>
+      <h1 class="page-title">${formatFormType(formType)}</h1>
+      <p class="text-muted">${locationData.name}</p>
+    </div>
+
+    <div class="card p-8 text-center">
+      <i data-lucide="hammer" class="w-16 h-16 text-muted mb-4 mx-auto"></i>
+      <h2 class="text-xl font-bold mb-2">Form Under Construction</h2>
+      <p class="text-muted mb-6">This form template is being implemented. Please provide the details for ${formatFormType(formType)}.</p>
+      <button class="btn btn-primary" onclick='renderTechnicianCompanyDashboard(${JSON.stringify(locationData)})'>
+        Return to Location Dashboard
+      </button>
+    </div>
+  `;
+  if (window.lucide) lucide.createIcons();
+};
+
+// ======================
+// FORM 1: SURVEY VISIT
+// ======================
+
+function renderSurveyVisitForm(locationData) {
+  viewContainer.innerHTML = `
+    <div class="page-header">
+      <button class="btn btn-ghost mb-2" onclick='renderTechnicianCompanyDashboard(${JSON.stringify(locationData)})'>
+        <i data-lucide="arrow-left"></i> Back to Dashboard
+      </button>
+      <h1 class="page-title">Survey Visit</h1>
+      <p class="text-muted">${locationData.name}</p>
+    </div>
+
+    <div class="card max-w-3xl mx-auto">
+      <div class="card-body">
         
-        <div class="form-field">
-          <label>Client Signature *</label>
-          <div class="signature-container">
-            <canvas id="client-signature-canvas" class="signature-canvas"></canvas>
-            <div class="signature-placeholder" id="client-signature-placeholder">
-              Click and drag to sign
+        <!-- SECTION: VISIT INFO -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">Visit Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-field">
+              <label>Technician Name</label>
+              <input type="text" value="${currentUser.first_name} ${currentUser.last_name}" disabled class="bg-slate-100">
+            </div>
+            <div class="form-field">
+              <label>Visit Date</label>
+              <input type="date" id="visit-date" value="${new Date().toISOString().split('T')[0]}" required>
+            </div>
+            <div class="form-field md:col-span-2">
+              <label>GPS Location</label>
+              <div class="flex gap-2">
+                <button type="button" id="capture-gps-btn" class="btn btn-secondary flex-1">
+                  <i data-lucide="map-pin"></i> Capture GPS
+                </button>
+                <input type="text" id="gps-coordinates" placeholder="Lat, Long" readonly class="flex-1 bg-slate-100">
+              </div>
             </div>
           </div>
-          <div class="signature-actions">
-            <button type="button" class="btn btn-sm btn-secondary" id="clear-client-signature">
-              Clear
-            </button>
-            <button type="button" class="btn btn-sm btn-secondary" id="save-client-signature">
-              Save
-            </button>
+        </div>
+
+        <!-- SECTION: CLIENT INFORMATION -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">Client Information</h3>
+          <div class="form-field">
+            <label>Company / Client Name</label>
+            <input type="text" value="${locationData.name}" disabled class="bg-slate-100">
           </div>
+          <div class="form-field">
+            <label>Address / Location</label>
+            <input type="text" id="client-address" value="${locationData.address || ''}" ${locationData.type === 'company' ? 'disabled' : ''} placeholder="Enter address">
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-field">
+              <label>Phone Number</label>
+              <input type="tel" id="client-phone" placeholder="Enter phone number">
+            </div>
+            <div class="form-field">
+              <label>Email</label>
+              <input type="email" id="client-email" placeholder="Enter email">
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: LOAD REQUIREMENTS -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">Load Requirements</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="form-field">
+              <label>Total Load (Watts)</label>
+              <input type="number" id="total-load" placeholder="e.g. 5000">
+            </div>
+            <div class="form-field">
+              <label>Backup Time (Hours)</label>
+              <input type="number" id="backup-time" placeholder="e.g. 4">
+            </div>
+            <div class="form-field">
+              <label>No. of Appliances</label>
+              <input type="number" id="appliance-count" placeholder="e.g. 10">
+            </div>
+          </div>
+          <div class="form-field mt-4">
+            <label>Appliance Details</label>
+            <textarea id="appliance-details" rows="3" placeholder="List major appliances (e.g. 2 ACs, 1 Fridge, 5 Computers)"></textarea>
+          </div>
+        </div>
+
+        <!-- SECTION: BATTERY REQUIREMENTS -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">Battery Requirements</h3>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="form-field">
+              <label>Battery Type</label>
+              <select id="battery-type">
+                <option value="">Select Type</option>
+                <option value="Lithium">Lithium</option>
+                <option value="Tubular">Tubular</option>
+                <option value="SMF">SMF</option>
+                <option value="Gel">Gel</option>
+                <option value="Flooded">Flooded</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Quantity</label>
+              <input type="number" id="battery-quantity" placeholder="Qty">
+            </div>
+            <div class="form-field">
+              <label>Voltage</label>
+              <select id="battery-voltage">
+                <option value="">Select Voltage</option>
+                <option value="12V">12V</option>
+                <option value="24V">24V</option>
+                <option value="48V">48V</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: INSTALLATION DETAILS -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">Installation Details</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-field">
+              <label>Installation Location</label>
+              <select id="install-location">
+                <option value="">Select Location</option>
+                <option value="Indoor">Indoor</option>
+                <option value="Outdoor">Outdoor</option>
+                <option value="Utility Room">Utility Room</option>
+                <option value="Garage">Garage</option>
+                <option value="Office">Office</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Distance from Inverter (m)</label>
+              <input type="number" id="install-distance" placeholder="Meters">
+            </div>
+            <div class="form-field">
+              <label>Cable Size Required</label>
+              <input type="text" id="cable-size" placeholder="e.g. 16mm">
+            </div>
+            <div class="form-field">
+              <label>Feasibility</label>
+              <select id="install-feasibility">
+                <option value="">Select Feasibility</option>
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+                <option value="Needs Review">Needs Review</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- SECTION: NOTES & VERIFICATION -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">Notes & Verification</h3>
           
-        </div>
-
-        <div class="form-field">
-          <label>Technician Signature *</label>
-          <div class="signature-container">
-            <canvas id="technician-signature-canvas" class="signature-canvas"></canvas>
-            <div class="signature-placeholder" id="technician-signature-placeholder">
-              Click and drag to sign
-            </div>
+          <div class="form-field">
+            <label>Technician Notes</label>
+            <textarea id="technician-notes" rows="4" placeholder="Enter findings, recommendations, etc."></textarea>
           </div>
-          <div class="signature-actions">
-            <button type="button" class="btn btn-sm btn-secondary" id="clear-technician-signature">
-              Clear
-            </button>
-            <button type="button" class="btn btn-sm btn-secondary" id="save-technician-signature">
-              Save
-            </button>
+
+          <div class="form-field mt-4">
+            <label>Photos (Max 10)</label>
+            <input type="file" id="technician-photos" accept="image/*" multiple style="display: none;" />
+            <div class="photo-upload-multiple" id="photo-upload-multiple">
+              <i data-lucide="camera" class="w-6 h-6 mb-2"></i>
+              <p>Tap to add photos</p>
+            </div>
+            <div class="photo-grid mt-4" id="photo-preview-grid"></div>
           </div>
-          
-        </div>
 
-        <div class="form-field flex gap-2">
-          <button class="btn btn-secondary flex-1 prev-step" data-prev="3">
-            <i data-lucide="arrow-left"></i> Back
-          </button>
-          <button class="btn btn-primary flex-1 next-step" data-next="5" id="next-to-review" disabled>
-            Next: Review
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Step 5: Review & Submit -->
-    <div class="step-container" id="step-5">
-      <div class="card">
-        <h3 class="card-title">Review & Submit</h3>
-        
-        <div class="review-section">
-          <h4>Visit Summary</h4>
-          <div id="review-summary"></div>
-        </div>
-
-        <div class="review-section">
-          <h4>Photos</h4>
-          <div class="photo-grid" id="review-photos"></div>
-        </div>
-
-        <div class="review-section">
-          <h4>Signatures</h4>
-          <div class="flex gap-4">
-            <div>
-              <p class="text-sm text-muted">Client Signature</p>
-              <div id="review-client-signature"></div>
+          <div class="form-field mt-6">
+            <label>Technician Signature</label>
+            <div class="signature-container bg-slate-50 dark:bg-slate-900 border rounded-lg h-40 relative">
+              <canvas id="technician-signature-canvas" class="signature-canvas w-full h-full"></canvas>
+              <div class="signature-placeholder absolute inset-0 flex items-center justify-center text-muted pointer-events-none" id="technician-signature-placeholder">
+                Sign Here
+              </div>
             </div>
-            <div>
-              <p class="text-sm text-muted">Technician Signature</p>
-              <div id="review-technician-signature"></div>
-            </div>
+            <button type="button" class="btn btn-sm btn-ghost mt-2" id="clear-technician-signature">Clear</button>
           </div>
         </div>
 
-        <!-- Confirm signatures checkbox removed - not required -->
-
-        <div class="form-field flex gap-2">
-          <button class="btn btn-secondary flex-1 prev-step" data-prev="4">
-            <i data-lucide="arrow-left"></i> Back
-          </button>
-          <button class="btn btn-primary flex-1" id="submit-technician-visit" disabled>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Submit Visit
+        <div class="form-field mt-8">
+          <button id="submit-survey-visit" class="btn btn-primary w-full py-3 text-lg">
+            Submit Survey Visit
           </button>
         </div>
       </div>
     </div>
   `;
 
-  initTechnicianLogVisitForm(companies);
+  if (window.lucide) lucide.createIcons();
+
+  initSurveyVisitForm(locationData);
 }
 
-function initTechnicianLogVisitForm(companies) {
-  // Create a global state object for the form
+function initSurveyVisitForm(locationData) {
   window.technicianVisitForm = {
-    currentStep: 1,
-    selectedCompany: null,
+    selectedCompany: locationData.type === 'company' ? locationData : null,
     capturedLocation: null,
-    clientSignature: null,
     technicianSignature: null,
     photos: [],
-    clientSignatureCanvas: null,
     technicianSignatureCanvas: null,
-    clientSignatureCtx: null,
     technicianSignatureCtx: null,
-    isClientDrawing: false,
-    isTechnicianDrawing: false,
-    map: null
+    isTechnicianDrawing: false
   };
 
-  // Store for global access
-  window.companiesData = companies;
+  // 1. GPS Logic
+  const gpsBtn = document.getElementById('capture-gps-btn');
+  const gpsInput = document.getElementById('gps-coordinates');
 
-  // Company search functionality
-  const companyNameInput = document.getElementById('technician-company-name');
-  const companySearchResults = document.getElementById('technician-company-search-results');
-  const selectedCompanyDiv = document.getElementById('selected-technician-company');
-  const selectedCompanyName = document.getElementById('selected-technician-company-name');
-  const selectedCompanyAddress = document.getElementById('selected-technician-company-address');
-  const customLocationInput = document.getElementById('technician-custom-location');
-
-  companyNameInput.addEventListener('input', (e) => {
-    const query = e.target.value.toLowerCase().trim();
-
-    if (query.length === 0) {
-      companySearchResults.style.display = 'none';
-      return;
-    }
-
-    const filtered = companies.filter(company =>
-      matchesTokenizedQuery(query, company.name, company.description, company.address)
-    );
-
-    if (filtered.length === 0) {
-      companySearchResults.innerHTML = '<div class="search-result-item">No companies found</div>';
-    } else {
-      companySearchResults.innerHTML = filtered.map(company => `
-        <div class="search-result-item" onclick="selectTechnicianCompany('${company.id}')">
-          <div class="search-result-icon"></div>
-          <div>
-            <div class="search-result-name">${company.name}</div>
-            <div class="search-result-role">${company.description || 'No description'}</div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    companySearchResults.style.display = 'block';
-  });
-
-  // Location verification
-  const verifyLocationBtn = document.getElementById('verify-technician-location');
-  const locationStatus = document.getElementById('technician-location-status');
-  const locationMap = document.getElementById('technician-location-map');
-
-  verifyLocationBtn.addEventListener('click', () => {
-    let company = window.technicianVisitForm.selectedCompany;
-
-    // If no selected company but technician provided a custom location name, use that
-    if (!company) {
-      const customName = customLocationInput && customLocationInput.value.trim() ? customLocationInput.value.trim() : null;
-      if (customName) {
-        company = { id: null, name: customName, description: 'Custom entry' };
-        // store as selectedCompany so submit uses it
-        window.technicianVisitForm.selectedCompany = company;
-        if (selectedCompanyDiv) selectedCompanyDiv.style.display = 'block';
-        if (selectedCompanyName) selectedCompanyName.textContent = company.name;
-        if (selectedCompanyAddress) selectedCompanyAddress.textContent = company.description;
-      } else {
-        showToast('Please select a company or enter a custom location', 'error');
+  if (gpsBtn) {
+    gpsBtn.addEventListener('click', () => {
+      if (!navigator.geolocation) {
+        showToast('Geolocation not supported', 'error');
         return;
       }
-    }
+      gpsBtn.disabled = true;
+      gpsBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Capturing...';
+      if (window.lucide) lucide.createIcons();
 
-    if (!navigator.geolocation) {
-      showToast('Geolocation not supported', 'error');
-      return;
-    }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          window.technicianVisitForm.capturedLocation = { latitude, longitude };
+          gpsInput.value = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+          gpsBtn.className = 'btn btn-success flex-1';
+          gpsBtn.innerHTML = '<i data-lucide="check"></i> Captured';
+          gpsBtn.disabled = false;
+          if (window.lucide) lucide.createIcons();
+        },
+        (err) => {
+          console.error(err);
+          gpsBtn.disabled = false;
+          gpsBtn.innerHTML = '<i data-lucide="map-pin"></i> Retry';
+          showToast('Location capture failed', 'error');
+          if (window.lucide) lucide.createIcons();
+        }
+      );
+    });
+  }
 
-    verifyLocationBtn.disabled = true;
-    verifyLocationBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Capturing location...';
-    if (window.lucide) lucide.createIcons();
-    locationStatus.style.display = 'flex';
-    locationStatus.className = 'location-status';
-    locationStatus.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Getting your location...';
-    if (window.lucide) lucide.createIcons();
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const capturedLocation = {
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracy: position.coords.accuracy
-        };
-
-        // Store in global state
-        window.technicianVisitForm.capturedLocation = capturedLocation;
-
-        locationStatus.className = 'location-status success';
-        locationStatus.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Location captured! Coordinates: ${capturedLocation.latitude.toFixed(6)}, ${capturedLocation.longitude.toFixed(6)}`;
-
-        // Show map
-        locationMap.style.display = 'block';
-        initTechnicianLocationMap(company, capturedLocation);
-
-        verifyLocationBtn.disabled = false;
-        verifyLocationBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Location Captured';
-        verifyLocationBtn.classList.add('btn-success');
-      },
-      (error) => {
-        locationStatus.className = 'location-status error';
-        locationStatus.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Unable to get location`;
-        verifyLocationBtn.disabled = false;
-        verifyLocationBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> Capture Current Location';
-        showToast('Location capture failed', 'error');
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  });
-
-  // Work category other field
-  const workCategorySelect = document.getElementById('work-category');
-  const otherCategoryField = document.getElementById('other-category-field');
-
-  workCategorySelect.addEventListener('change', (e) => {
-    if (e.target.value === 'other') {
-      otherCategoryField.style.display = 'block';
-    } else {
-      otherCategoryField.style.display = 'none';
-    }
-  });
-
-  // Follow-up field
-  const workStatusSelect = document.getElementById('work-status');
-  const followUpField = document.getElementById('follow-up-field');
-  const followUpNotes = document.getElementById('follow-up-notes');
-
-  workStatusSelect.addEventListener('change', (e) => {
-    if (e.target.value === 'follow_up') {
-      followUpField.style.display = 'block';
-      followUpNotes.required = true;
-    } else {
-      followUpField.style.display = 'none';
-      followUpNotes.required = false;
-    }
-  });
-
-  // Photo upload
+  // 2. Photo Logic
   const photoInput = document.getElementById('technician-photos');
   const photoUploadArea = document.getElementById('photo-upload-multiple');
-  const photoPreviewGrid = document.getElementById('photo-preview-grid');
 
-  photoUploadArea.addEventListener('click', () => photoInput.click());
+  if (photoUploadArea) {
+    photoUploadArea.addEventListener('click', () => photoInput.click());
 
-  photoInput.addEventListener('change', async (e) => {
-    const files = Array.from(e.target.files);
+    photoInput.addEventListener('change', async (e) => {
+      const files = Array.from(e.target.files).slice(0, 10);
+      if (files.length === 0) return;
 
-    if (files.length === 0) {
       window.technicianVisitForm.photos = [];
-      renderPhotoPreviews();
-      return;
-    }
+      const grid = document.getElementById('photo-preview-grid');
+      grid.innerHTML = '<div class="text-center w-full"><i data-lucide="loader" class="animate-spin"></i> Compressing...</div>';
+      if (window.lucide) lucide.createIcons();
 
-    // Limit to 10 photos
-    const filesToProcess = files.slice(0, 10);
-
-    // Clear existing photos
-    window.technicianVisitForm.photos = [];
-
-    // Show compression progress
-    showCompressionProgress('Compressing images...');
-
-    try {
-      // Process each file with compression
-      for (let i = 0; i < filesToProcess.length; i++) {
-        const file = filesToProcess[i];
-
-        // Update progress message
-        showCompressionProgress(`Compressing image ${i + 1} of ${filesToProcess.length}...`);
-
-        // Validate file type
-        if (!file.type.startsWith('image/')) {
-          showToast(`File ${file.name} is not an image`, 'error');
-          continue;
-        }
-
-        // Validate file size (before compression)
-        if (file.size > 10 * 1024 * 1024) { // 10MB limit before compression
-          showToast(`Photo ${file.name} exceeds 10MB limit`, 'error');
-          continue;
-        }
-
-        try {
-          // Compress the image
-          const compressedFile = await compressImage(file, 0.6, 1200, 1200);
-
-          // Read compressed file for preview
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            // Create a photo object with both original and compressed info
-            const photoObj = {
-              dataUrl: e.target.result,
-              file: compressedFile,
-              originalFile: file,
-              name: file.name,
-              originalSize: file.size,
-              compressedSize: compressedFile.size,
-              type: file.type,
-              timestamp: new Date().toISOString()
-            };
-
-            // Add to global state
-            window.technicianVisitForm.photos.push(photoObj);
-
-            // Update preview if this is the last image
-            if (window.technicianVisitForm.photos.length === filesToProcess.filter(f => f.type.startsWith('image/')).length) {
-              renderPhotoPreviews();
-              hideCompressionProgress();
-
-              // Show compression summary
-              const totalOriginal = window.technicianVisitForm.photos.reduce((sum, p) => sum + p.originalSize, 0);
-              const totalCompressed = window.technicianVisitForm.photos.reduce((sum, p) => sum + p.compressedSize, 0);
-              const totalSavings = ((1 - totalCompressed / totalOriginal) * 100).toFixed(0);
-
-              showToast(`Images compressed! Saved ${totalSavings}% storage space`, 'success');
-            }
-          };
-
-          reader.readAsDataURL(compressedFile);
-
-        } catch (compressionError) {
-          console.error('Compression error:', compressionError);
-          showToast(`Failed to compress ${file.name}, using original`, 'warning');
-
-          // Fallback to original file if compression fails
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const photoObj = {
-              dataUrl: e.target.result,
-              file: file,
-              name: file.name,
-              originalSize: file.size,
-              compressedSize: file.size,
-              type: file.type,
-              timestamp: new Date().toISOString()
-            };
-
-            window.technicianVisitForm.photos.push(photoObj);
-
-            if (window.technicianVisitForm.photos.length === filesToProcess.filter(f => f.type.startsWith('image/')).length) {
-              renderPhotoPreviews();
-              hideCompressionProgress();
-            }
-          };
-
-          reader.readAsDataURL(file);
-        }
+      const processedPhotos = [];
+      for (const file of files) {
+        if (!file.type.startsWith('image/')) continue;
+        processedPhotos.push(await compressImage(file));
       }
+      window.technicianVisitForm.photos = processedPhotos;
 
-    } catch (error) {
-      console.error('Error processing images:', error);
-      hideCompressionProgress();
-      showToast('Error processing images', 'error');
-    }
-
-    // Reset the input value
-    e.target.value = '';
-  });
-
-  function renderPhotoPreviews() {
-    const photos = window.technicianVisitForm.photos;
-    const photoPreviewGrid = document.getElementById('photo-preview-grid');
-
-    if (!photoPreviewGrid) return;
-
-    if (photos.length === 0) {
-      photoPreviewGrid.innerHTML = '<p class="text-muted text-center">No photos selected</p>';
-      return;
-    }
-
-    photoPreviewGrid.innerHTML = photos.map((photo, index) => {
-      const originalSizeMB = (photo.originalSize / 1024 / 1024).toFixed(2);
-      const compressedSizeMB = (photo.compressedSize / 1024 / 1024).toFixed(2);
-      const savings = photo.originalSize !== photo.compressedSize ?
-        `(-${((1 - photo.compressedSize / photo.originalSize) * 100).toFixed(0)}%)` : '';
-
-      return `
-        <div class="photo-item">
-          <img src="${photo.dataUrl}" alt="Visit photo ${index + 1}" style="width: 100%; height: 100%; object-fit: cover;">
-          <button class="photo-remove" onclick="removeTechnicianPhoto(${index})" title="Remove photo">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-          </button>
-          <div class="photo-info">
-            <small>${photo.name}</small>
-            <small>${compressedSizeMB} MB ${savings}</small>
+      grid.innerHTML = processedPhotos.map((p) => {
+        const url = p.dataUrl || (p instanceof File ? URL.createObjectURL(p) : 'https://via.placeholder.com/300x300?text=No+Preview');
+        return `
+          <div class="relative aspect-square bg-slate-100 rounded overflow-hidden">
+            <img src="${url}" class="w-full h-full object-cover" />
           </div>
-        </div>
-      `;
-    }).join('');
+        `;
+      }).join('');
+    });
   }
 
-  window.removeTechnicianPhoto = function (index) {
-    window.technicianVisitForm.photos.splice(index, 1);
-    renderPhotoPreviews();
-  };
+  // 3. Signature Logic
+  setTimeout(() => {
+    const canvas = document.getElementById('technician-signature-canvas');
+    if (!canvas) return;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
 
-  // Initialize signature canvases
-  function initSignatureCanvases() {
-    const clientSignatureCanvas = document.getElementById('client-signature-canvas');
-    const technicianSignatureCanvas = document.getElementById('technician-signature-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.strokeStyle = '#2563eb';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
 
-    // Set canvas dimensions
-    clientSignatureCanvas.width = clientSignatureCanvas.offsetWidth;
-    clientSignatureCanvas.height = clientSignatureCanvas.offsetHeight;
-    technicianSignatureCanvas.width = technicianSignatureCanvas.offsetWidth;
-    technicianSignatureCanvas.height = technicianSignatureCanvas.offsetHeight;
-
-    // Get contexts
-    const clientSignatureCtx = clientSignatureCanvas.getContext('2d');
-    const technicianSignatureCtx = technicianSignatureCanvas.getContext('2d');
-
-    // Store in global state
-    window.technicianVisitForm.clientSignatureCanvas = clientSignatureCanvas;
-    window.technicianVisitForm.technicianSignatureCanvas = technicianSignatureCanvas;
-    window.technicianVisitForm.clientSignatureCtx = clientSignatureCtx;
-    window.technicianVisitForm.technicianSignatureCtx = technicianSignatureCtx;
-
-    // Set up drawing
-    setupSignatureDrawing(clientSignatureCanvas, clientSignatureCtx, 'client');
-    setupSignatureDrawing(technicianSignatureCanvas, technicianSignatureCtx, 'technician');
-  }
-
-  function setupSignatureDrawing(canvas, ctx, type) {
     let isDrawing = false;
-    let lastX = 0;
-    let lastY = 0;
-    let drawingTimeout = null;
 
-    // Get current theme
-    const isDarkTheme = document.documentElement.getAttribute('data-theme') === 'dark';
+    const getPos = (e) => {
+      const r = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: clientX - r.left, y: clientY - r.top };
+    };
 
-    function startDrawing(e) {
+    const start = (e) => {
       isDrawing = true;
-      [lastX, lastY] = getCoordinates(e);
-      if (type === 'client') window.technicianVisitForm.isClientDrawing = true;
-      if (type === 'technician') window.technicianVisitForm.isTechnicianDrawing = true;
-      canvas.style.cursor = 'crosshair';
-
-      // Clear any existing timeout
-      if (drawingTimeout) clearTimeout(drawingTimeout);
-    }
-
-
-    function draw(e) {
-      if (!isDrawing) return;
-
-      // Use consistent blue color so signatures are visible in both themes
-      ctx.strokeStyle = '#2563eb';
-      ctx.lineWidth = 2;
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-
-      const [x, y] = getCoordinates(e);
-
       ctx.beginPath();
-      ctx.moveTo(lastX, lastY);
+      const { x, y } = getPos(e);
+      ctx.moveTo(x, y);
+      const placeholder = document.getElementById('technician-signature-placeholder');
+      if (placeholder) placeholder.style.display = 'none';
+      e.preventDefault();
+    };
+
+    const move = (e) => {
+      if (!isDrawing) return;
+      const { x, y } = getPos(e);
       ctx.lineTo(x, y);
       ctx.stroke();
+      e.preventDefault();
+    };
 
-      [lastX, lastY] = [x, y];
-
-      // Clear any existing timeout
-      if (drawingTimeout) clearTimeout(drawingTimeout);
-    }
-
-
-    function stopDrawing() {
+    const end = () => {
       if (!isDrawing) return;
-
       isDrawing = false;
-      canvas.style.cursor = 'crosshair';
+      window.technicianVisitForm.technicianSignature = canvas.toDataURL();
+    };
 
-      // Immediately capture the signature when drawing stops
-      try {
-        const signatureData = canvas.toDataURL('image/png');
-        const preview = document.getElementById(`${type}-signature-preview`);
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', move);
+    canvas.addEventListener('mouseup', end);
+    canvas.addEventListener('touchstart', start);
+    canvas.addEventListener('touchmove', move);
+    canvas.addEventListener('touchend', end);
 
-        if (type === 'client') {
-          window.technicianVisitForm.clientSignature = signatureData;
-          document.getElementById('client-signature-placeholder').style.display = 'none';
-        } else {
-          window.technicianVisitForm.technicianSignature = signatureData;
-          document.getElementById('technician-signature-placeholder').style.display = 'none';
-        }
-
-        if (preview) {
-          preview.innerHTML = `<img src="${signatureData}" alt="${type} signature" style="max-height: 100px;">`;
-          preview.classList.add('show');
-        }
-
-        checkSignatures();
-
-        // Show a brief confirmation
-        showToast(`${type === 'client' ? 'Client' : 'Technician'} signature captured`, 'success');
-      } catch (err) {
-        console.error('Error capturing signature:', err);
-      }
-    }
-
-    function getCoordinates(e) {
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-
-      let clientX, clientY;
-
-      if (e.type.includes('touch')) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-      } else {
-        clientX = e.clientX;
-        clientY = e.clientY;
-      }
-
-      return [
-        (clientX - rect.left) * scaleX,
-        (clientY - rect.top) * scaleY
-      ];
-    }
-
-    // Mouse events
-    canvas.addEventListener('mousedown', startDrawing);
-    canvas.addEventListener('mousemove', draw);
-    canvas.addEventListener('mouseup', stopDrawing);
-    canvas.addEventListener('mouseout', stopDrawing);
-
-    // Touch events
-    canvas.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      startDrawing(e);
-    });
-    canvas.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      draw(e);
-    });
-    canvas.addEventListener('touchend', (e) => {
-      e.preventDefault();
-      stopDrawing();
-    });
-
-    // Clear signature buttons
-    document.getElementById(`clear-${type}-signature`).addEventListener('click', () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      if (type === 'client') {
-        window.technicianVisitForm.clientSignature = null;
-        document.getElementById('client-signature-placeholder').style.display = 'block';
-        const pv = document.getElementById('client-signature-preview'); if (pv) pv.classList.remove('show');
-      } else {
+    const clearBtn = document.getElementById('clear-technician-signature');
+    if (clearBtn) {
+      clearBtn.addEventListener('click', () => {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const placeholder = document.getElementById('technician-signature-placeholder');
+        if (placeholder) placeholder.style.display = 'flex';
         window.technicianVisitForm.technicianSignature = null;
-        document.getElementById('technician-signature-placeholder').style.display = 'block';
-        const pv2 = document.getElementById('technician-signature-preview'); if (pv2) pv2.classList.remove('show');
-      }
-      checkSignatures();
-    });
-
-    // Save signature buttons
-    document.getElementById(`save-${type}-signature`).addEventListener('click', () => {
-      const signatureData = canvas.toDataURL('image/png');
-      const preview = document.getElementById(`${type}-signature-preview`);
-
-      if (type === 'client') {
-        window.technicianVisitForm.clientSignature = signatureData;
-        document.getElementById('client-signature-placeholder').style.display = 'none';
-      } else {
-        window.technicianVisitForm.technicianSignature = signatureData;
-        document.getElementById('technician-signature-placeholder').style.display = 'none';
-      }
-
-      if (preview) {
-        preview.innerHTML = `<img src="${signatureData}" alt="${type} signature" style="max-height: 100px;">`;
-        preview.classList.add('show');
-      }
-
-      checkSignatures();
-    });
-  }
-
-
-  function checkSignatures() {
-    const nextToReviewBtn = document.getElementById('next-to-review');
-    // Require only technician signature to proceed
-    nextToReviewBtn.disabled = !window.technicianVisitForm.technicianSignature;
-  }
-
-  // Step navigation
-  document.querySelectorAll('.next-step').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const nextStep = parseInt(e.target.dataset.next);
-      if (validateStep(window.technicianVisitForm.currentStep)) {
-        goToStep(nextStep);
-      }
-    });
-  });
-
-  document.querySelectorAll('.prev-step').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const prevStep = parseInt(e.target.dataset.prev);
-      goToStep(prevStep);
-    });
-  });
-
-  function goToStep(step) {
-    // Update step indicators
-    document.querySelectorAll('.step').forEach(stepEl => {
-      const stepNum = parseInt(stepEl.dataset.step);
-      stepEl.classList.remove('active', 'completed');
-      if (stepNum < step) {
-        stepEl.classList.add('completed');
-      } else if (stepNum === step) {
-        stepEl.classList.add('active');
-      }
-    });
-
-    // Hide all step containers
-    document.querySelectorAll('.step-container').forEach(container => {
-      container.classList.remove('active');
-    });
-
-    // Show current step container
-    document.getElementById(`step-${step}`).classList.add('active');
-
-    // Update current step in global state
-    window.technicianVisitForm.currentStep = step;
-
-    // Initialize signatures if going to step 4
-    if (step === 4 && !window.technicianVisitForm.clientSignatureCanvas) {
-      setTimeout(initSignatureCanvases, 100);
+      });
     }
+  }, 100);
 
-    // Generate review if going to step 5
-    if (step === 5) {
-      generateReview();
-    }
+  // 4. Submit Logic
+  const submitBtn = document.getElementById('submit-survey-visit');
+  if (submitBtn) {
+    submitBtn.addEventListener('click', async () => {
+      // Basic Validation
+      if (!window.technicianVisitForm.technicianSignature) {
+        showToast('Technician signature is required', 'error');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Submitting...';
+      if (window.lucide) lucide.createIcons();
+
+      try {
+        // Upload photos
+        const photoUrls = [];
+        for (const p of window.technicianVisitForm.photos) {
+          const fileToUpload = p.file || (p instanceof File ? p : null);
+          if (!fileToUpload) continue;
+          const fileName = fileToUpload.name ? fileToUpload.name.replace(/[^a-zA-Z0-9.]/g, '_') : `photo-${Date.now()}.jpg`;
+          const path = `technician-photos/${currentUser.id}/${Date.now()}-${fileName}`;
+          const { error } = await supabaseClient.storage.from('safitrack').upload(path, fileToUpload, {
+            contentType: 'image/jpeg',
+            upsert: true
+          });
+          if (!error) {
+            const { data } = supabaseClient.storage.from('safitrack').getPublicUrl(path);
+            photoUrls.push(data.publicUrl);
+          } else {
+            console.error('Upload error detail:', error);
+          }
+        }
+
+        // Construct Data
+        const formData = {
+          client_phone: document.getElementById('client-phone')?.value,
+          client_email: document.getElementById('client-email')?.value,
+          client_address: document.getElementById('client-address')?.value,
+          total_load_watts: document.getElementById('total-load')?.value,
+          backup_time_hours: document.getElementById('backup-time')?.value,
+          appliance_count: document.getElementById('appliance-count')?.value,
+          appliance_details: document.getElementById('appliance-details')?.value,
+          battery_type: document.getElementById('battery-type')?.value,
+          battery_quantity: document.getElementById('battery-quantity')?.value,
+          battery_voltage: document.getElementById('battery-voltage')?.value,
+          install_location: document.getElementById('install-location')?.value,
+          install_distance: document.getElementById('install-distance')?.value,
+          cable_size: document.getElementById('cable-size')?.value,
+          install_feasibility: document.getElementById('install-feasibility')?.value,
+          technician_notes: document.getElementById('technician-notes')?.value,
+          visit_date: document.getElementById('visit-date')?.value
+        };
+
+        const visitData = {
+          technician_id: currentUser.id,
+          company_id: locationData.type === 'company' ? locationData.id : null,
+          company_name: locationData.name,
+          location_name: locationData.type === 'custom' ? locationData.name : null,
+          form_type: 'survey_visit',
+          visit_type: 'survey',
+          visit_notes: formData.technician_notes || 'Service Survey',
+          technician_signature: window.technicianVisitForm.technicianSignature,
+          photos: photoUrls.length > 0 ? photoUrls : null,
+          latitude: window.technicianVisitForm.capturedLocation?.latitude,
+          longitude: window.technicianVisitForm.capturedLocation?.longitude,
+          created_at: new Date().toISOString(),
+          form_data: formData
+        };
+
+        const { error } = await supabaseClient.from('technician_visits').insert([visitData]);
+        if (error) throw error;
+
+        showToast('Survey Visit Submitted!', 'success');
+        setTimeout(() => {
+          renderTechnicianCompanyDashboard(locationData);
+        }, 1500);
+
+      } catch (e) {
+        console.error(e);
+        showToast('Submission failed: ' + e.message, 'error');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = 'Submit Survey Visit';
+      }
+    });
   }
+}
 
-  function validateStep(step) {
-    switch (step) {
-      case 1:
-        const company = window.technicianVisitForm.selectedCompany;
-        const customLocation = document.getElementById('technician-custom-location').value.trim();
+const INVERTER_MODELS = {
+  'Kstar': [
+    { model: 'Kstar 3.6Kva - 24V', kva: '3.6', voltage: '24V' },
+    { model: 'Kstar 3.6Kva - 48V', kva: '3.6', voltage: '48V' },
+    { model: 'Kstar 6Kva - 48V', kva: '6', voltage: '48V' }
+  ],
+  'Fortuner': [
+    { model: 'Fortuner 0.7kVA (450W) - 12V', kva: '0.7', voltage: '12V' },
+    { model: 'Fortuner 1.5kVA (1200W) - 24V', kva: '1.5', voltage: '24V' },
+    { model: 'Fortuner 2.2kVA (1400W) - 24V', kva: '2.2', voltage: '24V' },
+    { model: 'Fortuner 10kVA - 48V', kva: '10', voltage: '48V' }
+  ]
+};
 
-        // Allow submission if we have a selected company OR a custom location name
-        if (!company && !customLocation) {
-          showToast('Please select a company or enter a custom location', 'error');
-          return false;
-        }
-        if (!window.technicianVisitForm.capturedLocation) {
-          showToast('Please capture your location', 'error');
-          return false;
-        }
-        return true;
+// ======================
+// FORM 2: INSTALLATION VISIT
+// ======================
 
-      case 2:
-        const visitType = document.getElementById('visit-type').value;
-        const workCategory = document.getElementById('work-category').value;
-        const workStatus = document.getElementById('work-status').value;
-        const visitNotes = document.getElementById('visit-notes').value;
+function renderInstallationVisitForm(locationData) {
+  viewContainer.innerHTML = `
+    <div class="page-header">
+      <button class="btn btn-ghost mb-2" onclick='renderTechnicianCompanyDashboard(${JSON.stringify(locationData)})'>
+        <i data-lucide="arrow-left"></i> Back to Dashboard
+      </button>
+      <h1 class="page-title">Installation Visit</h1>
+      <p class="text-muted">${locationData.name}</p>
+    </div>
 
-        if (!visitType || !workCategory || !workStatus || !visitNotes) {
-          showToast('Please fill all required fields', 'error');
-          return false;
-        }
-
-        if (workCategory === 'other' && !document.getElementById('other-category').value) {
-          showToast('Please specify work category', 'error');
-          return false;
-        }
-
-        if (workStatus === 'follow_up' && !document.getElementById('follow-up-notes').value) {
-          showToast('Please provide follow-up notes', 'error');
-          return false;
-        }
-
-        return true;
-
-      case 3:
-        // Photos are optional
-        return true;
-
-      case 4:
-        // Client signature optional; technician signature required
-        if (!window.technicianVisitForm.technicianSignature) {
-          showToast('Technician signature is required', 'error');
-          return false;
-        }
-        return true;
-
-      default:
-        return true;
-    }
-  }
-
-  function generateReview() {
-    const visitType = document.getElementById('visit-type');
-    const workCategory = document.getElementById('work-category');
-    const workStatus = document.getElementById('work-status');
-    const otherCategory = document.getElementById('other-category');
-    const followUpNotes = document.getElementById('follow-up-notes');
-    const visitNotes = document.getElementById('visit-notes');
-    const company = window.technicianVisitForm.selectedCompany;
-    const capturedLocation = window.technicianVisitForm.capturedLocation;
-
-    const summaryHTML = `
-      <div class="review-item">
-        <strong>Company:</strong> ${company ? company.name : 'Not selected'}
-      </div>
-      <div class="review-item">
-        <strong>Visit Type:</strong> ${visitType.options[visitType.selectedIndex]?.text || 'Not selected'}
-      </div>
-      <div class="review-item">
-        <strong>Work Category:</strong> ${workCategory.value === 'other' ? otherCategory.value : workCategory.options[workCategory.selectedIndex]?.text}
-      </div>
-      <div class="review-item">
-        <strong>Work Status:</strong> ${workStatus.options[workStatus.selectedIndex]?.text || 'Not selected'}
-      </div>
-      ${workStatus.value === 'follow_up' ? `
-        <div class="review-item">
-          <strong>Follow-up Notes:</strong> ${followUpNotes.value}
+    <div class="card max-w-3xl mx-auto">
+      <div class="card-body">
+        
+        <!-- Section: Visit Info -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">Visit Info</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-field">
+              <label>Technician Name</label>
+              <input type="text" value="${currentUser.first_name} ${currentUser.last_name}" disabled class="bg-slate-100">
+            </div>
+            <div class="form-field">
+              <label>Visit Date</label>
+              <input type="date" id="install-visit-date" value="${new Date().toISOString().split('T')[0]}" required>
+            </div>
+            <div class="form-field md:col-span-2">
+              <label>GPS Location</label>
+              <div class="flex gap-2">
+                <button type="button" id="install-capture-gps-btn" class="btn btn-secondary flex-1">
+                  <i data-lucide="map-pin"></i> Capture GPS
+                </button>
+                <input type="text" id="install-gps-coordinates" placeholder="Lat, Long" readonly class="flex-1 bg-slate-100">
+              </div>
+            </div>
+          </div>
         </div>
-      ` : ''}
-      <div class="review-item">
-        <strong>Visit Notes:</strong> ${visitNotes.value}
-      </div>
-      <div class="review-item">
-        <strong>Location:</strong> ${capturedLocation ? 'Captured ✓' : 'Not captured'}
-      </div>
-    `;
 
-    document.getElementById('review-summary').innerHTML = summaryHTML;
-
-    // Render photos
-    const reviewPhotos = document.getElementById('review-photos');
-    const photos = window.technicianVisitForm.photos;
-    if (photos.length > 0) {
-      reviewPhotos.innerHTML = photos.map((photo, index) => `
-        <div class="photo-item">
-          <img src="${photo.dataUrl}" alt="Visit photo ${index + 1}">
+        <!-- Section: Client Information -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">Client Information</h3>
+          <div class="form-field">
+            <label>Company / Client Name</label>
+            <input type="text" value="${locationData.name}" disabled class="bg-slate-100">
+          </div>
+          <div class="form-field">
+            <label>Address / Location</label>
+            <input type="text" id="install-client-address" value="${locationData.address || ''}" ${locationData.type === 'company' ? 'disabled' : ''} placeholder="Enter address">
+          </div>
+          <div class="form-field">
+            <label>Reference Number</label>
+            <input type="text" id="install-reference" placeholder="e.g. ST-2024-001">
+          </div>
         </div>
-      `).join('');
+
+        <!-- Section: Inverter Information -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">Inverter Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-field">
+              <label>Manufacturer</label>
+              <select id="inverter-manufacturer">
+                <option value="">Select Manufacturer</option>
+                <option value="Kstar">Kstar</option>
+                <option value="Fortuner">Fortuner</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Model</label>
+              <div id="model-input-container">
+                <input type="text" id="inverter-model-custom" placeholder="Enter model" style="display: none;">
+                <select id="inverter-model-list">
+                  <option value="">Select Model</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-field">
+              <label>Serial Number</label>
+              <input type="text" id="inverter-serial" placeholder="Enter serial number">
+            </div>
+            <div class="form-field">
+              <label>KVA Rating</label>
+              <input type="text" id="inverter-kva" placeholder="e.g. 5Kva">
+            </div>
+            <div class="form-field">
+              <label>Inverter Type</label>
+              <select id="inverter-type">
+                <option value="">Select Type</option>
+                <option value="Pure Sine Wave">Pure Sine Wave</option>
+                <option value="Hybrid">Hybrid</option>
+                <option value="Off-Grid">Off-Grid</option>
+                <option value="On-Grid">On-Grid</option>
+                <option value="UPS">UPS</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Battery Information -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">Battery Information</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-field">
+              <label>Battery Brand</label>
+              <select id="battery-brand">
+                <option value="">Select Brand</option>
+                <option value="Delta">Delta</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Quantity</label>
+              <input type="number" id="battery-qty" placeholder="Qty">
+            </div>
+            <div class="form-field">
+              <label>Voltage</label>
+              <select id="battery-volts">
+                <option value="">Select Voltage</option>
+                <option value="12V">12V</option>
+                <option value="24V">24V</option>
+                <option value="48V">48V</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Amp Rating (Ah)</label>
+              <input type="number" id="battery-ah" placeholder="e.g. 200">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Electrical Measurements -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">Electrical Measurements</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-field">
+              <label>Input Voltage (VAC)</label>
+              <input type="number" id="input-vac" placeholder="e.g. 230">
+            </div>
+            <div class="form-field">
+              <label>Output Voltage (VAC)</label>
+              <input type="number" id="output-vac" placeholder="e.g. 230">
+            </div>
+            <div class="form-field">
+              <label>Charging Voltage (VDC)</label>
+              <input type="number" id="charging-vdc" placeholder="e.g. 54.4">
+            </div>
+            <div class="form-field">
+              <label>Output Frequency</label>
+              <select id="output-freq">
+                <option value="50 Hz">50 Hz</option>
+                <option value="60 Hz">60 Hz</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Backup Time (Minutes)</label>
+              <input type="number" id="backup-min" placeholder="e.g. 120">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Inspection Checklist -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Inspection Checklist</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            ${[
+      'General Wiring Checked', 'Fuses Checked', 'Ventilation / Fans Checked',
+      'Load Test Completed', 'Battery Mode Test Completed', 'Display Checked',
+      'Terminal Labelled', 'Operation Manual Provided', 'Manual Bypass Checked',
+      'Neutral Continuity Checked'
+    ].map((item, i) => `
+              <label class="flex items-center gap-3 p-3 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-primary/50 transition-colors cursor-pointer group">
+                <div class="relative flex items-center">
+                  <input type="checkbox" class="install-checklist-item w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary/20 transition-all cursor-pointer" data-item="${item}">
+                </div>
+                <span class="text-sm font-medium text-slate-700 dark:text-slate-200 group-hover:text-primary transition-colors">${item}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Section: Notes & Verification -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">Notes & Verification</h3>
+          <div class="form-field">
+            <label>Technician Notes</label>
+            <textarea id="install-notes" rows="4" placeholder="Enter findings, recommendations, etc."></textarea>
+          </div>
+
+          <div class="form-field mt-4">
+            <label>Photos (Max 10)</label>
+            <input type="file" id="install-photos" accept="image/*" multiple style="display: none;" />
+            <div class="photo-upload-multiple" id="install-photo-upload">
+              <i data-lucide="camera" class="w-6 h-6 mb-2"></i>
+              <p>Tap to add photos</p>
+            </div>
+            <div class="photo-grid mt-4" id="install-photo-grid"></div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div class="form-field">
+              <label>Technician Signature</label>
+              <div class="signature-container bg-slate-50 dark:bg-slate-900 border rounded-lg h-40 relative">
+                <canvas id="install-tech-sig-canvas" class="signature-canvas w-full h-full"></canvas>
+                <div class="signature-placeholder absolute inset-0 flex items-center justify-center text-muted pointer-events-none" id="install-tech-sig-placeholder">
+                  Sign Here
+                </div>
+              </div>
+              <button type="button" class="btn btn-sm btn-ghost mt-2" id="clear-install-tech-sig">Clear</button>
+            </div>
+
+            <div class="form-field">
+              <label>Client Signature</label>
+              <div class="signature-container bg-slate-50 dark:bg-slate-900 border rounded-lg h-40 relative">
+                <canvas id="install-client-sig-canvas" class="signature-canvas w-full h-full"></canvas>
+                <div class="signature-placeholder absolute inset-0 flex items-center justify-center text-muted pointer-events-none" id="install-client-sig-placeholder">
+                  Sign Here
+                </div>
+              </div>
+              <button type="button" class="btn btn-sm btn-ghost mt-2" id="clear-install-client-sig">Clear</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-field mt-8">
+          <button id="submit-install-visit" class="btn btn-primary w-full py-3 text-lg">
+            Submit Installation Visit
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  if (window.lucide) lucide.createIcons();
+
+  initInstallationVisitForm(locationData);
+}
+
+function initInstallationVisitForm(locationData) {
+  window.technicianVisitForm = {
+    selectedCompany: locationData.type === 'company' ? locationData : null,
+    capturedLocation: null,
+    technicianSignature: null,
+    clientSignature: null,
+    photos: []
+  };
+
+  // 1. Inverter Auto-fill Logic
+  const manufacturerSelect = document.getElementById('inverter-manufacturer');
+  const modelList = document.getElementById('inverter-model-list');
+  const modelCustom = document.getElementById('inverter-model-custom');
+  const kvaInput = document.getElementById('inverter-kva');
+  const batteryVolts = document.getElementById('battery-volts');
+
+  manufacturerSelect.addEventListener('change', (e) => {
+    const brand = e.target.value;
+    modelList.innerHTML = '<option value="">Select Model</option>';
+
+    if (brand === 'Other' || !brand) {
+      modelList.style.display = 'none';
+      modelCustom.style.display = 'block';
     } else {
-      reviewPhotos.innerHTML = '<p class="text-muted">No photos uploaded</p>';
+      modelList.style.display = 'block';
+      modelCustom.style.display = 'none';
+      if (INVERTER_MODELS[brand]) {
+        INVERTER_MODELS[brand].forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = m.model;
+          opt.textContent = m.model;
+          opt.dataset.kva = m.kva;
+          opt.dataset.voltage = m.voltage;
+          modelList.appendChild(opt);
+        });
+      }
     }
+  });
 
-    // Render signatures (client optional)
-    document.getElementById('review-client-signature').innerHTML =
-      window.technicianVisitForm.clientSignature ? `<img src="${window.technicianVisitForm.clientSignature}" alt="Client signature" style="max-height: 100px;" onerror="handleImageError(this)">` : 'Not provided';
+  modelList.addEventListener('change', (e) => {
+    const opt = e.target.selectedOptions[0];
+    if (opt && opt.value) {
+      kvaInput.value = opt.dataset.kva + ' Kva';
+      batteryVolts.value = opt.dataset.voltage;
+    }
+  });
 
-    document.getElementById('review-technician-signature').innerHTML =
-      window.technicianVisitForm.technicianSignature ? `<img src="${window.technicianVisitForm.technicianSignature}" alt="Technician signature" style="max-height: 100px;" onerror="handleImageError(this)">` : 'Not provided';
+  // 2. GPS Logic
+  const gpsBtn = document.getElementById('install-capture-gps-btn');
+  const gpsInput = document.getElementById('install-gps-coordinates');
+  gpsBtn.addEventListener('click', () => {
+    gpsBtn.disabled = true;
+    gpsBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i>';
+    if (window.lucide) lucide.createIcons();
+    navigator.geolocation.getCurrentPosition((pos) => {
+      window.technicianVisitForm.capturedLocation = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+      gpsInput.value = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
+      gpsBtn.className = 'btn btn-success flex-1';
+      gpsBtn.innerHTML = '<i data-lucide="check"></i> Captured';
+      gpsBtn.disabled = false;
+      if (window.lucide) lucide.createIcons();
+    });
+  });
 
-    // Enable submit only if technician signature exists (client signature optional)
-    const submitBtn = document.getElementById('submit-technician-visit');
-    submitBtn.disabled = !window.technicianVisitForm.technicianSignature;
+  // 3. Photo Logic
+  const photoInput = document.getElementById('install-photos');
+  const photoArea = document.getElementById('install-photo-upload');
+  photoArea.addEventListener('click', () => photoInput.click());
+  photoInput.addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files).slice(0, 10);
+    const grid = document.getElementById('install-photo-grid');
+    grid.innerHTML = '<p class="text-center w-full">Compressing...</p>';
+    window.technicianVisitForm.photos = [];
+    const processed = [];
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) continue;
+      processed.push(await compressImage(file));
+    }
+    window.technicianVisitForm.photos = processed;
+    grid.innerHTML = processed.map(p => {
+      const url = p.dataUrl || (p instanceof File ? URL.createObjectURL(p) : 'https://via.placeholder.com/300x300?text=No+Preview');
+      return `<img src="${url}" class="aspect-square object-cover rounded">`;
+    }).join('');
+  });
+
+  // 4. Signature Logic (Simplified setup)
+  setTimeout(() => {
+    setupInstallCanvas('install-tech-sig-canvas', 'tech');
+    setupInstallCanvas('install-client-sig-canvas', 'client');
+  }, 100);
+
+  function setupInstallCanvas(id, type) {
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width; canvas.height = rect.height;
+    ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+    let drawing = false;
+    const getPos = (e) => {
+      const r = canvas.getBoundingClientRect();
+      const cx = e.touches ? e.touches[0].clientX : e.clientX;
+      const cy = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: cx - r.left, y: cy - r.top };
+    };
+    const start = (e) => { drawing = true; ctx.beginPath(); const { x, y } = getPos(e); ctx.moveTo(x, y); document.getElementById(`install-${type}-sig-placeholder`).style.display = 'none'; e.preventDefault(); };
+    const move = (e) => { if (!drawing) return; const { x, y } = getPos(e); ctx.lineTo(x, y); ctx.stroke(); e.preventDefault(); };
+    const end = () => { drawing = false; window.technicianVisitForm[`${type === 'tech' ? 'technician' : 'client'}Signature`] = canvas.toDataURL(); };
+    canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move); canvas.addEventListener('mouseup', end);
+    canvas.addEventListener('touchstart', start); canvas.addEventListener('touchmove', move); canvas.addEventListener('touchend', end);
+    document.getElementById(`clear-install-${type}-sig`).addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      document.getElementById(`install-${type}-sig-placeholder`).style.display = 'flex';
+      window.technicianVisitForm[`${type === 'tech' ? 'technician' : 'client'}Signature`] = null;
+    });
   }
 
-  // Submit visit
-  document.getElementById('submit-technician-visit').addEventListener('click', async () => {
-    if (!validateStep(window.technicianVisitForm.currentStep)) {
-      showToast('Please complete all required fields', 'error');
-      return;
-    }
-
-    const submitBtn = document.getElementById('submit-technician-visit');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i data-lucide="loader" class="animate-spin"></i> Submitting...';
-    if (window.lucide) lucide.createIcons();
+  // 5. Submit Logic
+  document.getElementById('submit-install-visit').addEventListener('click', async () => {
+    const btn = document.getElementById('submit-install-visit');
+    if (!window.technicianVisitForm.technicianSignature) { showToast('Technician signature required', 'error'); return; }
+    btn.disabled = true; btn.innerHTML = 'Submitting...';
 
     try {
-      // Upload photos to storage
       const photoUrls = [];
-      for (const photo of window.technicianVisitForm.photos) {
-        const photoPath = `technician-photos/${currentUser.id}/${Date.now()}-${photo.file.name}`;
-        const { error: uploadError } = await supabaseClient.storage
-          .from('safitrack')
-          .upload(photoPath, photo.file);
-
-        if (!uploadError) {
-          const { data: urlData } = supabaseClient.storage.from('safitrack').getPublicUrl(photoPath);
-          photoUrls.push(urlData.publicUrl);
+      for (const p of window.technicianVisitForm.photos) {
+        const fileToUpload = p.file || (p instanceof File ? p : null);
+        if (!fileToUpload) continue;
+        const fileName = fileToUpload.name ? fileToUpload.name.replace(/[^a-zA-Z0-9.]/g, '_') : `photo-${Date.now()}.jpg`;
+        const path = `technician-photos/${currentUser.id}/${Date.now()}-${fileName}`;
+        const { error } = await supabaseClient.storage.from('safitrack').upload(path, fileToUpload, {
+          contentType: 'image/jpeg',
+          upsert: true
+        });
+        if (!error) {
+          const { data } = supabaseClient.storage.from('safitrack').getPublicUrl(path);
+          photoUrls.push(data.publicUrl);
+        } else {
+          console.error('Install: Upload error', error);
         }
       }
+
+      const checklist = [];
+      document.querySelectorAll('.install-checklist-item:checked').forEach(i => checklist.push(i.dataset.item));
+
+      const formData = {
+        visit_date: document.getElementById('install-visit-date').value,
+        client_address: document.getElementById('install-client-address').value,
+        reference_number: document.getElementById('install-reference').value,
+        inverter_manufacturer: manufacturerSelect.value,
+        inverter_model: manufacturerSelect.value === 'Other' ? modelCustom.value : modelList.value,
+        inverter_serial: document.getElementById('inverter-serial').value,
+        inverter_kva: kvaInput.value,
+        inverter_type: document.getElementById('inverter-type').value,
+        battery_brand: document.getElementById('battery-brand').value,
+        battery_qty: document.getElementById('battery-qty').value,
+        battery_volts: batteryVolts.value,
+        battery_ah: document.getElementById('battery-ah').value,
+        input_vac: document.getElementById('input-vac').value,
+        output_vac: document.getElementById('output-vac').value,
+        charging_vdc: document.getElementById('charging-vdc').value,
+        output_freq: document.getElementById('output-freq').value,
+        backup_min: document.getElementById('backup-min').value,
+        checklist: checklist,
+        technician_notes: document.getElementById('install-notes').value
+      };
 
       const visitData = {
         technician_id: currentUser.id,
-
-        // 1. Company ID: If selected company, save ID. If custom, save NULL.
-        company_id: window.technicianVisitForm.selectedCompany ? window.technicianVisitForm.selectedCompany.id : null,
-
-        // 2. Company Name: If selected company, save name. If custom, save the custom input value.
-        // This ensures the "Name: Unknown Company" issue is fixed because we save the name here.
-        company_name: window.technicianVisitForm.selectedCompany
-          ? window.technicianVisitForm.selectedCompany.name
-          : (document.getElementById('technician-custom-location').value.trim() || 'Custom Location'),
-
-        visit_type: document.getElementById('visit-type').value,
-        work_category: document.getElementById('work-category').value,
-        other_work_category: document.getElementById('work-category').value === 'other' ?
-          document.getElementById('other-category').value : null,
-        work_status: document.getElementById('work-status').value,
-        follow_up_notes: document.getElementById('work-status').value === 'follow_up' ?
-          document.getElementById('follow-up-notes').value : null,
-        visit_notes: document.getElementById('visit-notes').value,
-        client_signature: window.technicianVisitForm.clientSignature,
+        company_id: locationData.type === 'company' ? locationData.id : null,
+        company_name: locationData.name,
+        location_name: locationData.type === 'custom' ? locationData.name : null,
+        form_type: 'installation_visit',
+        visit_type: 'installation',
+        visit_notes: formData.technician_notes || 'Installation completed',
         technician_signature: window.technicianVisitForm.technicianSignature,
+        client_signature: window.technicianVisitForm.clientSignature,
         photos: photoUrls.length > 0 ? photoUrls : null,
-        latitude: window.technicianVisitForm.capturedLocation.latitude,
-        longitude: window.technicianVisitForm.capturedLocation.longitude,
-        verified_location: true,
-        created_at: new Date().toISOString()
+        latitude: window.technicianVisitForm.capturedLocation?.latitude,
+        longitude: window.technicianVisitForm.capturedLocation?.longitude,
+        created_at: new Date().toISOString(),
+        form_data: formData
       };
 
-      const { error } = await supabaseClient
-        .from('technician_visits')
-        .insert([visitData]);
-
+      const { error } = await supabaseClient.from('technician_visits').insert([visitData]);
       if (error) throw error;
+      showToast('Installation Visit Submitted!', 'success');
+      setTimeout(() => renderTechnicianCompanyDashboard(locationData), 1500);
+    } catch (e) {
+      console.error(e); showToast('Error: ' + e.message, 'error'); btn.disabled = false; btn.innerHTML = 'Submit Installation Visit';
+    }
+  });
+}
+// ======================
+// FORM 3: MAINTENANCE VISIT
+// ======================
 
-      showToast('Service visit submitted successfully!', 'success');
+function renderMaintenanceVisitForm(locationData) {
+  viewContainer.innerHTML = `
+    <div class="page-header">
+      <button class="btn btn-ghost mb-2" onclick='renderTechnicianCompanyDashboard(${JSON.stringify(locationData)})'>
+        <i data-lucide="arrow-left"></i> Back to Dashboard
+      </button>
+      <h1 class="page-title">Maintenance Visit</h1>
+      <p class="text-muted">${locationData.name}</p>
+    </div>
 
-      // Clear form for next entry
-      setTimeout(() => {
-        loadView('technician-activity');
-      }, 1500);
+    <div class="card max-w-3xl mx-auto">
+      <div class="card-body">
+        
+        <!-- Section: Visit Info -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">Visit Info</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-field">
+              <label>Technician Name</label>
+              <input type="text" value="${currentUser.first_name} ${currentUser.last_name}" disabled class="bg-slate-100">
+            </div>
+            <div class="form-field">
+              <label>Visit Date</label>
+              <input type="date" id="maint-visit-date" value="${new Date().toISOString().split('T')[0]}" required>
+            </div>
+            <div class="form-field md:col-span-2">
+              <label>GPS Location</label>
+              <div class="flex gap-2">
+                <button type="button" id="maint-capture-gps-btn" class="btn btn-secondary flex-1">
+                  <i data-lucide="map-pin"></i> Capture GPS
+                </button>
+                <input type="text" id="maint-gps-coordinates" placeholder="Lat, Long" readonly class="flex-1 bg-slate-100">
+              </div>
+            </div>
+          </div>
+        </div>
 
-    } catch (err) {
-      console.error('Error submitting visit:', err);
-      showToast('Failed to submit visit: ' + err.message, 'error');
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Submit Visit';
+        <!-- Section: Client Information -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">Client Information</h3>
+          <div class="form-field">
+            <label>Company / Client Name</label>
+            <input type="text" value="${locationData.name}" disabled class="bg-slate-100">
+          </div>
+          <div class="form-field">
+            <label>AMC / Maintenance Reference</label>
+            <input type="text" id="maint-reference" placeholder="e.g. AMC-2024-001">
+          </div>
+        </div>
+
+        <!-- Section: System Details (Inverter/Battery) -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">System Details</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-field">
+              <label>Manufacturer</label>
+              <select id="maint-inverter-manufacturer">
+                <option value="">Select Manufacturer</option>
+                <option value="Kstar">Kstar</option>
+                <option value="Fortuner">Fortuner</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Inverter Model</label>
+              <select id="maint-inverter-model">
+                <option value="">Select Model</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label>Battery Brand</label>
+              <input type="text" id="maint-battery-brand" placeholder="e.g. Delta">
+            </div>
+            <div class="form-field">
+              <label>Battery Qty & Voltage</label>
+              <input type="text" id="maint-battery-specs" placeholder="e.g. 4x 12V 200Ah">
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Testing Results -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">Testing Results</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="form-field">
+              <label>Charging Current (Amps)</label>
+              <input type="number" id="maint-charging-amps" placeholder="e.g. 20">
+            </div>
+            <div class="form-field">
+              <label>Backup Time Observed (Mins)</label>
+              <input type="number" id="maint-backup-obs" placeholder="e.g. 45">
+            </div>
+            <div class="form-field">
+              <label>Voltage Per Battery (Avg)</label>
+              <input type="number" step="0.1" id="maint-batt-vdc" placeholder="e.g. 13.6">
+            </div>
+            <div class="form-field">
+              <label>System Cleanliness</label>
+              <select id="maint-cleanliness">
+                <option value="Excellent">Excellent</option>
+                <option value="Good">Good</option>
+                <option value="Fair">Fair</option>
+                <option value="Poor">Poor (Needs Cleaning)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Maintenance Checklist -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Maintenance Checklist</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            ${[
+      'Inverter Cleaned', 'Battery Terminals Greased', 'Tightened Connections',
+      'Ventilation Fans Checked', 'Input/Output Voltage Checked',
+      'Auto-Changeover Tested', 'Bypass Switch Checked',
+      'Visual Inspection of Comps', 'Firmware Updated',
+      'User Training Refreshed'
+    ].map((item, i) => `
+              <label class="flex items-center gap-3 p-3 bg-white dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700 rounded-xl hover:border-primary/50 transition-colors cursor-pointer group">
+                <div class="relative flex items-center">
+                  <input type="checkbox" class="maint-checklist-item w-5 h-5 rounded border-slate-300 text-primary focus:ring-primary/20 transition-all cursor-pointer" data-item="${item}">
+                </div>
+                <span class="text-sm font-medium text-slate-700 dark:text-slate-200 group-hover:text-primary transition-colors">${item}</span>
+              </label>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Section: Notes & Verification -->
+        <div class="section-container mb-6">
+          <h3 class="card-title text-lg mb-4 border-b pb-2">Notes & Verification</h3>
+          <div class="form-field">
+            <label>Technician Notes/Findings</label>
+            <textarea id="maint-notes" rows="4" placeholder="Enter findings, recommendations, etc."></textarea>
+          </div>
+
+          <div class="form-field mt-4">
+            <label>Photos (Max 10)</label>
+            <input type="file" id="maint-photos" accept="image/*" multiple style="display: none;" />
+            <div class="photo-upload-multiple" id="maint-photo-upload">
+              <i data-lucide="camera" class="w-6 h-6 mb-2"></i>
+              <p>Tap to add photos</p>
+            </div>
+            <div class="photo-grid mt-4" id="maint-photo-grid"></div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+            <div class="form-field">
+              <label>Technician Signature</label>
+              <div class="signature-container bg-slate-50 dark:bg-slate-900 border rounded-lg h-40 relative">
+                <canvas id="maint-tech-sig-canvas" class="signature-canvas w-full h-full"></canvas>
+                <div class="signature-placeholder absolute inset-0 flex items-center justify-center text-muted pointer-events-none" id="maint-tech-sig-placeholder">
+                  Sign Here
+                </div>
+              </div>
+              <button type="button" class="btn btn-sm btn-ghost mt-2" id="clear-maint-tech-sig">Clear</button>
+            </div>
+
+            <div class="form-field">
+              <label>Client Signature</label>
+              <div class="signature-container bg-slate-50 dark:bg-slate-900 border rounded-lg h-40 relative">
+                <canvas id="maint-client-sig-canvas" class="signature-canvas w-full h-full"></canvas>
+                <div class="signature-placeholder absolute inset-0 flex items-center justify-center text-muted pointer-events-none" id="maint-client-sig-placeholder">
+                  Sign Here
+                </div>
+              </div>
+              <button type="button" class="btn btn-sm btn-ghost mt-2" id="clear-maint-client-sig">Clear</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-field mt-8">
+          <button id="submit-maint-visit" class="btn btn-primary w-full py-3 text-lg">
+            Submit Maintenance Visit
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  if (window.lucide) lucide.createIcons();
+
+  initMaintenanceVisitForm(locationData);
+}
+
+function initMaintenanceVisitForm(locationData) {
+  window.technicianVisitForm = {
+    selectedCompany: locationData.type === 'company' ? locationData : null,
+    capturedLocation: null,
+    technicianSignature: null,
+    clientSignature: null,
+    photos: []
+  };
+
+  // 1. Inverter Auto-fill
+  const manufacturerSelect = document.getElementById('maint-inverter-manufacturer');
+  const modelList = document.getElementById('maint-inverter-model');
+  manufacturerSelect.addEventListener('change', (e) => {
+    const brand = e.target.value;
+    modelList.innerHTML = '<option value="">Select Model</option>';
+    if (INVERTER_MODELS[brand]) {
+      INVERTER_MODELS[brand].forEach(m => {
+        const opt = document.createElement('option');
+        opt.value = m.model; opt.textContent = m.model;
+        modelList.appendChild(opt);
+      });
     }
   });
 
-  function initTechnicianLocationMap(company, userLocation) {
-    if (window.technicianVisitForm.map) {
-      window.technicianVisitForm.map.remove();
+  // 2. GPS Logic
+  const gpsBtn = document.getElementById('maint-capture-gps-btn');
+  const gpsInput = document.getElementById('maint-gps-coordinates');
+  gpsBtn.addEventListener('click', () => {
+    gpsBtn.disabled = true; gpsBtn.innerHTML = '...';
+    navigator.geolocation.getCurrentPosition((pos) => {
+      window.technicianVisitForm.capturedLocation = { latitude: pos.coords.latitude, longitude: pos.coords.longitude };
+      gpsInput.value = `${pos.coords.latitude.toFixed(6)}, ${pos.coords.longitude.toFixed(6)}`;
+      gpsBtn.className = 'btn btn-success flex-1'; gpsBtn.innerHTML = 'Captured'; gpsBtn.disabled = false;
+    });
+  });
+
+  // 3. Photo Logic
+  const photoInput = document.getElementById('maint-photos');
+  const photoArea = document.getElementById('maint-photo-upload');
+  photoArea.addEventListener('click', () => photoInput.click());
+  photoInput.addEventListener('change', async (e) => {
+    const files = Array.from(e.target.files).slice(0, 10);
+    const grid = document.getElementById('maint-photo-grid');
+    grid.innerHTML = 'Compressing...';
+    const processed = [];
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) continue;
+      processed.push(await compressImage(file));
     }
+    window.technicianVisitForm.photos = processed;
+    grid.innerHTML = processed.map(p => {
+      const url = p.dataUrl || (p instanceof File ? URL.createObjectURL(p) : 'https://via.placeholder.com/300x300?text=No+Preview');
+      return `<img src="${url}" class="aspect-square object-cover rounded">`;
+    }).join('');
+  });
 
-    const map = L.map('technician-location-map').setView([userLocation.latitude, userLocation.longitude], 16);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
-    }).addTo(map);
+  // 4. Signature Logic
+  setTimeout(() => {
+    setupMaintCanvas('maint-tech-sig-canvas', 'tech');
+    setupMaintCanvas('maint-client-sig-canvas', 'client');
+  }, 100);
 
-    // Add technician location marker
-    L.marker([userLocation.latitude, userLocation.longitude])
-      .addTo(map)
-      .bindPopup('Your Location')
-      .openPopup();
-
-    // Add company location marker if available
-    if (company.latitude && company.longitude) {
-      L.marker([company.latitude, company.longitude])
-        .addTo(map)
-        .bindPopup(company.name);
-
-      // Draw line between technician and company
-      const latlngs = [
-        [userLocation.latitude, userLocation.longitude],
-        [company.latitude, company.longitude]
-      ];
-      L.polyline(latlngs, { color: '#4f46e5', weight: 2, dashArray: '5, 5' }).addTo(map);
-    }
-
-    // Store map reference
-    window.technicianVisitForm.map = map;
-
-    // ==========================================================
-    // FIX: Force map to recalculate size
-    // This prevents the "blank map" issue when initializing
-    // on a container that was recently hidden (display: none -> block).
-    // ==========================================================
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 100);
+  function setupMaintCanvas(id, type) {
+    const canvas = document.getElementById(id);
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width; canvas.height = rect.height;
+    ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 2; ctx.lineCap = 'round';
+    let drawing = false;
+    const getPos = (e) => {
+      const r = canvas.getBoundingClientRect();
+      const cx = e.touches ? e.touches[0].clientX : e.clientX;
+      const cy = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: cx - r.left, y: cy - r.top };
+    };
+    canvas.addEventListener('mousedown', (e) => { drawing = true; ctx.beginPath(); const { x, y } = getPos(e); ctx.moveTo(x, y); document.getElementById(`maint-${type}-sig-placeholder`).style.display = 'none'; });
+    canvas.addEventListener('mousemove', (e) => { if (!drawing) return; const { x, y } = getPos(e); ctx.lineTo(x, y); ctx.stroke(); });
+    canvas.addEventListener('mouseup', () => { drawing = false; window.technicianVisitForm[`${type === 'tech' ? 'technician' : 'client'}Signature`] = canvas.toDataURL(); });
+    canvas.addEventListener('touchstart', (e) => { drawing = true; ctx.beginPath(); const { x, y } = getPos(e); ctx.moveTo(x, y); document.getElementById(`maint-${type}-sig-placeholder`).style.display = 'none'; e.preventDefault(); });
+    canvas.addEventListener('touchmove', (e) => { if (!drawing) return; const { x, y } = getPos(e); ctx.lineTo(x, y); ctx.stroke(); e.preventDefault(); });
+    canvas.addEventListener('touchend', () => { drawing = false; window.technicianVisitForm[`${type === 'tech' ? 'technician' : 'client'}Signature`] = canvas.toDataURL(); });
+    document.getElementById(`clear-maint-${type}-sig`).addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      document.getElementById(`maint-${type}-sig-placeholder`).style.display = 'flex';
+      window.technicianVisitForm[`${type === 'tech' ? 'technician' : 'client'}Signature`] = null;
+    });
   }
+
+  // 5. Submit Logic
+  document.getElementById('submit-maint-visit').addEventListener('click', async () => {
+    const btn = document.getElementById('submit-maint-visit');
+    if (!window.technicianVisitForm.technicianSignature) { showToast('Technician signature required', 'error'); return; }
+    btn.disabled = true; btn.innerHTML = 'Submitting...';
+
+    try {
+      const photoUrls = [];
+
+      for (const p of window.technicianVisitForm.photos) {
+        const fileToUpload = p.file || (p instanceof File ? p : null);
+        if (!fileToUpload) { console.warn('Maint: Invalid photo object', p); continue; }
+        const fileName = fileToUpload.name ? fileToUpload.name.replace(/[^a-zA-Z0-9.]/g, '_') : `photo-${Date.now()}.jpg`;
+        const path = `technician-photos/${currentUser.id}/${Date.now()}-${fileName}`;
+
+        const { error } = await supabaseClient.storage.from('safitrack').upload(path, fileToUpload, {
+          contentType: 'image/jpeg',
+          upsert: true
+        });
+        if (!error) {
+          const { data } = supabaseClient.storage.from('safitrack').getPublicUrl(path);
+
+          photoUrls.push(data.publicUrl);
+        } else {
+          console.error('Maint: Upload error detail:', error);
+        }
+      }
+
+      const checklist = [];
+      document.querySelectorAll('.maint-checklist-item:checked').forEach(i => checklist.push(i.dataset.item));
+
+      const formData = {
+        visit_date: document.getElementById('maint-visit-date').value,
+        amc_reference: document.getElementById('maint-reference').value,
+        inverter_manufacturer: manufacturerSelect.value,
+        inverter_model: modelList.value,
+        battery_brand: document.getElementById('maint-battery-brand').value,
+        battery_specs: document.getElementById('maint-battery-specs').value,
+        charging_amps: document.getElementById('maint-charging-amps').value,
+        backup_obs: document.getElementById('maint-backup-obs').value,
+        batt_vdc: document.getElementById('maint-batt-vdc').value,
+        cleanliness: document.getElementById('maint-cleanliness').value,
+        checklist: checklist,
+        technician_notes: document.getElementById('maint-notes').value
+      };
+
+      const visitData = {
+        technician_id: currentUser.id,
+        company_id: locationData.type === 'company' ? locationData.id : null,
+        company_name: locationData.name,
+        location_name: locationData.type === 'custom' ? locationData.name : null,
+        form_type: 'maintenance_visit',
+        visit_type: 'maintenance',
+        visit_notes: formData.technician_notes || 'Maintenance completed',
+        technician_signature: window.technicianVisitForm.technicianSignature,
+        client_signature: window.technicianVisitForm.clientSignature,
+        photos: photoUrls.length > 0 ? photoUrls : null,
+        latitude: window.technicianVisitForm.capturedLocation?.latitude,
+        longitude: window.technicianVisitForm.capturedLocation?.longitude,
+        created_at: new Date().toISOString(),
+        form_data: formData
+      };
+
+      const { error } = await supabaseClient.from('technician_visits').insert([visitData]);
+      if (error) throw error;
+      showToast('Maintenance Visit Submitted!', 'success');
+      setTimeout(() => renderTechnicianCompanyDashboard(locationData), 1500);
+    } catch (e) {
+      console.error(e); showToast('Error: ' + e.message, 'error'); btn.disabled = false; btn.innerHTML = 'Submit Maintenance Visit';
+    }
+  });
 }
 
-window.selectTechnicianCompany = function (companyId) {
-  const companies = window.companiesData;
-  const company = companies.find(c => c.id === companyId);
-  if (!company) return;
+async function compressImage(file, maxWidth = 1200, quality = 0.7) {
 
-  // Update company name input
-  document.getElementById('technician-company-name').value = company.name;
+  return new Promise((resolve) => {
+    try {
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
 
-  // Show selected company info
-  document.getElementById('selected-technician-company').style.display = 'block';
-  document.getElementById('selected-technician-company-name').textContent = company.name;
-  document.getElementById('selected-technician-company-address').textContent =
-    company.description || 'No description';
 
-  // Hide search results
-  document.getElementById('technician-company-search-results').style.display = 'none';
+      img.onload = () => {
 
-  // CRITICAL FIX: Store the company in the global state
-  window.technicianVisitForm.selectedCompany = company;
+        URL.revokeObjectURL(objectUrl);
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
 
-  // Enable verify location button
-  document.getElementById('verify-technician-location').disabled = false;
-};
+        if (width > maxWidth) {
+          height = (maxWidth / width) * height;
+          width = maxWidth;
 
-// Allow selecting a custom company entered by the technician
-window.selectCustomTechnicianCompany = function (name) {
-  const company = {
-    id: null,
-    name: name,
-    description: 'Custom entry'
-  };
+        }
 
-  document.getElementById('technician-company-name').value = company.name;
-  document.getElementById('selected-technician-company').style.display = 'block';
-  document.getElementById('selected-technician-company-name').textContent = company.name;
-  document.getElementById('selected-technician-company-address').textContent = company.description;
-  document.getElementById('technician-company-search-results').style.display = 'none';
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
 
-  window.technicianVisitForm.selectedCompany = company;
-  document.getElementById('verify-technician-location').disabled = false;
-};
+        canvas.toBlob((blob) => {
+          if (!blob) {
+            console.error('Canvas toBlob failed, returning original file');
+            resolve({ file: file, dataUrl: canvas.toDataURL('image/jpeg', quality) });
+            return;
+          }
+          const compressedFile = new File([blob], file.name || 'photo.jpg', {
+            type: 'image/jpeg',
+            lastModified: Date.now(),
+          });
 
-// ======================
-// TECHNICIAN ACTIVITY VIEW
-// ======================
+          resolve({ file: compressedFile, dataUrl: canvas.toDataURL('image/jpeg', quality) });
+        }, 'image/jpeg', quality);
+      };
+
+      img.onerror = (err) => {
+        console.error('Image element failed to load file:', err);
+        URL.revokeObjectURL(objectUrl);
+        resolve({ file: file, dataUrl: null });
+      };
+
+      img.src = objectUrl;
+    } catch (err) {
+      console.error('Compression crash error:', err);
+      resolve({ file: file, dataUrl: null });
+    }
+  });
+}
+
+function handleImageError(img) {
+  img.src = 'https://via.placeholder.com/300x300?text=No+Preview';
+}
 
 // Update the renderTechnicianActivityView function to properly display photos
 async function renderTechnicianActivityView() {
@@ -13448,12 +13904,7 @@ function renderTechnicianVisitCard(visit) {
   const date = formatDate(visit.created_at);
   const companyName = visit.company_name || visit.companies?.name || 'Unknown Company';
 
-  const workStatusLabels = {
-    'completed': 'Completed',
-    'partially_completed': 'Partially Completed',
-    'pending': 'Pending',
-    'follow_up': 'Follow-up Required'
-  };
+
 
   const visitTypeLabels = {
     'installation': 'Installation',
@@ -13470,9 +13921,6 @@ function renderTechnicianVisitCard(visit) {
           <div class="technician-visit-company">${companyName}</div>
           <div class="text-muted" style="font-size: 0.875rem;">${date}</div>
         </div>
-        <span class="work-status-badge ${visit.work_status}">
-          ${workStatusLabels[visit.work_status]}
-        </span>
       </div>
       
       <div class="technician-visit-meta">
@@ -13543,12 +13991,7 @@ function renderTechnicianVisitCard(visit) {
   const date = formatDate(visit.created_at);
   const companyName = visit.company_name || visit.companies?.name || 'Unknown Company';
 
-  const workStatusLabels = {
-    'completed': 'Completed',
-    'partially_completed': 'Partially Completed',
-    'pending': 'Pending',
-    'follow_up': 'Follow-up Required'
-  };
+
 
   const visitTypeLabels = {
     'installation': 'Installation',
@@ -13573,9 +14016,6 @@ function renderTechnicianVisitCard(visit) {
           <div class="technician-visit-company">${companyName}</div>
           <div class="text-muted" style="font-size: 0.875rem;">${date}</div>
         </div>
-        <span class="work-status-badge ${visit.work_status}">
-          ${workStatusLabels[visit.work_status]}
-        </span>
       </div>
       
       <div class="technician-visit-meta">
@@ -13715,13 +14155,7 @@ async function renderTechniciansDashboardView() {
     return visitDate === new Date().toDateString();
   }).length;
 
-  // Group visits by work status
-  const statusCounts = {
-    completed: hydratedVisits.filter(v => v.work_status === 'completed').length,
-    partially_completed: hydratedVisits.filter(v => v.work_status === 'partially_completed').length,
-    pending: hydratedVisits.filter(v => v.work_status === 'pending').length,
-    follow_up: hydratedVisits.filter(v => v.work_status === 'follow_up').length
-  };
+
 
   let html = `
     <div class="page-header">
@@ -13741,10 +14175,6 @@ async function renderTechniciansDashboardView() {
         <div class="stat-value">${todayVisits}</div>
         <div class="stat-label">Visits Today</div>
       </div>
-      <div class="stat-card">
-        <div class="stat-value">${statusCounts.completed}</div>
-        <div class="stat-label">Completed</div>
-      </div>
     </div>
 
     
@@ -13754,19 +14184,19 @@ async function renderTechniciansDashboardView() {
         <h3 class="card-title">Filter Visits</h3>
       </div>
       <div class="technician-filters-row">
+        <select class="technician-filter-control" id="filter-company">
+          <option value="">All Companies</option>
+          ${Array.from(companiesById.values()).map(c => `
+            <option value="${c.id}">${c.name}</option>
+          `).join('')}
+        </select>
         <select class="technician-filter-control" id="filter-technician">
           <option value="">All Technicians</option>
           ${technicians.map(tech => `
             <option value="${tech.id}">${tech.first_name} ${tech.last_name}</option>
           `).join('')}
         </select>
-        <select class="technician-filter-control" id="filter-status">
-          <option value="">All Status</option>
-          <option value="completed">Completed</option>
-          <option value="partially_completed">Partially Completed</option>
-          <option value="pending">Pending</option>
-          <option value="follow_up">Follow-up Required</option>
-        </select>
+
         <select class="technician-filter-control" id="filter-type">
           <option value="">All Types</option>
           <option value="installation">Installation</option>
@@ -13823,7 +14253,8 @@ async function renderTechniciansDashboardView() {
   // Technician locations map removed per request
 
   // Initialize filters
-  initTechnicianFilters(hydratedVisits, technicians);
+  const companiesArray = Array.from(companiesById.values());
+  initTechnicianFilters(hydratedVisits, technicians, companiesArray);
 }
 
 function renderTechnicianVisitCardForManager(visit) {
@@ -13833,12 +14264,7 @@ function renderTechnicianVisitCardForManager(visit) {
   const technicianName = visit.technician ?
     `${visit.technician.first_name} ${visit.technician.last_name}` : 'Unknown Technician';
 
-  const workStatusLabels = {
-    'completed': 'Completed',
-    'partially_completed': 'Partially Completed',
-    'pending': 'Pending',
-    'follow_up': 'Follow-up Required'
-  };
+
 
   const visitTypeLabels = {
     'installation': 'Installation',
@@ -13851,19 +14277,15 @@ function renderTechnicianVisitCardForManager(visit) {
   return `
     <div class="technician-visit-card" 
         data-technician="${visit.technician_id}"
-        data-status="${visit.work_status}"
         data-type="${visit.visit_type}"
         data-date="${new Date(visit.created_at).toISOString().split('T')[0]}">
       <div class="technician-visit-header">
         <div>
           <div class="technician-visit-company">${companyName}</div>
           <div class="text-prim" style="font-size: 0.875rem;">
-            by ${technicianName} • ${date}
+            <span class="badge badge-sm badge-outline mr-2">${formatFormType(visit.form_type)}</span>
           </div>
         </div>
-        <span class="work-status-badge ${visit.work_status}">
-          ${workStatusLabels[visit.work_status]}
-        </span>
       </div>
       
       <div class="technician-visit-meta">
@@ -13885,6 +14307,86 @@ function renderTechnicianVisitCardForManager(visit) {
 
       ${visit.visit_notes ? `
         <div class="visit-notes mb-2">${visit.visit_notes}</div>
+      ` : ''}
+
+      ${visit.form_data && Object.keys(visit.form_data).length > 0 ? `
+        <div class="mt-4 mb-4">
+          <button class="btn btn-xs btn-ghost text-primary flex items-center gap-1" onclick="this.nextElementSibling.classList.toggle('hidden'); if(window.lucide) lucide.createIcons();">
+             <i data-lucide="info" style="width: 14px; height: 14px;"></i> View Detailed Technical Report
+          </button>
+          <div class="hidden mt-3 p-5 bg-slate-50 dark:bg-slate-900/40 rounded-xl border border-slate-200/60 dark:border-slate-800 shadow-sm">
+            <div class="flex items-center justify-between mb-4 border-b border-slate-200 dark:border-slate-800 pb-2">
+              <h4 class="text-sm font-bold text-slate-700 dark:text-slate-200">Technical Report Details</h4>
+              <span class="text-[10px] font-bold text-primary uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded-full">${formatFormType(visit.form_type).replace('Visit', '')}</span>
+            </div>
+            
+            <div class="space-y-6">
+              ${(() => {
+        const data = visit.form_data;
+        const groups = {
+          'System Configuration': ['inverter_manufacturer', 'inverter_model', 'inverter_serial', 'inverter_kva', 'inverter_type', 'system_size', 'roof_type', 'inverter_location', 'battery_location'],
+          'Battery Specifications': ['battery_brand', 'battery_qty', 'battery_volts', 'battery_ah', 'battery_specs', 'batt_vdc'],
+          'Performance Metrics': ['input_vac', 'output_vac', 'pv_voltage', 'pv_amps', 'charging_amps', 'cleanliness'],
+          'Visit Information': ['visit_date', 'client_address', 'reference_number', 'amc_reference']
+        };
+
+        let groupsHtml = '';
+
+        // Render Categorized Groups
+        for (const [groupName, keys] of Object.entries(groups)) {
+          const groupData = keys.filter(k => data[k] && data[k] !== '');
+          if (groupData.length > 0) {
+            groupsHtml += `
+                    <div>
+                      <h5 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">${groupName}</h5>
+                      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        ${groupData.map(key => {
+              const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+              return `
+                            <div>
+                              <div class="text-[10px] text-slate-500 mb-0.5">${label}</div>
+                              <div class="text-sm font-semibold text-slate-800 dark:text-slate-200">${data[key]}</div>
+                            </div>
+                          `;
+            }).join('')}
+                      </div>
+                    </div>
+                  `;
+          }
+        }
+
+        // Render Checklist separately
+        if (data.checklist && Array.isArray(data.checklist) && data.checklist.length > 0) {
+          groupsHtml += `
+                  <div>
+                    <h5 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Service Checklist</h5>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      ${data.checklist.map(item => `
+                        <div class="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 p-2 rounded-lg border border-slate-100 dark:border-slate-700">
+                          <i data-lucide="check-circle-2" class="text-success w-3.5 h-3.5"></i>
+                          <span>${item}</span>
+                        </div>
+                      `).join('')}
+                    </div>
+                  </div>
+                `;
+        }
+
+        // Render Notes
+        if (data.technician_notes || data.notes) {
+          groupsHtml += `
+                  <div class="pt-2 border-t border-slate-200 dark:border-slate-800">
+                    <h5 class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Technician Notes</h5>
+                    <p class="text-sm text-slate-700 dark:text-slate-300 italic">"${data.technician_notes || data.notes}"</p>
+                  </div>
+                `;
+        }
+
+        return groupsHtml || '<p class="text-sm text-muted">No additional data available.</p>';
+      })()}
+            </div>
+          </div>
+        </div>
       ` : ''}
 
       ${visit.follow_up_notes ? `
@@ -13927,7 +14429,6 @@ function renderTechnicianVisitCardForManager(visit) {
     </div>
   `;
 }
-
 function initTechniciansMap(visits) {
   const mapElement = document.getElementById('technicians-map');
   if (!mapElement) return;
@@ -13976,7 +14477,7 @@ function initTechniciansMap(visits) {
         className: 'technician-marker',
         html: `
           <div style="
-            background: ${statusColors[visit.work_status] || 'gray'};
+            background: 'var(--color-primary)';
             color: white;
             width: 24px;
             height: 24px;
@@ -14003,7 +14504,7 @@ function initTechniciansMap(visits) {
           <small>${technicianName}</small><br>
           <hr style="margin: 8px 0;">
           <div><strong>Type:</strong> ${visit.visit_type}</div>
-          <div><strong>Status:</strong> ${visit.work_status}</div>
+
           <div><strong>Date:</strong> ${formatDate(visit.created_at)}</div>
           ${visit.visit_notes ? `<div><strong>Notes:</strong> ${visit.visit_notes.substring(0, 100)}${visit.visit_notes.length > 100 ? '...' : ''}</div>` : ''}
           <button class="btn btn-sm btn-primary w-full mt-2" onclick="viewTechnicianVisitDetails('${visit.id}')">
@@ -14026,9 +14527,9 @@ function initTechniciansMap(visits) {
   window.techniciansMarkers = markers;
 }
 
-function initTechnicianFilters(visits, technicians) {
+function initTechnicianFilters(visits, technicians, companies) {
+  const companyFilter = document.getElementById('filter-company');
   const technicianFilter = document.getElementById('filter-technician');
-  const statusFilter = document.getElementById('filter-status');
   const typeFilter = document.getElementById('filter-type');
   const dateFilter = document.getElementById('filter-date');
   const clearFiltersBtn = document.getElementById('clear-filters');
@@ -14038,14 +14539,14 @@ function initTechnicianFilters(visits, technicians) {
   let displayedCount = 20;
 
   function applyFilters() {
+    const companyId = companyFilter ? companyFilter.value : '';
     const technicianId = technicianFilter.value;
-    const status = statusFilter.value;
     const type = typeFilter.value;
     const date = dateFilter.value;
 
     filteredVisits = visits.filter(visit => {
+      if (companyId && String(visit.company_id) !== String(companyId)) return false;
       if (technicianId && visit.technician_id !== technicianId) return false;
-      if (status && visit.work_status !== status) return false;
       if (type && visit.visit_type !== type) return false;
       if (date) {
         const visitDate = new Date(visit.created_at).toISOString().split('T')[0];
@@ -14088,14 +14589,14 @@ function initTechnicianFilters(visits, technicians) {
   }
 
   // Add event listeners
+  if (companyFilter) companyFilter.addEventListener('change', applyFilters);
   technicianFilter.addEventListener('change', applyFilters);
-  statusFilter.addEventListener('change', applyFilters);
   typeFilter.addEventListener('change', applyFilters);
   dateFilter.addEventListener('change', applyFilters);
 
   clearFiltersBtn.addEventListener('click', () => {
+    if (companyFilter) companyFilter.value = '';
     technicianFilter.value = '';
-    statusFilter.value = '';
     typeFilter.value = '';
     dateFilter.value = '';
     displayedCount = 20;
@@ -14244,26 +14745,7 @@ async function generateTechnicianVisitPDF(visitId) {
       yPos += 8;
     };
 
-    // Helper: Status badge
-    const addStatusBadge = (status) => {
-      const statusConfig = {
-        'completed': { color: colors.success, text: 'COMPLETED' },
-        'partially_completed': { color: colors.warning, text: 'PARTIAL' },
-        'pending': { color: colors.secondary, text: 'PENDING' },
-        'follow_up': { color: colors.danger, text: 'FOLLOW-UP' }
-      };
 
-      const config = statusConfig[status] || statusConfig.pending;
-
-      doc.setFillColor(...config.color);
-      doc.roundedRect(pageWidth - 70, 15, 50, 10, 2, 2, 'F');
-
-      doc.setFontSize(8);
-      doc.setTextColor(...colors.white);
-      doc.setFont(undefined, 'bold');
-      doc.text(config.text, pageWidth - 67, 21);
-      doc.setFont(undefined, 'normal');
-    };
 
     // Helper: Fetch image with error handling
     const fetchImageAsBase64 = async (url) => {
@@ -14308,8 +14790,7 @@ async function generateTechnicianVisitPDF(visitId) {
     doc.setFont(undefined, 'normal');
     doc.text('Service Visit Information', 20, 40);
 
-    // Status badge
-    addStatusBadge(visit.work_status);
+
 
     yPos = 60;
 
@@ -14365,18 +14846,13 @@ async function generateTechnicianVisitPDF(visitId) {
       'emergency': 'Emergency / Call-out'
     };
 
+    addInfoRow('Form Type', formatFormType(visit.form_type));
     addInfoRow('Visit Type', visitTypeLabels[visit.visit_type] || visit.visit_type);
 
     const workCategory = visit.work_category + (visit.other_work_category ? ` (${visit.other_work_category})` : '');
     addInfoRow('Work Category', workCategory);
 
-    const statusLabels = {
-      'completed': 'Completed',
-      'partially_completed': 'Partially Completed',
-      'pending': 'Pending',
-      'follow_up': 'Follow-up Required'
-    };
-    addInfoRow('Work Status', statusLabels[visit.work_status] || visit.work_status);
+
 
     yPos += 5;
 
@@ -14407,15 +14883,30 @@ async function generateTechnicianVisitPDF(visitId) {
       const notesHeight = notesLines.length * 6 + 10;
 
       doc.roundedRect(20, yPos, pageWidth - 40, notesHeight, 3, 3, 'F');
-
       doc.setFontSize(10);
       doc.setTextColor(...colors.dark);
-
-      notesLines.forEach((line, index) => {
-        doc.text(line, 25, yPos + 8 + (index * 6));
+      notesLines.forEach((line, i) => {
+        doc.text(line, 25, yPos + 7 + (i * 6));
       });
-
       yPos += notesHeight + 10;
+    }
+
+    // Detailed Form Data
+    if (visit.form_data && Object.keys(visit.form_data).length > 0) {
+      addSectionHeader('DETAILED FORM DATA');
+
+      Object.entries(visit.form_data).forEach(([key, value]) => {
+        if (!value) return;
+        const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+        if (Array.isArray(value)) {
+          addInfoRow(label, value.join(', '));
+        } else {
+          addInfoRow(label, String(value));
+        }
+      });
+      yPos += 5;
+
     }
 
     // Follow-up Notes
@@ -14685,12 +15176,7 @@ window.viewTechnicianVisitDetails = async function (visitId) {
     if (error) throw error;
 
 
-    const workStatusLabels = {
-      'completed': 'Completed',
-      'partially_completed': 'Partially Completed',
-      'pending': 'Pending',
-      'follow_up': 'Follow-up Required'
-    };
+
 
     const visitTypeLabels = {
       'installation': 'Installation',
@@ -14735,7 +15221,7 @@ window.viewTechnicianVisitDetails = async function (visitId) {
               <h4>Visit Information</h4>
               <p><strong>Visit Type:</strong> ${visit.visit_type}</p>
               <p><strong>Work Category:</strong> ${visit.work_category}${visit.other_work_category ? ` (${visit.other_work_category})` : ''}</p>
-              <p><strong>Work Status:</strong> ${visit.work_status}</p>
+
             </div>
           </div>
           
@@ -14791,6 +15277,32 @@ window.viewTechnicianVisitDetails = async function (visitId) {
               </div>
             </div>
           </div>
+
+          ${visit.form_data && Object.keys(visit.form_data).length > 0 ? `
+            <div class="mt-6 p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-100 dark:border-slate-800">
+              <h4 class="text-sm font-bold text-muted uppercase tracking-wider mb-4">Detailed Form Data</h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                ${Object.entries(visit.form_data).map(([key, value]) => {
+      if (value === undefined || value === null || value === '') return '';
+      const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+
+      if (Array.isArray(value)) {
+        return `<div class="col-span-2">
+                      <span class="text-muted block text-xs uppercase font-semibold mb-1">${label}</span>
+                      <div class="flex flex-wrap gap-1">
+                        ${value.map(v => `<span class="tag tag-sm">${v}</span>`).join('')}
+                      </div>
+                    </div>`;
+      }
+
+      return `<div>
+                    <span class="text-muted block text-xs uppercase font-semibold mb-1">${label}</span>
+                    <span class="font-medium text-slate-900 dark:text-slate-100">${value}</span>
+                  </div>`;
+    }).join('')}
+              </div>
+            </div>
+          ` : ''}
           
           <div class="mt-4">
             <h4>Technician</h4>
@@ -15058,72 +15570,7 @@ window.addEventListener('resize', () => {
  * @param {number} maxHeight - Maximum height (default 1200)
  * @returns {Promise<File>} - Compressed file
  */
-async function compressImage(file, quality = 0.6, maxWidth = 1200, maxHeight = 1200) {
-  return new Promise((resolve, reject) => {
-    // Create a canvas element
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
 
-    // Create an image element
-    const img = new Image();
-
-    img.onload = function () {
-      // Calculate new dimensions
-      let { width, height } = img;
-
-      // Calculate aspect ratio
-      const aspectRatio = width / height;
-
-      // Resize if dimensions exceed max values
-      if (width > maxWidth || height > maxHeight) {
-        if (width > height) {
-          width = maxWidth;
-          height = maxWidth / aspectRatio;
-        } else {
-          height = maxHeight;
-          width = maxHeight * aspectRatio;
-        }
-      }
-
-      // Set canvas dimensions
-      canvas.width = width;
-      canvas.height = height;
-
-      // Draw and compress image
-      ctx.drawImage(img, 0, 0, width, height);
-
-      // Convert to blob with compression
-      canvas.toBlob(
-        (blob) => {
-          if (blob) {
-            // Create a new File object with the compressed blob
-            const compressedFile = new File(
-              [blob],
-              `compressed_${file.name}`,
-              {
-                type: file.type,
-                lastModified: Date.now()
-              }
-            );
-
-            resolve(compressedFile);
-          } else {
-            reject(new Error('Failed to compress image'));
-          }
-        },
-        file.type,
-        quality
-      );
-    };
-
-    img.onerror = function () {
-      reject(new Error('Failed to load image'));
-    };
-
-    // Load the image
-    img.src = URL.createObjectURL(file);
-  });
-}
 
 
 
@@ -16451,165 +16898,165 @@ async function renderProfessionalDashboardView() {
   if (headerTitle) headerTitle.textContent = 'Dashboard';
 
   try {
-   const [
-    contactsResult,
-    companiesResult,
-    tasksResult,
-    opportunitiesResult,
-    visitsResult,
-    repsResult
-   ] = await Promise.all([
-    supabaseClient.from('people').select('*', { count: 'exact', head: true }),
-    supabaseClient.from('companies').select('*', { count: 'exact', head: true }),
-    supabaseClient.from('tasks').select('id, status, due_date, created_at'),
-    supabaseClient.from('opportunities').select('id, value, stage, created_at, updated_at'),
-    supabaseClient
-      .from('visits')
+    const [
+      contactsResult,
+      companiesResult,
+      tasksResult,
+      opportunitiesResult,
+      visitsResult,
+      repsResult
+    ] = await Promise.all([
+      supabaseClient.from('people').select('*', { count: 'exact', head: true }),
+      supabaseClient.from('companies').select('*', { count: 'exact', head: true }),
+      supabaseClient.from('tasks').select('id, status, due_date, created_at'),
+      supabaseClient.from('opportunities').select('id, value, stage, created_at, updated_at'),
+      supabaseClient
+        .from('visits')
         .select('id, user_id, company_name, visit_type, lead_score, created_at, profiles(first_name, last_name)')
-      .order('created_at', { ascending: false })
-      .limit(100),
-    supabaseClient.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'sales_rep')
-   ]);
+        .order('created_at', { ascending: false })
+        .limit(100),
+      supabaseClient.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'sales_rep')
+    ]);
 
-   if (contactsResult.error || companiesResult.error || tasksResult.error || opportunitiesResult.error || visitsResult.error || repsResult.error) {
-    throw new Error(
-      contactsResult.error?.message ||
-      companiesResult.error?.message ||
-      tasksResult.error?.message ||
-      opportunitiesResult.error?.message ||
-      visitsResult.error?.message ||
-      repsResult.error?.message ||
-      'Unable to load dashboard data'
-    );
-   }
-
-   const contactsCount = contactsResult.count || 0;
-   const companiesCount = companiesResult.count || 0;
-   const tasks = tasksResult.data || [];
-   const opportunities = opportunitiesResult.data || [];
-   const recentVisits = visitsResult.data || [];
-   const totalSalesReps = repsResult.count || 0;
-
-   const normalizeStage = (stage) => {
-    const value = String(stage || '').toLowerCase().replace(/_/g, '-');
-    if (value === 'closed-won') return 'closed-won';
-    if (value === 'closed-lost') return 'closed-lost';
-    if (['prospecting', 'qualification', 'proposal', 'negotiation'].includes(value)) return value;
-    return 'prospecting';
-   };
-
-   const formatMoney = (amount) => `$${Math.round(amount || 0).toLocaleString()}`;
-   const now = new Date();
-   const todayYMD = now.toISOString().slice(0, 10);
-   const weekStart = new Date(now);
-   weekStart.setDate(now.getDate() - 6);
-   weekStart.setHours(0, 0, 0, 0);
-
-   const completedTasks = tasks.filter(t => String(t.status || '').toLowerCase() === 'completed').length;
-   const openTasks = tasks.length - completedTasks;
-   const taskCompletionRate = tasks.length > 0 ? (completedTasks / tasks.length) * 100 : 0;
-
-   const enrichedOpps = opportunities.map(opp => ({
-    ...opp,
-    normalizedStage: normalizeStage(opp.stage),
-    numericValue: Number(opp.value) || 0
-   }));
-
-   const openOpps = enrichedOpps.filter(o => !['closed-won', 'closed-lost'].includes(o.normalizedStage));
-   const wonOpps = enrichedOpps.filter(o => o.normalizedStage === 'closed-won');
-   const closedOpps = enrichedOpps.filter(o => ['closed-won', 'closed-lost'].includes(o.normalizedStage));
-   const pipelineOpenValue = openOpps.reduce((sum, o) => sum + o.numericValue, 0);
-   const wonRevenue = wonOpps.reduce((sum, o) => sum + o.numericValue, 0);
-   const winRate = closedOpps.length > 0 ? (wonOpps.length / closedOpps.length) * 100 : 0;
-   const avgDealSize = openOpps.length > 0 ? pipelineOpenValue / openOpps.length : 0;
-
-   const visitsToday = recentVisits.filter(v => {
-    const visitDate = (v.date || v.created_at || '').toString().slice(0, 10);
-    return visitDate === todayYMD;
-   }).length;
-
-   const visitsThisWeek = recentVisits.filter(v => {
-    const visitDate = new Date(v.date || v.created_at);
-    return !Number.isNaN(visitDate.getTime()) && visitDate >= weekStart;
-   }).length;
-
-   const activeRepIds30d = new Set(
-    recentVisits
-      .filter(v => {
-       const visitDate = new Date(v.date || v.created_at);
-       const daysAgo = (now - visitDate) / (1000 * 60 * 60 * 24);
-       return !Number.isNaN(visitDate.getTime()) && daysAgo <= 30;
-      })
-      .map(v => v.user_id)
-      .filter(Boolean)
-   );
-
-   const leadScoreValues = recentVisits
-    .map(v => Number(v.lead_score))
-    .filter(score => Number.isFinite(score) && score > 0);
-   const avgLeadScore = leadScoreValues.length
-    ? (leadScoreValues.reduce((sum, score) => sum + score, 0) / leadScoreValues.length)
-    : 0;
-
-   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-   const trendMonths = [];
-   for (let i = 5; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    trendMonths.push({
-      key: `${d.getFullYear()}-${d.getMonth()}`,
-      name: monthNames[d.getMonth()],
-      pipelineValue: 0,
-      wonValue: 0
-    });
-   }
-
-   enrichedOpps.forEach(opp => {
-    const createdAt = new Date(opp.created_at);
-    const createdKey = `${createdAt.getFullYear()}-${createdAt.getMonth()}`;
-    const createdBucket = trendMonths.find(m => m.key === createdKey);
-    if (createdBucket) createdBucket.pipelineValue += opp.numericValue;
-
-    if (opp.normalizedStage === 'closed-won') {
-      const wonAt = new Date(opp.updated_at || opp.created_at);
-      const wonKey = `${wonAt.getFullYear()}-${wonAt.getMonth()}`;
-      const wonBucket = trendMonths.find(m => m.key === wonKey);
-      if (wonBucket) wonBucket.wonValue += opp.numericValue;
+    if (contactsResult.error || companiesResult.error || tasksResult.error || opportunitiesResult.error || visitsResult.error || repsResult.error) {
+      throw new Error(
+        contactsResult.error?.message ||
+        companiesResult.error?.message ||
+        tasksResult.error?.message ||
+        opportunitiesResult.error?.message ||
+        visitsResult.error?.message ||
+        repsResult.error?.message ||
+        'Unable to load dashboard data'
+      );
     }
-   });
 
-   const maxTrendValue = Math.max(...trendMonths.map(m => Math.max(m.pipelineValue, m.wonValue)), 1);
+    const contactsCount = contactsResult.count || 0;
+    const companiesCount = companiesResult.count || 0;
+    const tasks = tasksResult.data || [];
+    const opportunities = opportunitiesResult.data || [];
+    const recentVisits = visitsResult.data || [];
+    const totalSalesReps = repsResult.count || 0;
 
-   const stageMeta = [
-    { key: 'prospecting', label: 'Prospecting', color: '#3b82f6' },
-    { key: 'qualification', label: 'Qualification', color: '#8b5cf6' },
-    { key: 'proposal', label: 'Proposal', color: '#f59e0b' },
-    { key: 'negotiation', label: 'Negotiation', color: '#f97316' },
-    { key: 'closed-won', label: 'Closed Won', color: '#10b981' },
-    { key: 'closed-lost', label: 'Closed Lost', color: '#ef4444' }
-   ];
-
-   const stageSummary = stageMeta.map(meta => {
-    const stageOpps = enrichedOpps.filter(o => o.normalizedStage === meta.key);
-    return {
-      ...meta,
-      count: stageOpps.length,
-      value: stageOpps.reduce((sum, o) => sum + o.numericValue, 0)
+    const normalizeStage = (stage) => {
+      const value = String(stage || '').toLowerCase().replace(/_/g, '-');
+      if (value === 'closed-won') return 'closed-won';
+      if (value === 'closed-lost') return 'closed-lost';
+      if (['prospecting', 'qualification', 'proposal', 'negotiation'].includes(value)) return value;
+      return 'prospecting';
     };
-   });
 
-   const donutTotal = Math.max(enrichedOpps.length, 1);
-   let running = 0;
-   const donutSegments = stageSummary
-    .filter(item => item.count > 0)
-    .map(item => {
-      const start = running;
-      const pct = (item.count / donutTotal) * 100;
-      running += pct;
-      return `${item.color} ${start}% ${running}%`;
+    const formatMoney = (amount) => `$${Math.round(amount || 0).toLocaleString()}`;
+    const now = new Date();
+    const todayYMD = now.toISOString().slice(0, 10);
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() - 6);
+    weekStart.setHours(0, 0, 0, 0);
+
+    const completedTasks = tasks.filter(t => String(t.status || '').toLowerCase() === 'completed').length;
+    const openTasks = tasks.length - completedTasks;
+    const taskCompletionRate = tasks.length > 0 ? (completedTasks / tasks.length) * 100 : 0;
+
+    const enrichedOpps = opportunities.map(opp => ({
+      ...opp,
+      normalizedStage: normalizeStage(opp.stage),
+      numericValue: Number(opp.value) || 0
+    }));
+
+    const openOpps = enrichedOpps.filter(o => !['closed-won', 'closed-lost'].includes(o.normalizedStage));
+    const wonOpps = enrichedOpps.filter(o => o.normalizedStage === 'closed-won');
+    const closedOpps = enrichedOpps.filter(o => ['closed-won', 'closed-lost'].includes(o.normalizedStage));
+    const pipelineOpenValue = openOpps.reduce((sum, o) => sum + o.numericValue, 0);
+    const wonRevenue = wonOpps.reduce((sum, o) => sum + o.numericValue, 0);
+    const winRate = closedOpps.length > 0 ? (wonOpps.length / closedOpps.length) * 100 : 0;
+    const avgDealSize = openOpps.length > 0 ? pipelineOpenValue / openOpps.length : 0;
+
+    const visitsToday = recentVisits.filter(v => {
+      const visitDate = (v.date || v.created_at || '').toString().slice(0, 10);
+      return visitDate === todayYMD;
+    }).length;
+
+    const visitsThisWeek = recentVisits.filter(v => {
+      const visitDate = new Date(v.date || v.created_at);
+      return !Number.isNaN(visitDate.getTime()) && visitDate >= weekStart;
+    }).length;
+
+    const activeRepIds30d = new Set(
+      recentVisits
+        .filter(v => {
+          const visitDate = new Date(v.date || v.created_at);
+          const daysAgo = (now - visitDate) / (1000 * 60 * 60 * 24);
+          return !Number.isNaN(visitDate.getTime()) && daysAgo <= 30;
+        })
+        .map(v => v.user_id)
+        .filter(Boolean)
+    );
+
+    const leadScoreValues = recentVisits
+      .map(v => Number(v.lead_score))
+      .filter(score => Number.isFinite(score) && score > 0);
+    const avgLeadScore = leadScoreValues.length
+      ? (leadScoreValues.reduce((sum, score) => sum + score, 0) / leadScoreValues.length)
+      : 0;
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const trendMonths = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      trendMonths.push({
+        key: `${d.getFullYear()}-${d.getMonth()}`,
+        name: monthNames[d.getMonth()],
+        pipelineValue: 0,
+        wonValue: 0
+      });
+    }
+
+    enrichedOpps.forEach(opp => {
+      const createdAt = new Date(opp.created_at);
+      const createdKey = `${createdAt.getFullYear()}-${createdAt.getMonth()}`;
+      const createdBucket = trendMonths.find(m => m.key === createdKey);
+      if (createdBucket) createdBucket.pipelineValue += opp.numericValue;
+
+      if (opp.normalizedStage === 'closed-won') {
+        const wonAt = new Date(opp.updated_at || opp.created_at);
+        const wonKey = `${wonAt.getFullYear()}-${wonAt.getMonth()}`;
+        const wonBucket = trendMonths.find(m => m.key === wonKey);
+        if (wonBucket) wonBucket.wonValue += opp.numericValue;
+      }
     });
-   const donutBackground = donutSegments.length
-    ? `conic-gradient(${donutSegments.join(', ')})`
-    : 'conic-gradient(#e5e7eb 0% 100%)';
+
+    const maxTrendValue = Math.max(...trendMonths.map(m => Math.max(m.pipelineValue, m.wonValue)), 1);
+
+    const stageMeta = [
+      { key: 'prospecting', label: 'Prospecting', color: '#3b82f6' },
+      { key: 'qualification', label: 'Qualification', color: '#8b5cf6' },
+      { key: 'proposal', label: 'Proposal', color: '#f59e0b' },
+      { key: 'negotiation', label: 'Negotiation', color: '#f97316' },
+      { key: 'closed-won', label: 'Closed Won', color: '#10b981' },
+      { key: 'closed-lost', label: 'Closed Lost', color: '#ef4444' }
+    ];
+
+    const stageSummary = stageMeta.map(meta => {
+      const stageOpps = enrichedOpps.filter(o => o.normalizedStage === meta.key);
+      return {
+        ...meta,
+        count: stageOpps.length,
+        value: stageOpps.reduce((sum, o) => sum + o.numericValue, 0)
+      };
+    });
+
+    const donutTotal = Math.max(enrichedOpps.length, 1);
+    let running = 0;
+    const donutSegments = stageSummary
+      .filter(item => item.count > 0)
+      .map(item => {
+        const start = running;
+        const pct = (item.count / donutTotal) * 100;
+        running += pct;
+        return `${item.color} ${start}% ${running}%`;
+      });
+    const donutBackground = donutSegments.length
+      ? `conic-gradient(${donutSegments.join(', ')})`
+      : 'conic-gradient(#e5e7eb 0% 100%)';
 
     const html = `
       <div class="dashboard-container">
@@ -16703,8 +17150,8 @@ async function renderProfessionalDashboardView() {
           <div class="chart-placeholder trend-chart-placeholder">
             <div class="css-chart dual-series-chart">
               ${trendMonths.map(m => {
-    const createdHeight = Math.max((m.pipelineValue / maxTrendValue) * 100, m.pipelineValue > 0 ? 5 : 0);
-    const wonHeight = Math.max((m.wonValue / maxTrendValue) * 100, m.wonValue > 0 ? 5 : 0);
+      const createdHeight = Math.max((m.pipelineValue / maxTrendValue) * 100, m.pipelineValue > 0 ? 5 : 0);
+      const wonHeight = Math.max((m.wonValue / maxTrendValue) * 100, m.wonValue > 0 ? 5 : 0);
       return `
                         <div class="chart-bar-group">
                    <div class="chart-bars-pair">
@@ -16783,9 +17230,9 @@ async function renderProfessionalDashboardView() {
               ${recentVisits.slice(0, 8).map(visit => {
       const repName = visit.profiles ? `${visit.profiles.first_name} ${visit.profiles.last_name}` : 'Unknown';
       const initials = repName.split(' ').map(n => n[0]).join('').substring(0, 2);
-    const score = Number(visit.lead_score);
-    const scoreClass = Number.isFinite(score) && score >= 80 ? 'high' : Number.isFinite(score) && score >= 50 ? 'medium' : 'low';
-    const visitDate = new Date(visit.date || visit.created_at);
+      const score = Number(visit.lead_score);
+      const scoreClass = Number.isFinite(score) && score >= 80 ? 'high' : Number.isFinite(score) && score >= 50 ? 'medium' : 'low';
+      const visitDate = new Date(visit.date || visit.created_at);
       return `
                         <tr>
                            <td>
@@ -16800,7 +17247,7 @@ async function renderProfessionalDashboardView() {
                   <td>${Number.isNaN(visitDate.getTime()) ? '—' : visitDate.toLocaleDateString()}</td>
                         </tr>
                         `;
-   }).join('') || '<tr><td colspan="5">No recent visits</td></tr>'}
+    }).join('') || '<tr><td colspan="5">No recent visits</td></tr>'}
                  </tbody>
               </table>
            </div>
@@ -16811,10 +17258,10 @@ async function renderProfessionalDashboardView() {
 
     viewContainer.innerHTML = html;
 
-   document.getElementById('dashboard-refresh-btn')?.addEventListener('click', () => {
-    renderProfessionalDashboardView();
-    showToast('Dashboard refreshed', 'success', { subtle: true, duration: 1200 });
-   });
+    document.getElementById('dashboard-refresh-btn')?.addEventListener('click', () => {
+      renderProfessionalDashboardView();
+      showToast('Dashboard refreshed', 'success', { subtle: true, duration: 1200 });
+    });
 
   } catch (err) {
     console.error('Error rendering dashboard:', err);
