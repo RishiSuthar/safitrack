@@ -12294,7 +12294,6 @@ async function renderTechnicianLogVisitView() {
       <div class="form-field">
         <label for="technician-company-name">Search Company</label>
         <div class="search-container">
-          <i data-lucide="search"></i>
           <input type="text" id="technician-company-name" placeholder="Search for a company..." autocomplete="off" />
           <div id="technician-company-search-results" class="search-results" style="display: none;"></div>
         </div>
@@ -12350,7 +12349,6 @@ function initTechnicianLocationSelect(companies) {
     } else {
       resultsDiv.innerHTML = filtered.map(c => `
          <div class="search-result-item" onclick="selectTechnicianCompanySelection('${c.id}')">
-           <div class="search-result-icon"><i data-lucide="building"></i></div>
            <div>
              <div class="search-result-name">${c.name}</div>
              <div class="search-result-role">${c.address || 'No address'}</div>
