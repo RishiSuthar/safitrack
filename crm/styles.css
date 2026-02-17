@@ -703,7 +703,7 @@ body {
   width: 100%;
   height: 48px;
   /* Increased slightly for better breathability */
-  padding: 0 45px 0 42px;
+  padding: 0 45px 0 42px !important;
   /* Extra padding on right to avoid eye icon overlap */
   border: 1px solid var(--border-color);
   border-radius: 8px;
