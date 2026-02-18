@@ -14877,22 +14877,70 @@ async function generateTechnicianVisitPDF(visitId) {
       yPos += notesHeight + 10;
     }
 
-    // Detailed Form Data
+    // Improved: Grouped & All-inclusive Form Data
     if (visit.form_data && Object.keys(visit.form_data).length > 0) {
-      addSectionHeader('DETAILED FORM DATA');
+      const data = visit.form_data;
+      const groups = {
+        'System Configuration': ['inverter_manufacturer', 'inverter_model', 'inverter_serial', 'inverter_kva', 'inverter_type', 'system_size', 'roof_type', 'inverter_location', 'battery_location'],
+        'Battery Specifications': ['battery_brand', 'battery_qty', 'battery_volts', 'battery_ah', 'battery_specs', 'batt_vdc'],
+        'Performance Metrics': ['input_vac', 'output_vac', 'pv_voltage', 'pv_amps', 'charging_amps', 'cleanliness', 'charging_vdc', 'output_freq', 'backup_min'],
+        'Visit Information': ['visit_date', 'client_address', 'reference_number', 'amc_reference']
+      };
 
-      Object.entries(visit.form_data).forEach(([key, value]) => {
-        if (!value) return;
-        const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      // Track which keys have been rendered
+      const renderedKeys = new Set();
 
-        if (Array.isArray(value)) {
-          addInfoRow(label, value.join(', '));
-        } else {
-          addInfoRow(label, String(value));
+      Object.entries(groups).forEach(([section, keys]) => {
+        const sectionData = keys.filter(k => data[k] !== undefined && data[k] !== null && data[k] !== '');
+        if (sectionData.length > 0) {
+          addSectionHeader(section);
+          sectionData.forEach(key => {
+            const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            const value = data[key];
+            if (Array.isArray(value)) {
+              addInfoRow(label, value.join(', '));
+            } else {
+              addInfoRow(label, String(value));
+            }
+            renderedKeys.add(key);
+          });
+          yPos += 5;
         }
       });
-      yPos += 5;
 
+      // Checklist
+      if (data.checklist && Array.isArray(data.checklist) && data.checklist.length > 0) {
+        addSectionHeader('Service Checklist');
+        data.checklist.forEach(item => {
+          addInfoRow('Checklist Item', item);
+        });
+        renderedKeys.add('checklist');
+        yPos += 5;
+      }
+
+      // Technician Notes
+      if (data.technician_notes || data.notes) {
+        addSectionHeader('Technician Notes');
+        addInfoRow('Notes', data.technician_notes || data.notes);
+        renderedKeys.add('technician_notes');
+        renderedKeys.add('notes');
+        yPos += 5;
+      }
+
+      // Render any remaining fields not in groups
+      const remaining = Object.entries(data).filter(([key, value]) => !renderedKeys.has(key) && value !== undefined && value !== null && value !== '');
+      if (remaining.length > 0) {
+        addSectionHeader('Additional Data');
+        remaining.forEach(([key, value]) => {
+          const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+          if (Array.isArray(value)) {
+            addInfoRow(label, value.join(', '));
+          } else {
+            addInfoRow(label, String(value));
+          }
+        });
+        yPos += 5;
+      }
     }
 
     // Follow-up Notes
