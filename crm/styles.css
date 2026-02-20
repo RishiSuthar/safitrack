@@ -192,6 +192,18 @@
   border-radius: var(--radius-full);
 }
 
+/* Company view summary styles */
+.company-summary { padding: 8px 0; }
+.company-summary-head { display:flex; gap:12px; align-items:center; }
+.company-summary-avatar img.company-summary-logo { width:48px; height:48px; object-fit:cover; border-radius:8px; }
+.company-summary-initials { width:48px; height:48px; display:flex; align-items:center; justify-content:center; background:var(--color-primary); color:#fff; border-radius:8px; font-weight:700; }
+.company-summary-main { min-width:0; }
+.company-summary-name { font-size:1.05rem; font-weight:700; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.company-summary-meta { font-size:0.875rem; color:var(--text-muted); margin-top:4px; }
+.company-summary-domain { font-size:0.9rem; color:var(--text-muted); }
+.company-summary-domain a { color:var(--text-muted); text-decoration:none; border-bottom:1px dashed transparent; }
+.company-summary-domain a:hover { border-bottom-color: rgba(0,0,0,0.12); }
+
 .mention-info {
   flex: 1;
 }

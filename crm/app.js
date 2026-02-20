@@ -17940,6 +17940,20 @@ async function openCompanyViewModal(companyOrId) {
   const coordsEl = document.getElementById('company-view-coordinates'); if (coordsEl) coordsEl.textContent = (company.latitude && company.longitude) ? `${company.latitude.toFixed(6)}, ${company.longitude.toFixed(6)}` : '—';
   const descEl = document.getElementById('company-view-desc'); if (descEl) descEl.textContent = company.description || '—';
   const catsEl = document.getElementById('company-view-categories'); if (catsEl) catsEl.textContent = (company.company_categories && company.company_categories.length) ? company.company_categories.map(c => c.categories.name).join(', ') : '—';
+  const domainEl = document.getElementById('company-view-domain');
+  if (domainEl) {
+    const rawDomain = company.domain ? String(company.domain).trim() : '';
+    if (rawDomain) {
+      let url = rawDomain;
+      // If user entered just the domain, ensure it has a protocol
+      if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
+      // Escape for safety when inserting
+      const safeUrl = url.replace(/"/g, '&quot;');
+      domainEl.innerHTML = `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${rawDomain}</a>`;
+    } else {
+      domainEl.textContent = '—';
+    }
+  }
 
   // Populate right-hand Details sidebar fields (only existing data)
 
@@ -17996,13 +18010,27 @@ async function openCompanyViewModal(companyOrId) {
 
       // Keep the summary read-only: show only primary identity (name + type).
       // Full description, address and categories are shown in the right-hand sidebar to avoid duplication.
+      // Render domain link next to name (no explicit label)
+      const rawDomain = company.domain ? String(company.domain).trim() : '';
+      let domainHtml = '';
+      if (rawDomain) {
+        let domainUrl = rawDomain;
+        if (!/^https?:\/\//i.test(domainUrl)) domainUrl = 'https://' + domainUrl;
+        const safeUrl = domainUrl.replace(/"/g, '&quot;');
+        const displayDomain = rawDomain.replace(/^https?:\/\//i, '').replace(/^www\./i, '');
+        domainHtml = `<span class="company-summary-domain"><a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(displayDomain)}</a></span>`;
+      }
+
       summaryEl.innerHTML = `
         <div class="company-summary">
           <div class="company-summary-head">
             <div class="company-summary-avatar">${logoHtml}</div>
             <div class="company-summary-main">
-              <div class="company-summary-name">${company.name || '—'}</div>
-              <div class="company-summary-meta">${company.company_type || '—'}</div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div class="company-summary-name">${escapeHtml(company.name || '—')}</div>
+                ${domainHtml}
+              </div>
+              <div class="company-summary-meta">${escapeHtml(company.company_type || '—')}</div>
             </div>
           </div>
         </div>
