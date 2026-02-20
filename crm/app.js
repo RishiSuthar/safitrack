@@ -18158,6 +18158,8 @@ async function openCompanyViewModal(companyOrId) {
 
   // Loading placeholders for tabs
   document.getElementById('company-view-opps').innerHTML = '<div class="text-center p-6">Loading opportunities...</div>';
+  const employeesContainer = document.getElementById('company-view-employees');
+  if (employeesContainer) employeesContainer.innerHTML = '<div class="text-center p-6">Loading employees...</div>';
   document.getElementById('company-view-calls').innerHTML = '<div class="text-center p-6">Loading call logs...</div>';
   document.getElementById('company-view-visits').innerHTML = '<div class="text-center p-6">Loading recent visits...</div>';
 
@@ -18171,6 +18173,8 @@ async function openCompanyViewModal(companyOrId) {
       tab.classList.add('active');
       const name = tab.dataset.tab;
       document.getElementById('company-view-opps').style.display = name === 'opps' ? 'block' : 'none';
+      const employeesEl = document.getElementById('company-view-employees');
+      if (employeesEl) employeesEl.style.display = name === 'employees' ? 'block' : 'none';
       document.getElementById('company-view-calls').style.display = name === 'calls' ? 'block' : 'none';
       document.getElementById('company-view-visits').style.display = name === 'visits' ? 'block' : 'none';
     };
@@ -18179,13 +18183,17 @@ async function openCompanyViewModal(companyOrId) {
 
 
   // Fetch related records in parallel (by id and by name to be safe)
-  const [oppsById, oppsByName, callsById, callsByName, visitsById, visitsByName] = await Promise.all([
+  const [oppsById, oppsByName, callsById, callsByName, visitsById, visitsByName, peopleById, peopleByName] = await Promise.all([
     supabaseClient.from('opportunities').select('*').eq('company_id', company.id),
     supabaseClient.from('opportunities').select('*').eq('company_name', company.name),
     supabaseClient.from('call_logs').select('*, people(*), profiles(*)').eq('company_id', company.id).order('call_at', { ascending: false }).limit(50),
     supabaseClient.from('call_logs').select('*, people(*), profiles(*)').eq('company_name', company.name).order('call_at', { ascending: false }).limit(50),
     supabaseClient.from('visits').select('*, user:profiles(first_name,last_name)').eq('company_id', company.id).order('created_at', { ascending: false }).limit(10),
-    supabaseClient.from('visits').select('*, user:profiles(first_name,last_name)').eq('company_name', company.name).order('created_at', { ascending: false }).limit(10)
+    supabaseClient.from('visits').select('*, user:profiles(first_name,last_name)').eq('company_name', company.name).order('created_at', { ascending: false }).limit(10),
+    // Query people by company_id (most reliable). Avoid ordering by potentially missing columns.
+    supabaseClient.from('people').select('*').eq('company_id', company.id).limit(200),
+    // Fallback: try to find people where the name contains the company name (less reliable but avoids using non-existent company_name column).
+    supabaseClient.from('people').select('*').ilike('name', `%${String(company.name || '').replace(/%/g, '')}%`).limit(200)
   ]);
 
   const dedupeById = (arr) => {
@@ -18197,6 +18205,25 @@ async function openCompanyViewModal(companyOrId) {
   const opportunities = dedupeById([...(oppsById.data || []), ...(oppsByName.data || [])]);
   const calls = (dedupeById([...(callsById.data || []), ...(callsByName.data || [])]) || []).slice(0, 50);
   const visits = (dedupeById([...(visitsById.data || []), ...(visitsByName.data || [])]) || []).slice(0, 10);
+  console.debug('openCompanyViewModal called for company', { id: company.id, name: company.name });
+  const peopleFromWindow = Array.isArray(window.allPeopleData) ? (window.allPeopleData.filter(p => String(p.company_id || '') === String(company.id) || String((p.company_name || '')).trim() === String((company.name || '')).trim())) : [];
+  
+  let employees = dedupeById([...(peopleFromWindow || []), ...(peopleById.data || []), ...(peopleByName.data || [])]);
+  
+
+  // If the combined list is empty, try a more forgiving fallback query
+  if ((!employees || employees.length === 0) && typeof supabaseClient !== 'undefined') {
+    try {
+      const nameFilter = String(company.name || '').replace(/'/g, "''");
+      const orFilter = `company_id.eq.${company.id},company_name.ilike.%${nameFilter}%`;
+      const { data: peopleFallback, error: peopleFallbackError } = await supabaseClient.from('people').select('*').or(orFilter).limit(200);
+      if (!peopleFallbackError && Array.isArray(peopleFallback) && peopleFallback.length > 0) {
+        employees = dedupeById([...(employees || []), ...peopleFallback]);
+      }
+    } catch (err) {
+      crmDebugLog('company-view-people-fallback-error', err);
+    }
+  }
 
   // Render a richer summary area with avatar, key stats and actions
     try {
@@ -18353,6 +18380,53 @@ async function openCompanyViewModal(companyOrId) {
   }
 
   // Re-create icons inside modal
+  // Render Employees tab (if present)
+  try {
+    const employeesEl = document.getElementById('company-view-employees');
+    if (employeesEl) {
+      if (!employees || employees.length === 0) {
+        employeesEl.innerHTML = '<div class="empty-state"><p class="empty-state-title">No employees</p><p class="text-muted">No people are linked to this company yet.</p></div>';
+      } else {
+        employeesEl.innerHTML = `
+          <div class="company-employees-list">
+            ${employees.map(p => `
+              <div class="company-employee" data-id="${p.id}">
+                <div class="employee-left">
+                  <div class="mention-avatar">${getInitials(p.name || (p.first_name ? `${p.first_name} ${p.last_name}` : ''))}</div>
+                </div>
+                <div class="employee-main">
+                  <div class="employee-name">${escapeHtml(p.name || (p.first_name ? `${p.first_name} ${p.last_name}` : '—'))}</div>
+                  <div class="employee-role text-muted">${escapeHtml(p.job_title || p.role || '—')}</div>
+                </div>
+                <div class="employee-actions">
+                  <button class="btn btn-sm btn-ghost view-employee" data-id="${p.id}">View</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+
+        employeesEl.querySelectorAll('.view-employee').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = btn.dataset.id;
+            const personObj = (employees || []).find(p => String(p.id) === String(id));
+            if (personObj) {
+              closeModal('company-view-modal');
+              openPersonViewModal(personObj);
+            } else {
+              // person not found in employees array, falling back to id fetch
+              closeModal('company-view-modal');
+              openPersonViewModal(id);
+            }
+          });
+        });
+      }
+    }
+  } catch (err) {
+    crmDebugLog('company-view-employees-render-error', err);
+  }
+
   if (window.lucide) lucide.createIcons();
 }
 

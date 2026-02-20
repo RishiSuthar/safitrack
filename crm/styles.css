@@ -13120,6 +13120,93 @@ button svg {
   color: #ffef4d;
 }
 
+/* Employees list in Company View */
+.company-employees-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 4px 2px;
+}
+.company-employee {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 8px;
+  border-radius: 8px;
+  transition: background 120ms ease, transform 120ms ease;
+  cursor: default;
+}
+.company-employee:hover {
+  background: var(--bg-hover, rgba(255,255,255,0.03));
+  transform: translateY(-1px);
+}
+.company-employee .employee-left {
+  flex: 0 0 auto;
+}
+.company-employee .mention-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--text-on-accent, #ffffff);
+  background: linear-gradient(135deg, rgba(43,111,245,1) 0%, rgba(67,156,255,1) 100%);
+}
+.company-employee .employee-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.company-employee .employee-name {
+  font-size: 1.02rem;
+  color: var(--text-primary);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.company-employee .employee-role {
+  margin-top: 6px;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+.company-employee .employee-actions {
+  margin-left: 8px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.company-employee .employee-actions .btn,
+.company-employee .employee-actions .view-employee {
+  padding: 6px 8px;
+  font-size: 0.9rem;
+  background: transparent;
+  border: none;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+/* Subtle divider between employees */
+.company-employee + .company-employee {
+  border-top: 1px solid rgba(255,255,255,0.03);
+}
+
+@media (max-width: 800px) {
+  .company-employee {
+    padding: 8px 6px;
+    gap: 10px;
+  }
+  .company-employee .mention-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.85rem;
+  }
+  .company-employee .employee-name { font-size: 0.95rem; }
+}
+
 /* Search Input Wrapper */
 .search-input-wrapper {
   position: relative;
