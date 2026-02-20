@@ -1470,6 +1470,55 @@
     </div>
   </div>
 
+  <div id="company-view-modal" class="modal" style="display:none;">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container modal-size-xl">
+      <div class="modal-header">
+        <h3 id="company-view-modal-title">Company</h3>
+        <button class="modal-close" onclick="closeModal('company-view-modal')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="company-view-shell" style="display:flex;gap:24px;align-items:flex-start;">
+          <div style="flex:1;min-width:0;">
+
+
+            <div id="company-view-summary"></div>
+
+            <div class="activity-sidebar-tabs mt-4">
+              <button class="activity-tab company-view-tab active" data-tab="opps"><i data-lucide="target" style="width:14px;height:14px"></i> Opportunities</button>
+              <button class="activity-tab company-view-tab" data-tab="calls"><i data-lucide="phone" style="width:14px;height:14px"></i> Call logs</button>
+              <button class="activity-tab company-view-tab" data-tab="visits"><i data-lucide="map-pin" style="width:14px;height:14px"></i> Recent visits</button>
+            </div>
+
+            <div id="company-view-opps" class="company-view-tab-content mt-3"></div>
+            <div id="company-view-calls" class="company-view-tab-content mt-3" style="display:none;"></div>
+            <div id="company-view-visits" class="company-view-tab-content mt-3" style="display:none;"></div>
+          </div>
+
+          <aside class="company-view-sidebar" style="width:320px;flex-shrink:0;">
+            <div class="company-view-sidebar-content" style="display:block;padding-top:12px;">
+              <div class="card p-3">
+                <h4 style="margin:0 0 8px 0;">Record Details</h4>
+                <div class="view-details-grid">
+                  <!-- Name and Type moved to the left summary to avoid duplication -->
+                  <div class="detail-field"><label>Coordinates</label><div class="detail-value" id="company-view-coordinates">—</div></div>
+                  <div class="detail-field full-row"><label>Address</label><div class="detail-value" id="company-view-address">—</div></div>
+                  <div class="detail-field full-row"><label>Categories</label><div class="detail-value" id="company-view-categories">—</div></div>
+                  <div class="detail-field full-row"><label>Description</label><div class="detail-value" id="company-view-desc">—</div></div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('company-view-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
   <div id="call-log-modal" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>
     <div class="modal-container modal-size-xl">

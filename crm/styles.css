@@ -3723,6 +3723,179 @@ select {
   border: 1px solid var(--border-color);
 }
 
+/* Company view summary enhancements */
+.company-summary {
+  padding: 12px 0;
+}
+.company-summary-head {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.company-summary-avatar {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--bg-tertiary);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.company-summary-avatar img.company-summary-logo {
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.company-summary-initials {
+  width:100%;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  color: var(--text-inverse);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+}
+.company-summary-main {
+  flex:1 1 auto;
+  min-width:0;
+}
+.company-summary-name {
+  font-size:1.05rem;
+  font-weight:700;
+  color:var(--text-primary);
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.company-summary-meta {
+  font-size:0.875rem;
+  color:var(--text-muted);
+}
+.company-summary-actions {
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+.company-summary-stats {
+  display:flex;
+  gap:12px;
+  margin-top:12px;
+}
+.company-summary-stats .stat {
+  background: var(--bg-secondary);
+  padding:8px 12px;
+  border-radius:8px;
+  text-align:center;
+  min-width:84px;
+}
+.stat-value {
+  font-weight:700;
+  font-size:1rem;
+  color:var(--text-primary);
+}
+.stat-label {
+  font-size:0.75rem;
+  color:var(--text-muted);
+}
+.company-summary-desc {
+  margin-top:12px;
+  color:var(--text-primary);
+  font-size:0.95rem;
+  max-height:72px;
+  overflow:hidden;
+}
+.company-summary-tags {
+  margin-top:8px;
+}
+.company-summary-tags .tag {
+  display:inline-block;
+  background: var(--bg-tertiary);
+  color:var(--text-muted);
+  padding:4px 8px;
+  border-radius:999px;
+  font-size:0.75rem;
+  margin-right:6px;
+}
+
+@media (max-width: 880px) {
+  .modal-container.modal-size-xl { width: 100%; border-radius: 12px; }
+  .company-view-sidebar { display: none; }
+}
+
+/* Company tabs: lists and items */
+.company-opps-list,
+.company-call-list,
+.company-visits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 0.25rem 1rem 1rem 1rem;
+}
+.company-opp,
+.call-item,
+.visit-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+}
+.company-opp-main,
+.call-item-left,
+.visit-main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.call-item { align-items: center; }
+.call-item-left { display:flex; flex-direction:column; gap:6px; min-width:0; }
+.call-item-date { font-size:1rem; font-weight:600; color:var(--text-primary); }
+.call-item-contact { font-size:0.95rem; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.call-item-mid { flex:0 0 140px; text-align:right; font-weight:500; color:var(--text-primary); }
+.call-item-right { display:flex; align-items:center; gap:10px; flex:0 0 auto; }
+.visit-title { font-weight:600; }
+.company-opp-title,
+.visit-title {
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.company-opp-meta,
+.call-item-mid,
+.visit-meta {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+.company-opp-actions,
+.call-item-right,
+.visit-actions {
+  flex: 0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.outcome-badge-small {
+  padding:4px 8px;
+  border-radius:999px;
+  background: rgba(0,0,0,0.04);
+  color: var(--text-muted);
+  font-size:0.75rem;
+}
+
+/* Smaller screens: compact spacing */
+@media (max-width: 640px) {
+  .company-opp,.call-item,.visit-card { padding: 8px; }
+  .company-summary-avatar { width:48px;height:48px }
+}
+
 .modal-close:hover {
   background: var(--color-danger-bg);
   color: var(--color-danger);
@@ -12817,6 +12990,20 @@ button svg {
   align-items: center;
 }
 
+/* Compact spacing for Company modal details */
+#company-view-modal .view-details-grid {
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+#company-view-modal .detail-field {
+  gap: 0.25rem;
+}
+#company-view-modal .detail-value {
+  padding: 0.5rem;
+  min-height: 2rem;
+  font-size: 0.95rem;
+}
+
 /* Direction Badge Styling */
 .direction-badge {
   padding: 0.25rem 0.75rem;
@@ -14368,6 +14555,22 @@ button svg {
   height: 2px;
   background: var(--color-primary);
   border-radius: 2px 2px 0 0;
+}
+
+/* Align icons and text in activity tabs */
+.activity-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.activity-tab svg,
+.activity-tab i {
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 1;
+}
+.activity-tab .lucide {
+  transform: translateY(0); /* reset any icon offsets */
 }
 
 .activity-sidebar-content {

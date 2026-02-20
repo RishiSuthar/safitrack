@@ -1136,8 +1136,9 @@ async function renderCompaniesView() {
         options: ['Competitor', 'Customer', 'Distributor', 'Investor', 'Partner', 'Reseller', 'Supplier', 'Vendor', 'Other']
       },
       {
-        key: 'actions', label: 'Actions', width: '100px', readOnly: true, sortable: false, render: (val, row) => `
+        key: 'actions', label: 'Actions', width: '120px', readOnly: true, sortable: false, render: (val, row) => `
         <div class="table-actions">
+          <button class="action-btn view-company" data-id="${row.id}" title="View company"><i data-lucide="eye"></i></button>
           <button class="action-btn edit-company" data-id="${row.id}" title="Edit company"><i data-lucide="square-pen"></i></button>
           <button class="action-btn delete-company" data-id="${row.id}" title="Delete company"><i data-lucide="trash-2"></i></button>
         </div>
@@ -1270,7 +1271,18 @@ async function renderCompaniesView() {
       openCompanyModal();
     });
 
-    // Edit and delete buttons
+    // View, edit and delete buttons
+    document.querySelectorAll('.view-company').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const companyId = btn.dataset.id;
+        const company = window.allCompaniesData.find(c => c.id === companyId);
+        if (company) {
+          openCompanyViewModal(company);
+        }
+      });
+    });
+
     document.querySelectorAll('.edit-company').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -6602,6 +6614,64 @@ function closeVisitDetail() {
   document.getElementById('visit-detail-panel').classList.remove('open');
   document.getElementById('visit-detail-backdrop').classList.remove('open');
   visitsHubState.selectedVisitId = null;
+}
+
+// Ensure a visit exists in the visitsHubState; fetch from server when missing, then open detail.
+async function fetchAndOpenVisit(visitId) {
+  // normalize
+  const vid = String(visitId);
+  let visit = (visitsHubState.visits || []).find(v => String(v.id) === vid);
+  if (!visit) {
+    try {
+      const { data, error } = await supabaseClient.from('visits').select('*, user:profiles(first_name,last_name)').eq('id', visitId).single();
+      if (error || !data) {
+        showToast('Visit not found', 'error');
+        return;
+      }
+      // add to local cache so openVisitDetail can find it
+      visitsHubState.visits = visitsHubState.visits || [];
+      visitsHubState.visits.push(data);
+      visit = data;
+    } catch (e) {
+      showToast('Error loading visit', 'error');
+      return;
+    }
+  }
+  // If the Visits side-panel exists, use it. Otherwise create the same side-panel UI so behavior is consistent.
+  const detailBody = document.getElementById('visit-detail-body');
+  if (!detailBody) {
+    // create backdrop if missing
+    let backdrop = document.getElementById('visit-detail-backdrop');
+    if (!backdrop) {
+      backdrop = document.createElement('div');
+      backdrop.id = 'visit-detail-backdrop';
+      backdrop.className = 'visit-detail-backdrop';
+      backdrop.onclick = closeVisitDetail;
+      document.body.appendChild(backdrop);
+    }
+
+    // create panel if missing
+    let panel = document.getElementById('visit-detail-panel');
+    if (!panel) {
+      panel = document.createElement('div');
+      panel.id = 'visit-detail-panel';
+      panel.className = 'visit-detail-panel';
+      panel.innerHTML = `
+        <div class="visit-detail-header">
+          <button class="visit-detail-close" id="close-visit-detail" onclick="closeVisitDetail()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+        <div class="visit-detail-body" id="visit-detail-body"></div>
+      `;
+      document.body.appendChild(panel);
+    }
+  }
+
+  // Now open the side-panel view
+  if (window.openVisitDetail) {
+    openVisitDetail(visitId);
+  }
 }
 
 function openPhotoModal(photoUrl) {
@@ -17799,6 +17869,226 @@ function openCallLogViewModal(log) {
 
   modal.style.display = 'flex';
 }
+
+/**
+ * Company view modal — shows linked opportunities, call logs and recent visits in tabs.
+ * Accepts a company object or company id.
+ */
+async function openCompanyViewModal(companyOrId) {
+  const modal = document.getElementById('company-view-modal');
+  if (!modal) {
+    showToast('Company view modal not found', 'error');
+    return;
+  }
+
+  // Resolve company object
+  let company = companyOrId;
+  if (!company || (typeof company === 'string' || typeof company === 'number')) {
+    const companyId = company || companyOrId;
+    company = (Array.isArray(window.allCompaniesData) ? window.allCompaniesData.find(c => String(c.id) === String(companyId)) : null);
+    if (!company) {
+      const { data, error } = await supabaseClient.from('companies').select('*, company_categories(categories(id,name))').eq('id', companyId).single();
+      if (error) {
+        showToast('Unable to load company', 'error');
+        return;
+      }
+      company = data;
+    }
+  }
+
+  // Header / title
+  document.getElementById('company-view-modal-title').textContent = company.name || 'Company';
+
+  // Left summary is intentionally minimal — activity tabs below will show records
+  // show a temporary placeholder while we load related records
+  document.getElementById('company-view-summary').innerHTML = '<div class="text-muted">Loading summary…</div>';
+
+  // Populate right-hand Details sidebar fields (only existing data). Name and Type are shown in the left summary.
+  const addressEl = document.getElementById('company-view-address'); if (addressEl) addressEl.textContent = company.address || '—';
+  const coordsEl = document.getElementById('company-view-coordinates'); if (coordsEl) coordsEl.textContent = (company.latitude && company.longitude) ? `${company.latitude.toFixed(6)}, ${company.longitude.toFixed(6)}` : '—';
+  const descEl = document.getElementById('company-view-desc'); if (descEl) descEl.textContent = company.description || '—';
+  const catsEl = document.getElementById('company-view-categories'); if (catsEl) catsEl.textContent = (company.company_categories && company.company_categories.length) ? company.company_categories.map(c => c.categories.name).join(', ') : '—';
+
+  // Populate right-hand Details sidebar fields (only existing data)
+
+
+  // Loading placeholders for tabs
+  document.getElementById('company-view-opps').innerHTML = '<div class="text-center p-6">Loading opportunities...</div>';
+  document.getElementById('company-view-calls').innerHTML = '<div class="text-center p-6">Loading call logs...</div>';
+  document.getElementById('company-view-visits').innerHTML = '<div class="text-center p-6">Loading recent visits...</div>';
+
+  modal.style.display = 'flex';
+
+  // Tab switching for the company view modal
+  const companyTabs = modal.querySelectorAll('.company-view-tab');
+  companyTabs.forEach(tab => {
+    tab.onclick = () => {
+      companyTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const name = tab.dataset.tab;
+      document.getElementById('company-view-opps').style.display = name === 'opps' ? 'block' : 'none';
+      document.getElementById('company-view-calls').style.display = name === 'calls' ? 'block' : 'none';
+      document.getElementById('company-view-visits').style.display = name === 'visits' ? 'block' : 'none';
+    };
+  });
+
+
+
+  // Fetch related records in parallel (by id and by name to be safe)
+  const [oppsById, oppsByName, callsById, callsByName, visitsById, visitsByName] = await Promise.all([
+    supabaseClient.from('opportunities').select('*').eq('company_id', company.id),
+    supabaseClient.from('opportunities').select('*').eq('company_name', company.name),
+    supabaseClient.from('call_logs').select('*, people(*), profiles(*)').eq('company_id', company.id).order('call_at', { ascending: false }).limit(50),
+    supabaseClient.from('call_logs').select('*, people(*), profiles(*)').eq('company_name', company.name).order('call_at', { ascending: false }).limit(50),
+    supabaseClient.from('visits').select('*, user:profiles(first_name,last_name)').eq('company_id', company.id).order('created_at', { ascending: false }).limit(10),
+    supabaseClient.from('visits').select('*, user:profiles(first_name,last_name)').eq('company_name', company.name).order('created_at', { ascending: false }).limit(10)
+  ]);
+
+  const dedupeById = (arr) => {
+    const map = new Map();
+    (arr || []).forEach(i => { if (i && i.id) map.set(String(i.id), i); });
+    return Array.from(map.values());
+  };
+
+  const opportunities = dedupeById([...(oppsById.data || []), ...(oppsByName.data || [])]);
+  const calls = (dedupeById([...(callsById.data || []), ...(callsByName.data || [])]) || []).slice(0, 50);
+  const visits = (dedupeById([...(visitsById.data || []), ...(visitsByName.data || [])]) || []).slice(0, 10);
+
+  // Render a richer summary area with avatar, key stats and actions
+  try {
+    const summaryEl = document.getElementById('company-view-summary');
+    if (summaryEl) {
+      const logoHtml = company.logo_url ? `<img src="${company.logo_url}" alt="${company.name}" class="company-summary-logo"/>` : `<div class="company-summary-initials">${getInitials(company.name || 'U')}</div>`;
+      const shortAddress = company.address ? (String(company.address).split(',')[0]) : '—';
+      const cats = (company.company_categories && company.company_categories.length) ? company.company_categories.map(c => c.categories && c.categories.name ? c.categories.name : (c.name || '')).filter(Boolean) : [];
+
+      // Keep the summary read-only: show only primary identity (name + type).
+      // Full description, address and categories are shown in the right-hand sidebar to avoid duplication.
+      summaryEl.innerHTML = `
+        <div class="company-summary">
+          <div class="company-summary-head">
+            <div class="company-summary-avatar">${logoHtml}</div>
+            <div class="company-summary-main">
+              <div class="company-summary-name">${company.name || '—'}</div>
+              <div class="company-summary-meta">${company.company_type || '—'}</div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+  } catch (e) {
+    crmDebugLog('company-view-summary-render-error', e);
+  }
+
+  // Render Opportunities tab (clean card list)
+  const oppsEl = document.getElementById('company-view-opps');
+  if (!opportunities || opportunities.length === 0) {
+    oppsEl.innerHTML = '<div class="empty-state"><p class="empty-state-title">No opportunities linked</p><p class="text-muted">This company is not linked to any active opportunities.</p></div>';
+  } else {
+    oppsEl.innerHTML = `
+      <div class="company-opps-list">
+        ${opportunities.map(opp => `
+          <div class="company-opp" data-id="${opp.id}">
+            <div class="company-opp-main">
+              <div class="company-opp-title">${escapeHtml(opp.name || '—')}</div>
+              <div class="company-opp-meta text-muted">${escapeHtml(opp.stage || '—')} • Ksh ${parseFloat(opp.value || 0).toLocaleString()} • ${opp.probability || 0}%</div>
+            </div>
+            <div class="company-opp-actions">
+              <button class="btn btn-sm btn-ghost view-opportunity" data-id="${opp.id}">View</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    // Attach view handlers
+    oppsEl.querySelectorAll('.view-opportunity').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        const opp = opportunities.find(o => String(o.id) === String(id));
+        if (opp) {
+          closeModal('company-view-modal');
+          const isOwnOpportunity = !isManager || opp.user_id === currentUser.id;
+          openOpportunityModal(opp, !isOwnOpportunity);
+        }
+      });
+    });
+  }
+
+  // Render Call Logs tab (compact list)
+  const callsEl = document.getElementById('company-view-calls');
+  if (!calls || calls.length === 0) {
+    callsEl.innerHTML = '<div class="empty-state"><p class="empty-state-title">No call logs</p><p class="text-muted">No call records found for this company.</p></div>';
+  } else {
+    callsEl.innerHTML = `
+      <div class="company-call-list">
+        ${calls.map(log => `
+          <div class="call-item" data-id="${log.id}">
+            <div class="call-item-left">
+              <div class="call-item-date">${formatDateWithTime(log.call_at)}</div>
+              <div class="call-item-contact text-muted">${escapeHtml(log.people ? (log.people.name || '') : (log.contact_name || 'N/A'))}</div>
+            </div>
+            <div class="call-item-mid text-muted">${escapeHtml(log.profiles ? `${log.profiles.first_name} ${log.profiles.last_name}` : 'N/A')}</div>
+            <div class="call-item-right">
+              <div class="outcome-badge-small">${escapeHtml(log.outcome || 'N/A')}</div>
+              <button class="btn btn-sm btn-ghost view-call-log" data-id="${log.id}">View</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    callsEl.querySelectorAll('.view-call-log').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        const log = calls.find(l => String(l.id) === String(id));
+        if (log) {
+          closeModal('company-view-modal');
+          openCallLogViewModal(log);
+        }
+      });
+    });
+  }
+
+  // Render Recent Visits tab
+  const visitsEl = document.getElementById('company-view-visits');
+  if (!visits || visits.length === 0) {
+    visitsEl.innerHTML = '<div class="empty-state"><p class="empty-state-title">No recent visits</p><p class="text-muted">No visits recorded for this company.</p></div>';
+  } else {
+    visitsEl.innerHTML = `
+      <div class="company-visits-list">
+        ${visits.map(v => `
+          <div class="visit-card" data-id="${v.id}">
+            <div class="visit-main">
+              <div class="visit-title">${escapeHtml(v.contact_name || v.visit_type || '')}</div>
+              <div class="visit-meta text-muted">${escapeHtml(v.visit_type || '')} • ${formatDate(v.created_at)}</div>
+              <div class="visit-notes text-clamp-2">${escapeHtml(v.notes || '')}</div>
+            </div>
+            <div class="visit-actions">
+              <button class="btn btn-sm btn-ghost view-visit" data-id="${v.id}">View</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    // Attach visit view handlers
+    visitsEl.querySelectorAll('.view-visit').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        closeModal('company-view-modal');
+        await fetchAndOpenVisit(id);
+      });
+    });
+  }
+
+  // Re-create icons inside modal
+  if (window.lucide) lucide.createIcons();
+}
+
 
 function openCallLogModal(log = null) {
   const modal = document.getElementById('call-log-modal');
