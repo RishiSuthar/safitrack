@@ -92,6 +92,172 @@
   --z-loading: 700;
 }
 
+/* AI Generate Button - visual equivalent of Tailwind utilities provided */
+.ai-generate-btn {
+  position: absolute;
+  right: 8px;
+  top: -6px; /* slightly lower so it's closer to the input */
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  height: 36px;
+  min-width: 160px;
+  max-width: 220px;
+  padding: 8px 14px;
+  background: linear-gradient(90deg, var(--color-primary) 0%, #7c3aed 55%, #fb7185 100%);
+  color: var(--text-inverse);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: var(--btn-radius);
+  font-weight: var(--btn-font-weight);
+  font-size: var(--btn-font-size);
+  font-family: inherit;
+  text-align: left;
+  padding-left: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  box-shadow: 0 8px 20px rgba(47,95,208,0.10);
+  transition: transform 200ms var(--motion-ease-standard), box-shadow 260ms var(--motion-ease-emphasized), filter 200ms ease;
+  z-index: 8;
+}
+
+.ai-generate-btn::before,
+.ai-generate-btn::after {
+  content: '';
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+}
+
+.ai-generate-btn::before {
+  width: 48px;
+  height: 48px;
+  right: 6px;
+  top: 6px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 9999px;
+  filter: blur(6px);
+  opacity: 0.95;
+  transition: right 220ms ease, bottom 220ms ease, filter 220ms ease, box-shadow 220ms ease;
+}
+
+.ai-generate-btn::after {
+  width: 80px;
+  height: 80px;
+  right: 8px;
+  top: 12px;
+  background: rgba(251,113,133,0.14);
+  border-radius: 9999px;
+  filter: blur(10px);
+  opacity: 0.85;
+  transition: right 220ms ease, transform 220ms ease;
+}
+
+.ai-generate-btn:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 36px rgba(162,26,175,0.12);
+  border-color: rgba(251,113,133,0.45);
+  color: #fb7185;
+}
+
+.ai-generate-btn:hover::before {
+  right: 48px;
+  bottom: -12px;
+  box-shadow: 20px 20px 20px 30px rgba(162,26,175,0.18);
+}
+
+.ai-generate-btn:hover::after {
+  right: -8px;
+  transform: translateX(10px);
+}
+
+/* Compact gradient button inspired by user's design but scaled down */
+.gradient-button {
+  position: absolute;
+  right: 8px;
+  top: -10px; /* nudged up slightly */
+  padding: 6px 14px;
+  font-size: var(--btn-font-size);
+  font-weight: var(--btn-font-weight);
+  font-family: inherit;
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-radius: var(--btn-radius);
+  overflow: hidden;
+  transition: transform 0.18s ease;
+  z-index: 8;
+}
+
+.gradient-button.small-gradient {
+  padding: 6px 10px;
+  font-size: 0.82rem; /* slightly smaller than default */
+  border-radius: var(--btn-radius);
+}
+
+.gradient-button:hover { transform: scale(1.03); }
+
+.gradient-button::before {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -40%;
+  width: 180%;
+  height: 180%;
+  background: conic-gradient(
+    from 0deg,
+    var(--color-primary-dark),
+    #4ecdc4,
+    var(--color-primary),
+    #45b7d1,
+    #96ceb4,
+    var(--color-primary-light),
+    var(--color-primary-dark)
+  );
+  z-index: -2;
+  filter: blur(10px);
+  transform: rotate(0deg);
+  transition: transform 1.2s ease-in-out;
+  border-radius: var(--btn-radius);
+}
+
+.gradient-button:hover::before { transform: rotate(180deg); }
+
+.gradient-button::after {
+  content: "";
+  position: absolute;
+  inset: 3px; /* creates visible border area from ::before */
+  background: var(--bg-tertiary); /* use site gray tone for interior */
+  border-radius: calc(var(--btn-radius) - 3px);
+  z-index: -1;
+  filter: none;
+}
+
+/* ensure inside text is white and not gradient clipped */
+.gradient-button { color: var(--text-primary); }
+
+.gradient-text { /* kept for backward compatibility but force white */
+  color: #fff !important;
+  background: none !important;
+  -webkit-background-clip: unset !important;
+  background-clip: unset !important;
+}
+
+.gradient-button:active { transform: scale(0.99); }
+
+@keyframes hue-rotating { to { filter: hue-rotate(360deg); } }
+
+/* Add breathing room after company type select so button can sit comfortably */
+select#company-type {
+  margin-bottom: 20px;
+}
+
+.ai-generate-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(124,58,237,0.12);
+}
+
+
 [data-theme="dark"] {
   /* Backgrounds – professional neutral grays, Attio/Zoho inspired */
   --bg-primary: #0f1117;
