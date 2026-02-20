@@ -1530,6 +1530,37 @@
     </div>
   </div>
 
+  <div id="person-view-modal" class="modal" style="display:none;">
+    <div class="modal-backdrop"></div>
+    <div class="modal-container modal-size-xl">
+      <div class="modal-header">
+        <h3 id="person-view-modal-title">Person</h3>
+        <button class="modal-close" onclick="closeModal('person-view-modal')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="company-view-shell" style="display:flex;gap:24px;align-items:flex-start;">
+          <div style="flex:1;min-width:0;">
+
+            <div id="person-view-summary"></div>
+
+            <div class="activity-sidebar-tabs mt-4">
+              <button class="activity-tab person-view-tab active" data-tab="opps"><i data-lucide="target" style="width:14px;height:14px"></i> Opportunities</button>
+            </div>
+
+            <div id="person-view-opps" class="company-view-tab-content mt-3"></div>
+          </div>
+
+          <!-- Right sidebar removed for person view; details are shown in the left summary -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('person-view-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
   <div id="call-log-modal" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>
     <div class="modal-container modal-size-xl">

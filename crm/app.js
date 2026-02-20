@@ -1960,14 +1960,13 @@ async function renderPeopleView() {
       { key: 'company.name', label: 'Company', width: '160px', icon: 'building', readOnly: true, sortable: false, render: (val, row) => row.company ? row.company.name : 'No company' },
       { key: 'job_title', label: 'Job Title', width: '150px', icon: 'briefcase', sortable: true },
       { key: 'phone_numbers', label: 'Phone', width: '150px', icon: 'phone', sortable: true, render: (phones) => phones && Array.isArray(phones) ? phones.join(', ') : (phones || 'N/A') },
-      { key: 'opportunity.name', label: 'Opportunity', width: '180px', icon: 'target', readOnly: true, sortable: false, render: (val, row) => row.opportunity ? row.opportunity.name : 'N/A' },
-      {
-        key: 'actions', label: 'Actions', width: '100px', readOnly: true, sortable: false, render: (val, row) => `
+      { key: 'actions', label: 'Actions', width: '140px', readOnly: true, sortable: false, render: (val, row) => `
         <div class="table-actions">
+          <button class="action-btn view-person" data-id="${row.id}" title="View person"><i data-lucide="eye"></i></button>
           <button class="action-btn edit-person" data-id="${row.id}" title="Edit person"><i data-lucide="square-pen"></i></button>
           <button class="action-btn delete-person" data-id="${row.id}" title="Delete person"><i data-lucide="trash-2"></i></button>
         </div>
-      `}
+      `},
     ];
 
     let html = `
@@ -2149,6 +2148,18 @@ async function renderPeopleView() {
       });
     });
 
+    // View person handlers
+    document.querySelectorAll('.view-person').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const personId = btn.dataset.id;
+        const person = window.allPeopleData.find(p => String(p.id) === String(personId));
+        if (person) {
+          openPersonViewModal(person);
+        }
+      });
+    });
+
     document.querySelectorAll('.delete-person').forEach(btn => {
       btn.addEventListener('click', async (e) => {
         e.stopPropagation();
@@ -2306,6 +2317,179 @@ function openPersonModal(person = null) {
   // Initialize event listeners
   initPersonModalListeners(person);
 }
+
+/**
+ * Person view modal — show a quick profile summary and related activity tabs.
+ * Accepts a person object or person id.
+ */
+function openPersonViewModal(personOrId) {
+  const modal = document.getElementById('person-view-modal');
+  if (!modal) {
+    showToast('Person view modal not found', 'error');
+    return;
+  }
+
+  let person = personOrId;
+  if (!person || (typeof person === 'string' || typeof person === 'number')) {
+    const personId = person || personOrId;
+    person = (Array.isArray(window.allPeopleData) ? window.allPeopleData.find(p => String(p.id) === String(personId)) : null);
+  }
+
+  if (!person) {
+    showToast('Unable to load person', 'error');
+    return;
+  }
+
+  document.getElementById('person-view-modal-title').textContent = person.name || 'Person';
+  document.getElementById('person-view-summary').innerHTML = '<div class="text-muted">Loading summary…</div>';
+
+  try {
+    const summaryEl = document.getElementById('person-view-summary');
+    if (summaryEl) {
+      const initials = getInitials(person.name || 'U');
+      const avatarHtml = `<div style="position:relative;width:48px;height:48px;"><div class="company-summary-initials" style="width:48px;height:48px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:600">${initials}</div></div>`;
+      const companyName = (person.company && person.company.name) ? escapeHtml(person.company.name) : (person.company_name ? escapeHtml(person.company_name) : '—');
+      const emailHtml = person.email ? `<a href="mailto:${escapeHtml(person.email)}" class="company-summary-domain-link">${escapeHtml(person.email)}</a>` : '—';
+      const phone = person.phone_numbers && Array.isArray(person.phone_numbers) && person.phone_numbers.length ? person.phone_numbers[0] : (person.phone || '');
+      const phoneHtml = phone ? `<a href="tel:${escapeHtml(phone)}" class="company-summary-domain-link">${escapeHtml(phone)}</a>` : '—';
+
+      const jobTitle = person.job_title ? escapeHtml(person.job_title) : '';
+      const metaHtml = jobTitle ? `${jobTitle} • <span id="person-view-company-inline">${companyName}</span>` : `<span id="person-view-company-inline">${companyName}</span>`;
+
+      summaryEl.innerHTML = `
+        <div class="company-summary">
+          <div class="company-summary-head">
+            <div class="company-summary-avatar">${avatarHtml}</div>
+            <div class="company-summary-main">
+              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                <div class="company-summary-name">${escapeHtml(person.name || '—')}</div>
+              </div>
+              <div class="company-summary-meta">${metaHtml}</div>
+              <div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;">
+                <div>${emailHtml}</div>
+                <div>${phoneHtml}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+
+      // Show company link clickable if we have an object
+      const companyInline = document.getElementById('person-view-company-inline');
+        if (companyInline && person.company && person.company.id) {
+        companyInline.innerHTML = `
+          <a href="#" class="person-view-company-link" data-id="${escapeHtml(String(person.company.id))}" title="View company" aria-label="View company ${escapeHtml(person.company.name)}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><path d="M8 3v18"></path><path d="M16 7h.01"></path><path d="M16 11h.01"></path><path d="M16 15h.01"></path></svg>
+            <span class="person-company-name">${escapeHtml(person.company.name)}</span>
+          </a>`;
+        const link = companyInline.querySelector('.person-view-company-link');
+        if (link) {
+          link.addEventListener('click', (e) => {
+            e.preventDefault();
+            // Close the person view first so the company view doesn't open behind it
+            closeModal('person-view-modal');
+            // Open company view after modal close animation (matches modal transition).
+            // Pass company id to ensure full company details are fetched.
+            setTimeout(() => openCompanyViewModal(person.company && person.company.id ? person.company.id : person.company_id || person.company), 140);
+          });
+        }
+      }
+    }
+  } catch (e) {
+    crmDebugLog('person-view-summary-render-error', e);
+  }
+
+  // Sidebar details
+  const emailEl = document.getElementById('person-view-email'); if (emailEl) emailEl.innerHTML = person.email ? `<a href="mailto:${escapeHtml(person.email)}">${escapeHtml(person.email)}</a>` : '—';
+  const phoneEl = document.getElementById('person-view-phone'); if (phoneEl) phoneEl.innerHTML = (person.phone_numbers && person.phone_numbers.length) ? person.phone_numbers.join(', ') : (person.phone || '—');
+  const companyEl = document.getElementById('person-view-company'); if (companyEl) companyEl.textContent = (person.company && person.company.name) ? person.company.name : (person.company_name || '—');
+  const titleEl = document.getElementById('person-view-title'); if (titleEl) titleEl.textContent = person.job_title || '—';
+  const notesEl = document.getElementById('person-view-notes'); if (notesEl) notesEl.textContent = person.notes || '—';
+
+  // Tabs placeholders (only opportunities for person view)
+  document.getElementById('person-view-opps').innerHTML = '<div class="text-center p-6">Loading opportunities...</div>';
+
+  modal.style.display = 'flex';
+
+  // Tab switching
+  const personTabs = modal.querySelectorAll('.person-view-tab');
+  personTabs.forEach(tab => {
+    tab.onclick = () => {
+      personTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const name = tab.dataset.tab;
+      document.getElementById('person-view-opps').style.display = name === 'opps' ? 'block' : 'none';
+    };
+  });
+
+  // Populate Opportunities for this person (use attached object or fetch by id)
+  (async () => {
+    const oppsEl = document.getElementById('person-view-opps');
+    try {
+      let opps = [];
+      if (person.opportunity && person.opportunity.id) {
+        // If person.opportunity is present but likely a minimal object, fetch full opportunity
+        const { data, error } = await supabaseClient.from('opportunities').select('*').eq('id', person.opportunity.id).single();
+        if (!error && data) opps = [data];
+      } else if (person.opportunity_id) {
+        const { data, error } = await supabaseClient.from('opportunities').select('*').eq('id', person.opportunity_id).limit(1);
+        if (!error && data && data.length) opps = data;
+      }
+
+      // If still empty, try to find opportunities that reference this person by contact or person id
+      if (opps.length === 0 && person.id) {
+        const { data, error } = await supabaseClient.from('opportunities').select('*').or(`contact_id.eq.${person.id},person_id.eq.${person.id}`).limit(50);
+        if (!error && data && data.length) opps = data;
+      }
+
+      if (!opps || opps.length === 0) {
+        oppsEl.innerHTML = '<div class="empty-state"><p class="empty-state-title">No opportunities linked</p><p class="text-muted">This person is not linked to any active opportunities.</p></div>';
+      } else {
+        oppsEl.innerHTML = `
+          <div class="company-opps-list">
+            ${opps.map(opp => {
+                const stage = opp.stage || opp.status || '—';
+                const rawValue = opp.value || opp.amount || opp.estimated_value || opp.deal_value || 0;
+                const numeric = Number(String(rawValue).replace(/[^0-9.-]+/g, '')) || 0;
+                const displayValue = numeric ? numeric.toLocaleString() : '0';
+                const prob = (opp.probability || opp.win_probability || opp.prob || 0);
+                return `
+                  <div class="company-opp" data-id="${opp.id}">
+                    <div class="company-opp-main">
+                      <div class="company-opp-title">${escapeHtml(opp.name || '—')}</div>
+                      <div class="company-opp-meta text-muted">${escapeHtml(stage)} • Ksh ${displayValue} • ${prob}%</div>
+                    </div>
+                    <div class="company-opp-actions">
+                      <button class="btn btn-sm btn-ghost view-opportunity" data-id="${opp.id}">View</button>
+                    </div>
+                  </div>
+                `
+            }).join('')}
+          </div>
+        `;
+
+        // Attach view handlers
+        oppsEl.querySelectorAll('.view-opportunity').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = btn.dataset.id;
+            const opp = (opps || []).find(o => String(o.id) === String(id));
+            if (opp) {
+              closeModal('person-view-modal');
+              const isOwnOpportunity = !isManager || opp.user_id === currentUser.id;
+              setTimeout(() => openOpportunityModal(opp, !isOwnOpportunity), 140);
+            }
+          });
+        });
+      }
+    } catch (e) {
+      oppsEl.innerHTML = '<div class="text-center p-6">Error loading opportunities</div>';
+      crmDebugLog('person-view-opps-error', e);
+    }
+  })();
+
+}
+
 
 function initPersonModalListeners(person) {
   // Company search functionality
@@ -18061,6 +18245,7 @@ async function openCompanyViewModal(companyOrId) {
   } catch (e) {
     crmDebugLog('company-view-summary-render-error', e);
   }
+  
 
   // Render Opportunities tab (clean card list)
   const oppsEl = document.getElementById('company-view-opps');

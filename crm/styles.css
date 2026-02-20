@@ -220,6 +220,41 @@
 /* Dark theme tweak */
 [data-theme="dark"] .company-summary-domain-link { background: rgba(255,255,255,0.03); color: var(--color-primary-light); }
 
+/* Style company link inside person/company summary meta to look like plain muted metadata */
+.company-summary-meta .person-view-company-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--color-primary);
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 160ms ease, transform 160ms ease;
+}
+.company-summary-meta .person-view-company-link svg {
+  flex: 0 0 auto;
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  opacity: 0.95;
+}
+.company-summary-meta .person-view-company-link .person-company-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+  display: inline-block;
+  vertical-align: middle;
+}
+.company-summary-meta .person-view-company-link:hover {
+  background: var(--bg-tertiary);
+  transform: translateY(-1px);
+}
+[data-theme="dark"] .company-summary-meta .person-view-company-link { color: var(--color-primary-light); }
+
 /* Opportunity card company avatar */
 .opp-company-inner { display:flex; align-items:center; gap:8px; }
 .opp-company-avatar { width:20px; height:20px; position:relative; flex-shrink:0; }
@@ -13037,6 +13072,30 @@ button svg {
   padding: 0.5rem;
   min-height: 2rem;
   font-size: 0.95rem;
+  align-items: flex-start;
+}
+
+/* Make links inside modal detail values wrap nicely and look compact */
+#company-view-modal .detail-value a,
+#person-view-modal .detail-value a {
+  display: inline-block;
+  padding: 0.28rem 0.6rem;
+  margin: 0;
+  background: transparent;
+  color: var(--color-primary);
+  text-decoration: none;
+  border-radius: 8px;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* If the domain/email uses the pill class, neutralize heavy pill styling in the sidebar */
+#company-view-modal .detail-value .company-summary-domain-link,
+#person-view-modal .detail-value .company-summary-domain-link {
+  padding: 0.28rem 0.6rem;
+  background: rgba(0,0,0,0.04);
+  color: var(--text-primary);
+  font-weight: 600;
 }
 
 /* Direction Badge Styling */
