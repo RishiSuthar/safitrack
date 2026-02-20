@@ -204,6 +204,13 @@
 .company-summary-domain a { color:var(--text-muted); text-decoration:none; border-bottom:1px dashed transparent; }
 .company-summary-domain a:hover { border-bottom-color: rgba(0,0,0,0.12); }
 
+/* Opportunity card company avatar */
+.opp-company-inner { display:flex; align-items:center; gap:8px; }
+.opp-company-avatar { width:20px; height:20px; position:relative; flex-shrink:0; }
+.opp-company-avatar img { width:20px; height:20px; border-radius:4px; display:block; }
+.opp-company-name { font-size:0.9rem; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.opportunity-company { margin-bottom:6px; }
+
 .mention-info {
   flex: 1;
 }

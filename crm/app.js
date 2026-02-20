@@ -3918,6 +3918,12 @@ async function renderOpportunityPipelineView() {
       const user = opp.profiles;
       const ownerName = user ? `${user.first_name} ${user.last_name}` : 'Unknown';
 
+      // Resolve company object from global cache if available
+      const companyObj = (Array.isArray(window.allCompaniesData) ? window.allCompaniesData.find(c => String(c.id) === String(opp.company_id) || (c.name && c.name === opp.company_name)) : null);
+      const companyDomain = companyObj ? (companyObj.domain || '') : '';
+      const companyLogoUrl = companyObj ? (companyObj.logo_url || getCompanyLogoUrl(companyDomain)) : '';
+      const companyInitials = getInitials((companyObj && companyObj.name) ? companyObj.name : (opp.company_name || ''));
+
       // Process mentioned people in notes using explicit mentioned_people from DB
       let processedNotes = opp.notes || '';
       // helper to escape regex special chars
@@ -3951,7 +3957,15 @@ async function renderOpportunityPipelineView() {
             data-created-ts="${new Date(opp.created_at).getTime() || 0}"
             data-next-step-ts="${opp.next_step_date ? new Date(opp.next_step_date).getTime() : ''}"
             draggable="${isOwnOpportunity}">
-          <div class="opportunity-company">${opp.company_name}</div>
+          <div class="opportunity-company">
+            <div class="opp-company-inner">
+              <div class="opp-company-avatar">
+                <div class="mention-avatar" style="width:20px;height:20px;font-size:0.65rem;">${companyInitials}</div>
+                ${companyLogoUrl ? `<img src="${companyLogoUrl}" style="display:none;width:20px;height:20px;object-fit:contain;border-radius:4px;position:absolute;left:0;top:0;" onload="this.style.display='block'; this.previousElementSibling.style.display='none'" onerror="this.style.display='none'" />` : ''}
+              </div>
+              <div class="opp-company-name">${escapeHtml(opp.company_name || '')}</div>
+            </div>
+          </div>
           <div class="opportunity-name">${opp.name}</div>
           ${isManager && user ? `
             <div class="opportunity-owner">
