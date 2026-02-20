@@ -18015,10 +18015,17 @@ async function openCompanyViewModal(companyOrId) {
   const visits = (dedupeById([...(visitsById.data || []), ...(visitsByName.data || [])]) || []).slice(0, 10);
 
   // Render a richer summary area with avatar, key stats and actions
-  try {
+    try {
     const summaryEl = document.getElementById('company-view-summary');
     if (summaryEl) {
-      const logoHtml = company.logo_url ? `<img src="${company.logo_url}" alt="${company.name}" class="company-summary-logo"/>` : `<div class="company-summary-initials">${getInitials(company.name || 'U')}</div>`;
+      const resolvedLogoUrl = company.logo_url || getCompanyLogoUrl(company.domain || '');
+      const initials = getInitials(company.name || 'U');
+      const logoHtml = `
+        <div style="position:relative;width:48px;height:48px;">
+          <div class="company-summary-initials" style="width:48px;height:48px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:600">${initials}</div>
+          ${resolvedLogoUrl ? `<img src="${resolvedLogoUrl}" alt="${company.name}" style="display:none;width:48px;height:48px;object-fit:contain;border-radius:6px;position:absolute;left:0;top:0;" onload="this.style.display='block'; this.previousElementSibling.style.display='none'" onerror="this.style.display='none'" />` : ''}
+        </div>
+      `;
       const shortAddress = company.address ? (String(company.address).split(',')[0]) : '—';
       const cats = (company.company_categories && company.company_categories.length) ? company.company_categories.map(c => c.categories && c.categories.name ? c.categories.name : (c.name || '')).filter(Boolean) : [];
 
