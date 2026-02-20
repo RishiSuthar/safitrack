@@ -743,11 +743,16 @@
           </div>
 
           <div class="form-field">
-            <label for="company-description">
-              Description <span class="optional-badge">Optional</span>
-            </label>
-            <textarea id="company-description" placeholder="Brief description of the company and what they do..."
-              rows="3"></textarea>
+            <div style="position:relative;">
+              <label for="company-description" style="display:block;">
+                <span style="display:inline-block;">Description <span class="optional-badge">Optional</span></span>
+                <button type="button" id="generate-company-desc-btn" class="btn btn-ghost btn-sm" 
+                  style="position:absolute; right:0; top:0; transform:translateY(-6px);">Generate with AI</button>
+                <span id="generate-company-desc-spinner" style="display:none; position:absolute; right:110px; top:2px; font-size:12px; color:var(--text-muted);">Generating…</span>
+              </label>
+
+              <textarea id="company-description" placeholder="Brief description of the company and what they do..." rows="3"></textarea>
+            </div>
             <div class="field-helper">
               <span>Add details about their business, industry, or key products</span>
             </div>

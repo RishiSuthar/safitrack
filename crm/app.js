@@ -115,6 +115,8 @@ const FAST_BOOT_SKIP_MS = 500;
 const LOADER_FADE_MS = 180;
 let authBootstrapHandled = false;
 
+// Company description AI UI elements (queried after DOM ready inside initEventListeners)
+
 // ======================
 // SPREADSHEET ENGINE
 // ======================
@@ -413,6 +415,40 @@ function handleResizeMove(e) {
   });
 }
 
+// Generate company description using AI helper
+async function handleGenerateCompanyDescription() {
+  const companyNameInput = document.getElementById('company-name-input');
+  const companyDescriptionTextarea = document.getElementById('company-description');
+  const generateCompanyDescBtn = document.getElementById('generate-company-desc-btn');
+  const generateCompanyDescSpinner = document.getElementById('generate-company-desc-spinner');
+
+  if (!generateCompanyDescBtn) return;
+  const name = (companyNameInput && companyNameInput.value) ? companyNameInput.value.trim() : '';
+  if (!name) {
+    showToast('Please enter a company name first', 'error');
+    return;
+  }
+
+  try {
+    generateCompanyDescBtn.disabled = true;
+    if (generateCompanyDescSpinner) generateCompanyDescSpinner.style.display = 'inline-block';
+
+    const desc = await generateCompanyDescription(name);
+    if (desc && desc.trim()) {
+      if (companyDescriptionTextarea) companyDescriptionTextarea.value = desc.trim();
+      showToast('Generated description added', 'success');
+    } else {
+      showToast('No description returned from AI', 'error');
+    }
+  } catch (err) {
+    console.error('AI generate error', err);
+    showToast('Failed to generate description', 'error');
+  } finally {
+    generateCompanyDescBtn.disabled = false;
+    if (generateCompanyDescSpinner) generateCompanyDescSpinner.style.display = 'none';
+  }
+}
+
 function stopResize() {
   if (currentResizer) currentResizer.classList.remove('resizing');
   document.removeEventListener('mousemove', handleResizeMove);
@@ -683,6 +719,26 @@ function initEventListeners() {
       closeSidebar();
     });
   });
+
+  // Company description AI generation
+  const _generateCompanyDescBtn = document.getElementById('generate-company-desc-btn');
+  if (_generateCompanyDescBtn) {
+    _generateCompanyDescBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleGenerateCompanyDescription();
+    });
+  }
+  const _inlineGenerateBtn = document.getElementById('generate-company-desc-inline-btn');
+  if (_inlineGenerateBtn) {
+    _inlineGenerateBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      handleGenerateCompanyDescription();
+    });
+  }
+  // inline button removed from markup — clean up variable if present
+  if (_inlineGenerateBtn && !_inlineGenerateBtn.parentElement) {
+    // no-op, just safe-guard
+  }
 }
 
 // ======================
