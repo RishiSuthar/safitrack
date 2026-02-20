@@ -203,7 +203,7 @@ function getDeepValue(obj, path) {
   return path.split('.').reduce((acc, part) => acc && acc[part], obj);
 }
 
-// Return a DuckDuckGo favicon URL for a domain (sanitizes input)
+// Return a Google S2 favicon URL for a domain (sanitizes input)
 function getCompanyLogoUrl(domain) {
   if (!domain) return '';
   try {
@@ -211,7 +211,8 @@ function getCompanyLogoUrl(domain) {
     d = d.replace(/^https?:\/\//, '');
     d = d.replace(/^www\./, '');
     d = d.split('/')[0];
-    return `https://icons.duckduckgo.com/ip3/${encodeURIComponent(d)}.ico`;
+    // Use Google's S2 favicon service; request a slightly larger size
+    return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(d)}&sz=64`;
   } catch (e) {
     return '';
   }
