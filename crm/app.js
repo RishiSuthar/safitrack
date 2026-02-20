@@ -203,6 +203,20 @@ function getDeepValue(obj, path) {
   return path.split('.').reduce((acc, part) => acc && acc[part], obj);
 }
 
+// Return a DuckDuckGo favicon URL for a domain (sanitizes input)
+function getCompanyLogoUrl(domain) {
+  if (!domain) return '';
+  try {
+    let d = String(domain || '').trim().toLowerCase();
+    d = d.replace(/^https?:\/\//, '');
+    d = d.replace(/^www\./, '');
+    d = d.split('/')[0];
+    return `https://icons.duckduckgo.com/ip3/${encodeURIComponent(d)}.ico`;
+  } catch (e) {
+    return '';
+  }
+}
+
 function normalizeSearchText(value) {
   return String(value || '')
     .toLowerCase()
@@ -1123,7 +1137,20 @@ async function renderCompaniesView() {
   function renderCompaniesTable(companiesToRender, paginationInfo) {
     const columns = [
       { key: 'rank', label: '#', width: '50px', readOnly: true, sortable: false, render: (val, row) => (paginationInfo.currentPage - 1) * paginationInfo.recordsPerPage + companiesToRender.indexOf(row) + 1 },
-      { key: 'name', label: 'Company Name', width: '250px', icon: 'building', sortable: true },
+      { key: 'name', label: 'Company Name', width: '300px', icon: 'building', sortable: true, render: (val, row) => {
+          const domain = (row && row.domain) ? row.domain : '';
+          const logoUrl = getCompanyLogoUrl(domain);
+          const initials = getInitials(row.name || '');
+          return `
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:28px;height:28px;flex-shrink:0;position:relative;">
+                <div class="mention-avatar">${initials}</div>
+                ${logoUrl ? `<img src="${logoUrl}" style="display:none;width:28px;height:28px;object-fit:contain;border-radius:50%;position:absolute;left:0;top:0;" onload="this.style.display='block'; this.previousElementSibling.style.display='none'" onerror="this.style.display='none'" />` : ''}
+              </div>
+              <div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${row.name || '-'}</div>
+            </div>
+          `;
+        } },
       { key: 'industry', label: 'Industry', width: '150px', readOnly: true, icon: 'briefcase', sortable: false, render: (val, row) => val || row.company_categories?.map(c => c.categories.name).join(', ') || 'N/A' },
       { key: 'address', label: 'Location', width: '190px', icon: 'map-pin' },
       {
@@ -1464,6 +1491,7 @@ function openCompanyModal(company = null) {
   document.getElementById('company-name-input').value = '';
   document.getElementById('company-type').value = '';
   document.getElementById('company-description').value = '';
+  document.getElementById('company-domain') && (document.getElementById('company-domain').value = '');
   document.getElementById('company-address').value = '';
   document.getElementById('company-latitude').value = '';
   document.getElementById('company-longitude').value = '';
@@ -1482,6 +1510,7 @@ function openCompanyModal(company = null) {
     document.getElementById('company-name-input').value = company.name || '';
     document.getElementById('company-type').value = company.company_type || '';
     document.getElementById('company-description').value = company.description || '';
+    document.getElementById('company-domain') && (document.getElementById('company-domain').value = company.domain || '');
     document.getElementById('company-address').value = company.address || '';
     document.getElementById('company-latitude').value = company.latitude?.toString() || '';
     document.getElementById('company-longitude').value = company.longitude?.toString() || '';
@@ -1663,10 +1692,12 @@ function initCompanyModalListeners(company) {
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
     try {
+      const domain = document.getElementById('company-domain')?.value.trim();
       const companyData = {
         name,
         company_type: companyType,
         description: description || null,
+        domain: domain || null,
         address: address, // Make sure this is included
         latitude,
         longitude,
