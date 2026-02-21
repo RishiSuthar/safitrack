@@ -1143,17 +1143,33 @@ async function renderSettingsView() {
     <div class="page-header">
       <h1 class="page-title">Settings</h1>
     </div>
-    <div class="card">
+    <div class="card max-w-md mx-auto">
       <div class="card-body">
-        <h3>Date Format</h3>
-        <p class="text-muted">Choose how dates should be displayed across the CRM, exports and reports.</p>
-        <div style="margin-top: 1rem; display:flex; gap: 1rem; flex-direction: column; max-width:420px;">
-          <label><input type="radio" name="date-format" value="DD/MM/YYYY" ${currentPref === 'DD/MM/YYYY' ? 'checked' : ''}> DD/MM/YYYY (21/09/2026)</label>
-          <label><input type="radio" name="date-format" value="MM/DD/YYYY" ${currentPref === 'MM/DD/YYYY' ? 'checked' : ''}> MM/DD/YYYY (09/21/2026)</label>
-          <div style="margin-top: 1rem; display:flex; gap: 0.5rem;">
-            <button id="save-settings-btn" class="btn btn-primary">Save</button>
-            <button id="cancel-settings-btn" class="btn btn-ghost">Cancel</button>
+        <div class="form-field">
+          <label>Date Format</label>
+          <p class="text-muted">Choose how dates should be displayed across the CRM, exports and reports.</p>
+          <div class="form-radio-group">
+            <label class="tile-option">
+              <input type="radio" name="date-format" value="DD/MM/YYYY" ${currentPref === 'DD/MM/YYYY' ? 'checked' : ''}>
+              <div class="indicator"></div>
+              <div class="tile-body">
+                <span class="tile-title">DD/MM/YYYY</span>
+                <span class="tile-sub">(21/09/2026)</span>
+              </div>
+            </label>
+            <label class="tile-option">
+              <input type="radio" name="date-format" value="MM/DD/YYYY" ${currentPref === 'MM/DD/YYYY' ? 'checked' : ''}>
+              <div class="indicator"></div>
+              <div class="tile-body">
+                <span class="tile-title">MM/DD/YYYY</span>
+                <span class="tile-sub">(09/21/2026)</span>
+              </div>
+            </label>
           </div>
+        </div>
+        <div class="form-actions">
+          <button id="cancel-settings-btn" class="btn btn-ghost">Cancel</button>
+          <button id="save-settings-btn" class="btn btn-primary">Save</button>
         </div>
       </div>
     </div>
