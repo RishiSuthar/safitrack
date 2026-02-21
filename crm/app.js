@@ -7353,7 +7353,40 @@ async function generateVisitPDF(visitId) {
     addInfoRow('Company Name', visit.company_name || 'Unknown');
     if (visit.contact_name) addInfoRow('Contact Person', visit.contact_name);
     if (visit.latitude && visit.longitude) {
-      addInfoRow('Coordinates', `${visit.latitude.toFixed(6)}, ${visit.longitude.toFixed(6)}`);
+      // Add coordinates and a 'View in Google Maps' button
+      const lat = visit.latitude.toFixed(6);
+      const lng = visit.longitude.toFixed(6);
+      const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      doc.text('>', 22, yPos);
+      doc.setFont(undefined, 'bold');
+      doc.setTextColor(...colors.dark);
+      doc.text('Coordinates:', 27, yPos);
+      doc.setFont(undefined, 'normal');
+      const labelWidth = doc.getTextWidth('Coordinates:   ');
+      doc.text(`${lat}, ${lng}`, 27 + labelWidth, yPos);
+      // Draw 'View in Google Maps' button
+      // Improved button placement and design
+      const coordsText = `${lat}, ${lng}`;
+      const coordsX = 27 + labelWidth;
+      doc.text(coordsText, coordsX, yPos);
+      yPos += 8;
+      // Draw 'View in Google Maps' button below coordinates, aligned left
+      const btnLabel = 'View in Google Maps';
+      const btnWidth = doc.getTextWidth(btnLabel) + 12;
+      const btnHeight = 6; // smaller height
+      const btnX = 27; // push left, align with label
+      const btnY = yPos - 4;
+      doc.setFillColor(47, 95, 208);
+      doc.roundedRect(btnX, btnY, btnWidth, btnHeight, 2, 2, 'F');
+      doc.setFontSize(8);
+      doc.setTextColor(255, 255, 255);
+      const textX = btnX + btnWidth / 2 - doc.getTextWidth(btnLabel) / 2;
+      const textY = btnY + btnHeight / 2 + 1;
+      doc.textWithLink(btnLabel, textX, textY, { url: mapsUrl });
+      yPos += btnHeight + 4;
+      doc.setTextColor(...colors.dark);
       addInfoRow('Location Verified', visit.location_verified ? 'Yes ✓' : 'No');
     }
     yPos += 5;
@@ -12157,6 +12190,29 @@ async function exportToPDF(visits, fromDate, toDate) {
       doc.text(`Location: ${visit.location_name}`, 20, yPos);
       yPos += 6;
     }
+    // Add coordinates and 'View in Google Maps' button if present
+    if (visit.latitude && visit.longitude) {
+      const lat = visit.latitude.toFixed(6);
+      const lng = visit.longitude.toFixed(6);
+      const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+      doc.text(`Coordinates: ${lat}, ${lng}`, 20, yPos);
+      yPos += 8;
+      // Draw 'View in Google Maps' button below coordinates, aligned left
+      const btnLabel = 'View in Google Maps';
+      const btnWidth = doc.getTextWidth(btnLabel) + 12;
+      const btnHeight = 6;
+      const btnX = 20;
+      const btnY = yPos - 4;
+      doc.setFillColor(47, 95, 208);
+      doc.roundedRect(btnX, btnY, btnWidth, btnHeight, 2, 2, 'F');
+      doc.setFontSize(8);
+      doc.setTextColor(255, 255, 255);
+      const textX = btnX + btnWidth / 2 - doc.getTextWidth(btnLabel) / 2;
+      const textY = btnY + btnHeight / 2 + 1;
+      doc.textWithLink(btnLabel, textX, textY, { url: mapsUrl });
+      yPos += btnHeight + 4;
+      doc.setTextColor(0, 0, 0);
+    }
 
     if (visit.visit_type) {
       doc.text(`Type: ${visit.visit_type.replace('_', ' ')}`, 20, yPos);
@@ -15314,8 +15370,27 @@ async function generateTechnicianVisitPDF(visitId) {
     if (visit.companies?.description) {
       addInfoRow('Description', visit.companies.description);
     }
+
     if (visit.latitude && visit.longitude) {
-      addInfoRow('Coordinates', `${visit.latitude.toFixed(6)}, ${visit.longitude.toFixed(6)}`);
+      const coordsStr = `${visit.latitude.toFixed(6)}, ${visit.longitude.toFixed(6)}`;
+      addInfoRow('Coordinates', coordsStr);
+
+      // Add 'View in Google Maps' button below coordinates, aligned left (match visit PDF style)
+      const btnLabel = 'View in Google Maps';
+      const btnWidth = doc.getTextWidth(btnLabel) + 12;
+      const btnHeight = 6;
+      const btnX = 27; // align with info row value
+      const btnY = yPos - 4;
+      const mapsUrl = `https://www.google.com/maps?q=${visit.latitude.toFixed(6)},${visit.longitude.toFixed(6)}`;
+      doc.setFillColor(47, 95, 208);
+      doc.roundedRect(btnX, btnY, btnWidth, btnHeight, 2, 2, 'F');
+      doc.setFontSize(8);
+      doc.setTextColor(255, 255, 255);
+      const textX = btnX + btnWidth / 2 - doc.getTextWidth(btnLabel) / 2;
+      const textY = btnY + btnHeight / 2 + 1;
+      doc.textWithLink(btnLabel, textX, textY, { url: mapsUrl });
+      yPos += btnHeight + 4;
+      doc.setTextColor(0, 0, 0);
     }
 
     yPos += 5;
