@@ -7053,7 +7053,7 @@ window.exportVisitsToCSV = function () {
 
   const headers = ['Date', 'Company', 'Sales Rep', 'Visit Type', 'Contact', 'Lead Score', 'Notes', 'Location Verified'];
   const rows = visits.map(v => [
-    new Date(v.created_at).toISOString(),
+    formatDateDDMMYYYY(v.created_at),
     v.company_name || '',
     v.user ? `${v.user.first_name} ${v.user.last_name}` : '',
     v.visit_type || '',
@@ -7089,7 +7089,8 @@ function debounce(func, wait) {
 
 // Generate PDF for a sales visit
 async function generateVisitPDF(visitId) {
-  const visit = visitsHubState.visits.find(v => v.id === visitId);
+  const vid = String(visitId);
+  const visit = (visitsHubState.visits || []).find(v => String(v.id) === vid);
   if (!visit) {
     showToast('Visit not found', 'error');
     return;
@@ -7210,7 +7211,7 @@ async function generateVisitPDF(visitId) {
     doc.text('VISIT ID:', 25, yPos + 7);
     doc.setTextColor(...colors.dark);
     doc.setFont(undefined, 'bold');
-    doc.text(visit.id.substring(0, 16), 50, yPos + 7);
+    doc.text(String(visit.id).substring(0, 16), 50, yPos + 7);
     doc.setFont(undefined, 'normal');
     doc.setTextColor(100, 100, 100);
     doc.text('DATE:', 25, yPos + 14);

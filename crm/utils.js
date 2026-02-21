@@ -73,6 +73,46 @@ function formatDateWithTime(dateString) {
   });
 }
 
+// Format date as '21st September 2026'
+function formatFullDateOrdinal(dateString) {
+  if (!dateString) return '';
+  let date;
+  if (typeof dateString === 'string' && dateString.length === 10 && dateString.includes('-')) {
+    const [y, m, d] = dateString.split('-').map(Number);
+    date = new Date(y, m - 1, d, 12, 0, 0);
+  } else {
+    date = new Date(dateString);
+  }
+
+  const day = date.getDate();
+  const month = date.toLocaleString('en-US', { month: 'long' });
+  const year = date.getFullYear();
+
+  const ordinal = (n) => {
+    const s = ["th", "st", "nd", "rd"], v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  };
+
+  return `${ordinal(day)} ${month} ${year}`;
+}
+
+// Format date as 'DD/MM/YYYY' (e.g., '21/09/2026')
+function formatDateDDMMYYYY(dateString) {
+  if (!dateString) return '';
+  let date;
+  if (typeof dateString === 'string' && dateString.length === 10 && dateString.includes('-')) {
+    const [y, m, d] = dateString.split('-').map(Number);
+    date = new Date(y, m - 1, d, 12, 0, 0);
+  } else {
+    date = new Date(dateString);
+  }
+
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+
 // GENERATE RANDOM COLOR
 function generateColor(seed) {
   const colors = [
