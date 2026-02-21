@@ -58,7 +58,12 @@ function formatDate(dateString) {
   if (diffDays === 1) return 'Yesterday';
   if (diffDays < 7) return `${diffDays} days ago`;
 
-  return date.toLocaleDateString();
+  // Use user's preferred date format for older dates
+  const pref = getUserDateFormat();
+  if (pref === 'MM/DD/YYYY') {
+    return `${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}/${date.getFullYear()}`;
+  }
+  return formatDateDDMMYYYY(dateString);
 }
 
 // Format date with time
@@ -111,6 +116,15 @@ function formatDateDDMMYYYY(dateString) {
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const yyyy = date.getFullYear();
   return `${dd}/${mm}/${yyyy}`;
+}
+
+// Return user's preferred date format. Defaults to 'DD/MM/YYYY'.
+function getUserDateFormat() {
+  try {
+    const val = localStorage.getItem('safitrack_date_format');
+    if (val === 'MM/DD/YYYY' || val === 'DD/MM/YYYY') return val;
+  } catch (e) {}
+  return 'DD/MM/YYYY';
 }
 
 // GENERATE RANDOM COLOR

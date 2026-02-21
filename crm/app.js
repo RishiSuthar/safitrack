@@ -705,6 +705,13 @@ function initEventListeners() {
     if (window.onboarding) window.onboarding.start();
   });
 
+  // Settings
+  document.getElementById('settings-btn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    userMenu?.classList.remove('active');
+    loadView('settings');
+  });
+
   // Export
   exportBtn?.addEventListener('click', () => {
     userMenu?.classList.remove('active');
@@ -784,7 +791,7 @@ async function initApp() {
 
   const { data: profile, error } = await supabaseClient
     .from('profiles')
-    .select('role, first_name, last_name, email')
+    .select('role, first_name, last_name, email, date_format')
     .eq('id', currentUser.id)
     .single();
 
@@ -796,6 +803,13 @@ async function initApp() {
   isManager = profile.role === 'manager';
   isTechnician = profile.role === 'technician';
   currentUserProfile = profile;
+
+  // Initialize date format preference from profile if present
+  try {
+    if (profile && profile.date_format) {
+      localStorage.setItem('safitrack_date_format', profile.date_format);
+    }
+  } catch (e) {}
 
   // Update UI based on role
   updateUserDisplay(profile);
@@ -1101,6 +1115,9 @@ async function loadView(viewName) {
     case 'call-logs':
       await renderCallLogsView();
       break;
+    case 'settings':
+      await renderSettingsView();
+      break;
     default:
       viewContainer.innerHTML = renderNotFound();
   }
@@ -1115,6 +1132,98 @@ async function loadView(viewName) {
 // ======================
 // COMPANIES VIEW
 // ======================
+
+// ======================
+// SETTINGS VIEW
+// ======================
+async function renderSettingsView() {
+  const currentPref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
+
+  const html = `
+    <div class="page-header">
+      <h1 class="page-title">Settings</h1>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h3>Date Format</h3>
+        <p class="text-muted">Choose how dates should be displayed across the CRM, exports and reports.</p>
+        <div style="margin-top: 1rem; display:flex; gap: 1rem; flex-direction: column; max-width:420px;">
+          <label><input type="radio" name="date-format" value="DD/MM/YYYY" ${currentPref === 'DD/MM/YYYY' ? 'checked' : ''}> DD/MM/YYYY (21/09/2026)</label>
+          <label><input type="radio" name="date-format" value="MM/DD/YYYY" ${currentPref === 'MM/DD/YYYY' ? 'checked' : ''}> MM/DD/YYYY (09/21/2026)</label>
+          <div style="margin-top: 1rem; display:flex; gap: 0.5rem;">
+            <button id="save-settings-btn" class="btn btn-primary">Save</button>
+            <button id="cancel-settings-btn" class="btn btn-ghost">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  viewContainer.innerHTML = html;
+
+  document.getElementById('cancel-settings-btn').addEventListener('click', () => {
+    const lastView = localStorage.getItem('lastActiveView') || 'log-visit';
+    loadView(lastView);
+  });
+
+  document.getElementById('save-settings-btn').addEventListener('click', async () => {
+    const val = document.querySelector('input[name="date-format"]:checked')?.value;
+    if (!val) return showToast('Please select a date format', 'warning');
+
+    try {
+      // Save locally first so UI updates immediately
+      localStorage.setItem('safitrack_date_format', val);
+
+      // Try to persist to profile and surface any errors
+      if (typeof supabaseClient !== 'undefined' && currentUser && currentUser.id) {
+        // attempt update
+        const { data: updated, error } = await supabaseClient
+          .from('profiles')
+          .update({ date_format: val })
+          .eq('id', currentUser.id)
+          .select()
+          .single();
+
+        console.log('date_format update response:', { updated, error });
+
+        if (error) {
+          console.error('Failed to persist date_format to Supabase:', error);
+          showToast('Saved locally, but failed to persist to server: ' + (error.message || error), 'warning');
+          console.warn("If this is a Row Level Security issue, run the SQL in the console message we provided earlier to allow users to update their own profile.");
+        } else {
+          // re-fetch to confirm
+          const { data: fresh, error: fetchErr } = await supabaseClient
+            .from('profiles')
+            .select('date_format')
+            .eq('id', currentUser.id)
+            .single();
+
+          console.log('date_format fetch after update:', { fresh, fetchErr });
+
+          if (fetchErr) {
+            console.error('Failed to fetch profile after update:', fetchErr);
+            showToast('Saved locally; update returned OK but could not verify on server.', 'warning');
+          } else if (fresh && fresh.date_format === val) {
+            showToast('Date format saved to server', 'success');
+            try { currentUserProfile = { ...(currentUserProfile || {}), date_format: fresh.date_format }; } catch (e) {}
+          } else {
+            console.error('Server did not store the new date_format; fetched value:', fresh);
+            showToast('Saved locally, but server shows a different value. Check console for details.', 'warning');
+          }
+        }
+      } else {
+        showToast('Date format saved locally', 'success');
+      }
+
+      // Refresh current view to apply format immediately
+      refreshCurrentView();
+    } catch (e) {
+      console.error('Failed to save date format', e);
+      showToast('Failed to save setting', 'error');
+    }
+  });
+}
+
 
 async function renderCompaniesView() {
   const companiesState = tableViewState.companies;
@@ -7052,8 +7161,9 @@ window.exportVisitsToCSV = function () {
   }
 
   const headers = ['Date', 'Company', 'Sales Rep', 'Visit Type', 'Contact', 'Lead Score', 'Notes', 'Location Verified'];
+  const pref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
   const rows = visits.map(v => [
-    formatDateDDMMYYYY(v.created_at),
+    pref === 'MM/DD/YYYY' ? (new Date(v.created_at) instanceof Date ? `${String(new Date(v.created_at).getMonth()+1).padStart(2,'0')}/${String(new Date(v.created_at).getDate()).padStart(2,'0')}/${new Date(v.created_at).getFullYear()}` : '') : formatDateDDMMYYYY(v.created_at),
     v.company_name || '',
     v.user ? `${v.user.first_name} ${v.user.last_name}` : '',
     v.visit_type || '',
@@ -7216,7 +7326,10 @@ async function generateVisitPDF(visitId) {
     doc.setTextColor(100, 100, 100);
     doc.text('DATE:', 25, yPos + 14);
     doc.setTextColor(...colors.dark);
-    doc.text(new Date(visit.created_at).toLocaleString(), 50, yPos + 14);
+    const pdfDatePref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
+    const created = new Date(visit.created_at);
+    const createdDateStr = pdfDatePref === 'MM/DD/YYYY' ? `${String(created.getMonth()+1).padStart(2,'0')}/${String(created.getDate()).padStart(2,'0')}/${created.getFullYear()}` : `${String(created.getDate()).padStart(2,'0')}/${String(created.getMonth()+1).padStart(2,'0')}/${created.getFullYear()}`;
+    doc.text(`${createdDateStr} ${created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, 50, yPos + 14);
     yPos += 30;
 
     // Company Section
@@ -12268,20 +12381,28 @@ function formatDate(dateString, shortFormat = false) {
     date = new Date(dateString);
   }
 
+  const pref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
+
   if (shortFormat) {
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric'
-    });
+    if (pref === 'MM/DD/YYYY') {
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+    return date.toLocaleDateString('en-GB', { month: 'short', day: 'numeric' });
   }
 
-  return date.toLocaleDateString('en-US', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
+  // Long format with time
+  const timePart = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  if (pref === 'MM/DD/YYYY') {
+    const d = String(date.getMonth() + 1).padStart(2, '0');
+    const m = String(date.getDate()).padStart(2, '0');
+    const y = date.getFullYear();
+    return `${d}/${m}/${y} ${timePart}`;
+  }
+  // default DD/MM/YYYY
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  return `${dd}/${mm}/${yyyy} ${timePart}`;
 }
 
 /**
@@ -15152,12 +15273,17 @@ async function generateTechnicianVisitPDF(visitId) {
     doc.setTextColor(100, 100, 100);
     doc.text('DATE:', 25, yPos + 14);
     doc.setTextColor(...colors.dark);
-    doc.text(new Date(visit.created_at).toLocaleString(), 53, yPos + 14);
+    const pdfDatePref2 = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
+    const created2 = new Date(visit.created_at);
+    const createdDateStr2 = pdfDatePref2 === 'MM/DD/YYYY' ? `${String(created2.getMonth()+1).padStart(2,'0')}/${String(created2.getDate()).padStart(2,'0')}/${created2.getFullYear()}` : `${String(created2.getDate()).padStart(2,'0')}/${String(created2.getMonth()+1).padStart(2,'0')}/${created2.getFullYear()}`;
+    doc.text(`${createdDateStr2} ${created2.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, 53, yPos + 14);
 
     doc.setTextColor(100, 100, 100);
     doc.text('GENERATED:', 25, yPos + 21);
     doc.setTextColor(...colors.dark);
-    doc.text(new Date().toLocaleString(), 53, yPos + 21);
+    const now = new Date();
+    const nowDateStr = pdfDatePref2 === 'MM/DD/YYYY' ? `${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}/${now.getFullYear()}` : `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+    doc.text(`${nowDateStr} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, 53, yPos + 21);
 
     yPos += 35;
 
