@@ -7912,6 +7912,146 @@ body.is-dragging * {
   align-items: center;
 }
 
+/* ==========================
+   SafiFind modal — Polished redesign (scoped)
+   - Centered dialog on desktop, compact bottom-sheet on mobile
+   - 8px spacing scale, stronger header, de-emphasized metadata
+   - Scoped to #safifind-modal only to avoid global modal changes
+   ========================== */
+
+/* Backdrop: soften so dialog reads as primary focus */
+#safifind-modal .modal-backdrop {
+  background: rgba(15, 20, 30, 0.35);
+  backdrop-filter: blur(6px);
+}
+
+/* Container: centered on wide screens, keeps bottom-sheet feel on small */
+#safifind-modal.modal {
+  align-items: flex-end; /* default mobile bottom sheet */
+}
+
+@media (min-width: 720px) {
+  #safifind-modal.modal { align-items: center; }
+  #safifind-modal .modal-container {
+    width: 92vw;
+    max-width: 720px;
+    margin: 0; /* center vertically */
+    border-radius: 12px;
+    box-shadow: 0 14px 40px rgba(15, 20, 30, 0.16);
+    animation: none; /* keep it subtle when centering */
+  }
+}
+
+/* Header: stronger, tighter */
+#safifind-modal .modal-header {
+  padding: 20px 24px;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+#safifind-modal .modal-header h3 {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+#safifind-modal .modal-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: transparent;
+  border: 1px solid var(--border-color-light);
+}
+
+/* Body: compact, consistent 8px rhythm */
+#safifind-modal .modal-body {
+  padding: 20px 24px;
+  background: var(--bg-primary);
+  max-height: 70vh;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* 1.5 * base 8px */
+}
+
+#safifind-modal .form-field { margin-bottom: 8px; }
+
+#safifind-modal .form-field label {
+  font-size: 0.8125rem; /* 13px */
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+/* De-emphasize coordinates (metadata) */
+#safifind-modal #safifind-coords {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+/* Inputs & selects: uniform control height and visual balance */
+#safifind-modal .form-field input,
+#safifind-modal .form-field select {
+  height: 44px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  font-size: 0.9375rem;
+  background: var(--bg-primary);
+  box-shadow: none;
+  display: block;
+}
+
+/* Override previous rigid select centering with robust flex centering */
+#safifind-modal select.input-small,
+#safifind-modal #safifind-filter {
+  height: 44px !important;
+  line-height: normal !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0 14px !important;
+}
+
+#safifind-modal .form-field input:focus,
+#safifind-modal .form-field select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4px rgba(var(--color-primary-rgb), 0.08);
+}
+
+/* Primary action: make it clearly primary and anchored visually */
+#safifind-modal #safifind-find-btn {
+  align-self: flex-end;
+  margin-top: 12px;
+  min-width: 140px;
+  padding: 10px 16px;
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(var(--color-primary-rgb), 0.12);
+}
+
+/* Ensure results container has comfortable spacing */
+#safifind-modal #safifind-results { margin-top: 12px; }
+
+/* Footer: subtle, small, keeps Close as secondary */
+#safifind-modal .modal-footer {
+  padding: 12px 20px;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color-light);
+}
+
+#safifind-modal .modal-footer .btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  padding: 8px 12px;
+}
+
+/* Small screens: keep the existing bottom sheet feel but tighten paddings */
+@media (max-width: 719px) {
+  #safifind-modal .modal-container { margin-bottom: 18px; border-radius: 12px 12px 8px 8px; }
+  #safifind-modal .modal-body { padding: 16px; }
+}
+
 .task-priority,
 .reminder-date {
   display: inline-flex;
