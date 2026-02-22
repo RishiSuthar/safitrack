@@ -223,16 +223,7 @@
               </svg>
               <span>Help Guide</span>
             </button>
-            <button id="export-btn" class="user-dropdown-item">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-download-icon lucide-download">
-                <path d="M12 15V3" />
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                <path d="m7 10 5 5 5-5" />
-              </svg>
-              <span>Export Reports</span>
-            </button>
+            <!-- Export Reports removed per UX decision -->
             <button id="settings-btn" class="user-dropdown-item">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bolt-icon lucide-bolt"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><circle cx="12" cy="12" r="4"/></svg>
               <span>Settings</span>
@@ -615,84 +606,7 @@
     </div>
   </div>
 
-  <div id="export-modal" class="modal" style="display:none;">
-    <div class="modal-backdrop"></div>
-    <div class="modal-container">
-      <div class="modal-header">
-        <h3><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-sparkle-icon lucide-sparkle">
-            <path
-              d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z" />
-          </svg>
-          Export Reports</h3>
-        <button class="modal-close" onclick="closeModal('export-modal')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-x-icon lucide-x">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="form-field">
-          <label>Export Format</label>
-          <div class="export-format-grid">
-            <label class="export-format-option">
-              <input type="radio" name="export-format" value="pdf" checked>
-              <div class="export-format-card">
-                <i data-lucide="file-text"></i>
-                <span>PDF Report</span>
-              </div>
-            </label>
-            <label class="export-format-option">
-              <input type="radio" name="export-format" value="excel">
-              <div class="export-format-card">
-                <i data-lucide="table"></i>
-                <span>Excel</span>
-              </div>
-            </label>
-            <label class="export-format-option">
-              <input type="radio" name="export-format" value="csv">
-              <div class="export-format-card">
-                <i data-lucide="file-spreadsheet"></i>
-                <span>CSV</span>
-              </div>
-            </label>
-          </div>
-        </div>
-        <div class="form-field">
-          <label>Date Range</label>
-          <div class="date-range-buttons">
-            <button class="date-range-btn active" onclick="setDateRange('today', this)">Today</button>
-            <button class="date-range-btn" onclick="setDateRange('week', this)">7 Days</button>
-            <button class="date-range-btn" onclick="setDateRange('month', this)">Month</button>
-            <button class="date-range-btn" onclick="setDateRange('quarter', this)">Quarter</button>
-          </div>
-        </div>
-        <div id="custom-date-range" class="form-field" style="display:none;">
-          <div class="date-inputs">
-            <div>
-              <label>From</label>
-              <input type="date" id="export-date-from">
-            </div>
-            <div>
-              <label>To</label>
-              <input type="date" id="export-date-to">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('export-modal')">Cancel</button>
-        <button class="btn btn-primary" onclick="executeExport()">
-          <i data-lucide="download"></i>
-          Export
-        </button>
-      </div>
-    </div>
-  </div>
+  <!-- Export modal removed per request; company import/export modal remains available elsewhere -->
 
   <div id="company-modal" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>

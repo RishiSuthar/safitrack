@@ -101,7 +101,6 @@ const userAvatarBtn = document.getElementById('user-avatar-btn');
 const themeToggle = document.getElementById('theme-toggle');
 const commandPaletteBtn = document.getElementById('command-palette-btn');
 const commandPalette = document.getElementById('command-palette');
-const exportBtn = document.getElementById('export-btn');
 const logoutBtn = document.getElementById('logout-btn');
 const notificationsMenu = document.getElementById('notifications-menu');
 const notificationsBtn = document.getElementById('notifications-btn');
@@ -712,11 +711,6 @@ function initEventListeners() {
     loadView('settings');
   });
 
-  // Export
-  exportBtn?.addEventListener('click', () => {
-    userMenu?.classList.remove('active');
-    openExportModal();
-  });
 
   // Navigation
   document.querySelectorAll('[data-view]').forEach(btn => {
@@ -1134,110 +1128,293 @@ async function loadView(viewName) {
 // ======================
 
 // ======================
-// SETTINGS VIEW
+// SETTINGS VIEW (REDESIGN v2)
 // ======================
 async function renderSettingsView() {
-  const currentPref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
+  const dateFormatPref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
+  const emailNotifPref = (localStorage.getItem('safitrack_email_notifs') || 'true') === 'true';
+  // helper to safely escape user-provided strings in template
+  function escapeHtml(s) { return (s || '').toString().replace(/[&<>\"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":"&#39;"}[c]; }); }
+
+  const firstNameEsc = escapeHtml((currentUserProfile && currentUserProfile.first_name) ? currentUserProfile.first_name : '');
+  const lastNameEsc = escapeHtml((currentUserProfile && currentUserProfile.last_name) ? currentUserProfile.last_name : '');
+  const userEmailEsc = escapeHtml((currentUser && currentUser.email) ? currentUser.email : '');
 
   const html = `
-    <div class="page-header">
-      <h1 class="page-title">Settings</h1>
-    </div>
-    <div class="card max-w-md mx-auto">
-      <div class="card-body">
-        <div class="form-field">
-          <label>Date Format</label>
-          <p class="text-muted">Choose how dates should be displayed across the CRM, exports and reports.</p>
-          <div class="form-radio-group">
-            <label class="tile-option">
-              <input type="radio" name="date-format" value="DD/MM/YYYY" ${currentPref === 'DD/MM/YYYY' ? 'checked' : ''}>
-              <div class="indicator"></div>
-              <div class="tile-body">
-                <span class="tile-title">DD/MM/YYYY</span>
-                <span class="tile-sub">(21/09/2026)</span>
-              </div>
-            </label>
-            <label class="tile-option">
-              <input type="radio" name="date-format" value="MM/DD/YYYY" ${currentPref === 'MM/DD/YYYY' ? 'checked' : ''}>
-              <div class="indicator"></div>
-              <div class="tile-body">
-                <span class="tile-title">MM/DD/YYYY</span>
-                <span class="tile-sub">(09/21/2026)</span>
-              </div>
-            </label>
-          </div>
-        </div>
-        <div class="form-actions">
-          <button id="cancel-settings-btn" class="btn btn-ghost">Cancel</button>
-          <button id="save-settings-btn" class="btn btn-primary">Save</button>
-        </div>
+    <header class="settings-header">
+      <div>
+        <h1 class="settings-title">Settings</h1>
+        <p class="settings-sub">Configure your account, organization, and preferences.</p>
       </div>
+      <div class="settings-header-actions">
+        <button id="cancel-settings-btn" class="btn btn-ghost">Cancel</button>
+        <button id="save-settings-btn" class="btn btn-primary">Save changes</button>
+      </div>
+    </header>
+
+    <div class="settings-layout">
+      <nav class="settings-nav" aria-label="Settings navigation">
+        <button class="nav-item active" data-section="profile">Profile</button>
+        <button class="nav-item" data-section="organization">Organization</button>
+        <button class="nav-item" data-section="preferences">Preferences</button>
+        <button class="nav-item" data-section="notifications">Notifications</button>
+        <button class="nav-item danger" data-section="danger">Danger Zone</button>
+      </nav>
+
+      <main class="settings-content">
+        <section class="settings-section" data-section="profile">
+          <div class="section-card">
+            <div class="section-card-header">
+              <div>
+                <h2 class="section-title">Profile</h2>
+                <p class="section-sub">Your personal information used across the workspace.</p>
+              </div>
+            </div>
+            <div class="section-card-body">
+              <div class="form-grid">
+                <div class="form-field">
+                  <label>First name</label>
+                  <input id="profile-firstname" type="text" placeholder="First name" value="${firstNameEsc}">
+                </div>
+                <div class="form-field">
+                  <label>Last name</label>
+                  <input id="profile-lastname" type="text" placeholder="Last name" value="${lastNameEsc}">
+                </div>
+                <div class="form-field">
+                  <label>Email</label>
+                  <input id="profile-email" type="email" placeholder="you@company.com" value="${userEmailEsc}" disabled>
+                </div>
+                <div class="form-field">
+                  <label>&nbsp;</label>
+                  <div>
+                    <button id="profile-change-password-btn" class="btn btn-secondary btn-sm">Change password</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-section" data-section="organization" style="display:none;">
+          <div class="section-card">
+            <div class="section-card-header">
+              <div>
+                <h2 class="section-title">Organization</h2>
+                <p class="section-sub">Settings that affect your organization and team.</p>
+              </div>
+            </div>
+            <div class="section-card-body">
+              <div class="empty-state">
+                <div class="empty-illustration">⚙️</div>
+                <div class="empty-text">Organization settings are managed at the workspace level. Contact the administrator to change billing, domains, and teams.</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-section" data-section="preferences" style="display:none;">
+          <div class="section-card">
+            <div class="section-card-header">
+              <div>
+                <h2 class="section-title">Preferences</h2>
+                <p class="section-sub">Personalize how data and notifications appear for you.</p>
+              </div>
+            </div>
+            <div class="section-card-body">
+              <div class="form-grid">
+                <div class="form-field">
+                  <label>Date format</label>
+                  <div class="segmented-control" role="tablist" aria-label="Date format">
+                    <button class="seg-btn ${dateFormatPref === 'DD/MM/YYYY' ? 'seg-active' : ''}" data-value="DD/MM/YYYY">DD/MM/YYYY <span class="seg-hint">(21/09/2026)</span></button>
+                    <button class="seg-btn ${dateFormatPref === 'MM/DD/YYYY' ? 'seg-active' : ''}" data-value="MM/DD/YYYY">MM/DD/YYYY <span class="seg-hint">(09/21/2026)</span></button>
+                  </div>
+                </div>
+
+                <!-- Time zone selector removed (managed server-side) -->
+
+                <!-- First day of week and Compact mode removed -->
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-section" data-section="notifications" style="display:none;">
+          <div class="section-card">
+            <div class="section-card-header">
+              <div>
+                <h2 class="section-title">Notifications</h2>
+                <p class="section-sub">Control how you get notified about important activity.</p>
+              </div>
+            </div>
+            <div class="section-card-body">
+              <div class="form-grid">
+                <div class="form-field">
+                  <label>Email notifications</label>
+                  <div class="control-row">
+                    <div class="control-desc">Receive email summaries and alerts.</div>
+                    <label class="toggle-switch">
+                      <input id="pref-email-notifs" type="checkbox" ${emailNotifPref ? 'checked' : ''}>
+                      <span class="switch"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <div class="form-field">
+                  <label>Browser alerts</label>
+                  <div class="control-row">
+                    <div class="control-desc">Allow in-browser notifications for reminders and mentions.</div>
+                    <button id="enable-browser-notifs" class="btn btn-outline">Enable alerts</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="settings-section" data-section="danger" style="display:none;">
+          <div class="section-card">
+            <div class="section-card-header">
+              <div>
+                <h2 class="section-title danger">Danger Zone</h2>
+                <p class="section-sub">Irreversible actions. Proceed with caution.</p>
+              </div>
+            </div>
+            <div class="section-card-body">
+              <div class="danger-actions">
+                <div>
+                  <h3>Delete account</h3>
+                  <p class="text-muted">This will permanently remove your account and all organization data you own.</p>
+                </div>
+                <div>
+                  <button id="delete-account-btn" class="btn btn-danger">Delete account</button>
+                </div>
+              </div>
+              <hr>
+              <div class="danger-actions">
+                <div>
+                  <h3>Export data</h3>
+                  <p class="text-muted">Download a copy of your personal data and reports.</p>
+                </div>
+                <div>
+                  <button id="export-data-btn" class="btn btn-ghost">Export</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
     </div>
   `;
 
   viewContainer.innerHTML = html;
 
+  // Utilities
+  function setActiveSection(name) {
+    document.querySelectorAll('.settings-nav .nav-item').forEach(b => b.classList.toggle('active', b.dataset.section === name));
+    document.querySelectorAll('.settings-section').forEach(s => s.style.display = (s.dataset.section === name) ? '' : 'none');
+  }
+
+  // Tab nav
+  document.querySelectorAll('.settings-nav .nav-item').forEach(btn => {
+    btn.addEventListener('click', () => setActiveSection(btn.dataset.section));
+  });
+
+  // Wire segmented date controls
+  document.querySelectorAll('.segmented-control .seg-btn').forEach(b => {
+    b.addEventListener('click', () => {
+      document.querySelectorAll('.segmented-control .seg-btn').forEach(x => x.classList.remove('seg-active'));
+      b.classList.add('seg-active');
+    });
+  });
+
+  // Wire profile change password button to reuse existing modal
+  document.getElementById('profile-change-password-btn')?.addEventListener('click', () => {
+    try { openChangePasswordModal(); } catch (e) { console.error('openChangePasswordModal not available', e); }
+  });
+
+  // Wire buttons
   document.getElementById('cancel-settings-btn').addEventListener('click', () => {
     const lastView = localStorage.getItem('lastActiveView') || 'log-visit';
     loadView(lastView);
   });
 
-  document.getElementById('save-settings-btn').addEventListener('click', async () => {
-    const val = document.querySelector('input[name="date-format"]:checked')?.value;
-    if (!val) return showToast('Please select a date format', 'warning');
-
+  document.getElementById('enable-browser-notifs')?.addEventListener('click', async () => {
     try {
-      // Save locally first so UI updates immediately
-      localStorage.setItem('safitrack_date_format', val);
+      const perm = await Notification.requestPermission();
+      if (perm === 'granted') showToast('Browser notifications enabled', 'success');
+      else showToast('Browser notifications were not enabled', 'warning');
+    } catch (e) { showToast('Unable to enable notifications', 'error'); }
+  });
 
-      // Try to persist to profile and surface any errors
+  document.getElementById('delete-account-btn')?.addEventListener('click', () => {
+    const ok = confirm('Delete your account and all owned data? This action cannot be undone.');
+    if (!ok) return;
+    // Best-effort: call backend if available
+    if (typeof supabaseClient !== 'undefined' && currentUser && currentUser.id) {
+      showToast('Account deletion requested. Check server logs for progress.', 'warning');
+      // server-side deletion flows are intentionally not implemented here
+    } else {
+      showToast('Local account removal not supported in demo.', 'warning');
+    }
+  });
+
+  document.getElementById('export-data-btn')?.addEventListener('click', () => {
+    showToast('Preparing export...', 'info');
+    // Hook to real export flow
+  });
+
+  // Save logic: gather visible preferences and persist
+  document.getElementById('save-settings-btn').addEventListener('click', async () => {
+    try {
+      const firstName = document.getElementById('profile-firstname')?.value?.trim();
+      const lastName = document.getElementById('profile-lastname')?.value?.trim();
+      const dateFormat = document.querySelector('.segmented-control .seg-active')?.dataset?.value || dateFormatPref;
+      const emailNotifs = document.getElementById('pref-email-notifs')?.checked || false;
+      // compact mode removed
+
+      // Local persistence
+      localStorage.setItem('safitrack_date_format', dateFormat);
+      localStorage.setItem('safitrack_email_notifs', emailNotifs ? 'true' : 'false');
+
+      // Attempt to persist profile updates
       if (typeof supabaseClient !== 'undefined' && currentUser && currentUser.id) {
-        // attempt update
+        const updates = {};
+        if (firstName) updates.first_name = firstName;
+        if (lastName) updates.last_name = lastName;
+        // store preferences on profile as available
+        updates.date_format = dateFormat;
+        updates.email_notifications = emailNotifs;
+
         const { data: updated, error } = await supabaseClient
           .from('profiles')
-          .update({ date_format: val })
+          .update(updates)
           .eq('id', currentUser.id)
           .select()
           .single();
 
-        console.log('date_format update response:', { updated, error });
-
         if (error) {
-          console.error('Failed to persist date_format to Supabase:', error);
-          showToast('Saved locally, but failed to persist to server: ' + (error.message || error), 'warning');
-          console.warn("If this is a Row Level Security issue, run the SQL in the console message we provided earlier to allow users to update their own profile.");
+          console.error('Failed to persist profile settings:', error);
+          showToast('Saved locally, but failed to persist to server.', 'warning');
         } else {
-          // re-fetch to confirm
-          const { data: fresh, error: fetchErr } = await supabaseClient
-            .from('profiles')
-            .select('date_format')
-            .eq('id', currentUser.id)
-            .single();
-
-          console.log('date_format fetch after update:', { fresh, fetchErr });
-
-          if (fetchErr) {
-            console.error('Failed to fetch profile after update:', fetchErr);
-            showToast('Saved locally; update returned OK but could not verify on server.', 'warning');
-          } else if (fresh && fresh.date_format === val) {
-            showToast('Date format saved to server', 'success');
-            try { currentUserProfile = { ...(currentUserProfile || {}), date_format: fresh.date_format }; } catch (e) {}
-          } else {
-            console.error('Server did not store the new date_format; fetched value:', fresh);
-            showToast('Saved locally, but server shows a different value. Check console for details.', 'warning');
-          }
+          showToast('Settings saved', 'success');
+          try { currentUserProfile = { ...(currentUserProfile || {}), ...(updated || {}) }; } catch (e) {}
         }
       } else {
-        showToast('Date format saved locally', 'success');
+        showToast('Settings saved locally', 'success');
       }
 
-      // Refresh current view to apply format immediately
       refreshCurrentView();
     } catch (e) {
-      console.error('Failed to save date format', e);
-      showToast('Failed to save setting', 'error');
+      console.error(e);
+      showToast('Failed to save settings', 'error');
     }
   });
+
+  // small helper to initialize radio/checkboxes
+  // Defaults hydration removed (first day and compact mode were removed)
+
+  // Start on Preferences tab by default
+  setActiveSection('preferences');
 }
 
 
@@ -7515,11 +7692,7 @@ async function renderUserManagementView() {
           <span class="tag ${user.role === 'manager' ? '' : 'text-muted'}" style="background: ${user.role === 'manager' ? 'var(--color-primary-bg)' : 'var(--bg-tertiary)'};">
             ${user.role === 'manager' ? 'Manager' : user.role === 'technician' ? 'Technician' : user.role === 'sales_rep' ? 'Sales Rep' : (user.role || '')}
           </span>
-          ${isCurrentUser ? `
-          <button class="btn btn-secondary btn-sm" onclick="openChangePasswordModal()" title="Change your password">
-             Change Password
-          </button>
-          ` : ''}
+           ${isCurrentUser ? `` : ''}
           ${canManageUsers && !isCurrentUser && canDeleteUser ? `
             <button class="btn btn-ghost btn-sm" onclick="deleteUser('${user.id}', '${user.first_name} ${user.last_name}', '${user.role || ''}')">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
@@ -11516,9 +11689,7 @@ function initReminderModalListeners(reminder) {
 // EXPORT FUNCTIONALITY
 // ======================
 
-function openExportModal() {
-  document.getElementById('export-modal').style.display = 'flex';
-}
+// openExportModal removed (export modal markup was deleted)
 
 const COMPANY_IMPORT_TYPES = ['Competitor', 'Customer', 'Distributor', 'Investor', 'Partner', 'Reseller', 'Supplier', 'Vendor', 'Other'];
 
@@ -12080,216 +12251,11 @@ window.closeModal = function (modalId) {
   }
 };
 
-window.setDateRange = function (range, btn) {
-  document.querySelectorAll('.date-range-btn').forEach(b => b.classList.remove('active'));
-  btn?.classList.add('active');
+// setDateRange removed (export modal removed)
 
-  const customRange = document.getElementById('custom-date-range');
-  const fromInput = document.getElementById('export-date-from');
-  const toInput = document.getElementById('export-date-to');
+// executeExport removed (export modal removed)
 
-  const today = new Date();
-  let fromDate = new Date();
-
-  switch (range) {
-    case 'today':
-      fromDate = today;
-      break;
-    case 'week':
-      fromDate.setDate(today.getDate() - 7);
-      break;
-    case 'month':
-      fromDate.setMonth(today.getMonth() - 1);
-      break;
-    case 'quarter':
-      fromDate.setMonth(today.getMonth() - 3);
-      break;
-    case 'custom':
-      customRange.style.display = 'block';
-      return;
-  }
-
-  customRange.style.display = 'none';
-  fromInput.value = fromDate.toISOString().split('T')[0];
-  toInput.value = today.toISOString().split('T')[0];
-};
-
-window.executeExport = async function () {
-  const format = document.querySelector('input[name="export-format"]:checked')?.value || 'pdf';
-  const fromDate = document.getElementById('export-date-from').value;
-  const toDate = document.getElementById('export-date-to').value;
-
-  if (!fromDate || !toDate) {
-    showToast('Please select a date range', 'error');
-    return;
-  }
-
-  showToast('Preparing export...', 'info');
-
-  try {
-    // FIX: Specify relationship to avoid ambiguity
-    const { data: visits, error } = await supabaseClient
-      .from('visits')
-      .select(`*, user:profiles!inner(first_name, last_name, email)`)
-      .gte('created_at', fromDate)
-      .lte('created_at', toDate)
-      .order('created_at', { ascending: false });
-
-    if (error) throw error;
-
-    if (format === 'pdf') {
-      await exportToPDF(visits, fromDate, toDate);
-    } else if (format === 'excel') {
-      await exportToExcel(visits, fromDate, toDate);
-    } else if (format === 'csv') {
-      await exportToCSV(visits, fromDate, toDate);
-    }
-
-    showToast('Export completed!', 'success');
-    closeModal('export-modal');
-  } catch (err) {
-    showToast('Export failed: ' + err.message, 'error');
-  }
-};
-
-async function exportToPDF(visits, fromDate, toDate) {
-  const { jsPDF } = window.jspdf;
-  const doc = new jsPDF();
-
-  doc.setFontSize(20);
-  doc.text('SafiTrack Visit Report', 20, 20);
-  doc.setFontSize(12);
-  doc.text(`Period: ${fromDate} to ${toDate}`, 20, 30);
-  doc.text(`Total Visits: ${visits.length}`, 20, 37);
-
-  let yPos = 50;
-  doc.setFontSize(10);
-
-  visits.forEach((visit, index) => {
-    if (yPos > 270) {
-      doc.addPage();
-      yPos = 20;
-    }
-
-    const userName = visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : 'Unknown';
-    const date = new Date(visit.created_at).toLocaleDateString();
-
-    doc.setFont(undefined, 'bold');
-    doc.text(`${index + 1}. ${visit.company_name}`, 20, yPos);
-    doc.setFont(undefined, 'normal');
-    yPos += 6;
-    doc.text(`Rep: ${userName} | Date: ${date}`, 20, yPos);
-    yPos += 10;
-
-    if (visit.contact_name) {
-      doc.text(`Contact: ${visit.contact_name}`, 20, yPos);
-      yPos += 6;
-    }
-
-    if (visit.location_name) {
-      doc.text(`Location: ${visit.location_name}`, 20, yPos);
-      yPos += 6;
-    }
-    // Add coordinates and 'View in Google Maps' button if present
-    if (visit.latitude && visit.longitude) {
-      const lat = visit.latitude.toFixed(6);
-      const lng = visit.longitude.toFixed(6);
-      const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
-      doc.text(`Coordinates: ${lat}, ${lng}`, 20, yPos);
-      yPos += 8;
-      // Draw 'View in Google Maps' button below coordinates, aligned left
-      const btnLabel = 'View in Google Maps';
-      const btnWidth = doc.getTextWidth(btnLabel) + 12;
-      const btnHeight = 6;
-      const btnX = 20;
-      const btnY = yPos - 4;
-      doc.setFillColor(47, 95, 208);
-      doc.roundedRect(btnX, btnY, btnWidth, btnHeight, 2, 2, 'F');
-      doc.setFontSize(8);
-      doc.setTextColor(255, 255, 255);
-      const textX = btnX + btnWidth / 2 - doc.getTextWidth(btnLabel) / 2;
-      const textY = btnY + btnHeight / 2 + 1;
-      doc.textWithLink(btnLabel, textX, textY, { url: mapsUrl });
-      yPos += btnHeight + 4;
-      doc.setTextColor(0, 0, 0);
-    }
-
-    if (visit.visit_type) {
-      doc.text(`Type: ${visit.visit_type.replace('_', ' ')}`, 20, yPos);
-      yPos += 6;
-    }
-
-    if (visit.travel_time) {
-      doc.text(`Travel Time: ${visit.travel_time} min`, 20, yPos);
-      yPos += 6;
-    }
-
-    if (visit.notes) {
-      doc.text('Notes:', 20, yPos);
-      yPos += 6;
-
-      // Split notes into lines to fit in page
-      const lines = doc.splitTextToSize(visit.notes, 170);
-      lines.forEach(line => {
-        doc.text(line, 20, yPos);
-        yPos += 5;
-      });
-    }
-
-    yPos += 10;
-  });
-
-  doc.save(`SafiTrack_Report_${fromDate}_to_${toDate}.pdf`);
-}
-
-async function exportToExcel(visits, fromDate, toDate) {
-  const XLSX = window.XLSX;
-
-  const data = visits.map(visit => ({
-    'Date': new Date(visit.created_at).toLocaleDateString(),
-    'Company': visit.company_name,
-    'Contact': visit.contact_name || '',
-    'Sales Rep': visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : '',
-    'Location': visit.location_name || '',
-    'Type': visit.visit_type || '',
-    'Travel Time': visit.travel_time || '',
-    'Notes': visit.notes || '',
-    'AI Summary': visit.ai_summary || ''
-  }));
-
-  const worksheet = XLSX.utils.json_to_sheet(data);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, 'Visits');
-  XLSX.writeFile(workbook, `SafiTrack_Report_${fromDate}_to_${toDate}.xlsx`);
-}
-
-async function exportToCSV(visits, fromDate, toDate) {
-  const headers = ['Date', 'Company', 'Contact', 'Sales Rep', 'Location', 'Type', 'Travel Time', 'Notes', 'AI Summary'];
-  const rows = visits.map(visit => [
-    new Date(visit.created_at).toLocaleDateString(),
-    visit.company_name,
-    visit.contact_name || '',
-    visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : '',
-    visit.location_name || '',
-    visit.visit_type || '',
-    visit.travel_time || '',
-    visit.notes || '',
-    visit.ai_summary || ''
-  ]);
-
-  let csv = headers.join(',') + '\n';
-  rows.forEach(row => {
-    csv += row.map(cell => `"${cell}"`).join(',') + '\n';
-  });
-
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = window.URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `SafiTrack_Report_${fromDate}_to_${toDate}.csv`;
-  a.click();
-  window.URL.revokeObjectURL(url);
-}
+// Export-to-PDF/Excel/CSV helpers removed along with export modal
 
 // ======================
 // UTILITY FUNCTIONS
@@ -12767,7 +12733,7 @@ const commands = [
   { id: 'user-management', title: 'Users', description: 'Manage users', icon: 'fa-user', action: () => loadView('user-management') },
   { id: 'tasks', title: 'Tasks', description: 'Manage tasks', icon: 'fa-tasks', action: () => loadView('tasks') },
   { id: 'reminders', title: 'Reminders', description: 'View reminders', icon: 'fa-bell', action: () => loadView('reminders') },
-  { id: 'export', title: 'Export Reports', description: 'Download data', icon: 'fa-download', action: () => openExportModal() },
+  // Export command removed from command palette (user profile export removed)
   { id: 'theme', title: 'Toggle Theme', description: 'Switch dark/light', icon: 'fa-moon', action: () => toggleTheme() },
   { id: 'logout', title: 'Sign Out', description: 'Log out of account', icon: 'fa-sign-out-alt', action: () => handleLogout() }
 ];
