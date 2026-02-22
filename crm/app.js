@@ -12697,7 +12697,9 @@ function renderNearbySuggestions(items = [], targetModalId = 'company-modal') {
         const lat = btn.dataset.lat;
         const lon = btn.dataset.lon;
 
-        // Close the current company view modal so the edit modal appears on top
+        // Close the SafiFind modal (if open) so the edit modal appears on top
+        try { closeModal('safifind-modal'); } catch (e) { /* ignore */ }
+        // Close the current company view modal as a fallback so the edit modal appears on top
         try { closeModal('company-view-modal'); } catch (e) { /* ignore */ }
         // Open the edit modal pre-filled for creating a new company from suggestion
         openCompanyModal();
