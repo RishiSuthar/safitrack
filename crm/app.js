@@ -2025,6 +2025,8 @@ function initCompanyModalListeners(company) {
     });
   }
 
+  // Nearby search moved to company view modal initialization
+
   // Save company
   // In initCompanyModalListeners function, update the save button handler:
   saveBtn.onclick = async () => {
@@ -12517,6 +12519,209 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
+/**
+ * Build an Overpass QL query to find nearby named businesses/shops/offices
+ * @param {number} lat
+ * @param {number} lon
+ * @param {number} radiusMeters
+ * @returns {string}
+ */
+function buildOverpassQuery(lat, lon, radiusMeters, types = ['shop','office']) {
+  // types is an array of tag keys to search for (e.g. ['shop','office'])
+  const clauses = [];
+  const tagKeys = Array.isArray(types) && types.length > 0 ? types : ['shop','office'];
+
+  for (const t of tagKeys) {
+    // Search nodes and ways where the tag exists and has a name
+    clauses.push(`node["name"]["${t}"](around:${radiusMeters},${lat},${lon});`);
+    clauses.push(`way["name"]["${t}"](around:${radiusMeters},${lat},${lon});`);
+  }
+
+  return `
+    [out:json][timeout:25];
+    (
+      ${clauses.join('\n      ')}
+    );
+    out center;`;
+}
+
+/**
+ * Query Overpass API for nearby POIs and return parsed results
+ * @param {number} lat
+ * @param {number} lon
+ * @param {number} radiusMeters
+ * @returns {Promise<Array>} array of { id, name, lat, lon, tags, distance, displayName }
+ */
+async function searchNearbyOverpass(lat, lon, radiusMeters = 2000, types = ['shop','office']) {
+  const query = buildOverpassQuery(lat, lon, radiusMeters, types);
+  const endpoints = [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://lz4.overpass-api.de/api/interpreter'
+  ];
+
+  let lastError = null;
+  let data = null;
+
+  for (const url of endpoints) {
+    try {
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'text/plain;charset=UTF-8',
+          'User-Agent': 'SafiTrack-CRM/1.0'
+        },
+        body: query
+      });
+
+      if (!resp.ok) {
+        const text = await resp.text().catch(() => '');
+        lastError = new Error(`Overpass endpoint ${url} responded ${resp.status}: ${text}`);
+        console.warn('Overpass non-ok response', { url, status: resp.status, body: text });
+        // try the next endpoint
+        continue;
+      }
+
+      data = await resp.json();
+      break;
+    } catch (err) {
+      lastError = err;
+      console.warn('Overpass fetch failed for', url, err);
+      // try next endpoint
+    }
+  }
+
+  if (!data || !Array.isArray(data.elements)) {
+    throw lastError || new Error('Overpass API error');
+  }
+
+  const results = data.elements.map(el => {
+    const tags = el.tags || {};
+    const name = tags.name || null;
+    let rLat = el.lat, rLon = el.lon;
+    if ((!rLat || !rLon) && el.center) {
+      rLat = el.center.lat;
+      rLon = el.center.lon;
+    }
+
+    const distance = (typeof rLat === 'number' && typeof rLon === 'number') ? calculateDistance(lat, lon, rLat, rLon) : NaN;
+
+    return {
+      id: el.id,
+      type: el.type,
+      name,
+      lat: rLat,
+      lon: rLon,
+      tags,
+      distance,
+      displayName: tags['addr:full'] || tags['addr:street'] || tags['addr:housenumber'] || tags['addr:city'] || name || ''
+    };
+  }).filter(r => r.name);
+
+  // Sort by distance ascending
+  results.sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
+  return results;
+}
+
+/**
+ * Render nearby suggestions into the company modal
+ * Creates or updates a container with id 'nearby-suggestions'
+ */
+function renderNearbySuggestions(items = [], targetModalId = 'company-modal') {
+  const modal = document.getElementById(targetModalId);
+  if (!modal) return;
+  const body = modal.querySelector('.modal-body');
+  if (!body) return;
+
+  // Container id scoped per modal
+  let container = document.getElementById(targetModalId + '-nearby-suggestions');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = targetModalId + '-nearby-suggestions';
+    container.className = 'form-section';
+    container.style.marginTop = '12px';
+    body.appendChild(container);
+  }
+
+  if (!items || items.length === 0) {
+    container.innerHTML = `
+      <div class="form-section-header">
+        <div class="form-section-icon"><i data-lucide="search"></i></div>
+        <div><div class="form-section-title">Nearby Suggestions</div><div class="form-section-description">No suggestions found</div></div>
+      </div>`;
+    if (window.lucide) lucide.createIcons();
+    return;
+  }
+
+  const listHtml = items.map(it => `
+    <div class="nearby-item" style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+      <div style="flex:1;min-width:0;">
+        <div style="font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(it.name)}</div>
+        <div style="font-size:12px;color:var(--text-muted);">${it.displayName || ''} • ${(isNaN(it.distance) ? '-' : Math.round(it.distance))} m</div>
+      </div>
+      <div style="margin-left:12px;display:flex;gap:8px;align-items:center;">
+        <button class="btn btn-sm btn-ghost" data-nearby-action="view" data-id="${it.id}" data-type="${it.type}">View</button>
+        <button class="btn btn-sm btn-primary" data-nearby-action="add" data-lat="${it.lat}" data-lon="${it.lon}" data-name="${escapeHtml(it.name)}">Add to CRM</button>
+      </div>
+    </div>
+  `).join('');
+
+  container.innerHTML = `
+    <div class="form-section-header">
+      <div class="form-section-icon"><i data-lucide="search"></i></div>
+      <div><div class="form-section-title">Nearby Suggestions</div><div class="form-section-description">Potential companies within chosen radius</div></div>
+    </div>
+    <div class="form-field" style="padding-top:8px;">${listHtml}</div>
+  `;
+
+  // Wire buttons
+  container.querySelectorAll('[data-nearby-action]').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const action = btn.dataset.nearbyAction;
+      if (action === 'view') {
+        // Open element in OpenStreetMap (new tab) using type/node/way/relation
+        const elId = btn.dataset.id;
+        const elType = (btn.dataset.type || 'node');
+        const typePath = (elType === 'way' || elType === 'relation' || elType === 'node') ? elType : 'node';
+        if (elId) {
+          const osmUrl = `https://www.openstreetmap.org/${typePath}/${elId}`;
+          window.open(osmUrl, '_blank');
+        } else {
+          showToast('Unable to open place in OpenStreetMap', 'error');
+        }
+        return;
+      }
+
+      if (action === 'add') {
+        const name = btn.dataset.name || '';
+        const lat = btn.dataset.lat;
+        const lon = btn.dataset.lon;
+
+        // Close the current company view modal so the edit modal appears on top
+        try { closeModal('company-view-modal'); } catch (e) { /* ignore */ }
+        // Open the edit modal pre-filled for creating a new company from suggestion
+        openCompanyModal();
+        // small timeout to ensure modal inputs exist
+        setTimeout(() => {
+          const nameEl = document.getElementById('company-name-input');
+          const latEl = document.getElementById('company-latitude');
+          const lonEl = document.getElementById('company-longitude');
+          const addrEl = document.getElementById('company-address');
+          if (nameEl) nameEl.value = name;
+          if (latEl && lonEl && lat && lon) {
+            latEl.value = parseFloat(lat).toFixed(6);
+            lonEl.value = parseFloat(lon).toFixed(6);
+          }
+          if (addrEl) addrEl.value = '';
+        }, 80);
+        showToast(`Prepared new company: ${name}. Check details and Save.`, 'success');
+      }
+    });
+  });
+
+  if (window.lucide) lucide.createIcons();
+}
+
 function getLeadScoreBadge(score) {
   let className = 'low';
   let label = 'Low';
@@ -18391,6 +18596,89 @@ async function openCompanyViewModal(companyOrId) {
     } else {
       domainEl.textContent = '—';
     }
+  }
+
+  // Initialize nearby search controls in the view modal sidebar
+  try {
+    const controlsParent = document.getElementById('company-view-nearby-controls');
+    if (controlsParent) {
+      // Clear any existing controls
+      controlsParent.innerHTML = '';
+
+      // Remove any previous nearby suggestions container left from another company
+      const oldContainer = document.getElementById('company-view-modal-nearby-suggestions') || document.getElementById('company-view-modal-nearby-suggestions-wrapper') || document.getElementById('company-view-modal-nearby-suggestions');
+      if (oldContainer && oldContainer.parentNode) oldContainer.parentNode.removeChild(oldContainer);
+
+      const filterSelect = document.createElement('select');
+      filterSelect.id = 'company-view-nearby-filter';
+      filterSelect.className = 'input-small';
+      filterSelect.style.marginRight = '8px';
+      filterSelect.innerHTML = `
+        <option value="both">Shops + Offices</option>
+        <option value="shop">Shops only</option>
+        <option value="office">Offices only</option>
+      `;
+
+      const radiusInput = document.createElement('input');
+      radiusInput.type = 'number';
+      radiusInput.id = 'company-view-nearby-radius';
+      radiusInput.value = company.radius || 2000;
+      radiusInput.min = 50;
+      radiusInput.max = 10000;
+      radiusInput.className = 'input-small';
+      radiusInput.style.width = '90px';
+      radiusInput.style.marginRight = '8px';
+
+      const findBtn = document.createElement('button');
+      findBtn.type = 'button';
+      findBtn.id = 'company-view-find-nearby';
+      findBtn.className = 'btn btn-secondary';
+      findBtn.innerHTML = '<i class="fas fa-map-marked-alt"></i> Find Nearby';
+
+      controlsParent.appendChild(filterSelect);
+      controlsParent.appendChild(radiusInput);
+      controlsParent.appendChild(findBtn);
+
+      // Suggestions placeholder
+      const suggestionsWrap = document.createElement('div');
+      suggestionsWrap.id = 'company-view-modal-nearby-suggestions-wrapper';
+      suggestionsWrap.style.marginTop = '10px';
+      controlsParent.appendChild(suggestionsWrap);
+
+      findBtn.addEventListener('click', async () => {
+        const lat = parseFloat(company.latitude);
+        const lon = parseFloat(company.longitude);
+        const radiusMeters = parseInt(document.getElementById('company-view-nearby-radius').value) || 2000;
+
+        if (isNaN(lat) || isNaN(lon)) {
+          showToast('This company does not have coordinates set.', 'error');
+          return;
+        }
+
+        findBtn.disabled = true;
+        const prev = findBtn.innerHTML;
+        findBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
+
+        try {
+          const filterVal = (document.getElementById('company-view-nearby-filter')?.value) || 'both';
+          const types = filterVal === 'both' ? ['shop','office'] : [filterVal];
+          const results = await searchNearbyOverpass(lat, lon, radiusMeters, types);
+          const existingNames = (Array.isArray(window.allCompaniesData) ? window.allCompaniesData : []).map(c => normalizeSearchText(c.name || ''));
+          const filtered = (results || []).filter(r => r.name && !existingNames.includes(normalizeSearchText(r.name))).slice(0,25);
+          // Render into this modal specifically
+          renderNearbySuggestions(filtered, 'company-view-modal');
+          if (!filtered || filtered.length === 0) showToast('No nearby candidate companies found.', 'info');
+        } catch (err) {
+          console.error('Nearby search (view) error', err);
+          showToast(err && err.message ? err.message : 'Nearby search failed', 'error');
+        } finally {
+          findBtn.disabled = false;
+          findBtn.innerHTML = prev;
+        }
+      });
+    }
+  } catch (e) {
+    console.warn('Failed to init view modal nearby controls', e);
   }
 
   // Populate right-hand Details sidebar fields (only existing data)
