@@ -219,6 +219,29 @@
 .form-field { display:flex; flex-direction:column; gap:8px }
 .form-field label { font-weight:700; color:var(--text-secondary); font-size:var(--type-sm) }
 .form-field input[type="text"], .form-field input[type="email"], .form-field select { height: calc(var(--control-height-lg) + 2px); padding:10px 12px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-primary); color:var(--text-primary); box-shadow:none; font-size:var(--type-md) }
+
+/* Small input variant: ensure selects like #safifind-filter don't clip their text */
+.input-small,
+select.input-small {
+  box-sizing: border-box;
+  height: calc(var(--control-height-md) + 6px); /* slightly smaller than default, but tall enough for line-height */
+  padding: 8px 12px; /* vertical padding to give breathing room */
+  line-height: 1.2; /* ensure text vertically centers */
+  font-size: var(--type-md);
+  border-radius: 10px;
+}
+
+/* Stronger override to vertically center select text and avoid clipping in modals */
+select.input-small,
+#safifind-filter {
+  height: 44px !important; /* explicit height to avoid inconsistent rendering */
+  min-height: 40px;
+  line-height: 44px !important; /* match height so single-line text centers */
+  padding: 0 14px !important; /* normalize vertical padding */
+  font-size: var(--type-md) !important;
+  box-sizing: border-box !important;
+  vertical-align: middle;
+}
 .form-field input[disabled] { opacity:0.8 }
 .radio-row { display:flex; gap:12px; align-items:center }
 .radio-row label { font-weight:600; color:var(--text-secondary); font-size:var(--type-sm) }

@@ -1409,6 +1409,7 @@
     <div class="modal-container modal-size-xl">
       <div class="modal-header">
         <h3 id="company-view-modal-title">Company</h3>
+        <div id="company-view-header-actions" style="margin-left:auto;display:flex;gap:8px;align-items:center;margin-right:8px;"></div>
         <button class="modal-close" onclick="closeModal('company-view-modal')">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
@@ -1453,6 +1454,50 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('company-view-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SafiFind modal: dedicated modal for nearby company search -->
+  <div id="safifind-modal" class="modal" style="display:none;">
+    <div class="modal-backdrop" onclick="closeModal('safifind-modal')"></div>
+    <div class="modal-container modal-size-md">
+      <div class="modal-header">
+        <h3>SafiFind — Nearby Companies</h3>
+        <button class="modal-close" onclick="closeModal('safifind-modal')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-field">
+          <label for="safifind-filter">Filter</label>
+          <select id="safifind-filter" class="input-small">
+            <option value="both">Shops + Offices</option>
+            <option value="shop">Shops only</option>
+            <option value="office">Offices only</option>
+          </select>
+        </div>
+
+        <div class="form-field">
+          <label>Using coordinates</label>
+          <div class="field-helper">
+            <span id="safifind-coords">—</span>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="safifind-radius">Radius (m)</label>
+          <input type="number" id="safifind-radius" value="2000" min="50" max="10000">
+        </div>
+
+        <div class="form-field">
+          <button id="safifind-find-btn" class="btn btn-primary">Find Nearby</button>
+        </div>
+
+        <div id="safifind-results" style="margin-top:12px;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('safifind-modal')">Close</button>
       </div>
     </div>
   </div>

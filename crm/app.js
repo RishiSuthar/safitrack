@@ -18598,87 +18598,99 @@ async function openCompanyViewModal(companyOrId) {
     }
   }
 
-  // Initialize nearby search controls in the view modal sidebar
+  // Add a SafiFind button that opens a dedicated modal for searching nearby companies
   try {
-    const controlsParent = document.getElementById('company-view-nearby-controls');
-    if (controlsParent) {
-      // Clear any existing controls
-      controlsParent.innerHTML = '';
+    const headerActions = document.getElementById('company-view-header-actions');
+    if (headerActions) {
+      headerActions.innerHTML = '';
+      const safiBtn = document.createElement('button');
+      safiBtn.type = 'button';
+      safiBtn.id = 'company-view-safifind-btn';
+      safiBtn.className = 'btn btn-primary';
+      safiBtn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-helicopter-icon lucide-helicopter"><path d="M11 17v4"/><path d="M14 3v8a2 2 0 0 0 2 2h5.865"/><path d="M17 17v4"/><path d="M18 17a4 4 0 0 0 4-4 8 6 0 0 0-8-6 6 5 0 0 0-6 5v3a2 2 0 0 0 2 2z"/><path d="M2 10v5"/><path d="M6 3h16"/><path d="M7 21h14"/><path d="M8 13H2"/></svg>
+        SafiFind`;
 
-      // Remove any previous nearby suggestions container left from another company
-      const oldContainer = document.getElementById('company-view-modal-nearby-suggestions') || document.getElementById('company-view-modal-nearby-suggestions-wrapper') || document.getElementById('company-view-modal-nearby-suggestions');
-      if (oldContainer && oldContainer.parentNode) oldContainer.parentNode.removeChild(oldContainer);
+      headerActions.appendChild(safiBtn);
 
-      const filterSelect = document.createElement('select');
-      filterSelect.id = 'company-view-nearby-filter';
-      filterSelect.className = 'input-small';
-      filterSelect.style.marginRight = '8px';
-      filterSelect.innerHTML = `
-        <option value="both">Shops + Offices</option>
-        <option value="shop">Shops only</option>
-        <option value="office">Offices only</option>
-      `;
-
-      const radiusInput = document.createElement('input');
-      radiusInput.type = 'number';
-      radiusInput.id = 'company-view-nearby-radius';
-      radiusInput.value = company.radius || 2000;
-      radiusInput.min = 50;
-      radiusInput.max = 10000;
-      radiusInput.className = 'input-small';
-      radiusInput.style.width = '90px';
-      radiusInput.style.marginRight = '8px';
-
-      const findBtn = document.createElement('button');
-      findBtn.type = 'button';
-      findBtn.id = 'company-view-find-nearby';
-      findBtn.className = 'btn btn-secondary';
-      findBtn.innerHTML = '<i class="fas fa-map-marked-alt"></i> Find Nearby';
-
-      controlsParent.appendChild(filterSelect);
-      controlsParent.appendChild(radiusInput);
-      controlsParent.appendChild(findBtn);
-
-      // Suggestions placeholder
-      const suggestionsWrap = document.createElement('div');
-      suggestionsWrap.id = 'company-view-modal-nearby-suggestions-wrapper';
-      suggestionsWrap.style.marginTop = '10px';
-      controlsParent.appendChild(suggestionsWrap);
-
-      findBtn.addEventListener('click', async () => {
-        const lat = parseFloat(company.latitude);
-        const lon = parseFloat(company.longitude);
-        const radiusMeters = parseInt(document.getElementById('company-view-nearby-radius').value) || 2000;
-
-        if (isNaN(lat) || isNaN(lon)) {
-          showToast('This company does not have coordinates set.', 'error');
+      safiBtn.addEventListener('click', () => {
+        try { closeModal('safifind-modal'); } catch (e) { /* ignore */ }
+        const safiModal = document.getElementById('safifind-modal');
+        if (!safiModal) {
+          showToast('SafiFind modal not available', 'error');
           return;
         }
 
-        findBtn.disabled = true;
-        const prev = findBtn.innerHTML;
-        findBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
-
-        try {
-          const filterVal = (document.getElementById('company-view-nearby-filter')?.value) || 'both';
-          const types = filterVal === 'both' ? ['shop','office'] : [filterVal];
-          const results = await searchNearbyOverpass(lat, lon, radiusMeters, types);
-          const existingNames = (Array.isArray(window.allCompaniesData) ? window.allCompaniesData : []).map(c => normalizeSearchText(c.name || ''));
-          const filtered = (results || []).filter(r => r.name && !existingNames.includes(normalizeSearchText(r.name))).slice(0,25);
-          // Render into this modal specifically
-          renderNearbySuggestions(filtered, 'company-view-modal');
-          if (!filtered || filtered.length === 0) showToast('No nearby candidate companies found.', 'info');
-        } catch (err) {
-          console.error('Nearby search (view) error', err);
-          showToast(err && err.message ? err.message : 'Nearby search failed', 'error');
-        } finally {
-          findBtn.disabled = false;
-          findBtn.innerHTML = prev;
+        // Store company coords on the modal dataset and show human readable coords
+        if (company && company.latitude && company.longitude) {
+          safiModal.dataset.lat = company.latitude;
+          safiModal.dataset.lon = company.longitude;
+          const coordsEl = safiModal.querySelector('#safifind-coords');
+          if (coordsEl) coordsEl.textContent = `${company.latitude.toFixed(6)}, ${company.longitude.toFixed(6)}`;
+        } else {
+          safiModal.dataset.lat = '';
+          safiModal.dataset.lon = '';
+          const coordsEl = safiModal.querySelector('#safifind-coords');
+          if (coordsEl) coordsEl.textContent = 'Not available for this company';
         }
+
+        // Prefill radius and filter defaults
+        const radiusInput = safiModal.querySelector('#safifind-radius');
+        const filterSelect = safiModal.querySelector('#safifind-filter');
+        if (radiusInput) radiusInput.value = company.radius || 2000;
+        if (filterSelect) filterSelect.value = 'both';
+
+        // Clear previous suggestions in safi modal
+        const prevSug = document.getElementById('safifind-modal-nearby-suggestions');
+        if (prevSug && prevSug.parentNode) prevSug.parentNode.removeChild(prevSug);
+
+        safiModal.style.display = 'flex';
       });
     }
   } catch (e) {
-    console.warn('Failed to init view modal nearby controls', e);
+    console.warn('Failed to init SafiFind button', e);
+  }
+
+  // Wire up safifind modal find button behavior (delegated) — ensure element exists
+  try {
+    const safiModal = document.getElementById('safifind-modal');
+    if (safiModal) {
+      const findBtn = safiModal.querySelector('#safifind-find-btn');
+      if (findBtn) {
+        findBtn.addEventListener('click', async () => {
+          const lat = parseFloat(safiModal.dataset.lat || safiModal.querySelector('#safifind-lat')?.value);
+          const lon = parseFloat(safiModal.dataset.lon || safiModal.querySelector('#safifind-lon')?.value);
+          const radius = parseInt(safiModal.querySelector('#safifind-radius').value) || 2000;
+          const filterVal = (safiModal.querySelector('#safifind-filter')?.value) || 'both';
+          const types = filterVal === 'both' ? ['shop','office'] : [filterVal];
+
+          if (isNaN(lat) || isNaN(lon)) {
+            showToast('Please provide coordinates to search around.', 'error');
+            return;
+          }
+
+          findBtn.disabled = true;
+          const prev = findBtn.innerHTML;
+          findBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
+
+          try {
+            const results = await searchNearbyOverpass(lat, lon, radius, types);
+            const existingNames = (Array.isArray(window.allCompaniesData) ? window.allCompaniesData : []).map(c => normalizeSearchText(c.name || ''));
+            const filtered = (results || []).filter(r => r.name && !existingNames.includes(normalizeSearchText(r.name))).slice(0, 50);
+            renderNearbySuggestions(filtered, 'safifind-modal');
+            if (!filtered || filtered.length === 0) showToast('No nearby candidate companies found.', 'info');
+          } catch (err) {
+            console.error('SafiFind search error', err);
+            showToast(err && err.message ? err.message : 'Search failed', 'error');
+          } finally {
+            findBtn.disabled = false;
+            findBtn.innerHTML = prev;
+          }
+        });
+      }
+    }
+  } catch (e) {
+    console.warn('Failed to wire SafiFind modal', e);
   }
 
   // Populate right-hand Details sidebar fields (only existing data)
