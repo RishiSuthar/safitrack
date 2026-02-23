@@ -2682,7 +2682,7 @@ function openPersonModal(person = null) {
  * Person view modal — show a quick profile summary and related activity tabs.
  * Accepts a person object or person id.
  */
-function openPersonViewModal(personOrId) {
+async function openPersonViewModal(personOrId) {
   const modal = document.getElementById('person-view-modal');
   if (!modal) {
     showToast('Person view modal not found', 'error');
@@ -2698,6 +2698,24 @@ function openPersonViewModal(personOrId) {
   if (!person) {
     showToast('Unable to load person', 'error');
     return;
+  }
+
+  // If the person object doesn't include extended fields (like phone_numbers), fetch full record
+  if ((!person.phone_numbers || !Array.isArray(person.phone_numbers)) || (!person.notes && !person.job_title && !person.company)) {
+    try {
+      const { data: fullPerson, error: personErr } = await supabaseClient
+        .from('people')
+        .select('*')
+        .eq('id', person.id)
+        .single();
+
+      if (!personErr && fullPerson) {
+        // Merge fetched fields onto the person reference used below
+        person = { ...person, ...fullPerson };
+      }
+    } catch (fetchErr) {
+      crmDebugLog('openPersonViewModal.fetchErr', fetchErr);
+    }
   }
 
   document.getElementById('person-view-modal-title').textContent = person.name || 'Person';
@@ -3864,59 +3882,50 @@ function renderVisitCard(visit, showRepName = false) {
   const date = formatDate(visit.created_at);
   const leadScoreBadge = visit.lead_score ? getLeadScoreBadge(visit.lead_score) : '';
 
-  // Process mentioned people
-  let processedNotes = visit.notes || '';
-  if (visit.mentioned_people && visit.mentioned_people.length > 0) {
+  // Build processed notes and convert mentions to clickable spans
+  let processedNotes = escapeHtml(visit.notes || '');
+  if (visit.mentioned_people && Array.isArray(visit.mentioned_people) && visit.mentioned_people.length > 0) {
     visit.mentioned_people.forEach(person => {
-      const mentionPattern = new RegExp(`@${person.name} \\(${person.id}\\)`, 'g');
-      processedNotes = processedNotes.replace(mentionPattern, `<span class="mentioned-person">@${person.name}</span>`);
+      if (!person || !person.name) return;
+      const safeName = escapeRegExp(String(person.name).trim());
+      const pattern = new RegExp(`@${safeName}\\b`, 'gi');
+      processedNotes = processedNotes.replace(pattern, `<span class="mentioned-person" data-person-id="${person.id}">@${escapeHtml(person.name)}</span>`);
     });
+  } else {
+    processedNotes = processedNotes.replace(/@([A-Za-z0-9_\-]+)\b/g, '<span class="mentioned-person" data-person-name="$1">@$1</span>');
   }
 
-  return `
-    <div class="visit-card">
+  const contactHtml = visit.contact_name ? `<span class="visit-meta-item"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${escapeHtml(visit.contact_name)}</span>` : '';
+  const locationHtml = visit.location_name ? `<span class="visit-meta-item"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>${escapeHtml(visit.location_name)}</span>` : '';
+  const typeHtml = visit.visit_type ? `<span class="visit-meta-item"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag-icon lucide-tag"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg> ${escapeHtml(String(visit.visit_type).replace('_', ' '))}</span>` : '';
+  const travelHtml = visit.travel_time ? `<span class="visit-meta-item"><i class="fas fa-clock"></i> ${escapeHtml(String(visit.travel_time))} min travel</span>` : '';
+
+  const tagsHtml = visit.tags && Array.isArray(visit.tags) && visit.tags.length > 0 ? `<div class="visit-tags mb-2">${visit.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}</div>` : '';
+  const photoHtml = visit.photo_url ? `<div class="photo-preview mb-2"><img src="${escapeHtml(visit.photo_url)}" alt="Visit photo" onerror="handleImageError(this)"></div>` : '';
+
+  const repHtml = showRepName && visit.user ? `<div class="text-prim" style="font-size: 1rem;">by ${escapeHtml(getDisplayNameFromProfile(visit.user))}</div>` : '';
+
+  const html = `
+    <div class="visit-card" data-id="${escapeHtml(String(visit.id || ''))}">
       <div class="visit-header">
-        <div>
-          <div class="visit-company">${visit.company_name}</div>
-          ${showRepName && visit.user ? `<div class="text-prim" style="font-size: 1rem;">by ${visit.user.first_name} ${visit.user.last_name}</div>` : ''}
-        </div>
-        <div class="visit-date">${date}</div>
+        <div class="visit-title">${escapeHtml(visit.title || visit.company_name || 'Visit')}</div>
+        ${repHtml}
       </div>
-      
+      <div class="visit-date">${escapeHtml(date)}</div>
       <div class="visit-meta">
-        ${visit.contact_name ? `<span class="visit-meta-item"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${visit.contact_name}</span>` : ''}
-        ${visit.location_name ? `<span class="visit-meta-item"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>${visit.location_name}</span>` : ''}
-        ${visit.visit_type ? `<span class="visit-meta-item"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-tag-icon lucide-tag"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg> ${visit.visit_type.replace('_', ' ')}</span>` : ''}
-        ${visit.travel_time ? `<span class="visit-meta-item"><i class="fas fa-clock"></i> ${visit.travel_time} min travel</span>` : ''}
+        ${contactHtml}
+        ${locationHtml}
+        ${typeHtml}
+        ${travelHtml}
       </div>
-
       ${leadScoreBadge ? `<div class="mb-2">${leadScoreBadge}</div>` : ''}
-
-      ${visit.tags && visit.tags.length > 0 ? `
-        <div class="visit-tags mb-2">
-          ${visit.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
-        </div>
-      ` : ''}
-
-      ${visit.photo_url ? `
-        <div class="photo-preview mb-2">
-          <img src="${visit.photo_url}" alt="Visit photo" onerror="handleImageError(this)">
-        </div>
-      ` : ''}
-
+      ${tagsHtml}
+      ${photoHtml}
       <div class="visit-notes">${processedNotes}</div>
+      ${visit.ai_summary ? `<div class="ai-insight"><div class="ai-insight-header">AI Summary</div><div class="ai-insight-content">${parseMarkdown(visit.ai_summary)}</div></div>` : ''}
+    </div>`;
 
-      ${visit.ai_summary ? `
-        <div class="ai-insight">
-          <div class="ai-insight-header">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bot-icon lucide-bot"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
-            AI Summary
-          </div>
-          <div class="ai-insight-content">${parseMarkdown(visit.ai_summary)}</div>
-        </div>
-      ` : ''}
-    </div>
-  `;
+  return html;
 }
 
 // ======================
@@ -4678,6 +4687,22 @@ function initOpportunityEventListeners(opportunities) {
       }
     });
   });
+
+  // Make mentioned person spans clickable to open the person view modal
+  document.querySelectorAll('.opportunity-card .mentioned-person').forEach(el => {
+    el.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const personId = el.dataset.personId;
+      const personName = el.dataset.personName || el.textContent.replace(/^@/, '').trim();
+      if (personId) {
+        openPersonViewModal(personId);
+        return;
+      }
+      // Fallback: try to find by name
+      const person = allPeople.find(p => String(p.name).trim().toLowerCase() === String(personName).toLowerCase());
+      if (person) openPersonViewModal(person);
+    });
+  });
 }
 
 
@@ -5018,6 +5043,42 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
         el.disabled = true;
       });
       saveBtn.style.display = 'none';
+        // Render a read-only notes display with clickable mentions
+        const notesTextarea = document.getElementById('opportunity-notes');
+        let notesDisplay = document.getElementById('opportunity-notes-display');
+        if (!notesDisplay) {
+          notesDisplay = document.createElement('div');
+          notesDisplay.id = 'opportunity-notes-display';
+          notesDisplay.className = 'opportunity-notes-display';
+          notesTextarea.parentNode.appendChild(notesDisplay);
+        }
+
+        // Build processed notes HTML (convert mentions to clickable spans)
+        let displayHtml = escapeHtml(opportunity.notes || '');
+        if (opportunity.mentioned_people && Array.isArray(opportunity.mentioned_people)) {
+          opportunity.mentioned_people.forEach(person => {
+            if (!person || !person.name) return;
+            const safeName = escapeRegExp(person.name.trim());
+            const pattern = new RegExp(`@${safeName}\\b`, 'gi');
+            displayHtml = displayHtml.replace(pattern, ` <span class="mentioned-person" data-person-id="${person.id}">@${person.name}</span>`);
+          });
+        } else {
+          displayHtml = displayHtml.replace(/@([A-Za-z0-9_\-]+)\b/g, '<span class="mentioned-person" data-person-name="$1">@$1</span>');
+        }
+
+        notesDisplay.innerHTML = displayHtml || '<div class="text-muted">No notes</div>';
+        notesTextarea.style.display = 'none';
+        // Attach click handlers to mentions inside modal
+        notesDisplay.querySelectorAll('.mentioned-person').forEach(el => {
+          el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const pid = el.dataset.personId;
+            const pname = el.dataset.personName || el.textContent.replace(/^@/, '').trim();
+            if (pid) return openPersonViewModal(pid);
+            const person = allPeople.find(p => String(p.name).trim().toLowerCase() === String(pname).toLowerCase());
+            if (person) openPersonViewModal(person);
+          });
+        });
     } else {
       document.querySelectorAll('#opportunity-modal input, #opportunity-modal select, #opportunity-modal textarea').forEach(el => {
         el.disabled = false;
@@ -5038,6 +5099,7 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
   // Initialize event listeners
   initOpportunityModalListeners(opportunity);
 }
+
 
 
 
@@ -5134,7 +5196,7 @@ function initOpportunityModalListeners(opportunity) {
   });
 
   // Initialize mention system for notes
-  const notesEl = document.getElementById('opportunity-notes');
+  let notesEl = document.getElementById('opportunity-notes');
   const mentionSuggestionsContainer = document.getElementById('opportunity-mention-suggestions');
 
 
@@ -5146,6 +5208,8 @@ function initOpportunityModalListeners(opportunity) {
   // Input event - detect @ and show suggestions
   const newNotesEl = notesEl.cloneNode(true);
   notesEl.parentNode.replaceChild(newNotesEl, notesEl);
+  // Update reference so other handlers target the active textarea
+  notesEl = newNotesEl;
 
   newNotesEl.addEventListener('input', (e) => {
     const text = newNotesEl.value;
@@ -16195,7 +16259,7 @@ function insertMentionFromSuggestion(suggestionEl, textareaEl, startIndex, query
 
 
   const personId = suggestionEl.dataset.personId;
-  const person = allPeople.find(p => p.id === personId); // Use string comparison, not parseInt
+  const person = allPeople.find(p => String(p.id) === String(personId)); // Use string comparison for robustness
 
 
 
@@ -16220,12 +16284,11 @@ function insertMentionFromSuggestion(suggestionEl, textareaEl, startIndex, query
 
 
   // Add to mentioned people array
-  if (!mentionedPeople.find(p => p.id === personId)) {
+  if (!mentionedPeople.find(p => String(p.id) === String(personId))) {
     mentionedPeople.push({
       id: personId,
       name: person.name
     });
-
   }
 
   // Close suggestions
