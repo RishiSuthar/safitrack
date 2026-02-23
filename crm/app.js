@@ -3850,6 +3850,24 @@ async function renderMyActivityView() {
     return;
   }
 
+  // Ensure companies cache is available so we can show company logos immediately
+  if (!Array.isArray(window.allCompaniesData) || window.allCompaniesData.length === 0) {
+    try {
+      const companiesRes = await supabaseClient
+        .from('companies')
+        .select('id, name, domain, logo_url')
+        .order('name', { ascending: true });
+      if (companiesRes && Array.isArray(companiesRes.data)) {
+        window.allCompaniesData = companiesRes.data;
+      } else {
+        window.allCompaniesData = [];
+      }
+    } catch (err) {
+      window.allCompaniesData = window.allCompaniesData || [];
+      crmDebugLog('renderOpportunityPipelineView.loadCompaniesError', err);
+    }
+  }
+
   let html = `
     <div class="page-header">
       <h1 class="page-title">My Activity</h1>
@@ -5084,6 +5102,17 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
         el.disabled = false;
       });
       saveBtn.style.display = 'block';
+      // If a read-only notes display exists from a previous view, remove it and restore textarea
+      const existingNotesDisplay = document.getElementById('opportunity-notes-display');
+      const notesTextarea = document.getElementById('opportunity-notes');
+      if (existingNotesDisplay) {
+        try { existingNotesDisplay.remove(); } catch (e) { /* ignore */ }
+      }
+      if (notesTextarea) {
+        notesTextarea.style.display = '';
+        // ensure textarea has current opportunity notes (or empty for new)
+        notesTextarea.value = opportunity && opportunity.notes ? opportunity.notes : (opportunity === null ? '' : (opportunity && opportunity.notes) || '');
+      }
     }
   } else {
     modalTitle.innerHTML = 'New Opportunity';
