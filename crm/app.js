@@ -226,6 +226,101 @@ function normalizeSearchText(value) {
     .trim();
 }
 
+// More robust company name normalizer for matching (removes diacritics and punctuation)
+function normalizeForMatching(value) {
+  if (!value) return '';
+  // Remove diacritics, convert to lower, replace non-alphanum with space, collapse spaces
+  try {
+    value = String(value).normalize('NFD').replace(/\p{Diacritic}/gu, '');
+  } catch (e) {
+    // older engines may not support unicode property escapes
+    value = String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+}
+
+function findCompanyForOpportunity(opp) {
+  if (!Array.isArray(window.allCompaniesData)) return null;
+
+  // Try id match first
+  if (opp.company_id) {
+    const byId = window.allCompaniesData.find(c => String(c.id) === String(opp.company_id));
+    if (byId) return byId;
+  }
+
+  const oppName = opp.company_name || '';
+  const normOpp = normalizeForMatching(oppName);
+  if (!normOpp) return null;
+
+  // Exact normalized match
+  let found = window.allCompaniesData.find(c => normalizeForMatching(c.name) === normOpp);
+  if (found) return found;
+
+  // Inclusion match (company name contained in opportunity name or vice versa)
+  found = window.allCompaniesData.find(c => {
+    const n = normalizeForMatching(c.name);
+    return n && (normOpp.includes(n) || n.includes(normOpp));
+  });
+  if (found) return found;
+
+  // Token overlap fuzzy match: require at least half tokens overlap
+  const oppTokens = new Set(normOpp.split(/\s+/).filter(Boolean));
+  let best = null;
+  let bestScore = 0;
+  window.allCompaniesData.forEach(c => {
+    const n = normalizeForMatching(c.name);
+    if (!n) return;
+    const tokens = n.split(/\s+/).filter(Boolean);
+    let common = 0;
+    tokens.forEach(t => { if (oppTokens.has(t)) common++; });
+    const score = tokens.length > 0 ? (common / tokens.length) : 0;
+    if (score > bestScore) {
+      bestScore = score;
+      best = c;
+    }
+  });
+  if (bestScore >= 0.5) return best;
+
+  return null;
+}
+
+function slugifyForDomain(name) {
+  if (!name) return '';
+  // Remove punctuation, diacritics, parentheses content, and common separators
+  const cleaned = String(name)
+    .replace(/\(.*?\)/g, ' ')
+    .replace(/[’'“”"\u2013\u2014–—]/g, ' ')
+    .normalize('NFD')
+    .replace(/\p{Diacritic}/gu, '')
+    .replace(/[^a-zA-Z0-9\s]/g, ' ')
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, ' ');
+  // Use first two meaningful words to form a slug
+  const parts = cleaned.split(' ').filter(Boolean).slice(0, 2);
+  return parts.join('');
+}
+
+function getGoogleFaviconUrl(domain) {
+  if (!domain) return '';
+  // Use the Google favicon proxy used by Chrome/Google services
+  // Example: https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://carrefour.com&size=64
+  return `https://t0.gstatic.com/faviconV2?client=SOCIAL&type=FAVICON&fallback_opts=TYPE,SIZE,URL&url=http://${encodeURIComponent(domain)}&size=64`;
+}
+
+function guessDomainAndFavicon(name) {
+  const slug = slugifyForDomain(name);
+  if (!slug) return '';
+  const candidates = [
+    `${slug}.com`,
+    `${slug}.co.ke`,
+    `${slug}.org`,
+    `${slug}.net`
+  ];
+  // Return first candidate's Google favicon URL (browser will attempt to load it)
+  return getGoogleFaviconUrl(candidates[0]);
+}
+
 function matchesTokenizedQuery(query, ...fields) {
   const normalizedQuery = normalizeSearchText(query);
   if (!normalizedQuery) return true;
@@ -811,6 +906,8 @@ async function initApp() {
 
   // Load all people for mention functionality
   await loadAllPeople();
+  // Load companies early so logos are available on first render
+  await loadAllCompanies();
 
   const savedView = localStorage.getItem('lastActiveView');
 
@@ -904,6 +1001,62 @@ async function loadAllPeople() {
     count: allPeople.length,
     sample: allPeople.length > 0 ? allPeople[0] : null
   });
+}
+
+async function loadAllCompanies() {
+  try {
+    // diagnostic logs removed
+    const doFetch = async () => {
+      const { data: companies, error } = await supabaseClient
+        .from('companies')
+        .select('id, name, domain')
+        .order('name', { ascending: true });
+      return { companies, error };
+    };
+
+    let { companies, error } = await doFetch();
+
+    if (error) {
+      crmDebugLog('loadAllCompanies.error', error);
+      window.allCompaniesData = window.allCompaniesData || [];
+      // initial fetch error (logged during development)
+    }
+
+    window.allCompaniesData = Array.isArray(companies) ? companies : [];
+
+    // If no companies came back, try one quick retry (handles possible RLS/session timing issues)
+    if ((!Array.isArray(window.allCompaniesData) || window.allCompaniesData.length === 0)) {
+      // retrying fetch after short delay
+      await new Promise(r => setTimeout(r, 250));
+      const retryRes = await doFetch();
+      companies = retryRes.companies;
+      error = retryRes.error;
+      if (error) {
+        crmDebugLog('loadAllCompanies.retryError', error);
+        // retry fetch error (ignored)
+      }
+      window.allCompaniesData = Array.isArray(companies) ? companies : window.allCompaniesData || [];
+    }
+
+    crmDebugLog('loadAllCompanies.loaded', { count: window.allCompaniesData.length });
+    // Ensure each company has a usable logo_url and prefetch images to warm browser cache
+    window.allCompaniesData.forEach(c => {
+      const name = c.name || '';
+      const initials = getInitials(name || '');
+      const domain = c.domain || '';
+      const computed = c.logo_url || (domain ? getCompanyLogoUrl(domain) : null) || `https://ui-avatars.com/api/?name=${encodeURIComponent(name || initials)}&background=ededed&color=444&size=64`;
+      if (!c.logo_url) c.logo_url = computed;
+      try { const img = new Image(); img.src = c.logo_url; } catch (e) { /* ignore */ }
+    });
+    // Log loaded companies and their logo urls for debugging first-load logo issues
+    // companies loaded (silent)
+    return window.allCompaniesData;
+  } catch (e) {
+    crmDebugLog('loadAllCompanies.exception', e);
+    window.allCompaniesData = window.allCompaniesData || [];
+    // exception during loadAllCompanies (ignored)
+    return window.allCompaniesData;
+  }
 }
 
 function updateUserDisplay(profile) {
@@ -3850,23 +4003,8 @@ async function renderMyActivityView() {
     return;
   }
 
-  // Ensure companies cache is available so we can show company logos immediately
-  if (!Array.isArray(window.allCompaniesData) || window.allCompaniesData.length === 0) {
-    try {
-      const companiesRes = await supabaseClient
-        .from('companies')
-        .select('id, name, domain, logo_url')
-        .order('name', { ascending: true });
-      if (companiesRes && Array.isArray(companiesRes.data)) {
-        window.allCompaniesData = companiesRes.data;
-      } else {
-        window.allCompaniesData = [];
-      }
-    } catch (err) {
-      window.allCompaniesData = window.allCompaniesData || [];
-      crmDebugLog('renderOpportunityPipelineView.loadCompaniesError', err);
-    }
-  }
+  // companies cache is preloaded during app init
+  
 
   let html = `
     <div class="page-header">
@@ -4266,6 +4404,19 @@ async function renderSalesFunnelView() {
 // ======================
 
 async function renderOpportunityPipelineView() {
+  // renderOpportunityPipelineView start (diagnostics removed)
+  // Ensure companies cache is ready before rendering opportunities
+  if (!Array.isArray(window.allCompaniesData) || window.allCompaniesData.length === 0) {
+    // companies cache empty — loading companies
+    try {
+      await loadAllCompanies();
+      // loadAllCompanies completed
+    } catch (e) {
+      // loadAllCompanies failed (ignored)
+    }
+  } else {
+    // companies cache present
+  }
   let opportunities;
   let error;
 
@@ -4489,11 +4640,31 @@ async function renderOpportunityPipelineView() {
       const user = opp.profiles;
       const ownerName = user ? `${user.first_name} ${user.last_name}` : 'Unknown';
 
-      // Resolve company object from global cache if available
-      const companyObj = (Array.isArray(window.allCompaniesData) ? window.allCompaniesData.find(c => String(c.id) === String(opp.company_id) || (c.name && c.name === opp.company_name)) : null);
-      const companyDomain = companyObj ? (companyObj.domain || '') : '';
-      const companyLogoUrl = companyObj ? (companyObj.logo_url || getCompanyLogoUrl(companyDomain)) : '';
+      // Resolve company object from global cache if available (robust/fuzzy matching)
+      const companyObj = findCompanyForOpportunity(opp);
+
+      // Ensure we have a usable logo URL (fallback to favicon or UI Avatars)
       const companyInitials = getInitials((companyObj && companyObj.name) ? companyObj.name : (opp.company_name || ''));
+      const companyNameResolved = (companyObj && companyObj.name) ? companyObj.name : (opp.company_name || companyInitials);
+      const companyDomain = (companyObj && companyObj.domain) ? companyObj.domain : '';
+      let companyLogoUrl = '';
+      if (companyObj && companyObj.logo_url) {
+        companyLogoUrl = companyObj.logo_url;
+      } else if (companyDomain) {
+        companyLogoUrl = getCompanyLogoUrl(companyDomain) || `https://ui-avatars.com/api/?name=${encodeURIComponent(companyNameResolved)}&background=ededed&color=444&size=64`;
+      } else {
+        // No matched company and no domain; try guessing a favicon via Google favicon proxy
+        const guessedFavicon = guessDomainAndFavicon(companyNameResolved);
+        if (guessedFavicon) {
+          companyLogoUrl = guessedFavicon;
+        } else {
+          companyLogoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(companyNameResolved)}&background=ededed&color=444&size=64`;
+        }
+      }
+      // Cache computed logo_url for future renders when companyObj present
+      if (companyObj && !companyObj.logo_url) companyObj.logo_url = companyLogoUrl;
+      // Debug: log which logo URL we're using for this opportunity
+      // opportunity logo info (silent)
 
       // Process mentioned people in notes using explicit mentioned_people from DB
       let processedNotes = opp.notes || '';
@@ -4520,7 +4691,8 @@ async function renderOpportunityPipelineView() {
 
       html += `
         <div class="opportunity-card ${!isOwnOpportunity ? 'readonly' : ''}" 
-            data-id="${opp.id}" 
+          data-id="${opp.id}" 
+          data-company-name="${escapeHtml(opp.company_name || '')}"
             data-user-id="${opp.user_id}"
             data-owner-id="${opp.user_id}"
             data-value="${parseFloat(opp.value || 0)}"
@@ -4618,6 +4790,84 @@ async function renderOpportunityPipelineView() {
     initOpportunityEventListeners(opportunities);
     initPipelineFilters(opportunities);
   }, 100);
+
+  // After render, ensure opportunity logos are updated to use companies' stored logos.
+  try {
+    // updating opportunity logos from companies table
+    await updateOpportunityLogosAsync();
+    // updateOpportunityLogosAsync completed
+  } catch (e) {
+    // updateOpportunityLogosAsync error (ignored)
+  }
+}
+
+// Try to update opportunity cards to use company.logo_url from the `companies` table when available.
+async function updateOpportunityLogosAsync() {
+  if (!window.supabaseClient) return;
+  const cards = Array.from(document.querySelectorAll('.opportunity-card'));
+  for (const card of cards) {
+    try {
+      const companyName = card.getAttribute('data-company-name') || '';
+      if (!companyName) continue;
+
+      // Find cached company first
+      let company = (Array.isArray(window.allCompaniesData) ? window.allCompaniesData.find(c => normalizeForMatching(c.name) === normalizeForMatching(companyName)) : null);
+      if (!company) {
+        // Query supabase for a matching company by name (case-insensitive, partial match)
+        const { data, error } = await supabaseClient
+          .from('companies')
+          .select('id,name,domain,logo_url')
+          .ilike('name', `%${companyName}%`)
+          .limit(1);
+        if (!error && Array.isArray(data) && data.length > 0) {
+          company = data[0];
+          window.allCompaniesData = window.allCompaniesData || [];
+          // Avoid duplicates
+          if (!window.allCompaniesData.find(c => String(c.id) === String(company.id))) {
+            window.allCompaniesData.push(company);
+          }
+        }
+      }
+
+      if (company && company.logo_url) {
+        // Preload the company.logo_url before assigning to DOM to avoid broken images
+        const candidate = company.logo_url;
+        // testing logo for company (silent)
+        const imgEl = card.querySelector('.opp-company-avatar img');
+        const placeholder = card.querySelector('.mention-avatar');
+        try {
+          await new Promise((resolve, reject) => {
+            const tester = new Image();
+            tester.onload = () => resolve(true);
+            tester.onerror = () => reject(new Error('image load failed'));
+            // attempt to load via tester
+            tester.src = candidate;
+            // Add a timeout in case of hanging requests
+            setTimeout(() => reject(new Error('image load timeout')), 3000);
+          });
+          // success — set DOM image
+          if (imgEl) {
+            imgEl.src = candidate;
+            imgEl.style.display = 'block';
+          }
+          if (placeholder) placeholder.style.display = 'none';
+          // loaded logo for company
+        } catch (e) {
+          // logo failed for company, falling back
+          // fallback: try domain favicon if present
+          const domainCandidate = company.domain ? getCompanyLogoUrl(company.domain) : '';
+          const finalFallback = domainCandidate || `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName || company.name)}&background=ededed&color=444&size=64`;
+          if (imgEl) {
+            imgEl.src = finalFallback;
+            imgEl.style.display = 'block';
+          }
+          if (placeholder) placeholder.style.display = 'none';
+        }
+      }
+    } catch (e) {
+      console.warn('updateOpportunityLogosAsync error', e);
+    }
+  }
 }
 
 function initOpportunityEventListeners(opportunities) {
