@@ -19306,7 +19306,16 @@ async function openCompanyViewModal(companyOrId) {
     if (company.latitude && company.longitude) {
       const lat = company.latitude.toFixed(6);
       const lng = company.longitude.toFixed(6);
-      coordsEl.innerHTML = `<a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" rel="noopener noreferrer" style="color:var(--color-primary);text-decoration:none;">${lat}, ${lng}</a>`;
+      coordsEl.innerHTML = `
+        <a href="https://www.google.com/maps?q=${lat},${lng}" 
+           target="_blank" 
+           rel="noopener noreferrer" 
+           style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;background:var(--bg-secondary);color:var(--color-primary);border-radius:6px;font-size:0.8rem;font-weight:600;text-decoration:none;transition:all 0.2s;border:1px solid var(--border-color);" 
+           onmouseover="this.style.background='var(--bg-tertiary)';this.style.borderColor='var(--color-primary)';this.style.transform='translateY(-1px)'" 
+           onmouseout="this.style.background='var(--bg-secondary)';this.style.borderColor='var(--border-color)';this.style.transform='none'">
+          ${lat}, ${lng}
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.7"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        </a>`;
     } else {
       coordsEl.textContent = '—';
     }
