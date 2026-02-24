@@ -19825,7 +19825,7 @@ button svg {
   width: 68px;
   height: 68px;
   border-radius: 14px;
-  background: linear-gradient(135deg, var(--color-primary), #6366f1);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -19835,7 +19835,6 @@ button svg {
   letter-spacing: -0.5px;
   flex-shrink: 0;
   position: relative;
-  box-shadow: 0 4px 16px rgba(var(--color-primary-rgb, 47, 95, 208), 0.3);
   overflow: hidden;
 }
 
