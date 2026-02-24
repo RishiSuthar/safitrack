@@ -898,7 +898,7 @@ async function initApp() {
     if (profile && profile.date_format) {
       localStorage.setItem('safitrack_date_format', profile.date_format);
     }
-  } catch (e) {}
+  } catch (e) { }
 
   // Update UI based on role
   updateUserDisplay(profile);
@@ -1286,288 +1286,289 @@ async function loadView(viewName) {
 async function renderSettingsView() {
   const dateFormatPref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
   const emailNotifPref = (localStorage.getItem('safitrack_email_notifs') || 'true') === 'true';
-  // helper to safely escape user-provided strings in template
-  function escapeHtml(s) { return (s || '').toString().replace(/[&<>\"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":"&#39;"}[c]; }); }
+  function escH(s) { return (s || '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-  const firstNameEsc = escapeHtml((currentUserProfile && currentUserProfile.first_name) ? currentUserProfile.first_name : '');
-  const lastNameEsc = escapeHtml((currentUserProfile && currentUserProfile.last_name) ? currentUserProfile.last_name : '');
-  const userEmailEsc = escapeHtml((currentUser && currentUser.email) ? currentUser.email : '');
+  const firstNameEsc = escH((currentUserProfile && currentUserProfile.first_name) ? currentUserProfile.first_name : '');
+  const lastNameEsc  = escH((currentUserProfile && currentUserProfile.last_name)  ? currentUserProfile.last_name  : '');
+  const userEmailEsc = escH((currentUser && currentUser.email) ? currentUser.email : '');
+  const roleEsc     = escH((currentUserProfile && currentUserProfile.role) ? currentUserProfile.role : 'User');
+  const initials    = ((firstNameEsc?firstNameEsc[0]:'') + (lastNameEsc?lastNameEsc[0]:'')).toUpperCase() || (userEmailEsc?userEmailEsc[0].toUpperCase():'U');
+  const fullName    = [firstNameEsc, lastNameEsc].filter(Boolean).join(' ') || 'Your Name';
 
-  const html = `
-    <header class="settings-header">
-      <div>
-        <h1 class="settings-title">Settings</h1>
-        <p class="settings-sub">Configure your account, organization, and preferences.</p>
-      </div>
-      <div class="settings-header-actions">
-        <button id="cancel-settings-btn" class="btn btn-ghost">Cancel</button>
-        <button id="save-settings-btn" class="btn btn-primary">Save changes</button>
-      </div>
-    </header>
-
-    <div class="settings-layout">
-      <nav class="settings-nav" aria-label="Settings navigation">
-        <button class="nav-item active" data-section="profile">Profile</button>
-        <button class="nav-item" data-section="organization">Organization</button>
-        <button class="nav-item" data-section="preferences">Preferences</button>
-        <button class="nav-item" data-section="notifications">Notifications</button>
-        <button class="nav-item danger" data-section="danger">Danger Zone</button>
+  viewContainer.innerHTML = `
+    <div class="sv-root">
+      <nav class="sv-nav">
+        <div class="sv-nav-user">
+          <div class="sv-nav-avatar">${initials}</div>
+          <div class="sv-nav-user-info"><div class="sv-nav-user-name">${fullName}</div><div class="sv-nav-user-role">${roleEsc}</div></div>
+        </div>
+        <div class="sv-nav-group">
+          <div class="sv-nav-group-label">Account</div>
+          <button class="sv-nav-item active" data-section="profile">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile
+          </button>
+          <button class="sv-nav-item" data-section="preferences">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2m0 16v2m7.07-4.93l-1.41-1.41M4.93 19.07l1.41-1.41M22 12h-2M4 12H2"/></svg>Preferences
+          </button>
+          <button class="sv-nav-item" data-section="notifications">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notifications
+          </button>
+          <button class="sv-nav-item" data-section="organization">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Organization
+          </button>
+        </div>
+        <div class="sv-nav-group">
+          <div class="sv-nav-group-label">Advanced</div>
+          <button class="sv-nav-item sv-nav-item--danger" data-section="danger">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Danger Zone
+          </button>
+        </div>
       </nav>
 
-      <main class="settings-content">
-        <section class="settings-section" data-section="profile">
-          <div class="section-card">
-            <div class="section-card-header">
-              <div>
-                <h2 class="section-title">Profile</h2>
-                <p class="section-sub">Your personal information used across the workspace.</p>
-              </div>
+      <main class="sv-content">
+        <section class="sv-section" data-section="profile">
+          <div class="sv-section-header">
+            <div class="sv-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+            <div style="flex:1"><h2 class="sv-section-title">Profile</h2><p class="sv-section-desc">Your personal information used across the workspace.</p></div>
+            <button id="save-settings-btn" class="sv-save-btn">Save changes</button>
+          </div>
+          <div class="sv-avatar-card">
+            <div class="sv-profile-avatar">${initials}</div>
+            <div>
+              <div class="sv-profile-name">${fullName}</div>
+              <div class="sv-profile-email">${userEmailEsc}</div>
+              <span class="sv-profile-role-badge">${roleEsc}</span>
             </div>
-            <div class="section-card-body">
-              <div class="form-grid">
-                <div class="form-field">
-                  <label>First name</label>
-                  <input id="profile-firstname" type="text" placeholder="First name" value="${firstNameEsc}">
-                </div>
-                <div class="form-field">
-                  <label>Last name</label>
-                  <input id="profile-lastname" type="text" placeholder="Last name" value="${lastNameEsc}">
-                </div>
-                <div class="form-field">
-                  <label>Email</label>
-                  <input id="profile-email" type="email" placeholder="you@company.com" value="${userEmailEsc}" disabled>
-                </div>
-                <div class="form-field">
-                  <label>&nbsp;</label>
-                  <div>
-                    <button id="profile-change-password-btn" class="btn btn-secondary btn-sm">Change password</button>
-                  </div>
-                </div>
-              </div>
+          </div>
+          <div class="sv-fields-grid">
+            <div class="sv-field"><label class="sv-label">First name</label><input id="profile-firstname" class="sv-input" type="text" placeholder="First name" value="${firstNameEsc}"></div>
+            <div class="sv-field"><label class="sv-label">Last name</label><input id="profile-lastname" class="sv-input" type="text" placeholder="Last name" value="${lastNameEsc}"></div>
+            <div class="sv-field sv-field--full"><label class="sv-label">Email address <span class="sv-label-note">(cannot be changed)</span></label><input id="profile-email" class="sv-input" type="email" value="${userEmailEsc}" disabled></div>
+            <div class="sv-field sv-field--full">
+              <label class="sv-label">Password</label>
+              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;"><input class="sv-input" type="password" value="????????????" disabled style="max-width:240px;"><button id="profile-change-password-btn" class="sv-outline-btn">Change password</button></div>
             </div>
           </div>
         </section>
 
-        <section class="settings-section" data-section="organization" style="display:none;">
-          <div class="section-card">
-            <div class="section-card-header">
-              <div>
-                <h2 class="section-title">Organization</h2>
-                <p class="section-sub">Settings that affect your organization and team.</p>
-              </div>
+        <section class="sv-section" data-section="preferences" style="display:none;">
+          <div class="sv-section-header">
+            <div class="sv-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2m0 16v2m7.07-4.93l-1.41-1.41M4.93 19.07l1.41-1.41M22 12h-2M4 12H2"/></svg></div>
+            <div style="flex:1"><h2 class="sv-section-title">Preferences</h2><p class="sv-section-desc">Customize how data appears and how you interact with the system.</p></div>
+            <button id="save-settings-btn-pref" class="sv-save-btn">Save changes</button>
+          </div>
+          <div class="sv-pref-group">
+            <div class="sv-pref-label"><div class="sv-pref-label-title">Date format</div><div class="sv-pref-label-desc">How dates are displayed throughout the app.</div></div>
+            <div class="sv-segmented">
+              <button class="sv-seg-btn ${dateFormatPref==='DD/MM/YYYY'?'sv-seg-active':''}" data-value="DD/MM/YYYY">DD/MM/YYYY<span class="sv-seg-example">21/09/2026</span></button>
+              <button class="sv-seg-btn ${dateFormatPref==='MM/DD/YYYY'?'sv-seg-active':''}" data-value="MM/DD/YYYY">MM/DD/YYYY<span class="sv-seg-example">09/21/2026</span></button>
             </div>
-            <div class="section-card-body">
-              <div class="empty-state">
-                <div class="empty-illustration">⚙️</div>
-                <div class="empty-text">Organization settings are managed at the workspace level. Contact the administrator to change billing, domains, and teams.</div>
-              </div>
-            </div>
+          </div>
+          <div class="sv-pref-group">
+            <div class="sv-pref-label"><div class="sv-pref-label-title">Theme</div><div class="sv-pref-label-desc">Toggle dark/light mode using the icon in the top header bar.</div></div>
+            <div class="sv-theme-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;flex-shrink:0;opacity:0.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>Use the moon/sun icon in the header.</div>
           </div>
         </section>
 
-        <section class="settings-section" data-section="preferences" style="display:none;">
-          <div class="section-card">
-            <div class="section-card-header">
-              <div>
-                <h2 class="section-title">Preferences</h2>
-                <p class="section-sub">Personalize how data and notifications appear for you.</p>
-              </div>
-            </div>
-            <div class="section-card-body">
-              <div class="form-grid">
-                <div class="form-field">
-                  <label>Date format</label>
-                  <div class="segmented-control" role="tablist" aria-label="Date format">
-                    <button class="seg-btn ${dateFormatPref === 'DD/MM/YYYY' ? 'seg-active' : ''}" data-value="DD/MM/YYYY">DD/MM/YYYY <span class="seg-hint">(21/09/2026)</span></button>
-                    <button class="seg-btn ${dateFormatPref === 'MM/DD/YYYY' ? 'seg-active' : ''}" data-value="MM/DD/YYYY">MM/DD/YYYY <span class="seg-hint">(09/21/2026)</span></button>
-                  </div>
-                </div>
-
-                <!-- Time zone selector removed (managed server-side) -->
-
-                <!-- First day of week and Compact mode removed -->
-              </div>
-            </div>
+        <section class="sv-section" data-section="notifications" style="display:none;">
+          <div class="sv-section-header">
+            <div class="sv-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
+            <div><h2 class="sv-section-title">Notifications</h2><p class="sv-section-desc">Control how and when you get notified.</p></div>
+          </div>
+          <div class="sv-toggle-row">
+            <div class="sv-toggle-info"><div class="sv-toggle-title">Email notifications</div><div class="sv-toggle-desc">Receive email summaries, activity updates, and important alerts.</div></div>
+            <label class="sv-toggle"><input id="pref-email-notifs" type="checkbox" ${emailNotifPref?'checked':''}><span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span></label>
+          </div>
+          <div class="sv-toggle-row">
+            <div class="sv-toggle-info"><div class="sv-toggle-title">Browser push notifications</div><div class="sv-toggle-desc">Get instant alerts for reminders and mentions directly in your browser.</div></div>
+            <button id="enable-browser-notifs" class="sv-outline-btn">Enable</button>
           </div>
         </section>
 
-        <section class="settings-section" data-section="notifications" style="display:none;">
-          <div class="section-card">
-            <div class="section-card-header">
-              <div>
-                <h2 class="section-title">Notifications</h2>
-                <p class="section-sub">Control how you get notified about important activity.</p>
-              </div>
-            </div>
-            <div class="section-card-body">
-              <div class="form-grid">
-                <div class="form-field">
-                  <label>Email notifications</label>
-                  <div class="control-row">
-                    <div class="control-desc">Receive email summaries and alerts.</div>
-                    <label class="toggle-switch">
-                      <input id="pref-email-notifs" type="checkbox" ${emailNotifPref ? 'checked' : ''}>
-                      <span class="switch"></span>
-                    </label>
-                  </div>
-                </div>
-
-                <div class="form-field">
-                  <label>Browser alerts</label>
-                  <div class="control-row">
-                    <div class="control-desc">Allow in-browser notifications for reminders and mentions.</div>
-                    <button id="enable-browser-notifs" class="btn btn-outline">Enable alerts</button>
-                  </div>
-                </div>
-              </div>
-            </div>
+        <section class="sv-section" data-section="organization" style="display:none;">
+          <div class="sv-section-header">
+            <div class="sv-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+            <div><h2 class="sv-section-title">Organization</h2><p class="sv-section-desc">Workspace-level configuration and team settings.</p></div>
+          </div>
+          <div class="sv-info-card">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;flex-shrink:0;color:var(--color-primary)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            <div><div style="font-weight:700;margin-bottom:4px;">Managed at workspace level</div><div style="font-size:0.83rem;color:var(--text-muted);">Organization settings like billing, domains, and team members are managed at the workspace level. Contact your administrator to make changes.</div></div>
           </div>
         </section>
 
-        <section class="settings-section" data-section="danger" style="display:none;">
-          <div class="section-card">
-            <div class="section-card-header">
-              <div>
-                <h2 class="section-title danger">Danger Zone</h2>
-                <p class="section-sub">Irreversible actions. Proceed with caution.</p>
-              </div>
-            </div>
-            <div class="section-card-body">
-              <div class="danger-actions">
-                <div>
-                  <h3>Delete account</h3>
-                  <p class="text-muted">This will permanently remove your account and all organization data you own.</p>
-                </div>
-                <div>
-                  <button id="delete-account-btn" class="btn btn-danger">Delete account</button>
-                </div>
-              </div>
-              <hr>
-              <div class="danger-actions">
-                <div>
-                  <h3>Export data</h3>
-                  <p class="text-muted">Download a copy of your personal data and reports.</p>
-                </div>
-                <div>
-                  <button id="export-data-btn" class="btn btn-ghost">Export</button>
-                </div>
-              </div>
-            </div>
+        <section class="sv-section" data-section="danger" style="display:none;">
+          <div class="sv-section-header">
+            <div class="sv-section-icon sv-section-icon--danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
+            <div><h2 class="sv-section-title sv-section-title--danger">Danger Zone</h2><p class="sv-section-desc">Irreversible and destructive actions. Proceed with extreme caution.</p></div>
+          </div>
+          <div class="sv-danger-row">
+            <div class="sv-danger-info"><div class="sv-danger-title">Export your data</div><div class="sv-danger-desc">Download a full copy of your personal data and activity records.</div></div>
+            <button id="export-data-btn" class="sv-outline-btn">Export data</button>
+          </div>
+          <div class="sv-danger-row sv-danger-row--critical">
+            <div class="sv-danger-info"><div class="sv-danger-title sv-danger-title--critical">Delete account</div><div class="sv-danger-desc">Permanently delete your account and all data. <strong>This cannot be undone.</strong></div></div>
+            <button id="delete-account-btn" class="sv-delete-btn">Delete account</button>
           </div>
         </section>
       </main>
     </div>
   `;
 
-  viewContainer.innerHTML = html;
-
-  // Utilities
-  function setActiveSection(name) {
-    document.querySelectorAll('.settings-nav .nav-item').forEach(b => b.classList.toggle('active', b.dataset.section === name));
-    document.querySelectorAll('.settings-section').forEach(s => s.style.display = (s.dataset.section === name) ? '' : 'none');
+  if (!document.getElementById('sv-styles')) {
+    const style = document.createElement('style');
+    style.id = 'sv-styles';
+    style.textContent = `
+      .sv-root{display:flex;height:100%;min-height:0;overflow:hidden;background:var(--bg-primary)}
+      .sv-nav{width:230px;flex-shrink:0;border-right:1px solid var(--border-color);padding:20px 14px;background:var(--bg-primary);display:flex;flex-direction:column;gap:6px;overflow-y:auto}
+      .sv-nav-user{display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;background:var(--bg-secondary);margin-bottom:10px}
+      .sv-nav-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--color-primary),#6366f1);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.95rem;color:#fff;flex-shrink:0}
+      .sv-nav-user-info{min-width:0}
+      .sv-nav-user-name{font-size:.85rem;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .sv-nav-user-role{font-size:.7rem;color:var(--text-muted);text-transform:capitalize}
+      .sv-nav-group{margin-bottom:6px}
+      .sv-nav-group-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);padding:0 10px;margin-bottom:3px}
+      .sv-nav-item{display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;border:none;background:transparent;border-radius:8px;font-size:.85rem;font-weight:500;color:var(--text-secondary);cursor:pointer;text-align:left;font-family:inherit;transition:background .12s,color .12s}
+      .sv-nav-item svg{width:15px;height:15px;flex-shrink:0;stroke:currentColor}
+      .sv-nav-item:hover{background:var(--bg-secondary);color:var(--text-primary)}
+      .sv-nav-item.active{background:color-mix(in srgb,var(--color-primary) 10%,transparent);color:var(--color-primary);font-weight:700}
+      .sv-nav-item--danger{color:#ef4444!important}
+      .sv-nav-item--danger:hover{background:rgba(239,68,68,.08)}
+      .sv-nav-item--danger.active{background:rgba(239,68,68,.1);color:#ef4444!important}
+      .sv-content{flex:1;min-width:0;overflow-y:auto;padding:32px 40px;background:var(--bg-secondary)}
+      .sv-section{display:block}
+      .sv-section-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border-color)}
+      .sv-section-icon{width:38px;height:38px;border-radius:9px;background:color-mix(in srgb,var(--color-primary) 12%,transparent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+      .sv-section-icon svg{width:18px;height:18px;stroke:var(--color-primary)}
+      .sv-section-icon--danger{background:rgba(239,68,68,.1)}
+      .sv-section-icon--danger svg{stroke:#ef4444}
+      .sv-section-title{font-size:1.1rem;font-weight:800;color:var(--text-primary);margin:0 0 3px}
+      .sv-section-title--danger{color:#ef4444}
+      .sv-section-desc{font-size:.82rem;color:var(--text-muted);margin:0}
+      .sv-save-btn{padding:9px 18px;border-radius:8px;border:none;background:var(--color-primary);color:#fff;font-size:.875rem;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s,transform .1s;white-space:nowrap}
+      .sv-save-btn:hover{opacity:.87;transform:translateY(-1px)}
+      .sv-avatar-card{display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:12px;border:1px solid var(--border-color);background:var(--bg-primary);margin-bottom:22px}
+      .sv-profile-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--color-primary),#6366f1);display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:800;color:#fff;flex-shrink:0}
+      .sv-profile-name{font-size:.95rem;font-weight:700;color:var(--text-primary)}
+      .sv-profile-email{font-size:.8rem;color:var(--text-muted);margin-top:2px}
+      .sv-profile-role-badge{display:inline-block;margin-top:5px;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:100px;background:color-mix(in srgb,var(--color-primary) 12%,transparent);color:var(--color-primary);border:1px solid color-mix(in srgb,var(--color-primary) 25%,transparent)}
+      .sv-fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+      .sv-field{display:flex;flex-direction:column;gap:5px}
+      .sv-field--full{grid-column:1/-1}
+      .sv-label{font-size:.75rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em}
+      .sv-label-note{font-size:.7rem;font-weight:500;color:var(--text-muted);text-transform:none}
+      .sv-input{padding:9px 12px;border-radius:8px;border:1.5px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);font-size:.875rem;font-family:inherit;transition:border-color .15s,box-shadow .15s;outline:none;width:100%;box-sizing:border-box}
+      .sv-input:focus{border-color:var(--color-primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--color-primary) 12%,transparent)}
+      .sv-input:disabled{opacity:.45;cursor:not-allowed;background:var(--bg-secondary)}
+      .sv-outline-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1.5px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);font-size:.83rem;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s;white-space:nowrap}
+      .sv-outline-btn:hover{border-color:var(--color-primary);color:var(--color-primary)}
+      .sv-pref-group{display:flex;align-items:flex-start;gap:20px;padding:18px 0;border-bottom:1px solid var(--border-color)}
+      .sv-pref-group:last-child{border-bottom:none}
+      .sv-pref-label{flex:1;min-width:0}
+      .sv-pref-label-title{font-size:.875rem;font-weight:700;color:var(--text-primary);margin-bottom:3px}
+      .sv-pref-label-desc{font-size:.8rem;color:var(--text-muted);line-height:1.45}
+      .sv-segmented{display:flex;border-radius:9px;border:1.5px solid var(--border-color);overflow:hidden;background:var(--bg-primary);flex-shrink:0}
+      .sv-seg-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 16px;border:none;background:transparent;font-size:.8rem;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:inherit;transition:background .12s,color .12s}
+      .sv-seg-btn+.sv-seg-btn{border-left:1.5px solid var(--border-color)}
+      .sv-seg-btn:hover{background:var(--bg-secondary);color:var(--text-primary)}
+      .sv-seg-active{background:var(--color-primary)!important;color:#fff!important}
+      .sv-seg-example{font-size:.65rem;font-weight:500;opacity:.7}
+      .sv-theme-info{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text-muted);padding:9px 12px;border-radius:8px;background:var(--bg-primary);border:1px solid var(--border-color);flex-shrink:0}
+      .sv-toggle-row{display:flex;align-items:center;gap:20px;padding:18px 0;border-bottom:1px solid var(--border-color)}
+      .sv-toggle-row:last-child{border-bottom:none}
+      .sv-toggle-info{flex:1}
+      .sv-toggle-title{font-size:.875rem;font-weight:700;color:var(--text-primary)}
+      .sv-toggle-desc{font-size:.8rem;color:var(--text-muted);margin-top:3px;line-height:1.45}
+      .sv-toggle{position:relative;display:inline-block;width:42px;height:23px;flex-shrink:0;cursor:pointer}
+      .sv-toggle input{opacity:0;width:0;height:0;position:absolute}
+      .sv-toggle-track{position:absolute;inset:0;border-radius:100px;background:var(--border-color);transition:background .2s}
+      .sv-toggle input:checked+.sv-toggle-track{background:var(--color-primary)}
+      .sv-toggle-thumb{position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .2s}
+      .sv-toggle input:checked~.sv-toggle-track .sv-toggle-thumb{transform:translateX(19px)}
+      .sv-info-card{display:flex;align-items:flex-start;gap:12px;padding:16px 18px;border-radius:10px;background:color-mix(in srgb,var(--color-primary) 6%,transparent);border:1px solid color-mix(in srgb,var(--color-primary) 20%,transparent);font-size:.875rem;color:var(--text-secondary)}
+      .sv-danger-row{display:flex;align-items:center;gap:20px;padding:18px 0;border-bottom:1px solid var(--border-color)}
+      .sv-danger-row:last-child{border-bottom:none}
+      .sv-danger-row--critical{padding:18px;border-radius:10px;background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.15);margin-top:8px}
+      .sv-danger-info{flex:1}
+      .sv-danger-title{font-size:.875rem;font-weight:700;color:var(--text-primary);margin-bottom:3px}
+      .sv-danger-title--critical{color:#ef4444}
+      .sv-danger-desc{font-size:.8rem;color:var(--text-muted);line-height:1.45}
+      .sv-delete-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1.5px solid rgba(239,68,68,.4);background:rgba(239,68,68,.08);color:#ef4444;font-size:.83rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s;white-space:nowrap}
+      .sv-delete-btn:hover{background:#ef4444;color:#fff;border-color:#ef4444}
+      @media(max-width:768px){
+        .sv-root{flex-direction:column}
+        .sv-nav{width:100%;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;gap:4px;padding:10px 12px;border-right:none;border-bottom:1px solid var(--border-color)}
+        .sv-nav-user,.sv-nav-group-label{display:none}
+        .sv-nav-group{display:contents}
+        .sv-nav-item{padding:6px 12px;border-radius:100px;font-size:.78rem;white-space:nowrap}
+        .sv-content{padding:18px 14px}
+        .sv-fields-grid{grid-template-columns:1fr}
+        .sv-pref-group{flex-direction:column}
+        .sv-section-header{flex-wrap:wrap}
+      }
+    `;
+    document.head.appendChild(style);
   }
 
-  // Tab nav
-  document.querySelectorAll('.settings-nav .nav-item').forEach(btn => {
-    btn.addEventListener('click', () => setActiveSection(btn.dataset.section));
-  });
+  function setActiveSection(name) {
+    document.querySelectorAll('.sv-nav-item').forEach(b => b.classList.toggle('active', b.dataset.section === name));
+    document.querySelectorAll('.sv-section').forEach(s => s.style.display = s.dataset.section === name ? 'block' : 'none');
+  }
 
-  // Wire segmented date controls
-  document.querySelectorAll('.segmented-control .seg-btn').forEach(b => {
-    b.addEventListener('click', () => {
-      document.querySelectorAll('.segmented-control .seg-btn').forEach(x => x.classList.remove('seg-active'));
-      b.classList.add('seg-active');
-    });
-  });
+  document.querySelectorAll('.sv-nav-item').forEach(btn => btn.addEventListener('click', () => setActiveSection(btn.dataset.section)));
 
-  // Wire profile change password button to reuse existing modal
+  document.querySelectorAll('.sv-seg-btn').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.sv-seg-btn').forEach(x => x.classList.remove('sv-seg-active'));
+    b.classList.add('sv-seg-active');
+  }));
+
   document.getElementById('profile-change-password-btn')?.addEventListener('click', () => {
-    try { openChangePasswordModal(); } catch (e) { console.error('openChangePasswordModal not available', e); }
-  });
-
-  // Wire buttons
-  document.getElementById('cancel-settings-btn').addEventListener('click', () => {
-    const lastView = localStorage.getItem('lastActiveView') || 'log-visit';
-    loadView(lastView);
+    try { openChangePasswordModal(); } catch (e) { console.error(e); }
   });
 
   document.getElementById('enable-browser-notifs')?.addEventListener('click', async () => {
     try {
       const perm = await Notification.requestPermission();
-      if (perm === 'granted') showToast('Browser notifications enabled', 'success');
-      else showToast('Browser notifications were not enabled', 'warning');
+      showToast(perm === 'granted' ? 'Browser notifications enabled' : 'Browser notifications not enabled', perm === 'granted' ? 'success' : 'warning');
     } catch (e) { showToast('Unable to enable notifications', 'error'); }
   });
 
   document.getElementById('delete-account-btn')?.addEventListener('click', () => {
-    const ok = confirm('Delete your account and all owned data? This action cannot be undone.');
-    if (!ok) return;
-    // Best-effort: call backend if available
-    if (typeof supabaseClient !== 'undefined' && currentUser && currentUser.id) {
-      showToast('Account deletion requested. Check server logs for progress.', 'warning');
-      // server-side deletion flows are intentionally not implemented here
-    } else {
-      showToast('Local account removal not supported in demo.', 'warning');
-    }
+    if (confirm('Delete your account and all owned data? This cannot be undone.'))
+      showToast('Account deletion requested. Contact support to complete the process.', 'warning');
   });
 
-  document.getElementById('export-data-btn')?.addEventListener('click', () => {
-    showToast('Preparing export...', 'info');
-    // Hook to real export flow
-  });
+  document.getElementById('export-data-btn')?.addEventListener('click', () => showToast('Preparing export…', 'info'));
 
-  // Save logic: gather visible preferences and persist
-  document.getElementById('save-settings-btn').addEventListener('click', async () => {
+  const saveHandler = async () => {
     try {
-      const firstName = document.getElementById('profile-firstname')?.value?.trim();
-      const lastName = document.getElementById('profile-lastname')?.value?.trim();
-      const dateFormat = document.querySelector('.segmented-control .seg-active')?.dataset?.value || dateFormatPref;
+      const firstName  = document.getElementById('profile-firstname')?.value?.trim();
+      const lastName   = document.getElementById('profile-lastname')?.value?.trim();
+      const dateFormat = document.querySelector('.sv-seg-active')?.dataset?.value || dateFormatPref;
       const emailNotifs = document.getElementById('pref-email-notifs')?.checked || false;
-      // compact mode removed
 
-      // Local persistence
       localStorage.setItem('safitrack_date_format', dateFormat);
       localStorage.setItem('safitrack_email_notifs', emailNotifs ? 'true' : 'false');
 
-      // Attempt to persist profile updates
-      if (typeof supabaseClient !== 'undefined' && currentUser && currentUser.id) {
+      if (typeof supabaseClient !== 'undefined' && currentUser?.id) {
         const updates = {};
         if (firstName) updates.first_name = firstName;
         if (lastName) updates.last_name = lastName;
-        // store preferences on profile as available
         updates.date_format = dateFormat;
         updates.email_notifications = emailNotifs;
-
-        const { data: updated, error } = await supabaseClient
-          .from('profiles')
-          .update(updates)
-          .eq('id', currentUser.id)
-          .select()
-          .single();
-
-        if (error) {
-          console.error('Failed to persist profile settings:', error);
-          showToast('Saved locally, but failed to persist to server.', 'warning');
-        } else {
-          showToast('Settings saved', 'success');
-          try { currentUserProfile = { ...(currentUserProfile || {}), ...(updated || {}) }; } catch (e) {}
-        }
+        const { data: updated, error } = await supabaseClient.from('profiles').update(updates).eq('id', currentUser.id).select().single();
+        if (error) { showToast('Saved locally, but failed to persist to server.', 'warning'); }
+        else { showToast('Settings saved', 'success'); try { currentUserProfile = {...(currentUserProfile||{}),...(updated||{})}; } catch(e){} }
       } else {
         showToast('Settings saved locally', 'success');
       }
-
       refreshCurrentView();
-    } catch (e) {
-      console.error(e);
-      showToast('Failed to save settings', 'error');
-    }
-  });
+    } catch (e) { console.error(e); showToast('Failed to save settings', 'error'); }
+  };
 
-  // small helper to initialize radio/checkboxes
-  // Defaults hydration removed (first day and compact mode were removed)
+  document.getElementById('save-settings-btn')?.addEventListener('click', saveHandler);
+  document.getElementById('save-settings-btn-pref')?.addEventListener('click', saveHandler);
 
-  // Start on Preferences tab by default
-  setActiveSection('preferences');
+  setActiveSection('profile');
 }
 
 
@@ -1649,7 +1650,8 @@ async function renderCompaniesView() {
   function renderCompaniesTable(companiesToRender, paginationInfo) {
     const columns = [
       { key: 'rank', label: '#', width: '50px', readOnly: true, sortable: false, render: (val, row) => (paginationInfo.currentPage - 1) * paginationInfo.recordsPerPage + companiesToRender.indexOf(row) + 1 },
-      { key: 'name', label: 'Company Name', width: '300px', icon: 'building', sortable: true, render: (val, row) => {
+      {
+        key: 'name', label: 'Company Name', width: '300px', icon: 'building', sortable: true, render: (val, row) => {
           const domain = (row && row.domain) ? row.domain : '';
           const logoUrl = getCompanyLogoUrl(domain);
           const initials = getInitials(row.name || '');
@@ -1662,7 +1664,8 @@ async function renderCompaniesView() {
               <div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${row.name || '-'}</div>
             </div>
           `;
-        } },
+        }
+      },
       { key: 'industry', label: 'Industry', width: '150px', readOnly: true, icon: 'briefcase', sortable: false, render: (val, row) => val || row.company_categories?.map(c => c.categories.name).join(', ') || 'N/A' },
       { key: 'address', label: 'Location', width: '190px', icon: 'map-pin' },
       {
@@ -2473,7 +2476,8 @@ async function renderPeopleView() {
       { key: 'company.name', label: 'Company', width: '160px', icon: 'building', readOnly: true, sortable: false, render: (val, row) => row.company ? row.company.name : 'No company' },
       { key: 'job_title', label: 'Job Title', width: '150px', icon: 'briefcase', sortable: true },
       { key: 'phone_numbers', label: 'Phone', width: '150px', icon: 'phone', sortable: true, render: (phones) => phones && Array.isArray(phones) ? phones.join(', ') : (phones || 'N/A') },
-      { key: 'actions', label: 'Actions', width: '140px', readOnly: true, sortable: false, render: (val, row) => `
+      {
+        key: 'actions', label: 'Actions', width: '140px', readOnly: true, sortable: false, render: (val, row) => `
         <div class="table-actions">
           <button class="action-btn view-person" data-id="${row.id}" title="View person"><i data-lucide="eye"></i></button>
           <button class="action-btn edit-person" data-id="${row.id}" title="Edit person"><i data-lucide="square-pen"></i></button>
@@ -2872,73 +2876,74 @@ async function openPersonViewModal(personOrId) {
   }
 
   document.getElementById('person-view-modal-title').textContent = person.name || 'Person';
-  document.getElementById('person-view-summary').innerHTML = '<div class="text-muted">Loading summary…</div>';
 
-  try {
-    const summaryEl = document.getElementById('person-view-summary');
-    if (summaryEl) {
-      const initials = getInitials(person.name || 'U');
-      const avatarHtml = `<div style="position:relative;width:48px;height:48px;"><div class="company-summary-initials" style="width:48px;height:48px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:600">${initials}</div></div>`;
-      const companyName = (person.company && person.company.name) ? escapeHtml(person.company.name) : (person.company_name ? escapeHtml(person.company_name) : '—');
-      const emailHtml = person.email ? `<a href="mailto:${escapeHtml(person.email)}" class="company-summary-domain-link">${escapeHtml(person.email)}</a>` : '—';
-      const phone = person.phone_numbers && Array.isArray(person.phone_numbers) && person.phone_numbers.length ? person.phone_numbers[0] : (person.phone || '');
-      const phoneHtml = phone ? `<a href="tel:${escapeHtml(phone)}" class="company-summary-domain-link">${escapeHtml(phone)}</a>` : '—';
-
-      const jobTitle = person.job_title ? escapeHtml(person.job_title) : '';
-      const metaHtml = jobTitle ? `${jobTitle} • <span id="person-view-company-inline">${companyName}</span>` : `<span id="person-view-company-inline">${companyName}</span>`;
-
-      summaryEl.innerHTML = `
-        <div class="company-summary">
-          <div class="company-summary-head">
-            <div class="company-summary-avatar">${avatarHtml}</div>
-            <div class="company-summary-main">
-              <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-                <div class="company-summary-name">${escapeHtml(person.name || '—')}</div>
-              </div>
-              <div class="company-summary-meta">${metaHtml}</div>
-              <div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap;">
-                <div>${emailHtml}</div>
-                <div>${phoneHtml}</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-
-      // Show company link clickable if we have an object
-      const companyInline = document.getElementById('person-view-company-inline');
-        if (companyInline && person.company && person.company.id) {
-        companyInline.innerHTML = `
-          <a href="#" class="person-view-company-link" data-id="${escapeHtml(String(person.company.id))}" title="View company" aria-label="View company ${escapeHtml(person.company.name)}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><path d="M8 3v18"></path><path d="M16 7h.01"></path><path d="M16 11h.01"></path><path d="M16 15h.01"></path></svg>
-            <span class="person-company-name">${escapeHtml(person.company.name)}</span>
-          </a>`;
-        const link = companyInline.querySelector('.person-view-company-link');
-        if (link) {
-          link.addEventListener('click', (e) => {
-            e.preventDefault();
-            // Close the person view first so the company view doesn't open behind it
-            closeModal('person-view-modal');
-            // Open company view after modal close animation (matches modal transition).
-            // Pass company id to ensure full company details are fetched.
-            setTimeout(() => openCompanyViewModal(person.company && person.company.id ? person.company.id : person.company_id || person.company), 140);
-          });
-        }
-      }
-    }
-  } catch (e) {
-    crmDebugLog('person-view-summary-render-error', e);
+  // ── Populate Hero Section ──
+  const personHeroAvatar = document.getElementById('person-view-hero-avatar');
+  if (personHeroAvatar) {
+    const initials = getInitials(person.name || 'U');
+    personHeroAvatar.innerHTML = `<span style="position:relative;z-index:1">${initials}</span>`;
   }
 
-  // Sidebar details
-  const emailEl = document.getElementById('person-view-email'); if (emailEl) emailEl.innerHTML = person.email ? `<a href="mailto:${escapeHtml(person.email)}">${escapeHtml(person.email)}</a>` : '—';
-  const phoneEl = document.getElementById('person-view-phone'); if (phoneEl) phoneEl.innerHTML = (person.phone_numbers && person.phone_numbers.length) ? person.phone_numbers.join(', ') : (person.phone || '—');
-  const companyEl = document.getElementById('person-view-company'); if (companyEl) companyEl.textContent = (person.company && person.company.name) ? person.company.name : (person.company_name || '—');
+  const personSubtitle = document.getElementById('person-view-hero-subtitle');
+  if (personSubtitle) {
+    const jobTitle = person.job_title ? escapeHtml(person.job_title) : '';
+    const companyName = (person.company && person.company.name) ? escapeHtml(person.company.name) : (person.company_name ? escapeHtml(person.company_name) : '');
+    const companyId = person.company && person.company.id ? person.company.id : null;
+    const companyHtml = companyName
+      ? (companyId ? `<a href="#" class="person-view-company-link" data-id="${escapeHtml(String(companyId))}">${companyName}</a>` : companyName)
+      : '';
+    personSubtitle.innerHTML = jobTitle && companyHtml ? `${jobTitle} <span style="opacity:0.5;margin:0 4px">·</span> ${companyHtml}` : (jobTitle || companyHtml || '');
+    if (companyId) {
+      personSubtitle.querySelector('.person-view-company-link')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeModal('person-view-modal');
+        setTimeout(() => openCompanyViewModal(companyId), 140);
+      });
+    }
+  }
+
+  // Hero contact chips
+  const personChips = document.getElementById('person-view-hero-chips');
+  if (personChips) {
+    const emailChip = person.email ? `<a class="record-hero-chip" href="mailto:${escapeHtml(person.email)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>${escapeHtml(person.email)}</a>` : '';
+    const phone = person.phone_numbers && Array.isArray(person.phone_numbers) && person.phone_numbers.length ? person.phone_numbers[0] : (person.phone || '');
+    const phoneChip = phone ? `<a class="record-hero-chip" href="tel:${escapeHtml(phone)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg>${escapeHtml(phone)}</a>` : '';
+    personChips.innerHTML = emailChip + phoneChip;
+  }
+
+  // Wire Edit button
+  const personEditBtn = document.getElementById('person-view-edit-btn');
+  if (personEditBtn) {
+    personEditBtn.onclick = () => {
+      closeModal('person-view-modal');
+      setTimeout(() => openPersonModal(person), 100);
+    };
+  }
+
+  // ── Populate Sidebar Fields ──
+  const emailEl = document.getElementById('person-view-email');
+  if (emailEl) emailEl.innerHTML = person.email ? `<a href="mailto:${escapeHtml(person.email)}">${escapeHtml(person.email)}</a>` : '—';
+  const phoneEl = document.getElementById('person-view-phone');
+  if (phoneEl) phoneEl.innerHTML = (person.phone_numbers && person.phone_numbers.length) ? person.phone_numbers.map(p => `<a href="tel:${escapeHtml(p)}">${escapeHtml(p)}</a>`).join('<br>') : (person.phone || '—');
+  const companyEl = document.getElementById('person-view-company');
+  if (companyEl) {
+    const pCompany = (person.company && person.company.name) ? person.company : null;
+    if (pCompany && pCompany.id) {
+      companyEl.innerHTML = `<a href="#" class="person-view-company-link" data-id="${escapeHtml(String(pCompany.id))}">${escapeHtml(pCompany.name)}</a>`;
+      companyEl.querySelector('.person-view-company-link')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeModal('person-view-modal');
+        setTimeout(() => openCompanyViewModal(pCompany.id), 140);
+      });
+    } else {
+      companyEl.textContent = (person.company && person.company.name) ? person.company.name : (person.company_name || '—');
+    }
+  }
   const titleEl = document.getElementById('person-view-title'); if (titleEl) titleEl.textContent = person.job_title || '—';
   const notesEl = document.getElementById('person-view-notes'); if (notesEl) notesEl.textContent = person.notes || '—';
 
-  // Tabs placeholders (only opportunities for person view)
-  document.getElementById('person-view-opps').innerHTML = '<div class="text-center p-6">Loading opportunities...</div>';
+  // Tab placeholder
+  document.getElementById('person-view-opps').innerHTML = '<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="record-empty-title">Loading...</div></div>';
 
   modal.style.display = 'flex';
 
@@ -2974,30 +2979,33 @@ async function openPersonViewModal(personOrId) {
       }
 
       if (!opps || opps.length === 0) {
-        oppsEl.innerHTML = '<div class="empty-state"><p class="empty-state-title">No opportunities linked</p><p class="text-muted">This person is not linked to any active opportunities.</p></div>';
+        oppsEl.innerHTML = `<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="record-empty-title">No opportunities linked</div><div class="record-empty-desc">This person is not linked to any active opportunities yet.</div></div>`;
       } else {
-        oppsEl.innerHTML = `
-          <div class="company-opps-list">
-            ${opps.map(opp => {
-                const stage = opp.stage || opp.status || '—';
-                const rawValue = opp.value || opp.amount || opp.estimated_value || opp.deal_value || 0;
-                const numeric = Number(String(rawValue).replace(/[^0-9.-]+/g, '')) || 0;
-                const displayValue = numeric ? numeric.toLocaleString() : '0';
-                const prob = (opp.probability || opp.win_probability || opp.prob || 0);
-                return `
-                  <div class="company-opp" data-id="${opp.id}">
-                    <div class="company-opp-main">
-                      <div class="company-opp-title">${escapeHtml(opp.name || '—')}</div>
-                      <div class="company-opp-meta text-muted">${escapeHtml(stage)} • Ksh ${displayValue} • ${prob}%</div>
-                    </div>
-                    <div class="company-opp-actions">
-                      <button class="btn btn-sm btn-ghost view-opportunity" data-id="${opp.id}">View</button>
-                    </div>
-                  </div>
-                `
-            }).join('')}
-          </div>
-        `;
+        const stageColors = { prospecting: '#6366f1', qualification: '#f59e0b', proposal: '#3b82f6', negotiation: '#f97316', won: '#22c55e', lost: '#ef4444' };
+        oppsEl.innerHTML = opps.map(opp => {
+          const stage = opp.stage || opp.status || '—';
+          const rawValue = opp.value || opp.amount || opp.estimated_value || opp.deal_value || 0;
+          const numeric = Number(String(rawValue).replace(/[^0-9.-]+/g, '')) || 0;
+          const displayValue = numeric ? numeric.toLocaleString() : '0';
+          const prob = (opp.probability || opp.win_probability || opp.prob || 0);
+          const stageKey = stage.toLowerCase();
+          const stageColor = stageColors[stageKey] || 'var(--color-primary)';
+          return `
+            <div class="record-opp-card" data-id="${opp.id}">
+              <div class="record-opp-card-stage" style="background:${stageColor}"></div>
+              <div class="record-opp-card-body">
+                <div class="record-opp-card-name">${escapeHtml(opp.name || '—')}</div>
+                <div class="record-opp-card-meta">
+                  <span class="stage-pill" style="background:${stageColor}1a;color:${stageColor};border-color:${stageColor}40">${escapeHtml(stage)}</span>
+                  <span>${prob}% probability</span>
+                </div>
+              </div>
+              <div class="record-opp-card-value">Ksh ${displayValue}</div>
+              <div class="record-opp-card-action"><button class="btn btn-sm btn-ghost view-opportunity" data-id="${opp.id}">View</button></div>
+            </div>
+          `;
+        }).join('');
+
 
         // Attach view handlers
         oppsEl.querySelectorAll('.view-opportunity').forEach(btn => {
@@ -4004,7 +4012,7 @@ async function renderMyActivityView() {
   }
 
   // companies cache is preloaded during app init
-  
+
 
   let html = `
     <div class="page-header">
@@ -5311,42 +5319,42 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
         el.disabled = true;
       });
       saveBtn.style.display = 'none';
-        // Render a read-only notes display with clickable mentions
-        const notesTextarea = document.getElementById('opportunity-notes');
-        let notesDisplay = document.getElementById('opportunity-notes-display');
-        if (!notesDisplay) {
-          notesDisplay = document.createElement('div');
-          notesDisplay.id = 'opportunity-notes-display';
-          notesDisplay.className = 'opportunity-notes-display';
-          notesTextarea.parentNode.appendChild(notesDisplay);
-        }
+      // Render a read-only notes display with clickable mentions
+      const notesTextarea = document.getElementById('opportunity-notes');
+      let notesDisplay = document.getElementById('opportunity-notes-display');
+      if (!notesDisplay) {
+        notesDisplay = document.createElement('div');
+        notesDisplay.id = 'opportunity-notes-display';
+        notesDisplay.className = 'opportunity-notes-display';
+        notesTextarea.parentNode.appendChild(notesDisplay);
+      }
 
-        // Build processed notes HTML (convert mentions to clickable spans)
-        let displayHtml = escapeHtml(opportunity.notes || '');
-        if (opportunity.mentioned_people && Array.isArray(opportunity.mentioned_people)) {
-          opportunity.mentioned_people.forEach(person => {
-            if (!person || !person.name) return;
-            const safeName = escapeRegExp(person.name.trim());
-            const pattern = new RegExp(`@${safeName}\\b`, 'gi');
-            displayHtml = displayHtml.replace(pattern, ` <span class="mentioned-person" data-person-id="${person.id}">@${person.name}</span>`);
-          });
-        } else {
-          displayHtml = displayHtml.replace(/@([A-Za-z0-9_\-]+)\b/g, '<span class="mentioned-person" data-person-name="$1">@$1</span>');
-        }
-
-        notesDisplay.innerHTML = displayHtml || '<div class="text-muted">No notes</div>';
-        notesTextarea.style.display = 'none';
-        // Attach click handlers to mentions inside modal
-        notesDisplay.querySelectorAll('.mentioned-person').forEach(el => {
-          el.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const pid = el.dataset.personId;
-            const pname = el.dataset.personName || el.textContent.replace(/^@/, '').trim();
-            if (pid) return openPersonViewModal(pid);
-            const person = allPeople.find(p => String(p.name).trim().toLowerCase() === String(pname).toLowerCase());
-            if (person) openPersonViewModal(person);
-          });
+      // Build processed notes HTML (convert mentions to clickable spans)
+      let displayHtml = escapeHtml(opportunity.notes || '');
+      if (opportunity.mentioned_people && Array.isArray(opportunity.mentioned_people)) {
+        opportunity.mentioned_people.forEach(person => {
+          if (!person || !person.name) return;
+          const safeName = escapeRegExp(person.name.trim());
+          const pattern = new RegExp(`@${safeName}\\b`, 'gi');
+          displayHtml = displayHtml.replace(pattern, ` <span class="mentioned-person" data-person-id="${person.id}">@${person.name}</span>`);
         });
+      } else {
+        displayHtml = displayHtml.replace(/@([A-Za-z0-9_\-]+)\b/g, '<span class="mentioned-person" data-person-name="$1">@$1</span>');
+      }
+
+      notesDisplay.innerHTML = displayHtml || '<div class="text-muted">No notes</div>';
+      notesTextarea.style.display = 'none';
+      // Attach click handlers to mentions inside modal
+      notesDisplay.querySelectorAll('.mentioned-person').forEach(el => {
+        el.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const pid = el.dataset.personId;
+          const pname = el.dataset.personName || el.textContent.replace(/^@/, '').trim();
+          if (pid) return openPersonViewModal(pid);
+          const person = allPeople.find(p => String(p.name).trim().toLowerCase() === String(pname).toLowerCase());
+          if (person) openPersonViewModal(person);
+        });
+      });
     } else {
       document.querySelectorAll('#opportunity-modal input, #opportunity-modal select, #opportunity-modal textarea').forEach(el => {
         el.disabled = false;
@@ -7701,7 +7709,7 @@ window.exportVisitsToCSV = function () {
   const headers = ['Date', 'Company', 'Sales Rep', 'Visit Type', 'Contact', 'Lead Score', 'Notes', 'Location Verified'];
   const pref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
   const rows = visits.map(v => [
-    pref === 'MM/DD/YYYY' ? (new Date(v.created_at) instanceof Date ? `${String(new Date(v.created_at).getMonth()+1).padStart(2,'0')}/${String(new Date(v.created_at).getDate()).padStart(2,'0')}/${new Date(v.created_at).getFullYear()}` : '') : formatDateDDMMYYYY(v.created_at),
+    pref === 'MM/DD/YYYY' ? (new Date(v.created_at) instanceof Date ? `${String(new Date(v.created_at).getMonth() + 1).padStart(2, '0')}/${String(new Date(v.created_at).getDate()).padStart(2, '0')}/${new Date(v.created_at).getFullYear()}` : '') : formatDateDDMMYYYY(v.created_at),
     v.company_name || '',
     v.user ? `${v.user.first_name} ${v.user.last_name}` : '',
     v.visit_type || '',
@@ -7866,7 +7874,7 @@ async function generateVisitPDF(visitId) {
     doc.setTextColor(...colors.dark);
     const pdfDatePref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
     const created = new Date(visit.created_at);
-    const createdDateStr = pdfDatePref === 'MM/DD/YYYY' ? `${String(created.getMonth()+1).padStart(2,'0')}/${String(created.getDate()).padStart(2,'0')}/${created.getFullYear()}` : `${String(created.getDate()).padStart(2,'0')}/${String(created.getMonth()+1).padStart(2,'0')}/${created.getFullYear()}`;
+    const createdDateStr = pdfDatePref === 'MM/DD/YYYY' ? `${String(created.getMonth() + 1).padStart(2, '0')}/${String(created.getDate()).padStart(2, '0')}/${created.getFullYear()}` : `${String(created.getDate()).padStart(2, '0')}/${String(created.getMonth() + 1).padStart(2, '0')}/${created.getFullYear()}`;
     doc.text(`${createdDateStr} ${created.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, 50, yPos + 14);
     yPos += 30;
 
@@ -12869,10 +12877,10 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
  * @param {number} radiusMeters
  * @returns {string}
  */
-function buildOverpassQuery(lat, lon, radiusMeters, types = ['shop','office']) {
+function buildOverpassQuery(lat, lon, radiusMeters, types = ['shop', 'office']) {
   // types is an array of tag keys to search for (e.g. ['shop','office'])
   const clauses = [];
-  const tagKeys = Array.isArray(types) && types.length > 0 ? types : ['shop','office'];
+  const tagKeys = Array.isArray(types) && types.length > 0 ? types : ['shop', 'office'];
 
   for (const t of tagKeys) {
     // Search nodes and ways where the tag exists and has a name
@@ -12895,7 +12903,7 @@ function buildOverpassQuery(lat, lon, radiusMeters, types = ['shop','office']) {
  * @param {number} radiusMeters
  * @returns {Promise<Array>} array of { id, name, lat, lon, tags, distance, displayName }
  */
-async function searchNearbyOverpass(lat, lon, radiusMeters = 2000, types = ['shop','office']) {
+async function searchNearbyOverpass(lat, lon, radiusMeters = 2000, types = ['shop', 'office']) {
   const query = buildOverpassQuery(lat, lon, radiusMeters, types);
   const endpoints = [
     'https://overpass-api.de/api/interpreter',
@@ -15863,14 +15871,14 @@ async function generateTechnicianVisitPDF(visitId) {
     doc.setTextColor(...colors.dark);
     const pdfDatePref2 = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
     const created2 = new Date(visit.created_at);
-    const createdDateStr2 = pdfDatePref2 === 'MM/DD/YYYY' ? `${String(created2.getMonth()+1).padStart(2,'0')}/${String(created2.getDate()).padStart(2,'0')}/${created2.getFullYear()}` : `${String(created2.getDate()).padStart(2,'0')}/${String(created2.getMonth()+1).padStart(2,'0')}/${created2.getFullYear()}`;
+    const createdDateStr2 = pdfDatePref2 === 'MM/DD/YYYY' ? `${String(created2.getMonth() + 1).padStart(2, '0')}/${String(created2.getDate()).padStart(2, '0')}/${created2.getFullYear()}` : `${String(created2.getDate()).padStart(2, '0')}/${String(created2.getMonth() + 1).padStart(2, '0')}/${created2.getFullYear()}`;
     doc.text(`${createdDateStr2} ${created2.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, 53, yPos + 14);
 
     doc.setTextColor(100, 100, 100);
     doc.text('GENERATED:', 25, yPos + 21);
     doc.setTextColor(...colors.dark);
     const now = new Date();
-    const nowDateStr = pdfDatePref2 === 'MM/DD/YYYY' ? `${String(now.getMonth()+1).padStart(2,'0')}/${String(now.getDate()).padStart(2,'0')}/${now.getFullYear()}` : `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+    const nowDateStr = pdfDatePref2 === 'MM/DD/YYYY' ? `${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}/${now.getFullYear()}` : `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
     doc.text(`${nowDateStr} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`, 53, yPos + 21);
 
     yPos += 35;
@@ -18915,30 +18923,88 @@ async function openCompanyViewModal(companyOrId) {
     }
   }
 
-  // Header / title
-  document.getElementById('company-view-modal-title').textContent = company.name || 'Company';
+  // ── Populate Hero Section ──
+  const heroTitle = document.getElementById('company-view-modal-title');
+  if (heroTitle) heroTitle.textContent = company.name || 'Company';
 
-  // Left summary is intentionally minimal — activity tabs below will show records
-  // show a temporary placeholder while we load related records
-  document.getElementById('company-view-summary').innerHTML = '<div class="text-muted">Loading summary…</div>';
+  // Hero Avatar (logo or initials)
+  const heroAvatar = document.getElementById('company-view-hero-avatar');
+  if (heroAvatar) {
+    const initials = getInitials(company.name || 'C');
+    const resolvedLogoUrl = company.logo_url || getCompanyLogoUrl(company.domain || '');
+    heroAvatar.innerHTML = `<span style="position:relative;z-index:1">${initials}</span>${resolvedLogoUrl ? `<img src="${resolvedLogoUrl}" alt="${escapeHtml(company.name || '')}" onload="this.style.display='block';this.previousElementSibling.style.display='none'" onerror="this.style.display='none'" />` : ''}`;
+  }
 
-  // Populate right-hand Details sidebar fields (only existing data). Name and Type are shown in the left summary.
-  const addressEl = document.getElementById('company-view-address'); if (addressEl) addressEl.textContent = company.address || '—';
-  const coordsEl = document.getElementById('company-view-coordinates'); if (coordsEl) coordsEl.textContent = (company.latitude && company.longitude) ? `${company.latitude.toFixed(6)}, ${company.longitude.toFixed(6)}` : '—';
-  const descEl = document.getElementById('company-view-desc'); if (descEl) descEl.textContent = company.description || '—';
-  const catsEl = document.getElementById('company-view-categories'); if (catsEl) catsEl.textContent = (company.company_categories && company.company_categories.length) ? company.company_categories.map(c => c.categories.name).join(', ') : '—';
-  const domainEl = document.getElementById('company-view-domain');
-  if (domainEl) {
+  // Hero type badge
+  const heroBadge = document.getElementById('company-view-hero-type');
+  if (heroBadge) {
+    if (company.company_type) {
+      heroBadge.textContent = company.company_type;
+      heroBadge.style.display = 'inline-flex';
+    } else {
+      heroBadge.style.display = 'none';
+    }
+  }
+
+  // Hero domain link
+  const heroDomain = document.getElementById('company-view-hero-domain');
+  if (heroDomain) {
     const rawDomain = company.domain ? String(company.domain).trim() : '';
     if (rawDomain) {
       let url = rawDomain;
-      // If user entered just the domain, ensure it has a protocol
       if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-      // Escape for safety when inserting
       const safeUrl = url.replace(/"/g, '&quot;');
-      domainEl.innerHTML = `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${rawDomain}</a>`;
+      const displayDomain = rawDomain.replace(/^https?:\/\//i, '').replace(/^www\./i, '');
+      heroDomain.innerHTML = `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(displayDomain)}<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:3px"><path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`;
+    } else {
+      heroDomain.innerHTML = '';
+    }
+  }
+
+  // Hero category chips
+  const heroCats = document.getElementById('company-view-hero-cats');
+  if (heroCats) {
+    const cats = (company.company_categories && company.company_categories.length)
+      ? company.company_categories.map(c => c.categories && c.categories.name ? c.categories.name : (c.name || '')).filter(Boolean)
+      : [];
+    heroCats.innerHTML = cats.map(cat => `<span class="record-hero-cat-chip">${escapeHtml(cat)}</span>`).join('');
+  }
+
+  // Wire Edit button
+  const editBtn = document.getElementById('company-view-edit-btn');
+  if (editBtn) {
+    editBtn.onclick = () => {
+      closeModal('company-view-modal');
+      setTimeout(() => openCompanyModal(company), 100);
+    };
+  }
+
+  // ── Populate Sidebar Fields ──
+  const addressEl = document.getElementById('company-view-address'); if (addressEl) addressEl.textContent = company.address || '—';
+  const coordsEl = document.getElementById('company-view-coordinates'); if (coordsEl) coordsEl.textContent = (company.latitude && company.longitude) ? `${company.latitude.toFixed(6)}, ${company.longitude.toFixed(6)}` : '—';
+  const descEl = document.getElementById('company-view-desc'); if (descEl) descEl.textContent = company.description || '—';
+  const catsEl = document.getElementById('company-view-categories');
+  if (catsEl) {
+    const catNames = (company.company_categories && company.company_categories.length)
+      ? company.company_categories.map(c => c.categories && c.categories.name ? c.categories.name : (c.name || '')).filter(Boolean)
+      : [];
+    catsEl.innerHTML = catNames.length ? catNames.map(n => `<span class="record-hero-cat-chip">${escapeHtml(n)}</span>`).join(' ') : '—';
+  }
+
+  // Domain in sidebar (show/hide card)
+  const domainEl = document.getElementById('company-view-domain');
+  const domainCard = document.getElementById('company-view-domain-card');
+  if (domainEl) {
+    const rawDomainSidebar = company.domain ? String(company.domain).trim() : '';
+    if (rawDomainSidebar) {
+      let url2 = rawDomainSidebar;
+      if (!/^https?:\/\//i.test(url2)) url2 = 'https://' + url2;
+      const safeUrl2 = url2.replace(/"/g, '&quot;');
+      domainEl.innerHTML = `<a href="${safeUrl2}" target="_blank" rel="noopener noreferrer">${rawDomainSidebar}</a>`;
+      if (domainCard) domainCard.style.display = 'flex';
     } else {
       domainEl.textContent = '—';
+      if (domainCard) domainCard.style.display = 'none';
     }
   }
 
@@ -18950,9 +19016,10 @@ async function openCompanyViewModal(companyOrId) {
       const safiBtn = document.createElement('button');
       safiBtn.type = 'button';
       safiBtn.id = 'company-view-safifind-btn';
-      safiBtn.className = 'btn btn-primary';
+      safiBtn.className = 'record-hero-edit-btn';
+      safiBtn.style.cssText = 'background:linear-gradient(135deg,var(--color-primary),#6366f1);color:#fff;border-color:transparent;';
       safiBtn.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-helicopter-icon lucide-helicopter"><path d="M11 17v4"/><path d="M14 3v8a2 2 0 0 0 2 2h5.865"/><path d="M17 17v4"/><path d="M18 17a4 4 0 0 0 4-4 8 6 0 0 0-8-6 6 5 0 0 0-6 5v3a2 2 0 0 0 2 2z"/><path d="M2 10v5"/><path d="M6 3h16"/><path d="M7 21h14"/><path d="M8 13H2"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17v4"/><path d="M14 3v8a2 2 0 0 0 2 2h5.865"/><path d="M17 17v4"/><path d="M18 17a4 4 0 0 0 4-4 8 6 0 0 0-8-6 6 5 0 0 0-6 5v3a2 2 0 0 0 2 2z"/><path d="M2 10v5"/><path d="M6 3h16"/><path d="M7 21h14"/><path d="M8 13H2"/></svg>
         SafiFind`;
 
       headerActions.appendChild(safiBtn);
@@ -19006,7 +19073,7 @@ async function openCompanyViewModal(companyOrId) {
           const lon = parseFloat(safiModal.dataset.lon || safiModal.querySelector('#safifind-lon')?.value);
           const radius = parseInt(safiModal.querySelector('#safifind-radius').value) || 2000;
           const filterVal = (safiModal.querySelector('#safifind-filter')?.value) || 'both';
-          const types = filterVal === 'both' ? ['shop','office'] : [filterVal];
+          const types = filterVal === 'both' ? ['shop', 'office'] : [filterVal];
 
           if (isNaN(lat) || isNaN(lon)) {
             showToast('Please provide coordinates to search around.', 'error');
@@ -19037,15 +19104,13 @@ async function openCompanyViewModal(companyOrId) {
     console.warn('Failed to wire SafiFind modal', e);
   }
 
-  // Populate right-hand Details sidebar fields (only existing data)
-
 
   // Loading placeholders for tabs
-  document.getElementById('company-view-opps').innerHTML = '<div class="text-center p-6">Loading opportunities...</div>';
+  document.getElementById('company-view-opps').innerHTML = '<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="record-empty-title">Loading...</div></div>';
   const employeesContainer = document.getElementById('company-view-employees');
-  if (employeesContainer) employeesContainer.innerHTML = '<div class="text-center p-6">Loading employees...</div>';
-  document.getElementById('company-view-calls').innerHTML = '<div class="text-center p-6">Loading call logs...</div>';
-  document.getElementById('company-view-visits').innerHTML = '<div class="text-center p-6">Loading recent visits...</div>';
+  if (employeesContainer) employeesContainer.innerHTML = '<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="record-empty-title">Loading...</div></div>';
+  document.getElementById('company-view-calls').innerHTML = '<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19"/></svg></div><div class="record-empty-title">Loading...</div></div>';
+  document.getElementById('company-view-visits').innerHTML = '<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg></div><div class="record-empty-title">Loading...</div></div>';
 
   modal.style.display = 'flex';
 
@@ -19091,9 +19156,9 @@ async function openCompanyViewModal(companyOrId) {
   const visits = (dedupeById([...(visitsById.data || []), ...(visitsByName.data || [])]) || []).slice(0, 10);
   console.debug('openCompanyViewModal called for company', { id: company.id, name: company.name });
   const peopleFromWindow = Array.isArray(window.allPeopleData) ? (window.allPeopleData.filter(p => String(p.company_id || '') === String(company.id) || String((p.company_name || '')).trim() === String((company.name || '')).trim())) : [];
-  
+
   let employees = dedupeById([...(peopleFromWindow || []), ...(peopleById.data || []), ...(peopleByName.data || [])]);
-  
+
 
   // If the combined list is empty, try a more forgiving fallback query
   if ((!employees || employees.length === 0) && typeof supabaseClient !== 'undefined') {
@@ -19110,7 +19175,7 @@ async function openCompanyViewModal(companyOrId) {
   }
 
   // Render a richer summary area with avatar, key stats and actions
-    try {
+  try {
     const summaryEl = document.getElementById('company-view-summary');
     if (summaryEl) {
       const resolvedLogoUrl = company.logo_url || getCompanyLogoUrl(company.domain || '');
@@ -19156,28 +19221,33 @@ async function openCompanyViewModal(companyOrId) {
   } catch (e) {
     crmDebugLog('company-view-summary-render-error', e);
   }
-  
 
-  // Render Opportunities tab (clean card list)
+
+  // Render Opportunities tab (premium cards)
   const oppsEl = document.getElementById('company-view-opps');
   if (!opportunities || opportunities.length === 0) {
-    oppsEl.innerHTML = '<div class="empty-state"><p class="empty-state-title">No opportunities linked</p><p class="text-muted">This company is not linked to any active opportunities.</p></div>';
+    oppsEl.innerHTML = `<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="record-empty-title">No opportunities linked</div><div class="record-empty-desc">This company is not linked to any active opportunities yet.</div></div>`;
   } else {
-    oppsEl.innerHTML = `
-      <div class="company-opps-list">
-        ${opportunities.map(opp => `
-          <div class="company-opp" data-id="${opp.id}">
-            <div class="company-opp-main">
-              <div class="company-opp-title">${escapeHtml(opp.name || '—')}</div>
-              <div class="company-opp-meta text-muted">${escapeHtml(opp.stage || '—')} • Ksh ${parseFloat(opp.value || 0).toLocaleString()} • ${opp.probability || 0}%</div>
-            </div>
-            <div class="company-opp-actions">
-              <button class="btn btn-sm btn-ghost view-opportunity" data-id="${opp.id}">View</button>
+    const stageColors = { prospecting: '#6366f1', qualification: '#f59e0b', proposal: '#3b82f6', negotiation: '#f97316', won: '#22c55e', lost: '#ef4444' };
+    oppsEl.innerHTML = opportunities.map(opp => {
+      const stageKey = (opp.stage || '').toLowerCase();
+      const stageColor = stageColors[stageKey] || 'var(--color-primary)';
+      const val = parseFloat(opp.value || 0);
+      return `
+        <div class="record-opp-card" data-id="${opp.id}">
+          <div class="record-opp-card-stage" style="background:${stageColor}"></div>
+          <div class="record-opp-card-body">
+            <div class="record-opp-card-name">${escapeHtml(opp.name || '—')}</div>
+            <div class="record-opp-card-meta">
+              <span class="stage-pill" style="background:${stageColor}1a;color:${stageColor};border-color:${stageColor}40">${escapeHtml(opp.stage || '—')}</span>
+              <span>${opp.probability || 0}% probability</span>
             </div>
           </div>
-        `).join('')}
-      </div>
-    `;
+          <div class="record-opp-card-value">Ksh ${val.toLocaleString()}</div>
+          <div class="record-opp-card-action"><button class="btn btn-sm btn-ghost view-opportunity" data-id="${opp.id}">View</button></div>
+        </div>
+      `;
+    }).join('');
 
     // Attach view handlers
     oppsEl.querySelectorAll('.view-opportunity').forEach(btn => {
@@ -19194,28 +19264,30 @@ async function openCompanyViewModal(companyOrId) {
     });
   }
 
-  // Render Call Logs tab (compact list)
+  // Render Call Logs tab (premium rows)
   const callsEl = document.getElementById('company-view-calls');
   if (!calls || calls.length === 0) {
-    callsEl.innerHTML = '<div class="empty-state"><p class="empty-state-title">No call logs</p><p class="text-muted">No call records found for this company.</p></div>';
+    callsEl.innerHTML = `<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg></div><div class="record-empty-title">No call logs</div><div class="record-empty-desc">No call records found for this company.</div></div>`;
   } else {
-    callsEl.innerHTML = `
-      <div class="company-call-list">
-        ${calls.map(log => `
-          <div class="call-item" data-id="${log.id}">
-            <div class="call-item-left">
-              <div class="call-item-date">${formatDateWithTime(log.call_at)}</div>
-              <div class="call-item-contact text-muted">${escapeHtml(log.people ? (log.people.name || '') : (log.contact_name || 'N/A'))}</div>
-            </div>
-            <div class="call-item-mid text-muted">${escapeHtml(log.profiles ? `${log.profiles.first_name} ${log.profiles.last_name}` : 'N/A')}</div>
-            <div class="call-item-right">
-              <div class="outcome-badge-small">${escapeHtml(log.outcome || 'N/A')}</div>
-              <button class="btn btn-sm btn-ghost view-call-log" data-id="${log.id}">View</button>
-            </div>
+    callsEl.innerHTML = calls.map(log => {
+      const isInbound = (log.direction || '').toLowerCase() === 'inbound';
+      const phoneIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3"/></svg>`;
+      const contactName = escapeHtml(log.people ? (log.people.name || '') : (log.contact_name || 'Unknown'));
+      const repName = escapeHtml(log.profiles ? `${log.profiles.first_name || ''} ${log.profiles.last_name || ''}`.trim() : '');
+      return `
+        <div class="record-call-row" data-id="${log.id}">
+          <div class="record-call-icon${isInbound ? ' record-call-icon--inbound' : ''}">${phoneIcon}</div>
+          <div class="record-call-body">
+            <div class="record-call-contact">${contactName}</div>
+            <div class="record-call-meta">${formatDateWithTime(log.call_at)}${repName ? ` · ${repName}` : ''}</div>
           </div>
-        `).join('')}
-      </div>
-    `;
+          <div class="record-call-right">
+            <span class="record-call-outcome-pill">${escapeHtml(log.outcome || 'N/A')}</span>
+            <button class="btn btn-sm btn-ghost view-call-log" data-id="${log.id}">View</button>
+          </div>
+        </div>
+      `;
+    }).join('');
 
     callsEl.querySelectorAll('.view-call-log').forEach(btn => {
       btn.addEventListener('click', (e) => {
@@ -19230,27 +19302,26 @@ async function openCompanyViewModal(companyOrId) {
     });
   }
 
-  // Render Recent Visits tab
+  // Render Recent Visits tab (premium rows)
   const visitsEl = document.getElementById('company-view-visits');
   if (!visits || visits.length === 0) {
-    visitsEl.innerHTML = '<div class="empty-state"><p class="empty-state-title">No recent visits</p><p class="text-muted">No visits recorded for this company.</p></div>';
+    visitsEl.innerHTML = `<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="record-empty-title">No recent visits</div><div class="record-empty-desc">No visits have been recorded for this company yet.</div></div>`;
   } else {
-    visitsEl.innerHTML = `
-      <div class="company-visits-list">
-        ${visits.map(v => `
-          <div class="visit-card" data-id="${v.id}">
-            <div class="visit-main">
-              <div class="visit-title">${escapeHtml(v.contact_name || v.visit_type || '')}</div>
-              <div class="visit-meta text-muted">${escapeHtml(v.visit_type || '')} • ${formatDate(v.created_at)}</div>
-              <div class="visit-notes text-clamp-2">${escapeHtml(v.notes || '')}</div>
-            </div>
-            <div class="visit-actions">
-              <button class="btn btn-sm btn-ghost view-visit" data-id="${v.id}">View</button>
-            </div>
+    const pinSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
+    visitsEl.innerHTML = visits.map(v => {
+      const repName = v.user ? `${v.user.first_name || ''} ${v.user.last_name || ''}`.trim() : '';
+      return `
+        <div class="record-visit-row" data-id="${v.id}">
+          <div class="record-visit-dot">${pinSvg}</div>
+          <div class="record-visit-body">
+            <div class="record-visit-type">${escapeHtml(v.contact_name || v.visit_type || 'Visit')}</div>
+            <div class="record-visit-meta">${escapeHtml(v.visit_type || '')} · ${formatDate(v.created_at)}${repName ? ` · ${repName}` : ''}</div>
+            ${v.notes ? `<div class="record-visit-notes">${escapeHtml(v.notes)}</div>` : ''}
           </div>
-        `).join('')}
-      </div>
-    `;
+          <div class="record-visit-action"><button class="btn btn-sm btn-ghost view-visit" data-id="${v.id}">View</button></div>
+        </div>
+      `;
+    }).join('');
 
     // Attach visit view handlers
     visitsEl.querySelectorAll('.view-visit').forEach(btn => {
@@ -19263,32 +19334,27 @@ async function openCompanyViewModal(companyOrId) {
     });
   }
 
-  // Re-create icons inside modal
-  // Render Employees tab (if present)
+  // Render Employees tab (premium rows)
   try {
     const employeesEl = document.getElementById('company-view-employees');
     if (employeesEl) {
       if (!employees || employees.length === 0) {
-        employeesEl.innerHTML = '<div class="empty-state"><p class="empty-state-title">No employees</p><p class="text-muted">No people are linked to this company yet.</p></div>';
+        employeesEl.innerHTML = `<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="record-empty-title">No people linked</div><div class="record-empty-desc">No contacts are linked to this company yet.</div></div>`;
       } else {
-        employeesEl.innerHTML = `
-          <div class="company-employees-list">
-            ${employees.map(p => `
-              <div class="company-employee" data-id="${p.id}">
-                <div class="employee-left">
-                  <div class="mention-avatar">${getInitials(p.name || (p.first_name ? `${p.first_name} ${p.last_name}` : ''))}</div>
-                </div>
-                <div class="employee-main">
-                  <div class="employee-name">${escapeHtml(p.name || (p.first_name ? `${p.first_name} ${p.last_name}` : '—'))}</div>
-                  <div class="employee-role text-muted">${escapeHtml(p.job_title || p.role || '—')}</div>
-                </div>
-                <div class="employee-actions">
-                  <button class="btn btn-sm btn-ghost view-employee" data-id="${p.id}">View</button>
-                </div>
+        employeesEl.innerHTML = employees.map(p => {
+          const fullName = escapeHtml(p.name || (p.first_name ? `${p.first_name} ${p.last_name}` : '—'));
+          const initials = getInitials(p.name || (p.first_name ? `${p.first_name} ${p.last_name}` : ''));
+          return `
+            <div class="record-employee-row" data-id="${p.id}">
+              <div class="record-employee-avatar">${initials}</div>
+              <div class="record-employee-body">
+                <div class="record-employee-name">${fullName}</div>
+                <div class="record-employee-role">${escapeHtml(p.job_title || p.role || '—')}</div>
               </div>
-            `).join('')}
-          </div>
-        `;
+              <div class="record-employee-action"><button class="btn btn-sm btn-ghost view-employee" data-id="${p.id}">View</button></div>
+            </div>
+          `;
+        }).join('');
 
         employeesEl.querySelectorAll('.view-employee').forEach(btn => {
           btn.addEventListener('click', (e) => {
@@ -19299,7 +19365,6 @@ async function openCompanyViewModal(companyOrId) {
               closeModal('company-view-modal');
               openPersonViewModal(personObj);
             } else {
-              // person not found in employees array, falling back to id fetch
               closeModal('company-view-modal');
               openPersonViewModal(id);
             }
