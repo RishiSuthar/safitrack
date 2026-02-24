@@ -98,7 +98,7 @@ const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
 const sidebarClose = document.getElementById('sidebar-close');
 const userMenu = document.getElementById('user-menu');
 const userAvatarBtn = document.getElementById('user-avatar-btn');
-const themeToggle = document.getElementById('theme-toggle');
+// const themeToggle = document.getElementById('theme-toggle');
 const commandPaletteBtn = document.getElementById('command-palette-btn');
 const commandPalette = document.getElementById('command-palette');
 const logoutBtn = document.getElementById('logout-btn');
@@ -639,9 +639,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initTheme() {
-  const savedTheme = localStorage.getItem('theme') || 'dark';
+  const savedTheme = localStorage.getItem('safitrack_theme') || localStorage.getItem('theme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
-  updateThemeIcon(savedTheme);
 }
 
 function initAuth() {
@@ -776,7 +775,7 @@ function initEventListeners() {
   });
 
   // Theme toggle
-  themeToggle?.addEventListener('click', toggleTheme);
+  // themeToggle?.addEventListener('click', toggleTheme);
 
   // Command palette
   commandPaletteBtn?.addEventListener('click', openCommandPalette);
@@ -1286,14 +1285,15 @@ async function loadView(viewName) {
 async function renderSettingsView() {
   const dateFormatPref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
   const emailNotifPref = (localStorage.getItem('safitrack_email_notifs') || 'true') === 'true';
-  function escH(s) { return (s || '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+  const currentTheme = localStorage.getItem('safitrack_theme') || localStorage.getItem('theme') || 'dark';
+  function escH(s) { return (s || '').toString().replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
   const firstNameEsc = escH((currentUserProfile && currentUserProfile.first_name) ? currentUserProfile.first_name : '');
-  const lastNameEsc  = escH((currentUserProfile && currentUserProfile.last_name)  ? currentUserProfile.last_name  : '');
+  const lastNameEsc = escH((currentUserProfile && currentUserProfile.last_name) ? currentUserProfile.last_name : '');
   const userEmailEsc = escH((currentUser && currentUser.email) ? currentUser.email : '');
-  const roleEsc     = escH((currentUserProfile && currentUserProfile.role) ? currentUserProfile.role : 'User');
-  const initials    = ((firstNameEsc?firstNameEsc[0]:'') + (lastNameEsc?lastNameEsc[0]:'')).toUpperCase() || (userEmailEsc?userEmailEsc[0].toUpperCase():'U');
-  const fullName    = [firstNameEsc, lastNameEsc].filter(Boolean).join(' ') || 'Your Name';
+  const roleEsc = escH((currentUserProfile && currentUserProfile.role) ? currentUserProfile.role : 'User');
+  const initials = ((firstNameEsc ? firstNameEsc[0] : '') + (lastNameEsc ? lastNameEsc[0] : '')).toUpperCase() || (userEmailEsc ? userEmailEsc[0].toUpperCase() : 'U');
+  const fullName = [firstNameEsc, lastNameEsc].filter(Boolean).join(' ') || 'Your Name';
 
   viewContainer.innerHTML = `
     <div class="sv-root">
@@ -1308,13 +1308,19 @@ async function renderSettingsView() {
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile
           </button>
           <button class="sv-nav-item" data-section="preferences">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2m0 16v2m7.07-4.93l-1.41-1.41M4.93 19.07l1.41-1.41M22 12h-2M4 12H2"/></svg>Preferences
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>Appearance
           </button>
           <button class="sv-nav-item" data-section="notifications">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notifications
           </button>
-          <button class="sv-nav-item" data-section="organization">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>Organization
+        </div>
+        <div class="sv-nav-group">
+          <div class="sv-nav-group-label">Workspace</div>
+          <button class="sv-nav-item" data-section="members">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Members and teams
+          </button>
+          <button class="sv-nav-item" data-section="billing">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Billing
           </button>
         </div>
         <div class="sv-nav-group">
@@ -1326,11 +1332,12 @@ async function renderSettingsView() {
       </nav>
 
       <main class="sv-content">
+        <!-- Profile -->
         <section class="sv-section" data-section="profile">
           <div class="sv-section-header">
             <div class="sv-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
             <div style="flex:1"><h2 class="sv-section-title">Profile</h2><p class="sv-section-desc">Your personal information used across the workspace.</p></div>
-            <button id="save-settings-btn" class="sv-save-btn">Save changes</button>
+            <div id="profile-save-status" style="font-size: 0.8rem; color: var(--text-muted); display:flex; align-items:center; gap: 6px; opacity: 0; transition: opacity 0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" style="width:14px;height:14px;"><path d="M20 6L9 17l-5-5"></path></svg>Saved</div>
           </div>
           <div class="sv-avatar-card">
             <div class="sv-profile-avatar">${initials}</div>
@@ -1351,25 +1358,98 @@ async function renderSettingsView() {
           </div>
         </section>
 
+        <!-- Appearance -->
         <section class="sv-section" data-section="preferences" style="display:none;">
           <div class="sv-section-header">
-            <div class="sv-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93l-1.41 1.41M4.93 4.93l1.41 1.41M12 2v2m0 16v2m7.07-4.93l-1.41-1.41M4.93 19.07l1.41-1.41M22 12h-2M4 12H2"/></svg></div>
-            <div style="flex:1"><h2 class="sv-section-title">Preferences</h2><p class="sv-section-desc">Customize how data appears and how you interact with the system.</p></div>
-            <button id="save-settings-btn-pref" class="sv-save-btn">Save changes</button>
+            <div class="sv-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg></div>
+            <div style="flex:1"><h2 class="sv-section-title">Appearance</h2><p class="sv-section-desc">Customize how SafiTrack looks and formats data on your device.</p></div>
+            <div id="pref-save-status" style="font-size: 0.8rem; color: var(--text-muted); display:flex; align-items:center; gap: 6px; opacity: 0; transition: opacity 0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" style="width:14px;height:14px;"><path d="M20 6L9 17l-5-5"></path></svg>Saved</div>
           </div>
-          <div class="sv-pref-group">
-            <div class="sv-pref-label"><div class="sv-pref-label-title">Date format</div><div class="sv-pref-label-desc">How dates are displayed throughout the app.</div></div>
-            <div class="sv-segmented">
-              <button class="sv-seg-btn ${dateFormatPref==='DD/MM/YYYY'?'sv-seg-active':''}" data-value="DD/MM/YYYY">DD/MM/YYYY<span class="sv-seg-example">21/09/2026</span></button>
-              <button class="sv-seg-btn ${dateFormatPref==='MM/DD/YYYY'?'sv-seg-active':''}" data-value="MM/DD/YYYY">MM/DD/YYYY<span class="sv-seg-example">09/21/2026</span></button>
+          <div style="margin-bottom:24px; border-bottom:1px solid var(--border-color); padding-bottom: 24px;">
+            <div style="margin-bottom:16px;">
+              <div style="font-size:0.875rem;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Theme</div>
+              <div style="font-size:0.8rem;color:var(--text-muted);line-height:1.45;">Select a theme to personalize your platform's appearance</div>
+            </div>
+            <div class="sv-theme-cards sv-theme-segmented">
+              <button class="sv-theme-card ${currentTheme === 'light' ? 'active' : ''}" data-theme-val="light">
+                <div class="sv-theme-preview sv-preview-light">
+                   <div class="sv-mock-sidebar">
+                     <div class="sv-mock-line" style="width:40%"></div>
+                     <div class="sv-mock-line" style="width:60%;margin-top:6px;"></div>
+                     <div class="sv-mock-line" style="width:50%;margin-top:4px;"></div>
+                     <div class="sv-mock-line" style="width:70%;margin-top:4px;"></div>
+                   </div>
+                   <div class="sv-mock-content">
+                     <div class="sv-mock-table">
+                       <div class="sv-mock-row"></div><div class="sv-mock-row"></div><div class="sv-mock-row"></div>
+                     </div>
+                   </div>
+                </div>
+                <div class="sv-theme-label">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+                  Light
+                </div>
+              </button>
+              <button class="sv-theme-card ${currentTheme === 'dark' ? 'active' : ''}" data-theme-val="dark">
+                <div class="sv-theme-preview sv-preview-dark">
+                   <div class="sv-mock-sidebar">
+                     <div class="sv-mock-line" style="width:40%"></div>
+                     <div class="sv-mock-line" style="width:60%;margin-top:6px;"></div>
+                     <div class="sv-mock-line" style="width:50%;margin-top:4px;"></div>
+                     <div class="sv-mock-line" style="width:70%;margin-top:4px;"></div>
+                   </div>
+                   <div class="sv-mock-content">
+                     <div class="sv-mock-table">
+                       <div class="sv-mock-row"></div><div class="sv-mock-row"></div><div class="sv-mock-row"></div>
+                     </div>
+                   </div>
+                </div>
+                <div class="sv-theme-label">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                  Dark
+                </div>
+              </button>
+              <button class="sv-theme-card ${currentTheme === 'system' ? 'active' : ''}" data-theme-val="system">
+                <div class="sv-theme-preview sv-preview-system">
+                   <div class="sv-mock-half light-half">
+                     <div class="sv-mock-sidebar">
+                       <div class="sv-mock-line" style="width:40%"></div>
+                       <div class="sv-mock-line" style="width:60%;margin-top:6px;"></div>
+                       <div class="sv-mock-line" style="width:50%;margin-top:4px;"></div>
+                       <div class="sv-mock-line" style="width:70%;margin-top:4px;"></div>
+                     </div>
+                     <div class="sv-mock-content" style="border-right:none;border-radius:4px 0 0 4px;">
+                       <div class="sv-mock-table">
+                         <div class="sv-mock-row"></div><div class="sv-mock-row"></div><div class="sv-mock-row"></div>
+                       </div>
+                     </div>
+                   </div>
+                   <div class="sv-mock-half dark-half" style="border-left: 1px solid var(--border-color)">
+                     <div class="sv-mock-sidebar" style="border-left:none; opacity: 0; padding:0; width:0; margin:0;"></div>
+                     <div class="sv-mock-content" style="margin-left:0;border-left:none;border-radius:0 4px 4px 0;">
+                       <div class="sv-mock-table">
+                         <div class="sv-mock-row"></div><div class="sv-mock-row"></div><div class="sv-mock-row"></div>
+                       </div>
+                     </div>
+                   </div>
+                </div>
+                <div class="sv-theme-label">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                  System
+                </div>
+              </button>
             </div>
           </div>
           <div class="sv-pref-group">
-            <div class="sv-pref-label"><div class="sv-pref-label-title">Theme</div><div class="sv-pref-label-desc">Toggle dark/light mode using the icon in the top header bar.</div></div>
-            <div class="sv-theme-info"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;flex-shrink:0;opacity:0.5"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/></svg>Use the moon/sun icon in the header.</div>
+            <div class="sv-pref-label"><div class="sv-pref-label-title">Date format</div><div class="sv-pref-label-desc">How dates are displayed throughout the app.</div></div>
+            <div class="sv-segmented sv-date-segmented">
+              <button class="sv-seg-btn ${dateFormatPref === 'DD/MM/YYYY' ? 'sv-seg-active' : ''}" data-value="DD/MM/YYYY">DD/MM/YYYY<span class="sv-seg-example">21/09/2026</span></button>
+              <button class="sv-seg-btn ${dateFormatPref === 'MM/DD/YYYY' ? 'sv-seg-active' : ''}" data-value="MM/DD/YYYY">MM/DD/YYYY<span class="sv-seg-example">09/21/2026</span></button>
+            </div>
           </div>
         </section>
 
+        <!-- Notifications -->
         <section class="sv-section" data-section="notifications" style="display:none;">
           <div class="sv-section-header">
             <div class="sv-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
@@ -1377,7 +1457,7 @@ async function renderSettingsView() {
           </div>
           <div class="sv-toggle-row">
             <div class="sv-toggle-info"><div class="sv-toggle-title">Email notifications</div><div class="sv-toggle-desc">Receive email summaries, activity updates, and important alerts.</div></div>
-            <label class="sv-toggle"><input id="pref-email-notifs" type="checkbox" ${emailNotifPref?'checked':''}><span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span></label>
+            <label class="sv-toggle"><input id="pref-email-notifs" type="checkbox" ${emailNotifPref ? 'checked' : ''}><span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span></label>
           </div>
           <div class="sv-toggle-row">
             <div class="sv-toggle-info"><div class="sv-toggle-title">Browser push notifications</div><div class="sv-toggle-desc">Get instant alerts for reminders and mentions directly in your browser.</div></div>
@@ -1385,24 +1465,76 @@ async function renderSettingsView() {
           </div>
         </section>
 
-        <section class="sv-section" data-section="organization" style="display:none;">
-          <div class="sv-section-header">
-            <div class="sv-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
-            <div><h2 class="sv-section-title">Organization</h2><p class="sv-section-desc">Workspace-level configuration and team settings.</p></div>
+        <!-- Members -->
+        <section class="sv-section" data-section="members" style="display:none; max-width: 900px;">
+          <div class="sv-section-header" style="margin-bottom:24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
+            <div style="flex:1">
+               <h2 class="sv-section-title" style="font-size: 1.25rem; letter-spacing: -0.01em; margin-bottom: 4px;">Members</h2>
+               <p class="sv-section-desc" style="font-size: 0.85rem;">Manage who has access to this workspace and their permission levels.</p>
+            </div>
+            <button class="sv-save-btn" style="display:flex; align-items:center; gap: 6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Invite member</button>
           </div>
-          <div class="sv-info-card">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:20px;height:20px;flex-shrink:0;color:var(--color-primary)"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            <div><div style="font-weight:700;margin-bottom:4px;">Managed at workspace level</div><div style="font-size:0.83rem;color:var(--text-muted);">Organization settings like billing, domains, and team members are managed at the workspace level. Contact your administrator to make changes.</div></div>
+          
+          <div class="sv-members-toolbar">
+            <div class="sv-search-input">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              <input type="text" placeholder="Search members by name or email..." id="sv-member-search">
+            </div>
+          </div>
+
+          <div class="sv-members-table-container">
+            <table class="sv-members-table">
+              <thead>
+                <tr>
+                  <th>Member</th>
+                  <th>Access level</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="sv-members-container">
+                <tr><td colspan="4" style="padding:40px;text-align:center;color:var(--text-muted);font-size:0.9rem;">Loading members...</td></tr>
+              </tbody>
+            </table>
           </div>
         </section>
 
+        <!-- Billing -->
+        <section class="sv-section" data-section="billing" style="display:none;">
+          <div class="sv-section-header">
+            <div class="sv-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+            <div><h2 class="sv-section-title">Billing</h2><p class="sv-section-desc">Manage your subscription, seats, and payment methods.</p></div>
+          </div>
+          
+          <div class="sv-billing-card">
+            <div class="sv-billing-header">
+              <div>
+                <div class="sv-billing-plan">Enterprise Plan</div>
+                <div class="sv-billing-cycle">Billed annually • Next invoice Sep 21, 2026</div>
+              </div>
+              <div class="sv-billing-amount">$499<span>/mo</span></div>
+            </div>
+            
+            <div class="sv-billing-usage">
+              <div class="sv-usage-labels"><span>Included Seats</span><span>12 / 15</span></div>
+              <div class="sv-usage-bar"><div class="sv-usage-fill" style="width:80%"></div></div>
+            </div>
+
+            <div class="sv-billing-actions">
+              <button class="sv-save-btn">Manage subscription</button>
+              <button class="sv-outline-btn">View invoices</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Danger Zone -->
         <section class="sv-section" data-section="danger" style="display:none;">
           <div class="sv-section-header">
             <div class="sv-section-icon sv-section-icon--danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
             <div><h2 class="sv-section-title sv-section-title--danger">Danger Zone</h2><p class="sv-section-desc">Irreversible and destructive actions. Proceed with extreme caution.</p></div>
           </div>
           <div class="sv-danger-row">
-            <div class="sv-danger-info"><div class="sv-danger-title">Export your data</div><div class="sv-danger-desc">Download a full copy of your personal data and activity records.</div></div>
+            <div class="sv-danger-info"><div class="sv-danger-title">Export your data</div><div class="sv-danger-desc">Download a full copy of your personal data and activity records as a JSON file.</div></div>
             <button id="export-data-btn" class="sv-outline-btn">Export data</button>
           </div>
           <div class="sv-danger-row sv-danger-row--critical">
@@ -1435,7 +1567,7 @@ async function renderSettingsView() {
       .sv-nav-item--danger:hover{background:rgba(239,68,68,.08)}
       .sv-nav-item--danger.active{background:rgba(239,68,68,.1);color:#ef4444!important}
       .sv-content{flex:1;min-width:0;overflow-y:auto;padding:32px 40px;background:var(--bg-secondary)}
-      .sv-section{display:block}
+      .sv-section{display:block; max-width: 800px;}
       .sv-section-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border-color)}
       .sv-section-icon{width:38px;height:38px;border-radius:9px;background:color-mix(in srgb,var(--color-primary) 12%,transparent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
       .sv-section-icon svg{width:18px;height:18px;stroke:var(--color-primary)}
@@ -1467,11 +1599,40 @@ async function renderSettingsView() {
       .sv-pref-label-title{font-size:.875rem;font-weight:700;color:var(--text-primary);margin-bottom:3px}
       .sv-pref-label-desc{font-size:.8rem;color:var(--text-muted);line-height:1.45}
       .sv-segmented{display:flex;border-radius:9px;border:1.5px solid var(--border-color);overflow:hidden;background:var(--bg-primary);flex-shrink:0}
-      .sv-seg-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 16px;border:none;background:transparent;font-size:.8rem;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:inherit;transition:background .12s,color .12s}
-      .sv-seg-btn+.sv-seg-btn{border-left:1.5px solid var(--border-color)}
+      .sv-seg-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 16px;border:none;background:transparent;font-size:.8rem;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:inherit;transition:background .12s,color .12s;min-width:96px}
+      .sv-seg-btn + .sv-seg-btn{border-left:1.5px solid var(--border-color)}
       .sv-seg-btn:hover{background:var(--bg-secondary);color:var(--text-primary)}
       .sv-seg-active{background:var(--color-primary)!important;color:#fff!important}
       .sv-seg-example{font-size:.65rem;font-weight:500;opacity:.7}
+      
+      .sv-theme-cards { display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; margin-top: 12px; }
+      .sv-theme-card { border: 1.5px solid var(--border-color); border-radius: 12px; background: transparent; padding: 0; cursor: pointer; overflow: hidden; transition: border-color 0.15s, box-shadow 0.15s; text-align: left; }
+      .sv-theme-card.active { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary); }
+      .sv-theme-preview { height: 110px; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); display:flex; padding: 12px 12px 0 12px; }
+      .sv-preview-dark { background: #111827; }
+      .sv-preview-system { background: linear-gradient(90deg, #ffffff 50%, #111827 50%); padding: 0; }
+      .sv-preview-light { background: #ffffff; }
+      .sv-preview-light .sv-mock-content { background: #f7f9fc; border-color: #e9ecf1; }
+      .sv-preview-light .sv-mock-sidebar { border-color: #e9ecf1; }
+      .sv-preview-light .sv-mock-table { background: #ffffff; border-color: rgba(0,0,0,0.05); }
+      .sv-preview-light .sv-mock-line { background: rgba(0,0,0,0.1); }
+      .sv-preview-light .sv-mock-row { background: rgba(0,0,0,0.03); }
+      .sv-mock-half { flex: 1; display:flex; padding: 12px 12px 0 12px; overflow:hidden;}
+      .sv-theme-label { padding: 12px; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); display:flex; align-items:center; justify-content:center; gap: 8px; background: var(--bg-primary); }
+      .sv-theme-label svg { width:16px; height:16px; }
+      .sv-theme-card:hover .sv-theme-label { color: var(--text-primary); }
+      .sv-mock-sidebar { width: 30px; border-right: 1px solid rgba(0,0,0,0.05); margin-right: 10px; padding-top: 4px; display:flex; flex-direction:column; }
+      .sv-mock-content { flex: 1; border: 1px solid rgba(0,0,0,0.05); border-bottom:none; border-radius: 4px 4px 0 0; background: var(--bg-secondary); padding: 8px; }
+      .sv-preview-dark .sv-mock-sidebar { border-color: rgba(255,255,255,0.05); }
+      .sv-preview-dark .sv-mock-content { border-color: rgba(255,255,255,0.05); background: #1f2937; }
+      .sv-mock-line { height: 2px; border-radius: 1px; background: rgba(0,0,0,0.1); }
+      .sv-preview-dark .sv-mock-line { background: rgba(255,255,255,0.1); }
+      .sv-mock-table { width: 100%; height: 100%; border: 1px solid rgba(0,0,0,0.05); border-radius: 2px; background: var(--bg-primary); padding: 4px; display:flex; flex-direction:column; gap: 4px; }
+      .sv-preview-dark .sv-mock-table { background: #111827; border-color: rgba(255,255,255,0.05); }
+      .sv-mock-row { height: 6px; border-radius: 1px; background: rgba(0,0,0,0.03); }
+      .sv-preview-dark .sv-mock-row { background: rgba(255,255,255,0.03); }
+      @media(max-width:768px){ .sv-theme-cards { grid-template-columns: 1fr; } }
+
       .sv-theme-info{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text-muted);padding:9px 12px;border-radius:8px;background:var(--bg-primary);border:1px solid var(--border-color);flex-shrink:0}
       .sv-toggle-row{display:flex;align-items:center;gap:20px;padding:18px 0;border-bottom:1px solid var(--border-color)}
       .sv-toggle-row:last-child{border-bottom:none}
@@ -1484,7 +1645,58 @@ async function renderSettingsView() {
       .sv-toggle input:checked+.sv-toggle-track{background:var(--color-primary)}
       .sv-toggle-thumb{position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .2s}
       .sv-toggle input:checked~.sv-toggle-track .sv-toggle-thumb{transform:translateX(19px)}
-      .sv-info-card{display:flex;align-items:flex-start;gap:12px;padding:16px 18px;border-radius:10px;background:color-mix(in srgb,var(--color-primary) 6%,transparent);border:1px solid color-mix(in srgb,var(--color-primary) 20%,transparent);font-size:.875rem;color:var(--text-secondary)}
+
+      /* Members Redesign */
+      .sv-members-toolbar { margin-bottom: 16px; }
+      .sv-search-input { position: relative; max-width: 340px; }
+      .sv-search-input svg { position: absolute; left: 12px; top: 10px; width: 16px; height: 16px; color: var(--text-muted); }
+      .sv-search-input input { width: 100%; padding: 9px 12px 9px 36px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 0.875rem; transition: border-color 0.15s, box-shadow 0.15s; outline: none; }
+      .sv-search-input input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 12%, transparent); }
+      
+      .sv-members-table-container { border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-primary); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+      .sv-members-table { width: 100%; border-collapse: collapse; text-align: left; }
+      .sv-members-table th { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 12px 16px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); }
+      .sv-members-table td { padding: 14px 16px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+      .sv-members-table tr:last-child td { border-bottom: none; }
+      .sv-members-table tbody tr { transition: background 0.15s; }
+      .sv-members-table tbody tr:hover { background: color-mix(in srgb, var(--bg-secondary) 50%, transparent); }
+      
+      .sv-member-cell { display: flex; align-items: center; gap: 12px; }
+      .sv-member-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary), #6366f1); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: #fff; flex-shrink: 0; }
+      .sv-member-avatar--alt { background: linear-gradient(135deg, #10b981, #059669); }
+      .sv-member-avatar--alt2 { background: linear-gradient(135deg, #f59e0b, #d97706); }
+      .sv-member-info { display: flex; flex-direction: column; }
+      .sv-member-name { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); display:flex; align-items:center; }
+      .sv-member-email { font-size: 0.8rem; color: var(--text-muted); margin-top: 1px; }
+      
+      .sv-role-select { -webkit-appearance: none; appearance: none; background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 4px 24px 4px 8px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: background 0.15s, border-color 0.15s; outline: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%237a8390" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>'); background-repeat: no-repeat; background-position: right 6px center; }
+      .sv-role-select:hover { background-color: var(--bg-secondary); border-color: var(--border-color); }
+      .sv-role-select:disabled { cursor: default; background-image: none; padding-right: 8px; }
+      
+      .sv-status-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); }
+      .sv-status-dot { width: 6px; height: 6px; border-radius: 50%; }
+      .sv-status-dot.active { background: #10b981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
+      .sv-status-dot.invited { background: #f59e0b; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2); }
+      
+      .sv-member-actions-cell { text-align: right; width: 60px; }
+      .sv-icon-btn { width: 32px; height: 32px; border-radius: 6px; border: none; background: transparent; color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s, color 0.15s; opacity: 0; }
+      .sv-members-table tbody tr:hover .sv-icon-btn { opacity: 1; }
+      .sv-icon-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+      .sv-icon-btn--danger:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+
+      /* Billing Card */
+      .sv-billing-card { border:1px solid var(--border-color); border-radius:12px; background:linear-gradient(to bottom right, var(--bg-primary), var(--bg-secondary)); padding:24px; box-shadow:0 4px 20px rgba(0,0,0,0.03); }
+      .sv-billing-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px;}
+      .sv-billing-plan { font-size:1.25rem; font-weight:800; color:var(--text-primary); margin-bottom:4px;}
+      .sv-billing-cycle { font-size:0.85rem; color:var(--text-muted); }
+      .sv-billing-amount { font-size:1.75rem; font-weight:800; color:var(--text-primary); line-height:1;}
+      .sv-billing-amount span { font-size:0.9rem; color:var(--text-muted); font-weight:500;}
+      .sv-billing-usage { margin-bottom:24px;}
+      .sv-usage-labels { display:flex; justify-content:space-between; font-size:0.8rem; font-weight:600; color:var(--text-secondary); margin-bottom:8px;}
+      .sv-usage-bar { height:6px; border-radius:100px; background:var(--border-color); overflow:hidden;}
+      .sv-usage-fill { height:100%; border-radius:100px; background:var(--color-primary);}
+      .sv-billing-actions { display:flex; gap:10px;}
+
       .sv-danger-row{display:flex;align-items:center;gap:20px;padding:18px 0;border-bottom:1px solid var(--border-color)}
       .sv-danger-row:last-child{border-bottom:none}
       .sv-danger-row--critical{padding:18px;border-radius:10px;background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.15);margin-top:8px}
@@ -1494,6 +1706,7 @@ async function renderSettingsView() {
       .sv-danger-desc{font-size:.8rem;color:var(--text-muted);line-height:1.45}
       .sv-delete-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1.5px solid rgba(239,68,68,.4);background:rgba(239,68,68,.08);color:#ef4444;font-size:.83rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s;white-space:nowrap}
       .sv-delete-btn:hover{background:#ef4444;color:#fff;border-color:#ef4444}
+      
       @media(max-width:768px){
         .sv-root{flex-direction:column}
         .sv-nav{width:100%;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;gap:4px;padding:10px 12px;border-right:none;border-bottom:1px solid var(--border-color)}
@@ -1504,6 +1717,7 @@ async function renderSettingsView() {
         .sv-fields-grid{grid-template-columns:1fr}
         .sv-pref-group{flex-direction:column}
         .sv-section-header{flex-wrap:wrap}
+        .sv-member-actions { opacity:1; }
       }
     `;
     document.head.appendChild(style);
@@ -1516,10 +1730,83 @@ async function renderSettingsView() {
 
   document.querySelectorAll('.sv-nav-item').forEach(btn => btn.addEventListener('click', () => setActiveSection(btn.dataset.section)));
 
-  document.querySelectorAll('.sv-seg-btn').forEach(b => b.addEventListener('click', () => {
-    document.querySelectorAll('.sv-seg-btn').forEach(x => x.classList.remove('sv-seg-active'));
+  let saveTimeout;
+
+  const showSaveStatus = (id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.opacity = '1';
+    setTimeout(() => { el.style.opacity = '0'; }, 2500);
+  };
+
+  const autoSaveSettings = async (sectionId) => {
+    try {
+      const firstName = document.getElementById('profile-firstname')?.value?.trim();
+      const lastName = document.getElementById('profile-lastname')?.value?.trim();
+      const dateFormat = document.querySelector('.sv-date-segmented .sv-seg-active')?.dataset?.value || dateFormatPref;
+      const emailNotifs = document.getElementById('pref-email-notifs')?.checked || false;
+
+      localStorage.setItem('safitrack_date_format', dateFormat);
+      localStorage.setItem('safitrack_email_notifs', emailNotifs ? 'true' : 'false');
+
+      if (typeof supabaseClient !== 'undefined' && currentUser?.id) {
+        const updates = {};
+        if (firstName) updates.first_name = firstName;
+        if (lastName) updates.last_name = lastName;
+        updates.date_format = dateFormat;
+        updates.email_notifications = emailNotifs;
+        const { data: updated, error } = await supabaseClient.from('profiles').update(updates).eq('id', currentUser.id).select().single();
+        if (!error) {
+          try { currentUserProfile = { ...(currentUserProfile || {}), ...(updated || {}) }; } catch (e) { }
+          showSaveStatus(sectionId === 'profile' ? 'profile-save-status' : 'pref-save-status');
+
+          // update user avatar display instantly
+          const fName = updated.first_name || '';
+          const lName = updated.last_name || '';
+          const email = currentUser?.email || '';
+          const init = ((fName ? fName[0] : '') + (lName ? lName[0] : '')).toUpperCase() || (email ? email[0].toUpperCase() : 'U');
+          const full = [fName, lName].filter(Boolean).join(' ') || 'Your Name';
+          document.querySelectorAll('.sv-nav-avatar, .sv-profile-avatar').forEach(el => el.textContent = init);
+          document.querySelectorAll('.sv-nav-user-name, .sv-profile-name').forEach(el => el.textContent = full);
+        }
+      } else {
+        showSaveStatus(sectionId === 'profile' ? 'profile-save-status' : 'pref-save-status');
+      }
+      if (sectionId !== 'profile') refreshCurrentView(); // Only trigger heavy refresh if it affects appearance
+    } catch (e) { console.error(e); }
+  };
+
+  const debounceSave = (sectionId) => {
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => autoSaveSettings(sectionId), 700);
+  };
+
+  // Date segmented interaction
+  document.querySelectorAll('.sv-date-segmented .sv-seg-btn').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.sv-date-segmented .sv-seg-btn').forEach(x => x.classList.remove('sv-seg-active'));
     b.classList.add('sv-seg-active');
+    autoSaveSettings('preferences');
   }));
+
+  // Theme card interaction
+  document.querySelectorAll('.sv-theme-card').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.sv-theme-card').forEach(x => x.classList.remove('active'));
+      btn.classList.add('active');
+      const newTheme = btn.dataset.themeVal;
+
+      localStorage.setItem('safitrack_theme', newTheme);
+
+      let actualTheme = newTheme;
+      if (newTheme === 'system') {
+        actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      }
+      document.documentElement.setAttribute('data-theme', actualTheme);
+
+      // Fire generic global re-render function if exists to update charts etc.
+      if (typeof updateChartColors === 'function') setTimeout(updateChartColors, 50);
+    });
+  });
 
   document.getElementById('profile-change-password-btn')?.addEventListener('click', () => {
     try { openChangePasswordModal(); } catch (e) { console.error(e); }
@@ -1539,34 +1826,89 @@ async function renderSettingsView() {
 
   document.getElementById('export-data-btn')?.addEventListener('click', () => showToast('Preparing export…', 'info'));
 
-  const saveHandler = async () => {
-    try {
-      const firstName  = document.getElementById('profile-firstname')?.value?.trim();
-      const lastName   = document.getElementById('profile-lastname')?.value?.trim();
-      const dateFormat = document.querySelector('.sv-seg-active')?.dataset?.value || dateFormatPref;
-      const emailNotifs = document.getElementById('pref-email-notifs')?.checked || false;
+  // Bind text inputs for debounced saves
+  document.getElementById('profile-firstname')?.addEventListener('input', () => debounceSave('profile'));
+  document.getElementById('profile-lastname')?.addEventListener('input', () => debounceSave('profile'));
+  document.getElementById('pref-email-notifs')?.addEventListener('change', () => autoSaveSettings('preferences'));
 
-      localStorage.setItem('safitrack_date_format', dateFormat);
-      localStorage.setItem('safitrack_email_notifs', emailNotifs ? 'true' : 'false');
+  // Load Members
+  const loadMembers = async () => {
+    const listContainer = document.getElementById('sv-members-container');
+    if (!listContainer || typeof supabaseClient === 'undefined') return;
 
-      if (typeof supabaseClient !== 'undefined' && currentUser?.id) {
-        const updates = {};
-        if (firstName) updates.first_name = firstName;
-        if (lastName) updates.last_name = lastName;
-        updates.date_format = dateFormat;
-        updates.email_notifications = emailNotifs;
-        const { data: updated, error } = await supabaseClient.from('profiles').update(updates).eq('id', currentUser.id).select().single();
-        if (error) { showToast('Saved locally, but failed to persist to server.', 'warning'); }
-        else { showToast('Settings saved', 'success'); try { currentUserProfile = {...(currentUserProfile||{}),...(updated||{})}; } catch(e){} }
-      } else {
-        showToast('Settings saved locally', 'success');
+    const { data: users, error } = await supabaseClient
+      .from('profiles')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      listContainer.innerHTML = `<tr><td colspan="4" style="padding:40px;text-align:center;color:#ef4444;">Failed to load members</td></tr>`;
+      return;
+    }
+
+    if (!users || !users.length) {
+      listContainer.innerHTML = `<tr><td colspan="4" style="padding:40px;text-align:center;color:var(--text-muted);">No members found.</td></tr>`;
+      return;
+    }
+
+    listContainer.innerHTML = users.map((u, i) => {
+      const uFullName = (`${u.first_name || ''} ${u.last_name || ''}`).trim() || u.email || 'Teammate';
+      const uInitials = getInitials(uFullName);
+      const isMgr = u.role === 'manager';
+      // Use different avatar gradients based on index
+      const avatarColors = ['', 'sv-member-avatar--alt', 'sv-member-avatar--alt2'];
+      const avatarCls = avatarColors[i % 3];
+      const isMe = u.id === currentUser?.id;
+
+      let actionsHtml = '';
+      let roleHtml = '';
+
+      if (isManager && !isMe) {
+        actionsHtml = `<button class="sv-icon-btn sv-icon-btn--danger" title="Remove member" onclick="if(typeof deleteUser === 'function') deleteUser('${u.id}', '${uFullName}', '${u.role || ''}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M18 6L6 18M6 6l12 12"></path></svg></button>`;
       }
-      refreshCurrentView();
-    } catch (e) { console.error(e); showToast('Failed to save settings', 'error'); }
+
+      const displayRole = u.role === 'manager' ? 'Manager' : u.role === 'sales_rep' ? 'Sales Rep' : u.role === 'technician' ? 'Technician' : 'Member';
+      roleHtml = `<span style="font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); padding: 4px 8px;">${displayRole}</span>`;
+
+      return `
+        <tr>
+          <td>
+            <div class="sv-member-cell">
+              <div class="sv-member-avatar ${avatarCls}">${uInitials}</div>
+              <div class="sv-member-info">
+                <div class="sv-member-name">${uFullName} ${isMe ? '<span style="color:var(--text-muted);font-weight:700;font-size:0.65rem;letter-spacing:0.04em;text-transform:uppercase;background:var(--bg-secondary);padding:2px 6px;border-radius:4px;margin-left:8px;border:1px solid var(--border-color);">You</span>' : ''}</div>
+                <div class="sv-member-email">${u.email}</div>
+              </div>
+            </div>
+          </td>
+          <td>${roleHtml}</td>
+          <td>
+            <div class="sv-status-badge">
+              <span class="sv-status-dot active"></span> Active
+            </div>
+          </td>
+          <td class="sv-member-actions-cell">
+            ${actionsHtml}
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    const searchInput = document.getElementById('sv-member-search');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const val = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('#sv-members-container tr');
+        rows.forEach(row => {
+          const text = row.querySelector('.sv-member-cell')?.textContent?.toLowerCase() || '';
+          if (text.includes(val)) row.style.display = '';
+          else row.style.display = 'none';
+        });
+      });
+    }
   };
 
-  document.getElementById('save-settings-btn')?.addEventListener('click', saveHandler);
-  document.getElementById('save-settings-btn-pref')?.addEventListener('click', saveHandler);
+  loadMembers();
 
   setActiveSection('profile');
 }
@@ -11747,9 +12089,9 @@ async function renderRemindersView() {
               <button class="reminder-filter" data-filter="completed">Completed</button>
               ${isManager ? '<button class="reminder-filter" data-filter="assigned">Assigned by Me</button>' : ''}
             </div>
-            <div class="remx-search">
-              <i data-lucide="search"></i>
-              <input type="text" id="reminder-search" placeholder="Search reminders...">
+            <div class="search-input-wrapper" style="width: 100%; max-width: 320px;">
+              <i data-lucide="search" class="search-icon"></i>
+              <input type="text" id="reminder-search" class="search-input-padded" placeholder="Search reminders..." style="width: 100%; padding: 10px 14px 10px 36px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 0.875rem; transition: border-color 0.2s; outline: none;">
             </div>
           </div>
 
@@ -12614,28 +12956,6 @@ window.closeModal = function (modalId) {
 // UTILITY FUNCTIONS
 // ======================
 
-function toggleTheme() {
-  const current = document.documentElement.getAttribute('data-theme');
-  const next = current === 'dark' ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  localStorage.setItem('theme', next);
-  updateThemeIcon(next);
-  showToast(`Switched to ${next} mode`, 'success');
-}
-
-
-function updateThemeIcon(theme) {
-  const btn = document.getElementById('theme-toggle');
-  if (!btn) return;
-
-  // Define the SVG icons
-  const darkModeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-moon-icon lucide-moon"><path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/></svg>`;
-
-  const lightModeIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sun-icon lucide-sun"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>`;
-
-  // Inject the correct SVG based on the theme
-  btn.innerHTML = (theme === 'dark') ? darkModeIcon : lightModeIcon;
-}
 
 function showInlineSuccess(elementOrSelector) {
   const element = typeof elementOrSelector === 'string'
