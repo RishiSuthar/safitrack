@@ -19301,7 +19301,16 @@ async function openCompanyViewModal(companyOrId) {
 
   // ── Populate Sidebar Fields ──
   const addressEl = document.getElementById('company-view-address'); if (addressEl) addressEl.textContent = company.address || '—';
-  const coordsEl = document.getElementById('company-view-coordinates'); if (coordsEl) coordsEl.textContent = (company.latitude && company.longitude) ? `${company.latitude.toFixed(6)}, ${company.longitude.toFixed(6)}` : '—';
+  const coordsEl = document.getElementById('company-view-coordinates');
+  if (coordsEl) {
+    if (company.latitude && company.longitude) {
+      const lat = company.latitude.toFixed(6);
+      const lng = company.longitude.toFixed(6);
+      coordsEl.innerHTML = `<a href="https://www.google.com/maps?q=${lat},${lng}" target="_blank" rel="noopener noreferrer" style="color:var(--color-primary);text-decoration:none;">${lat}, ${lng}</a>`;
+    } else {
+      coordsEl.textContent = '—';
+    }
+  }
   const descEl = document.getElementById('company-view-desc'); if (descEl) descEl.textContent = company.description || '—';
   const catsEl = document.getElementById('company-view-categories');
   if (catsEl) {
