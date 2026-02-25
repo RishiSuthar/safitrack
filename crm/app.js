@@ -1494,9 +1494,8 @@ async function renderSettingsView() {
                        </div>
                      </div>
                    </div>
-                   <div class="sv-mock-half dark-half" style="border-left: 1px solid var(--border-color)">
-                     <div class="sv-mock-sidebar" style="border-left:none; opacity: 0; padding:0; width:0; margin:0;"></div>
-                     <div class="sv-mock-content" style="margin-left:0;border-left:none;border-radius:0 4px 4px 0;">
+                    <div class="sv-mock-half dark-half">
+                      <div class="sv-mock-content">
                        <div class="sv-mock-table">
                          <div class="sv-mock-row"></div><div class="sv-mock-row"></div><div class="sv-mock-row"></div>
                        </div>
@@ -1737,7 +1736,7 @@ async function renderSettingsView() {
       .sv-theme-preview { height: 120px; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); display: flex; padding: 16px 16px 0 16px; transition: border-color 0.15s; }
       .sv-theme-card.active .sv-theme-preview { border-bottom-color: var(--color-primary); }
       .sv-preview-dark { background: #0f172a; }
-      .sv-preview-system { background: linear-gradient(90deg, #ffffff 50%, #0f172a 50%); padding: 0; }
+      .sv-preview-system { background: transparent; padding: 0; }
       .sv-preview-light { background: #ffffff; }
       .sv-preview-light .sv-mock-content { background: #f8fafc; border-color: #e2e8f0; }
       .sv-preview-light .sv-mock-sidebar { border-color: #e2e8f0; }
@@ -1746,7 +1745,14 @@ async function renderSettingsView() {
       .sv-preview-light .sv-mock-row { background: rgba(0,0,0,0.05); }
       
       .sv-mock-half { flex: 1; display: flex; padding: 16px 16px 0 16px; overflow: hidden; }
-      .sv-theme-label { padding: 12px; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; background: var(--bg-primary); }
+      .sv-mock-half.light-half { background: #ffffff; }
+      .sv-mock-half.dark-half { background: #0f172a; }
+      .sv-mock-half.dark-half .sv-mock-content { background: #1e293b; border-color: rgba(255,255,255,0.05); }
+      .sv-mock-half.dark-half .sv-mock-table { background: #0f172a; border-color: rgba(255,255,255,0.05); }
+      .sv-mock-half.dark-half .sv-mock-row { background: rgba(255,255,255,0.04); }
+      .sv-mock-half.dark-half .sv-mock-line { background: rgba(255,255,255,0.1); }
+
+      .sv-theme-label { padding: 12px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; background: var(--bg-primary); }
       .sv-theme-card.active .sv-theme-label { color: var(--color-primary); }
       
       .sv-mock-sidebar { width: 32px; border-right: 1px solid rgba(0,0,0,0.05); margin-right: 12px; padding-top: 4px; display: flex; flex-direction: column; }
@@ -1757,6 +1763,13 @@ async function renderSettingsView() {
       .sv-preview-dark .sv-mock-line { background: rgba(255,255,255,0.1); }
       .sv-mock-table { width: 100%; height: 100%; border: 1px solid rgba(0,0,0,0.05); border-radius: 4px; background: var(--bg-primary); padding: 6px; display: flex; flex-direction: column; gap: 6px; }
       .sv-preview-dark .sv-mock-table { background: #0f172a; border-color: rgba(255,255,255,0.05); }
+
+      /* Force System Light side to stay light in Dark Mode */
+      .light-half .sv-mock-sidebar { border-color: rgba(0,0,0,0.05) !important; }
+      .light-half .sv-mock-content { background: #f8fafc !important; border-color: rgba(0,0,0,0.05) !important; }
+      .light-half .sv-mock-table { background: #ffffff !important; border-color: rgba(0,0,0,0.05) !important; }
+      .light-half .sv-mock-line { background: rgba(0,0,0,0.1) !important; }
+      .light-half .sv-mock-row { background: rgba(0,0,0,0.05) !important; }
       .sv-mock-row { height: 6px; border-radius: 2px; background: rgba(0,0,0,0.04); }
       .sv-preview-dark .sv-mock-row { background: rgba(255,255,255,0.04); }
 
