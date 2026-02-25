@@ -7478,6 +7478,10 @@ async function renderTeamDashboardView() {
 
   // Initialize interactions
   initVisitsHub();
+
+  // Re-apply filters and show correct view based on state
+  applyVisitsFilters();
+  switchVisitsView(visitsHubState.currentView, false); // false = don't save state again during initial render
 }
 
 // Helper functions for date checks
@@ -7691,14 +7695,36 @@ function getRelativeTime(date) {
 }
 
 function initVisitsHub() {
-  // Search functionality
+  // Restore filter values in DOM
   const searchInput = document.getElementById('visits-search');
   if (searchInput) {
+    searchInput.value = visitsHubState.filters.search || '';
     searchInput.addEventListener('input', debounce((e) => {
       visitsHubState.filters.search = e.target.value.toLowerCase();
       saveViewState({ teamDashboard: { currentView: visitsHubState.currentView, filters: visitsHubState.filters, sortBy: visitsHubState.sortBy } });
       applyVisitsFilters();
     }, 300));
+  }
+
+  // Restore other filter elements
+  if (visitsHubState.filters.rep) document.getElementById('filter-rep').value = visitsHubState.filters.rep;
+  if (visitsHubState.filters.type) document.getElementById('filter-type').value = visitsHubState.filters.type;
+  if (visitsHubState.filters.scoreMin) document.getElementById('filter-score').value = visitsHubState.filters.scoreMin;
+  if (visitsHubState.filters.dateFrom) document.getElementById('filter-date-from').value = visitsHubState.filters.dateFrom;
+  if (visitsHubState.filters.dateTo) document.getElementById('filter-date-to').value = visitsHubState.filters.dateTo;
+
+  // Update filter count badge
+  updateFilterCountBadge();
+
+  // Initialize Sort Select
+  const sortSelect = document.getElementById('visits-sort');
+  if (sortSelect) {
+    sortSelect.value = visitsHubState.sortBy;
+    sortSelect.addEventListener('change', (e) => {
+      visitsHubState.sortBy = e.target.value;
+      saveViewState({ teamDashboard: { currentView: visitsHubState.currentView, filters: visitsHubState.filters, sortBy: visitsHubState.sortBy } });
+      applyVisitsFilters();
+    });
   }
 
   // View toggle
@@ -7746,15 +7772,7 @@ function initVisitsHub() {
     });
   }
 
-  // Sort select
-  const sortSelect = document.getElementById('visits-sort');
-  if (sortSelect) {
-    sortSelect.addEventListener('change', (e) => {
-      visitsHubState.sortBy = e.target.value;
-      saveViewState({ teamDashboard: { currentView: visitsHubState.currentView, filters: visitsHubState.filters, sortBy: visitsHubState.sortBy } });
-      applyVisitsFilters();
-    });
-  }
+
 
   // Activity tabs
   document.querySelectorAll('.activity-tab').forEach(tab => {
@@ -7789,7 +7807,7 @@ function initVisitsHub() {
   }
 }
 
-function switchVisitsView(view) {
+function switchVisitsView(view, save = true) {
   visitsHubState.currentView = view;
 
   // Update buttons
@@ -7807,7 +7825,18 @@ function switchVisitsView(view) {
     initVisitsMap();
   }
 
-  saveViewState({ teamDashboard: { currentView: visitsHubState.currentView, filters: visitsHubState.filters, sortBy: visitsHubState.sortBy } });
+  if (save) {
+    saveViewState({ teamDashboard: { currentView: visitsHubState.currentView, filters: visitsHubState.filters, sortBy: visitsHubState.sortBy } });
+  }
+}
+
+function updateFilterCountBadge() {
+  const activeFilters = Object.values(visitsHubState.filters).filter(v => v).length;
+  const countEl = document.getElementById('filters-count');
+  if (countEl) {
+    countEl.textContent = activeFilters;
+    countEl.style.display = activeFilters > 0 ? 'inline-flex' : 'none';
+  }
 }
 
 function updateFilterState() {
@@ -7817,13 +7846,7 @@ function updateFilterState() {
   visitsHubState.filters.dateFrom = document.getElementById('filter-date-from')?.value || '';
   visitsHubState.filters.dateTo = document.getElementById('filter-date-to')?.value || '';
 
-  // Update filter count
-  const activeFilters = Object.values(visitsHubState.filters).filter(v => v).length;
-  const countEl = document.getElementById('filters-count');
-  if (countEl) {
-    countEl.textContent = activeFilters;
-    countEl.style.display = activeFilters > 0 ? 'inline-flex' : 'none';
-  }
+  updateFilterCountBadge();
 
   saveViewState({ teamDashboard: { currentView: visitsHubState.currentView, filters: visitsHubState.filters, sortBy: visitsHubState.sortBy } });
 }
