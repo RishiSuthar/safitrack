@@ -1335,62 +1335,101 @@ async function renderSettingsView() {
   viewContainer.innerHTML = `
     <div class="sv-root">
       <nav class="sv-nav">
-        <div class="sv-nav-user">
-          <div class="sv-nav-avatar">${initials}</div>
-          <div class="sv-nav-user-info"><div class="sv-nav-user-name">${fullName}</div><div class="sv-nav-user-role">${roleEsc}</div></div>
-        </div>
-        <div class="sv-nav-group">
-          <div class="sv-nav-group-label">Account</div>
-          <button class="sv-nav-item active" data-section="profile">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Profile
-          </button>
-          <button class="sv-nav-item" data-section="preferences">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg>Appearance
-          </button>
-          <button class="sv-nav-item" data-section="notifications">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Notifications
-          </button>
-        </div>
-        <div class="sv-nav-group">
-          <div class="sv-nav-group-label">Workspace</div>
-          <button class="sv-nav-item" data-section="members">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Members and teams
-          </button>
-          <button class="sv-nav-item" data-section="billing">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Billing
-          </button>
-        </div>
-        <div class="sv-nav-group">
-          <div class="sv-nav-group-label">Advanced</div>
-          <button class="sv-nav-item sv-nav-item--danger" data-section="danger">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Danger Zone
-          </button>
-        </div>
+        <div class="sv-nav-header">Account Settings</div>
+        
+        <button class="sv-nav-item active" data-section="profile">My Profile</button>
+        <button class="sv-nav-item" data-section="security">Security</button>
+        <button class="sv-nav-item" data-section="preferences">Appearance</button>
+        <button class="sv-nav-item" data-section="notifications">Notifications</button>
+        <button class="sv-nav-item" data-section="members">Team Members</button>
+        <button class="sv-nav-item" data-section="billing">Billing</button>
+        
+        <div class="sv-nav-divider"></div>
+        
+        <button class="sv-nav-item" data-section="export">Data Export</button>
+        <button class="sv-nav-item sv-nav-item-danger" data-section="danger">Delete Account</button>
       </nav>
 
       <main class="sv-content">
         <!-- Profile -->
         <section class="sv-section" data-section="profile">
           <div class="sv-section-header">
-            <div class="sv-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-            <div style="flex:1"><h2 class="sv-section-title">Profile</h2><p class="sv-section-desc">Your personal information used across the workspace.</p></div>
-            <div id="profile-save-status" style="font-size: 0.8rem; color: var(--text-muted); display:flex; align-items:center; gap: 6px; opacity: 0; transition: opacity 0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" style="width:14px;height:14px;"><path d="M20 6L9 17l-5-5"></path></svg>Saved</div>
+            <h2 class="sv-section-title">My Profile</h2>
+            <div id="profile-save-status" class="sv-save-status"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg>Saved</div>
           </div>
-          <div class="sv-avatar-card">
-            <div class="sv-profile-avatar">${initials}</div>
-            <div>
-              <div class="sv-profile-name">${fullName}</div>
-              <div class="sv-profile-email">${userEmailEsc}</div>
-              <span class="sv-profile-role-badge">${roleEsc}</span>
+          
+          <div class="sv-row sv-row-avatar">
+            <div class="sv-row-info">
+              <div class="sv-row-title">Profile Picture</div>
+              <div class="sv-row-desc">Your avatar is used to identify you across the workspace.</div>
+            </div>
+            <div class="sv-row-action">
+              <div class="sv-avatar-container">
+                <div class="sv-profile-avatar">${initials}</div>
+                <button class="sv-action-btn">Upload</button>
+              </div>
             </div>
           </div>
-          <div class="sv-fields-grid">
-            <div class="sv-field"><label class="sv-label">First name</label><input id="profile-firstname" class="sv-input" type="text" placeholder="First name" value="${firstNameEsc}"></div>
-            <div class="sv-field"><label class="sv-label">Last name</label><input id="profile-lastname" class="sv-input" type="text" placeholder="Last name" value="${lastNameEsc}"></div>
-            <div class="sv-field sv-field--full"><label class="sv-label">Email address <span class="sv-label-note">(cannot be changed)</span></label><input id="profile-email" class="sv-input" type="email" value="${userEmailEsc}" disabled></div>
-            <div class="sv-field sv-field--full">
-              <label class="sv-label">Password</label>
-              <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;"><input class="sv-input" type="password" value="????????????" disabled style="max-width:240px;"><button id="profile-change-password-btn" class="sv-outline-btn">Change password</button></div>
+          
+          <div class="sv-row">
+            <div class="sv-row-info">
+              <div class="sv-row-title">Name</div>
+              <div class="sv-row-desc">Your full name as it appears to other members.</div>
+            </div>
+            <div class="sv-row-action sv-row-action-inputs">
+              <input id="profile-firstname" class="sv-input" type="text" placeholder="First name" value="${firstNameEsc}">
+              <input id="profile-lastname" class="sv-input" type="text" placeholder="Last name" value="${lastNameEsc}">
+            </div>
+          </div>
+          
+          <div class="sv-row">
+            <div class="sv-row-info">
+              <div class="sv-row-title">Role</div>
+              <div class="sv-row-desc">Your current permission level within this workspace.</div>
+            </div>
+            <div class="sv-row-action">
+              <span class="sv-role-badge">${roleEsc}</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- Security -->
+        <section class="sv-section" data-section="security" style="display:none;">
+          <div class="sv-section-header">
+            <h2 class="sv-section-title">Security</h2>
+          </div>
+          
+          <div class="sv-row">
+            <div class="sv-row-info">
+              <div class="sv-row-title">Email address</div>
+              <div class="sv-row-desc">The email address associated with your account.</div>
+            </div>
+            <div class="sv-row-action sv-row-action-email">
+              <div class="sv-email-display">
+                 <span class="sv-email-text">${userEmailEsc}</span>
+                 <span class="sv-email-status">Verified</span>
+              </div>
+              <button class="sv-action-btn"><i data-lucide="edit-2" style="width:14px;height:14px;margin-right:6px"></i> Edit</button>
+            </div>
+          </div>
+          
+          <div class="sv-row">
+            <div class="sv-row-info">
+              <div class="sv-row-title">Password</div>
+              <div class="sv-row-desc">Set a unique password to protect your account.</div>
+            </div>
+            <div class="sv-row-action">
+              <button id="profile-change-password-btn" class="sv-action-btn">Change Password</button>
+            </div>
+          </div>
+
+          <div class="sv-row">
+            <div class="sv-row-info">
+              <div class="sv-row-title">2-step verification</div>
+              <div class="sv-row-desc">Make your account extra secure. Along with your password, you'll need to enter a code.</div>
+            </div>
+            <div class="sv-row-action">
+              <label class="sv-toggle"><input type="checkbox" checked><span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span></label>
             </div>
           </div>
         </section>
@@ -1398,16 +1437,16 @@ async function renderSettingsView() {
         <!-- Appearance -->
         <section class="sv-section" data-section="preferences" style="display:none;">
           <div class="sv-section-header">
-            <div class="sv-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32l1.41 1.41M2 12h2m16 0h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/><circle cx="12" cy="12" r="4"/></svg></div>
-            <div style="flex:1"><h2 class="sv-section-title">Appearance</h2><p class="sv-section-desc">Customize how SafiTrack looks and formats data on your device.</p></div>
-            <div id="pref-save-status" style="font-size: 0.8rem; color: var(--text-muted); display:flex; align-items:center; gap: 6px; opacity: 0; transition: opacity 0.2s;"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" style="width:14px;height:14px;"><path d="M20 6L9 17l-5-5"></path></svg>Saved</div>
+            <h2 class="sv-section-title">Appearance</h2>
+            <div id="pref-save-status" class="sv-save-status"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg>Saved</div>
           </div>
-          <div style="margin-bottom:24px; border-bottom:1px solid var(--border-color); padding-bottom: 24px;">
-            <div style="margin-bottom:16px;">
-              <div style="font-size:0.875rem;font-weight:700;color:var(--text-primary);margin-bottom:3px;">Theme</div>
-              <div style="font-size:0.8rem;color:var(--text-muted);line-height:1.45;">Select a theme to personalize your platform's appearance</div>
+          
+          <div class="sv-row sv-row-vertical">
+            <div class="sv-row-info">
+              <div class="sv-row-title">Theme</div>
+              <div class="sv-row-desc">Select a theme to personalize your platform's appearance.</div>
             </div>
-            <div class="sv-theme-cards sv-theme-segmented">
+            <div class="sv-theme-cards sv-theme-segmented mt-4">
               <button class="sv-theme-card ${currentTheme === 'light' ? 'active' : ''}" data-theme-val="light">
                 <div class="sv-theme-preview sv-preview-light">
                    <div class="sv-mock-sidebar">
@@ -1422,10 +1461,7 @@ async function renderSettingsView() {
                      </div>
                    </div>
                 </div>
-                <div class="sv-theme-label">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-                  Light
-                </div>
+                <div class="sv-theme-label">Light</div>
               </button>
               <button class="sv-theme-card ${currentTheme === 'dark' ? 'active' : ''}" data-theme-val="dark">
                 <div class="sv-theme-preview sv-preview-dark">
@@ -1441,10 +1477,7 @@ async function renderSettingsView() {
                      </div>
                    </div>
                 </div>
-                <div class="sv-theme-label">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                  Dark
-                </div>
+                <div class="sv-theme-label">Dark</div>
               </button>
               <button class="sv-theme-card ${currentTheme === 'system' ? 'active' : ''}" data-theme-val="system">
                 <div class="sv-theme-preview sv-preview-system">
@@ -1470,18 +1503,21 @@ async function renderSettingsView() {
                      </div>
                    </div>
                 </div>
-                <div class="sv-theme-label">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                  System
-                </div>
+                <div class="sv-theme-label">System</div>
               </button>
             </div>
           </div>
-          <div class="sv-pref-group">
-            <div class="sv-pref-label"><div class="sv-pref-label-title">Date format</div><div class="sv-pref-label-desc">How dates are displayed throughout the app.</div></div>
-            <div class="sv-segmented sv-date-segmented">
-              <button class="sv-seg-btn ${dateFormatPref === 'DD/MM/YYYY' ? 'sv-seg-active' : ''}" data-value="DD/MM/YYYY">DD/MM/YYYY<span class="sv-seg-example">21/09/2026</span></button>
-              <button class="sv-seg-btn ${dateFormatPref === 'MM/DD/YYYY' ? 'sv-seg-active' : ''}" data-value="MM/DD/YYYY">MM/DD/YYYY<span class="sv-seg-example">09/21/2026</span></button>
+          
+          <div class="sv-row">
+            <div class="sv-row-info">
+              <div class="sv-row-title">Date format</div>
+              <div class="sv-row-desc">How dates are displayed throughout the app.</div>
+            </div>
+            <div class="sv-row-action">
+              <div class="sv-segmented sv-date-segmented">
+                <button class="sv-seg-btn ${dateFormatPref === 'DD/MM/YYYY' ? 'sv-seg-active' : ''}" data-value="DD/MM/YYYY">DD/MM/YYYY</button>
+                <button class="sv-seg-btn ${dateFormatPref === 'MM/DD/YYYY' ? 'sv-seg-active' : ''}" data-value="MM/DD/YYYY">MM/DD/YYYY</button>
+              </div>
             </div>
           </div>
         </section>
@@ -1489,37 +1525,45 @@ async function renderSettingsView() {
         <!-- Notifications -->
         <section class="sv-section" data-section="notifications" style="display:none;">
           <div class="sv-section-header">
-            <div class="sv-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div>
-            <div><h2 class="sv-section-title">Notifications</h2><p class="sv-section-desc">Control how and when you get notified.</p></div>
+            <h2 class="sv-section-title">Notifications</h2>
           </div>
-          <div class="sv-toggle-row">
-            <div class="sv-toggle-info"><div class="sv-toggle-title">Email notifications</div><div class="sv-toggle-desc">Receive email summaries, activity updates, and important alerts.</div></div>
-            <label class="sv-toggle"><input id="pref-email-notifs" type="checkbox" ${emailNotifPref ? 'checked' : ''}><span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span></label>
+          
+          <div class="sv-row">
+            <div class="sv-row-info">
+              <div class="sv-row-title">Email notifications</div>
+              <div class="sv-row-desc">Receive email summaries, activity updates, and important alerts.</div>
+            </div>
+            <div class="sv-row-action">
+              <label class="sv-toggle"><input id="pref-email-notifs" type="checkbox" ${emailNotifPref ? 'checked' : ''}><span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span></label>
+            </div>
           </div>
-          <div class="sv-toggle-row">
-            <div class="sv-toggle-info"><div class="sv-toggle-title">Browser push notifications</div><div class="sv-toggle-desc">Get instant alerts for reminders and mentions directly in your browser.</div></div>
-            <button id="enable-browser-notifs" class="sv-outline-btn">Enable</button>
+          
+          <div class="sv-row">
+            <div class="sv-row-info">
+              <div class="sv-row-title">Browser push notifications</div>
+              <div class="sv-row-desc">Get instant alerts for reminders and mentions directly in your browser.</div>
+            </div>
+            <div class="sv-row-action">
+              <button id="enable-browser-notifs" class="sv-action-btn">Enable</button>
+            </div>
           </div>
         </section>
 
         <!-- Members -->
         <section class="sv-section" data-section="members" style="display:none; max-width: 900px;">
-          <div class="sv-section-header" style="margin-bottom:24px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color);">
-            <div style="flex:1">
-               <h2 class="sv-section-title" style="font-size: 1.25rem; letter-spacing: -0.01em; margin-bottom: 4px;">Members</h2>
-               <p class="sv-section-desc" style="font-size: 0.85rem;">Manage who has access to this workspace and their permission levels.</p>
-            </div>
-            <button class="sv-save-btn" style="display:flex; align-items:center; gap: 6px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Invite member</button>
+          <div class="sv-section-header" style="justify-content: space-between; align-items: center; border-bottom: none; padding-bottom: 0;">
+            <h2 class="sv-section-title">Team Members</h2>
+            <button class="sv-primary-btn">Invite member</button>
           </div>
           
-          <div class="sv-members-toolbar">
+          <div class="sv-members-toolbar mt-6">
             <div class="sv-search-input">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
               <input type="text" placeholder="Search members by name or email..." id="sv-member-search">
             </div>
           </div>
 
-          <div class="sv-members-table-container">
+          <div class="sv-members-table-container mt-4">
             <table class="sv-members-table">
               <thead>
                 <tr>
@@ -1539,8 +1583,7 @@ async function renderSettingsView() {
         <!-- Billing -->
         <section class="sv-section" data-section="billing" style="display:none;">
           <div class="sv-section-header">
-            <div class="sv-section-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
-            <div><h2 class="sv-section-title">Billing</h2><p class="sv-section-desc">Manage your subscription, seats, and payment methods.</p></div>
+            <h2 class="sv-section-title">Billing</h2>
           </div>
           
           <div class="sv-billing-card">
@@ -1558,8 +1601,24 @@ async function renderSettingsView() {
             </div>
 
             <div class="sv-billing-actions">
-              <button class="sv-save-btn">Manage subscription</button>
-              <button class="sv-outline-btn">View invoices</button>
+              <button class="sv-action-btn">Manage subscription</button>
+              <button class="sv-action-btn">View invoices</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- Export -->
+        <section class="sv-section" data-section="export" style="display:none;">
+          <div class="sv-section-header">
+            <h2 class="sv-section-title">Data Export</h2>
+          </div>
+          <div class="sv-row">
+            <div class="sv-row-info">
+              <div class="sv-row-title">Export your data</div>
+              <div class="sv-row-desc">Download a full copy of your personal data and activity records as a JSON file.</div>
+            </div>
+            <div class="sv-row-action">
+              <button id="export-data-btn" class="sv-action-btn">Export data</button>
             </div>
           </div>
         </section>
@@ -1567,16 +1626,27 @@ async function renderSettingsView() {
         <!-- Danger Zone -->
         <section class="sv-section" data-section="danger" style="display:none;">
           <div class="sv-section-header">
-            <div class="sv-section-icon sv-section-icon--danger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div>
-            <div><h2 class="sv-section-title sv-section-title--danger">Danger Zone</h2><p class="sv-section-desc">Irreversible and destructive actions. Proceed with extreme caution.</p></div>
+            <h2 class="sv-section-title">Delete Account</h2>
           </div>
-          <div class="sv-danger-row">
-            <div class="sv-danger-info"><div class="sv-danger-title">Export your data</div><div class="sv-danger-desc">Download a full copy of your personal data and activity records as a JSON file.</div></div>
-            <button id="export-data-btn" class="sv-outline-btn">Export data</button>
+          
+          <div class="sv-row">
+            <div class="sv-row-info">
+              <div class="sv-row-title">Deactivate my account</div>
+              <div class="sv-row-desc">This will shut down your account. Your account will be reactive when you sign in again.</div>
+            </div>
+            <div class="sv-row-action">
+              <button class="sv-action-btn">Deactivate</button>
+            </div>
           </div>
-          <div class="sv-danger-row sv-danger-row--critical">
-            <div class="sv-danger-info"><div class="sv-danger-title sv-danger-title--critical">Delete account</div><div class="sv-danger-desc">Permanently delete your account and all data. <strong>This cannot be undone.</strong></div></div>
-            <button id="delete-account-btn" class="sv-delete-btn">Delete account</button>
+
+          <div class="sv-row">
+            <div class="sv-row-info">
+              <div class="sv-row-title">Delete Account</div>
+              <div class="sv-row-desc">This will delete your account. Your account will be permanently deleted from SafiTrack.</div>
+            </div>
+            <div class="sv-row-action">
+              <button id="delete-account-btn" class="sv-delete-btn">Delete Account</button>
+            </div>
           </div>
         </section>
       </main>
@@ -1587,174 +1657,181 @@ async function renderSettingsView() {
     const style = document.createElement('style');
     style.id = 'sv-styles';
     style.textContent = `
-      .sv-root{display:flex;height:100%;min-height:0;overflow:hidden;background:var(--bg-primary)}
-      .sv-nav{width:230px;flex-shrink:0;border-right:1px solid var(--border-color);padding:20px 14px;background:var(--bg-primary);display:flex;flex-direction:column;gap:6px;overflow-y:auto}
-      .sv-nav-user{display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;background:var(--bg-secondary);margin-bottom:10px}
-      .sv-nav-avatar{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--color-primary),#6366f1);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.95rem;color:#fff;flex-shrink:0}
-      .sv-nav-user-info{min-width:0}
-      .sv-nav-user-name{font-size:.85rem;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-      .sv-nav-user-role{font-size:.7rem;color:var(--text-muted);text-transform:capitalize}
-      .sv-nav-group{margin-bottom:6px}
-      .sv-nav-group-label{font-size:.65rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);padding:0 10px;margin-bottom:3px}
-      .sv-nav-item{display:flex;align-items:center;gap:9px;width:100%;padding:8px 10px;border:none;background:transparent;border-radius:8px;font-size:.85rem;font-weight:500;color:var(--text-secondary);cursor:pointer;text-align:left;font-family:inherit;transition:background .12s,color .12s}
-      .sv-nav-item svg{width:15px;height:15px;flex-shrink:0;stroke:currentColor}
-      .sv-nav-item:hover{background:var(--bg-secondary);color:var(--text-primary)}
-      .sv-nav-item.active{background:color-mix(in srgb,var(--color-primary) 10%,transparent);color:var(--color-primary);font-weight:700}
-      .sv-nav-item--danger{color:#ef4444!important}
-      .sv-nav-item--danger:hover{background:rgba(239,68,68,.08)}
-      .sv-nav-item--danger.active{background:rgba(239,68,68,.1);color:#ef4444!important}
-      .sv-content{flex:1;min-width:0;overflow-y:auto;padding:32px 40px;background:var(--bg-secondary)}
-      .sv-section{display:block; max-width: 800px;}
-      .sv-section-header{display:flex;align-items:flex-start;gap:14px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border-color)}
-      .sv-section-icon{width:38px;height:38px;border-radius:9px;background:color-mix(in srgb,var(--color-primary) 12%,transparent);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-      .sv-section-icon svg{width:18px;height:18px;stroke:var(--color-primary)}
-      .sv-section-icon--danger{background:rgba(239,68,68,.1)}
-      .sv-section-icon--danger svg{stroke:#ef4444}
-      .sv-section-title{font-size:1.1rem;font-weight:800;color:var(--text-primary);margin:0 0 3px}
-      .sv-section-title--danger{color:#ef4444}
-      .sv-section-desc{font-size:.82rem;color:var(--text-muted);margin:0}
-      .sv-save-btn{padding:9px 18px;border-radius:8px;border:none;background:var(--color-primary);color:#fff;font-size:.875rem;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s,transform .1s;white-space:nowrap}
-      .sv-save-btn:hover{opacity:.87;transform:translateY(-1px)}
-      .sv-avatar-card{display:flex;align-items:center;gap:16px;padding:18px 20px;border-radius:12px;border:1px solid var(--border-color);background:var(--bg-primary);margin-bottom:22px}
-      .sv-profile-avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--color-primary),#6366f1);display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:800;color:#fff;flex-shrink:0}
-      .sv-profile-name{font-size:.95rem;font-weight:700;color:var(--text-primary)}
-      .sv-profile-email{font-size:.8rem;color:var(--text-muted);margin-top:2px}
-      .sv-profile-role-badge{display:inline-block;margin-top:5px;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:100px;background:color-mix(in srgb,var(--color-primary) 12%,transparent);color:var(--color-primary);border:1px solid color-mix(in srgb,var(--color-primary) 25%,transparent)}
-      .sv-fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-      .sv-field{display:flex;flex-direction:column;gap:5px}
-      .sv-field--full{grid-column:1/-1}
-      .sv-label{font-size:.75rem;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:.04em}
-      .sv-label-note{font-size:.7rem;font-weight:500;color:var(--text-muted);text-transform:none}
-      .sv-input{padding:9px 12px;border-radius:8px;border:1.5px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);font-size:.875rem;font-family:inherit;transition:border-color .15s,box-shadow .15s;outline:none;width:100%;box-sizing:border-box}
-      .sv-input:focus{border-color:var(--color-primary);box-shadow:0 0 0 3px color-mix(in srgb,var(--color-primary) 12%,transparent)}
-      .sv-input:disabled{opacity:.45;cursor:not-allowed;background:var(--bg-secondary)}
-      .sv-outline-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1.5px solid var(--border-color);background:var(--bg-primary);color:var(--text-primary);font-size:.83rem;font-weight:600;cursor:pointer;font-family:inherit;transition:border-color .15s,color .15s;white-space:nowrap}
-      .sv-outline-btn:hover{border-color:var(--color-primary);color:var(--color-primary)}
-      .sv-pref-group{display:flex;align-items:flex-start;gap:20px;padding:18px 0;border-bottom:1px solid var(--border-color)}
-      .sv-pref-group:last-child{border-bottom:none}
-      .sv-pref-label{flex:1;min-width:0}
-      .sv-pref-label-title{font-size:.875rem;font-weight:700;color:var(--text-primary);margin-bottom:3px}
-      .sv-pref-label-desc{font-size:.8rem;color:var(--text-muted);line-height:1.45}
-      .sv-segmented{display:flex;border-radius:9px;border:1.5px solid var(--border-color);overflow:hidden;background:var(--bg-primary);flex-shrink:0}
-      .sv-seg-btn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 16px;border:none;background:transparent;font-size:.8rem;font-weight:600;color:var(--text-muted);cursor:pointer;font-family:inherit;transition:background .12s,color .12s;min-width:96px}
-      .sv-seg-btn + .sv-seg-btn{border-left:1.5px solid var(--border-color)}
-      .sv-seg-btn:hover{background:var(--bg-secondary);color:var(--text-primary)}
-      .sv-seg-active{background:var(--color-primary)!important;color:#fff!important}
-      .sv-seg-example{font-size:.65rem;font-weight:500;opacity:.7}
+      .sv-root { 
+        display:flex; 
+        height: 720px; 
+        max-height: 90vh;
+        width: 100%;
+        max-width: 1200px;
+        margin: 0 auto;
+        overflow:hidden; 
+        background:var(--bg-primary); 
+        font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif; 
+        border-radius: 10px; 
+        border: 1px solid var(--border-color);
+        box-shadow: var(--shadow-lg);
+      }
       
-      .sv-theme-cards { display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; margin-top: 12px; }
-      .sv-theme-card { border: 1.5px solid var(--border-color); border-radius: 12px; background: transparent; padding: 0; cursor: pointer; overflow: hidden; transition: border-color 0.15s, box-shadow 0.15s; text-align: left; }
+      /* Navigation Sidebar */
+      .sv-nav { width: 240px; flex-shrink: 0; border-right: 1px solid var(--border-color); padding: 32px 16px; background: var(--bg-primary); display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
+      .sv-nav-header { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; padding: 0 12px; }
+      .sv-nav-item { display: flex; align-items: center; width: 100%; padding: 8px 12px; border: none; background: transparent; border-radius: 6px; font-size: 0.9rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; text-align: left; font-family: inherit; transition: background 0.15s, color 0.15s; }
+      .sv-nav-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
+      .sv-nav-item.active { background: color-mix(in srgb, var(--color-primary) 15%, transparent); color: var(--color-primary); font-weight: 500; }
+      .sv-nav-divider { height: 1px; background: var(--border-color); margin: 16px 12px; }
+      .sv-nav-item-danger { color: #ef4444 !important; }
+      .sv-nav-item-danger:hover { background: rgba(239, 68, 68, 0.08); }
+      .sv-nav-item-danger.active { background: rgba(239, 68, 68, 0.12); color: #ef4444 !important; }
+
+      /* Main Content Area */
+      .sv-content { flex: 1; min-width: 0; overflow-y: auto; padding: 48px 64px; background: var(--bg-primary); scroll-behavior: smooth; }
+      .sv-section { display: block; max-width: 940px; }
+      .sv-section-header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
+      .sv-section-title { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin: 0; letter-spacing: -0.01em; }
+      .sv-save-status { font-size: 0.85rem; font-weight: 500; color: #10b981; display: flex; align-items: center; gap: 6px; opacity: 0; transition: opacity 0.3s; margin-left: auto; }
+      .sv-save-status svg { width: 16px; height: 16px; }
+
+      /* Row Layout */
+      .sv-row { display: flex; align-items: flex-start; gap: 40px; padding: 24px 0; border-bottom: 1px solid var(--border-color); }
+      .sv-row:last-child { border-bottom: none; }
+      .sv-row-vertical { flex-direction: column; gap: 16px; align-items: stretch; }
+      .sv-row-info { flex: 0 0 320px; }
+      .sv-row-title { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
+      .sv-row-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
+      .sv-row-action { flex: 1; display: flex; justify-content: flex-end; align-items: center; }
+      .sv-row-vertical .sv-row-info { flex: none; width: 100%; }
+      .sv-row-vertical .sv-row-action { justify-content: flex-start; }
+
+      /* Inputs and Buttons */
+      .sv-input { width: 100%; max-width: 320px; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 0.9rem; font-family: inherit; transition: border-color 0.15s, box-shadow 0.15s; outline: none; box-sizing: border-box; }
+      .sv-input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent); }
+      .sv-input:disabled { opacity: 0.6; cursor: not-allowed; background: var(--bg-secondary); }
+      
+      .sv-row-action-inputs { display: flex; gap: 12px; width: 100%; justify-content: flex-end; }
+      .sv-row-action-inputs .sv-input { max-width: 220px; }
+
+      .sv-action-btn { display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.15s; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+      .sv-action-btn:hover { background: var(--bg-secondary); border-color: color-mix(in srgb, var(--border-color) 80%, var(--text-primary)); }
+      
+      .sv-primary-btn { display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; border-radius: 8px; border: none; background: var(--color-primary); color: #ffffff; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: opacity 0.15s; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+      .sv-primary-btn:hover { opacity: 0.9; }
+
+      .sv-delete-btn { display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(239,68,68,0.3); background: var(--bg-primary); color: #ef4444; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.15s; }
+      .sv-delete-btn:hover { background: rgba(239,68,68,0.05); border-color: #ef4444; }
+
+      /* Profile Specifics */
+      .sv-avatar-container { display: flex; align-items: center; gap: 24px; }
+      .sv-profile-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary), #6366f1); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700; color: #fff; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+      .sv-role-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 100px; background: color-mix(in srgb, var(--color-primary) 12%, transparent); color: var(--color-primary); border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent); }
+
+      /* Security Specifics */
+      .sv-email-display { display: flex; align-items: center; gap: 12px; margin-right: 16px; }
+      .sv-email-text { font-size: 0.95rem; color: var(--text-primary); font-weight: 500; }
+      .sv-email-status { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #10b981; background: rgba(16,185,129,0.1); padding: 2px 6px; border-radius: 4px; }
+
+      /* Appearance Specifics */
+      .sv-theme-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; }
+      .sv-theme-card { border: 2px solid var(--border-color); border-radius: 12px; background: transparent; padding: 0; cursor: pointer; overflow: hidden; transition: all 0.15s; text-align: left; }
+      .sv-theme-card:hover { border-color: color-mix(in srgb, var(--border-color) 70%, var(--text-primary)); }
       .sv-theme-card.active { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary); }
-      .sv-theme-preview { height: 110px; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); display:flex; padding: 12px 12px 0 12px; }
-      .sv-preview-dark { background: #111827; }
-      .sv-preview-system { background: linear-gradient(90deg, #ffffff 50%, #111827 50%); padding: 0; }
+      .sv-theme-preview { height: 120px; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); display: flex; padding: 16px 16px 0 16px; transition: border-color 0.15s; }
+      .sv-theme-card.active .sv-theme-preview { border-bottom-color: var(--color-primary); }
+      .sv-preview-dark { background: #0f172a; }
+      .sv-preview-system { background: linear-gradient(90deg, #ffffff 50%, #0f172a 50%); padding: 0; }
       .sv-preview-light { background: #ffffff; }
-      .sv-preview-light .sv-mock-content { background: #f7f9fc; border-color: #e9ecf1; }
-      .sv-preview-light .sv-mock-sidebar { border-color: #e9ecf1; }
+      .sv-preview-light .sv-mock-content { background: #f8fafc; border-color: #e2e8f0; }
+      .sv-preview-light .sv-mock-sidebar { border-color: #e2e8f0; }
       .sv-preview-light .sv-mock-table { background: #ffffff; border-color: rgba(0,0,0,0.05); }
       .sv-preview-light .sv-mock-line { background: rgba(0,0,0,0.1); }
-      .sv-preview-light .sv-mock-row { background: rgba(0,0,0,0.03); }
-      .sv-mock-half { flex: 1; display:flex; padding: 12px 12px 0 12px; overflow:hidden;}
-      .sv-theme-label { padding: 12px; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); display:flex; align-items:center; justify-content:center; gap: 8px; background: var(--bg-primary); }
-      .sv-theme-label svg { width:16px; height:16px; }
-      .sv-theme-card:hover .sv-theme-label { color: var(--text-primary); }
-      .sv-mock-sidebar { width: 30px; border-right: 1px solid rgba(0,0,0,0.05); margin-right: 10px; padding-top: 4px; display:flex; flex-direction:column; }
-      .sv-mock-content { flex: 1; border: 1px solid rgba(0,0,0,0.05); border-bottom:none; border-radius: 4px 4px 0 0; background: var(--bg-secondary); padding: 8px; }
+      .sv-preview-light .sv-mock-row { background: rgba(0,0,0,0.05); }
+      
+      .sv-mock-half { flex: 1; display: flex; padding: 16px 16px 0 16px; overflow: hidden; }
+      .sv-theme-label { padding: 12px; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; background: var(--bg-primary); }
+      .sv-theme-card.active .sv-theme-label { color: var(--color-primary); }
+      
+      .sv-mock-sidebar { width: 32px; border-right: 1px solid rgba(0,0,0,0.05); margin-right: 12px; padding-top: 4px; display: flex; flex-direction: column; }
+      .sv-mock-content { flex: 1; border: 1px solid rgba(0,0,0,0.05); border-bottom: none; border-radius: 6px 6px 0 0; background: var(--bg-secondary); padding: 10px; }
       .sv-preview-dark .sv-mock-sidebar { border-color: rgba(255,255,255,0.05); }
-      .sv-preview-dark .sv-mock-content { border-color: rgba(255,255,255,0.05); background: #1f2937; }
+      .sv-preview-dark .sv-mock-content { border-color: rgba(255,255,255,0.05); background: #1e293b; }
       .sv-mock-line { height: 2px; border-radius: 1px; background: rgba(0,0,0,0.1); }
       .sv-preview-dark .sv-mock-line { background: rgba(255,255,255,0.1); }
-      .sv-mock-table { width: 100%; height: 100%; border: 1px solid rgba(0,0,0,0.05); border-radius: 2px; background: var(--bg-primary); padding: 4px; display:flex; flex-direction:column; gap: 4px; }
-      .sv-preview-dark .sv-mock-table { background: #111827; border-color: rgba(255,255,255,0.05); }
-      .sv-mock-row { height: 6px; border-radius: 1px; background: rgba(0,0,0,0.03); }
-      .sv-preview-dark .sv-mock-row { background: rgba(255,255,255,0.03); }
-      @media(max-width:768px){ .sv-theme-cards { grid-template-columns: 1fr; } }
+      .sv-mock-table { width: 100%; height: 100%; border: 1px solid rgba(0,0,0,0.05); border-radius: 4px; background: var(--bg-primary); padding: 6px; display: flex; flex-direction: column; gap: 6px; }
+      .sv-preview-dark .sv-mock-table { background: #0f172a; border-color: rgba(255,255,255,0.05); }
+      .sv-mock-row { height: 6px; border-radius: 2px; background: rgba(0,0,0,0.04); }
+      .sv-preview-dark .sv-mock-row { background: rgba(255,255,255,0.04); }
 
-      .sv-theme-info{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--text-muted);padding:9px 12px;border-radius:8px;background:var(--bg-primary);border:1px solid var(--border-color);flex-shrink:0}
-      .sv-toggle-row{display:flex;align-items:center;gap:20px;padding:18px 0;border-bottom:1px solid var(--border-color)}
-      .sv-toggle-row:last-child{border-bottom:none}
-      .sv-toggle-info{flex:1}
-      .sv-toggle-title{font-size:.875rem;font-weight:700;color:var(--text-primary)}
-      .sv-toggle-desc{font-size:.8rem;color:var(--text-muted);margin-top:3px;line-height:1.45}
-      .sv-toggle{position:relative;display:inline-block;width:42px;height:23px;flex-shrink:0;cursor:pointer}
-      .sv-toggle input{opacity:0;width:0;height:0;position:absolute}
-      .sv-toggle-track{position:absolute;inset:0;border-radius:100px;background:var(--border-color);transition:background .2s}
-      .sv-toggle input:checked+.sv-toggle-track{background:var(--color-primary)}
-      .sv-toggle-thumb{position:absolute;top:3px;left:3px;width:17px;height:17px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.2);transition:transform .2s}
-      .sv-toggle input:checked~.sv-toggle-track .sv-toggle-thumb{transform:translateX(19px)}
+      /* Segmented Controls (Date Format) */
+      .sv-segmented { display: inline-flex; border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden; background: var(--bg-primary); pading: 2px; }
+      .sv-seg-btn { padding: 8px 16px; border: none; background: transparent; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; font-family: inherit; transition: all 0.15s; }
+      .sv-seg-btn:hover { color: var(--text-primary); }
+      .sv-seg-active { background: var(--color-primary); color: #ffffff; font-weight: 500; box-shadow: 0 2px 4px rgba(var(--color-primary-rgb), 0.2); border-radius: 6px; margin: 2px; }
 
-      /* Members Redesign */
-      .sv-members-toolbar { margin-bottom: 16px; }
-      .sv-search-input { position: relative; max-width: 340px; }
-      .sv-search-input svg { position: absolute; left: 12px; top: 10px; width: 16px; height: 16px; color: var(--text-muted); }
-      .sv-search-input input { width: 100%; padding: 9px 12px 9px 36px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 0.875rem; transition: border-color 0.15s, box-shadow 0.15s; outline: none; }
-      .sv-search-input input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 12%, transparent); }
+      /* iOS Style Toggles */
+      .sv-toggle { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; cursor: pointer; }
+      .sv-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
+      .sv-toggle-track { position: absolute; inset: 0; border-radius: 100px; background: var(--border-color); transition: background 0.25s ease; }
+      .sv-toggle input:checked + .sv-toggle-track { background: var(--color-primary); }
+      .sv-toggle-thumb { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.25s cubic-bezier(0.4, 0.0, 0.2, 1); }
+      .sv-toggle input:checked ~ .sv-toggle-track .sv-toggle-thumb { transform: translateX(20px); }
+
+      /* Members Table Overhaul */
+      .sv-members-toolbar { margin-bottom: 24px; }
+      .sv-search-input { position: relative; max-width: 400px; }
+      .sv-search-input svg { position: absolute; left: 12px; top: 11px; width: 16px; height: 16px; color: var(--text-muted); }
+      .sv-search-input input { width: 100%; padding: 10px 14px 10px 38px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); font-size: 0.9rem; transition: all 0.15s; outline: none; }
+      .sv-search-input input:focus { border-color: var(--color-primary); background: var(--bg-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent); }
       
-      .sv-members-table-container { border: 1px solid var(--border-color); border-radius: 10px; background: var(--bg-primary); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+      .sv-members-table-container { border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-primary); overflow: hidden; }
       .sv-members-table { width: 100%; border-collapse: collapse; text-align: left; }
-      .sv-members-table th { font-size: 0.72rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 12px 16px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); }
-      .sv-members-table td { padding: 14px 16px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+      .sv-members-table th { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 16px 20px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); }
+      .sv-members-table td { padding: 16px 20px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
       .sv-members-table tr:last-child td { border-bottom: none; }
       .sv-members-table tbody tr { transition: background 0.15s; }
       .sv-members-table tbody tr:hover { background: color-mix(in srgb, var(--bg-secondary) 50%, transparent); }
       
-      .sv-member-cell { display: flex; align-items: center; gap: 12px; }
-      .sv-member-avatar { width: 34px; height: 34px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary), #6366f1); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: #fff; flex-shrink: 0; }
-      .sv-member-avatar--alt { background: linear-gradient(135deg, #10b981, #059669); }
-      .sv-member-avatar--alt2 { background: linear-gradient(135deg, #f59e0b, #d97706); }
-      .sv-member-info { display: flex; flex-direction: column; }
-      .sv-member-name { font-size: 0.875rem; font-weight: 600; color: var(--text-primary); display:flex; align-items:center; }
-      .sv-member-email { font-size: 0.8rem; color: var(--text-muted); margin-top: 1px; }
+      .sv-member-cell { display: flex; align-items: center; gap: 16px; }
+      .sv-member-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary), #6366f1); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: #fff; flex-shrink: 0; }
+      .sv-member-info { display: flex; flex-direction: column; gap: 2px; }
+      .sv-member-name { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+      .sv-member-email { font-size: 0.8rem; color: var(--text-muted); }
       
-      .sv-role-select { -webkit-appearance: none; appearance: none; background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 4px 24px 4px 8px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: background 0.15s, border-color 0.15s; outline: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%237a8390" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>'); background-repeat: no-repeat; background-position: right 6px center; }
-      .sv-role-select:hover { background-color: var(--bg-secondary); border-color: var(--border-color); }
-      .sv-role-select:disabled { cursor: default; background-image: none; padding-right: 8px; }
+      .sv-role-select { -webkit-appearance: none; appearance: none; background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 6px 28px 6px 10px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; outline: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%237a8390" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>'); background-repeat: no-repeat; background-position: right 8px center; }
+      .sv-role-select:hover { background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary); }
       
       .sv-status-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); }
-      .sv-status-dot { width: 6px; height: 6px; border-radius: 50%; }
-      .sv-status-dot.active { background: #10b981; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2); }
-      .sv-status-dot.invited { background: #f59e0b; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2); }
+      .sv-status-dot { width: 8px; height: 8px; border-radius: 50%; }
+      .sv-status-dot.active { background: #10b981; }
+      .sv-status-dot.invited { background: #f59e0b; }
       
       .sv-member-actions-cell { text-align: right; width: 60px; }
-      .sv-icon-btn { width: 32px; height: 32px; border-radius: 6px; border: none; background: transparent; color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: background 0.15s, color 0.15s; opacity: 0; }
+      .sv-icon-btn { width: 32px; height: 32px; border-radius: 6px; border: none; background: transparent; color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; opacity: 0; }
       .sv-members-table tbody tr:hover .sv-icon-btn { opacity: 1; }
       .sv-icon-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
-      .sv-icon-btn--danger:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
 
-      /* Billing Card */
-      .sv-billing-card { border:1px solid var(--border-color); border-radius:12px; background:linear-gradient(to bottom right, var(--bg-primary), var(--bg-secondary)); padding:24px; box-shadow:0 4px 20px rgba(0,0,0,0.03); }
-      .sv-billing-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:24px;}
-      .sv-billing-plan { font-size:1.25rem; font-weight:800; color:var(--text-primary); margin-bottom:4px;}
-      .sv-billing-cycle { font-size:0.85rem; color:var(--text-muted); }
-      .sv-billing-amount { font-size:1.75rem; font-weight:800; color:var(--text-primary); line-height:1;}
-      .sv-billing-amount span { font-size:0.9rem; color:var(--text-muted); font-weight:500;}
-      .sv-billing-usage { margin-bottom:24px;}
-      .sv-usage-labels { display:flex; justify-content:space-between; font-size:0.8rem; font-weight:600; color:var(--text-secondary); margin-bottom:8px;}
-      .sv-usage-bar { height:6px; border-radius:100px; background:var(--border-color); overflow:hidden;}
-      .sv-usage-fill { height:100%; border-radius:100px; background:var(--color-primary);}
-      .sv-billing-actions { display:flex; gap:10px;}
+      /* Billing Card Redesign */
+      .sv-billing-card { border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-secondary); padding: 32px; }
+      .sv-billing-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
+      .sv-billing-plan { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
+      .sv-billing-cycle { font-size: 0.85rem; color: var(--text-muted); }
+      .sv-billing-amount { font-size: 2rem; font-weight: 800; color: var(--text-primary); line-height: 1; display: flex; align-items: baseline; gap: 4px; }
+      .sv-billing-amount span { font-size: 0.95rem; color: var(--text-muted); font-weight: 500; }
+      .sv-billing-usage { margin-bottom: 32px; }
+      .sv-usage-labels { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
+      .sv-usage-bar { height: 8px; border-radius: 100px; background: color-mix(in srgb, var(--border-color) 60%, transparent); overflow: hidden; }
+      .sv-usage-fill { height: 100%; border-radius: 100px; background: var(--color-primary); }
+      .sv-billing-actions { display: flex; gap: 12px; }
 
-      .sv-danger-row{display:flex;align-items:center;gap:20px;padding:18px 0;border-bottom:1px solid var(--border-color)}
-      .sv-danger-row:last-child{border-bottom:none}
-      .sv-danger-row--critical{padding:18px;border-radius:10px;background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.15);margin-top:8px}
-      .sv-danger-info{flex:1}
-      .sv-danger-title{font-size:.875rem;font-weight:700;color:var(--text-primary);margin-bottom:3px}
-      .sv-danger-title--critical{color:#ef4444}
-      .sv-danger-desc{font-size:.8rem;color:var(--text-muted);line-height:1.45}
-      .sv-delete-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:8px;border:1.5px solid rgba(239,68,68,.4);background:rgba(239,68,68,.08);color:#ef4444;font-size:.83rem;font-weight:700;cursor:pointer;font-family:inherit;transition:background .15s,border-color .15s;white-space:nowrap}
-      .sv-delete-btn:hover{background:#ef4444;color:#fff;border-color:#ef4444}
-      
-      @media(max-width:768px){
-        .sv-root{flex-direction:column}
-        .sv-nav{width:100%;flex-direction:row;flex-wrap:nowrap;overflow-x:auto;gap:4px;padding:10px 12px;border-right:none;border-bottom:1px solid var(--border-color)}
-        .sv-nav-user,.sv-nav-group-label{display:none}
-        .sv-nav-group{display:contents}
-        .sv-nav-item{padding:6px 12px;border-radius:100px;font-size:.78rem;white-space:nowrap}
-        .sv-content{padding:18px 14px}
-        .sv-fields-grid{grid-template-columns:1fr}
-        .sv-pref-group{flex-direction:column}
-        .sv-section-header{flex-wrap:wrap}
-        .sv-member-actions { opacity:1; }
+      /* Responsive adjustments */
+      @media (max-width: 900px) {
+        .sv-root { flex-direction: column; }
+        .sv-nav { width: 100%; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; padding: 16px; border-right: none; border-bottom: 1px solid var(--border-color); gap: 8px; }
+        .sv-nav-header, .sv-nav-divider { display: none; }
+        .sv-nav-item { white-space: nowrap; width: auto; padding: 8px 16px; border-radius: 100px; }
+        .sv-content { padding: 32px 24px; }
+        .sv-row { flex-direction: column; gap: 16px; }
+        .sv-row-info { width: 100%; flex: none; }
+        .sv-row-action { justify-content: flex-start; width: 100%; }
+        .sv-theme-cards { grid-template-columns: 1fr; }
       }
     `;
     document.head.appendChild(style);
