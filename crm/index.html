@@ -1568,35 +1568,51 @@
           </svg>
         </button>
       </div>
-      <div class="modal-body">
-        <div class="form-field">
-          <label for="safifind-filter">Filter</label>
-          <select id="safifind-filter" class="input-small">
-            <option value="both">Shops + Offices</option>
-            <option value="shop">Shops only</option>
-            <option value="office">Offices only</option>
-          </select>
-        </div>
-
-        <div class="form-field">
-          <label>Using coordinates</label>
-          <div class="field-helper">
-            <span id="safifind-coords">—</span>
+      <div class="modal-body safifind-layout">
+        <!-- Sidebar: Search & Results -->
+        <aside class="safifind-sidebar">
+          <div class="safifind-search-section">
+            <div class="safifind-search-grid">
+              <div class="form-field">
+                <label for="safifind-filter">Category</label>
+                <select id="safifind-filter">
+                  <option value="both">All</option>
+                  <option value="shop">Retail</option>
+                  <option value="office">Offices</option>
+                  <option value="industrial">Industrial</option>
+                  <option value="medical">Medical</option>
+                  <option value="food">Food</option>
+                  <option value="education">Education</option>
+                </select>
+              </div>
+              <div class="form-field">
+                <label for="safifind-radius">Radius (m)</label>
+                <input type="number" id="safifind-radius" value="2000" min="50" max="10000">
+              </div>
+            </div>
+            <button id="safifind-find-btn" class="btn btn-primary btn-block">Find Nearby</button>
           </div>
-        </div>
 
-        <div class="form-field">
-          <label for="safifind-radius">Radius (m)</label>
-          <input type="number" id="safifind-radius" value="2000" min="50" max="10000">
-        </div>
+          <div class="safifind-results-section">
+            <div class="section-header">
+              <h4>Results</h4>
+              <span id="safifind-count" class="badge">0 found</span>
+            </div>
+            <div id="safifind-results" class="safifind-results-list">
+              <div class="empty-results">Search to find nearby companies</div>
+            </div>
+          </div>
+        </aside>
 
-        <div class="form-field">
-          <button id="safifind-find-btn" class="btn btn-primary">Find Nearby</button>
-        </div>
-
-        <div id="safifind-results" style="margin-top:12px;"></div>
+        <!-- Main Content: Map -->
+        <main class="safifind-main">
+          <div id="safifind-map" style="height:100%; width:100%; background: #111;"></div>
+        </main>
       </div>
       <div class="modal-footer">
+        <div id="safifind-coords-status">
+          <i class="fas fa-location-dot"></i> <span id="safifind-coords">—</span>
+        </div>
         <button class="btn btn-secondary" onclick="closeModal('safifind-modal')">Close</button>
       </div>
     </div>

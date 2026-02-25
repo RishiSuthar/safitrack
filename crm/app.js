@@ -13441,30 +13441,37 @@ function calculateDistance(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
-/**
- * Build an Overpass QL query to find nearby named businesses/shops/offices
- * @param {number} lat
- * @param {number} lon
- * @param {number} radiusMeters
- * @returns {string}
- */
 function buildOverpassQuery(lat, lon, radiusMeters, types = ['shop', 'office']) {
-  // types is an array of tag keys to search for (e.g. ['shop','office'])
-  const clauses = [];
-  const tagKeys = Array.isArray(types) && types.length > 0 ? types : ['shop', 'office'];
+  const categoryMap = {
+    'shop': ['shop'],
+    'office': ['office'],
+    'industrial': ['industrial', 'man_made=works', 'craft'],
+    'medical': ['amenity=hospital', 'amenity=doctors', 'amenity=clinic', 'amenity=pharmacy', 'amenity=dentist'],
+    'food': ['amenity=restaurant', 'amenity=cafe', 'amenity=fast_food', 'amenity=pub', 'amenity=bar'],
+    'education': ['amenity=school', 'amenity=university', 'amenity=college', 'amenity=kindergarten'],
+    'both': ['shop', 'office', 'industrial', 'amenity']
+  };
 
-  for (const t of tagKeys) {
-    // Search nodes and ways where the tag exists and has a name
-    clauses.push(`node["name"]["${t}"](around:${radiusMeters},${lat},${lon});`);
-    clauses.push(`way["name"]["${t}"](around:${radiusMeters},${lat},${lon});`);
-  }
+  const tagClauses = [];
+  const typeKey = Array.isArray(types) ? types[0] : (types || 'both');
+  const mapped = categoryMap[typeKey] || categoryMap['both'];
 
-  return `
-    [out:json][timeout:25];
-    (
-      ${clauses.join('\n      ')}
-    );
-    out center;`;
+  mapped.forEach(tag => {
+    if (tag.includes('=')) {
+      const [k, v] = tag.split('=');
+      tagClauses.push(`node["${k}"="${v}"]["name"](around:${radiusMeters},${lat},${lon});`);
+      tagClauses.push(`way["${k}"="${v}"]["name"](around:${radiusMeters},${lat},${lon});`);
+    } else {
+      tagClauses.push(`node["${tag}"]["name"](around:${radiusMeters},${lat},${lon});`);
+      tagClauses.push(`way["${tag}"]["name"](around:${radiusMeters},${lat},${lon});`);
+    }
+  });
+
+  return `[out:json][timeout:30];
+(
+  ${tagClauses.join('\n  ')}
+);
+out center;`;
 }
 
 /**
@@ -19639,7 +19646,7 @@ async function openCompanyViewModal(companyOrId) {
           return;
         }
 
-        // Store company coords on the modal dataset and show human readable coords
+        // Store company coords on the modal dataset
         if (company && company.latitude && company.longitude) {
           safiModal.dataset.lat = company.latitude;
           safiModal.dataset.lon = company.longitude;
@@ -19652,59 +19659,186 @@ async function openCompanyViewModal(companyOrId) {
           if (coordsEl) coordsEl.textContent = 'Not available for this company';
         }
 
-        // Prefill radius and filter defaults
+        // Prefill defaults
         const radiusInput = safiModal.querySelector('#safifind-radius');
         const filterSelect = safiModal.querySelector('#safifind-filter');
         if (radiusInput) radiusInput.value = company.radius || 2000;
         if (filterSelect) filterSelect.value = 'both';
 
-        // Clear previous suggestions in safi modal
-        const prevSug = document.getElementById('safifind-modal-nearby-suggestions');
-        if (prevSug && prevSug.parentNode) prevSug.parentNode.removeChild(prevSug);
+        // Clear previous results
+        document.getElementById('safifind-results').innerHTML = '';
 
         safiModal.style.display = 'flex';
+
+        // Initialize Map
+        setTimeout(() => {
+          if (window.safifindMap) {
+            window.safifindMap.remove();
+            window.safifindMap = null;
+          }
+
+          const lat = parseFloat(safiModal.dataset.lat);
+          const lon = parseFloat(safiModal.dataset.lon);
+          const mapEl = document.getElementById('safifind-map');
+          if (!mapEl) {
+            console.error('SafiFind map container not found in DOM');
+            return;
+          }
+
+          if (!isNaN(lat) && !isNaN(lon)) {
+            window.safifindMap = L.map('safifind-map').setView([lat, lon], 14);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+              attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(window.safifindMap);
+
+            // Force redraw to handle flex sizing
+            setTimeout(() => window.safifindMap.invalidateSize(), 50);
+
+            // Add center marker (enhanced)
+            L.marker([lat, lon], {
+              icon: L.divIcon({
+                className: 'custom-div-icon',
+                html: `
+                  <div style="position:relative; width:16px; height:16px;">
+                    <div style="position:absolute; top:0; left:0; background:var(--color-primary); width:16px; height:16px; border:2.5px solid #fff; border-radius:50%; box-shadow:0 0 15px var(--color-primary); z-index:2;"></div>
+                    <div style="position:absolute; top:0; left:0; width:16px; height:16px; background:var(--color-primary); border-radius:50%; animation: pulse-marker 2s infinite; opacity:0.5; z-index:1;"></div>
+                  </div>
+                  <style>
+                    @keyframes pulse-marker {
+                      0% { transform: scale(1); opacity: 0.5; }
+                      70% { transform: scale(3); opacity: 0; }
+                      100% { transform: scale(3); opacity: 0; }
+                    }
+                  </style>`,
+                iconSize: [16, 16],
+                iconAnchor: [8, 8]
+              })
+            }).addTo(window.safifindMap).bindPopup('Current Location');
+
+            // Add radius circle
+            window.safifindRadiusCircle = L.circle([lat, lon], {
+              radius: parseInt(radiusInput.value) || 2000,
+              color: 'var(--color-primary)',
+              fillColor: 'var(--color-primary)',
+              fillOpacity: 0.1,
+              weight: 1
+            }).addTo(window.safifindMap);
+
+            radiusInput.oninput = () => {
+              const r = parseInt(radiusInput.value) || 2000;
+              if (window.safifindRadiusCircle) window.safifindRadiusCircle.setRadius(r);
+            };
+          }
+        }, 100);
       });
     }
   } catch (e) {
     console.warn('Failed to init SafiFind button', e);
   }
 
-  // Wire up safifind modal find button behavior (delegated) — ensure element exists
+  // Wire up find button
   try {
     const safiModal = document.getElementById('safifind-modal');
     if (safiModal) {
       const findBtn = safiModal.querySelector('#safifind-find-btn');
       if (findBtn) {
-        findBtn.addEventListener('click', async () => {
-          const lat = parseFloat(safiModal.dataset.lat || safiModal.querySelector('#safifind-lat')?.value);
-          const lon = parseFloat(safiModal.dataset.lon || safiModal.querySelector('#safifind-lon')?.value);
+        findBtn.onclick = async () => {
+          const lat = parseFloat(safiModal.dataset.lat);
+          const lon = parseFloat(safiModal.dataset.lon);
           const radius = parseInt(safiModal.querySelector('#safifind-radius').value) || 2000;
           const filterVal = (safiModal.querySelector('#safifind-filter')?.value) || 'both';
-          const types = filterVal === 'both' ? ['shop', 'office'] : [filterVal];
 
           if (isNaN(lat) || isNaN(lon)) {
-            showToast('Please provide coordinates to search around.', 'error');
+            showToast('Coordinates required for search.', 'error');
             return;
           }
 
           findBtn.disabled = true;
-          const prev = findBtn.innerHTML;
           findBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Searching...';
 
           try {
-            const results = await searchNearbyOverpass(lat, lon, radius, types);
+            const results = await searchNearbyOverpass(lat, lon, radius, [filterVal]);
             const existingNames = (Array.isArray(window.allCompaniesData) ? window.allCompaniesData : []).map(c => normalizeSearchText(c.name || ''));
-            const filtered = (results || []).filter(r => r.name && !existingNames.includes(normalizeSearchText(r.name))).slice(0, 50);
-            renderNearbySuggestions(filtered, 'safifind-modal');
-            if (!filtered || filtered.length === 0) showToast('No nearby candidate companies found.', 'info');
+            const filtered = (results || []).filter(r => r.name && !existingNames.includes(normalizeSearchText(r.name))).slice(0, 30);
+
+            // Clear old search markers immediately
+            if (window.safifindMap) {
+              if (window.safifindMarkers) window.safifindMarkers.forEach(m => window.safifindMap.removeLayer(m));
+              window.safifindMarkers = [];
+            }
+
+            // Render result cards
+            const resultsEl = document.getElementById('safifind-results');
+            const countEl = document.getElementById('safifind-count');
+            if (countEl) countEl.textContent = `${filtered.length} found`;
+
+            if (filtered.length === 0) {
+              resultsEl.innerHTML = '<div class="empty-results">No new companies found in this area.</div>';
+            } else {
+              resultsEl.innerHTML = filtered.map(it => `
+                <div id="safifind-result-card">
+                  <div class="safifind-result-info">
+                    <div class="safifind-result-name" title="${escapeHtml(it.name)}">${escapeHtml(it.name)}</div>
+                    <div class="safifind-result-meta">
+                      <span class="safifind-category-badge">${escapeHtml(it.tags.shop || it.tags.office || it.tags.amenity || 'Company')}</span>
+                      <span>·</span>
+                      <span>${Math.round(it.distance)}m away</span>
+                    </div>
+                  </div>
+                  <div class="safifind-result-actions">
+                    <button class="btn btn-sm btn-ghost" onclick="window.open('https://www.openstreetmap.org/${it.type}/${it.id}', '_blank')">Info</button>
+                    <button class="btn btn-sm btn-primary add-safifind" data-name="${escapeHtml(it.name)}" data-lat="${it.lat}" data-lon="${it.lon}" data-addr="${escapeHtml(it.displayName)}" data-site="${escapeHtml(it.tags.website || '')}" data-phone="${escapeHtml(it.tags.phone || '')}">Add to CRM</button>
+                  </div>
+                </div>
+              `).join('');
+
+              // Wire Add buttons
+              resultsEl.querySelectorAll('.add-safifind').forEach(btn => {
+                btn.onclick = () => {
+                  const d = btn.dataset;
+                  closeModal('safifind-modal');
+                  closeModal('company-view-modal');
+                  openCompanyModal();
+                  setTimeout(() => {
+                    if (document.getElementById('company-name-input')) document.getElementById('company-name-input').value = d.name;
+                    if (document.getElementById('company-latitude')) document.getElementById('company-latitude').value = parseFloat(d.lat).toFixed(6);
+                    if (document.getElementById('company-longitude')) document.getElementById('company-longitude').value = parseFloat(d.lon).toFixed(6);
+                    if (document.getElementById('company-address')) document.getElementById('company-address').value = d.addr;
+                    const domainEl = document.getElementById('company-domain');
+                    if (domainEl && d.site) domainEl.value = d.site;
+                    // Note: If you have a phone field for companies, set it here.
+                  }, 100);
+                };
+              });
+
+              // Add markers to map (dots instead of pins)
+              if (window.safifindMap) {
+                filtered.forEach(it => {
+                  const m = L.circleMarker([it.lat, it.lon], {
+                    radius: 7,
+                    fillColor: 'var(--color-primary)',
+                    color: '#fff',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.9
+                  }).addTo(window.safifindMap);
+
+                  m.bindPopup(`<b>${escapeHtml(it.name)}</b><br>${escapeHtml(it.displayName)}`);
+                  window.safifindMarkers.push(m);
+                });
+
+                const group = new L.featureGroup([L.marker([lat, lon]), ...window.safifindMarkers]);
+                window.safifindMap.fitBounds(group.getBounds().pad(0.1));
+              }
+            }
           } catch (err) {
             console.error('SafiFind search error', err);
-            showToast(err && err.message ? err.message : 'Search failed', 'error');
+            showToast('Search failed: ' + err.message, 'error');
           } finally {
             findBtn.disabled = false;
-            findBtn.innerHTML = prev;
+            findBtn.innerHTML = 'Find Nearby';
           }
-        });
+        };
       }
     }
   } catch (e) {
