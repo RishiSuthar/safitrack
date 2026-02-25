@@ -19759,7 +19759,7 @@ async function openCompanyViewModal(companyOrId) {
           try {
             const results = await searchNearbyOverpass(lat, lon, radius, [filterVal]);
             const existingNames = (Array.isArray(window.allCompaniesData) ? window.allCompaniesData : []).map(c => normalizeSearchText(c.name || ''));
-            const filtered = (results || []).filter(r => r.name && !existingNames.includes(normalizeSearchText(r.name))).slice(0, 30);
+            const filtered = (results || []).filter(r => r.name && !existingNames.includes(normalizeSearchText(r.name))).slice(0, 100);
 
             // Clear old search markers immediately
             if (window.safifindMap) {
@@ -19770,7 +19770,7 @@ async function openCompanyViewModal(companyOrId) {
             // Render result cards
             const resultsEl = document.getElementById('safifind-results');
             const countEl = document.getElementById('safifind-count');
-            if (countEl) countEl.textContent = `${filtered.length} found`;
+            if (countEl) countEl.textContent = `${results.length > 100 ? '100+' : results.length} shown`;
 
             if (filtered.length === 0) {
               resultsEl.innerHTML = '<div class="empty-results">No new companies found in this area.</div>';
