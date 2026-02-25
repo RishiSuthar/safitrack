@@ -55,32 +55,52 @@ function crmDebugLog(label, payload) {
   console.warn(`[${timestamp}] ${label}`, payload ?? '');
 }
 
-// Call log filters
-let callLogFilters = {
-  search: '',
-  direction: '',
-  outcome: ''
-};
+// ── Per-view State Persistence (localStorage) ──────────────────────
+const _VIEW_STATE_LS_KEY = 'safitrack_view_state_v1';
+function _loadPersistedState() {
+  try { return JSON.parse(localStorage.getItem(_VIEW_STATE_LS_KEY) || '{}'); } catch { return {}; }
+}
+function saveViewState(updates) {
+  try {
+    const s = _loadPersistedState();
+    localStorage.setItem(_VIEW_STATE_LS_KEY, JSON.stringify(Object.assign(s, updates)));
+  } catch { }
+}
+function clearViewState() {
+  try { localStorage.removeItem(_VIEW_STATE_LS_KEY); } catch { }
+}
+// Snapshot loaded once at JS parse time so render functions can read it synchronously
+const _persisted = _loadPersistedState();
+
+// Call log filters – seeded from localStorage
+let callLogFilters = Object.assign(
+  { search: '', direction: '', outcome: '' },
+  _persisted.callLogs || {}
+);
 let filterDebounceTimer = null;
 
 // Spreadsheet State
 let currentSortKey = 'name';
 let currentSortDir = 'asc';
 let currentFilters = {
-  company_type: '',
-  person_company: ''
+  company_type: (_persisted.companies && _persisted.companies.companyType) || '',
+  person_company: (_persisted.people && _persisted.people.companyId) || ''
 };
 
 const tableViewState = {
   companies: {
-    searchQuery: '',
-    currentPage: 1,
-    companyType: ''
+    searchQuery: (_persisted.companies && _persisted.companies.searchQuery) || '',
+    currentPage: (_persisted.companies && _persisted.companies.currentPage) || 1,
+    companyType: (_persisted.companies && _persisted.companies.companyType) || '',
+    sortKey: (_persisted.companies && _persisted.companies.sortKey) || 'name',
+    sortDir: (_persisted.companies && _persisted.companies.sortDir) || 'asc'
   },
   people: {
-    searchQuery: '',
-    currentPage: 1,
-    companyId: ''
+    searchQuery: (_persisted.people && _persisted.people.searchQuery) || '',
+    currentPage: (_persisted.people && _persisted.people.currentPage) || 1,
+    companyId: (_persisted.people && _persisted.people.companyId) || '',
+    sortKey: (_persisted.people && _persisted.people.sortKey) || 'name',
+    sortDir: (_persisted.people && _persisted.people.sortDir) || 'asc'
   }
 };
 
@@ -613,6 +633,17 @@ function handleHeaderSort(key, isSortable = true) {
     currentSortDir = 'asc';
   }
 
+  // Persist sort intent to the active view's state
+  if (currentView === 'companies') {
+    tableViewState.companies.sortKey = currentSortKey;
+    tableViewState.companies.sortDir = currentSortDir;
+    saveViewState({ companies: tableViewState.companies });
+  } else if (currentView === 'people') {
+    tableViewState.people.sortKey = currentSortKey;
+    tableViewState.people.sortDir = currentSortDir;
+    saveViewState({ people: tableViewState.people });
+  }
+
   refreshCurrentView();
 }
 
@@ -865,6 +896,8 @@ async function handleLogin(e) {
 async function handleLogout() {
   stopDueNotificationsMonitor();
   stopSafiNudgeRealtime();
+  clearViewState();
+  appInitialized = false;
   await supabaseClient.auth.signOut();
   location.reload();
 }
@@ -873,7 +906,11 @@ async function handleLogout() {
 // APP INITIALIZATION
 // ======================
 
+let appInitialized = false;
+
 async function initApp() {
+  if (appInitialized) return;
+  appInitialized = true;
   authScreen.style.display = 'none';
   mainApp.style.display = 'flex';
 
@@ -1918,6 +1955,10 @@ async function renderCompaniesView() {
   const companiesState = tableViewState.companies;
   currentFilters.company_type = companiesState.companyType || '';
 
+  // Restore per-view sort — avoids sorting from another view leaking in
+  currentSortKey = companiesState.sortKey || 'name';
+  currentSortDir = companiesState.sortDir || 'asc';
+
   const sortableCompanyColumns = ['name', 'address', 'company_type'];
   const safeSortKey = sortableCompanyColumns.includes(currentSortKey) ? currentSortKey : 'name';
   if (currentSortKey !== safeSortKey) {
@@ -2082,6 +2123,7 @@ async function renderCompaniesView() {
       (newPage) => {
         currentPage = newPage;
         companiesState.currentPage = currentPage;
+        saveViewState({ companies: companiesState });
         const result = searchAndPaginate(
           window.allCompaniesData,
           searchQuery,
@@ -2118,12 +2160,14 @@ async function renderCompaniesView() {
 
         searchQuery = searchValue;
         companiesState.searchQuery = searchQuery;
+        saveViewState({ companies: companiesState });
 
         // Use a small delay to avoid too many rapid searches
         clearTimeout(newSearchInput.searchTimeout);
         newSearchInput.searchTimeout = setTimeout(() => {
           currentPage = 1; // Reset to first page when searching
           companiesState.currentPage = currentPage;
+          saveViewState({ companies: companiesState });
           const result = searchAndPaginate(
             window.allCompaniesData,
             searchQuery,
@@ -2243,6 +2287,7 @@ async function renderCompaniesView() {
         clearSearchBtn.classList.add('hidden');
         currentPage = 1;
         companiesState.currentPage = currentPage;
+        saveViewState({ companies: companiesState });
         const result = searchAndPaginate(
           window.allCompaniesData,
           searchQuery,
@@ -2263,6 +2308,7 @@ async function renderCompaniesView() {
         companiesState.companyType = currentFilters.company_type;
         currentPage = 1;
         companiesState.currentPage = currentPage;
+        saveViewState({ companies: companiesState });
         const result = searchAndPaginate(
           window.allCompaniesData,
           searchQuery,
@@ -2724,6 +2770,10 @@ async function renderPeopleView() {
   const peopleState = tableViewState.people;
   currentFilters.person_company = peopleState.companyId || '';
 
+  // Restore per-view sort — avoids sorting from another view leaking in
+  currentSortKey = peopleState.sortKey || 'name';
+  currentSortDir = peopleState.sortDir || 'asc';
+
   const sortablePeopleColumns = ['name', 'email', 'job_title', 'phone_numbers'];
   const safeSortKey = sortablePeopleColumns.includes(currentSortKey) ? currentSortKey : 'name';
   if (currentSortKey !== safeSortKey) {
@@ -2881,6 +2931,7 @@ async function renderPeopleView() {
       (newPage) => {
         currentPage = newPage;
         peopleState.currentPage = currentPage;
+        saveViewState({ people: peopleState });
         const result = searchAndPaginate(
           window.allPeopleData,
           searchQuery,
@@ -2910,6 +2961,7 @@ async function renderPeopleView() {
         clearSearchBtn.classList.add('hidden');
         currentPage = 1;
         peopleState.currentPage = currentPage;
+        saveViewState({ people: peopleState });
         const result = searchAndPaginate(
           window.allPeopleData,
           searchQuery,
@@ -2929,6 +2981,7 @@ async function renderPeopleView() {
         peopleState.companyId = currentFilters.person_company;
         currentPage = 1;
         peopleState.currentPage = currentPage;
+        saveViewState({ people: peopleState });
         const result = searchAndPaginate(
           window.allPeopleData,
           searchQuery,
@@ -2947,6 +3000,7 @@ async function renderPeopleView() {
 
         searchQuery = searchValue;
         peopleState.searchQuery = searchQuery;
+        saveViewState({ people: peopleState });
         if (searchQuery) {
           clearSearchBtn?.classList.remove('hidden');
         } else {
@@ -2957,6 +3011,7 @@ async function renderPeopleView() {
         searchInput.searchTimeout = setTimeout(() => {
           currentPage = 1;
           peopleState.currentPage = currentPage;
+          saveViewState({ people: peopleState });
 
           const activeElement = document.activeElement;
           const wasSearchInput = activeElement && activeElement.id === 'people-search';
@@ -5515,6 +5570,18 @@ function initPipelineFilters(opportunities) {
   const advancedControls = document.getElementById('pipeline-advanced-controls');
   const resetBtn = document.getElementById('pipeline-reset-controls');
 
+  // Load persisted state
+  const persistedState = _loadPersistedState().pipeline || {};
+  if (searchInput && persistedState.search) searchInput.value = persistedState.search;
+  if (quickFilterSelect && persistedState.quickFilter) quickFilterSelect.value = persistedState.quickFilter;
+  if (ownerSelect && persistedState.owner) ownerSelect.value = persistedState.owner;
+  if (sortSelect && persistedState.sort) sortSelect.value = persistedState.sort;
+  if (persistedState.advancedOpen && advancedToggle && advancedControls) {
+    advancedControls.removeAttribute('hidden');
+    advancedToggle.setAttribute('aria-expanded', 'true');
+    advancedToggle.classList.add('is-open');
+  }
+
   const compareBySort = (a, b, sort) => {
     const aValue = Number(a.dataset.value || 0);
     const bValue = Number(b.dataset.value || 0);
@@ -5538,6 +5605,16 @@ function initPipelineFilters(opportunities) {
     const query = (searchInput?.value || '').trim().toLowerCase();
     const owner = ownerSelect?.value || 'all';
     const sort = sortSelect?.value || 'newest';
+
+    saveViewState({
+      pipeline: {
+        search: searchInput?.value || '',
+        quickFilter: activeFilter,
+        owner: owner,
+        sort: sort,
+        advancedOpen: advancedToggle?.classList.contains('is-open') || false
+      }
+    });
 
     document.querySelectorAll('.opportunity-card').forEach(card => {
       let show = true;
@@ -5584,6 +5661,8 @@ function initPipelineFilters(opportunities) {
       advancedToggle.setAttribute('aria-expanded', 'false');
       advancedToggle.classList.remove('is-open');
     }
+    // Re-save state to capture panel toggle
+    applyPipelineControls();
   });
 
   resetBtn?.addEventListener('click', () => {
@@ -5616,7 +5695,16 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
   document.getElementById('opportunity-stage').value = 'prospecting'; // Default to first stage
   document.getElementById('opportunity-next-step').value = '';
   document.getElementById('opportunity-next-step-date').value = '';
-  document.getElementById('opportunity-notes').value = '';
+
+  const notesTextarea = document.getElementById('opportunity-notes');
+  if (notesTextarea) {
+    notesTextarea.value = '';
+    notesTextarea.style.display = '';
+  }
+  const existingNotesDisplay = document.getElementById('opportunity-notes-display');
+  if (existingNotesDisplay) {
+    try { existingNotesDisplay.remove(); } catch (e) { /* ignore */ }
+  }
 
   // Clear competitors
   document.getElementById('competitors-container').innerHTML = '<input type="text" class="competitors-input" id="competitors-input" placeholder="Add competitor...">';
@@ -5702,17 +5790,6 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
         el.disabled = false;
       });
       saveBtn.style.display = 'block';
-      // If a read-only notes display exists from a previous view, remove it and restore textarea
-      const existingNotesDisplay = document.getElementById('opportunity-notes-display');
-      const notesTextarea = document.getElementById('opportunity-notes');
-      if (existingNotesDisplay) {
-        try { existingNotesDisplay.remove(); } catch (e) { /* ignore */ }
-      }
-      if (notesTextarea) {
-        notesTextarea.style.display = '';
-        // ensure textarea has current opportunity notes (or empty for new)
-        notesTextarea.value = opportunity && opportunity.notes ? opportunity.notes : (opportunity === null ? '' : (opportunity && opportunity.notes) || '');
-      }
     }
   } else {
     modalTitle.innerHTML = 'New Opportunity';
@@ -6985,17 +7062,17 @@ let visitsHubState = {
   visits: [],
   salesReps: [],
   filteredVisits: [],
-  currentView: 'cards', // 'cards', 'timeline', 'map'
+  currentView: (_persisted.teamDashboard && _persisted.teamDashboard.currentView) || 'cards',
   selectedVisitId: null,
-  filters: {
+  filters: Object.assign({
     search: '',
     rep: '',
     type: '',
     dateFrom: '',
     dateTo: '',
     scoreMin: ''
-  },
-  sortBy: 'newest'
+  }, _persisted.teamDashboard?.filters || {}),
+  sortBy: (_persisted.teamDashboard && _persisted.teamDashboard.sortBy) || 'newest'
 };
 
 async function renderTeamDashboardView() {
@@ -7529,6 +7606,7 @@ function initVisitsHub() {
   if (searchInput) {
     searchInput.addEventListener('input', debounce((e) => {
       visitsHubState.filters.search = e.target.value.toLowerCase();
+      saveViewState({ teamDashboard: { currentView: visitsHubState.currentView, filters: visitsHubState.filters, sortBy: visitsHubState.sortBy } });
       applyVisitsFilters();
     }, 300));
   }
@@ -7583,6 +7661,7 @@ function initVisitsHub() {
   if (sortSelect) {
     sortSelect.addEventListener('change', (e) => {
       visitsHubState.sortBy = e.target.value;
+      saveViewState({ teamDashboard: { currentView: visitsHubState.currentView, filters: visitsHubState.filters, sortBy: visitsHubState.sortBy } });
       applyVisitsFilters();
     });
   }
@@ -7637,6 +7716,8 @@ function switchVisitsView(view) {
   if (view === 'map') {
     initVisitsMap();
   }
+
+  saveViewState({ teamDashboard: { currentView: visitsHubState.currentView, filters: visitsHubState.filters, sortBy: visitsHubState.sortBy } });
 }
 
 function updateFilterState() {
@@ -7653,6 +7734,8 @@ function updateFilterState() {
     countEl.textContent = activeFilters;
     countEl.style.display = activeFilters > 0 ? 'inline-flex' : 'none';
   }
+
+  saveViewState({ teamDashboard: { currentView: visitsHubState.currentView, filters: visitsHubState.filters, sortBy: visitsHubState.sortBy } });
 }
 
 function applyVisitsFilters() {
@@ -8726,10 +8809,55 @@ function initRoutePlanning(companies, salesReps) {
   const mapContainer = document.getElementById('route-planning-map');
   const mapEmptyState = document.getElementById('map-empty-state');
 
+  // Restore active route builder state
+  const savedState = _loadPersistedState().routePlan || {};
+  if (savedState.stops && savedState.stops.length > 0) {
+    routeStops = savedState.stops;
+  }
+  if (savedState.name && routeNameInput) routeNameInput.value = savedState.name;
+  if (savedState.rep && routeRepSelect) routeRepSelect.value = savedState.rep;
+
+  function saveRouteBuilderState() {
+    const currentSearch = _loadPersistedState().routePlan?.search || '';
+    saveViewState({
+      routePlan: {
+        search: currentSearch,
+        stops: routeStops,
+        name: routeNameInput ? routeNameInput.value : '',
+        rep: routeRepSelect ? routeRepSelect.value : ''
+      }
+    });
+  }
+
+  if (routeNameInput) routeNameInput.addEventListener('input', saveRouteBuilderState);
+  if (routeRepSelect) routeRepSelect.addEventListener('change', saveRouteBuilderState);
+
+  // Restore visual added state on company cards 
+  if (routeStops.length > 0) {
+    setTimeout(() => {
+      routeStops.forEach(stop => {
+        const card = companiesList.querySelector(`[data-company-id="${stop.id}"]`);
+        if (card) {
+          card.classList.add('added');
+          const addBtn = card.querySelector('.company-card-add-btn');
+          if (addBtn) addBtn.textContent = '✓ Added';
+        }
+      });
+      updateRouteDisplay();
+    }, 50);
+  }
+
   // Search functionality
   if (searchInput) {
+    const savedSearch = _loadPersistedState().routePlan?.search || '';
+    if (savedSearch) {
+      searchInput.value = savedSearch;
+      setTimeout(() => searchInput.dispatchEvent(new Event('input')), 50);
+    }
+
     searchInput.addEventListener('input', (e) => {
       const searchTerm = e.target.value.toLowerCase();
+      saveViewState({ routePlan: { search: e.target.value } });
       const companyCards = companiesList.querySelectorAll('.company-quick-card');
 
       companyCards.forEach(card => {
@@ -8868,6 +8996,7 @@ function initRoutePlanning(companies, salesReps) {
 
     // Update map
     updateMap();
+    saveRouteBuilderState();
   }
 
   function removeStop(stopId) {
@@ -11385,8 +11514,17 @@ function initKanbanBoard(tasks, salesReps) {
   // Header Search functionality
   const searchInput = document.getElementById('task-search-input');
   if (searchInput) {
+    // Restore saved search
+    const persistedSearch = _loadPersistedState().tasks?.search || '';
+    if (persistedSearch) {
+      searchInput.value = persistedSearch;
+      // Trigger initial filter
+      setTimeout(() => searchInput.dispatchEvent(new Event('input')), 50);
+    }
+
     searchInput.addEventListener('input', (e) => {
       const query = e.target.value.toLowerCase();
+      saveViewState({ tasks: { search: query } });
       document.querySelectorAll('.kanban-task-card').forEach(card => {
         const title = card.querySelector('.task-card-title').textContent.toLowerCase();
         const description = card.querySelector('.task-card-description')?.textContent.toLowerCase() || '';
@@ -15924,6 +16062,8 @@ function initTechnicianFilters(visits, technicians, companies) {
     const type = typeFilter.value;
     const date = dateFilter.value;
 
+    saveViewState({ technicianDashboard: { companyId, technicianId, type, date } });
+
     filteredVisits = visits.filter(visit => {
       if (companyId && String(visit.company_id) !== String(companyId)) return false;
       if (technicianId && visit.technician_id !== technicianId) return false;
@@ -15968,11 +16108,23 @@ function initTechnicianFilters(visits, technicians, companies) {
     }
   }
 
+  // Restore state
+  const savedState = _loadPersistedState().technicianDashboard || {};
+  if (companyFilter && savedState.companyId !== undefined) companyFilter.value = savedState.companyId;
+  if (technicianFilter && savedState.technicianId !== undefined) technicianFilter.value = savedState.technicianId;
+  if (typeFilter && savedState.type !== undefined) typeFilter.value = savedState.type;
+  if (dateFilter && savedState.date !== undefined) dateFilter.value = savedState.date;
+
   // Add event listeners
   if (companyFilter) companyFilter.addEventListener('change', applyFilters);
   technicianFilter.addEventListener('change', applyFilters);
   typeFilter.addEventListener('change', applyFilters);
   dateFilter.addEventListener('change', applyFilters);
+
+  // Apply filters initially to reflect restored state
+  if (Object.keys(savedState).length > 0) {
+    applyFilters();
+  }
 
   clearFiltersBtn.addEventListener('click', () => {
     if (companyFilter) companyFilter.value = '';
@@ -19111,6 +19263,7 @@ async function renderCallLogsView() {
   if (searchInput) {
     searchInput.addEventListener('input', (e) => {
       callLogFilters.search = e.target.value;
+      saveViewState({ callLogs: callLogFilters });
       // Debounce the search to avoid excessive re-renders
       clearTimeout(filterDebounceTimer);
       filterDebounceTimer = setTimeout(() => {
@@ -19121,16 +19274,19 @@ async function renderCallLogsView() {
 
   document.getElementById('call-direction-filter')?.addEventListener('change', (e) => {
     callLogFilters.direction = e.target.value;
+    saveViewState({ callLogs: callLogFilters });
     renderCallLogsView();
   });
 
   document.getElementById('call-outcome-filter')?.addEventListener('change', (e) => {
     callLogFilters.outcome = e.target.value;
+    saveViewState({ callLogs: callLogFilters });
     renderCallLogsView();
   });
 
   document.getElementById('clear-filters')?.addEventListener('click', () => {
     callLogFilters = { search: '', direction: '', outcome: '' };
+    saveViewState({ callLogs: callLogFilters });
     clearTimeout(filterDebounceTimer);
     renderCallLogsView();
   });
