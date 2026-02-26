@@ -2831,17 +2831,18 @@ ul {
     height: 100%;
     width: 100%;
     position: relative;
-    background: #0f1117;
+    /* softer two‑tone background instead of harsh grid */
+    background: linear-gradient(135deg, #101217 0%, #0d1017 100%);
+    overflow: hidden;
 }
 
+/* subtle noise/paper texture instead of full grid */
 .map-layer {
     position: absolute;
     inset: 0;
-    background-image:
-        linear-gradient(#1f2937 1px, transparent 1px),
-        linear-gradient(90deg, #1f2937 1px, transparent 1px);
-    background-size: 40px 40px;
-    opacity: 0.2;
+    background: rgba(255,255,255,0.03);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/%3E%3C/feTurbulence%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23f)' opacity='0.2'/%3E%3C/svg%3E");
+    pointer-events: none;
 }
 
 .route-overlay {
@@ -2857,19 +2858,29 @@ ul {
     top: 20px;
     left: 20px;
     right: 20px;
-    background: #1e2129;
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 12px;
+    background: rgba(30,33,41,0.85);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 12px 16px;
     border-radius: 12px;
     display: flex;
     justify-content: space-between;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 
 .route-info {
     display: flex;
     align-items: center;
     gap: 12px;
+}
+
+/* route line styling improvements */
+.route-overlay path {
+    stroke: #10b981;
+    stroke-width: 4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 8px rgba(16,185,129,0.6));
 }
 
 .ri-icon {
@@ -2897,6 +2908,12 @@ ul {
     position: absolute;
     transform: translate(-50%, -100%);
     cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.map-marker:hover {
+    transform: translate(-50%, -100%) scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
 
 .mm-avatar {
