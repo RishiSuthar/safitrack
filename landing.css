@@ -514,6 +514,36 @@ ul {
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+/* Make showcase tabs wrap and become horizontally scrollable on small screens */
+@media (max-width: 640px) {
+    .showcase-tabs {
+        display: flex;
+        gap: 12px;
+        padding: 8px 12px;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        border-bottom: none;
+        justify-content: flex-start;
+        max-width: 100%;
+    }
+
+    .showcase-tab {
+        flex: 0 0 auto;
+        padding: 10px 14px;
+        font-size: 15px;
+        border-radius: 8px;
+        background: rgba(255,255,255,0.02);
+    }
+
+    .tab-divider {
+        display: none;
+    }
+
+    .browser-frame {
+        margin: 0 12px;
+    }
+}
+
 .showcase-tab {
     flex: 1;
     background: none;
@@ -619,6 +649,36 @@ ul {
     display: block;
     opacity: 1;
     transition: opacity 0.4s ease;
+}
+
+/* Ensure the showcase image scales well on small screens and keep aspect ratio */
+@media (max-width: 900px) {
+    .browser-frame {
+        max-width: 720px;
+    }
+
+    #showcase-image {
+        border-radius: 10px;
+        box-shadow: 0 18px 36px rgba(0,0,0,0.45);
+    }
+}
+
+@media (max-width: 480px) {
+    .browser-frame {
+        max-width: 100%;
+        margin: 0 8px;
+        border-radius: 10px;
+    }
+
+    .browser-header .browser-address {
+        display: none; /* hide address to reduce clutter on tiny screens */
+    }
+
+    #showcase-image {
+        transform-origin: center;
+        width: 100%;
+        height: auto;
+    }
 }
 
 #showcase-image.fade-out {
@@ -773,6 +833,34 @@ ul {
 .company-logo:hover {
     opacity: 0.92;
     transform: scale(1.03);
+}
+
+/* Make company logos and grid more compact on smaller screens */
+@media (max-width: 900px) {
+    .companies-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 24px;
+    }
+
+    .company-logo {
+        height: 48px;
+        max-width: 140px;
+        opacity: 0.8;
+    }
+}
+
+@media (max-width: 480px) {
+    .companies-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 18px;
+        padding: 0 12px;
+    }
+
+    .company-logo {
+        height: 40px;
+        max-width: 100px;
+        opacity: 0.9;
+    }
 }
 
 /* Specific logo size adjustments for visual balance */
@@ -3734,9 +3822,31 @@ ul {
 
 .footer-content {
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
+    /* Desktop layout: brand column on the left, link columns across the rest
+       Brand column has a fixed width to match the visual spacing in the reference */
+    grid-template-columns: 240px repeat(4, minmax(140px, 1fr));
     gap: 64px;
     margin-bottom: 48px;
+    align-items: start;
+}
+
+/* Ensure desktop-only footer layout (protect mobile from accidental overrides) */
+@media (min-width: 1025px) {
+    .footer-content {
+        display: grid;
+        grid-template-columns: 240px repeat(4, minmax(140px, 1fr));
+        gap: 64px;
+        margin-bottom: 48px;
+        align-items: start;
+    }
+
+    .footer-links {
+        grid-column: 2 / -1;
+        grid-template-columns: repeat(4, minmax(140px, 160px));
+        gap: 12px 48px;
+        align-items: start;
+        justify-content: center;
+    }
 }
 
 .footer-brand {
@@ -3768,36 +3878,54 @@ ul {
     color: var(--text-secondary);
 }
 
-.footer-links {
-    display: grid;
-    grid-template-columns: subgrid;
-    grid-column: 2 / 6;
-    gap: 64px;
-}
+    .footer-links {
+        display: grid;
+        /* Desktop: make the .footer-links block span columns 2..end so the four
+           link lists sit in the remaining grid area (centered visually). */
+        grid-column: 2 / -1;
+        grid-template-columns: repeat(4, minmax(140px, 160px));
+        gap: 12px 48px;
+        align-items: start;
+        justify-content: center;
+    }
 
-.footer-column {
-    display: flex;
-    flex-direction: column;
-}
+    /* Improve tap targets and stacking on small screens */
+    .footer-column a {
+        display: inline-block;
+        padding: 8px 0;
+    }
 
-.footer-heading {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-bottom: 16px;
-}
+    /* Make sure logo and tagline scale down gracefully */
+    .footer-logo {
+        height: 28px;
+        max-width: 100%;
+        object-fit: contain;
+    }
 
-.footer-column ul {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
 
-.footer-column a {
-    font-size: 14px;
-    color: var(--text-secondary);
-    transition: color var(--transition-base);
-}
+    .footer-column {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .footer-heading {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+    }
+
+    .footer-column ul {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .footer-column a {
+        font-size: 15px;
+        color: var(--text-secondary);
+        transition: color var(--transition-base);
+    }
 
 .footer-column a:hover {
     color: var(--text-primary);
@@ -4092,7 +4220,8 @@ body {
     }
 
     .footer-content {
-        grid-template-columns: 1fr;
+        /* On small screens, use 2-column compact layout: brand + links */
+        grid-template-columns: 1fr 1fr;
         gap: 32px;
     }
 
@@ -4137,6 +4266,38 @@ body {
         gap: 40px;
     }
 }
+
+/* Extra small / mobile overrides for footer */
+@media (max-width: 640px) {
+    .footer {
+        padding: 40px 0 24px;
+    }
+
+    /* Mobile: stack brand (logo + tagline) first, then place link groups under it */
+    .footer-content {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .footer-links {
+        /* make link groups appear below the brand; arrange as two columns for better density */
+        grid-column: auto;
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+        gap: 12px 24px;
+        margin-top: 8px;
+    }
+
+    .footer-tagline {
+        margin-bottom: 8px;
+        color: var(--text-secondary);
+    }
+
+    .footer-bottom {
+        gap: 12px;
+        text-align: center;
+    }
+}
+
 
 /* ===================================
    PREMIUM CONTACT MODAL
