@@ -39,20 +39,22 @@
     <nav class="navbar" id="navbar">
         <div class="container">
             <div class="nav-content">
-                <a href="#" class="logo">
-                    <img src="assets/icons/whiteblue.png" alt="SafiTrack">
-                    <span class="logo-text">SafiTrack</span>
-                </a>
+                <div class="nav-left">
+                    <a href="#" class="logo">
+                        <img src="assets/icons/transparentMain.png" alt="SafiTrack">
+                    </a>
 
-                <!-- Desktop Links -->
-                <div class="nav-links">
-                    <a href="pages/features/mainfeatures.html">Features</a>
-                    <a href="#product">Product</a>
-                    <a href="pages/pricing.html">Pricing</a>
-                    <a href="/crm/" class="nav-link-app">Open App →</a>
+                    <!-- Desktop Links -->
+                    <div class="nav-links">
+                        <a href="pages/features/mainfeatures.html">Features</a>
+                        <a href="#product">Product</a>
+                        <a href="pages/pricing.html">Pricing</a>
+                    </div>
                 </div>
+
                 <div class="nav-actions">
-                    <a href="#pricing" class="btn-primary">Book Demo</a>
+                    <a href="/crm/" class="nav-link-sign-in">Sign in</a>
+                    <a href="#pricing" class="btn-hero-primary">Start for free</a>
                 </div>
 
                 <!-- Mobile Menu Button -->
@@ -87,39 +89,77 @@
             <div class="hero-content">
                 <div class="hero-badge">
                     <span class="badge-dot"></span>
-                    <span>Purpose-built for modern revenue teams</span>
+                    <span>Safi A.I is now here!</span>
                 </div>
                 <h1 class="hero-title">
-                    The operating system<br>for your deals
+                    Safi <span id="dynamic-text-header" class="dynamic-word"><span>Track</span></span>
                 </h1>
                 <p class="hero-description">
-                    SafiTrack gives your team one place to run pipeline, capture field activity,
-                    and move opportunities forward with clarity.
+                    SafiTrack is the CRM for modern teams.
                 </p>
                 <div class="hero-actions">
-                    <a href="#pricing" class="btn-primary btn-lg">
-                        Book Demo
-                    </a>
-                    <a href="/crm/" class="btn-secondary btn-lg">
+                    <a href="/crm/" class="btn-hero-primary btn-lg">
                         Open App
                     </a>
-                </div>
-                <div class="hero-ai-launch">
-                    <div class="hero-ai-visual" aria-hidden="true">
-                        <img class="hero-ai-orb-gif" src="https://i.pinimg.com/originals/5e/25/eb/5e25ebd52434e35e5b0f06bc54f9f97e.gif" alt="">
-                    </div>
-                    <div class="hero-ai-content">
-                        <div class="hero-ai-topline">
-                            <span class="hero-ai-badge hero-ai-badge-inline">New</span>
-                        </div>
-                        <p class="hero-ai-title">Safi A.I is now here!</p>
-                        <p class="hero-ai-copy">Get instant summaries, next-step suggestions, and faster follow-ups in one workflow.</p>
-                    </div>
+                    <a href="#pricing" class="btn-hero-secondary btn-lg">
+                        Talk to sales
+                    </a>
                 </div>
             </div>
-            <div class="hero-visual" data-scroll>
-                <div class="hero-image-wrapper">
-                    <img src="assets/safitrackscreenshots/screen1.png" alt="SafiTrack Pipeline" class="hero-screenshot">
+        </div>
+    </section>
+
+    <!-- Showcase Section -->
+    <section class="showcase">
+        <div class="container">
+            <div class="showcase-tabs">
+                <button class="showcase-tab active" data-tab="opportunities">
+                    <span>Opportunities</span>
+                    <div class="tab-progress-wrap">
+                        <div class="tab-progress"></div>
+                    </div>
+                </button>
+                <span class="tab-divider"></span>
+                <button class="showcase-tab" data-tab="visits">
+                    <span>Visits</span>
+                    <div class="tab-progress-wrap">
+                        <div class="tab-progress"></div>
+                    </div>
+                </button>
+                <span class="tab-divider"></span>
+                <button class="showcase-tab" data-tab="routes">
+                    <span>Routes</span>
+                    <div class="tab-progress-wrap">
+                        <div class="tab-progress"></div>
+                    </div>
+                </button>
+                <span class="tab-divider"></span>
+                <button class="showcase-tab" data-tab="companies">
+                    <span>Companies</span>
+                    <div class="tab-progress-wrap">
+                        <div class="tab-progress"></div>
+                    </div>
+                </button>
+                <span class="tab-divider"></span>
+                <button class="showcase-tab" data-tab="people">
+                    <span>People</span>
+                    <div class="tab-progress-wrap">
+                        <div class="tab-progress"></div>
+                    </div>
+                </button>
+            </div>
+
+            <div class="showcase-display">
+                <div class="browser-frame">
+                    <div class="browser-header">
+                        <div class="browser-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div class="browser-address">SafiTrack CRM</div>
+                    </div>
+                    <div class="showcase-image-container">
+                        <img src="assets/safitrackscreenshots/opportunity_sc.png" alt="Showcase" id="showcase-image">
+                    </div>
                 </div>
             </div>
         </div>
@@ -147,95 +187,13 @@
                 <div class="scroll-manifesto-stage" data-scroll-manifesto>
                     <p class="sm-kicker">A better rhythm for revenue teams</p>
 
-                    <h2 class="sm-quote" data-manifesto-quote>SafiTrack turns sales chaos into focused revenue momentum.</h2>
+                    <h2 class="sm-quote" data-manifesto-quote>SafiTrack turns sales chaos into focused revenue momentum.
+                    </h2>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Revenue Control Center Section -->
-    <section class="intelligence-hub" id="intelligence">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">One command center for your entire revenue motion</h2>
-                <p class="section-subtitle">Monitor pipeline, execution, and team activity in one live, interactive view.</p>
-            </div>
-
-            <div class="revenue-control" data-scroll>
-                <div class="rc-left">
-                    <span class="rc-eyebrow">Live Revenue OS</span>
-                    <h3 class="rc-title">Built for the speed of modern sales teams</h3>
-                    <p class="rc-description">Track deal momentum, prioritize the next best action, and keep your team aligned from first touch to close.</p>
-
-                    <div class="rc-live-feed" id="rc-live-feed">
-                        <div class="rc-feed-row">
-                            <span class="rc-feed-label">Pipeline at risk</span>
-                            <strong class="rc-feed-value" data-feed="risk">$142K</strong>
-                        </div>
-                        <div class="rc-feed-row">
-                            <span class="rc-feed-label">Next best actions today</span>
-                            <strong class="rc-feed-value" data-feed="actions">27</strong>
-                        </div>
-                        <div class="rc-feed-row">
-                            <span class="rc-feed-label">Deals moved in last hour</span>
-                            <strong class="rc-feed-value" data-feed="moved">11</strong>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="rc-right">
-                    <div class="rc-tabs" role="tablist" aria-label="Revenue control views">
-                        <button class="rc-tab active" data-pane="pipeline" role="tab" aria-selected="true">Pipeline</button>
-                        <button class="rc-tab" data-pane="execution" role="tab" aria-selected="false">Execution</button>
-                        <button class="rc-tab" data-pane="team" role="tab" aria-selected="false">Team</button>
-                    </div>
-
-                    <div class="rc-panes">
-                        <div class="rc-pane active" data-pane="pipeline" role="tabpanel">
-                            <div class="rc-metric-card">
-                                <span class="rc-metric-label">Forecast Accuracy</span>
-                                <span class="rc-metric-value">92%</span>
-                                <span class="rc-metric-trend up">+4.1% this quarter</span>
-                            </div>
-                            <div class="rc-mini-bars">
-                                <div class="rc-mini-bar"><span style="height: 42%"></span><label>Q1</label></div>
-                                <div class="rc-mini-bar"><span style="height: 58%"></span><label>Q2</label></div>
-                                <div class="rc-mini-bar"><span style="height: 64%"></span><label>Q3</label></div>
-                                <div class="rc-mini-bar"><span style="height: 79%"></span><label>Q4</label></div>
-                            </div>
-                        </div>
-
-                        <div class="rc-pane" data-pane="execution" role="tabpanel">
-                            <div class="rc-metric-card">
-                                <span class="rc-metric-label">Tasks Completed Today</span>
-                                <span class="rc-metric-value">143</span>
-                                <span class="rc-metric-trend up">+18 vs yesterday</span>
-                            </div>
-                            <ul class="rc-checklist">
-                                <li>Proposals sent this morning</li>
-                                <li>Follow-ups due in next 3 hours</li>
-                                <li>Overdue opportunities flagged</li>
-                            </ul>
-                        </div>
-
-                        <div class="rc-pane" data-pane="team" role="tabpanel">
-                            <div class="rc-metric-card">
-                                <span class="rc-metric-label">Rep Activity Pulse</span>
-                                <span class="rc-metric-value">24 / 28 active</span>
-                                <span class="rc-metric-trend neutral">Healthy cadence this week</span>
-                            </div>
-                            <div class="rc-team-grid">
-                                <div class="rc-team-pill">A. Kim <span>14</span></div>
-                                <div class="rc-team-pill">J. Patel <span>12</span></div>
-                                <div class="rc-team-pill">M. Njeri <span>11</span></div>
-                                <div class="rc-team-pill">D. Otieno <span>10</span></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
 
     <!-- Before/After Transformation Section -->
     <section class="transformation-split" id="features">
@@ -688,7 +646,8 @@
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">See how SafiTrack feels in real work</h2>
-                <p class="section-subtitle">Interactive views that mirror how teams actually run pipeline, relationships, and follow-up.</p>
+                <p class="section-subtitle">Interactive views that mirror how teams actually run pipeline,
+                    relationships, and follow-up.</p>
             </div>
 
             <div class="px-shell" data-scroll>
@@ -716,7 +675,8 @@
                         </div>
                         <div class="px-kanban">
                             <div class="px-col">
-                                <div class="px-col-title">Qualified <span class="px-count" data-min="6" data-max="11">8</span></div>
+                                <div class="px-col-title">Qualified <span class="px-count" data-min="6"
+                                        data-max="11">8</span></div>
                                 <div class="px-card moving">
                                     <strong>Acme Expansion</strong>
                                     <span>$48,000</span>
@@ -724,11 +684,14 @@
                                 <div class="px-card"><strong>Nexa Logistics</strong><span>$21,400</span></div>
                             </div>
                             <div class="px-col active-target">
-                                <div class="px-col-title">Proposal <span class="px-count" data-min="4" data-max="8">5</span></div>
-                                <div class="px-card highlighted"><strong>BluePeak Holdings</strong><span>$32,700</span></div>
+                                <div class="px-col-title">Proposal <span class="px-count" data-min="4"
+                                        data-max="8">5</span></div>
+                                <div class="px-card highlighted"><strong>BluePeak Holdings</strong><span>$32,700</span>
+                                </div>
                             </div>
                             <div class="px-col">
-                                <div class="px-col-title">Negotiation <span class="px-count" data-min="2" data-max="5">3</span></div>
+                                <div class="px-col-title">Negotiation <span class="px-count" data-min="2"
+                                        data-max="5">3</span></div>
                                 <div class="px-card"><strong>Northline Retail</strong><span>$77,900</span></div>
                             </div>
                         </div>
@@ -1001,6 +964,68 @@
                 </div>
 
             </div>
+        </div>
+    </section>
+
+    <!-- Scale & Performance Section -->
+    <section class="scale-performance">
+        <div class="container">
+            <div class="scale-content">
+                <div class="scale-header">
+                    <h2 class="scale-title">
+                        The modern CRM for scaling businesses.
+                        <span>SafiTrack is built for scale. Our customers manage relationships and close deals with
+                            clarity and control.</span>
+                    </h2>
+                </div>
+
+                <div class="scale-grid">
+                    <div class="scale-metric">
+                        <div class="metric-val">10,000+</div>
+                        <div class="metric-label">deals tracked</div>
+                    </div>
+                    <div class="scale-metric">
+                        <div class="metric-val">100+</div>
+                        <div class="metric-label">customers</div>
+                    </div>
+                    <div class="scale-metric">
+                        <div class="metric-val">500+</div>
+                        <div class="metric-label">teams</div>
+                    </div>
+                    <div class="scale-metric">
+                        <div class="metric-val">99.9%</div>
+                        <div class="metric-label">uptime</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Animated Growth Curve SVG -->
+        <div class="scale-visual">
+            <svg class="growth-curve-svg" viewBox="0 0 1440 400" preserveAspectRatio="none">
+                <!-- Pronounced exponential curve -->
+                <path class="growth-curve-path" d="M0,370 C600,370 1100,250 1440,20" fill="none"
+                    stroke="var(--color-primary)" stroke-width="2.5" />
+                <g class="grid-lines">
+                    <line x1="80" y1="0" x2="80" y2="400" />
+                    <line x1="160" y1="0" x2="160" y2="400" />
+                    <line x1="240" y1="0" x2="240" y2="400" />
+                    <line x1="320" y1="0" x2="320" y2="400" />
+                    <line x1="400" y1="0" x2="400" y2="400" />
+                    <line x1="480" y1="0" x2="480" y2="400" />
+                    <line x1="560" y1="0" x2="560" y2="400" />
+                    <line x1="640" y1="0" x2="640" y2="400" />
+                    <line x1="720" y1="0" x2="720" y2="400" />
+                    <line x1="800" y1="0" x2="800" y2="400" />
+                    <line x1="880" y1="0" x2="880" y2="400" />
+                    <line x1="960" y1="0" x2="960" y2="400" />
+                    <line x1="1040" y1="0" x2="1040" y2="400" />
+                    <line x1="1120" y1="0" x2="1120" y2="400" />
+                    <line x1="1200" y1="0" x2="1200" y2="400" />
+                    <line x1="1280" y1="0" x2="1280" y2="400" />
+                    <line x1="1360" y1="0" x2="1360" y2="400" />
+                </g>
+            </svg>
         </div>
     </section>
 

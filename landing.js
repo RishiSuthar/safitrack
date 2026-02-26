@@ -16,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function () {
     enhanceAccessibility();
     initMobileMenu();
     initTestimonialCarousel();
+    initDynamicTitle();
+    initShowcase();
+    initScalePerformance();
 });
 
 function initMobileMenu() {
@@ -662,6 +665,76 @@ function initIntelligenceHub() {
     }
 }
 
+// ===================================
+// DYNAMIC HERO TITLE
+// ===================================
+
+function initDynamicTitle() {
+    const dynamicContainer = document.getElementById('dynamic-text-header');
+    if (!dynamicContainer) return;
+
+    const dynamicText = dynamicContainer.querySelector('span');
+    if (!dynamicText) return;
+
+    const words = ["track", "customers", "deals", "team", "leads", "revenue"];
+    let currentIndex = 0;
+
+    // Helper to calculate widths
+    const calculateWidths = () => {
+        return words.map(word => {
+            const temp = document.createElement('span');
+            temp.style.visibility = 'hidden';
+            temp.style.position = 'absolute';
+            temp.style.whiteSpace = 'nowrap';
+            temp.style.font = window.getComputedStyle(dynamicContainer).font;
+            temp.style.fontWeight = '900';
+            temp.style.textTransform = 'lowercase';
+            temp.textContent = word;
+            document.body.appendChild(temp);
+            const width = temp.getBoundingClientRect().width;
+            document.body.removeChild(temp);
+            return width + 20; // Updated padding (10px each side)
+        });
+    };
+
+    let widths = calculateWidths();
+
+    // Re-calculate on resize for responsive safety
+    window.addEventListener('resize', () => {
+        widths = calculateWidths();
+        dynamicContainer.style.width = `${widths[currentIndex]}px`;
+    });
+
+    // Set initial state
+    if (dynamicText) {
+        dynamicText.textContent = words[0];
+        dynamicContainer.style.width = `${widths[0]}px`;
+    }
+
+    setInterval(() => {
+        // Step 1: Snap OUT (Up + Shrink + Blur)
+        dynamicContainer.classList.add('exit');
+
+        setTimeout(() => {
+            // Step 2: Swap Content & Reset Position
+            currentIndex = (currentIndex + 1) % words.length;
+            if (dynamicText) {
+                dynamicText.textContent = words[currentIndex];
+            }
+            dynamicContainer.style.width = `${widths[currentIndex]}px`;
+
+            dynamicContainer.classList.remove('exit');
+            dynamicContainer.classList.add('enter');
+
+            // Force reflow
+            void dynamicContainer.offsetWidth;
+
+            // Step 3: Spring IN (into view with overshoot)
+            dynamicContainer.classList.remove('enter');
+        }, 450); // Slightly more time for the kinetic exit
+    }, 1500); // 1.5s interval as requested
+}
+
 function initProductExperience() {
     const tabs = document.querySelectorAll('.px-tab');
     const views = document.querySelectorAll('.px-view');
@@ -916,4 +989,158 @@ function initTestimonialCarousel() {
     startCarousel();
 
     // No pause on hover (cinematic feel)
+}
+
+// ===================================
+// SHOWCASE - ATTIO STYLE
+// ===================================
+
+function initShowcase() {
+    const tabs = document.querySelectorAll('.showcase-tab');
+    const image = document.getElementById('showcase-image');
+    if (!tabs.length || !image) return;
+
+    const intervalTime = 6000; // 6 seconds
+    let currentIndex = 0;
+    let timer = null;
+    let startTime = null;
+
+    const screenshots = {
+        opportunities: 'assets/safitrackscreenshots/opportunity_sc.png',
+        visits: 'assets/safitrackscreenshots/visits_sc.png',
+        routes: 'assets/safitrackscreenshots/route_sc.png',
+        companies: 'assets/safitrackscreenshots/company_sc.png',
+        people: 'assets/safitrackscreenshots/people_sc.png'
+    };
+
+    function switchTab(index) {
+        // Remove active class from all
+        tabs.forEach(tab => {
+            tab.classList.remove('active');
+            const bar = tab.querySelector('.tab-progress');
+            if (bar) bar.style.width = '0%';
+        });
+
+        // Set active
+        const nextTab = tabs[index];
+        nextTab.classList.add('active');
+
+        // Fade image
+        image.classList.add('fade-out');
+
+        setTimeout(() => {
+            const tabKey = nextTab.getAttribute('data-tab');
+            if (screenshots[tabKey]) {
+                image.src = screenshots[tabKey];
+            }
+            image.classList.remove('fade-out');
+        }, 400);
+
+        currentIndex = index;
+        startTime = Date.now();
+    }
+
+    function startTimer() {
+        if (timer) clearInterval(timer);
+        startTime = Date.now();
+
+        timer = setInterval(() => {
+            const elapsed = Date.now() - startTime;
+            const progress = (elapsed / intervalTime) * 100;
+
+            const activeBar = document.querySelector('.showcase-tab.active .tab-progress');
+            if (activeBar) {
+                activeBar.style.width = Math.min(progress, 100) + '%';
+            }
+
+            if (elapsed >= intervalTime) {
+                const nextIndex = (currentIndex + 1) % tabs.length;
+                switchTab(nextIndex);
+            }
+        }, 30);
+    }
+
+    tabs.forEach((tab, index) => {
+        tab.addEventListener('click', () => {
+            switchTab(index);
+        });
+    });
+
+    // Handle visibility change (pause timer when tab in background)
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            if (timer) clearInterval(timer);
+        } else {
+            startTime = Date.now();
+            startTimer();
+        }
+    });
+
+    // Start
+    switchTab(0);
+    startTimer();
+}
+
+function initScalePerformance() {
+    const section = document.querySelector('.scale-performance');
+    const path = document.querySelector('.growth-curve-path');
+
+    if (!section || !path) return;
+
+    // Reset path state
+    const length = path.getTotalLength();
+    path.style.strokeDasharray = length + ' ' + length;
+    path.style.strokeDashoffset = length;
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                // Trigger animation
+                path.style.strokeDashoffset = '0';
+
+                // Optional: Animate numbers
+                const metrics = section.querySelectorAll('.metric-val');
+                metrics.forEach(metric => {
+                    const target = parseFloat(metric.innerText.replace(/,/g, ''));
+                    if (isNaN(target)) return;
+
+                    animateValue(metric, 0, target, 2000);
+                });
+
+                observer.unobserve(section);
+            }
+        });
+    }, { threshold: 0.3 });
+
+    observer.observe(section);
+}
+
+function animateValue(obj, start, end, duration) {
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        const current = Math.floor(progress * (end - start) + start);
+
+        // Format back with commas if it was a large number
+        if (end > 1000) {
+            obj.innerHTML = current.toLocaleString();
+        } else if (String(end).includes('+')) {
+            obj.innerHTML = current.toLocaleString() + '+';
+        } else if (String(end).includes('%')) {
+            obj.innerHTML = (progress * end).toFixed(1) + '%';
+        } else {
+            obj.innerHTML = current.toLocaleString();
+        }
+
+        if (progress < 1) {
+            window.requestAnimationFrame(step);
+        } else {
+            // Ensure final value is exact (with suffix)
+            if (String(end).includes('+')) obj.innerHTML = end.toLocaleString() + '+';
+            else if (String(end).includes('%')) obj.innerHTML = end + '%';
+            else obj.innerHTML = end.toLocaleString();
+        }
+    };
+    window.requestAnimationFrame(step);
 }
