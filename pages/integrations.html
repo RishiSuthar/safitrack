@@ -1,12 +1,1147 @@
-<html>
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Integrations - SafiTrack</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrations — SafiTrack</title>
+    <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:           #0c0f18;
+            --bg2:          #111520;
+            --bg3:          #161c2c;
+            --bg4:          #1c2438;
+            --bg5:          #202840;
+            --border:       #1e2840;
+            --border2:      #28345a;
+            --blue:         #2f5fd0;
+            --blue2:        #3b6ee8;
+            --blue-light:   #7da2f8;
+            --blue-glow:    rgba(47,95,208,0.18);
+            --blue-glow2:   rgba(47,95,208,0.08);
+            --green:        #22d3a0;
+            --green-dim:    rgba(34,211,160,0.1);
+            --orange:       #f59e0b;
+            --orange-dim:   rgba(245,158,11,0.1);
+            --purple:       #a78bfa;
+            --purple-dim:   rgba(167,139,250,0.1);
+            --pink:         #f472b6;
+            --pink-dim:     rgba(244,114,182,0.1);
+            --red:          #f87171;
+            --red-dim:      rgba(248,113,113,0.1);
+            --cyan:         #22d3ee;
+            --cyan-dim:     rgba(34,211,238,0.1);
+            --text:         #e2eaff;
+            --text2:        #8fa3cc;
+            --text3:        #4a6090;
+            --sans:         'Manrope', sans-serif;
+            --mono:         'JetBrains Mono', monospace;
+            --r:            12px;
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+
+
+
+        /* ── NAVBAR ── */
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            height: 64px;
+            background: rgba(12,15,24,0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+        }
+        .nav-inner {
+            max-width: 1280px; margin: 0 auto; padding: 0 28px;
+            height: 100%; display: flex; align-items: center; justify-content: space-between;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo img { height: 26px; }
+        .logo-text { font-size: 17px; font-weight: 700; }
+        .nav-links { display: flex; align-items: center; gap: 28px; }
+        .nav-links a { font-size: 14px; font-weight: 500; color: var(--text2); transition: color .15s; }
+        .nav-links a:hover { color: var(--text); }
+        .btn-cta {
+            padding: 9px 20px; background: var(--blue); color: #fff;
+            border-radius: 10px; font-size: 13.5px; font-weight: 700;
+            transition: background .15s, transform .15s;
+        }
+        .btn-cta:hover { background: var(--blue2); transform: translateY(-1px); color: #fff; }
+
+        /* ── WRAPPER ── */
+        .page { position: relative; z-index: 1; }
+
+        /* ── HERO ── */
+        .hero {
+            padding: 120px 28px 80px;
+            text-align: center;
+            max-width: 1280px; margin: 0 auto;
+        }
+        .hero-pill {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--bg3); border: 1px solid var(--border2);
+            border-radius: 99px; padding: 6px 16px;
+            font-size: 12px; font-weight: 700; color: var(--blue-light);
+            text-transform: uppercase; letter-spacing: 0.08em;
+            margin-bottom: 28px;
+        }
+        .hero-pill .pip {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--blue-light);
+            box-shadow: 0 0 8px var(--blue-light);
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        .hero h1 {
+            font-size: 56px; font-weight: 800;
+            letter-spacing: -0.03em; line-height: 1.1;
+            margin-bottom: 20px;
+        }
+        .hero h1 .accent {
+            background: linear-gradient(135deg, var(--blue-light), var(--cyan));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 18px; color: var(--text2); max-width: 560px;
+            margin: 0 auto 40px; line-height: 1.7;
+        }
+        .hero-actions { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; }
+        .btn-hero-primary {
+            padding: 13px 28px; background: var(--blue); color: #fff;
+            border-radius: var(--r); font-size: 15px; font-weight: 700;
+            transition: all .2s; display: inline-flex; align-items: center; gap: 8px;
+            box-shadow: 0 0 30px rgba(47,95,208,0.3);
+        }
+        .btn-hero-primary:hover { background: var(--blue2); transform: translateY(-2px); box-shadow: 0 4px 40px rgba(47,95,208,0.4); color: #fff; }
+        .btn-hero-secondary {
+            padding: 13px 28px; background: var(--bg3); color: var(--text);
+            border: 1px solid var(--border2); border-radius: var(--r);
+            font-size: 15px; font-weight: 600;
+            transition: all .2s; display: inline-flex; align-items: center; gap: 8px;
+        }
+        .btn-hero-secondary:hover { background: var(--bg4); border-color: var(--text3); transform: translateY(-2px); }
+
+        /* ── STATS BAR ── */
+        .stats-bar {
+            max-width: 1280px; margin: 0 auto 80px;
+            padding: 0 28px;
+        }
+        .stats-inner {
+            background: var(--bg2); border: 1px solid var(--border);
+            border-radius: 16px; padding: 28px 40px;
+            display: grid; grid-template-columns: repeat(4, 1fr);
+            gap: 0;
+        }
+        .stat-item {
+            text-align: center; padding: 0 20px;
+            position: relative;
+        }
+        .stat-item:not(:last-child)::after {
+            content: ''; position: absolute; right: 0; top: 10%; bottom: 10%;
+            width: 1px; background: var(--border);
+        }
+        .stat-number { font-size: 32px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; }
+        .stat-label { font-size: 13px; color: var(--text3); margin-top: 4px; font-weight: 500; }
+
+        /* ── SECTION ── */
+        .section { max-width: 1280px; margin: 0 auto; padding: 0 28px 80px; }
+        .section-header { margin-bottom: 40px; }
+        .section-label {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.12em; color: var(--blue-light);
+            margin-bottom: 10px;
+        }
+        .section-title { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px; }
+        .section-desc { font-size: 15px; color: var(--text2); max-width: 480px; }
+
+        /* ── FILTER TABS ── */
+        .filter-bar {
+            display: flex; align-items: center; gap: 8px;
+            flex-wrap: wrap; margin-bottom: 36px;
+        }
+        .filter-btn {
+            padding: 8px 18px; border-radius: 99px;
+            font-size: 13px; font-weight: 600;
+            background: var(--bg3); color: var(--text2);
+            border: 1px solid var(--border);
+            cursor: pointer; transition: all .15s;
+        }
+        .filter-btn:hover { background: var(--bg4); color: var(--text); border-color: var(--border2); }
+        .filter-btn.active { background: var(--blue-glow); color: var(--blue-light); border-color: var(--blue); }
+
+        /* ── INTEGRATIONS GRID ── */
+        .integrations-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .int-card {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            transition: border-color .2s, transform .2s, box-shadow .2s;
+            position: relative; overflow: hidden;
+            display: flex; flex-direction: column; gap: 16px;
+        }
+        .int-card::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(125,162,248,0.3), transparent);
+            opacity: 0; transition: opacity .3s;
+        }
+        .int-card:hover {
+            border-color: var(--border2);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+        }
+        .int-card:hover::before { opacity: 1; }
+        .int-card.featured { border-color: rgba(47,95,208,0.4); }
+        .int-card.featured::after {
+            content: 'Featured';
+            position: absolute; top: 14px; right: 14px;
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--blue-light);
+            background: var(--blue-glow); border: 1px solid rgba(47,95,208,0.3);
+            padding: 3px 9px; border-radius: 99px;
+        }
+
+        .int-top { display: flex; align-items: flex-start; justify-content: space-between; }
+        .int-logo-wrap {
+            width: 52px; height: 52px; border-radius: 14px;
+            display: flex; align-items: center; justify-content: center;
+            flex-shrink: 0; border: 1px solid var(--border);
+            background: var(--bg3); overflow: hidden;
+        }
+        .int-logo-wrap img, .native-logo img {
+            width: 28px; height: 28px; object-fit: contain;
+        }
+        .int-status {
+            display: flex; align-items: center; gap: 5px;
+            font-size: 11px; font-weight: 700; color: var(--green);
+            text-transform: uppercase; letter-spacing: 0.06em;
+        }
+        .int-status .dot-live {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 6px var(--green);
+        }
+        .int-status.coming { color: var(--orange); }
+        .int-status.coming .dot-live { background: var(--orange); box-shadow: 0 0 6px var(--orange); }
+        .int-status.beta { color: var(--purple); }
+        .int-status.beta .dot-live { background: var(--purple); box-shadow: 0 0 6px var(--purple); }
+
+        .int-name { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+        .int-cat {
+            font-size: 11px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 0.08em; color: var(--text3);
+        }
+        .int-desc { font-size: 13.5px; color: var(--text2); line-height: 1.65; flex: 1; }
+        .int-footer {
+            display: flex; align-items: center; justify-content: space-between;
+            padding-top: 14px; border-top: 1px solid var(--border);
+        }
+        .int-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+        .int-tag {
+            font-size: 11px; font-weight: 600; padding: 3px 9px;
+            border-radius: 99px; border: 1px solid var(--border2);
+            color: var(--text3);
+        }
+        .int-arrow {
+            width: 28px; height: 28px; border-radius: 8px;
+            background: var(--bg4); border: 1px solid var(--border2);
+            display: flex; align-items: center; justify-content: center;
+            color: var(--text3); flex-shrink: 0;
+            transition: all .15s;
+        }
+        .int-card:hover .int-arrow {
+            background: var(--blue-glow); border-color: rgba(47,95,208,0.4);
+            color: var(--blue-light);
+        }
+
+        /* Color themes per logo */
+        .logo-crm   { background: rgba(34,211,160,0.1); }
+        .logo-erp   { background: rgba(167,139,250,0.1); }
+        .logo-msg   { background: rgba(245,158,11,0.1); }
+        .logo-data  { background: rgba(34,211,238,0.1); }
+        .logo-pay   { background: rgba(248,113,113,0.1); }
+        .logo-acc   { background: rgba(244,114,182,0.1); }
+        .logo-api   { background: rgba(47,95,208,0.15); }
+        .logo-map   { background: rgba(34,211,160,0.1); }
+
+        /* ── FEATURED INTEGRATION SPOTLIGHT ── */
+        .spotlight {
+            background: var(--bg2);
+            border: 1px solid var(--border2);
+            border-radius: 20px; padding: 48px;
+            margin-bottom: 80px;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 60px; align-items: center;
+            position: relative; overflow: hidden;
+        }
+
+        .spotlight-badge {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: var(--blue-glow); border: 1px solid rgba(47,95,208,0.3);
+            border-radius: 99px; padding: 5px 14px;
+            font-size: 11px; font-weight: 700; color: var(--blue-light);
+            text-transform: uppercase; letter-spacing: 0.08em;
+            margin-bottom: 20px;
+        }
+        .spotlight h2 { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 14px; }
+        .spotlight p { font-size: 15px; color: var(--text2); line-height: 1.75; margin-bottom: 24px; }
+        .spotlight-steps { display: flex; flex-direction: column; gap: 14px; margin-bottom: 28px; }
+        .spot-step { display: flex; align-items: flex-start; gap: 14px; }
+        .spot-num {
+            width: 26px; height: 26px; border-radius: 8px;
+            background: var(--blue-glow); border: 1px solid rgba(47,95,208,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 12px; font-weight: 700; color: var(--blue-light);
+            flex-shrink: 0; margin-top: 1px;
+        }
+        .spot-text { font-size: 14px; color: var(--text2); line-height: 1.6; }
+        .spot-text strong { color: var(--text); }
+        .spotlight-right {
+            background: var(--bg3); border: 1px solid var(--border);
+            border-radius: 14px; overflow: hidden;
+        }
+        .code-file-header {
+            background: var(--bg4); border-bottom: 1px solid var(--border);
+            padding: 12px 18px; display: flex; align-items: center; gap: 10px;
+        }
+        .file-dots { display: flex; gap: 6px; }
+        .file-dots span {
+            width: 10px; height: 10px; border-radius: 50%;
+        }
+        .file-dots span:nth-child(1) { background: #f87171; }
+        .file-dots span:nth-child(2) { background: var(--orange); }
+        .file-dots span:nth-child(3) { background: var(--green); }
+        .file-name { font-family: var(--mono); font-size: 12px; color: var(--text3); margin-left: 4px; }
+        .code-body {
+            padding: 22px 22px;
+            font-family: var(--mono); font-size: 12.5px;
+            line-height: 1.8; color: #b0c4e8;
+            overflow-x: auto;
+        }
+        .t-k { color: #f97583; }
+        .t-s { color: #9ecbff; }
+        .t-n { color: #79b8ff; }
+        .t-p { color: #7da2f8; }
+        .t-c { color: #3d5278; font-style: italic; }
+        .t-g { color: var(--green); }
+        .t-o { color: var(--orange); }
+
+        /* ── HOW IT WORKS ── */
+        .how-section { margin-bottom: 80px; }
+        .how-grid {
+            display: grid; grid-template-columns: repeat(3,1fr); gap: 16px;
+        }
+        .how-card {
+            background: var(--bg2); border: 1px solid var(--border);
+            border-radius: 16px; padding: 28px;
+            position: relative; overflow: hidden;
+        }
+        .how-card::before {
+            content: attr(data-num);
+            position: absolute; bottom: -10px; right: 14px;
+            font-size: 100px; font-weight: 800;
+            color: var(--border); line-height: 1;
+            letter-spacing: -0.04em;
+            pointer-events: none; user-select: none;
+        }
+        .how-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 22px; margin-bottom: 16px;
+            border: 1px solid var(--border);
+        }
+        .how-card h3 { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+        .how-card p { font-size: 13.5px; color: var(--text2); line-height: 1.65; position: relative; z-index: 1; }
+
+        /* ── ZAPIER / WEBHOOK SECTION ── */
+        .webhook-section {
+            background: var(--bg2); border: 1px solid var(--border);
+            border-radius: 20px; padding: 44px 48px;
+            margin-bottom: 80px;
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: 48px; align-items: start;
+        }
+        .webhook-section h2 { font-size: 24px; font-weight: 800; margin-bottom: 12px; letter-spacing: -0.01em; }
+        .webhook-section p { font-size: 14px; color: var(--text2); line-height: 1.75; margin-bottom: 20px; }
+        .event-list { display: flex; flex-direction: column; gap: 10px; }
+        .event-row {
+            display: flex; align-items: center; gap: 12px;
+            background: var(--bg3); border: 1px solid var(--border);
+            border-radius: 10px; padding: 12px 16px;
+            transition: border-color .15s;
+        }
+        .event-row:hover { border-color: var(--border2); }
+        .event-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+        .event-name { font-family: var(--mono); font-size: 12.5px; color: var(--blue-light); flex: 1; }
+        .event-desc { font-size: 12px; color: var(--text3); }
+
+        /* ── NATIVE INTEGRATIONS ── */
+        .native-row {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px; margin-bottom: 80px;
+        }
+        .native-card {
+            background: var(--bg2); border: 1px solid var(--border);
+            border-radius: 14px; padding: 20px;
+            display: flex; flex-direction: column; align-items: center;
+            text-align: center; gap: 10px;
+            transition: all .2s; cursor: pointer;
+        }
+        .native-card:hover {
+            border-color: var(--border2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+        }
+        .native-logo {
+            width: 44px; height: 44px; display: flex; align-items: center;
+            justify-content: center;
+        }
+        .native-logo img { width: 36px; height: 36px; object-fit: contain; }
+        .native-name { font-size: 14px; font-weight: 700; }
+        .native-type { font-size: 11px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+        .native-status-badge {
+            font-size: 10px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.06em; padding: 3px 9px; border-radius: 99px;
+        }
+        .live-badge { background: var(--green-dim); color: var(--green); border: 1px solid rgba(34,211,160,0.2); }
+        .beta-badge { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+        .soon-badge { background: var(--orange-dim); color: var(--orange); border: 1px solid rgba(245,158,11,0.2); }
+
+        /* ── CTA BANNER ── */
+        .cta-banner {
+            background: linear-gradient(135deg, var(--bg3) 0%, var(--bg4) 100%);
+            border: 1px solid var(--border2);
+            border-radius: 20px; padding: 60px;
+            text-align: center; margin-bottom: 80px;
+            position: relative; overflow: hidden;
+        }
+
+        .cta-banner h2 {
+            font-size: 34px; font-weight: 800;
+            letter-spacing: -0.02em; margin-bottom: 14px;
+            position: relative;
+        }
+        .cta-banner p {
+            font-size: 16px; color: var(--text2); max-width: 480px;
+            margin: 0 auto 32px; line-height: 1.7; position: relative;
+        }
+        .cta-actions { display: flex; justify-content: center; gap: 14px; flex-wrap: wrap; position: relative; }
+
+        /* ── FOOTER ── */
+        .page-footer {
+            border-top: 1px solid var(--border);
+            padding: 28px;
+            max-width: 1280px; margin: 0 auto;
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 13px; color: var(--text3); flex-wrap: wrap; gap: 12px;
+        }
+        .footer-links { display: flex; gap: 20px; }
+        .footer-links a { color: var(--text3); transition: color .15s; }
+        .footer-links a:hover { color: var(--text2); }
+
+        /* ── ANIMATIONS ── */
+        .fade-up {
+            opacity: 0; transform: translateY(20px);
+            transition: opacity .5s ease, transform .5s ease;
+        }
+        .fade-up.visible { opacity: 1; transform: none; }
+
+        /* ── RESPONSIVE ── */
+        @media(max-width: 900px) {
+            .hero h1 { font-size: 38px; }
+            .stats-inner { grid-template-columns: repeat(2,1fr); }
+            .stat-item:nth-child(2)::after { display: none; }
+            .spotlight, .webhook-section { grid-template-columns: 1fr; gap: 32px; }
+            .how-grid { grid-template-columns: 1fr; }
+            .section { padding-left: 20px; padding-right: 20px; }
+            .hero { padding-left: 20px; padding-right: 20px; }
+            .cta-banner { padding: 36px 24px; }
+        }
+    </style>
 </head>
-
 <body>
-    <h1>Integrations</h1>
-    <p>Integrations are coming soon.</p>
-</body>
 
+<!-- Navbar -->
+<nav class="navbar">
+    <div class="nav-inner">
+        <a href="../index.html" class="logo">
+            <img src="../assets/icons/whiteblue.png" alt="SafiTrack">
+            <span class="logo-text">SafiTrack</span>
+        </a>
+        <div class="nav-links">
+            <a href="features/mainfeatures.html">Features</a>
+            <a href="docs.html">Docs</a>
+            <a href="api-reference.html">API</a>
+            <a href="pricing.html">Pricing</a>
+            <a href="../crm/" class="btn-cta">Open App</a>
+        </div>
+    </div>
+</nav>
+
+<div class="page">
+
+    <!-- ── HERO ── -->
+    <div class="hero fade-up">
+        <div class="hero-pill"><span class="pip"></span> 30+ Integrations Available</div>
+        <h1>Connect SafiTrack to<br><span class="accent">your entire stack</span></h1>
+        <p>Sync field data with the tools your team already uses — CRMs, ERPs, payment systems, communication platforms, and more.</p>
+        <div class="hero-actions">
+            <a href="api-reference.html" class="btn-hero-primary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                Browse API Docs
+            </a>
+            <a href="#all-integrations" class="btn-hero-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                Explore Integrations
+            </a>
+        </div>
+    </div>
+
+    <!-- ── STATS ── -->
+    <div class="stats-bar fade-up">
+        <div class="stats-inner">
+            <div class="stat-item">
+                <div class="stat-number" style="color:var(--blue-light)">30+</div>
+                <div class="stat-label">Native integrations</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" style="color:var(--green)">REST</div>
+                <div class="stat-label">Full API access</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" style="color:var(--purple)">10min</div>
+                <div class="stat-label">Average setup time</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" style="color:var(--cyan)">99.9%</div>
+                <div class="stat-label">Sync uptime SLA</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── HOW IT WORKS ── -->
+    <div class="section how-section fade-up">
+        <div class="section-header">
+            <div class="section-label">How It Works</div>
+            <div class="section-title">Simple, reliable data sync</div>
+            <div class="section-desc">SafiTrack integrations are built on a robust event-driven architecture. No polling, no delays.</div>
+        </div>
+        <div class="how-grid">
+            <div class="how-card" data-num="01">
+                <div class="how-icon" style="background:var(--blue-glow)">🔌</div>
+                <h3>Connect in one click</h3>
+                <p>Authenticate via OAuth or paste an API key. SafiTrack handles token refresh and credential storage automatically.</p>
+            </div>
+            <div class="how-card" data-num="02">
+                <div class="how-icon" style="background:var(--green-dim)">⚡</div>
+                <h3>Events flow in real-time</h3>
+                <p>Every visit, order, or rep action triggers an instant webhook. Your connected tools receive data within seconds, not minutes.</p>
+            </div>
+            <div class="how-card" data-num="03">
+                <div class="how-icon" style="background:var(--purple-dim)">🔁</div>
+                <h3>Two-way sync</h3>
+                <p>Data flows both ways. Create a contact in your CRM and it appears in SafiTrack. Log a visit and it updates your ERP automatically.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── SPOTLIGHT: SALESFORCE ── -->
+    <div class="section fade-up">
+        <div class="spotlight">
+            <div class="spotlight-left">
+                <div class="spotlight-badge">★ Featured Integration</div>
+                <h2>Salesforce CRM</h2>
+                <p>The deepest CRM integration in SafiTrack. Sync companies, contacts, opportunities, and visit outcomes bidirectionally. Your Salesforce stays current without any manual data entry from your reps.</p>
+                <div class="spotlight-steps">
+                    <div class="spot-step">
+                        <div class="spot-num">1</div>
+                        <div class="spot-text"><strong>Connect your Salesforce org</strong> — authenticate via OAuth 2.0 in under 60 seconds.</div>
+                    </div>
+                    <div class="spot-step">
+                        <div class="spot-num">2</div>
+                        <div class="spot-text"><strong>Map your fields</strong> — match SafiTrack's Company/People/Visit entities to your Salesforce objects.</div>
+                    </div>
+                    <div class="spot-step">
+                        <div class="spot-num">3</div>
+                        <div class="spot-text"><strong>Go live</strong> — every verified visit creates or updates an Activity record in Salesforce instantly.</div>
+                    </div>
+                </div>
+                <a href="#" class="btn-hero-primary" style="width:fit-content;font-size:14px;padding:11px 22px">View Setup Guide →</a>
+            </div>
+            <div class="spotlight-right">
+                <div class="code-file-header">
+                    <div class="file-dots"><span></span><span></span><span></span></div>
+                    <span class="file-name">salesforce-sync.js</span>
+                </div>
+                <div class="code-body"><span class="t-k">import</span> { <span class="t-p">SafiTrack</span> } <span class="t-k">from</span> <span class="t-s">'@safitrack/sdk-core'</span>;
+<span class="t-k">import</span> { <span class="t-p">SalesforcePlugin</span> } <span class="t-k">from</span> <span class="t-s">'@safitrack/plugin-salesforce'</span>;
+
+<span class="t-k">const</span> safi = <span class="t-k">new</span> <span class="t-p">SafiTrack</span>({
+  apiKey: process.env.<span class="t-p">SAFI_KEY</span>,
+});
+
+<span class="t-c">// Connect Salesforce with field mapping</span>
+<span class="t-k">await</span> safi.integrations.<span class="t-p">connect</span>(<span class="t-k">new</span> <span class="t-p">SalesforcePlugin</span>({
+  instanceUrl: <span class="t-s">'https://myorg.salesforce.com'</span>,
+  fieldMap: {
+    <span class="t-s">'company.name'</span>:    <span class="t-s">'Account.Name'</span>,
+    <span class="t-s">'company.phone'</span>:   <span class="t-s">'Account.Phone'</span>,
+    <span class="t-s">'visit.outcome'</span>:   <span class="t-s">'Activity.Description'</span>,
+    <span class="t-s">'visit.orderValue'</span>: <span class="t-s">'Opportunity.Amount'</span>,
+  },
+  syncDirection: <span class="t-s">'bidirectional'</span>,
+}));
+
+<span class="t-c">// Now every verified visit auto-logs in Salesforce</span>
+safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
+  console.<span class="t-p">log</span>(<span class="t-s">`Synced to SF: <span class="t-p">${visit.id}</span>`</span>);
+});</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── ALL INTEGRATIONS ── -->
+    <div id="all-integrations" class="section fade-up">
+        <div class="section-header">
+            <div class="section-label">All Integrations</div>
+            <div class="section-title">Everything in the ecosystem</div>
+            <div class="section-desc">Browse all available integrations or filter by category.</div>
+        </div>
+
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterCards(this,'all')">All</button>
+            <button class="filter-btn" onclick="filterCards(this,'crm')">CRM</button>
+            <button class="filter-btn" onclick="filterCards(this,'erp')">ERP</button>
+            <button class="filter-btn" onclick="filterCards(this,'messaging')">Messaging</button>
+            <button class="filter-btn" onclick="filterCards(this,'analytics')">Analytics</button>
+            <button class="filter-btn" onclick="filterCards(this,'payments')">Payments</button>
+            <button class="filter-btn" onclick="filterCards(this,'automation')">Automation</button>
+        </div>
+
+        <div class="integrations-grid" id="int-grid">
+
+            <!-- CRM -->
+            <div class="int-card featured" data-cat="crm">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-crm"><img src="https://www.svgrepo.com/show/303235/salesforce-2-logo.svg" alt="Salesforce"></div>
+                    <div class="int-status"><span class="dot-live"></span> Live</div>
+                </div>
+                <div>
+                    <div class="int-name">Salesforce</div>
+                    <div class="int-cat">CRM</div>
+                </div>
+                <div class="int-desc">Bidirectional sync of companies, contacts, and visit outcomes. Auto-creates Activity and Opportunity records from verified visits.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">Bidirectional</span><span class="int-tag">OAuth</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <div class="int-card" data-cat="crm">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-crm"><img src="https://www.svgrepo.com/show/353887/hubspot.svg" alt="HubSpot"></div>
+                    <div class="int-status"><span class="dot-live"></span> Live</div>
+                </div>
+                <div>
+                    <div class="int-name">HubSpot</div>
+                    <div class="int-cat">CRM</div>
+                </div>
+                <div class="int-desc">Push visit data to HubSpot contacts and deals. Trigger workflows and sequences when a rep visits a key account.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">Bidirectional</span><span class="int-tag">OAuth</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <div class="int-card" data-cat="crm">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-crm"><img src="https://cdn.simpleicons.org/pipedrive/white" alt="Pipedrive"></div>
+                    <div class="int-status beta"><span class="dot-live"></span> Beta</div>
+                </div>
+                <div>
+                    <div class="int-name">Pipedrive</div>
+                    <div class="int-cat">CRM</div>
+                </div>
+                <div class="int-desc">Sync deals, persons, and organizations. Log field visit notes directly into Pipedrive activities.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">Outbound</span><span class="int-tag">API Key</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <!-- ERP -->
+            <div class="int-card" data-cat="erp">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-erp"><img src="https://cdn.simpleicons.org/sap/white" alt="SAP"></div>
+                    <div class="int-status"><span class="dot-live"></span> Live</div>
+                </div>
+                <div>
+                    <div class="int-name">SAP B1</div>
+                    <div class="int-cat">ERP</div>
+                </div>
+                <div class="int-desc">Feed field orders directly into SAP Business One. Inventory updates from SafiTrack visits reconcile with SAP stock in real-time.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">Bidirectional</span><span class="int-tag">SOAP/REST</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <div class="int-card" data-cat="erp">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-erp"><img src="https://cdn.simpleicons.org/odoo/white" alt="Odoo"></div>
+                    <div class="int-status"><span class="dot-live"></span> Live</div>
+                </div>
+                <div>
+                    <div class="int-name">Odoo</div>
+                    <div class="int-cat">ERP</div>
+                </div>
+                <div class="int-desc">Push sales orders, invoices, and delivery confirmations to Odoo directly from the SafiTrack visit form.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">Outbound</span><span class="int-tag">XML-RPC</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <div class="int-card" data-cat="erp">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-erp"><img src="https://cdn.simpleicons.org/oracle/white" alt="NetSuite"></div>
+                    <div class="int-status coming"><span class="dot-live"></span> Soon</div>
+                </div>
+                <div>
+                    <div class="int-name">NetSuite</div>
+                    <div class="int-cat">ERP</div>
+                </div>
+                <div class="int-desc">Enterprise-grade sync with Oracle NetSuite. Orders, inventory adjustments, and customer records.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">Bidirectional</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <!-- MESSAGING -->
+            <div class="int-card" data-cat="messaging">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-msg"><img src="https://cdn.simpleicons.org/slack/white" alt="Slack"></div>
+                    <div class="int-status"><span class="dot-live"></span> Live</div>
+                </div>
+                <div>
+                    <div class="int-name">Slack</div>
+                    <div class="int-cat">Messaging</div>
+                </div>
+                <div class="int-desc">Post real-time alerts to Slack channels when visits are flagged, targets are hit, or low-stock alerts fire.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">Outbound</span><span class="int-tag">Webhooks</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <div class="int-card" data-cat="messaging">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-msg"><img src="https://www.svgrepo.com/show/475692/whatsapp-color.svg" alt="WhatsApp"></div>
+                    <div class="int-status"><span class="dot-live"></span> Live</div>
+                </div>
+                <div>
+                    <div class="int-name">WhatsApp Business</div>
+                    <div class="int-cat">Messaging</div>
+                </div>
+                <div class="int-desc">Send reps WhatsApp notifications for new assignments, visit reminders, and performance summaries via Meta's Cloud API.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">Outbound</span><span class="int-tag">Cloud API</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <div class="int-card" data-cat="messaging">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-msg"><img src="https://cdn.simpleicons.org/sendgrid/white" alt="SendGrid"></div>
+                    <div class="int-status"><span class="dot-live"></span> Live</div>
+                </div>
+                <div>
+                    <div class="int-name">SendGrid</div>
+                    <div class="int-cat">Messaging</div>
+                </div>
+                <div class="int-desc">Trigger branded transactional emails — weekly rep summaries, flagged visit notices, and manager reports.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">Outbound</span><span class="int-tag">Templates</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <!-- ANALYTICS -->
+            <div class="int-card" data-cat="analytics">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-data"><img src="https://cdn.simpleicons.org/googlesheets/white" alt="Google Sheets"></div>
+                    <div class="int-status"><span class="dot-live"></span> Live</div>
+                </div>
+                <div>
+                    <div class="int-name">Google Sheets</div>
+                    <div class="int-cat">Analytics</div>
+                </div>
+                <div class="int-desc">Auto-populate Google Sheets with visit data. Perfect for custom dashboards and ops teams that live in spreadsheets.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">Outbound</span><span class="int-tag">OAuth</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <div class="int-card" data-cat="analytics">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-data"><img src="https://cdn.simpleicons.org/microsoftpowerbi/white" alt="Power BI"></div>
+                    <div class="int-status"><span class="dot-live"></span> Live</div>
+                </div>
+                <div>
+                    <div class="int-name">Power BI</div>
+                    <div class="int-cat">Analytics</div>
+                </div>
+                <div class="int-desc">Connect SafiTrack to Microsoft Power BI via our certified connector. Build territory coverage maps and rep leaderboards in minutes.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">Connector</span><span class="int-tag">Live refresh</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <div class="int-card" data-cat="analytics">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-data"><img src="https://cdn.simpleicons.org/googlebigquery/white" alt="BigQuery"></div>
+                    <div class="int-status beta"><span class="dot-live"></span> Beta</div>
+                </div>
+                <div>
+                    <div class="int-name">BigQuery</div>
+                    <div class="int-cat">Analytics</div>
+                </div>
+                <div class="int-desc">Stream all visit, inventory, and rep events to Google BigQuery for warehouse-scale analytics and ML pipelines.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">Streaming</span><span class="int-tag">Enterprise</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <!-- PAYMENTS -->
+            <div class="int-card" data-cat="payments">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-pay"><img src="https://cdn.simpleicons.org/mpesa/white" alt="M-Pesa"></div>
+                    <div class="int-status"><span class="dot-live"></span> Live</div>
+                </div>
+                <div>
+                    <div class="int-name">M-Pesa Daraja</div>
+                    <div class="int-cat">Payments</div>
+                </div>
+                <div class="int-desc">Collect field payments via M-Pesa STK push directly from the visit form. Payment confirmations are linked to visit records automatically.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">In-app</span><span class="int-tag">Daraja API</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <div class="int-card" data-cat="payments">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-pay"><img src="https://cdn.simpleicons.org/stripe/white" alt="Stripe"></div>
+                    <div class="int-status"><span class="dot-live"></span> Live</div>
+                </div>
+                <div>
+                    <div class="int-name">Stripe</div>
+                    <div class="int-cat">Payments</div>
+                </div>
+                <div class="int-desc">Issue invoices and collect card payments from business contacts during field visits using Stripe Payment Links.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">In-app</span><span class="int-tag">API Key</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <div class="int-card" data-cat="payments">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-acc"><img src="https://cdn.simpleicons.org/quickbooks/white" alt="QuickBooks"></div>
+                    <div class="int-status"><span class="dot-live"></span> Live</div>
+                </div>
+                <div>
+                    <div class="int-name">QuickBooks</div>
+                    <div class="int-cat">Payments</div>
+                </div>
+                <div class="int-desc">Create QuickBooks invoices and receipts from SafiTrack order data. Reconcile field revenue with your accounting books.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">Bidirectional</span><span class="int-tag">OAuth</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <!-- AUTOMATION -->
+            <div class="int-card featured" data-cat="automation">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-api"><img src="https://cdn.simpleicons.org/zapier/white" alt="Zapier"></div>
+                    <div class="int-status"><span class="dot-live"></span> Live</div>
+                </div>
+                <div>
+                    <div class="int-name">Zapier</div>
+                    <div class="int-cat">Automation</div>
+                </div>
+                <div class="int-desc">Connect SafiTrack to 5,000+ apps through Zapier. Trigger Zaps on visit events without writing a single line of code.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">No-code</span><span class="int-tag">5000+ apps</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <div class="int-card" data-cat="automation">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-api"><img src="https://cdn.simpleicons.org/make/white" alt="Make"></div>
+                    <div class="int-status"><span class="dot-live"></span> Live</div>
+                </div>
+                <div>
+                    <div class="int-name">Make (Integromat)</div>
+                    <div class="int-cat">Automation</div>
+                </div>
+                <div class="int-desc">Build powerful visual automation flows with SafiTrack triggers and actions in the Make platform.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">No-code</span><span class="int-tag">Visual builder</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+            <div class="int-card" data-cat="automation">
+                <div class="int-top">
+                    <div class="int-logo-wrap logo-api"><img src="https://cdn.simpleicons.org/n8n/white" alt="n8n"></div>
+                    <div class="int-status beta"><span class="dot-live"></span> Beta</div>
+                </div>
+                <div>
+                    <div class="int-name">n8n</div>
+                    <div class="int-cat">Automation</div>
+                </div>
+                <div class="int-desc">Self-hostable workflow automation. Use SafiTrack's native n8n node to build complex, custom automations.</div>
+                <div class="int-footer">
+                    <div class="int-tags"><span class="int-tag">Self-host</span><span class="int-tag">Open source</span></div>
+                    <div class="int-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ── WEBHOOKS SECTION ── -->
+    <div class="section fade-up">
+        <div class="webhook-section">
+            <div>
+                <div class="section-label">Webhooks</div>
+                <h2>Build your own integrations</h2>
+                <p>Every action in SafiTrack fires a real-time webhook. Subscribe to any combination of events and send the data wherever you need it — your own servers, no-code platforms, or data warehouses.</p>
+                <p>Payloads are signed with HMAC-SHA256 so you can verify authenticity before processing.</p>
+                <a href="api-reference.html#webhooks" class="btn-hero-secondary" style="display:inline-flex;font-size:13.5px;padding:10px 20px">
+                    View Webhook Docs →
+                </a>
+            </div>
+            <div>
+                <div class="event-list">
+                    <div class="event-row">
+                        <div class="event-dot" style="background:var(--green)"></div>
+                        <div class="event-name">visit.verified</div>
+                        <div class="event-desc">GPS check-in confirmed</div>
+                    </div>
+                    <div class="event-row">
+                        <div class="event-dot" style="background:var(--orange)"></div>
+                        <div class="event-name">visit.flagged</div>
+                        <div class="event-desc">Outside geofence tolerance</div>
+                    </div>
+                    <div class="event-row">
+                        <div class="event-dot" style="background:var(--red)"></div>
+                        <div class="event-name">visit.rejected</div>
+                        <div class="event-desc">Manager marked invalid</div>
+                    </div>
+                    <div class="event-row">
+                        <div class="event-dot" style="background:var(--cyan)"></div>
+                        <div class="event-name">inventory.low_stock</div>
+                        <div class="event-desc">SKU below threshold</div>
+                    </div>
+                    <div class="event-row">
+                        <div class="event-dot" style="background:var(--purple)"></div>
+                        <div class="event-name">rep.offline_too_long</div>
+                        <div class="event-desc">Rep inactive > configured window</div>
+                    </div>
+                    <div class="event-row">
+                        <div class="event-dot" style="background:var(--blue-light)"></div>
+                        <div class="event-name">report.ready</div>
+                        <div class="event-desc">Scheduled report generated</div>
+                    </div>
+                    <div class="event-row">
+                        <div class="event-dot" style="background:var(--pink)"></div>
+                        <div class="event-name">company.created</div>
+                        <div class="event-desc">New company added to org</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── QUICK CONNECT LOGOS ── -->
+    <div class="section fade-up">
+        <div class="section-header">
+            <div class="section-label">Quick Connect</div>
+            <div class="section-title">Ready in minutes</div>
+            <div class="section-desc">These integrations install with one click from your SafiTrack dashboard.</div>
+        </div>
+        <div class="native-row">
+            <div class="native-card">
+                <div class="native-logo"><img src="https://www.svgrepo.com/show/303235/salesforce-2-logo.svg" alt="Salesforce"></div>
+                <div class="native-name">Salesforce</div>
+                <div class="native-type">CRM</div>
+                <div class="native-status-badge live-badge">Live</div>
+            </div>
+            <div class="native-card">
+                <div class="native-logo"><img src="https://www.svgrepo.com/show/353887/hubspot.svg" alt="HubSpot"></div>
+                <div class="native-name">HubSpot</div>
+                <div class="native-type">CRM</div>
+                <div class="native-status-badge live-badge">Live</div>
+            </div>
+            <div class="native-card">
+                <div class="native-logo"><img src="https://cdn.simpleicons.org/slack/white" alt="Slack"></div>
+                <div class="native-name">Slack</div>
+                <div class="native-type">Messaging</div>
+                <div class="native-status-badge live-badge">Live</div>
+            </div>
+            <div class="native-card">
+                <div class="native-logo"><img src="https://www.svgrepo.com/show/475692/whatsapp-color.svg" alt="WhatsApp"></div>
+                <div class="native-name">WhatsApp</div>
+                <div class="native-type">Messaging</div>
+                <div class="native-status-badge live-badge">Live</div>
+            </div>
+            <div class="native-card">
+                <div class="native-logo"><img src="https://cdn.simpleicons.org/zapier/white" alt="Zapier"></div>
+                <div class="native-name">Zapier</div>
+                <div class="native-type">Automation</div>
+                <div class="native-status-badge live-badge">Live</div>
+            </div>
+            <div class="native-card">
+                <div class="native-logo"><img src="https://cdn.simpleicons.org/mpesa/white" alt="M-Pesa"></div>
+                <div class="native-name">M-Pesa</div>
+                <div class="native-type">Payments</div>
+                <div class="native-status-badge live-badge">Live</div>
+            </div>
+            <div class="native-card">
+                <div class="native-logo"><img src="https://cdn.simpleicons.org/microsoftpowerbi/white" alt="Power BI"></div>
+                <div class="native-name">Power BI</div>
+                <div class="native-type">Analytics</div>
+                <div class="native-status-badge live-badge">Live</div>
+            </div>
+            <div class="native-card">
+                <div class="native-logo"><img src="https://cdn.simpleicons.org/googlesheets/white" alt="Sheets"></div>
+                <div class="native-name">Sheets</div>
+                <div class="native-type">Analytics</div>
+                <div class="native-status-badge live-badge">Live</div>
+            </div>
+            <div class="native-card">
+                <div class="native-logo"><img src="https://cdn.simpleicons.org/sap/white" alt="SAP"></div>
+                <div class="native-name">SAP B1</div>
+                <div class="native-type">ERP</div>
+                <div class="native-status-badge live-badge">Live</div>
+            </div>
+            <div class="native-card">
+                <div class="native-logo"><img src="https://cdn.simpleicons.org/googlebigquery/white" alt="BigQuery"></div>
+                <div class="native-name">BigQuery</div>
+                <div class="native-type">Analytics</div>
+                <div class="native-status-badge beta-badge">Beta</div>
+            </div>
+            <div class="native-card">
+                <div class="native-logo"><img src="https://cdn.simpleicons.org/oracle/white" alt="NetSuite"></div>
+                <div class="native-name">NetSuite</div>
+                <div class="native-type">ERP</div>
+                <div class="native-status-badge soon-badge">Soon</div>
+            </div>
+            <div class="native-card">
+                <div class="native-logo"><img src="https://cdn.simpleicons.org/pipedrive/white" alt="Pipedrive"></div>
+                <div class="native-name">Pipedrive</div>
+                <div class="native-type">CRM</div>
+                <div class="native-status-badge beta-badge">Beta</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── CTA ── -->
+    <div class="section fade-up">
+        <div class="cta-banner">
+            <h2>Don't see your tool?</h2>
+            <p>We're adding integrations every month. Request a new integration or build your own using our open REST API and webhook system.</p>
+            <div class="cta-actions">
+                <a href="#" class="btn-hero-primary">Request an Integration</a>
+                <a href="api-reference.html" class="btn-hero-secondary">Build with the API</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="page-footer">
+            <div>© 2026 SafiTrack, Inc.</div>
+            <div class="footer-links">
+                <a href="docs.html">Docs</a>
+                <a href="api-reference.html">API</a>
+                <a href="#">Status</a>
+                <a href="helpcenter.html">Support</a>
+                <a href="#">Privacy</a>
+            </div>
+            <div style="color:var(--text3)">Last updated Jan 20, 2026</div>
+        </div>
+    </footer>
+
+</div>
+
+<script>
+    // Filter integrations
+    function filterCards(btn, cat) {
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.int-card').forEach(card => {
+            if (cat === 'all' || card.dataset.cat === cat) {
+                card.style.display = '';
+                card.style.animation = 'none';
+                requestAnimationFrame(() => {
+                    card.style.animation = 'fadeInCard .25s ease forwards';
+                });
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    // Scroll fade-in
+    const fadeEls = document.querySelectorAll('.fade-up');
+    const io = new IntersectionObserver(entries => {
+        entries.forEach(e => {
+            if (e.isIntersecting) {
+                e.target.classList.add('visible');
+                io.unobserve(e.target);
+            }
+        });
+    }, { threshold: 0.07 });
+    fadeEls.forEach(el => io.observe(el));
+
+    // Inject keyframe
+    const style = document.createElement('style');
+    style.textContent = `@keyframes fadeInCard { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }`;
+    document.head.appendChild(style);
+</script>
+</body>
 </html>

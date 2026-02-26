@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Sitemap for main landing page
+Sitemap: https://safitrack.netlify.app/sitemap.xml
