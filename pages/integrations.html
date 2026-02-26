@@ -228,13 +228,21 @@
 
         .int-top { display: flex; align-items: flex-start; justify-content: space-between; }
         .int-logo-wrap {
-            width: 52px; height: 52px; border-radius: 14px;
+            width: 56px; height: 56px; border-radius: 14px;
             display: flex; align-items: center; justify-content: center;
             flex-shrink: 0; border: 1px solid var(--border);
             background: var(--bg3); overflow: hidden;
         }
-        .int-logo-wrap img, .native-logo img {
-            width: 28px; height: 28px; object-fit: contain;
+        .int-logo-wrap img {
+            width: 32px; height: 32px; object-fit: contain;
+        }
+        /* Larger for logos that are wide/horizontal (text-based logos) */
+        .int-logo-wrap img.logo-wide {
+            width: 40px; height: 24px;
+        }
+        /* Smaller for logos that have complex detail */
+        .int-logo-wrap img.logo-sm {
+            width: 24px; height: 24px;
         }
         .int-status {
             display: flex; align-items: center; gap: 5px;
@@ -279,15 +287,25 @@
             color: var(--blue-light);
         }
 
-        /* Color themes per logo */
-        .logo-crm   { background: rgba(34,211,160,0.1); }
-        .logo-erp   { background: rgba(167,139,250,0.1); }
-        .logo-msg   { background: rgba(245,158,11,0.1); }
-        .logo-data  { background: rgba(34,211,238,0.1); }
-        .logo-pay   { background: rgba(248,113,113,0.1); }
-        .logo-acc   { background: rgba(244,114,182,0.1); }
-        .logo-api   { background: rgba(47,95,208,0.15); }
-        .logo-map   { background: rgba(34,211,160,0.1); }
+        /* Brand-tinted backgrounds for logo tiles */
+        .logo-salesforce  { background: #082340; }
+        .logo-hubspot     { background: #2e1800; }
+        .logo-pipedrive   { background: #fafafa; }
+        .logo-sap         { background: #001a52; }
+        .logo-odoo        { background: #1a2e00; }
+        .logo-netsuite    { background: #fafafa; }
+        .logo-slack       { background: #fafafa; }
+        .logo-whatsapp    { background: #003318; }
+        .logo-sendgrid    { background: #fafafa; }
+        .logo-sheets      { background: #003318; }
+        .logo-powerbi     { background: #2a1a00; }
+        .logo-bigquery    { background: #001f52; }
+        .logo-mpesa       { background: #003318; }
+        .logo-stripe      { background: #1a0f47; }
+        .logo-qbo         { background: #003318; }
+        .logo-zapier      { background: #2a1000; }
+        .logo-make        { background: #14003d; }
+        .logo-n8n         { background: #2a0a1a; }
 
         /* ── FEATURED INTEGRATION SPOTLIGHT ── */
         .spotlight {
@@ -418,10 +436,13 @@
             box-shadow: 0 8px 30px rgba(0,0,0,0.25);
         }
         .native-logo {
-            width: 44px; height: 44px; display: flex; align-items: center;
-            justify-content: center;
+            width: 52px; height: 52px; display: flex; align-items: center;
+            justify-content: center; background: var(--bg3);
+            border-radius: 12px; border: 1px solid var(--border);
         }
-        .native-logo img { width: 36px; height: 36px; object-fit: contain; }
+        .native-logo img { width: 30px; height: 30px; object-fit: contain; }
+        .native-logo img.logo-wide { width: 36px; height: 20px; }
+        .native-logo img.logo-sm { width: 22px; height: 22px; }
         .native-name { font-size: 14px; font-weight: 700; }
         .native-type { font-size: 11px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
         .native-status-badge {
@@ -495,8 +516,8 @@
         </a>
         <div class="nav-links">
             <a href="features/mainfeatures.html">Features</a>
-            <a href="docs.html">Docs</a>
-            <a href="api-reference.html">API</a>
+            <a href="documentation.html">Docs</a>
+            <a href="apireference.html">API</a>
             <a href="pricing.html">Pricing</a>
             <a href="../crm/" class="btn-cta">Open App</a>
         </div>
@@ -511,7 +532,7 @@
         <h1>Connect SafiTrack to<br><span class="accent">your entire stack</span></h1>
         <p>Sync field data with the tools your team already uses — CRMs, ERPs, payment systems, communication platforms, and more.</p>
         <div class="hero-actions">
-            <a href="api-reference.html" class="btn-hero-primary">
+            <a href="apireference.html" class="btn-hero-primary">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
                 Browse API Docs
             </a>
@@ -648,7 +669,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
             <!-- CRM -->
             <div class="int-card featured" data-cat="crm">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-crm"><img src="https://www.svgrepo.com/show/303235/salesforce-2-logo.svg" alt="Salesforce"></div>
+                    <div class="int-logo-wrap logo-salesforce"><img src="https://www.svgrepo.com/show/354306/salesforce.svg" alt="Salesforce"></div>
                     <div class="int-status"><span class="dot-live"></span> Live</div>
                 </div>
                 <div>
@@ -664,7 +685,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
 
             <div class="int-card" data-cat="crm">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-crm"><img src="https://www.svgrepo.com/show/353887/hubspot.svg" alt="HubSpot"></div>
+                    <div class="int-logo-wrap logo-hubspot"><img src="https://cdn.simpleicons.org/hubspot/FF7A59" alt="HubSpot"></div>
                     <div class="int-status"><span class="dot-live"></span> Live</div>
                 </div>
                 <div>
@@ -680,7 +701,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
 
             <div class="int-card" data-cat="crm">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-crm"><img src="https://cdn.simpleicons.org/pipedrive/white" alt="Pipedrive"></div>
+                    <div class="int-logo-wrap logo-pipedrive"><img src="https://www.svgrepo.com/show/354185/pipedrive.svg" alt="Pipedrive"></div>
                     <div class="int-status beta"><span class="dot-live"></span> Beta</div>
                 </div>
                 <div>
@@ -697,7 +718,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
             <!-- ERP -->
             <div class="int-card" data-cat="erp">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-erp"><img src="https://cdn.simpleicons.org/sap/white" alt="SAP"></div>
+                    <div class="int-logo-wrap logo-sap"><img src="https://cdn.simpleicons.org/sap/white" alt="SAP" class="logo-wide"></div>
                     <div class="int-status"><span class="dot-live"></span> Live</div>
                 </div>
                 <div>
@@ -713,7 +734,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
 
             <div class="int-card" data-cat="erp">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-erp"><img src="https://cdn.simpleicons.org/odoo/white" alt="Odoo"></div>
+                    <div class="int-logo-wrap logo-odoo"><img src="https://cdn.simpleicons.org/odoo/white" alt="Odoo"></div>
                     <div class="int-status"><span class="dot-live"></span> Live</div>
                 </div>
                 <div>
@@ -729,7 +750,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
 
             <div class="int-card" data-cat="erp">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-erp"><img src="https://cdn.simpleicons.org/oracle/white" alt="NetSuite"></div>
+                    <div class="int-logo-wrap logo-netsuite"><img src="https://www.svgrepo.com/show/342094/oracle-netsuite.svg" alt="NetSuite"></div>
                     <div class="int-status coming"><span class="dot-live"></span> Soon</div>
                 </div>
                 <div>
@@ -746,7 +767,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
             <!-- MESSAGING -->
             <div class="int-card" data-cat="messaging">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-msg"><img src="https://cdn.simpleicons.org/slack/white" alt="Slack"></div>
+                    <div class="int-logo-wrap logo-slack"><img src="https://www.svgrepo.com/show/521850/slack.svg" alt="Slack"></div>
                     <div class="int-status"><span class="dot-live"></span> Live</div>
                 </div>
                 <div>
@@ -762,7 +783,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
 
             <div class="int-card" data-cat="messaging">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-msg"><img src="https://www.svgrepo.com/show/475692/whatsapp-color.svg" alt="WhatsApp"></div>
+                    <div class="int-logo-wrap logo-whatsapp"><img src="https://www.svgrepo.com/show/475692/whatsapp-color.svg" alt="WhatsApp"></div>
                     <div class="int-status"><span class="dot-live"></span> Live</div>
                 </div>
                 <div>
@@ -778,7 +799,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
 
             <div class="int-card" data-cat="messaging">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-msg"><img src="https://cdn.simpleicons.org/sendgrid/white" alt="SendGrid"></div>
+                    <div class="int-logo-wrap logo-sendgrid"><img src="https://www.svgrepo.com/show/354326/sendgrid.svg" alt="SendGrid"></div>
                     <div class="int-status"><span class="dot-live"></span> Live</div>
                 </div>
                 <div>
@@ -795,7 +816,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
             <!-- ANALYTICS -->
             <div class="int-card" data-cat="analytics">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-data"><img src="https://cdn.simpleicons.org/googlesheets/white" alt="Google Sheets"></div>
+                    <div class="int-logo-wrap logo-sheets"><img src="https://cdn.simpleicons.org/googlesheets/white" alt="Google Sheets"></div>
                     <div class="int-status"><span class="dot-live"></span> Live</div>
                 </div>
                 <div>
@@ -811,7 +832,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
 
             <div class="int-card" data-cat="analytics">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-data"><img src="https://cdn.simpleicons.org/microsoftpowerbi/white" alt="Power BI"></div>
+                    <div class="int-logo-wrap logo-powerbi"><img src="https://cdn.simpleicons.org/microsoftpowerbi/white" alt="Power BI"></div>
                     <div class="int-status"><span class="dot-live"></span> Live</div>
                 </div>
                 <div>
@@ -827,7 +848,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
 
             <div class="int-card" data-cat="analytics">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-data"><img src="https://cdn.simpleicons.org/googlebigquery/white" alt="BigQuery"></div>
+                    <div class="int-logo-wrap logo-bigquery"><img src="https://cdn.simpleicons.org/googlebigquery/white" alt="BigQuery"></div>
                     <div class="int-status beta"><span class="dot-live"></span> Beta</div>
                 </div>
                 <div>
@@ -844,7 +865,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
             <!-- PAYMENTS -->
             <div class="int-card" data-cat="payments">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-pay"><img src="https://cdn.simpleicons.org/mpesa/white" alt="M-Pesa"></div>
+                    <div class="int-logo-wrap logo-mpesa"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/M-PESA_LOGO-01.svg/1280px-M-PESA_LOGO-01.svg.png" alt="M-Pesa" class="logo-wide"></div>
                     <div class="int-status"><span class="dot-live"></span> Live</div>
                 </div>
                 <div>
@@ -860,7 +881,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
 
             <div class="int-card" data-cat="payments">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-pay"><img src="https://cdn.simpleicons.org/stripe/white" alt="Stripe"></div>
+                    <div class="int-logo-wrap logo-stripe"><img src="https://cdn.simpleicons.org/stripe/white" alt="Stripe" class="logo-wide"></div>
                     <div class="int-status"><span class="dot-live"></span> Live</div>
                 </div>
                 <div>
@@ -876,7 +897,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
 
             <div class="int-card" data-cat="payments">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-acc"><img src="https://cdn.simpleicons.org/quickbooks/white" alt="QuickBooks"></div>
+                    <div class="int-logo-wrap logo-qbo"><img src="https://cdn.simpleicons.org/quickbooks/white" alt="QuickBooks"></div>
                     <div class="int-status"><span class="dot-live"></span> Live</div>
                 </div>
                 <div>
@@ -893,7 +914,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
             <!-- AUTOMATION -->
             <div class="int-card featured" data-cat="automation">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-api"><img src="https://cdn.simpleicons.org/zapier/white" alt="Zapier"></div>
+                    <div class="int-logo-wrap logo-zapier"><img src="https://cdn.simpleicons.org/zapier/white" alt="Zapier"></div>
                     <div class="int-status"><span class="dot-live"></span> Live</div>
                 </div>
                 <div>
@@ -909,7 +930,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
 
             <div class="int-card" data-cat="automation">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-api"><img src="https://cdn.simpleicons.org/make/white" alt="Make"></div>
+                    <div class="int-logo-wrap logo-make"><img src="https://cdn.simpleicons.org/make/white" alt="Make"></div>
                     <div class="int-status"><span class="dot-live"></span> Live</div>
                 </div>
                 <div>
@@ -925,7 +946,7 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
 
             <div class="int-card" data-cat="automation">
                 <div class="int-top">
-                    <div class="int-logo-wrap logo-api"><img src="https://cdn.simpleicons.org/n8n/white" alt="n8n"></div>
+                    <div class="int-logo-wrap logo-n8n"><img src="https://cdn.simpleicons.org/n8n/white" alt="n8n"></div>
                     <div class="int-status beta"><span class="dot-live"></span> Beta</div>
                 </div>
                 <div>
@@ -1005,73 +1026,73 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
         </div>
         <div class="native-row">
             <div class="native-card">
-                <div class="native-logo"><img src="https://www.svgrepo.com/show/303235/salesforce-2-logo.svg" alt="Salesforce"></div>
+                <div class="native-logo logo-salesforce"><img src="https://www.svgrepo.com/show/354306/salesforce.svg" alt="Salesforce"></div>
                 <div class="native-name">Salesforce</div>
                 <div class="native-type">CRM</div>
                 <div class="native-status-badge live-badge">Live</div>
             </div>
             <div class="native-card">
-                <div class="native-logo"><img src="https://www.svgrepo.com/show/353887/hubspot.svg" alt="HubSpot"></div>
+                <div class="native-logo logo-hubspot"><img src="https://cdn.simpleicons.org/hubspot/FF7A59" alt="HubSpot"></div>
                 <div class="native-name">HubSpot</div>
                 <div class="native-type">CRM</div>
                 <div class="native-status-badge live-badge">Live</div>
             </div>
             <div class="native-card">
-                <div class="native-logo"><img src="https://cdn.simpleicons.org/slack/white" alt="Slack"></div>
+                <div class="native-logo logo-slack"><img src="https://www.svgrepo.com/show/521850/slack.svg" alt="Slack"></div>
                 <div class="native-name">Slack</div>
                 <div class="native-type">Messaging</div>
                 <div class="native-status-badge live-badge">Live</div>
             </div>
             <div class="native-card">
-                <div class="native-logo"><img src="https://www.svgrepo.com/show/475692/whatsapp-color.svg" alt="WhatsApp"></div>
+                <div class="native-logo logo-whatsapp"><img src="https://www.svgrepo.com/show/475692/whatsapp-color.svg" alt="WhatsApp"></div>
                 <div class="native-name">WhatsApp</div>
                 <div class="native-type">Messaging</div>
                 <div class="native-status-badge live-badge">Live</div>
             </div>
             <div class="native-card">
-                <div class="native-logo"><img src="https://cdn.simpleicons.org/zapier/white" alt="Zapier"></div>
+                <div class="native-logo logo-zapier"><img src="https://cdn.simpleicons.org/zapier/white" alt="Zapier"></div>
                 <div class="native-name">Zapier</div>
                 <div class="native-type">Automation</div>
                 <div class="native-status-badge live-badge">Live</div>
             </div>
             <div class="native-card">
-                <div class="native-logo"><img src="https://cdn.simpleicons.org/mpesa/white" alt="M-Pesa"></div>
+                <div class="native-logo logo-mpesa"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/1/15/M-PESA_LOGO-01.svg/1280px-M-PESA_LOGO-01.svg.png" alt="M-Pesa" class="logo-wide"></div>
                 <div class="native-name">M-Pesa</div>
                 <div class="native-type">Payments</div>
                 <div class="native-status-badge live-badge">Live</div>
             </div>
             <div class="native-card">
-                <div class="native-logo"><img src="https://cdn.simpleicons.org/microsoftpowerbi/white" alt="Power BI"></div>
+                <div class="native-logo logo-powerbi"><img src="https://cdn.simpleicons.org/microsoftpowerbi/white" alt="Power BI"></div>
                 <div class="native-name">Power BI</div>
                 <div class="native-type">Analytics</div>
                 <div class="native-status-badge live-badge">Live</div>
             </div>
             <div class="native-card">
-                <div class="native-logo"><img src="https://cdn.simpleicons.org/googlesheets/white" alt="Sheets"></div>
+                <div class="native-logo logo-sheets"><img src="https://cdn.simpleicons.org/googlesheets/white" alt="Sheets"></div>
                 <div class="native-name">Sheets</div>
                 <div class="native-type">Analytics</div>
                 <div class="native-status-badge live-badge">Live</div>
             </div>
             <div class="native-card">
-                <div class="native-logo"><img src="https://cdn.simpleicons.org/sap/white" alt="SAP"></div>
+                <div class="native-logo logo-sap"><img src="https://cdn.simpleicons.org/sap/white" alt="SAP" class="logo-wide"></div>
                 <div class="native-name">SAP B1</div>
                 <div class="native-type">ERP</div>
                 <div class="native-status-badge live-badge">Live</div>
             </div>
             <div class="native-card">
-                <div class="native-logo"><img src="https://cdn.simpleicons.org/googlebigquery/white" alt="BigQuery"></div>
+                <div class="native-logo logo-bigquery"><img src="https://cdn.simpleicons.org/googlebigquery/white" alt="BigQuery"></div>
                 <div class="native-name">BigQuery</div>
                 <div class="native-type">Analytics</div>
                 <div class="native-status-badge beta-badge">Beta</div>
             </div>
             <div class="native-card">
-                <div class="native-logo"><img src="https://cdn.simpleicons.org/oracle/white" alt="NetSuite"></div>
+                <div class="native-logo"><img src="https://www.svgrepo.com/show/342094/oracle-netsuite.svg" alt="NetSuite"></div>
                 <div class="native-name">NetSuite</div>
                 <div class="native-type">ERP</div>
                 <div class="native-status-badge soon-badge">Soon</div>
             </div>
             <div class="native-card">
-                <div class="native-logo"><img src="https://cdn.simpleicons.org/pipedrive/white" alt="Pipedrive"></div>
+                <div class="native-logo"><img src="https://www.svgrepo.com/show/354185/pipedrive.svg" alt="Pipedrive"></div>
                 <div class="native-name">Pipedrive</div>
                 <div class="native-type">CRM</div>
                 <div class="native-status-badge beta-badge">Beta</div>
@@ -1096,11 +1117,11 @@ safi.on(<span class="t-s">'visit.verified'</span>, (visit) => {
         <div class="page-footer">
             <div>© 2026 SafiTrack, Inc.</div>
             <div class="footer-links">
-                <a href="docs.html">Docs</a>
-                <a href="api-reference.html">API</a>
-                <a href="#">Status</a>
+                <a href="documentation.html">Docs</a>
+                <a href="apireference.html">API</a>
+                <a href="status.html">Status</a>
                 <a href="helpcenter.html">Support</a>
-                <a href="#">Privacy</a>
+                <a href="legal/privacy.html">Privacy</a>
             </div>
             <div style="color:var(--text3)">Last updated Jan 20, 2026</div>
         </div>

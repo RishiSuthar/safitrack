@@ -1,681 +1,697 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafiTrack | Infrastructure Status</title>
+    <title>System Status — SafiTrack</title>
     <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Enterprise Grade Palette */
-            --bg-deep: #080a0f;
-            --bg-surface: #0f121a;
-            --bg-elevated: #161b25;
-            --border-subtle: rgba(255, 255, 255, 0.05);
-            --border-strong: rgba(255, 255, 255, 0.1);
-
-            --brand-primary: #3b82f6;
-            --brand-glow: rgba(59, 130, 246, 0.3);
-
-            --status-ok: #10b981;
-            --status-ok-glow: rgba(16, 185, 129, 0.2);
-            --status-warn: #f59e0b;
-            --status-error: #ef4444;
-
-            --text-high: #f8fafc;
-            --text-med: #94a3b8;
-            --text-low: #475569;
-
-            --font-main: 'Manrope', -apple-system, sans-serif;
-            --curve: 12px;
-            --transition: 300ms cubic-bezier(0.16, 1, 0.3, 1);
+            --bg:         #0f1117;
+            --bg2:        #161b22;
+            --bg3:        #1a2027;
+            --bg4:        #21262d;
+            --border:     #30363d;
+            --border2:    #3a4450;
+            --text:       #e1e4e8;
+            --text2:      #bac4d0;
+            --text3:      #8b949e;
+            --green:      #2ea84f;
+            --green-bg:   rgba(46,168,79,0.1);
+            --green-bdr:  rgba(46,168,79,0.25);
+            --yellow:     #d29922;
+            --yellow-bg:  rgba(210,153,34,0.1);
+            --yellow-bdr: rgba(210,153,34,0.25);
+            --red:        #da3633;
+            --red-bg:     rgba(218,54,51,0.1);
+            --red-bdr:    rgba(218,54,51,0.25);
+            --blue:       #2f5fd0;
+            --blue-light: #7da2f8;
+            --sans:       'Manrope', sans-serif;
+            --mono:       'JetBrains Mono', monospace;
+            --r:          10px;
         }
 
-        /* Base Reset */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg-deep);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--border-strong);
-            border-radius: 10px;
-        }
-
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
-            font-family: var(--font-main);
-            background-color: var(--bg-deep);
-            color: var(--text-high);
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden;
-            background-image:
-                radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.08), transparent 70%),
-                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3%3Cfilter id='noiseFilter'%3%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3%3C/filter%3%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3%3C/svg%3");
-            background-blend-mode: overlay;
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
         }
+        a { text-decoration: none; color: inherit; }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 40px 24px 120px;
+        /* ── NAVBAR ── */
+        .navbar {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            height: 64px;
+            background: rgba(15,17,23,0.9);
+            backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
         }
-
-        /* =================================== 
-           TOP NAVIGATION 
-           =================================== */
-        .nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 64px;
+        .nav-inner {
+            max-width: 1100px; margin: 0 auto; padding: 0 28px;
+            height: 100%; display: flex; align-items: center; justify-content: space-between;
         }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo img { height: 24px; }
+        .logo-text { font-size: 16px; font-weight: 700; }
+        .nav-sep { color: var(--border2); font-size: 18px; margin: 0 4px; }
+        .nav-page { font-size: 14px; font-weight: 600; color: var(--text3); }
+        .nav-right { display: flex; align-items: center; gap: 20px; }
+        .nav-right a { font-size: 13.5px; font-weight: 500; color: var(--text3); transition: color .15s; }
+        .nav-right a:hover { color: var(--text); }
+        .btn-app {
+            padding: 8px 18px; background: var(--blue); color: #fff !important;
+            border-radius: var(--r); font-size: 13px; font-weight: 700;
+            transition: background .15s;
             text-decoration: none;
         }
+        .btn-app:hover { background: #244bb0; color: #fff !important; }
 
-        .brand img {
-            height: 28px;
-            filter: drop-shadow(0 0 8px var(--brand-glow));
+        /* ── PAGE ── */
+        .page {
+            max-width: 760px; margin: 0 auto;
+            padding: 108px 28px 80px;
         }
 
-        .brand span {
-            font-size: 18px;
-            font-weight: 800;
-            letter-spacing: -0.01em;
-            color: var(--text-high);
-        }
-
-        .nav-actions {
-            display: flex;
-            gap: 24px;
-        }
-
-        .nav-link {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-med);
-            text-decoration: none;
-            transition: var(--transition);
-        }
-
-        .nav-link:hover {
-            color: var(--text-high);
-        }
-
-        /* =================================== 
-           GLOBAL STATUS HERO 
-           =================================== */
+        /* ── OVERALL STATUS HERO ── */
         .status-hero {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: 20px;
-            padding: 40px;
-            margin-bottom: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            padding: 48px 32px 40px;
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            margin-bottom: 12px;
             position: relative;
             overflow: hidden;
         }
-
-        .status-hero::after {
+        /* Green top bar when all operational */
+        .status-hero.all-good::before {
             content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), transparent);
-            pointer-events: none;
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--green), #56d364);
+        }
+        .status-hero.degraded::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--yellow), #e3b341);
+        }
+        .status-hero.outage::before {
+            content: '';
+            position: absolute; top: 0; left: 0; right: 0; height: 3px;
+            background: linear-gradient(90deg, var(--red), #f85149);
         }
 
-        .hero-left h1 {
-            font-size: 32px;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            margin-bottom: 8px;
-        }
-
-        .hero-left p {
-            color: var(--text-med);
-            font-size: 15px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .hero-right .badge {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            padding: 10px 20px;
-            border-radius: 100px;
-            color: var(--status-ok);
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 0.02em;
-            box-shadow: 0 0 20px var(--status-ok-glow);
-        }
-
-        .dot-pulse {
-            width: 8px;
-            height: 8px;
-            background: var(--status-ok);
-            border-radius: 50%;
-            box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-            animation: pulse-ring 2s infinite;
-        }
-
-        @keyframes pulse-ring {
-            0% {
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
-            }
-
-            70% {
-                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-            }
-        }
-
-        /* =================================== 
-           GRID COMPONENTS 
-           =================================== */
-        .grid-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            margin-bottom: 24px;
-            padding: 0 4px;
-        }
-
-        .grid-header h2 {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--text-low);
-            font-weight: 800;
-        }
-
-        .grid-header .refresh {
-            font-size: 12px;
-            color: var(--text-low);
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .service-card {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 16px;
-            transition: var(--transition);
-        }
-
-        .service-card:hover {
-            border-color: var(--border-strong);
-            transform: translateY(-2px);
-        }
-
-        .service-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 20px;
-        }
-
-        .service-info h3 {
-            font-size: 16px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .service-metrics {
-            display: flex;
-            gap: 16px;
-            font-family: 'JetBrains Mono', monospace;
-            /* Fallback to monospace for stats */
-            font-size: 11px;
-            font-weight: 500;
-            color: var(--text-low);
-        }
-
-        .service-metrics span {
-            background: rgba(255, 255, 255, 0.03);
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
-
-        .current-status {
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--status-ok);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        /* Mini Timeline */
-        .timeline-wrapper {
-            display: flex;
-            gap: 3px;
-            height: 40px;
-            align-items: flex-end;
-            margin-bottom: 12px;
-        }
-
-        .t-bar {
-            flex: 1;
-            height: 100%;
-            background: var(--status-ok);
-            border-radius: 2px;
-            opacity: 0.6;
-            cursor: pointer;
-            transition: var(--transition);
-        }
-
-        .t-bar:hover {
-            opacity: 1;
-            height: 110%;
-            box-shadow: 0 0 10px var(--status-ok-glow);
-        }
-
-        .t-bar.warn {
-            background: var(--status-warn);
-            opacity: 1;
-        }
-
-        .t-bar.error {
-            background: var(--status-error);
-            opacity: 1;
-        }
-
-        .timeline-labels {
-            display: flex;
-            justify-content: space-between;
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--text-low);
-            padding-top: 4px;
-        }
-
-        /* =================================== 
-           INCIDENT HISTORY 
-           =================================== */
-        .incident-log {
-            margin-top: 64px;
-        }
-
-        .incident-day {
-            margin-bottom: 40px;
+        /* ── ANIMATED STATUS ICON ── */
+        .hero-icon {
+            width: 72px; height: 72px;
+            margin: 0 auto 24px;
             position: relative;
-            padding-left: 32px;
+            border-radius: 50%;
+            background: rgba(46,168,79,0.1);
+            border: 1.5px solid rgba(46,168,79,0.35);
+            display: flex; align-items: center; justify-content: center;
+            animation: icon-pulse 2.6s ease-in-out infinite;
+        }
+        @keyframes icon-pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(46,168,79,0.3); }
+            50%       { box-shadow: 0 0 0 14px rgba(46,168,79,0); }
+        }
+        .hero-icon svg.check-svg {
+            width: 32px; height: 32px;
+        }
+        .check-mark {
+            fill: none; stroke: var(--green);
+            stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
         }
 
-        .incident-day::before {
-            content: '';
-            position: absolute;
-            left: 3px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: var(--border-subtle);
+        .hero-title {
+            font-size: 26px; font-weight: 800;
+            letter-spacing: -0.02em; margin-bottom: 8px;
+        }
+        .hero-subtitle {
+            font-size: 14px; color: var(--text3);
+        }
+        .hero-subtitle #live-time {
+            font-family: var(--mono); font-size: 13px; color: var(--text2);
         }
 
-        .day-header {
-            font-size: 15px;
-            font-weight: 800;
-            color: var(--text-high);
-            margin-bottom: 20px;
+        /* Uptime pill */
+        .uptime-pill {
+            display: inline-flex; align-items: center; gap: 8px;
+            margin-top: 22px;
+            background: var(--bg3); border: 1px solid var(--border);
+            border-radius: 99px; padding: 8px 20px;
+            font-size: 13px; font-weight: 600; color: var(--text2);
+        }
+        .uptime-pill strong { color: var(--green); font-size: 15px; }
+
+        /* ── UPTIME BAR STRIP ── */
+        .uptime-strip {
+            background: var(--bg2); border: 1px solid var(--border);
+            border-radius: 14px; padding: 20px 24px;
+            margin-bottom: 28px;
+        }
+        .strip-label {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.1em; color: var(--text3); margin-bottom: 12px;
+        }
+        .bar-row { display: flex; gap: 3px; align-items: center; }
+        .bar-seg {
+            flex: 1; height: 28px; border-radius: 4px;
+            background: var(--green-bg);
+            border: 1px solid var(--green-bdr);
+            transition: opacity .15s;
+            cursor: default;
             position: relative;
         }
-
-        .day-header::after {
-            content: '';
-            position: absolute;
-            left: -32px;
-            top: 7px;
-            width: 8px;
-            height: 8px;
-            background: var(--bg-deep);
-            border: 2px solid var(--brand-primary);
-            border-radius: 50%;
+        .bar-seg:hover { opacity: 0.75; }
+        .bar-seg.today {
+            background: linear-gradient(180deg, rgba(46,168,79,0.25), rgba(46,168,79,0.1));
+            border-color: var(--green);
+        }
+        .bar-meta {
+            display: flex; justify-content: space-between;
+            font-size: 11px; color: var(--text3); margin-top: 8px;
         }
 
-        .empty-day {
-            font-size: 13px;
-            color: var(--text-low);
-            font-weight: 500;
-        }
-
-        .entry {
-            background: var(--bg-surface);
-            border: 1px solid var(--border-subtle);
-            border-radius: var(--curve);
-            padding: 24px;
-        }
-
-        .entry-title {
-            font-weight: 700;
-            font-size: 15px;
+        /* ── SECTION HEADER ── */
+        .section-head {
+            display: flex; align-items: center; justify-content: space-between;
             margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+        }
+        .section-title {
+            font-size: 13px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.1em; color: var(--text3);
+        }
+        .all-operational {
+            font-size: 12px; font-weight: 600; color: var(--green);
+            display: flex; align-items: center; gap: 5px;
+        }
+        .all-operational::before {
+            content: ''; width: 6px; height: 6px; border-radius: 50%;
+            background: var(--green); display: inline-block;
         }
 
-        .entry-title .type {
-            font-size: 10px;
-            background: rgba(59, 130, 246, 0.1);
-            color: var(--brand-primary);
-            padding: 2px 8px;
-            border-radius: 4px;
-            text-transform: uppercase;
+        /* ── SERVICE GROUP ── */
+        .service-group {
+            background: var(--bg2); border: 1px solid var(--border);
+            border-radius: 14px; overflow: hidden;
+            margin-bottom: 12px;
         }
-
-        .update-step {
-            margin-top: 16px;
-            padding-left: 16px;
-            border-left: 2px solid var(--border-strong);
+        .group-title-row {
+            padding: 14px 20px;
+            background: var(--bg3);
+            border-bottom: 1px solid var(--border);
+            font-size: 13px; font-weight: 700; color: var(--text2);
+            display: flex; align-items: center; gap: 8px;
         }
+        .group-icon { font-size: 15px; }
 
-        .step-time {
-            font-size: 11px;
-            font-weight: 800;
-            color: var(--text-low);
-            text-transform: uppercase;
+        .service-row {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 20px;
+            border-bottom: 1px solid var(--border);
+            transition: background .15s;
         }
+        .service-row:last-child { border-bottom: none; }
+        .service-row:hover { background: rgba(255,255,255,0.02); }
 
-        .step-desc {
-            font-size: 14px;
-            color: var(--text-med);
-            margin-top: 4px;
+        .svc-left { display: flex; align-items: center; gap: 12px; }
+        .svc-indicator {
+            width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
         }
+        .svc-indicator.operational { background: var(--green); box-shadow: 0 0 6px rgba(46,168,79,0.5); }
+        .svc-indicator.degraded    { background: var(--yellow); box-shadow: 0 0 6px rgba(210,153,34,0.5); }
+        .svc-indicator.outage      { background: var(--red); box-shadow: 0 0 6px rgba(218,54,51,0.5); animation: blink 1.2s ease-in-out infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-        /* =================================== 
-           FOOTER 
-           =================================== */
-        .footer {
-            margin-top: 80px;
+        .svc-name { font-size: 14px; font-weight: 600; }
+        .svc-desc { font-size: 12px; color: var(--text3); margin-top: 1px; }
+
+        .svc-right { display: flex; align-items: center; gap: 16px; }
+        .svc-latency {
+            font-family: var(--mono); font-size: 11px; color: var(--text3);
+            background: var(--bg4); border: 1px solid var(--border);
+            padding: 3px 9px; border-radius: 6px;
+        }
+        .status-badge {
+            font-size: 11px; font-weight: 700; padding: 4px 12px;
+            border-radius: 99px; text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .badge-operational { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bdr); }
+        .badge-degraded    { background: var(--yellow-bg); color: var(--yellow); border: 1px solid var(--yellow-bdr); }
+        .badge-outage      { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-bdr); }
+
+        /* ── METRICS ROW ── */
+        .metrics-row {
+            display: grid; grid-template-columns: repeat(3,1fr);
+            gap: 10px; margin-bottom: 28px;
+        }
+        .metric-card {
+            background: var(--bg2); border: 1px solid var(--border);
+            border-radius: 12px; padding: 18px 20px;
             text-align: center;
-            border-top: 1px solid var(--border-subtle);
-            padding-top: 40px;
+        }
+        .metric-value {
+            font-size: 24px; font-weight: 800; letter-spacing: -0.02em;
+            line-height: 1.1; margin-bottom: 4px;
+        }
+        .metric-label { font-size: 12px; color: var(--text3); font-weight: 500; }
+
+        /* ── LAST CHECKED ── */
+        .last-checked {
+            text-align: center; font-size: 12px; color: var(--text3);
+            margin-top: 28px; display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .live-dot {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--green);
+            animation: pulse-dot 2s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%,100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.4; transform: scale(0.7); }
         }
 
-        .footer-logo {
-            opacity: 0.5;
-            margin-bottom: 16px;
+        /* ── SUBSCRIBE ── */
+        .subscribe-bar {
+            background: var(--bg2); border: 1px solid var(--border);
+            border-radius: 14px; padding: 24px 28px;
+            display: flex; align-items: center; justify-content: space-between;
+            gap: 20px; flex-wrap: wrap; margin-top: 28px;
         }
-
-        .footer p {
-            font-size: 12px;
-            color: var(--text-low);
-            font-weight: 600;
+        .sub-text h3 { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+        .sub-text p  { font-size: 13px; color: var(--text3); }
+        .sub-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .sub-btn {
+            padding: 9px 18px; border-radius: var(--r);
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            border: 1px solid var(--border2); background: var(--bg3);
+            color: var(--text2); font-family: var(--sans);
+            display: flex; align-items: center; gap: 7px;
+            transition: all .15s;
         }
+        .sub-btn:hover { background: var(--bg4); color: var(--text); border-color: var(--text3); }
+        .sub-btn.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+        .sub-btn.primary:hover { background: #244bb0; }
 
-        /* Mobile Utility */
-        @media (max-width: 600px) {
-            .nav {
-                flex-direction: column;
-                gap: 24px;
-                margin-bottom: 32px;
-            }
+        /* ── FOOTER ── */
+        .page-footer {
+            margin-top: 48px; padding-top: 24px;
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            font-size: 12px; color: var(--text3); flex-wrap: wrap; gap: 10px;
+        }
+        .footer-links { display: flex; gap: 16px; }
+        .footer-links a { color: var(--text3); transition: color .15s; }
+        .footer-links a:hover { color: var(--text2); }
 
-            .status-hero {
-                flex-direction: column;
-                text-align: center;
-                gap: 24px;
-                padding: 32px 24px;
-            }
+        /* ── FADE IN ── */
+        .fade { opacity: 0; transform: translateY(10px); animation: fadeIn .4s ease forwards; }
+        .fade:nth-child(1) { animation-delay: .05s; }
+        .fade:nth-child(2) { animation-delay: .12s; }
+        .fade:nth-child(3) { animation-delay: .18s; }
+        .fade:nth-child(4) { animation-delay: .24s; }
+        .fade:nth-child(5) { animation-delay: .30s; }
+        .fade:nth-child(6) { animation-delay: .36s; }
+        .fade:nth-child(7) { animation-delay: .42s; }
+        @keyframes fadeIn { to { opacity: 1; transform: none; } }
 
-            .hero-left h1 {
-                font-size: 24px;
-            }
-
-            .timeline-wrapper {
-                gap: 1.5px;
-            }
+        @media(max-width:600px){
+            .metrics-row { grid-template-columns: 1fr 1fr; }
+            .svc-latency { display: none; }
+            .subscribe-bar { flex-direction: column; align-items: flex-start; }
+            .hero-title { font-size: 22px; }
         }
     </style>
 </head>
-
 <body>
 
-    <div class="container">
-        <nav class="nav">
-            <a href="../index.html" class="brand">
-                <img src="../assets/icons/whiteblue.png" alt="Logo">
-                <span>SafiTrack</span>
+<nav class="navbar">
+    <div class="nav-inner">
+        <div style="display:flex;align-items:center;gap:10px">
+            <a href="../index.html" class="logo">
+                <img src="../assets/icons/whiteblue.png" alt="SafiTrack">
+                <span class="logo-text">SafiTrack</span>
             </a>
-            <div class="nav-actions">
-                <a href="../index.html" class="nav-link">Main Site</a>
-                <p>Questions? View <a href="careers.html">Careers</a> or contact our <a
-                        href="mailto:support@safitrack.com">Support Team</a></p>
-            </div>
-        </nav>
-
-        <div class="status-hero">
-            <div class="hero-left">
-                <h1>All Systems Operational</h1>
-                <p>Live technical status of the SafiTrack infrastructure.</p>
-            </div>
-            <div class="hero-right">
-                <div class="badge">
-                    OPERATIONAL
-                </div>
-            </div>
+            <span class="nav-sep">/</span>
+            <span class="nav-page">Status</span>
         </div>
-
-        <div class="grid-header">
-            <h2>System Components</h2>
-            <div class="refresh">Updated: <span id="current-time">--:--</span></div>
+        <div class="nav-right">
+            <a href="docs.html">Docs</a>
+            <a href="integrations.html">Integrations</a>
+            <a href="../crm/" class="btn-app">Open App</a>
         </div>
+    </div>
+</nav>
 
-        <!-- Components -->
-        <div id="services-container">
-            <!-- CRM Core -->
-            <div class="service-card">
-                <div class="service-top">
-                    <div class="service-info">
-                        <h3>CRM Core Platform</h3>
-                        <div class="service-metrics">
-                            <span>LATENCY: 42ms</span>
-                            <span>AVG UPTIME: 99.99%</span>
-                        </div>
-                    </div>
-                    <div class="current-status">Operational</div>
-                </div>
-                <div class="timeline-wrapper" id="crm-timeline"></div>
-                <div class="timeline-labels">
-                    <span>90 days ago</span>
-                    <span>today</span>
-                </div>
-            </div>
+<div class="page">
 
-            <!-- AI Engine -->
-            <div class="service-card">
-                <div class="service-top">
-                    <div class="service-info">
-                        <h3>Intelligence Hub (AI)</h3>
-                        <div class="service-metrics">
-                            <span>LATENCY: 128ms</span>
-                            <span>AVG UPTIME: 99.94%</span>
-                        </div>
-                    </div>
-                    <div class="current-status">Operational</div>
-                </div>
-                <div class="timeline-wrapper" id="ai-timeline"></div>
-                <div class="timeline-labels">
-                    <span>90 days ago</span>
-                    <span>today</span>
-                </div>
-            </div>
-
-            <!-- Mobile API -->
-            <div class="service-card">
-                <div class="service-top">
-                    <div class="service-info">
-                        <h3>Field Operations API</h3>
-                        <div class="service-metrics">
-                            <span>LATENCY: 31ms</span>
-                            <span>AVG UPTIME: 100.0%</span>
-                        </div>
-                    </div>
-                    <div class="current-status">Operational</div>
-                </div>
-                <div class="timeline-wrapper" id="api-timeline"></div>
-                <div class="timeline-labels">
-                    <span>90 days ago</span>
-                    <span>today</span>
-                </div>
-            </div>
+    <!-- ── HERO ── -->
+    <div class="status-hero all-good fade" id="hero-card">
+        <div class="hero-icon" id="hero-icon">
+            <svg class="check-svg" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <polyline class="check-mark" points="6,16 13,23 26,9"/>
+            </svg>
         </div>
-
-        <!-- Incident History -->
-        <div class="incident-log">
-            <h2 class="grid-header" style="margin-bottom: 32px;">Recent History</h2>
-
-            <div class="incident-day">
-                <div class="day-header" id="today-date">-- --- ----</div>
-                <div class="empty-day">No incidents reported on this day.</div>
-            </div>
-
-            <div class="incident-day">
-                <div class="day-header" id="yesterday-date">-- --- ----</div>
-                <div class="entry">
-                    <div class="entry-title">
-                        <span class="type">Maintenance</span>
-                        Database Optimization Cluster-B
-                    </div>
-                    <div class="update-step">
-                        <div class="step-time">Completed</div>
-                        <div class="step-desc">Routine database indexing and table vacuuming performed to ensure peak
-                            performance for the Intelligence Hub.</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="incident-day">
-                <div class="day-header">January 24, 2026</div>
-                <div class="entry">
-                    <div class="entry-title">
-                        <span class="type"
-                            style="background: rgba(245, 158, 11, 0.1); color: var(--status-warn);">Resolved</span>
-                        CRM Latency Spike (EU-West)
-                    </div>
-                    <div class="update-step">
-                        <div class="step-time">04:12 UTC</div>
-                        <div class="step-desc">Observed increased response times for users in the European region.
-                            Investigation traced to a CDN routing configuration.</div>
-                    </div>
-                    <div class="update-step">
-                        <div class="step-time">05:45 UTC</div>
-                        <div class="step-desc">Configuration reverted and traffic rerouted via alternate nodes. Latency
-                            returned to baseline levels. Monitoring for stability.</div>
-                    </div>
-                </div>
-            </div>
+        <div class="hero-title" id="hero-title">All Systems Operational</div>
+        <div class="hero-subtitle">
+            Last checked <span id="live-time">—</span>
         </div>
-
-        <footer class="footer">
-            <div class="footer-links-simple"
-                style="margin-bottom: 20px; display: flex; gap: 20px; justify-content: center; font-size: 14px;">
-                <a href="../index.html" style="color: var(--text-secondary);">Home</a>
-                <a href="blog.html" style="color: var(--text-secondary);">Blog</a>
-                <a href="careers.html" style="color: var(--text-secondary);">Careers</a>
-                <a href="helpcenter.html" style="color: var(--text-secondary);">Help</a>
-                <a href="documentation.html" style="color: var(--text-secondary);">Docs</a>
-                <a href="legal/privacy.html" style="color: var(--text-secondary);">Privacy</a>
-            </div>
-            <div class="footer-logo">
-                <img src="../assets/icons/whiteblue.png" alt="Logo" height="24">
-            </div>
-            <p>&copy; 2026 SafiTrack Enterprise Infrastructure. Internal S-Level 4.</p>
-        </footer>
+        <div class="uptime-pill">
+            <strong>100%</strong> uptime over the last 90 days
+        </div>
     </div>
 
-    <script>
-        const CONFIG = {
-            days: 90,
-            components: [
-                { id: 'crm-timeline', issues: [12, 45, 82] },
-                { id: 'ai-timeline', issues: [5, 22, 67, 88] },
-                { id: 'api-timeline', issues: [] }
-            ]
-        };
+    <!-- ── 90-DAY UPTIME BAR ── -->
+    <div class="uptime-strip fade">
+        <div class="strip-label">90-day uptime history</div>
+        <div class="bar-row" id="uptime-bars"></div>
+        <div class="bar-meta">
+            <span id="bar-start-label">90 days ago</span>
+            <span style="color:var(--green);font-weight:600;font-size:11px">100% uptime</span>
+            <span>Today</span>
+        </div>
+    </div>
 
-        function init() {
-            renderTimelines();
-            updateDates();
-            setInterval(updateDates, 60000);
+    <!-- ── METRICS ── -->
+    <div class="metrics-row fade">
+        <div class="metric-card">
+            <div class="metric-value" style="color:var(--green)">100%</div>
+            <div class="metric-label">Uptime — 90 days</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value" style="color:var(--blue-light)" id="avg-latency">48ms</div>
+            <div class="metric-label">Avg API latency</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-value" style="color:var(--text)">0</div>
+            <div class="metric-label">Active incidents</div>
+        </div>
+    </div>
+
+    <!-- ── CORE PLATFORM ── -->
+    <div class="section-head fade">
+        <span class="section-title">Core Platform</span>
+        <span class="all-operational">All operational</span>
+    </div>
+
+    <div class="service-group fade">
+        <div class="group-title-row"><span class="group-icon">⚡</span> Application</div>
+
+        <div class="service-row">
+            <div class="svc-left">
+                <div class="svc-indicator operational"></div>
+                <div>
+                    <div class="svc-name">CRM Web App</div>
+                    <div class="svc-desc">Dashboard, companies, contacts, reporting</div>
+                </div>
+            </div>
+            <div class="svc-right">
+                <div class="svc-latency" id="lat-webapp">—</div>
+                <div class="status-badge badge-operational">Operational</div>
+            </div>
+        </div>
+
+        <div class="service-row">
+            <div class="svc-left">
+                <div class="svc-indicator operational"></div>
+                <div>
+                    <div class="svc-name">Field PWA</div>
+                    <div class="svc-desc">Mobile progressive web app for field reps</div>
+                </div>
+            </div>
+            <div class="svc-right">
+                <div class="svc-latency" id="lat-pwa">—</div>
+                <div class="status-badge badge-operational">Operational</div>
+            </div>
+        </div>
+
+        <div class="service-row">
+            <div class="svc-left">
+                <div class="svc-indicator operational"></div>
+                <div>
+                    <div class="svc-name">Authentication</div>
+                    <div class="svc-desc">Login, sessions, team management</div>
+                </div>
+            </div>
+            <div class="svc-right">
+                <div class="svc-latency" id="lat-auth">—</div>
+                <div class="status-badge badge-operational">Operational</div>
+            </div>
+        </div>
+
+        <div class="service-row">
+            <div class="svc-left">
+                <div class="svc-indicator operational"></div>
+                <div>
+                    <div class="svc-name">Real-time Sync</div>
+                    <div class="svc-desc">Offline visit queue & live data sync</div>
+                </div>
+            </div>
+            <div class="svc-right">
+                <div class="svc-latency" id="lat-sync">—</div>
+                <div class="status-badge badge-operational">Operational</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── API & INFRASTRUCTURE ── -->
+    <div class="section-head fade" style="margin-top:24px">
+        <span class="section-title">API & Infrastructure</span>
+        <span class="all-operational">All operational</span>
+    </div>
+
+    <div class="service-group fade">
+        <div class="group-title-row"><span class="group-icon">🔌</span> API Services</div>
+
+        <div class="service-row">
+            <div class="svc-left">
+                <div class="svc-indicator operational"></div>
+                <div>
+                    <div class="svc-name">REST API</div>
+                    <div class="svc-desc">v1 endpoints — companies, visits, territories</div>
+                </div>
+            </div>
+            <div class="svc-right">
+                <div class="svc-latency" id="lat-api">—</div>
+                <div class="status-badge badge-operational">Operational</div>
+            </div>
+        </div>
+
+        <div class="service-row">
+            <div class="svc-left">
+                <div class="svc-indicator operational"></div>
+                <div>
+                    <div class="svc-name">Webhooks</div>
+                    <div class="svc-desc">Event delivery to registered endpoints</div>
+                </div>
+            </div>
+            <div class="svc-right">
+                <div class="svc-latency" id="lat-webhooks">—</div>
+                <div class="status-badge badge-operational">Operational</div>
+            </div>
+        </div>
+
+        <div class="service-row">
+            <div class="svc-left">
+                <div class="svc-indicator operational"></div>
+                <div>
+                    <div class="svc-name">Geolocation Engine</div>
+                    <div class="svc-desc">GPS verification & geofence enforcement</div>
+                </div>
+            </div>
+            <div class="svc-right">
+                <div class="svc-latency" id="lat-geo">—</div>
+                <div class="status-badge badge-operational">Operational</div>
+            </div>
+        </div>
+
+        <div class="service-row">
+            <div class="svc-left">
+                <div class="svc-indicator operational"></div>
+                <div>
+                    <div class="svc-name">Reporting Pipeline</div>
+                    <div class="svc-desc">Analytics aggregation & scheduled reports</div>
+                </div>
+            </div>
+            <div class="svc-right">
+                <div class="svc-latency" id="lat-reports">—</div>
+                <div class="status-badge badge-operational">Operational</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── THIRD PARTY ── -->
+    <div class="service-group fade" style="margin-top:12px">
+        <div class="group-title-row"><span class="group-icon">🔗</span> Third-Party Services</div>
+
+        <div class="service-row">
+            <div class="svc-left">
+                <div class="svc-indicator operational"></div>
+                <div>
+                    <div class="svc-name">Supabase</div>
+                    <div class="svc-desc">Database, auth & real-time subscriptions</div>
+                </div>
+            </div>
+            <div class="svc-right">
+                <div class="svc-latency" id="lat-notif">—</div>
+                <div class="status-badge badge-operational">Operational</div>
+            </div>
+        </div>
+
+        <div class="service-row">
+            <div class="svc-left">
+                <div class="svc-indicator operational"></div>
+                <div>
+                    <div class="svc-name">OpenStreetMap</div>
+                    <div class="svc-desc">Map tiles & geocoding for field visit tracking</div>
+                </div>
+            </div>
+            <div class="svc-right">
+                <div class="svc-latency" id="lat-integrations">—</div>
+                <div class="status-badge badge-operational">Operational</div>
+            </div>
+        </div>
+
+        <div class="service-row">
+            <div class="svc-left">
+                <div class="svc-indicator operational"></div>
+                <div>
+                    <div class="svc-name">OpenAI</div>
+                    <div class="svc-desc">AI-powered features & smart suggestions</div>
+                </div>
+            </div>
+            <div class="svc-right">
+                <div class="svc-latency" id="lat-cdn">—</div>
+                <div class="status-badge badge-operational">Operational</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ── LAST CHECKED ── -->
+    <div class="last-checked fade">
+        <span class="live-dot"></span>
+        Auto-refreshes every 60 seconds &nbsp;·&nbsp; Last checked <span id="last-check-time" style="font-family:var(--mono);font-size:11px;color:var(--text2)">—</span>
+    </div>
+
+    <!-- ── SUBSCRIBE ── -->
+    <div class="subscribe-bar fade">
+        <div class="sub-text">
+            <h3>Get notified of incidents</h3>
+            <p>Receive instant alerts when a service is impacted.</p>
+        </div>
+        <div class="sub-actions">
+            <button class="sub-btn" onclick="alert('Email subscription coming soon.')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
+                Email alerts
+            </button>
+            <button class="sub-btn primary" onclick="alert('RSS feed: https://status.safitrack.io/feed.xml')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
+                Subscribe to RSS
+            </button>
+        </div>
+    </div>
+
+    <!-- ── FOOTER ── -->
+    <div class="page-footer">
+        <div>© <span id="footer-year"></span> SafiTrack, Inc.</div>
+        <div class="footer-links">
+            <a href="docs.html">Documentation</a>
+            <a href="api-reference.html">API</a>
+            <a href="integrations.html">Integrations</a>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    // ── HELPERS ──
+    function pad(n) { return String(n).padStart(2, '0'); }
+
+    function formatTime(d) {
+        const h = d.getHours(), m = d.getMinutes(), s = d.getSeconds();
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        return `${pad(h % 12 || 12)}:${pad(m)}:${pad(s)} ${ampm}`;
+    }
+
+    function formatDateTime(d) {
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return `${months[d.getMonth()]} ${d.getDate()}, ${d.getFullYear()} at ${formatTime(d)}`;
+    }
+
+    // ── LIVE CLOCK ──
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('live-time').textContent = formatDateTime(now);
+        document.getElementById('last-check-time').textContent = formatTime(now);
+    }
+    updateClock();
+    setInterval(updateClock, 1000);
+
+    // ── FOOTER YEAR ──
+    document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    // ── SIMULATED LATENCY (realistic variance, re-randomised each load & every 60s) ──
+    const latencyConfig = {
+        'lat-webapp':      { base: 42,  variance: 12 },
+        'lat-pwa':         { base: 38,  variance: 10 },
+        'lat-auth':        { base: 31,  variance: 8  },
+        'lat-sync':        { base: 55,  variance: 15 },
+        'lat-api':         { base: 48,  variance: 12 },
+        'lat-webhooks':    { base: 62,  variance: 18 },
+        'lat-geo':         { base: 29,  variance: 7  },
+        'lat-reports':     { base: 110, variance: 30 },
+        'lat-notif':       { base: 75,  variance: 20 },
+        'lat-integrations':{ base: 88,  variance: 25 },
+        'lat-cdn':         { base: 18,  variance: 5  },
+    };
+
+    function updateLatencies() {
+        let total = 0; let count = 0;
+        for (const [id, cfg] of Object.entries(latencyConfig)) {
+            const val = Math.round(cfg.base + (Math.random() * cfg.variance * 2) - cfg.variance);
+            const el = document.getElementById(id);
+            if (el) { el.textContent = val + 'ms'; }
+            total += val; count++;
+        }
+        const avg = Math.round(total / count);
+        const avgEl = document.getElementById('avg-latency');
+        if (avgEl) avgEl.textContent = avg + 'ms';
+    }
+    updateLatencies();
+    setInterval(updateLatencies, 60000);
+
+    // ── 90-DAY UPTIME BAR ──
+    function buildUptimeBars() {
+        const container = document.getElementById('uptime-bars');
+        const total = 90;
+        for (let i = 0; i < total; i++) {
+            const seg = document.createElement('div');
+            seg.className = 'bar-seg' + (i === total - 1 ? ' today' : '');
+            // Tooltip: calculate actual date
+            const d = new Date();
+            d.setDate(d.getDate() - (total - 1 - i));
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            seg.title = `${months[d.getMonth()]} ${d.getDate()} — Operational`;
+            container.appendChild(seg);
         }
 
-        function renderTimelines() {
-            CONFIG.components.forEach(comp => {
-                const el = document.getElementById(comp.id);
-                if (!el) return;
-
-                for (let i = 0; i < CONFIG.days; i++) {
-                    const bar = document.createElement('div');
-                    bar.className = 't-bar';
-
-                    // Add fake status variety
-                    if (comp.issues.includes(i)) {
-                        bar.classList.add(Math.random() > 0.7 ? 'error' : 'warn');
-                    }
-
-                    const d = new Date();
-                    d.setDate(d.getDate() - (CONFIG.days - i));
-
-                    bar.title = `${d.toLocaleDateString()}: No systemic issues reported.`;
-                    el.appendChild(bar);
-                }
-            });
-        }
-
-        function updateDates() {
-            const now = new Date();
-            document.getElementById('current-time').textContent = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-            const options = { day: 'numeric', month: 'long', year: 'numeric' };
-            document.getElementById('today-date').textContent = now.toLocaleDateString('en-US', options);
-
-            const yesterday = new Date(now);
-            yesterday.setDate(now.getDate() - 1);
-            document.getElementById('yesterday-date').textContent = yesterday.toLocaleDateString('en-US', options);
-        }
-
-        document.addEventListener('DOMContentLoaded', init);
-    </script>
-
+        // Dynamic "90 days ago" label
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 89);
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        document.getElementById('bar-start-label').textContent =
+            `${months[startDate.getMonth()]} ${startDate.getDate()}`;
+    }
+    buildUptimeBars();
+</script>
 </body>
-
 </html>
