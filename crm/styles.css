@@ -2314,6 +2314,42 @@ body {
   font-size: 0.8125rem;
 }
 
+/* ----- Disable hover transform for key CRM action buttons -----
+   The user requested removing the subtle hover 'move/scale' effect
+   for new-company / new-person style buttons in CRM. This override
+   clears transform on hover for common action button selectors.
+*/
+.settings-header-actions .btn,
+.ai-generate-btn,
+.gradient-button,
+.btn-primary,
+.btn-secondary,
+.btn-ghost,
+.company-summary-domain-link,
+.company-summary-meta .person-view-company-link,
+.toolbar-btn-primary,
+#add-company-btn,
+#add-person-btn {
+  transition-property: background, color, box-shadow !important;
+  /* keep color/box-shadow transitions but drop transform */
+}
+
+.settings-header-actions .btn:hover,
+.ai-generate-btn:hover,
+.gradient-button:hover,
+.btn-primary:hover,
+.btn-secondary:hover,
+.btn-ghost:hover,
+.company-summary-domain-link:hover,
+.company-summary-meta .person-view-company-link:hover,
+.toolbar-btn-primary:hover,
+#add-company-btn:hover,
+#add-person-btn:hover {
+  transform: none !important;
+  /* remove any hover translation/scale */
+}
+
+
 .notification-item {
   display: block;
   width: 100%;
