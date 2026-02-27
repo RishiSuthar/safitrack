@@ -1345,19 +1345,7 @@ body {
   color: white;
 }
 
-/* Glass Card Bottom Left */
-.visual-footer-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  padding: 1rem;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  max-width: 400px;
-}
+
 
 .glass-user-info {
   display: flex;
@@ -1386,17 +1374,17 @@ body {
 .glass-text .name {
   font-size: 0.9375rem;
   font-weight: 600;
-  color: white;
+  color: #0f1419;
 }
 
 .glass-text .role {
   font-size: 0.75rem;
-  color: rgba(255, 255, 255, 0.8);
+  color: var(--text-muted);
 }
 
 .glass-badge {
-  background: rgba(16, 185, 129, 0.2);
-  color: #6ee7b7;
+  background: #1f9d6e;
+  color: #ffffff;
   padding: 0.25rem 0.75rem;
   border-radius: 999px;
   font-size: 0.875rem;
