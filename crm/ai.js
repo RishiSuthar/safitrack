@@ -10,11 +10,11 @@ async function generateConciseVisitSummary(company, contact, notes) {
         'Authorization': `Bearer ${GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        model: 'groq/compound',
         messages: [
           {
             role: 'system',
-            content: 'Generate a very concise summary of a sales visit in 2-3 bullet points. Focus on key outcomes and next steps. Use bullet points with * and keep it under 100 words total.'
+            content: 'You are Safi A.I, a concise assistant. Generate a very concise summary of a sales visit in 2-3 bullet points. Focus on key outcomes and next steps. Use bullet points with * and keep it under 100 words total.'
           },
           {
             role: 'user',
@@ -50,11 +50,11 @@ async function predictLeadScore(company, contact, notes, visitType) {
         'Authorization': `Bearer ${GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        model: 'groq/compound',
         messages: [
           {
             role: 'system',
-            content: 'You are a sales AI that predicts lead conversion probability. Analyze the visit details and return ONLY a number between 0-100 representing the lead score. Consider: engagement level, decision-maker access, budget signals, timeline urgency, and pain points mentioned.'
+            content: 'You are Safi A.I, a sales assistant that predicts lead conversion probability. Analyze the visit details and return ONLY a number between 0-100 representing the lead score. Consider: engagement level, decision-maker access, budget signals, timeline urgency, and pain points mentioned.'
           },
           {
             role: 'user',
@@ -98,11 +98,11 @@ async function generateConciseTeamTrends(allNotes) {
         'Authorization': `Bearer ${GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        model: 'groq/compound',
         messages: [
           {
             role: 'system',
-            content: 'Generate very concise team insights in 3-4 bullet points. Focus on common patterns, key challenges, and opportunities. Use bullet points with * and keep it under 120 words total.'
+            content: 'You are Safi A.I, a helpful assistant. Generate very concise team insights in 3-4 bullet points. Focus on common patterns, key challenges, and opportunities. Use bullet points with * and keep it under 120 words total.'
           },
           {
             role: 'user',
@@ -140,11 +140,11 @@ async function generateCompanyDescription(companyName) {
         'Authorization': `Bearer ${GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        model: 'groq/compound',
         messages: [
           {
             role: 'system',
-            content: 'You are a helpful assistant that writes short, factual and neutral company descriptions based only on the company name. Keep it to 1 short sentence (under 25 words). Do NOT invent unverifiable specifics such as exact products, locations, or financials. If uncertain, use generic phrasing.'
+            content: 'You are Safi A.I, a helpful assistant that writes short, factual and neutral company descriptions based only on the company name. Keep it to 1 short sentence (under 25 words). Do NOT invent unverifiable specifics such as exact products, locations, or financials. If uncertain, use generic phrasing.'
           },
           {
             role: 'user',
@@ -172,29 +172,41 @@ async function generateCompanyDescription(companyName) {
 // Generic Groq helper used by other AI features (intent detection, field extraction, etc.)
 // ------------------------------------------------------------------
 async function groqChat(messages, max_tokens = 150, temperature = 0.3) {
-  try {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_API_KEY}`
-      },
-      body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
-        messages,
-        max_tokens,
-        temperature
-      })
-    });
+  const maxAttempts = 3;
+  let attempt = 0;
+  while (attempt < maxAttempts) {
+    try {
+      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${GROQ_API_KEY}`
+        },
+        body: JSON.stringify({
+          model: 'groq/compound-mini',
+          messages,
+          max_tokens,
+          temperature
+        })
+      });
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+      if (!response.ok) {
+        const err = new Error(`API error: ${response.status}`);
+        err.status = response.status;
+        throw err;
+      }
+
+      const data = await response.json();
+      return data.choices[0].message.content.trim();
+    } catch (error) {
+      console.error('Error in groqChat:', error);
+      if (error.status === 429 && attempt < maxAttempts - 1) {
+        // exponential backoff
+        await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+        attempt++;
+        continue;
+      }
+      throw error;
     }
-
-    const data = await response.json();
-    return data.choices[0].message.content.trim();
-  } catch (error) {
-    console.error('Error in groqChat:', error);
-    return '';
   }
 }

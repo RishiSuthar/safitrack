@@ -151,7 +151,7 @@ async function handleAdvice(text) {
   }
   // compose guidance prompt
   const messages = [
-    { role: 'system', content: 'You are a concise, friendly sales coach. When asked to advise on an opportunity, respond with 3 short bullet points. Use **bold** for the main action phrase in each bullet and keep each bullet under one sentence. Keep the overall answer under 120 words and well spaced. Do NOT ramble.' },
+    { role: 'system', content: 'You are Safi A.I, a concise, friendly sales coach. When asked to advise on an opportunity, respond with 3 short bullet points. Use **bold** for the main action phrase in each bullet and keep each bullet under one sentence. Keep the overall answer under 120 words and well spaced. Do NOT ramble.' },
     { role: 'user', content: `Opportunity details:\nName: ${opp.name}\nCompany: ${opp.company_name}\nStage: ${opp.stage}\nValue: ${opp.value}\nProbability: ${opp.probability}\nNotes: ${opp.notes || 'none'}\n\nOffer 3 brief, actionable steps to improve the chances of winning this deal.` }
   ];
   let reply = await groqChat(messages, 200, 0.7);
@@ -365,6 +365,11 @@ async function handleUserMessage(text) {
   }
 
   Object.assign(chatState.collectedFields, newFields);
+  // if we're asking for advice and just got the company, run advice handler
+  if (chatState.intent === 'advise_opportunity' && newFields.company_name) {
+    await handleAdvice(chatState.collectedFields.company_name);
+    return;
+  }
   // if we got a stage now that is valid, remove any leftover raw hint
   if (chatState.collectedFields.stage && chatState.collectedFields._raw_stage) {
     delete chatState.collectedFields._raw_stage;
@@ -767,11 +772,26 @@ function appendUserMessage(text) {
   container.scrollTop = container.scrollHeight;
 }
 
+function formatCasualText(text) {
+  let out = text;
+  // break before bold sections to make spec listings vertical
+  out = out.replace(/\*\*(.*?)\*\*/g, '\n\n**$1**');
+  // if the model returned a markdown-style table, convert to simple list
+  if (out.includes('|')) {
+    const lines = out.split('\n').map(l => l.trim()).filter(l => l && !/^\|[- ]+\|/.test(l));
+    const cleaned = lines.map(l => l.replace(/\|/g, '').trim()).join('\n');
+    out = cleaned;
+  }
+  // collapse multiple blank lines
+  out = out.replace(/\n{3,}/g, '\n\n');
+  return out.trim();
+}
+
 function appendAIMessage(text) {
   const container = document.getElementById('ai-chat-messages');
   const msg = document.createElement('div');
   msg.className = 'ai-chat-message ai';
-  msg.innerHTML = `<div class="ai-chat-bubble">${escapeHtml(text)}</div>`;
+  msg.innerHTML = `<div class="ai-chat-bubble">${escapeHtml(formatCasualText(text))}</div>`;
   container.appendChild(msg);
   container.scrollTop = container.scrollHeight;
 }
