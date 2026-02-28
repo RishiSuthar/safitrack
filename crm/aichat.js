@@ -1,7 +1,7 @@
 // aichat.js
 // AI Chat Assistant for SafiTrack CRM
-// Provides conversational interface to create tasks and reminders.
-// Relies on groq API via ai.js and existing task/reminder logic in app.js
+// Provides conversational interface to create tasks, reminders and opportunities.
+// Relies on groq API via ai.js and existing task/reminder/opportunity logic in app.js
 
 // conversation state
 let chatState = null;
@@ -9,6 +9,11 @@ let chatState = null;
 // fields we want to collect
 const TASK_REQUIRED_FIELDS = ['title', 'description', 'due_date', 'priority', 'assigned_to'];
 const REMINDER_REQUIRED_FIELDS = ['title', 'description', 'reminder_date', 'assigned_to'];
+// opportunity fields – the five below are considered required for conversation
+const OPPORTUNITY_REQUIRED_FIELDS = ['name', 'company_name', 'value', 'stage', 'probability'];
+// there are additional optional properties that may be supplied (next_step, next_step_date, notes, etc.) but
+// we only force the core five when driving the chat.
+
 
 // ------------------------------------------------------------------
 // Initialization and UI helpers
@@ -34,7 +39,7 @@ function initializeAIChat() {
     windowEl.classList.add('active');
     if (!chatState || !chatState.intent) {
       resetConversation();
-      appendAIMessage('Hi! I can help you create tasks and reminders conversationally. Just say something like "Create a task".');
+      appendAIMessage('Hi! I can help you create tasks, reminders, or opportunities conversationally – and even give advice on winning deals. Just say something like "Create a task" or "How can I win my opportunity with Carrefour?".');
     }
   }
   closeBtn.addEventListener('click', () => windowEl.classList.remove('active'));
@@ -43,7 +48,7 @@ function initializeAIChat() {
     // clear messages and reset state
     document.getElementById('ai-chat-messages').innerHTML = '';
     resetConversation();
-    appendAIMessage('Hi! I can help you create tasks and reminders conversationally. Just say something like "Create a task".');
+    appendAIMessage('Hi! I can help you create tasks, reminders, or opportunities conversationally. Just say something like "Create a task" or "Add an opportunity".');
   });
 
   sendBtn.addEventListener('click', onUserSubmit);
@@ -79,21 +84,133 @@ async function processUserMessage(text) {
 // Conversation state & flow
 // ------------------------------------------------------------------
 
+// helper to locate an existing opportunity by querying the database
+async function findOpportunityForAdvice(text) {
+  if (!text || !text.trim()) return null;
+  try {
+    // build a loose search pattern from tokens to pull candidates
+    const tokens = text.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().split(/\s+/).filter(Boolean);
+    if (!tokens.length) return null;
+    // query using first token to limit results
+    const { data, error } = await supabaseClient
+      .from('opportunities')
+      .select('*')
+      .ilike('company_name', `%${tokens[0]}%`)
+      .limit(50);
+    if (error) {
+      console.error('supabase advice lookup error', error);
+      return null;
+    }
+    if (!data || !data.length) return null;
+    // perform normalization-based matching on returned candidates
+    const normQuery = normalizeForMatching(text);
+    let best = null, bestScore = 0;
+    for (const o of data) {
+      const company = normalizeForMatching(o.company_name || '');
+      const name = normalizeForMatching(o.name || '');
+      if ((company && (company.includes(normQuery) || normQuery.includes(company))) ||
+          (name && (name.includes(normQuery) || normQuery.includes(name)))) {
+        return o;
+      }
+      const tokensSet = new Set(normQuery.split(/\s+/).filter(Boolean));
+      const candidate = company || name;
+      if (candidate) {
+        const candTokens = candidate.split(/\s+/).filter(Boolean);
+        let common = 0;
+        candTokens.forEach(t => { if (tokensSet.has(t)) common++; });
+        const score = candTokens.length > 0 ? common / candTokens.length : 0;
+        if (score > bestScore) {
+          bestScore = score;
+          best = o;
+        }
+      }
+    }
+    if (bestScore >= 0.5) return best;
+  } catch (e) {
+    console.error('findOpportunityForAdvice exception', e);
+  }
+  return null;
+}
+
+// handle advice queries about an existing opportunity
+async function handleAdvice(text) {
+  // try to glean a company/opportunity name from the text
+  const fields = await extractFields(text, 'create_opportunity');
+  let opp = null;
+  if (fields.company_name) {
+    opp = await findOpportunityForAdvice(fields.company_name);
+  }
+  if (!opp) {
+    opp = await findOpportunityForAdvice(text);
+  }
+  if (!opp) {
+    appendAIMessage("I wasn't able to find a matching opportunity. Could you give me the company or exact opportunity name?");
+    chatState.intent = 'advise_opportunity';
+    chatState.awaitingField = 'company_name';
+    return;
+  }
+  // compose guidance prompt
+  const messages = [
+    { role: 'system', content: 'You are a concise, friendly sales coach. When asked to advise on an opportunity, respond with 3 short bullet points. Use **bold** for the main action phrase in each bullet and keep each bullet under one sentence. Keep the overall answer under 120 words and well spaced. Do NOT ramble.' },
+    { role: 'user', content: `Opportunity details:\nName: ${opp.name}\nCompany: ${opp.company_name}\nStage: ${opp.stage}\nValue: ${opp.value}\nProbability: ${opp.probability}\nNotes: ${opp.notes || 'none'}\n\nOffer 3 brief, actionable steps to improve the chances of winning this deal.` }
+  ];
+  let reply = await groqChat(messages, 200, 0.7);
+  // convert reply text into HTML list
+  // split on bullet markers or line breaks
+  const lines = reply.split(/\n|•/).map(l => l.trim()).filter(l => l);
+  if (lines.length > 1) {
+    const listItems = lines.map(l => {
+      // convert **bold** markers to <strong>
+      const safe = escapeHtml(l).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+      return `<li>${safe}</li>`;
+    }).join('');
+    const html = `<p>Here are some suggestions:</p><ul>${listItems}</ul>`;
+    appendAIMessageHtml(html);
+  } else {
+    appendAIMessage(reply);
+  }
+  resetConversation();
+}
+
+
 async function handleUserMessage(text) {
   if (!chatState) resetConversation();
 
   if (!chatState.intent) {
-    chatState.intent = await detectIntent(text);
-    if (chatState.intent === 'none') {
-      appendAIMessage("I didn't quite understand that. Are you trying to create a task or a reminder?");
+    const intent = await detectIntent(text);
+    if (intent === 'none') {
+      // casual message only; conversation state remains reset
+      const reply = await generateCasualReply(text);
+      appendAIMessage(reply);
       return;
     }
+    chatState.intent = intent;
+
+    // if the intent is advice, handle immediately
+    if (chatState.intent === 'advise_opportunity') {
+      await handleAdvice(text);
+      return;
+    }
+
+    // special handling for first-opportunity message: ask company first
+    if (chatState.intent === 'create_opportunity') {
+      // try to pull company from the initial sentence in case user already mentioned it
+      const initialFields = await extractFields(text, 'create_opportunity');
+      if (initialFields.company_name) {
+        chatState.collectedFields.company_name = String(initialFields.company_name).trim();
+      }
+      if (!chatState.collectedFields.company_name) {
+        appendAIMessage('Alright, let’s start with the company – which company is this deal for?');
+        chatState.awaitingField = 'company_name';
+        return;
+      }
+    }
+
     // if user said "remind me" or similar in the kickoff message, prefill assigned_to
     if (chatState.intent === 'create_reminder' && /\bremind me\b/i.test(text)) {
       chatState.collectedFields.assigned_to = 'me';
     }
   }
-
   // compute what we're still waiting for before trying to parse
   const priorMissing = getMissingFields(chatState.intent, chatState.collectedFields);
 
@@ -103,13 +220,20 @@ async function handleUserMessage(text) {
   delete chatState.awaitingField;
 
   let newFields = await extractFields(text, chatState.intent);
+  // if user is simply asking to create a task (not giving details), don't treat the question itself as title/description
+  if (chatState.intent === 'create_task' && /\b(?:can we|could you|please)?\s*(?:make|create)\s+(?:a\s+)?task\b/i.test(text)) {
+    delete newFields.title;
+    delete newFields.description;
+  }
 
-  // fallback: extractor failed to parse anything
-  if (Object.keys(newFields).length === 0) {
-    if (expected) {
-      // use the field we just asked about
-      newFields[expected] = text.trim();
-    } else if (priorMissing.length === 1) {
+  // if we were waiting on a specific field, treat the user's reply as the answer
+  if (expected) {
+    newFields = { [expected]: text.trim() };
+  }
+
+  // fallback: extractor failed to parse anything and no expected field
+  if (!expected && Object.keys(newFields).length === 0) {
+    if (priorMissing.length === 1) {
       // when only one field remains, assume the reply is for it
       newFields[priorMissing[0]] = text.trim();
     }
@@ -117,46 +241,134 @@ async function handleUserMessage(text) {
 
   // handle time adjustments, sensible defaults, and relative modifiers
   if (newFields.reminder_date) {
-    // convert to date object for modifications
-    let fixed = adjustTime(newFields.reminder_date, text);
+    // we may receive non‑ISO strings like "tomorrow at 8pm"; try to build a real date
+    let baseIso = newFields.reminder_date;
+    let baseDate = new Date(baseIso);
+    if (isNaN(baseDate.getTime())) {
+      // derive from text keywords
+      const now = new Date();
+      baseIso = now.toISOString();
+      baseIso = adjustRelativeDate(baseIso, text);
+    }
+
+    let fixed = adjustTime(baseIso, text);
     if (!fixed) {
       if (/\bmorning\b/i.test(text)) {
-        fixed = setHour(newFields.reminder_date, 7);
+        fixed = setHour(baseIso, 7);
       } else if (/\bafternoon\b/i.test(text)) {
-        fixed = setHour(newFields.reminder_date, 15);
+        fixed = setHour(baseIso, 15);
       } else if (/\bevening\b/i.test(text)) {
-        fixed = setHour(newFields.reminder_date, 19);
+        fixed = setHour(baseIso, 19);
       } else if (/\btonight\b/i.test(text)) {
-        fixed = setHour(newFields.reminder_date, 20);
+        fixed = setHour(baseIso, 20);
       } else {
         // default to midnight
-        fixed = setHour(newFields.reminder_date, 0);
+        fixed = setHour(baseIso, 0);
       }
     }
-    // apply relative shifts (tomorrow, today, etc.)
+    // apply relative shifts (tomorrow, today, etc.) again just in case
     fixed = adjustRelativeDate(fixed, text);
     newFields.reminder_date = fixed;
   }
   if (newFields.due_date) {
-    let fixed = adjustTime(newFields.due_date, text);
+    let baseIso = newFields.due_date;
+    let baseDate = new Date(baseIso);
+    if (isNaN(baseDate.getTime())) {
+      const now = new Date();
+      baseIso = now.toISOString();
+      baseIso = adjustRelativeDate(baseIso, text);
+    }
+    let fixed = adjustTime(baseIso, text);
     if (!fixed) {
       if (/\bmorning\b/i.test(text)) {
-        fixed = setHour(newFields.due_date, 7);
+        fixed = setHour(baseIso, 7);
       } else if (/\bafternoon\b/i.test(text)) {
-        fixed = setHour(newFields.due_date, 15);
+        fixed = setHour(baseIso, 15);
       } else if (/\bevening\b/i.test(text)) {
-        fixed = setHour(newFields.due_date, 19);
+        fixed = setHour(baseIso, 19);
       } else if (/\btonight\b/i.test(text)) {
-        fixed = setHour(newFields.due_date, 20);
+        fixed = setHour(baseIso, 20);
       } else {
-        fixed = setHour(newFields.due_date, 0);
+        fixed = setHour(baseIso, 0);
       }
     }
     fixed = adjustRelativeDate(fixed, text);
     newFields.due_date = fixed;
   }
 
+  // support next step dates for opportunities as well
+  if (newFields.next_step_date) {
+    let baseIso = newFields.next_step_date;
+    let baseDate = new Date(baseIso);
+    if (isNaN(baseDate.getTime())) {
+      const now = new Date();
+      baseIso = now.toISOString();
+      baseIso = adjustRelativeDate(baseIso, text);
+    }
+    let fixed = adjustTime(baseIso, text);
+    if (!fixed) {
+      if (/\bmorning\b/i.test(text)) {
+        fixed = setHour(baseIso, 7);
+      } else if (/\bafternoon\b/i.test(text)) {
+        fixed = setHour(baseIso, 15);
+      } else if (/\bevening\b/i.test(text)) {
+        fixed = setHour(baseIso, 19);
+      } else if (/\btonight\b/i.test(text)) {
+        fixed = setHour(baseIso, 20);
+      } else {
+        fixed = setHour(baseIso, 0);
+      }
+    }
+    fixed = adjustRelativeDate(fixed, text);
+    newFields.next_step_date = fixed;
+  }
+
+  // post-process certain extracted values
+  if (newFields.value !== undefined) {
+    // turn currency-like strings into numbers
+    const num = parseFloat(String(newFields.value).replace(/[^0-9.]/g, ''));
+    if (!isNaN(num)) newFields.value = num;
+  }
+  if (newFields.probability !== undefined) {
+    const num = parseFloat(String(newFields.probability).replace(/[^0-9.]/g, ''));
+    if (!isNaN(num)) newFields.probability = num;
+  }
+  // support user writing "company" instead of company_name
+  if (newFields.company && !newFields.company_name) {
+    newFields.company_name = newFields.company;
+    delete newFields.company;
+  }
+  if (newFields.company_name !== undefined) {
+    // trim whitespace
+    newFields.company_name = String(newFields.company_name).trim();
+  }
+  // normalize stage synonyms for opportunities (new labels: lead, in progress, won, lost)
+  if (newFields.stage !== undefined) {
+    const s = String(newFields.stage).toLowerCase().trim();
+    if (s.startsWith('won') || s === 'win') {
+      newFields.stage = 'won';
+    } else if (s.startsWith('lost') || s === 'lose') {
+      newFields.stage = 'lost';
+    } else if (s.startsWith('prospect') || s === 'lead') {
+      newFields.stage = 'lead';
+    } else if (s.startsWith('qualif') || s === 'qual' || s === 'quali' || s.includes('progress')) {
+      newFields.stage = 'in progress';
+    } else {
+      newFields.stage = s; // let the backend validate
+    }
+    // verify against allowed values; if invalid, keep original token as hint + ask again
+    const allowed = ['lead','in progress','won','lost'];
+    if (!allowed.includes(newFields.stage)) {
+      newFields._raw_stage = s;
+      delete newFields.stage;
+    }
+  }
+
   Object.assign(chatState.collectedFields, newFields);
+  // if we got a stage now that is valid, remove any leftover raw hint
+  if (chatState.collectedFields.stage && chatState.collectedFields._raw_stage) {
+    delete chatState.collectedFields._raw_stage;
+  }
 
   // non-managers can only assign to themselves; fill automatically instead of asking
   if (!isManager && chatState.missingFields.includes('assigned_to')) {
@@ -165,9 +377,33 @@ async function handleUserMessage(text) {
 
   chatState.missingFields = getMissingFields(chatState.intent, chatState.collectedFields);
 
+  // extra guard for opportunities: make sure company_name is never silently ignored
+  if (chatState.intent === 'create_opportunity') {
+    const comp = chatState.collectedFields.company_name;
+    if (!comp || (typeof comp === 'string' && comp.trim() === '')) {
+      if (!chatState.missingFields.includes('company_name')) {
+        chatState.missingFields.push('company_name');
+      }
+    }
+    // always ask about company first if it's missing
+    if (chatState.missingFields.includes('company_name')) {
+      chatState.missingFields = ['company_name', ...chatState.missingFields.filter(f => f !== 'company_name')];
+    }
+  }
+
   if (chatState.missingFields.length === 0) {
-    await finalizeCreation(chatState.intent, chatState.collectedFields);
-    resetConversation();
+    const created = await finalizeCreation(chatState.intent, chatState.collectedFields);
+    if (created) {
+      resetConversation();
+    } else {
+      // if creation was aborted (e.g. missing company), recompute missingFields and continue
+      chatState.missingFields = getMissingFields(chatState.intent, chatState.collectedFields);
+      if (chatState.missingFields.length > 0) {
+        chatState.awaitingField = chatState.missingFields[0];
+        const question = await generateFollowUpQuestion(chatState.missingFields, chatState.collectedFields);
+        appendAIMessage(question);
+      }
+    }
   } else {
     // anticipate which field we will inquire about (pick first missing)
     if (chatState.missingFields.length > 0) {
@@ -192,16 +428,35 @@ function resetConversation() {
 
 async function detectIntent(text) {
   const messages = [
-    { role: 'system', content: 'You are an assistant that analyzes user messages and returns ONLY one of: create_task, create_reminder, or none.' },
+    { role: 'system', content: 'You are an assistant that analyzes user messages and returns ONLY one of: create_task, create_reminder, create_opportunity, advise_opportunity, or none.' },
     { role: 'user', content: `User message: "${text}"` }
   ];
   const response = await groqChat(messages, 50, 0);
-  const match = response.match(/create_task|create_reminder/);
+  const match = response.match(/create_task|create_reminder|create_opportunity|advise_opportunity/);
   return match ? match[0] : 'none';
 }
 
+async function generateCasualReply(text) {
+  const messages = [
+    { role: 'system', content: 'You are a friendly, conversational AI assistant integrated into a CRM. You can chat casually, answer simple questions, and respond in a warm, human-like tone. If the user later wants to create a task, reminder, or opportunity you will steer them that way.' },
+    { role: 'user', content: text }
+  ];
+  const response = await groqChat(messages, 150, 0.7);
+  return response.trim();
+}
+
 async function extractFields(text, intent) {
-  const fieldList = intent === 'create_task' ? TASK_REQUIRED_FIELDS : REMINDER_REQUIRED_FIELDS;
+  let fieldList;
+  if (intent === 'create_task') {
+    fieldList = TASK_REQUIRED_FIELDS;
+  } else if (intent === 'create_reminder') {
+    fieldList = REMINDER_REQUIRED_FIELDS;
+  } else if (intent === 'create_opportunity') {
+    // include optional ones too so we can capture next_step/notes if user provides them
+    fieldList = OPPORTUNITY_REQUIRED_FIELDS.concat(['next_step', 'next_step_date', 'notes']);
+  } else {
+    fieldList = [];
+  }
   const instructions = `Extract the following fields: ${fieldList.join(', ')}. Output a JSON object. \nOnly include keys for any fields you can glean from the text. For dates/times, convert to ISO 8601 if possible and if the year is omitted, assume the current year. \nIf you cannot determine a value, omit the key. Do not add any explanation.`;
 
   const messages = [
@@ -221,7 +476,16 @@ async function extractFields(text, intent) {
 }
 
 function getMissingFields(intent, collected) {
-  const req = intent === 'create_task' ? TASK_REQUIRED_FIELDS : REMINDER_REQUIRED_FIELDS;
+  let req;
+  if (intent === 'create_task') {
+    req = TASK_REQUIRED_FIELDS;
+  } else if (intent === 'create_reminder') {
+    req = REMINDER_REQUIRED_FIELDS;
+  } else if (intent === 'create_opportunity') {
+    req = OPPORTUNITY_REQUIRED_FIELDS;
+  } else {
+    req = [];
+  }
   return req.filter(f => {
     const v = collected[f];
     return v === undefined || v === null || (typeof v === 'string' && v.trim() === '');
@@ -233,20 +497,36 @@ async function generateFollowUpQuestion(missingFields, collected) {
   // fallback to groq only if we can't map.
   const field = missingFields[0];
   if (field) {
+    // special case: user gave something for stage but it was invalid
+    if (field === 'stage' && collected._raw_stage) {
+      return 'Hmm, I didn’t quite get the stage. Please tell me if it’s lead, in progress, won, or lost.';
+    }
     switch (field) {
+      // task/reminder fields
       case 'title':
-        return 'What is the title?';
+        return 'Great! What should I call it?';
       case 'description':
-        return 'Can you give me a brief description?';
+        return 'And some quick details, please?';
       case 'due_date':
-        return 'When is it due?';
+        return 'When would you like that completed by?';
       case 'reminder_date':
-        return 'What date/time should I remind you?';
+        return 'Alright, when should I remind you?';
       case 'priority':
-        return 'What priority should I set (low/medium/high)?';
+        return 'Do you want to mark it low, medium, or high priority?';
       case 'assigned_to':
-        if (!isManager) return 'It will be assigned to you.';
-        return 'Who should it be assigned to?';
+        if (!isManager) return 'It’ll default to you unless you say otherwise.';
+        return 'Who should I assign this to?';
+      // opportunity fields
+      case 'name':
+        return 'Great – what’s the opportunity called?';
+      case 'company_name':
+        return 'Which company are we talking about for this deal?';
+      case 'value':
+        return 'And roughly how much is it worth (in Ksh)?';
+      case 'stage':
+        return 'What stage is it at right now – lead, in progress, won, or lost?';
+      case 'probability':
+        return 'What would you say the chance of winning is, in percent?';
       default:
         break;
     }
@@ -267,7 +547,7 @@ async function generateFollowUpQuestion(missingFields, collected) {
 async function finalizeCreation(intent, fields) {
   if (!currentUser || !currentUser.id) {
     appendAIMessage('Unable to create item – user not authenticated.');
-    return;
+    return false;
   }
   if (intent === 'create_task') {
     const taskData = {
@@ -282,13 +562,15 @@ async function finalizeCreation(intent, fields) {
     try {
       const result = await supabaseClient.from('tasks').insert([taskData]);
       if (result.error) throw result.error;
-      appendAIMessage(`Task "${taskData.title}" has been created successfully.`);
+      appendAIMessage(`Great! I’ve created the task "${taskData.title}" for you.`);
       if (typeof renderTasksView === 'function') renderTasksView();
       // close chat panel automatically
       const win = document.getElementById('ai-chat-window');
       if (win) win.classList.remove('active');
+      return true;
     } catch (err) {
       appendAIMessage('Error creating task: ' + err.message);
+      return false;
     }
   } else if (intent === 'create_reminder') {
     const reminderData = {
@@ -302,15 +584,74 @@ async function finalizeCreation(intent, fields) {
     try {
       const result = await supabaseClient.from('reminders').insert([reminderData]);
       if (result.error) throw result.error;
-      appendAIMessage(`Reminder "${reminderData.title}" has been created successfully.`);
+      appendAIMessage(`All set! Reminder "${reminderData.title}" is in the system.`);
       if (typeof renderRemindersView === 'function') renderRemindersView();
       // close chat panel automatically
       const winRem = document.getElementById('ai-chat-window');
       if (winRem) winRem.classList.remove('active');
+      return true;
     } catch (err) {
       appendAIMessage('Error creating reminder: ' + err.message);
+      return false;
+    }
+  } else if (intent === 'create_opportunity') {
+    // ensure company_name present before attempting insert
+    if (!fields.company_name || (typeof fields.company_name === 'string' && fields.company_name.trim() === '')) {
+      appendAIMessage('I need a company name for the opportunity. Which company is it for?');
+      // ask again and defer finalization
+      chatState.intent = 'create_opportunity';
+      chatState.awaitingField = 'company_name';
+      return false;
+    }
+
+    // try to match company against existing data to normalize its name
+    if (fields.company_name) {
+      try {
+        if (typeof window.findCompanyForOpportunity === 'function') {
+          const match = window.findCompanyForOpportunity({ company_name: fields.company_name });
+          if (match && match.name) {
+            fields.company_name = match.name; // use canonical casing/spelling
+          }
+        }
+      } catch (e) {
+        console.error('company match failed', e);
+      }
+    }
+
+    // ensure stage has some valid string; fallback to prospecting
+    // map user-friendly stages back to DB enum values
+    let stageVal = fields.stage || 'lead';
+    if (stageVal === 'lead') stageVal = 'prospecting';
+    if (stageVal === 'in progress') stageVal = 'qualification';
+    if (stageVal === 'won') stageVal = 'closed-won';
+    if (stageVal === 'lost') stageVal = 'closed-lost';
+    const opportunityData = {
+      user_id: currentUser.id,
+      name: fields.name,
+      company_name: fields.company_name || null,
+      // company_id column not present in schema; we only store name
+      value: fields.value != null ? parseFloat(fields.value) : null,
+      probability: fields.probability != null ? parseFloat(fields.probability) : null,
+      stage: stageVal,
+      next_step: fields.next_step || null,
+      next_step_date: fields.next_step_date ? normalizeAndEnsureYear(fields.next_step_date) : null,
+      notes: fields.notes || null
+      // competitors/mentioned_people not collected via chat presently
+    };
+    try {
+      const result = await supabaseClient.from('opportunities').insert([opportunityData]);
+      if (result.error) throw result.error;
+      appendAIMessage(`Nice one! Opportunity "${opportunityData.name}" is now on the board.`);
+      if (typeof renderOpportunityPipelineView === 'function') renderOpportunityPipelineView();
+      const winOpp = document.getElementById('ai-chat-window');
+      if (winOpp) winOpp.classList.remove('active');
+      return true;
+    } catch (err) {
+      appendAIMessage('Error creating opportunity: ' + err.message);
+      return false;
     }
   }
+  return false;
 }
 
 // ------------------------------------------------------------------
@@ -431,6 +772,16 @@ function appendAIMessage(text) {
   const msg = document.createElement('div');
   msg.className = 'ai-chat-message ai';
   msg.innerHTML = `<div class="ai-chat-bubble">${escapeHtml(text)}</div>`;
+  container.appendChild(msg);
+  container.scrollTop = container.scrollHeight;
+}
+
+// similar to appendAIMessage but assumes html is safe and not escaped
+function appendAIMessageHtml(html) {
+  const container = document.getElementById('ai-chat-messages');
+  const msg = document.createElement('div');
+  msg.className = 'ai-chat-message ai';
+  msg.innerHTML = `<div class="ai-chat-bubble">${html}</div>`;
   container.appendChild(msg);
   container.scrollTop = container.scrollHeight;
 }
