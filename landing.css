@@ -4,31 +4,33 @@
    =================================== */
 
 :root {
-    /* CRM Colors */
-    --color-primary: #2f5fd0;
-    --color-primary-dark: #244bb0;
-    --color-primary-light: #7da2f8;
+    /* CRM Colors - Pure Black & White theme */
+    --color-primary: #000000;
+    --color-primary-dark: #111111;
+    --color-primary-light: #222222;
 
-    /* Dark Theme Backgrounds */
-    --bg-primary: #0d1117;
-    --bg-secondary: #121923;
-    --bg-tertiary: #1a2330;
-    --bg-elevated: #1c2633;
+    /* Light Theme Backgrounds */
+    --bg-primary: #ffffff;
+    --bg-secondary: #fafafa;
+    --bg-tertiary: #f4f6f8;
+    --bg-elevated: #ffffff;
 
     /* Text */
-    --text-primary: #e8edf3;
-    --text-secondary: #b6c0cc;
-    --text-muted: #8a95a3;
+    --text-primary: #0b1220; /* near-black */
+    --text-secondary: #4b5563; /* dark gray */
+    --text-muted: #6b7280;
 
     /* Borders */
-    --border-color: #273140;
-    --border-light: #323f52;
+    --border-color: #e6e9ef;
+    --border-light: #f0f2f5;
+    /* Divider used between page sections */
+    --section-divider: rgba(11, 18, 32, 0.12);
 
-    /* Shadows */
-    --shadow-sm: 0 1px 0 rgba(255, 255, 255, 0.01);
-    --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.28);
-    --shadow-lg: 0 14px 34px rgba(0, 0, 0, 0.36);
-    --shadow-xl: 0 20px 48px rgba(0, 0, 0, 0.5);
+    /* Shadows (subtle on white) */
+    --shadow-sm: 0 1px 0 rgba(16, 24, 40, 0.02);
+    --shadow-md: 0 8px 24px rgba(16, 24, 40, 0.06);
+    --shadow-lg: 0 18px 48px rgba(16, 24, 40, 0.08);
+    --shadow-xl: 0 28px 80px rgba(16, 24, 40, 0.12);
 
     /* Spacing */
     --spacing-unit: 8px;
@@ -48,19 +50,61 @@
     --font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
 
     /* PREMIUM V2 TOKENS */
-    --bg-glass: rgba(18, 25, 35, 0.72);
-    --bg-glass-strong: rgba(13, 17, 23, 0.86);
-    --border-glass: rgba(255, 255, 255, 0.08);
-    --surface-sunken: #090c10;
+    --bg-glass: rgba(255, 255, 255, 0.85);
+    --bg-glass-strong: rgba(255, 255, 255, 0.95);
+    --border-glass: rgba(11, 18, 32, 0.06);
+    --surface-sunken: #f6f7f9;
 
     /* Gradients */
-    --gradient-primary: linear-gradient(135deg, #2f5fd0 0%, #8b5cf6 100%);
-    --gradient-glow: radial-gradient(circle at 50% 0%, rgba(47, 95, 208, 0.15) 0%, transparent 70%);
-    --gradient-text: linear-gradient(180deg, #fff 0%, #cbd5e1 100%);
+    --gradient-primary: linear-gradient(135deg, #000000 0%, #444444 100%);
+    --gradient-glow: radial-gradient(circle at 50% 0%, rgba(16, 24, 40, 0.06) 0%, transparent 70%);
+    --gradient-text: linear-gradient(180deg, #0b1220 0%, #4b5563 100%);
 
     /* 3D & Depth */
-    --depth-subtle: 0 1px 0 rgba(255, 255, 255, 0.05) inset;
-    --shadow-premium: 0 16px 36px -10px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--border-glass);
+    --depth-subtle: 0 1px 0 rgba(16, 24, 40, 0.02) inset;
+    --shadow-premium: 0 16px 36px -10px rgba(16, 24, 40, 0.12), 0 0 0 1px var(--border-glass);
+}
+
+/* Additional mobile tweaks: lift hero badge and tighten spacing */
+@media (max-width: 480px) {
+    /* Compact the hero on very small screens: reduce top/bottom spacing */
+    .hero {
+        padding: 80px 0 60px !important;
+    }
+
+
+    .premium-testimonials .container {
+        padding: 50px 0 !important;
+        margin-bottom: 0px !important;
+    }
+
+
+    .premium-testimonials{
+        padding: 0px !important;
+    }
+
+
+    /* Nudge the badge upward and tighten its gap to the title */
+    .hero-badge,
+    .hero-ai-badge {
+        transform: translateY(-6px);
+        margin-bottom: 6px;
+        padding: 6px 10px;
+    }
+
+    /* Reduce vertical spacing around the main title and description */
+    .hero-title {
+        margin-bottom: 12px;
+    }
+
+    .hero-description {
+        margin-bottom: 16px;
+    }
+
+    .hero-actions {
+        gap: 8px;
+        margin-top: 4px;
+    }
 }
 
 /* ===================================
@@ -141,12 +185,13 @@ ul {
 .btn-primary {
     background: var(--color-primary);
     color: white;
-    box-shadow: 0 2px 8px rgba(47, 95, 208, 0.22);
+    box-shadow: 0 2px 8px rgba(16, 24, 40, 0.08);
 }
 
-.btn-primary:hover {
-    background: var(--color-primary-dark);
-}
+ .btn-primary:hover {
+     /* slightly lighter dark-gray hover for black primary buttons */
+     background: #2a2a2a;
+ }
 
 .btn-primary:active {
     background: var(--color-primary-dark);
@@ -217,8 +262,8 @@ ul {
 .logo img {
     height: 32px;
     width: auto;
-    filter: brightness(0) invert(1);
-    /* Force image to solid white */
+    filter: grayscale(100%) brightness(0) contrast(120%);
+    /* force logos to black/gray on white nav */
 }
 
 .logo-text {
@@ -261,15 +306,15 @@ ul {
     font-weight: 500;
     letter-spacing: 0.3px;
     color: var(--text-secondary);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid #0b1220;
     border-radius: 10px;
     transition: color var(--transition-base), border-color var(--transition-base), background-color var(--transition-base);
 }
 
 .nav-link-sign-in:hover {
     color: var(--text-primary);
-    border-color: rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.05);
+    border-color: #0b1220;
+    background: rgba(11, 18, 32, 0.08);
 }
 
 .btn-hero-primary {
@@ -284,7 +329,7 @@ ul {
     background: var(--color-primary);
     color: #ffffff;
     border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(11, 18, 32, 0.06);
     transition: background-color var(--transition-base);
 }
 
@@ -293,9 +338,10 @@ ul {
     padding: 0 20px;
 }
 
-.btn-hero-primary:hover {
-    background: var(--color-primary-dark);
-}
+ .btn-hero-primary:hover {
+     /* slightly lighter dark-gray hover for black hero buttons */
+     background: #2a2a2a;
+ }
 
 /* ===================================
    HERO SECTION
@@ -303,7 +349,7 @@ ul {
 
 .hero {
     padding: 180px 0 100px;
-    background: radial-gradient(circle at 50% -10%, rgba(47, 95, 208, 0.15), transparent 60%), var(--bg-primary);
+    background: var(--gradient-glow), var(--bg-primary);
 }
 
 .hero .container {
@@ -330,7 +376,7 @@ ul {
     font-weight: 500;
     letter-spacing: 0.3px;
     color: var(--text-secondary);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid #0b1220;
     border-radius: 10px;
     background: transparent;
     transition: all var(--transition-base);
@@ -338,8 +384,8 @@ ul {
 
 .btn-hero-secondary:hover {
     color: var(--text-primary);
-    border-color: rgba(255, 255, 255, 0.3);
-    background: rgba(255, 255, 255, 0.05);
+    border-color: #0b1220;
+    background: rgba(11, 18, 32, 0.08);
 }
 
 /* Hero actions take the global 48px height from .btn-lg */
@@ -350,7 +396,7 @@ ul {
     align-items: center;
     gap: 8px;
     padding: 6px 14px;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--bg-tertiary);
     border-radius: 100px;
     font-size: 15px;
     font-weight: 500;
@@ -365,8 +411,9 @@ ul {
     content: '';
     position: absolute;
     inset: -150%;
+    /* rotating border uses site blue */
     background: conic-gradient(transparent,
-            rgba(47, 95, 208, 0.8),
+            rgba(47, 95, 208, 0.96),
             transparent 30%);
     animation: rotate-border 4s linear infinite;
     z-index: -2;
@@ -377,8 +424,7 @@ ul {
     content: '';
     position: absolute;
     inset: 1.5px;
-    background: #161b22;
-    /* Slightly lighter gray to stand out from page bg */
+    background: var(--bg-primary);
     border-radius: inherit;
     z-index: -1;
 }
@@ -409,6 +455,24 @@ ul {
     margin-bottom: 24px;
 }
 
+/* Text fill animation: makes text appear to fill in with full black */
+.hero-title .fill-animate {
+    background: linear-gradient(90deg, var(--text-primary) 0%, var(--text-primary) 100%);
+    background-size: 0% 100%;
+    background-repeat: no-repeat;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    -webkit-text-fill-color: transparent;
+    animation: fillText 900ms ease forwards;
+}
+
+@keyframes fillText {
+    to {
+        background-size: 100% 100%;
+    }
+}
+
 .dynamic-word {
     display: inline-flex;
     align-items: center;
@@ -420,7 +484,7 @@ ul {
     border-radius: 12px;
     transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     text-align: center;
-    box-shadow: 0 8px 32px rgba(47, 95, 208, 0.3);
+    box-shadow: 0 8px 32px rgba(16, 24, 40, 0.06);
     white-space: nowrap;
     overflow: hidden;
     vertical-align: bottom;
@@ -506,12 +570,13 @@ ul {
 }
 
 .showcase-tabs {
+    position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     max-width: 900px;
     margin: 0 auto 48px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 10px 0;
 }
 
 /* Make showcase tabs wrap and become horizontally scrollable on small screens */
@@ -522,10 +587,15 @@ ul {
         padding: 8px 12px;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
-        border-bottom: none;
         justify-content: flex-start;
         max-width: 100%;
     }
+
+/* Hide any divider placed at the far left or far right so edges remain open */
+.showcase-tabs .tab-divider:first-child,
+.showcase-tabs .tab-divider:last-child {
+    display: none;
+}
 
     .showcase-tab {
         flex: 0 0 auto;
@@ -560,8 +630,8 @@ ul {
 
 .tab-divider {
     width: 1px;
-    height: 24px;
-    background: rgba(255, 255, 255, 0.1);
+    height: 28px;
+    background: rgba(11, 18, 32, 0.18);
     margin-bottom: 4px;
     /* Align visually with text baseline */
 }
@@ -588,6 +658,21 @@ ul {
     width: 0;
     background: var(--color-primary);
 }
+
+/* Full-width top/bottom dividers for the tab strip (span viewport width) */
+.showcase-tabs::before,
+.showcase-tabs::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100vw;
+    height: 1px;
+    background: rgba(11, 18, 32, 0.12);
+    pointer-events: none;
+}
+.showcase-tabs::before { top: 0; }
+.showcase-tabs::after { bottom: 0; }
 
 /* Browser Frame Styling */
 .browser-frame {
@@ -689,7 +774,7 @@ ul {
     width: 72px;
     height: 72px;
     border-radius: 12px;
-    border: 1px solid rgba(125, 162, 248, 0.25);
+    border: 1px solid rgba(16, 24, 40, 0.12);
     background: rgba(8, 12, 20, 0.8);
     display: grid;
     place-items: center;
@@ -723,8 +808,8 @@ ul {
     align-items: center;
     padding: 0 10px;
     border-radius: 999px;
-    border: 1px solid rgba(125, 162, 248, 0.4);
-    background: rgba(47, 95, 208, 0.18);
+    border: 1px solid rgba(16, 24, 40, 0.18);
+    background: rgba(16, 24, 40, 0.02);
     color: #c7d8ff;
     font-size: 11px;
     font-weight: 700;
@@ -820,6 +905,29 @@ ul {
     justify-items: center;
 }
 
+/* Ensure every section pair has a clear divider */
+section + section {
+    border-top: 1px solid var(--section-divider);
+}
+
+/* Make company logos darker so white/light logos remain visible on white background */
+.companies-grid .company-logo {
+    max-height: 44px;
+    width: auto;
+    display: inline-block;
+    object-fit: contain;
+    /* darken light/white logos while preserving shape */
+    filter: grayscale(100%) brightness(0.18) contrast(1.05);
+    transition: filter 180ms var(--transition-fast), opacity 160ms ease;
+}
+
+/* Reveal original colored logos on hover for emphasis */
+.companies-grid .company-logo:hover {
+    /* Make logos fully black on hover for clear contrast */
+    filter: grayscale(100%) brightness(0) contrast(100%);
+    opacity: 1;
+}
+
 .company-logo {
     height: 56px;
     width: auto;
@@ -879,7 +987,7 @@ ul {
 .scroll-manifesto {
     position: relative;
     height: 240vh;
-    background: radial-gradient(circle at 50% 12%, rgba(125, 162, 248, 0.1), transparent 46%), var(--bg-primary);
+    background: radial-gradient(circle at 50% 12%, rgba(16, 24, 40, 0.04), transparent 46%), var(--bg-primary);
     border-top: 1px solid var(--border-light);
     border-bottom: 1px solid var(--border-light);
 }
@@ -918,7 +1026,7 @@ ul {
 
 .sm-word {
     display: inline-block;
-    color: #dce6ff;
+    color: var(--text-secondary);
     opacity: 0.16;
     transform: translateY(2px);
     transition: opacity 180ms linear, transform 180ms linear, text-shadow 180ms linear;
@@ -927,7 +1035,7 @@ ul {
 .sm-word.active {
     opacity: 1;
     transform: translateY(0);
-    text-shadow: 0 0 22px rgba(125, 162, 248, 0.16);
+    text-shadow: 0 0 18px rgba(16, 24, 40, 0.06);
 }
 
 /* ===================================
@@ -953,12 +1061,16 @@ ul {
 /* Split Sides */
 .split-side {
     padding: 48px 40px;
-    background: var(--bg-secondary);
+    /* force light card appearance regardless of page theme */
+    background: var(--bg-elevated);
+    color: var(--text-primary);
     border-radius: var(--radius-lg);
     position: relative;
     min-height: 600px;
     display: flex;
     flex-direction: column;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 10px 30px rgba(16,24,40,0.06);
 }
 
 /* Side Labels */
@@ -1066,10 +1178,12 @@ ul {
     right: 30px;
     width: 220px;
     background: var(--bg-elevated);
+    color: var(--text-primary);
     border: 1px solid var(--border-color);
     border-radius: 6px;
     padding: 12px;
     animation-delay: 0.7s;
+    box-shadow: 0 6px 18px rgba(16,24,40,0.04);
 }
 
 .spreadsheet-header {
@@ -1179,9 +1293,11 @@ ul {
 /* Pipeline Preview */
 .pipeline-preview {
     background: var(--bg-elevated);
+    color: var(--text-primary);
     border: 1px solid var(--border-color);
     border-radius: 8px;
     padding: 16px;
+    box-shadow: 0 8px 24px rgba(16,24,40,0.06);
 }
 
 .pipeline-header {
@@ -1235,7 +1351,8 @@ ul {
 }
 
 .pipeline-col {
-    background: rgba(255, 255, 255, 0.02);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-light);
     border-radius: 6px;
     padding: 10px;
 }
@@ -1260,7 +1377,8 @@ ul {
 }
 
 .deal-card {
-    background: var(--bg-secondary);
+    background: var(--bg-primary);
+    color: var(--text-primary);
     border: 1px solid var(--border-light);
     border-radius: 6px;
     padding: 10px;
@@ -1604,7 +1722,7 @@ ul {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(47, 95, 208, 0.1);
+    background: rgba(16, 24, 40, 0.03);
     color: var(--color-primary);
     border-radius: var(--radius-md);
     margin-bottom: 20px;
@@ -1642,7 +1760,7 @@ ul {
     position: absolute;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(47, 95, 208, 0.15) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(16, 24, 40, 0.06) 0%, transparent 70%);
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
@@ -1989,8 +2107,8 @@ ul {
 }
 
 .dash-card.primary {
-    background: linear-gradient(180deg, rgba(47, 95, 208, 0.1) 0%, rgba(23, 27, 33, 0) 100%);
-    border-color: rgba(47, 95, 208, 0.2);
+    background: linear-gradient(180deg, rgba(16, 24, 40, 0.06) 0%, rgba(23, 27, 33, 0) 100%);
+    border-color: rgba(16, 24, 40, 0.06);
 }
 
 
@@ -2001,7 +2119,7 @@ ul {
     flex-direction: column;
     padding: 0;
     overflow: hidden;
-    background: linear-gradient(180deg, rgba(47, 95, 208, 0.05) 0%, rgba(23, 27, 33, 0) 100%);
+    background: linear-gradient(180deg, rgba(16, 24, 40, 0.04) 0%, rgba(23, 27, 33, 0) 100%);
 }
 
 .pulse-header {
@@ -2224,7 +2342,7 @@ ul {
     position: relative;
     padding: 120px 0;
     overflow: hidden;
-    background: radial-gradient(circle at 100% 0%, rgba(47, 95, 208, 0.08) 0%, transparent 40%);
+    background: radial-gradient(circle at 100% 0%, rgba(16, 24, 40, 0.04) 0%, transparent 40%);
 }
 
 .split-layout {
@@ -2258,9 +2376,8 @@ ul {
     font-size: 56px;
     line-height: 1.1;
     margin-bottom: 48px;
-    background: linear-gradient(135deg, #fff 0%, #94a3b8 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    color: var(--text-primary);
+    /* Remove gradient text fill to ensure solid neutral heading */
 }
 
 /* Vertical Dock */
@@ -2310,7 +2427,7 @@ ul {
 .dock-btn.active .d-icon {
     background: var(--color-primary);
     color: white;
-    box-shadow: 0 0 20px rgba(47, 95, 208, 0.4);
+    box-shadow: 0 0 20px rgba(16, 24, 40, 0.06);
 }
 
 .d-text {
@@ -2454,6 +2571,48 @@ ul {
     background: #0f1117;
 }
 
+/* Make One OS role views light-style (manager, salesrep, technician) */
+.role-visual-col .saas-content,
+.role-visual-col .saas-content .role-view,
+.role-visual-col .saas-content .role-view .dashboard-grid,
+.role-visual-col .saas-content .role-view .dash-widget,
+.role-visual-col .saas-content .role-view .pipeline-board,
+.role-visual-col .saas-content .role-view .pipe-col,
+.role-visual-col .saas-content .role-view .pipe-card {
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 10px 30px rgba(16,24,40,0.06) !important;
+}
+
+/* Specific tweaks for pipeline layout inside the saas window */
+.role-visual-col .saas-content .role-view .pipeline-board {
+    background: var(--bg-primary) !important;
+}
+
+.role-visual-col .saas-content .role-view .pipe-col {
+    background: var(--bg-elevated) !important;
+    border-radius: 8px !important;
+    padding: 12px !important;
+}
+
+.role-visual-col .saas-content .role-view .pipe-card {
+    background: var(--bg-primary) !important;
+    border: 1px solid var(--border-light) !important;
+    box-shadow: 0 6px 18px rgba(16,24,40,0.04) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Make avatars and text dark-friendly */
+.role-visual-col .saas-content .role-view .av {
+    border: 2px solid var(--bg-elevated) !important;
+}
+
+/* Manager rev price should be dark text */
+.role-visual-col .saas-content .role-view .rev-big-price {
+    color: var(--text-primary) !important;
+}
+
 /* --- MANAGER VIEW (GRID) --- */
 .dashboard-grid {
     padding: 24px;
@@ -2554,7 +2713,7 @@ ul {
 }
 
 .av:nth-child(2) {
-    background: #8b5cf6;
+    background: #444444;
 }
 
 .av:nth-child(3) {
@@ -2666,7 +2825,7 @@ ul {
     margin-bottom: 20px;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    background: rgba(47, 95, 208, 0.1);
+    background: rgba(16, 24, 40, 0.03);
     padding: 6px 12px;
     border-radius: 100px;
 }
@@ -2705,7 +2864,7 @@ ul {
 .product-features svg {
     color: var(--color-primary);
     flex-shrink: 0;
-    background: rgba(47, 95, 208, 0.1);
+    background: rgba(16, 24, 40, 0.03);
     padding: 4px;
     border-radius: 6px;
     width: 28px;
@@ -2720,7 +2879,7 @@ ul {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 50% 50%, rgba(47, 95, 208, 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle at 50% 50%, rgba(16, 24, 40, 0.04) 0%, transparent 70%);
     z-index: -1;
     filter: blur(40px);
 }
@@ -2819,7 +2978,7 @@ ul {
 .ai-insight {
     margin-top: 8px;
     font-size: 11px;
-    color: #8b5cf6;
+    color: #111111;
     background: rgba(139, 92, 246, 0.1);
     padding: 4px 8px;
     border-radius: 4px;
@@ -3127,7 +3286,7 @@ ul {
     .mobile-menu-btn span {
         width: 24px;
         height: 2px;
-        background: white;
+        background: #000; /* make burger bars black for visibility */
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         border-radius: 2px;
     }
@@ -3145,8 +3304,8 @@ ul {
     .mobile-nav-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(15, 17, 23, 0.95);
-        backdrop-filter: blur(16px);
+        background: rgba(255, 255, 255, 0.98); /* white background */
+        backdrop-filter: none;
         z-index: 1000;
         display: flex;
         align-items: center;
@@ -3166,7 +3325,7 @@ ul {
         position: absolute;
         top: 24px;
         right: 24px;
-        background: rgba(255, 255, 255, 0.1);
+        background: rgba(0,0,0,0.06);
         border: none;
         border-radius: 50%;
         width: 48px;
@@ -3174,7 +3333,7 @@ ul {
         display: flex;
         align-items: center;
         justify-content: center;
-        color: white;
+        color: #000; /* dark close icon */
         cursor: pointer;
         z-index: 1001;
     }
@@ -3182,24 +3341,29 @@ ul {
     .mobile-nav-content {
         display: flex;
         flex-direction: column;
-        gap: 32px;
-        /* Larger gap for touch */
+        gap: 20px;
+        /* Slightly tighter gap for compact layout */
         text-align: center;
         width: 100%;
-        padding: 40px;
+        padding: 28px;
     }
 
     .mobile-link {
-        font-size: 28px;
+        font-size: 20px;
         font-weight: 700;
-        color: white;
+        color: #000; /* dark text on white background */
     }
 
     .mobile-divider {
         width: 60px;
         border: 0;
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        border-top: 1px solid rgba(0, 0, 0, 0.08);
         margin: 10px auto;
+    }
+
+    /* Ensure burger remains dark when open */
+    .mobile-menu-btn.open span {
+        background: #000;
     }
 
     /* 3. Hero Section */
@@ -3435,7 +3599,7 @@ ul {
     right: -200px;
     width: 600px;
     height: 600px;
-    background: radial-gradient(circle, rgba(47, 95, 208, 0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(16, 24, 40, 0.04) 0%, transparent 70%);
     border-radius: 50%;
     pointer-events: none;
 }
@@ -3586,7 +3750,7 @@ ul {
     font-weight: 600;
     color: var(--color-primary);
     padding: 4px 10px;
-    background: rgba(47, 95, 208, 0.1);
+    background: rgba(16, 24, 40, 0.03);
     border-radius: 100px;
     white-space: nowrap;
 }
@@ -3678,25 +3842,32 @@ ul {
    =================================== */
 
 .pricing {
-    padding: 120px 0;
+    padding: 30px 0;
     background: var(--bg-primary);
 }
 
 .pricing-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 400px));
-    gap: 32px;
-    margin-top: 64px;
+    /* tighter grid so 4 cards sit inline on wide screens and feel smaller */
+    grid-template-columns: repeat(4, minmax(220px, 1fr));
+    gap: 20px 28px;
+    margin-bottom: 40px;
+    margin-top: 40px;
     justify-content: center;
 }
 
 .price-card {
     position: relative;
-    padding: 40px 32px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px 16px;
     background: var(--bg-secondary);
     border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
+    border-radius: 12px;
+    max-width: 360px;
     transition: transform var(--transition-fast), border-color var(--transition-fast), box-shadow var(--transition-fast), background-color var(--transition-fast);
+    margin: 0 auto;
 }
 
 .price-card:hover {
@@ -3706,7 +3877,7 @@ ul {
 .price-card-featured {
     border-color: var(--color-primary);
     border-width: 1px;
-    box-shadow: 0 10px 30px rgba(47, 95, 208, 0.22);
+    box-shadow: 0 10px 30px rgba(16, 24, 40, 0.06);
 }
 
 .price-badge {
@@ -3724,8 +3895,8 @@ ul {
 
 .price-header {
     text-align: center;
-    margin-bottom: 32px;
-    padding-bottom: 32px;
+    margin-bottom: 20px;
+    padding-bottom: 20px;
     border-bottom: 1px solid var(--border-color);
 }
 
@@ -3737,17 +3908,21 @@ ul {
 }
 
 .price-amount {
-    margin-bottom: 12px;
+    margin-bottom: 6px;
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 6px;
 }
 
 .price-currency {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--text-secondary);
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--text-primary);
 }
 
 .price-value {
-    font-size: 48px;
+    font-size: 40px;
     font-weight: 800;
     color: var(--text-primary);
 }
@@ -3761,6 +3936,12 @@ ul {
     color: var(--text-secondary);
 }
 
+/* tighten spacing when the period sits beneath the large price */
+.price-amount + .price-period {
+    margin-top: 4px;
+    margin-bottom: 8px;
+}
+
 .price-description {
     font-size: 14px;
     color: var(--text-secondary);
@@ -3769,8 +3950,8 @@ ul {
 .price-features {
     display: flex;
     flex-direction: column;
-    gap: 14px;
-    margin-bottom: 32px;
+    gap: 10px;
+    margin-bottom: 20px;
 }
 
 .price-features li {
@@ -3785,6 +3966,72 @@ ul {
     color: var(--color-primary);
     flex-shrink: 0;
 }
+
+/* Custom select (site-controlled dropdown) */
+.custom-select {
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    font-family: inherit;
+}
+.custom-select__selected {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 14px;
+    background: var(--bg-elevated);
+    border: 1px solid rgba(11,18,32,0.12);
+    color: var(--text-primary);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+}
+.custom-select__selected::after {
+    content: '';
+    width: 10px;
+    height: 10px;
+    border-right: 2px solid var(--text-secondary);
+    border-bottom: 2px solid var(--text-secondary);
+    transform: rotate(45deg);
+    display: inline-block;
+    margin-left: 8px;
+}
+.custom-select__options {
+    position: absolute;
+    z-index: 60;
+    left: 0;
+    right: 0;
+    margin-top: 8px;
+    background: var(--bg-elevated);
+    border: 1px solid rgba(11,18,32,0.12);
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(11,18,32,0.08);
+    max-height: 220px;
+    overflow: auto;
+    padding: 6px 0;
+    display: none;
+}
+.custom-select.open .custom-select__options { display: block; }
+.custom-select__option {
+    padding: 10px 14px;
+    cursor: pointer;
+    color: var(--text-primary);
+    font-size: 14px;
+}
+.custom-select__option:hover { background: rgba(11,18,32,0.02); }
+.custom-select__option.selected { background: rgba(11,18,32,0.04); font-weight: 700; }
+.custom-select__option.disabled { color: var(--text-secondary); cursor: default; }
+
+/* Focus state for keyboard users */
+.custom-select__selected:focus {
+    outline: none;
+    border-color: rgba(11,18,32,0.18);
+    box-shadow: 0 0 0 4px rgba(11,18,32,0.04);
+}
+
 
 /* ===================================
    CTA SECTION
@@ -3879,8 +4126,8 @@ ul {
 }
 
 .footer-logo {
-    height: 28px;
-    width: auto;
+    filter: brightness(0) invert(1) !important;
+    -webkit-filter: brightness(0) invert(1) !important;
 }
 
 .footer-logo-text {
@@ -3895,57 +4142,60 @@ ul {
     color: var(--text-secondary);
 }
 
-    .footer-links {
-        display: grid;
-        /* Desktop: make the .footer-links block span columns 2..end so the four
-           link lists sit in the remaining grid area (centered visually). */
-        grid-column: 2 / -1;
-        grid-template-columns: repeat(4, minmax(140px, 160px));
-        gap: 12px 48px;
-        align-items: start;
-        justify-content: center;
-    }
+.footer-links {
+    display: grid;
+    /* Desktop: make the .footer-links block span columns 2..end so the four
+        link lists sit in the remaining grid area (centered visually). */
+    grid-column: 2 / -1;
+    grid-template-columns: repeat(4, minmax(140px, 160px));
+    gap: 12px 48px;
+    align-items: start;
+    justify-content: center;
+}
 
-    /* Improve tap targets and stacking on small screens */
-    .footer-column a {
-        display: inline-block;
-        padding: 8px 0;
-    }
+/* Improve tap targets and stacking on small screens */
+.footer-column a {
+    display: inline-block;
+    padding: 8px 0;
+}
 
-    /* Make sure logo and tagline scale down gracefully */
-    .footer-logo {
-        height: 28px;
-        max-width: 100%;
-        object-fit: contain;
-    }
+/* Make sure logo and tagline scale down gracefully */
+.footer-logo {
+    height: 32px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+}
 
 
-    .footer-column {
-        display: flex;
-        flex-direction: column;
-    }
+.footer-column {
+    display: flex;
+    flex-direction: column;
+}
 
-    .footer-heading {
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--text-muted);
-        margin-bottom: 12px;
-    }
+.footer-heading {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    text-transform: none; /* keep natural capitalization */
+    letter-spacing: 0.02em;
+}
 
-    .footer-column ul {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
+.footer-column ul {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
 
-    .footer-column a {
-        font-size: 15px;
-        color: var(--text-secondary);
-        transition: color var(--transition-base);
-    }
+.footer-column a {
+    font-size: 15px;
+    color: var(--text-secondary);
+    transition: color var(--bg-primary);
+}
 
 .footer-column a:hover {
-    color: var(--text-primary);
+    color: white;
 }
 
 .footer-bottom {
@@ -3976,27 +4226,71 @@ ul {
     color: var(--text-primary);
 }
 
-/* ===================================
-   AT TIO-INSPIRED POLISH LAYER (ORIGINAL)
-   =================================== */
-
-body {
-    letter-spacing: -0.005em;
+/* Force footer into light mode for better contrast */
+.footer {
+    background: #000000 !important; /* full black */
+    border-top: 1px solid #000000 !important; /* flush black divider */
+    color: #ffffff !important;
 }
 
-.container {
-    max-width: 1240px;
+
+
+.footer-bottom {
+    border-top: 1px solid rgba(11,18,32,0.06) !important;
 }
 
-.navbar {
-    background: rgba(13, 17, 23, 0.78);
-    border-bottom: 1px solid rgba(138, 149, 163, 0.18);
-    backdrop-filter: blur(16px);
+.footer-bottom p {
+    color: var(--text-muted) !important;
 }
 
-.nav-link-app {
-    font-weight: 600;
+.footer-social a {
+    color: var(--text-primary) !important;
 }
+
+.footer-content {
+    color: #ffffff !important;
+}
+.footer-heading {
+    color: rgba(255,255,255,0.9) !important;
+    text-transform: none !important;
+    letter-spacing: 0.02em !important;
+}
+
+
+
+/* Override: make all footer headings a neutral gray for better consistency */
+.footer .footer-heading,
+.footer-links .footer-column .footer-heading {
+    color: rgba(255,255,255,0.72) !important;
+}
+.footer-column a {
+    color: #ffffff !important;
+}
+.footer-column a:hover {
+    color: var(--color-primary) !important;
+}
+.footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.06) !important;
+}
+.footer-bottom p {
+    color: rgba(255,255,255,0.9) !important;
+}
+.footer-social a {
+    color: #ffffff !important;
+}
+.footer-logo-text {
+    color: #ffffff !important;
+}
+/* Footer link colors: muted gray by default, white on hover */
+.footer-column a {
+    color: rgba(255, 255, 255, 0.72) !important;
+    transition: color var(--transition-base);
+}
+.footer-column a:hover,
+.footer-column a:focus {
+    color: #ffffff !important;
+}
+
 
 .hero {
     padding-top: 180px;
@@ -4096,8 +4390,77 @@ body {
 .feature-card:hover,
 .price-card:hover,
 .split-side:hover {
-    border-color: rgba(125, 162, 248, 0.42);
+    border-color: rgba(16, 24, 40, 0.12);
 }
+
+/* Force light card appearance inside the transformation section specifically
+   (overrides the global dark card rule above) */
+.transformation-split .split-side,
+.transformation-split .split-side .pipeline-preview,
+.transformation-split .split-side .spreadsheet,
+.transformation-split .split-side .deal-card {
+    background: var(--bg-elevated) !important;
+    background-image: none !important;
+    color: var(--text-primary) !important;
+    border: 2px solid var(--border-color) !important;
+    box-shadow: 0 8px 24px rgba(16,24,40,0.06) !important;
+}
+
+/* Force pricing cards to use light card styling (override global dark card rule) */
+.pricing .price-card,
+.pricing .price-card-featured {
+    background: var(--bg-elevated) !important;
+    background-image: none !important;
+    color: var(--text-primary) !important;
+    border: 1px solid rgba(11,18,32,0.06) !important;
+    box-shadow: 0 8px 24px rgba(11,18,32,0.04) !important;
+}
+
+.pricing .price-card-featured {
+    border-color: var(--color-primary) !important;
+}
+
+.pricing .price-card .price-header {
+    border-bottom: 1px solid rgba(11,18,32,0.06) !important;
+}
+
+/* Slightly darker border for standard pricing cards (non-featured) for stronger separation */
+.pricing .price-card:not(.price-card-featured) {
+    border-color: rgba(11,18,32,0.20) !important;
+    border-width: 2px !important;
+    box-shadow: 0 14px 34px rgba(11,18,32,0.08) !important;
+}
+
+/* Make the standard card CTA outline match the darker border for visual parity */
+.pricing .price-card:not(.price-card-featured) .btn-secondary {
+    border-color: rgba(11,18,32,0.20) !important;
+    border-width: 2px !important;
+    background: #ffffff !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 6px 14px rgba(11,18,32,0.06) !important;
+}
+
+.pricing .price-features li,
+.pricing .price-card .price-description,
+.pricing .price-card .price-name,
+.pricing .price-card .price-amount {
+    color: var(--text-primary) !important;
+}
+
+/* CTA styles: non-featured = white button with dark text; featured = dark button with white text */
+.pricing .price-card .btn-secondary {
+    background: #ffffff !important;
+    color: var(--text-primary) !important;
+    border: 1px solid rgba(11,18,32,0.06) !important;
+    box-shadow: 0 4px 10px rgba(11,18,32,0.04) !important;
+}
+
+.pricing .price-card-featured .btn-secondary {
+    background: rgba(11,18,32,0.98) !important;
+    color: #ffffff !important;
+    border-color: rgba(255,255,255,0.04) !important;
+}
+
 
 .price-card-featured {
     background: linear-gradient(180deg, rgba(30, 42, 58, 0.98), rgba(22, 30, 42, 0.98));
@@ -4115,7 +4478,7 @@ body {
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle at 50% 0%, rgba(47, 95, 208, 0.16), transparent 62%);
+    background: radial-gradient(circle at 50% 0%, rgba(16, 24, 40, 0.06), transparent 62%);
     pointer-events: none;
 }
 
@@ -4124,15 +4487,6 @@ body {
     z-index: 1;
 }
 
-.footer {
-    background: #101821;
-}
-
-.footer-heading {
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    font-size: 12px;
-}
 
 @media (max-width: 1024px) {
     .hero {
@@ -4201,6 +4555,14 @@ body {
 
     .pricing-grid {
         grid-template-columns: 1fr;
+    }
+
+    /* Ensure pricing cards span the full container on tablet/mobile so
+       pricing and main pages match exactly */
+    .pricing .price-card {
+        max-width: none;
+        width: 100%;
+        margin: 0;
     }
 
     .footer-content {
@@ -4282,6 +4644,65 @@ body {
         grid-template-columns: 1fr;
         gap: 40px;
     }
+
+    /* Compact hero for small screens: reduce top/bottom spacing and normalize CTA buttons */
+    .hero {
+        padding: 40px 0 40px;
+    }
+
+    .hero .container {
+        padding-left: 16px;
+        padding-right: 16px;
+    }
+
+    .hero-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        margin-top: 8px;
+    }
+
+    /* Ensure hero CTAs share the same visual size and feel on mobile */
+    .hero-actions .btn-hero-primary,
+    .hero-actions .btn-hero-secondary,
+    .hero-actions .btn-primary,
+    .hero-actions .btn-secondary {
+        width: 100%;
+        max-width: 320px;
+        height: 44px;
+        border-radius: 12px;
+        font-size: 16px;
+        padding: 0 18px;
+        box-sizing: border-box;
+    }
+
+    /* Slight visual separation when stacked */
+    .hero-actions .btn-hero-primary { order: 0; }
+    .hero-actions .btn-hero-secondary { order: 1; }
+
+    /* Tighter hero badge spacing specifically for very small screens */
+    .hero-badge {
+        margin-bottom: 7px;
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+
+    /* If the AI badge variant is used, tighten it similarly */
+    .hero-ai-badge {
+        margin-bottom: 8px;
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    /* Reduce space under the badge before the main title/heading */
+    .hero-title {
+        margin-bottom: 10px;
+    }
+
+    .hero-description {
+        margin-bottom: 10px;
+    }
 }
 
 /* Extra small / mobile overrides for footer */
@@ -4357,6 +4778,158 @@ body {
     transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
     box-shadow: 0 40px 100px rgba(0, 0, 0, 0.8);
 }
+
+/* Light-mode overrides for premium modal (force light card appearance) */
+.modal.light,
+.modal-content.premium-split.light,
+.modal.light .modal-content.premium-split,
+.modal-content.premium-split {
+    /* Keep selector broad but use !important to override the dark theme */
+}
+
+.modal {
+    /* slightly lighten overlay so modal card stands out as light */
+    background: rgba(11,18,32,0.45) !important;
+}
+
+.modal-content.premium-split {
+    background: var(--bg-elevated) !important;
+    border: 1px solid rgba(11,18,32,0.06) !important;
+    box-shadow: 0 20px 60px rgba(11,18,32,0.06) !important;
+    color: var(--text-primary) !important;
+}
+
+.close-modal {
+    background: rgba(255,255,255,0.98) !important;
+    border: 1px solid rgba(11,18,32,0.06) !important;
+    color: var(--text-primary) !important;
+}
+
+.modal-sidebar {
+    background: linear-gradient(135deg, var(--bg-elevated) 0%, var(--bg-primary) 100%) !important;
+    border-right: 1px solid rgba(11,18,32,0.06) !important;
+}
+
+.sidebar-badge {
+    background: rgba(47,95,208,0.08) !important;
+    color: var(--color-primary) !important;
+}
+
+.sidebar-title {
+    color: var(--text-primary) !important;
+}
+
+.sidebar-desc,
+.v-text span,
+.trust-avatars span {
+    color: var(--text-muted) !important;
+}
+
+.v-text strong {
+    color: var(--text-primary) !important;
+}
+
+.modal-form-area {
+    background: var(--bg-primary) !important;
+}
+
+.form-header h3 {
+    color: var(--text-primary) !important;
+}
+
+.step-dot {
+    background: rgba(11,18,32,0.06) !important;
+}
+
+.step-dot.active {
+    background: var(--color-primary) !important;
+    box-shadow: 0 0 10px rgba(47,95,208,0.25) !important;
+}
+
+.step-line {
+    background: rgba(11,18,32,0.06) !important;
+}
+
+.form-group label {
+    color: var(--text-muted) !important;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    background: #ffffff !important;
+    border: 1.5px solid rgba(11,18,32,0.16) !important;
+    color: var(--text-primary) !important;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    border-color: var(--color-primary) !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 6px rgba(47,95,208,0.06) !important;
+}
+
+/* Stronger borders specifically for the premium modal form inputs */
+.modal-content.premium-split .form-group input,
+.modal-content.premium-split .form-group select,
+.modal-content.premium-split .form-group textarea {
+    border: 2px solid rgba(11,18,32,0.20) !important;
+}
+
+.checkbox-container,
+.checkmark {
+    color: var(--text-muted) !important;
+    border-color: rgba(11,18,32,0.08) !important;
+    background-color: rgba(255,255,255,0.98) !important;
+}
+
+.checkbox-container input:checked~.checkmark {
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+}
+
+/* Make the agree-to-terms checkbox border match modal input darkness */
+.modal-content.premium-split .checkbox-container .checkmark,
+.modal-content.premium-split .checkmark {
+    border: 2px solid rgba(11,18,32,0.20) !important;
+    background-color: #ffffff !important;
+}
+
+.modal-content.premium-split .checkbox-container:hover input~.checkmark {
+    border-color: rgba(11,18,32,0.22) !important;
+}
+
+.modal-content.premium-split .checkbox-container input:checked~.checkmark {
+    background-color: var(--color-primary) !important;
+    border-color: var(--color-primary) !important;
+}
+
+.form-fineprint,
+.form-feedback p {
+    color: var(--text-muted) !important;
+}
+
+.form-feedback h3 {
+    color: var(--text-primary) !important;
+}
+
+.modal-content.premium-split .btn-primary,
+.modal-content.premium-split .btn-secondary {
+    box-shadow: 0 6px 18px rgba(11,18,32,0.06) !important;
+}
+
+.modal-content.premium-split .btn-primary {
+    background: var(--color-primary) !important;
+    color: #ffffff !important;
+}
+
+.modal-content.premium-split .btn-secondary {
+    background: #ffffff !important;
+    color: var(--text-primary) !important;
+    border: 1px solid rgba(11,18,32,0.08) !important;
+}
+
 
 .modal.active .modal-content.premium-split {
     transform: scale(1) translateY(0);
@@ -4496,8 +5069,11 @@ body {
     background: #f85149;
 }
 
+/* Hide the three colored trust avatars (dots) — kept for layout but visually removed */
+.t-av { display: none !important; }
+
 .trust-avatars span {
-    margin-left: 20px;
+    margin-left: 8px;
     font-size: 13px;
     color: #8b949e;
 }
@@ -4611,7 +5187,7 @@ body {
 .form-group textarea:focus {
     border-color: #2f5fd0;
     background: rgba(255, 255, 255, 0.05);
-    box-shadow: 0 0 0 3px rgba(47, 95, 208, 0.1);
+    box-shadow: 0 0 0 3px rgba(16, 24, 40, 0.06);
 }
 
 .form-group textarea {
@@ -4962,17 +5538,18 @@ body {
 
 .t-seg {
     flex-grow: 1;
-    height: 2px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
+    height: 4px;
+    background: rgba(11,18,32,0.12); /* darker track for visibility */
+    border-radius: 4px;
     overflow: hidden;
 }
 
 .t-seg-fill {
     height: 100%;
-    background: white;
+    background: var(--color-primary); /* site blue fill for contrast */
     width: 0%;
     transform-origin: left;
+    transition: width 450ms cubic-bezier(0.16,1,0.3,1);
 }
 
 /* Responsive */
@@ -5043,6 +5620,94 @@ body {
     overflow: hidden;
 }
 
+/* Make the product experience shell light (override dark gradient) */
+.product-experience .px-shell {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border-color) !important;
+    box-shadow: 0 10px 30px rgba(16,24,40,0.06) !important;
+    color: var(--text-primary) !important;
+}
+
+.product-experience .px-shell .px-nav {
+    background: var(--bg-primary) !important;
+    border-right: 1px solid var(--border-light) !important;
+}
+
+/* Stronger overrides to ensure the left nav (Relationship Hub / AI Assistant) is light */
+.product-experience .px-shell .px-nav {
+    background-image: none !important;
+    box-shadow: none !important;
+}
+
+.product-experience .px-shell .px-nav .px-tab,
+.product-experience .px-shell .px-nav .px-tab * {
+    color: var(--text-secondary) !important;
+}
+
+.product-experience .px-shell .px-nav .px-tab.active {
+    background: var(--bg-elevated) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+/* Remove any dark overlays inside nav */
+.product-experience .px-shell .px-nav::before,
+.product-experience .px-shell .px-nav::after {
+    display: none !important;
+}
+
+.product-experience .px-shell .px-tab {
+    background: transparent !important;
+    color: var(--text-secondary) !important;
+    border-color: transparent !important;
+}
+
+.product-experience .px-shell .px-tab:hover {
+    background: rgba(16,24,40,0.04) !important;
+    border-color: var(--border-light) !important;
+}
+
+.product-experience .px-shell .px-tab.active {
+    background: var(--bg-elevated) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
+}
+
+.product-experience .px-shell .px-stage,
+.product-experience .px-shell .px-view,
+.product-experience .px-shell .px-kanban {
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+}
+
+.product-experience .px-shell .px-kanban .px-col,
+.product-experience .px-shell .px-kanban .px-col .px-card,
+.product-experience .px-shell .px-kanban .px-col .px-card:hover {
+    background: var(--bg-elevated) !important;
+    border: 1px solid var(--border-light) !important;
+    box-shadow: 0 6px 18px rgba(16,24,40,0.04) !important;
+    color: var(--text-primary) !important;
+}
+
+/* Override remaining dark px components */
+.product-experience .px-shell .px-card,
+.product-experience .px-shell .px-profile,
+.product-experience .px-shell .px-timeline li,
+.product-experience .px-shell .px-avatar {
+    background: var(--bg-elevated) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-light) !important;
+}
+
+.product-experience .px-shell .px-card span,
+.product-experience .px-shell .px-timeline li {
+    color: var(--text-secondary) !important;
+}
+
+.product-experience .px-shell .px-timeline li {
+    background: var(--bg-primary) !important;
+}
+
 .px-nav {
     border-right: 1px solid rgba(148, 163, 184, 0.16);
     padding: 14px;
@@ -5067,8 +5732,8 @@ body {
 }
 
 .px-tab.active {
-    border-color: rgba(125, 162, 248, 0.35);
-    background: rgba(47, 95, 208, 0.16);
+    border-color: rgba(16, 24, 40, 0.12);
+    background: rgba(16, 24, 40, 0.04);
     color: var(--text-primary);
 }
 
@@ -5157,9 +5822,18 @@ body {
 }
 
 .px-chip.success {
-    border-color: rgba(52, 211, 153, 0.4);
-    background: rgba(52, 211, 153, 0.14);
-    color: #7ee3be;
+    /* Use site blue for AI dynamic chip with strong contrast */
+    border-color: rgba(47, 95, 208, 0.9);
+    background: #2f5fd0;
+    color: #ffffff;
+}
+
+/* Ensure any dynamic ai chip variant also follows blue styling */
+.px-dynamic-chip[data-chip="ai"],
+.px-chip.px-dynamic-chip[data-chip="ai"] {
+    border-color: rgba(47, 95, 208, 0.9) !important;
+    background: #2f5fd0 !important;
+    color: #ffffff !important;
 }
 
 .px-chip.flash {
@@ -5193,8 +5867,8 @@ body {
 }
 
 .px-col.active-target {
-    border-color: rgba(125, 162, 248, 0.38);
-    box-shadow: inset 0 0 0 1px rgba(125, 162, 248, 0.14);
+    border-color: rgba(16, 24, 40, 0.12);
+    box-shadow: inset 0 0 0 1px rgba(16, 24, 40, 0.06);
 }
 
 .px-col-title {
@@ -5216,8 +5890,8 @@ body {
 }
 
 .px-count.is-updating {
-    color: #b9ceff;
-    text-shadow: 0 0 12px rgba(125, 162, 248, 0.45);
+    color: var(--text-secondary);
+    text-shadow: 0 0 12px rgba(16, 24, 40, 0.06);
 }
 
 .px-card {
@@ -5242,8 +5916,8 @@ body {
 }
 
 .px-card.highlighted {
-    border-color: rgba(125, 162, 248, 0.38);
-    box-shadow: 0 0 0 1px rgba(125, 162, 248, 0.14);
+    border-color: rgba(16, 24, 40, 0.12);
+    box-shadow: 0 0 0 1px rgba(16, 24, 40, 0.06);
 }
 
 @keyframes pxFloatCard {
@@ -5277,7 +5951,7 @@ body {
     place-items: center;
     font-size: 0.82rem;
     font-weight: 700;
-    background: rgba(47, 95, 208, 0.24);
+    background: rgba(16, 24, 40, 0.06);
     color: #b7cdff;
 }
 
@@ -5332,8 +6006,8 @@ body {
 }
 
 .px-bubble.ai {
-    border: 1px solid rgba(125, 162, 248, 0.32);
-    background: rgba(47, 95, 208, 0.15);
+    border: 1px solid rgba(16, 24, 40, 0.06);
+    background: rgba(16, 24, 40, 0.03);
     color: var(--text-primary);
 }
 
@@ -5342,7 +6016,7 @@ body {
 }
 
 .px-type {
-    color: #dce6ff;
+    color: var(--text-secondary);
 }
 
 .px-type.typing::after {
@@ -5350,7 +6024,7 @@ body {
     display: inline-block;
     width: 1px;
     height: 0.95em;
-    background: rgba(220, 230, 255, 0.9);
+    background: rgba(16, 24, 40, 0.12);
     margin-left: 3px;
     vertical-align: -1px;
     animation: pxCursorBlink 0.8s step-end infinite;
@@ -5390,6 +6064,44 @@ body {
     border-color: rgba(125, 162, 248, 0.35);
     color: var(--text-primary);
 }
+
+/* Force AI Assistant / Relationship Hub to light cards inside product-experience */
+.product-experience .px-ai-chat,
+.product-experience .px-bubble,
+.product-experience .px-bubble.user,
+.product-experience .px-bubble.ai,
+.product-experience .px-timeline li,
+.product-experience .px-mini-btn {
+    background: var(--bg-elevated) !important;
+    color: var(--text-primary) !important;
+    border-color: rgba(11, 18, 32, 0.06) !important;
+}
+
+.product-experience .px-timeline li {
+    background: var(--bg-primary) !important;
+    border: 1px solid rgba(11, 18, 32, 0.06) !important;
+    color: var(--text-primary) !important;
+    box-shadow: 0 2px 6px rgba(11,18,32,0.03) !important;
+}
+
+.product-experience .px-bubble.user {
+    background: var(--bg-primary) !important;
+    border: 1px solid rgba(11, 18, 32, 0.06) !important;
+    color: var(--text-primary) !important;
+}
+
+.product-experience .px-bubble.ai {
+    background: var(--bg-elevated) !important;
+    border: 1px solid rgba(11, 18, 32, 0.04) !important;
+    color: var(--text-primary) !important;
+}
+
+.product-experience .px-mini-btn {
+    background: var(--bg-primary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid rgba(11, 18, 32, 0.06) !important;
+}
+
 
 @media (max-width: 1024px) {
     .scroll-manifesto {
@@ -5734,6 +6446,14 @@ body {
     stroke-linecap: round;
     transition: stroke-dashoffset 2s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+/* Final override: force footer headings to neutral gray regardless of earlier rules */
+body .footer .footer-heading,
+body .footer-links .footer-column .footer-heading {
+    color: rgba(255,255,255,0.72) !important;
+    text-transform: none !important;
+}
+
 
 .grid-lines line {
     stroke: rgba(255, 255, 255, 0.03);

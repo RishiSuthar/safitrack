@@ -20,7 +20,7 @@
 
         /* Hero Section */
         .feature-hero {
-            padding: 160px 0 100px;
+            padding: 120px 0 18px;
             text-align: center;
             background: var(--gradient-glow);
             position: relative;
@@ -45,9 +45,7 @@
             font-size: 64px;
             line-height: 1.1;
             font-weight: 800;
-            background: var(--gradient-text);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #000;
             margin-bottom: 24px;
             letter-spacing: -1.5px;
         }
@@ -56,7 +54,7 @@
             font-size: 20px;
             color: var(--text-secondary);
             max-width: 640px;
-            margin: 0 auto 48px;
+            margin: 0 auto 12px;
         }
 
         /* Section Headers */
@@ -246,23 +244,53 @@
 
 <body>
 
-    <!-- Navbar -->
+    <!-- Navbar (matching landing/pricing) -->
     <nav class="navbar" id="navbar">
         <div class="container">
             <div class="nav-content">
-                <a href="../../index.html" class="logo">
-                    <img src="../../assets/icons/whiteblue.png" alt="SafiTrack">
-                    <span class="logo-text">SafiTrack</span>
-                </a>
-                <div class="nav-links">
-                    <a href="mainfeatures.html" class="active">Features</a>
-                    <a href="../../index.html#product">Product</a>
-                    <a href="../../pages/pricing.html">Pricing</a>
-                    <a href="../../crm/" class="btn-primary">Open App</a>
+                <div class="nav-left">
+                    <a href="../../index.html" class="logo">
+                        <img src="../../assets/icons/transparentMain.png" alt="SafiTrack">
+                    </a>
+
+                    <!-- Desktop Links -->
+                    <div class="nav-links">
+                        <a href="mainfeatures.html" class="active">Features</a>
+                        <a href="../../index.html#product">Product</a>
+                        <a href="../pricing.html">Pricing</a>
+                    </div>
                 </div>
+
+                <div class="nav-actions">
+                    <a href="/crm/" class="nav-link-sign-in">Sign in</a>
+                    <a href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn" aria-label="Toggle Menu">
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
         </div>
     </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-nav-overlay">
+        <button class="mobile-close-btn" aria-label="Close Menu">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <div class="mobile-nav-content">
+            <a href="mainfeatures.html" class="mobile-link">Features</a>
+            <a href="../../index.html#product" class="mobile-link">Product</a>
+            <a href="../pricing.html" class="mobile-link">Pricing</a>
+            <hr class="mobile-divider">
+            <a href="/crm/" class="mobile-link">Open App</a>
+            <button class="btn-primary btn-block get-started-btn">Get Started</button>
+        </div>
+    </div>
 
     <!-- Hero -->
     <header class="feature-hero">
@@ -447,25 +475,23 @@
 
     </main>
 
-    <!-- Footer -->
+    <!-- Footer (matching landing/pricing) -->
     <footer class="footer">
         <div class="container">
             <div class="footer-content">
                 <div class="footer-brand">
                     <div class="footer-logo-wrapper">
-                        <img src="../../assets/icons/whiteblue.png" alt="SafiTrack" class="footer-logo">
-                        <span class="footer-logo-text">SafiTrack</span>
+                        <a href="../../index.html"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a>
                     </div>
-                    <p class="footer-tagline">Modern CRM platform built for<br>high-performing sales teams</p>
                 </div>
                 <div class="footer-links">
                     <div class="footer-column">
                         <h4 class="footer-heading">Product</h4>
                         <ul>
                             <li><a href="mainfeatures.html">Features</a></li>
-                            <li><a href="../../pages/pricing.html">Pricing</a></li>
-                            <li><a href="../../crm/">Login</a></li>
-                            <li><a href="#">Integrations</a></li>
+                            <li><a href="../pricing.html">Pricing</a></li>
+                            <li><a href="/crm/">Login</a></li>
+                            <li><a href="../integrations.html">Integrations</a></li>
                         </ul>
                     </div>
                     <div class="footer-column">
@@ -482,15 +508,15 @@
                         <ul>
                             <li><a href="../documentation.html">Documentation</a></li>
                             <li><a href="../helpcenter.html">Help Center</a></li>
-                            <li><a href="#">API Reference</a></li>
+                            <li><a href="../apireference.html">API Reference</a></li>
                             <li><a href="../status.html">Status</a></li>
                         </ul>
                     </div>
                     <div class="footer-column">
                         <h4 class="footer-heading">Legal</h4>
                         <ul>
-                            <li><a href="../../pages/legal/privacy.html">Privacy Policy</a></li>
-                            <li><a href="../../pages/legal/terms.html">Terms of Service</a></li>
+                            <li><a href="../legal/privacy.html">Privacy Policy</a></li>
+                            <li><a href="../legal/terms.html">Terms of Service</a></li>
                             <li><a href="#">Security</a></li>
                         </ul>
                     </div>
@@ -506,6 +532,7 @@
             </div>
         </div>
     </footer>
+    <script src="../../landing.js"></script>
 </body>
 
 </html>
