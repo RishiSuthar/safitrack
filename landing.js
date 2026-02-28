@@ -1211,13 +1211,17 @@ function initScalePerformance() {
                 // Trigger animation
                 path.style.strokeDashoffset = '0';
 
-                // Optional: Animate numbers
+                // Optional: Animate numbers with their suffixes preserved
                 const metrics = section.querySelectorAll('.metric-val');
                 metrics.forEach(metric => {
-                    const target = parseFloat(metric.innerText.replace(/,/g, ''));
-                    if (isNaN(target)) return;
+                    const text = metric.innerText.trim();
+                    // capture any trailing + or % signs
+                    const suffixMatch = text.match(/[+%]+$/);
+                    const suffix = suffixMatch ? suffixMatch[0] : '';
+                    const numeric = parseFloat(text.replace(/,/g, '').replace(/[+%]/g, ''));
+                    if (isNaN(numeric)) return;
 
-                    animateValue(metric, 0, target, 2000);
+                    animateValue(metric, 0, numeric, 2000, suffix);
                 });
 
                 observer.unobserve(section);
@@ -1228,31 +1232,29 @@ function initScalePerformance() {
     observer.observe(section);
 }
 
-function animateValue(obj, start, end, duration) {
+function animateValue(obj, start, end, duration, suffix = '') {
     let startTimestamp = null;
     const step = (timestamp) => {
         if (!startTimestamp) startTimestamp = timestamp;
         const progress = Math.min((timestamp - startTimestamp) / duration, 1);
-        const current = Math.floor(progress * (end - start) + start);
 
-        // Format back with commas if it was a large number
-        if (end > 1000) {
-            obj.innerHTML = current.toLocaleString();
-        } else if (String(end).includes('+')) {
-            obj.innerHTML = current.toLocaleString() + '+';
-        } else if (String(end).includes('%')) {
-            obj.innerHTML = (progress * end).toFixed(1) + '%';
+        // for percentages we want a fractional animation
+        let display;
+        if (suffix === '%') {
+            display = (progress * end).toFixed(1) + suffix;
         } else {
-            obj.innerHTML = current.toLocaleString();
+            const current = Math.floor(progress * (end - start) + start);
+            display = current.toLocaleString() + suffix;
         }
+
+        obj.innerHTML = display;
 
         if (progress < 1) {
             window.requestAnimationFrame(step);
         } else {
-            // Ensure final value is exact (with suffix)
-            if (String(end).includes('+')) obj.innerHTML = end.toLocaleString() + '+';
-            else if (String(end).includes('%')) obj.innerHTML = end + '%';
-            else obj.innerHTML = end.toLocaleString();
+            // ensure final value is exact (with suffix)
+            if (suffix === '%') obj.innerHTML = end + suffix;
+            else obj.innerHTML = end.toLocaleString() + suffix;
         }
     };
     window.requestAnimationFrame(step);

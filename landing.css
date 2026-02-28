@@ -5485,7 +5485,8 @@ section + section {
 .t-name {
     font-size: 20px;
     font-weight: 700;
-    color: white;
+    /* Use primary text color for better contrast on light backgrounds */
+    color: var(--text-primary);
 }
 
 .t-role {
