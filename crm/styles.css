@@ -1549,6 +1549,18 @@ body {
   padding: 0 45px 0 14px !important;
 }
 
+/* Increase label and input text size on auth page for better readability */
+.auth-form .form-field label {
+  font-size: 1rem; /* slightly larger than default 0.875rem */
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.auth-form .input-wrapper.modern-input input {
+  font-size: 1rem; /* make typed text and placeholder a bit larger */
+  height: 50px;
+}
+
 /* Dark mode specific clarity adjustment */
 [data-theme="dark"] .input-wrapper.modern-input input {
   background: rgba(255, 255, 255, 0.03);
