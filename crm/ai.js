@@ -167,3 +167,34 @@ async function generateCompanyDescription(companyName) {
     return '';
   }
 }
+
+// ------------------------------------------------------------------
+// Generic Groq helper used by other AI features (intent detection, field extraction, etc.)
+// ------------------------------------------------------------------
+async function groqChat(messages, max_tokens = 150, temperature = 0.3) {
+  try {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GROQ_API_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'llama-3.1-8b-instant',
+        messages,
+        max_tokens,
+        temperature
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error(`API error: ${response.status}`);
+    }
+
+    const data = await response.json();
+    return data.choices[0].message.content.trim();
+  } catch (error) {
+    console.error('Error in groqChat:', error);
+    return '';
+  }
+}
