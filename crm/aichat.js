@@ -774,8 +774,10 @@ function appendUserMessage(text) {
 
 function formatCasualText(text) {
   let out = text;
-  // break before bold sections to make spec listings vertical
-  out = out.replace(/\*\*(.*?)\*\*/g, '\n\n**$1**');
+  // convert **bold** to <strong>HTML and separate with newlines
+  out = out.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  // break before any strong block so it appears on new line
+  out = out.replace(/<strong>/g, '\n\n<strong>');
   // if the model returned a markdown-style table, convert to simple list
   if (out.includes('|')) {
     const lines = out.split('\n').map(l => l.trim()).filter(l => l && !/^\|[- ]+\|/.test(l));
@@ -791,7 +793,13 @@ function appendAIMessage(text) {
   const container = document.getElementById('ai-chat-messages');
   const msg = document.createElement('div');
   msg.className = 'ai-chat-message ai';
-  msg.innerHTML = `<div class="ai-chat-bubble">${escapeHtml(formatCasualText(text))}</div>`;
+  const formatted = formatCasualText(text);
+  if (formatted.includes('<strong>')) {
+    // already contains HTML, don't escape
+    msg.innerHTML = `<div class="ai-chat-bubble">${formatted}</div>`;
+  } else {
+    msg.innerHTML = `<div class="ai-chat-bubble">${escapeHtml(formatted)}</div>`;
+  }
   container.appendChild(msg);
   container.scrollTop = container.scrollHeight;
 }

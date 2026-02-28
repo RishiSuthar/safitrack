@@ -9312,7 +9312,7 @@ body.is-dragging * {
   position: fixed;
   bottom: 0;
   right: 0;
-  width: 360px;
+  width: 420px;
   max-width: 100%;
   height: 0;
   max-height: 80vh;
@@ -9332,10 +9332,12 @@ body.is-dragging * {
 /* make message container also opaque */
 .ai-chat-messages {
   background-color: var(--bg-primary) !important;
+  overflow-y: auto;
+  padding: 12px;
 }
 .ai-chat-window.active {
   transform: translateY(0);
-  height: 500px;
+  height: 60vh;
 }
 
 .ai-chat-header {
@@ -9397,8 +9399,9 @@ body.is-dragging * {
   display: inline-block;
   padding: 10px 14px;
   border-radius: 20px;
-  max-width: 75%;
+  max-width: 90%;
   word-wrap: break-word;
+  white-space: pre-wrap;
   font-size: 14px;
   line-height: 1.4;
   box-shadow: 0 1px 2px rgba(0,0,0,0.1);
