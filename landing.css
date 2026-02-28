@@ -992,6 +992,27 @@ section + section {
     border-bottom: 1px solid var(--border-light);
 }
 
+/* dotted overlay for manifesto quote section */
+.scroll-manifesto::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(rgba(107,112,128,0.4) 1px, transparent 1px);
+    /* gray (#6b7080) at 40% opacity for neutral dots */
+    background-size: 24px 24px;
+    background-attachment: fixed; /* keep pattern static while scrolling */
+    opacity: 1;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.scroll-manifesto-stage {
+    position: relative;
+    z-index: 2;
+    /* background removed to avoid boxed appearance; text now sits directly on dotted background */
+    padding: 84px 0; /* preserve existing vertical spacing */
+}
+
 .scroll-manifesto-sticky {
     position: sticky;
     top: 0;
@@ -1029,12 +1050,13 @@ section + section {
     color: var(--text-secondary);
     opacity: 0.16;
     transform: translateY(2px);
-    transition: opacity 180ms linear, transform 180ms linear, text-shadow 180ms linear;
+    transition: opacity 180ms linear, transform 180ms linear, text-shadow 180ms linear, color 180ms linear;
 }
 
 .sm-word.active {
     opacity: 1;
     transform: translateY(0);
+    color: var(--text-primary); /* black when fully revealed */
     text-shadow: 0 0 18px rgba(16, 24, 40, 0.06);
 }
 
@@ -6372,6 +6394,22 @@ section + section {
     color: var(--text-primary);
     border-top: 1px solid rgba(255, 255, 255, 0.05);
     overflow: hidden;
+}
+
+/* subtle vertical lines in background */
+.scale-performance::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        to right,
+        rgba(11,18,32,0.1) 0,
+        rgba(11,18,32,0.1) 1px,
+        transparent 1px,
+        transparent 100px
+    );
+    z-index: 1;
+    pointer-events: none;
 }
 
 .scale-performance .container {
