@@ -15,17 +15,19 @@
   --color-danger-bg: rgba(200, 58, 58, 0.14);
 
   /* Backgrounds */
-  --bg-primary: #ffffff;
-  --bg-secondary: #f7f9fc;
+  --bg-primary: #fbfbfb;
+  --bg-secondary: #ffff;
   /* softer than gray */
   --bg-tertiary: #eef2f8;
-  --bg-elevated: #ffffff;
+  --bg-elevated: #efefef;
+
+  --bg-gray : #e7e8e9;
 
   /* Text */
-  --text-primary: #0f1419;
+  --text-primary: #000000;
   /* strong for tables */
-  --text-secondary: #3d4554;
-  --text-muted: #7a8390;
+  --text-secondary: #1e2229;
+  --text-muted: #2c3036;
   --text-inverse: #ffffff;
 
   /* Borders */
@@ -397,6 +399,50 @@ select.input-small,
   vertical-align: middle;
 }
 
+/* Auth visual left-side brand — use transparentMain but render it white */
+.auth-visual-side .visual-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.auth-visual-side .visual-logo {
+  width: 200px;
+  height: auto;
+  filter: brightness(0) invert(1);
+  -webkit-filter: brightness(0) invert(1);
+}
+
+.auth-visual-side .visual-logo-white {
+  /* ensure the image blends well on darker backgrounds */
+  mix-blend-mode: screen;
+}
+
+/* Main app header brand logo - theme-aware colors */
+.header-brand img,
+.app-header .header-brand img {
+  width: 130px;
+  height: auto;
+  transition: filter 180ms var(--motion-ease-standard), -webkit-filter 180ms var(--motion-ease-standard);
+}
+
+/* Dark mode: render logo white */
+html[data-theme="dark"] .header-brand img {
+  /* Use grayscale + brightness so the logo becomes neutral (avoid color inversion artifacts)
+     Adjust brightness to sit closer to the text tone */
+  filter: grayscale(1) brightness(2) contrast(0.95);
+  -webkit-filter: grayscale(1) brightness(2) contrast(0.95);
+  opacity: 0.95;
+}
+
+/* Light mode: render logo darker but not fully saturated black */
+html[data-theme="light"] .header-brand img {
+  /* Slightly reduce brightness to soften the logo in light mode */
+  filter: grayscale(1) brightness(0.75) contrast(0.95);
+  -webkit-filter: grayscale(1) brightness(0.75) contrast(0.95);
+  opacity: 0.95;
+}
+
 .form-field input[disabled] {
   opacity: 0.8
 }
@@ -729,13 +775,15 @@ select#company-type {
 
 [data-theme="dark"] {
   /* Backgrounds – professional neutral grays, brand-inspired */
-  --bg-primary: #0f1117;
+  --bg-primary: #15181d;
   /* app background - deep charcoal */
-  --bg-secondary: #161b22;
+  --bg-secondary: #1a1e21;
   /* panels - slightly warmer */
-  --bg-tertiary: #1a2027;
+  --bg-tertiary: #11151a;
   /* subtle sections - neutral gray */
-  --bg-elevated: #21262d;
+  --bg-elevated: #1a1e21;
+
+  --bg-gray : #242529;
   /* modals / cards - lighter gray for elevation */
 
   /* Text – professional white with warmth */
@@ -1494,6 +1542,11 @@ body {
   color: var(--text-primary);
   background: var(--bg-primary);
   transition: all 0.2s ease-in-out;
+}
+
+/* Auth form inputs: remove left padding reserved for icons so text is left-aligned */
+.auth-form .input-wrapper.modern-input input {
+  padding: 0 45px 0 14px !important;
 }
 
 /* Dark mode specific clarity adjustment */
@@ -3537,14 +3590,11 @@ body {
 }
 
 .nav-item:hover {
-  background: var(--bg-tertiary);
-  color: var(--color-primary);
-  border-color: var(--border-color-light);
+  background: var(--bg-gray);
 }
 
 .nav-item.active {
-  background: var(--color-primary-bg);
-  color: var(--color-primary);
+  background: var(--bg-gray);
   border-color: transparent;
 }
 
@@ -7991,7 +8041,7 @@ select {
 
 .opportunity-card {
   background: var(--bg-primary);
-  border: 1px solid var(--border-color);
+  border: 2px solid var(--border-color);
   border-radius: 12px;
   padding: 0.72rem;
   cursor: pointer;
