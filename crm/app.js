@@ -5053,7 +5053,7 @@ async function renderOpportunityPipelineView() {
 
   let html = `
     <div class="page-header deals-page-header">
-      <h1 class="page-title">Deals</h1>
+      <h1 class="page-title">Opportunities</h1>
     </div>
 
     <div class="pipeline-summary">
@@ -5095,7 +5095,7 @@ async function renderOpportunityPipelineView() {
         </div>
 
         <select id="pipeline-quick-filter" class="pipeline-select pipeline-quick-filter">
-          <option value="all">All Deals</option>
+          <option value="all">All Opportunities</option>
           <option value="high-value">High Value</option>
           <option value="high-probability">High Probability</option>
           <option value="next-step-due">Next Step Due</option>
@@ -5107,7 +5107,7 @@ async function renderOpportunityPipelineView() {
         </button>
 
         <button class="btn btn-primary pipeline-add-btn" id="add-opportunity-btn">
-          <i class="fas fa-plus"></i> New Deal
+          <i class="fas fa-plus"></i> New Opportunity
         </button>
       </div>
 
@@ -5148,7 +5148,7 @@ async function renderOpportunityPipelineView() {
           <div class="pipeline-stage-count">${stageData.opportunities.length}</div>
         </div>
         <div class="pipeline-stage-value">Ksh ${stageData.totalValue.toLocaleString()}</div>
-        <button class="pipeline-inline-add" data-stage="${stage.id}">+ New Deal</button>
+        <button class="pipeline-inline-add" data-stage="${stage.id}">+ New</button>
         <div class="opportunity-list" id="opportunities-${stage.id}">
     `;
 
@@ -5213,78 +5213,87 @@ async function renderOpportunityPipelineView() {
       }
 
       html += `
-        <div class="opportunity-card ${!isOwnOpportunity ? 'readonly' : ''}" 
-          data-id="${opp.id}" 
+        <div class="opportunity-card ${!isOwnOpportunity ? 'readonly' : ''}"
+          data-id="${opp.id}"
           data-company-name="${escapeHtml(opp.company_name || '')}"
-            data-user-id="${opp.user_id}"
-            data-owner-id="${opp.user_id}"
-            data-value="${parseFloat(opp.value || 0)}"
-            data-probability="${parseInt(opp.probability || 0, 10)}"
-            data-created-ts="${new Date(opp.created_at).getTime() || 0}"
-            data-next-step-ts="${opp.next_step_date ? new Date(opp.next_step_date).getTime() : ''}"
-            draggable="${isOwnOpportunity}">
-          <div class="opportunity-company">
-            <div class="opp-company-inner">
+          data-user-id="${opp.user_id}"
+          data-owner-id="${opp.user_id}"
+          data-value="${parseFloat(opp.value || 0)}"
+          data-probability="${parseInt(opp.probability || 0, 10)}"
+          data-created-ts="${new Date(opp.created_at).getTime() || 0}"
+          data-next-step-ts="${opp.next_step_date ? new Date(opp.next_step_date).getTime() : ''}"
+          draggable="${isOwnOpportunity}">
+
+          <div class="opp-card-header">
+            <div class="opp-company-row">
               <div class="opp-company-avatar">
-                <div class="mention-avatar" style="width:20px;height:20px;font-size:0.65rem;">${companyInitials}</div>
-                ${companyLogoUrl ? `<img src="${companyLogoUrl}" style="display:none;width:20px;height:20px;object-fit:contain;border-radius:4px;position:absolute;left:0;top:0;" onload="this.style.display='block'; this.previousElementSibling.style.display='none'" onerror="this.style.display='none'" />` : ''}
+                <div class="mention-avatar" style="width:22px;height:22px;font-size:0.6rem;border-radius:5px;flex-shrink:0;">${companyInitials}</div>
+                ${companyLogoUrl ? `<img src="${companyLogoUrl}" class="opp-logo-img" onload="this.style.display='block';this.previousElementSibling.style.display='none'" onerror="this.style.display='none'" />` : ''}
               </div>
-              <div class="opp-company-name">${escapeHtml(opp.company_name || '')}</div>
+              <span class="opp-company-label">${escapeHtml(opp.company_name || 'No Company')}</span>
             </div>
+            ${isOwnOpportunity ? `
+              <button class="opp-drag-handle" title="Drag to move" onclick="event.stopPropagation()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+              </button>
+            ` : ''}
           </div>
-          <div class="opportunity-name">${opp.name}</div>
-          ${isManager && user ? `
-            <div class="opportunity-owner">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> ${ownerName}
-            </div>
-          ` : ''}
-          <div class="opportunity-value"><i data-lucide="circle-dollar-sign"></i> Ksh ${parseFloat(opp.value || 0).toLocaleString()}</div>
-          
-          <div class="opportunity-probability">
-            <div class="probability-bar">
-              <div class="probability-fill" style="width: ${opp.probability || 0}%; background-color: ${getProbabilityColor(opp.probability || 0)}"></div>
-            </div>
-            <div class="probability-text">${opp.probability || 0}%</div>
+
+          <div class="opp-name">${escapeHtml(opp.name)}</div>
+
+          <div class="opp-value-row">
+            <span class="opp-value">Ksh ${parseFloat(opp.value || 0).toLocaleString()}</span>
+            ${isManager && user ? `
+              <span class="opp-owner-chip">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                ${escapeHtml(ownerName)}
+              </span>
+            ` : ''}
           </div>
-          
+
+          <div class="opp-probability-row">
+            <div class="opp-prob-bar">
+              <div class="opp-prob-fill" style="width:${opp.probability || 0}%;background:${getProbabilityColor(opp.probability || 0)};"></div>
+            </div>
+            <span class="opp-prob-label">${opp.probability || 0}%</span>
+          </div>
+
           ${opp.next_step ? `
-            <div class="opportunity-next-step ${isOverdue ? 'overdue' : ''}">
-              <i data-lucide="check-square"></i>
-              <span>${opp.next_step}</span>
-              ${opp.next_step_date ? `<span> (${formatDate(opp.next_step_date)})</span>` : ''}
+            <div class="opp-next-step ${isOverdue ? 'overdue' : ''}">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="opp-step-icon"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 12 2 2 4-4"/></svg>
+              <span>${escapeHtml(opp.next_step)}</span>
+              ${opp.next_step_date ? `<time class="opp-step-date">${formatDate(opp.next_step_date)}</time>` : ''}
             </div>
           ` : ''}
 
-          <div class="opportunity-stage-age"><i data-lucide="hourglass"></i><span>${stageDays}d in stage</span></div>
-          
           ${competitors.length > 0 ? `
-            <div class="opportunity-competitors">
-              ${competitors.slice(0, 2).map(comp => `
-                <span class="competitor-tag">${comp}</span>
-              `).join('')}
-              ${competitors.length > 2 ? `<span class="competitor-tag">+${competitors.length - 2} more</span>` : ''}
+            <div class="opp-competitors">
+              ${competitors.slice(0, 2).map(comp => `<span class="competitor-tag">${escapeHtml(comp)}</span>`).join('')}
+              ${competitors.length > 2 ? `<span class="competitor-tag">+${competitors.length - 2}</span>` : ''}
             </div>
           ` : ''}
-          
+
           ${opp.notes ? `
-            <div class="opportunity-notes text-clamp-2">
-              ${processedNotes.substring(0, 150)}${processedNotes.length > 150 ? '...' : ''}
-            </div>
+            <div class="opp-notes">${processedNotes.substring(0, 120)}${processedNotes.length > 120 ? '\u2026' : ''}</div>
           ` : ''}
-          
-          <div class="opportunity-actions">
-            <div class="opportunity-date"><i data-lucide="clock-3"></i> ${formatDate(opp.created_at)}</div>
-            <div class="opportunity-menu">
+
+          <div class="opp-card-footer">
+            <span class="opp-stage-age">
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+              ${stageDays}d
+            </span>
+            <span class="opp-created-date">${formatDate(opp.created_at)}</span>
+            <div class="opp-actions-group">
               ${isOwnOpportunity ? `
-                <button class="opportunity-action-btn edit-opportunity" data-id="${opp.id}">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen-icon lucide-square-pen"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
+                <button class="opportunity-action-btn edit-opportunity" data-id="${opp.id}" title="Edit">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
                 </button>
-                <button class="opportunity-action-btn delete-opportunity" data-id="${opp.id}">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                <button class="opportunity-action-btn delete-opportunity" data-id="${opp.id}" title="Delete">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                 </button>
               ` : `
-                <button class="opportunity-action-btn view-opportunity" data-id="${opp.id}">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-eye-icon lucide-eye"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
+                <button class="opportunity-action-btn view-opportunity" data-id="${opp.id}" title="View">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0"/><circle cx="12" cy="12" r="3"/></svg>
                 </button>
               `}
             </div>
@@ -5509,18 +5518,21 @@ function initPipelineDragAndDrop(opportunities) {
   opportunityLists.forEach(list => {
     new Sortable(list, {
       group: 'pipeline',
-      animation: 110,
-      easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
-      swapThreshold: 0.2,
+      animation: 200,
+      easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+      swapThreshold: 0.5,
+      fallbackOnBody: true,
       invertSwap: false,
-      emptyInsertThreshold: 6,
-      delayOnTouchOnly: true,
-      touchStartThreshold: 4,
-      draggable: '.opportunity-card',
+      emptyInsertThreshold: 10,
+      delay: 0,
+      delayOnTouchOnly: false,
+      touchStartThreshold: 3,
+      draggable: '.opportunity-card:not(.readonly)',
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
       dragClass: 'sortable-drag',
-      filter: '.readonly, .opportunity-actions', // Prevent dragging readonly cards or non-card controls
+      preventOnFilter: false,
+      filter: '.opportunity-action-btn',
       onStart: function (evt) {
         document.body.classList.add('is-dragging');
         evt.item.classList.add('dragging');
@@ -5565,12 +5577,9 @@ function initPipelineDragAndDrop(opportunities) {
               opportunity.mappedStage = stageMapping[newStage] || newStage;
             }
 
-            const stageAgeEl = evt.item.querySelector('.opportunity-stage-age');
+            const stageAgeEl = evt.item.querySelector('.opp-stage-age');
             if (stageAgeEl) {
-              const stageAgeText = stageAgeEl.querySelector('span');
-              if (stageAgeText) {
-                stageAgeText.textContent = '0d in stage';
-              }
+              stageAgeEl.lastChild.textContent = ' 0d';
             }
             showInlineSuccess(evt.item);
             showToast('Opportunity moved', 'success', { subtle: true, duration: 1400, dedupeMs: 1200 });
@@ -5604,7 +5613,7 @@ function updatePipelineStageCounts() {
     // Calculate and update total value
     let totalValue = 0;
     opportunities.forEach(card => {
-      const valueText = card.querySelector('.opportunity-value')?.textContent;
+      const valueText = card.querySelector('.opp-value')?.textContent;
       if (valueText) {
         totalValue += parseCurrencyValue(valueText);
       }
@@ -5636,11 +5645,11 @@ function updatePipelineSummary() {
   let wonCount = 0;
 
   visibleCards.forEach(card => {
-    const valueText = card.querySelector('.opportunity-value')?.textContent;
+    const valueText = card.querySelector('.opp-value')?.textContent;
     const value = parseCurrencyValue(valueText);
     totalValue += value;
 
-    const probText = card.querySelector('.probability-text')?.textContent;
+    const probText = card.querySelector('.opp-prob-label')?.textContent;
     const probability = parseInt(probText?.replace('%', '') || 0);
     totalProbability += probability;
     weightedForecast += (value * probability) / 100;
@@ -5745,7 +5754,7 @@ function initPipelineFilters(opportunities) {
       } else if (activeFilter === 'high-probability') {
         show = Number(card.dataset.probability || 0) >= 70;
       } else if (activeFilter === 'next-step-due') {
-        show = !!card.querySelector('.opportunity-next-step');
+        show = !!card.querySelector('.opp-next-step');
       }
 
       if (show && owner !== 'all') {
@@ -5978,22 +5987,33 @@ function initOpportunityModalListeners(opportunity) {
       let resultsHTML = '';
 
       if (filteredCompanies.length > 0) {
-        resultsHTML = filteredCompanies.map(company => `
-          <div class="search-result-item" onclick="selectOpportunityCompany('${company.name}')">
-            <div class="search-result-icon"></div>
+        resultsHTML = filteredCompanies.map(company => {
+          const initials = getInitials(company.name);
+          const logoUrl = company.logo_url
+            ? company.logo_url
+            : (company.domain ? getCompanyLogoUrl(company.domain) : '');
+          const avatarInner = logoUrl
+            ? `<img src="${logoUrl}" class="opp-suggest-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><span class="opp-suggest-initials" style="display:none">${initials}</span>`
+            : `<span class="opp-suggest-initials">${initials}</span>`;
+          return `
+          <div class="search-result-item" onclick="selectOpportunityCompany('${escapeHtml(company.name)}')">
+            <div class="opp-suggest-avatar">${avatarInner}</div>
             <div>
-              <div class="search-result-name">${company.name}</div>
-              <div class="search-result-role">${company.description || 'No description'}</div>
+              <div class="search-result-name">${escapeHtml(company.name)}</div>
+              <div class="search-result-role">${escapeHtml(company.description || company.domain || 'Company')}</div>
             </div>
-          </div>
-        `).join('');
+          </div>`;
+        }).join('');
       }
 
       // Always show option to use custom name if it's different from found companies
       const customNameOption = `
-        <div class="search-result-item" onclick="selectOpportunityCompany('${e.target.value.trim()}')">
+        <div class="search-result-item" onclick="selectOpportunityCompany('${escapeHtml(e.target.value.trim())}')">
+          <div class="opp-suggest-avatar opp-suggest-avatar--custom">
+            <span>+</span>
+          </div>
           <div>
-            <div class="search-result-name">Use "${e.target.value.trim()}"</div>
+            <div class="search-result-name">Use "${escapeHtml(e.target.value.trim())}"</div>
             <div class="search-result-role">Add as custom company name</div>
           </div>
         </div>
