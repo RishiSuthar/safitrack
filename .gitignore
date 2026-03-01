@@ -2,10 +2,8 @@
 # SafiTrack – .gitignore
 # ============================================================
 
-# Runtime config files that hold real API keys.
-# Developers copy the *.example.js version and fill in their keys locally.
-config.js
-crm/config.js
+# config.js files are committed — they only contain public-safe keys.
+# (Groq API key is stored as a Supabase secret, never here.)
 
 # OS / editor noise
 .DS_Store
