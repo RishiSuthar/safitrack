@@ -9625,7 +9625,6 @@ body.is-dragging * {
 }
 .ai-chat-input:focus-within {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(47, 95, 208, 0.09);
 }
 .ai-chat-input input {
   flex: 1;
@@ -9637,6 +9636,11 @@ body.is-dragging * {
   line-height: 1.4;
   padding: 7px 8px 7px 0;
   min-width: 0;
+}
+.ai-chat-input input:focus,
+.ai-chat-input input:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 .ai-chat-input input::placeholder {
   color: var(--text-muted);

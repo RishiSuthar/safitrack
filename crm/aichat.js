@@ -200,6 +200,185 @@ async function findOpportunityForAdvice(text) {
   return null;
 }
 
+// ------------------------------------------------------------------
+// Today's Agenda handler
+// ------------------------------------------------------------------
+async function handleTodayAgenda() {
+  if (!currentUser || !currentUser.id) {
+    appendAIMessage("I can't pull your agenda right now — you don't seem to be logged in.");
+    return;
+  }
+
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+  const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
+  const todayDate = now.toISOString().split('T')[0];
+
+  try {
+    const [tasksRes, remindersRes, oppsRes] = await Promise.all([
+      supabaseClient
+        .from('tasks')
+        .select('id, title, due_date, priority, status')
+        .or(`assigned_to.eq.${currentUser.id},created_by.eq.${currentUser.id}`)
+        .neq('status', 'completed')
+        .lte('due_date', todayEnd)
+        .not('due_date', 'is', null)
+        .order('due_date', { ascending: true }),
+      supabaseClient
+        .from('reminders')
+        .select('id, title, reminder_date, is_completed')
+        .or(`assigned_to.eq.${currentUser.id},created_by.eq.${currentUser.id}`)
+        .eq('is_completed', false)
+        .lte('reminder_date', todayEnd)
+        .not('reminder_date', 'is', null)
+        .order('reminder_date', { ascending: true }),
+      supabaseClient
+        .from('opportunities')
+        .select('id, name, company_name, stage, next_step, next_step_date')
+        .eq('user_id', currentUser.id)
+        .not('next_step_date', 'is', null)
+        .lte('next_step_date', todayDate)
+        .neq('stage', 'closed-won')
+        .neq('stage', 'closed-lost')
+        .order('next_step_date', { ascending: true })
+    ]);
+
+    const tasks = tasksRes.data || [];
+    const reminders = remindersRes.data || [];
+    const opps = oppsRes.data || [];
+
+    if (!tasks.length && !reminders.length && !opps.length) {
+      appendAIMessage("You're all clear today — no tasks due, no reminders, and no deal actions pending. Enjoy the breathing room! \ud83d\ude0a");
+      return;
+    }
+
+    // build a plain-text summary for Groq to narrate
+    const lines = [];
+    if (tasks.length) {
+      lines.push(`Tasks due today (${tasks.length}):`);
+      tasks.forEach(t => {
+        const overdue = new Date(t.due_date) < now ? ' [OVERDUE]' : '';
+        lines.push(`  - ${t.title} (${t.priority || 'medium'} priority)${overdue}`);
+      });
+    }
+    if (reminders.length) {
+      lines.push(`Reminders today (${reminders.length}):`);
+      reminders.forEach(r => {
+        const time = new Date(r.reminder_date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        lines.push(`  - ${r.title} at ${time}`);
+      });
+    }
+    if (opps.length) {
+      lines.push(`Deal actions due today (${opps.length}):`);
+      opps.forEach(o => {
+        lines.push(`  - ${o.name} (${o.company_name}): ${o.next_step || 'follow-up needed'}`);
+      });
+    }
+
+    const dayOfWeek = now.toLocaleDateString('en-US', { weekday: 'long' });
+    const dateStr = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+
+    const messages = [
+      { role: 'system', content: 'You are Safi AI, a warm CRM assistant. Summarise the user\'s day in a friendly, conversational way. Use **bold** for task/reminder names, bullet points for lists. Keep it punchy — lead with the overall vibe (busy, manageable, clear) then list what\'s on. Mention overdue items with a gentle nudge. Max 200 words.' },
+      { role: 'user', content: `Today is ${dayOfWeek}, ${dateStr}. Here is the user's agenda data:\n\n${lines.join('\n')}\n\nGive them a natural, friendly rundown of their day.` }
+    ];
+    const reply = await groqChat(messages, 300, 0.7);
+    appendAIMessage(reply);
+  } catch (err) {
+    console.error('handleTodayAgenda error', err);
+    appendAIMessage("Hmm, I had trouble fetching your agenda. Try again in a sec.");
+  }
+}
+
+// ------------------------------------------------------------------
+// Find Contact handler
+// ------------------------------------------------------------------
+async function handleFindContact(text) {
+  if (!currentUser || !currentUser.id) {
+    appendAIMessage("I can't search contacts right now — you don't seem to be logged in.");
+    return;
+  }
+
+  // extract name and optional company hint from the message using Groq
+  const extractMsg = [
+    { role: 'system', content: 'Extract the person\'s name and optionally a company name from the message. Return strict JSON: {"name": "...", "company": "..."} — omit company key if not mentioned. Return only JSON, no explanation.' },
+    { role: 'user', content: text }
+  ];
+  let searchName = '', searchCompany = '';
+  try {
+    const raw = await groqChat(extractMsg, 60, 0);
+    const parsed = JSON.parse(raw.match(/\{[\s\S]*\}/)?.[0] || '{}');
+    searchName = (parsed.name || '').trim();
+    searchCompany = (parsed.company || '').trim();
+  } catch (e) {
+    // fallback: strip common words and use remainder as name
+    searchName = text.replace(/\b(find|look up|search|who is|who's|contact|person)\b/gi, '').trim();
+  }
+
+  if (!searchName) {
+    appendAIMessage("Who are you looking for? Just give me a name and I'll search the CRM.");
+    chatState.intent = 'find_contact';
+    chatState.awaitingField = 'contact_name';
+    return;
+  }
+
+  try {
+    // join with companies table to get the company name
+    let query = supabaseClient
+      .from('people')
+      .select('id, name, email, job_title, phone_numbers, companies(name)')
+      .ilike('name', `%${searchName}%`)
+      .limit(10);
+
+    // if a company was mentioned, resolve its id first then filter
+    if (searchCompany) {
+      const { data: companyMatches } = await supabaseClient
+        .from('companies')
+        .select('id')
+        .ilike('name', `%${searchCompany}%`)
+        .limit(5);
+      if (companyMatches && companyMatches.length) {
+        const ids = companyMatches.map(c => c.id);
+        query = supabaseClient
+          .from('people')
+          .select('id, name, email, job_title, phone_numbers, companies(name)')
+          .ilike('name', `%${searchName}%`)
+          .in('company_id', ids)
+          .limit(10);
+      }
+    }
+
+    const { data, error } = await query;
+    if (error) throw error;
+
+    if (!data || !data.length) {
+      appendAIMessage(`I couldn't find anyone named **"${searchName}"** in the CRM${searchCompany ? ` at ${searchCompany}` : ''}. Want to double-check the spelling or try a partial name?`);
+      return;
+    }
+
+    // build contact summary for Groq to narrate
+    const contactLines = data.map(p => {
+      const parts = [`Name: ${p.name}`];
+      if (p.job_title) parts.push(`Title: ${p.job_title}`);
+      const companyName = p.companies?.name;
+      if (companyName) parts.push(`Company: ${companyName}`);
+      if (p.email) parts.push(`Email: ${p.email}`);
+      if (p.phone_numbers && p.phone_numbers.length) parts.push(`Phone: ${p.phone_numbers[0]}`);
+      return parts.join(', ');
+    }).join('\n');
+
+    const messages = [
+      { role: 'system', content: 'You are Safi AI, a friendly CRM assistant. Present the contact results in a clean, readable way. Use **bold** for names, show key details in a compact format. If multiple contacts found, list them clearly. If just one, give a slightly richer summary. Keep it conversational — no corporate-speak.' },
+      { role: 'user', content: `The user searched for "${searchName}"${searchCompany ? ` at "${searchCompany}"` : ''}. Here are the results:\n\n${contactLines}\n\nPresent this naturally.` }
+    ];
+    const reply = await groqChat(messages, 250, 0.6);
+    appendAIMessage(reply);
+  } catch (err) {
+    console.error('handleFindContact error', err);
+    appendAIMessage("Something went wrong while searching. Give it another try.");
+  }
+}
+
 // handle advice queries about an existing opportunity
 async function handleAdvice(text) {
   // try to glean a company/opportunity name from the text
@@ -231,6 +410,14 @@ async function handleAdvice(text) {
 async function handleUserMessage(text) {
   if (!chatState) resetConversation();
 
+  // handle continuation of one-shot intents that needed a follow-up
+  if (chatState.intent === 'find_contact' && chatState.awaitingField === 'contact_name') {
+    delete chatState.awaitingField;
+    await handleFindContact(text);
+    resetConversation();
+    return;
+  }
+
   if (!chatState.intent) {
     const intent = await detectIntent(text);
     if (intent === 'none') {
@@ -245,6 +432,18 @@ async function handleUserMessage(text) {
     // if the intent is advice, handle immediately
     if (chatState.intent === 'advise_opportunity') {
       await handleAdvice(text);
+      return;
+    }
+
+    // one-shot lookup intents — handle immediately, no further state needed
+    if (chatState.intent === 'today_agenda') {
+      await handleTodayAgenda();
+      resetConversation();
+      return;
+    }
+    if (chatState.intent === 'find_contact') {
+      await handleFindContact(text);
+      resetConversation();
       return;
     }
 
@@ -498,13 +697,15 @@ Intents:
 - create_reminder: user wants to set/add/create a new reminder (e.g. "remind me", "set a reminder", "add a reminder")
 - create_opportunity: user wants to add/create/log/record a NEW deal or opportunity in the CRM (e.g. "add an opportunity", "create an opportunity", "log a new deal", "make an opportunity")
 - advise_opportunity: user wants tips, advice, or strategy on how to WIN or progress an EXISTING deal (e.g. "how do I win the Safaricom deal", "help me with this opportunity", "how can I close [company]")
+- today_agenda: user wants to know what they have on for today, their schedule, tasks due today, reminders today (e.g. "what's on my agenda", "what do I have today", "my day", "what's due today")
+- find_contact: user wants to look up a person/contact in the CRM (e.g. "find John", "who is Jane at KCB", "look up David", "search for a contact")
 - none: anything else (greetings, questions, general conversation)
 
 Key rule: if the user says "create", "add", "make", "log", or "new" + opportunity/deal, it is ALWAYS create_opportunity, never advise_opportunity.` },
     { role: 'user', content: `User message: "${text}"` }
   ];
   const response = await groqChat(messages, 20, 0);
-  const match = response.match(/create_task|create_reminder|create_opportunity|advise_opportunity/);
+  const match = response.match(/create_task|create_reminder|create_opportunity|advise_opportunity|today_agenda|find_contact/);
   return match ? match[0] : 'none';
 }
 
