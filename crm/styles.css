@@ -1335,63 +1335,358 @@ body {
   flex-direction: row;
 }
 
-/* --- Left Side: Visual --- */
+/* --- Left Side: Interactive Cartoon Characters --- */
 .auth-visual-side {
   width: 50%;
   flex: 1;
   position: relative;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  /* Space out brand top and card bottom */
-  padding: 3rem 4rem;
-  color: white;
+  align-items: center;
+  justify-content: center;
   overflow: hidden;
 }
 
-.auth-visual-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0.6) 100%);
-  z-index: 1;
+.auth-cartoon-side {
+  background: #e8e8e8;
+  padding: 0;
+  cursor: default;
 }
 
-.auth-visual-content {
+/* ---- Dark / Light mode for cartoon stage ---- */
+[data-theme="dark"] .auth-cartoon-side {
+  background: #1a1e21;
+}
+
+[data-theme="light"] .auth-cartoon-side {
+  background: #e8e8e8;
+}
+
+/* Stage brand logo color per theme */
+[data-theme="dark"] .stage-brand-logo {
+  filter: brightness(0) invert(1);
+}
+
+[data-theme="light"] .stage-brand-logo {
+  filter: brightness(0);
+}
+
+/* ---- Top-left brand logo on cartoon stage ---- */
+.cartoon-stage-logo {
+  position: absolute;
+  top: 28px;
+  left: 32px;
+  z-index: 10;
+}
+
+.stage-brand-logo {
+  width: 180px;
+  height: auto;
+  opacity: 0.85;
+}
+
+.cartoon-stage {
   position: relative;
-  z-index: 2;
+  width: 100%;
   height: 100%;
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 0;
 }
 
-.visual-brand {
+/* ---- Character base styles ---- */
+.toon {
+  position: absolute;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.toon-face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  /* Body shape stays fixed — skew applied via JS on email state */
+  transform-origin: center bottom;
+  will-change: transform;
+  transition: transform 0.35s ease;
+}
+
+/* Movable head region — slides horizontally for neck movement */
+.toon-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  will-change: transform;
+  transition: transform 0.05s linear;
+}
+
+.toon-eyes {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+}
+
+.toon-eye {
+  position: relative;
+  overflow: hidden;
+  border-radius: 50%;
+}
+
+.toon-eye-white {
+  background: #fff;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: center;
+  position: relative;
 }
 
-.visual-brand h1 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: white;
-  letter-spacing: -0.02em;
+.toon-pupil {
+  background: #1a1a2e;
+  border-radius: 50%;
+  position: absolute;
+  transition: transform 0.05s linear;
+  will-change: transform;
 }
 
-.visual-quote {
-  margin-top: auto;
-  margin-bottom: 2rem;
-  max-width: 90%;
+.toon-eyelid {
+  position: absolute;
+  top: 0;
+  left: -2px;
+  right: -2px;
+  height: 0%;
+  border-radius: 0 0 50% 50%;
+  transition: height 0.15s ease-in-out;
+  z-index: 2;
 }
 
+.toon-eyelid.blink,
+.toon-eyelid.closed {
+  height: 105%;
+}
+
+.toon-mouth {
+  background: #1a1a2e;
+  transition: all 0.3s ease;
+}
+
+/* ---- Character 1: Tall Purple ---- */
+.toon-purple {
+  width: 160px;
+  height: 340px;
+  bottom: 12%;
+  left: 22%;
+  z-index: 2;
+}
+
+.toon-purple .toon-face {
+  background: #6c5ce7;
+  width: 100%;
+  height: 100%;
+  border-radius: 24px;
+  padding-top: 50px;
+}
+
+.toon-purple .toon-eye-white {
+  width: 22px;
+  height: 22px;
+}
+
+.toon-purple .toon-pupil {
+  width: 10px;
+  height: 10px;
+}
+
+.toon-purple .toon-eyes {
+  gap: 24px;
+}
+
+.toon-purple .toon-eyelid {
+  background: #6c5ce7;
+}
+
+.toon-purple .toon-mouth {
+  width: 4px;
+  height: 28px;
+  border-radius: 2px;
+  margin-top: 14px;
+}
+
+.toon-purple .toon-mouth.smile {
+  width: 20px;
+  height: 10px;
+  border-radius: 0 0 20px 20px;
+  background: #1a1a2e;
+}
+
+/* ---- Character 2: Dark Rectangle ---- */
+.toon-dark {
+  width: 120px;
+  height: 320px;
+  bottom: 0;
+  left: 42%;
+  z-index: 3;
+}
+
+.toon-dark .toon-face {
+  background: #2d3436;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  padding-top: 40px;
+}
+
+.toon-dark .toon-eye-white {
+  width: 20px;
+  height: 20px;
+}
+
+.toon-dark .toon-pupil {
+  width: 10px;
+  height: 10px;
+}
+
+.toon-dark .toon-eyes {
+  gap: 16px;
+}
+
+.toon-dark .toon-eyelid {
+  background: #2d3436;
+}
+
+.toon-dark .toon-mouth {
+  width: 3px;
+  height: 20px;
+  border-radius: 2px;
+  margin-top: 12px;
+}
+
+.toon-dark .toon-mouth.smile {
+  width: 16px;
+  height: 8px;
+  border-radius: 0 0 16px 16px;
+  background: #1a1a2e;
+}
+
+/* ---- Character 3: Big Orange Dome ---- */
+.toon-orange {
+  width: 280px;
+  height: 180px;
+  bottom: 0;
+  left: 8%;
+  z-index: 4;
+}
+
+.toon-orange .toon-face {
+  background: #e17055;
+  width: 100%;
+  height: 100%;
+  border-radius: 180px 180px 0 0;
+  padding-top: 50px;
+}
+
+.toon-orange .toon-eye-white {
+  width: 18px;
+  height: 18px;
+}
+
+.toon-orange .toon-pupil {
+  width: 8px;
+  height: 8px;
+}
+
+.toon-orange .toon-eyes {
+  gap: 36px;
+}
+
+.toon-orange .toon-eyelid {
+  background: #e17055;
+}
+
+.toon-orange .toon-mouth {
+  width: 24px;
+  height: 12px;
+  border-radius: 0 0 24px 24px;
+  margin-top: 14px;
+  background: #1a1a2e;
+}
+
+.toon-orange .toon-mouth.neutral {
+  width: 4px;
+  height: 20px;
+  border-radius: 2px;
+}
+
+/* Look-away states during password */
+.toon-orange.look-away .toon-head {
+  transform: translateX(-20px) !important;
+}
+
+.toon-dark.look-away .toon-head {
+  transform: translateX(-16px) !important;
+}
+
+/* ---- Character 4: Yellow Dome ---- */
+.toon-yellow {
+  width: 160px;
+  height: 120px;
+  bottom: 0;
+  left: 48%;
+  z-index: 5;
+}
+
+.toon-yellow .toon-face {
+  background: #fdcb6e;
+  width: 100%;
+  height: 100%;
+  border-radius: 120px 120px 0 0;
+  padding-top: 30px;
+}
+
+.toon-yellow .toon-eye-white {
+  width: 10px;
+  height: 10px;
+}
+
+.toon-yellow .toon-pupil {
+  width: 5px;
+  height: 5px;
+}
+
+.toon-yellow .toon-eyes {
+  gap: 22px;
+}
+
+.toon-yellow .toon-eyelid {
+  background: #fdcb6e;
+}
+
+.toon-yellow .toon-mouth {
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  margin-top: 8px;
+}
+
+.toon-yellow .toon-mouth.smile {
+  width: 18px;
+  height: 9px;
+  border-radius: 0 0 18px 18px;
+  background: #1a1a2e;
+}
+
+/* Keep old classes from breaking */
+.auth-visual-overlay,
+.auth-visual-content,
+.visual-brand,
+.visual-brand h1,
+.visual-quote,
 .visual-quote p {
-  font-size: 2rem;
-  font-weight: 600;
-  line-height: 1.3;
-  color: white;
+  display: none;
 }
 
 

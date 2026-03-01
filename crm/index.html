@@ -54,18 +54,86 @@
 
   <div id="auth-screen" class="screen auth-screen">
     <div class="auth-split-layout">
-      <!-- Left Side: Visual/Brand -->
-      <div class="auth-visual-side" style="background-image: url('../assets/illustrations/mainpage.gif');">
-        <div class="auth-visual-overlay"></div>
-        <div class="auth-visual-content">
-          <div class="visual-brand-group">
-            <div class="visual-brand">
-              <img src="../assets/icons/transparentMain.png" alt="SafiTrack" width="64" class="visual-logo visual-logo-white">
+      <!-- Left Side: Interactive Cartoon Characters -->
+      <div class="auth-visual-side auth-cartoon-side" id="cartoon-scene">
+        <div class="cartoon-stage-logo">
+          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="stage-brand-logo">
+        </div>
+        <div class="cartoon-stage">
+          <!-- Character 1: Tall Purple Rectangle -->
+          <div class="toon toon-purple" data-toon="purple">
+            <div class="toon-face">
+              <div class="toon-head">
+                <div class="toon-eyes">
+                  <div class="toon-eye">
+                    <div class="toon-eye-white"><div class="toon-pupil"></div></div>
+                    <div class="toon-eyelid"></div>
+                  </div>
+                  <div class="toon-eye">
+                    <div class="toon-eye-white"><div class="toon-pupil"></div></div>
+                    <div class="toon-eyelid"></div>
+                  </div>
+                </div>
+                <div class="toon-mouth"></div>
+              </div>
             </div>
           </div>
 
-          <div class="visual-quote">
-            <p>Empowering field sales teams with real-time data and intelligent insights.</p>
+          <!-- Character 2: Dark/Black Rectangle -->
+          <div class="toon toon-dark" data-toon="dark">
+            <div class="toon-face">
+              <div class="toon-head">
+                <div class="toon-eyes">
+                  <div class="toon-eye">
+                    <div class="toon-eye-white"><div class="toon-pupil"></div></div>
+                    <div class="toon-eyelid"></div>
+                  </div>
+                  <div class="toon-eye">
+                    <div class="toon-eye-white"><div class="toon-pupil"></div></div>
+                    <div class="toon-eyelid"></div>
+                  </div>
+                </div>
+                <div class="toon-mouth"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Character 3: Big Orange Dome -->
+          <div class="toon toon-orange" data-toon="orange">
+            <div class="toon-face">
+              <div class="toon-head">
+                <div class="toon-eyes">
+                  <div class="toon-eye">
+                    <div class="toon-eye-white"><div class="toon-pupil"></div></div>
+                    <div class="toon-eyelid"></div>
+                  </div>
+                  <div class="toon-eye">
+                    <div class="toon-eye-white"><div class="toon-pupil"></div></div>
+                    <div class="toon-eyelid"></div>
+                  </div>
+                </div>
+                <div class="toon-mouth"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Character 4: Yellow Dome -->
+          <div class="toon toon-yellow" data-toon="yellow">
+            <div class="toon-face">
+              <div class="toon-head">
+                <div class="toon-eyes">
+                  <div class="toon-eye">
+                    <div class="toon-eye-white"><div class="toon-pupil"></div></div>
+                    <div class="toon-eyelid"></div>
+                  </div>
+                  <div class="toon-eye">
+                    <div class="toon-eye-white"><div class="toon-pupil"></div></div>
+                    <div class="toon-eyelid"></div>
+                  </div>
+                </div>
+                <div class="toon-mouth"></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1932,6 +2000,7 @@
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <script src="utils.js"></script>
+  <script src="auth-cartoons.js"></script>
   <script src="custom-calendar.js"></script>
   <script src="ai.js"></script>
   <script src="app.js"></script>
