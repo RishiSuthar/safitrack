@@ -1,0 +1,24 @@
+# ============================================================
+# SafiTrack – .gitignore
+# ============================================================
+
+# Runtime config files that hold real API keys.
+# Developers copy the *.example.js version and fill in their keys locally.
+config.js
+crm/config.js
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+
+# If you ever add a Node-based build step
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+
+# Supabase CLI local secrets (contains real keys for local dev)
+supabase/.env
+supabase/functions/.env

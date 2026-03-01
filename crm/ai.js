@@ -1,15 +1,43 @@
-const GROQ_API_KEY = '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';
+// AI calls are proxied through a Supabase Edge Function.
+// The Groq API key lives ONLY in the edge function as a secret — never in the browser.
+// Set GROQ_PROXY_URL in crm/config.js to your deployed function URL:
+//   https://<your-project-ref>.supabase.co/functions/v1/groq-proxy
+const GROQ_PROXY_URL = (window.APP_CONFIG || {}).GROQ_PROXY_URL || '';
+
+/**
+ * Low-level helper: POST a Groq request body to the server-side proxy.
+ * Attaches the current user's Supabase JWT so the edge function can
+ * verify the caller is authenticated before touching the Groq key.
+ */
+async function callGroqProxy(payload) {
+  if (!GROQ_PROXY_URL) {
+    throw new Error('[SafiTrack] GROQ_PROXY_URL not set in crm/config.js.');
+  }
+
+  let authToken = '';
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    authToken = session?.access_token || '';
+  } catch (_) {}
+
+  if (!authToken) {
+    throw new Error('[SafiTrack] User not authenticated — cannot call AI proxy.');
+  }
+
+  return fetch(GROQ_PROXY_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${authToken}`,
+    },
+    body: JSON.stringify(payload),
+  });
+}
 
 // Generate concise visit summary
 async function generateConciseVisitSummary(company, contact, notes) {
   try {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_API_KEY}`
-      },
-      body: JSON.stringify({
+    const response = await callGroqProxy({
         model: 'llama-3.1-8b-instant',
         messages: [
           {
@@ -25,7 +53,6 @@ async function generateConciseVisitSummary(company, contact, notes) {
         ],
         max_tokens: 150,
         temperature: 0.3
-      })
     });
 
     if (!response.ok) {
@@ -43,13 +70,7 @@ async function generateConciseVisitSummary(company, contact, notes) {
 // Predictive Lead Scoring
 async function predictLeadScore(company, contact, notes, visitType) {
   try {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_API_KEY}`
-      },
-      body: JSON.stringify({
+    const response = await callGroqProxy({
         model: 'llama-3.1-8b-instant',
         messages: [
           {
@@ -70,7 +91,6 @@ async function predictLeadScore(company, contact, notes, visitType) {
         ],
         max_tokens: 10,
         temperature: 0.2
-      })
     });
 
     if (!response.ok) {
@@ -91,13 +111,7 @@ async function predictLeadScore(company, contact, notes, visitType) {
 // Generate team trends
 async function generateConciseTeamTrends(allNotes) {
   try {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_API_KEY}`
-      },
-      body: JSON.stringify({
+    const response = await callGroqProxy({
         model: 'llama-3.1-8b-instant',
         messages: [
           {
@@ -113,7 +127,6 @@ async function generateConciseTeamTrends(allNotes) {
         ],
         max_tokens: 180,
         temperature: 0.3
-      })
     });
 
     if (!response.ok) {
@@ -133,13 +146,7 @@ async function generateCompanyDescription(companyName) {
   try {
     if (!companyName || !companyName.trim()) return '';
 
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_API_KEY}`
-      },
-      body: JSON.stringify({
+    const response = await callGroqProxy({
         model: 'llama-3.1-8b-instant',
         messages: [
           {
@@ -153,7 +160,6 @@ async function generateCompanyDescription(companyName) {
         ],
         max_tokens: 80,
         temperature: 0.6
-      })
     });
 
     if (!response.ok) {
@@ -176,18 +182,11 @@ async function groqChat(messages, max_tokens = 150, temperature = 0.3) {
   let attempt = 0;
   while (attempt < maxAttempts) {
     try {
-      const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${GROQ_API_KEY}`
-        },
-        body: JSON.stringify({
+      const response = await callGroqProxy({
           model: 'llama-3.1-8b-instant',
           messages,
           max_tokens,
           temperature
-        })
       });
 
       if (!response.ok) {

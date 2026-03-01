@@ -1,5 +1,11 @@
-const SUPABASE_URL = 'https://ndrkncirkekpqjjkasiy.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kcmtuY2lya2VrcHFqamthc2l5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjU2MDU2MTEsImV4cCI6MjA4MTE4MTYxMX0.SGVLqU6-u1ALj_P1nsyytYe7cNbAyxCVbV6kjAaiGU4';
+// Keys are loaded from crm/config.js (gitignored).
+// Copy crm/config.example.js → crm/config.js and fill in your values.
+const SUPABASE_URL = (window.APP_CONFIG || {}).SUPABASE_URL || '';
+const SUPABASE_KEY = (window.APP_CONFIG || {}).SUPABASE_KEY || '';
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('[SafiTrack] Missing Supabase config. Did you create crm/config.js from crm/config.example.js?');
+}
 
 const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
