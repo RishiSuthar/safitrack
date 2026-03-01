@@ -5,6 +5,8 @@
 
 // conversation state
 let chatState = null;
+// track the last message the user sent so retry can replay it
+let lastUserMessage = '';
 
 // fields we want to collect
 const TASK_REQUIRED_FIELDS = ['title', 'description', 'due_date', 'priority', 'assigned_to'];
@@ -39,7 +41,7 @@ function initializeAIChat() {
     windowEl.classList.add('active');
     if (!chatState || !chatState.intent) {
       resetConversation();
-      appendAIMessage('Hi, what can I help you with today?');
+      appendAIMessage('Hey! What can I help you with today?');
     }
   }
   closeBtn.addEventListener('click', () => windowEl.classList.remove('active'));
@@ -48,7 +50,7 @@ function initializeAIChat() {
     // clear messages and reset state
     document.getElementById('ai-chat-messages').innerHTML = '';
     resetConversation();
-    appendAIMessage('What can I help you with?');
+    appendAIMessage('Fresh start! What are we working on?');
   });
 
   sendBtn.addEventListener('click', onUserSubmit);
@@ -58,6 +60,45 @@ function initializeAIChat() {
       onUserSubmit();
     }
   });
+
+  // Action button delegation (copy, helpful, not-helpful, retry)
+  const messagesEl = document.getElementById('ai-chat-messages');
+  if (messagesEl) {
+    messagesEl.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.ai-chat-action-btn');
+      if (!btn) return;
+      const action = btn.dataset.action;
+      const msgEl = btn.closest('.ai-chat-message');
+
+      if (action === 'copy') {
+        const bubble = msgEl && msgEl.querySelector('.ai-chat-bubble');
+        const textContent = bubble ? bubble.innerText : '';
+        try {
+          await navigator.clipboard.writeText(textContent);
+          btn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+          btn.classList.add('ai-action-copied');
+          setTimeout(() => {
+            btn.innerHTML = ICON_COPY;
+            btn.classList.remove('ai-action-copied');
+          }, 1800);
+        } catch (err) {
+          console.error('Copy failed', err);
+        }
+      } else if (action === 'retry') {
+        if (!lastUserMessage) return;
+        if (msgEl) msgEl.remove();
+        await processUserMessage(lastUserMessage);
+      } else if (action === 'helpful') {
+        const wasActive = btn.classList.contains('ai-action-active');
+        btn.classList.toggle('ai-action-active', !wasActive);
+        if (msgEl) msgEl.querySelector('[data-action="not-helpful"]')?.classList.remove('ai-action-active');
+      } else if (action === 'not-helpful') {
+        const wasActive = btn.classList.contains('ai-action-active');
+        btn.classList.toggle('ai-action-active', !wasActive);
+        if (msgEl) msgEl.querySelector('[data-action="helpful"]')?.classList.remove('ai-action-active');
+      }
+    });
+  }
 
   // Enable send button only when input has content
   function updateSendBtn() {
@@ -85,6 +126,7 @@ async function onUserSubmit() {
   const input = document.getElementById('ai-chat-input');
   const text = input.value.trim();
   if (!text) return;
+  lastUserMessage = text;
   appendUserMessage(text);
   input.value = '';
   await processUserMessage(text);
@@ -170,15 +212,15 @@ async function handleAdvice(text) {
     opp = await findOpportunityForAdvice(text);
   }
   if (!opp) {
-    appendAIMessage("I wasn't able to find a matching opportunity. Could you give me the company or exact opportunity name?");
+    appendAIMessage("Hmm, I couldn't find a match for that one. Could you give me the company name or the exact opportunity name so I can pull it up?");
     chatState.intent = 'advise_opportunity';
     chatState.awaitingField = 'company_name';
     return;
   }
   // compose guidance prompt
   const messages = [
-    { role: 'system', content: 'You are Safi AI, a professional sales coach integrated into a CRM. Give clear, actionable advice. Use bullet points (- item) for lists, **bold** for key action phrases, and headings only when needed. Keep responses concise and avoid padding.' },
-    { role: 'user', content: `Opportunity details:\nName: ${opp.name}\nCompany: ${opp.company_name}\nStage: ${opp.stage}\nValue: ${opp.value}\nProbability: ${opp.probability}\nNotes: ${opp.notes || 'none'}\n\nOffer 3 brief, actionable steps to improve the chances of winning this deal.` }
+    { role: 'system', content: 'You are Safi AI, a sharp and encouraging sales coach inside a CRM. Talk like a trusted advisor who genuinely wants the rep to win the deal. Be direct and practical — no fluff. Use bullet points (- item) for action steps, **bold** for the most important phrases. Keep it punchy and motivating.' },
+    { role: 'user', content: `Here's the deal:\nName: ${opp.name}\nCompany: ${opp.company_name}\nStage: ${opp.stage}\nValue: ${opp.value}\nProbability: ${opp.probability}\nNotes: ${opp.notes || 'none'}\n\nGive me 3 clear, specific actions I can take right now to move this deal forward and close it.` }
   ];
   const reply = await groqChat(messages, 200, 0.7);
   appendAIMessage(reply);
@@ -198,6 +240,7 @@ async function handleUserMessage(text) {
       return;
     }
     chatState.intent = intent;
+    chatState.isFirstTurn = true;
 
     // if the intent is advice, handle immediately
     if (chatState.intent === 'advise_opportunity') {
@@ -213,7 +256,8 @@ async function handleUserMessage(text) {
         chatState.collectedFields.company_name = String(initialFields.company_name).trim();
       }
       if (!chatState.collectedFields.company_name) {
-        appendAIMessage('Alright, let’s start with the company – which company is this deal for?');
+        const openingQ = await generateFollowUpQuestion(['company_name'], chatState.collectedFields);
+        appendAIMessage(openingQ);
         chatState.awaitingField = 'company_name';
         return;
       }
@@ -436,7 +480,8 @@ function resetConversation() {
   chatState = {
     intent: null,
     collectedFields: {},
-    missingFields: []
+    missingFields: [],
+    isFirstTurn: false
   };
 }
 
@@ -446,17 +491,26 @@ function resetConversation() {
 
 async function detectIntent(text) {
   const messages = [
-    { role: 'system', content: 'You are an assistant that analyzes user messages and returns ONLY one of: create_task, create_reminder, create_opportunity, advise_opportunity, or none.' },
+    { role: 'system', content: `You classify user messages into exactly one of these intents. Return ONLY the intent label, nothing else.
+
+Intents:
+- create_task: user wants to add/create/make a new task (e.g. "create a task", "add a task", "make a task for me")
+- create_reminder: user wants to set/add/create a new reminder (e.g. "remind me", "set a reminder", "add a reminder")
+- create_opportunity: user wants to add/create/log/record a NEW deal or opportunity in the CRM (e.g. "add an opportunity", "create an opportunity", "log a new deal", "make an opportunity")
+- advise_opportunity: user wants tips, advice, or strategy on how to WIN or progress an EXISTING deal (e.g. "how do I win the Safaricom deal", "help me with this opportunity", "how can I close [company]")
+- none: anything else (greetings, questions, general conversation)
+
+Key rule: if the user says "create", "add", "make", "log", or "new" + opportunity/deal, it is ALWAYS create_opportunity, never advise_opportunity.` },
     { role: 'user', content: `User message: "${text}"` }
   ];
-  const response = await groqChat(messages, 50, 0);
+  const response = await groqChat(messages, 20, 0);
   const match = response.match(/create_task|create_reminder|create_opportunity|advise_opportunity/);
   return match ? match[0] : 'none';
 }
 
 async function generateCasualReply(text) {
   const messages = [
-    { role: 'system', content: 'You are Safi AI, an assistant embedded in a professional CRM platform. Be direct, concise, and helpful. When listing items use markdown bullet points (- item) or numbered lists. Use **bold** for important terms. Use headings (## Heading) only when the response has distinct sections. Keep responses focused and avoid unnecessary padding.' },
+    { role: 'system', content: 'You are Safi AI, a warm, smart assistant embedded in a CRM used by sales teams. Talk like a knowledgeable colleague — friendly, natural, and helpful. Use contractions, be conversational, and keep things concise. When listing items use markdown bullet points (- item) or numbered lists. Use **bold** for key terms. Use headings only when the response has clearly distinct sections. Never be stiff or robotic. Show genuine interest in helping.' },
     { role: 'user', content: text }
   ];
   const response = await groqChat(messages, 200, 0.7);
@@ -511,51 +565,66 @@ function getMissingFields(intent, collected) {
 }
 
 async function generateFollowUpQuestion(missingFields, collected) {
-  // if we know which field is next, ask a direct short question;
-  // fallback to groq only if we can't map.
   const field = missingFields[0];
-  if (field) {
-    // special case: user gave something for stage but it was invalid
-    if (field === 'stage' && collected._raw_stage) {
-      return 'Hmm, I didn’t quite get the stage. Please tell me if it’s lead, in progress, won, or lost.';
-    }
-    switch (field) {
-      // task/reminder fields
-      case 'title':
-        return 'Great! What should I call it?';
-      case 'description':
-        return 'And some quick details, please?';
-      case 'due_date':
-        return 'When would you like that completed by?';
-      case 'reminder_date':
-        return 'Alright, when should I remind you?';
-      case 'priority':
-        return 'Do you want to mark it low, medium, or high priority?';
-      case 'assigned_to':
-        if (!isManager) return 'It’ll default to you unless you say otherwise.';
-        return 'Who should I assign this to?';
-      // opportunity fields
-      case 'name':
-        return 'Great – what’s the opportunity called?';
-      case 'company_name':
-        return 'Which company are we talking about for this deal?';
-      case 'value':
-        return 'And roughly how much is it worth (in Ksh)?';
-      case 'stage':
-        return 'What stage is it at right now – lead, in progress, won, or lost?';
-      case 'probability':
-        return 'What would you say the chance of winning is, in percent?';
-      default:
-        break;
-    }
+  if (!field) return "Is there anything else I can help you with?";
+
+  if (field === 'stage' && collected._raw_stage) {
+    return "Hmm, that stage didn’t quite register — is it a lead, in progress, won, or lost?";
   }
-  // fallback to groq for any unexpected field
+
+  const intent = chatState && chatState.intent;
+  const intentLabels = {
+    create_task: 'a task',
+    create_reminder: 'a reminder',
+    create_opportunity: 'an opportunity'
+  };
+  const intentLabel = intentLabels[intent] || 'this';
+
+  const fieldDescriptions = {
+    title: 'a short name or title for it',
+    description: 'a brief description of what it involves',
+    due_date: 'the due date (when it needs to be done)',
+    reminder_date: 'when the reminder should go off',
+    priority: 'the priority level — low, medium, or high',
+    assigned_to: isManager ? 'who to assign it to' : null,
+    name: 'a name for the opportunity',
+    company_name: 'which company this deal is with',
+    value: 'the estimated deal value in Ksh',
+    stage: 'the current deal stage — lead, in progress, won, or lost',
+    probability: 'the estimated win probability as a percentage'
+  };
+
+  const alreadyCollected = Object.entries(collected)
+    .filter(([k, v]) => v !== undefined && v !== null && k !== '_raw_stage' && k !== 'isFirstTurn' && String(v).trim())
+    .map(([k, v]) => `${k.replace(/_/g, ' ')}: ${v}`)
+    .join(', ');
+
+  const fieldDesc = fieldDescriptions[field] || field.replace(/_/g, ' ');
+
+  const isFirst = chatState && chatState.isFirstTurn;
+  if (chatState) chatState.isFirstTurn = false;
+
+  const systemPrompt = `You are Safi AI, a warm, natural, and conversational assistant in a CRM app used by sales teams.
+You’re helping a user create ${intentLabel}. Your job right now is to ask for one specific piece of information.
+Rules:
+- One sentence only
+- Sound like a helpful colleague, not a form wizard
+- Use contractions naturally (don’t, I’ll, let’s, you’re, etc.)
+- Where relevant, reference context you already have (e.g. use the company name or title if known)
+- Never say “I need” or “Please provide” — just ask naturally
+- On follow-up questions (not the first one), skip filler affirmations — just get into it
+- If this is the very first question for a new request, lead with a brief warm acknowledgment then ask (e.g. “Let’s get that sorted! Just need...” or “On it — which company is this deal with?”)`;
+
+  const userPrompt = `${isFirst ? `The user just asked to create ${intentLabel}.` : `Continuing the conversation.`}
+Context gathered so far: ${alreadyCollected || 'nothing yet'}.
+Now ask naturally for: ${fieldDesc}.`;
+
   const messages = [
-    { role: 'system', content: 'You are a friendly assistant that asks the user for missing information. Only ask about one field at a time.' },
-    { role: 'user', content: `The user is creating something and still needs these fields: ${missingFields.join(', ')}. \nThey have already provided: ${JSON.stringify(collected)}. \nWrite a conversational question requesting the next missing piece of information.` }
+    { role: 'system', content: systemPrompt },
+    { role: 'user', content: userPrompt }
   ];
-  const response = await groqChat(messages, 100, 0.7);
-  return response.trim();
+  const response = await groqChat(messages, 80, 0.85);
+  return response.trim().replace(/^["']|["']$/g, '');
 }
 
 // ------------------------------------------------------------------
@@ -580,7 +649,7 @@ async function finalizeCreation(intent, fields) {
     try {
       const result = await supabaseClient.from('tasks').insert([taskData]);
       if (result.error) throw result.error;
-      appendAIMessage(`Great! I’ve created the task "${taskData.title}" for you.`);
+      appendAIMessage(`Done! **"${taskData.title}"** is on your task list. Go crush it!`);
       if (typeof renderTasksView === 'function') renderTasksView();
       // close chat panel automatically
       const win = document.getElementById('ai-chat-window');
@@ -602,7 +671,7 @@ async function finalizeCreation(intent, fields) {
     try {
       const result = await supabaseClient.from('reminders').insert([reminderData]);
       if (result.error) throw result.error;
-      appendAIMessage(`All set! Reminder "${reminderData.title}" is in the system.`);
+      appendAIMessage(`You're all set! I'll remind you about **"${reminderData.title}"** — you won't miss it.`);
       if (typeof renderRemindersView === 'function') renderRemindersView();
       // close chat panel automatically
       const winRem = document.getElementById('ai-chat-window');
@@ -659,7 +728,7 @@ async function finalizeCreation(intent, fields) {
     try {
       const result = await supabaseClient.from('opportunities').insert([opportunityData]);
       if (result.error) throw result.error;
-      appendAIMessage(`Nice one! Opportunity "${opportunityData.name}" is now on the board.`);
+      appendAIMessage(`You're on it! **"${opportunityData.name}"** is live in your pipeline. Let's close that deal!`);
       if (typeof renderOpportunityPipelineView === 'function') renderOpportunityPipelineView();
       const winOpp = document.getElementById('ai-chat-window');
       if (winOpp) winOpp.classList.remove('active');
@@ -873,16 +942,30 @@ function appendUserMessage(text) {
   const container = document.getElementById('ai-chat-messages');
   const msg = document.createElement('div');
   msg.className = 'ai-chat-message user';
-  msg.innerHTML = `<div class="ai-chat-sender">You</div><div class="ai-chat-bubble">${escapeHtml(text)}</div>`;
+  msg.innerHTML = `<div class="ai-chat-bubble">${escapeHtml(text)}</div>`;
   container.appendChild(msg);
   container.scrollTop = container.scrollHeight;
+}
+
+const ICON_COPY = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+const ICON_THUMBS_UP = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v12"/><path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/></svg>`;
+const ICON_THUMBS_DOWN = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V2"/><path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L13 22a3.13 3.13 0 0 1-3-3.88Z"/></svg>`;
+const ICON_RETRY = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>`;
+
+function buildAIMessageActions() {
+  return `<div class="ai-chat-actions">
+    <button class="ai-chat-action-btn" data-action="copy" title="Copy">${ICON_COPY}</button>
+    <button class="ai-chat-action-btn" data-action="helpful" title="Helpful">${ICON_THUMBS_UP}</button>
+    <button class="ai-chat-action-btn" data-action="not-helpful" title="Not helpful">${ICON_THUMBS_DOWN}</button>
+    <button class="ai-chat-action-btn" data-action="retry" title="Try again">${ICON_RETRY}</button>
+  </div>`;
 }
 
 function appendAIMessage(text) {
   const container = document.getElementById('ai-chat-messages');
   const msg = document.createElement('div');
   msg.className = 'ai-chat-message ai';
-  msg.innerHTML = `<div class="ai-chat-sender">Safi AI</div><div class="ai-chat-bubble">${renderMarkdown(text)}</div>`;
+  msg.innerHTML = `<div class="ai-chat-bubble">${renderMarkdown(text)}</div>${buildAIMessageActions()}`;
   container.appendChild(msg);
   container.scrollTop = container.scrollHeight;
 }
@@ -892,7 +975,7 @@ function appendAIMessageHtml(html) {
   const container = document.getElementById('ai-chat-messages');
   const msg = document.createElement('div');
   msg.className = 'ai-chat-message ai';
-  msg.innerHTML = `<div class="ai-chat-sender">Safi AI</div><div class="ai-chat-bubble">${html}</div>`;
+  msg.innerHTML = `<div class="ai-chat-bubble">${html}</div>${buildAIMessageActions()}`;
   container.appendChild(msg);
   container.scrollTop = container.scrollHeight;
 }
@@ -902,7 +985,7 @@ function appendLoadingIndicator() {
   const msg = document.createElement('div');
   msg.className = 'ai-chat-message ai loading';
   msg.id = 'ai-chat-loading';
-  msg.innerHTML = `<div class="ai-chat-sender">Safi AI</div><div class="ai-chat-bubble"><div class="ai-chat-typing-dots"><span></span><span></span><span></span></div></div>`;
+  msg.innerHTML = `<div class="ai-chat-bubble"><div class="ai-chat-typing-dots"><span></span><span></span><span></span></div></div>`;
   container.appendChild(msg);
   container.scrollTop = container.scrollHeight;
 }
