@@ -10,7 +10,7 @@ async function generateConciseVisitSummary(company, contact, notes) {
         'Authorization': `Bearer ${GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'groq/compound',
+        model: 'llama-3.1-8b-instant',
         messages: [
           {
             role: 'system',
@@ -50,7 +50,7 @@ async function predictLeadScore(company, contact, notes, visitType) {
         'Authorization': `Bearer ${GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'groq/compound',
+        model: 'llama-3.1-8b-instant',
         messages: [
           {
             role: 'system',
@@ -98,7 +98,7 @@ async function generateConciseTeamTrends(allNotes) {
         'Authorization': `Bearer ${GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'groq/compound',
+        model: 'llama-3.1-8b-instant',
         messages: [
           {
             role: 'system',
@@ -140,7 +140,7 @@ async function generateCompanyDescription(companyName) {
         'Authorization': `Bearer ${GROQ_API_KEY}`
       },
       body: JSON.stringify({
-        model: 'groq/compound',
+        model: 'llama-3.1-8b-instant',
         messages: [
           {
             role: 'system',
@@ -183,7 +183,7 @@ async function groqChat(messages, max_tokens = 150, temperature = 0.3) {
           'Authorization': `Bearer ${GROQ_API_KEY}`
         },
         body: JSON.stringify({
-          model: 'groq/compound-mini',
+          model: 'llama-3.1-8b-instant',
           messages,
           max_tokens,
           temperature
@@ -193,6 +193,11 @@ async function groqChat(messages, max_tokens = 150, temperature = 0.3) {
       if (!response.ok) {
         const err = new Error(`API error: ${response.status}`);
         err.status = response.status;
+        // Capture Retry-After header so the caller can wait the right amount
+        if (response.status === 429) {
+          const retryAfter = response.headers.get('retry-after');
+          err.retryAfter = retryAfter ? (parseFloat(retryAfter) * 1000) : null;
+        }
         throw err;
       }
 
@@ -201,8 +206,9 @@ async function groqChat(messages, max_tokens = 150, temperature = 0.3) {
     } catch (error) {
       console.error('Error in groqChat:', error);
       if (error.status === 429 && attempt < maxAttempts - 1) {
-        // exponential backoff
-        await new Promise(r => setTimeout(r, 1000 * Math.pow(2, attempt)));
+        // Use the server's Retry-After if available, otherwise wait 10s / 20s
+        const wait = error.retryAfter || (10000 * (attempt + 1));
+        await new Promise(r => setTimeout(r, wait));
         attempt++;
         continue;
       }

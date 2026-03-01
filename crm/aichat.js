@@ -39,7 +39,7 @@ function initializeAIChat() {
     windowEl.classList.add('active');
     if (!chatState || !chatState.intent) {
       resetConversation();
-      appendAIMessage('Hi! I can help you create tasks, reminders, or opportunities conversationally – and even give advice on winning deals. Just say something like "Create a task" or "How can I win my opportunity with Carrefour?".');
+      appendAIMessage('Hi, what can I help you with today?');
     }
   }
   closeBtn.addEventListener('click', () => windowEl.classList.remove('active'));
@@ -48,7 +48,7 @@ function initializeAIChat() {
     // clear messages and reset state
     document.getElementById('ai-chat-messages').innerHTML = '';
     resetConversation();
-    appendAIMessage('Hi! I can help you create tasks, reminders, or opportunities conversationally. Just say something like "Create a task" or "Add an opportunity".');
+    appendAIMessage('What can I help you with?');
   });
 
   sendBtn.addEventListener('click', onUserSubmit);
@@ -58,6 +58,27 @@ function initializeAIChat() {
       onUserSubmit();
     }
   });
+
+  // Enable send button only when input has content
+  function updateSendBtn() {
+    sendBtn.disabled = !input.value.trim();
+  }
+  updateSendBtn();
+  input.addEventListener('input', updateSendBtn);
+
+  // Quick action chips
+  const quickActions = document.getElementById('ai-chat-quick-actions');
+  if (quickActions) {
+    quickActions.addEventListener('click', (e) => {
+      const chip = e.target.closest('.ai-chat-chip');
+      if (!chip) return;
+      const prompt = chip.dataset.prompt;
+      if (!prompt) return;
+      input.value = prompt;
+      input.dispatchEvent(new Event('input'));
+      onUserSubmit();
+    });
+  }
 }
 
 async function onUserSubmit() {
@@ -74,7 +95,12 @@ async function processUserMessage(text) {
   try {
     await handleUserMessage(text);
   } catch (err) {
-    appendAIMessage('Sorry, something went wrong. ' + err.message);
+    if (err.status === 429) {
+      appendAIMessage('The AI service is temporarily rate-limited. Please wait a moment and try again.');
+    } else {
+      appendAIMessage('Something went wrong. Please try again.');
+      console.error('Chat error:', err);
+    }
   } finally {
     removeLoadingIndicator();
   }
@@ -151,24 +177,11 @@ async function handleAdvice(text) {
   }
   // compose guidance prompt
   const messages = [
-    { role: 'system', content: 'You are Safi A.I, a concise, friendly sales coach. When asked to advise on an opportunity, respond with 3 short bullet points. Use **bold** for the main action phrase in each bullet and keep each bullet under one sentence. Keep the overall answer under 120 words and well spaced. Do NOT ramble.' },
+    { role: 'system', content: 'You are Safi AI, a professional sales coach integrated into a CRM. Give clear, actionable advice. Use bullet points (- item) for lists, **bold** for key action phrases, and headings only when needed. Keep responses concise and avoid padding.' },
     { role: 'user', content: `Opportunity details:\nName: ${opp.name}\nCompany: ${opp.company_name}\nStage: ${opp.stage}\nValue: ${opp.value}\nProbability: ${opp.probability}\nNotes: ${opp.notes || 'none'}\n\nOffer 3 brief, actionable steps to improve the chances of winning this deal.` }
   ];
-  let reply = await groqChat(messages, 200, 0.7);
-  // convert reply text into HTML list
-  // split on bullet markers or line breaks
-  const lines = reply.split(/\n|•/).map(l => l.trim()).filter(l => l);
-  if (lines.length > 1) {
-    const listItems = lines.map(l => {
-      // convert **bold** markers to <strong>
-      const safe = escapeHtml(l).replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      return `<li>${safe}</li>`;
-    }).join('');
-    const html = `<p>Here are some suggestions:</p><ul>${listItems}</ul>`;
-    appendAIMessageHtml(html);
-  } else {
-    appendAIMessage(reply);
-  }
+  const reply = await groqChat(messages, 200, 0.7);
+  appendAIMessage(reply);
   resetConversation();
 }
 
@@ -443,10 +456,10 @@ async function detectIntent(text) {
 
 async function generateCasualReply(text) {
   const messages = [
-    { role: 'system', content: 'You are a friendly, conversational AI assistant integrated into a CRM. You can chat casually, answer simple questions, and respond in a warm, human-like tone. If the user later wants to create a task, reminder, or opportunity you will steer them that way.' },
+    { role: 'system', content: 'You are Safi AI, an assistant embedded in a professional CRM platform. Be direct, concise, and helpful. When listing items use markdown bullet points (- item) or numbered lists. Use **bold** for important terms. Use headings (## Heading) only when the response has distinct sections. Keep responses focused and avoid unnecessary padding.' },
     { role: 'user', content: text }
   ];
-  const response = await groqChat(messages, 150, 0.7);
+  const response = await groqChat(messages, 200, 0.7);
   return response.trim();
 }
 
@@ -760,56 +773,126 @@ async function resolveUserId(name) {
 }
 
 // ------------------------------------------------------------------
-// UI rendering utilities
+// UI rendering utilities + Markdown renderer – converts Groq markdown responses to safe HTML
 // ------------------------------------------------------------------
+
+function inlineMarkdown(text) {
+  // Escape HTML special chars
+  let s = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+  // Inline code (protect first so bold/italic don't touch it)
+  s = s.replace(/`([^`]+)`/g, (_, c) => `<code>${c}</code>`);
+  // Bold + italic
+  s = s.replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>');
+  // Bold
+  s = s.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // Italic *
+  s = s.replace(/\*([^*\n]+)\*/g, '<em>$1</em>');
+  // Italic _
+  s = s.replace(/_([^_\n]+)_/g, '<em>$1</em>');
+  return s;
+}
+
+function renderMarkdown(rawText) {
+  if (!rawText) return '';
+  const lines = rawText.split('\n');
+  const result = [];
+  let listBuffer = [];
+  let listType = null;
+
+  function flushList() {
+    if (!listBuffer.length) return;
+    const tag = listType;
+    result.push(`<${tag}>${listBuffer.map(i => `<li>${i}</li>`).join('')}</${tag}>`);
+    listBuffer = [];
+    listType = null;
+  }
+
+  for (const raw of lines) {
+    const line = raw.trim();
+
+    if (!line) {
+      flushList();
+      result.push('');
+      continue;
+    }
+
+    // Horizontal rule
+    if (/^---+$/.test(line)) {
+      flushList();
+      result.push('<hr>');
+      continue;
+    }
+
+    // Headings
+    const hm = line.match(/^(#{1,4})\s+(.+)/);
+    if (hm) {
+      flushList();
+      const lvl = Math.min(hm[1].length, 4);
+      result.push(`<h${lvl}>${inlineMarkdown(hm[2])}</h${lvl}>`);
+      continue;
+    }
+
+    // Blockquote
+    if (line.startsWith('> ')) {
+      flushList();
+      result.push(`<blockquote>${inlineMarkdown(line.slice(2))}</blockquote>`);
+      continue;
+    }
+
+    // Unordered list  (-, *, •, +)
+    const ulm = line.match(/^[-*\u2022+]\s+(.+)/);
+    if (ulm) {
+      if (listType && listType !== 'ul') flushList();
+      listType = 'ul';
+      listBuffer.push(inlineMarkdown(ulm[1]));
+      continue;
+    }
+
+    // Ordered list
+    const olm = line.match(/^\d+[.)]\s+(.+)/);
+    if (olm) {
+      if (listType && listType !== 'ol') flushList();
+      listType = 'ol';
+      listBuffer.push(inlineMarkdown(olm[1]));
+      continue;
+    }
+
+    // Normal paragraph line
+    flushList();
+    result.push(`<p>${inlineMarkdown(line)}</p>`);
+  }
+
+  flushList();
+  return result.filter(r => r !== '').join('\n');
+}
 
 function appendUserMessage(text) {
   const container = document.getElementById('ai-chat-messages');
   const msg = document.createElement('div');
   msg.className = 'ai-chat-message user';
-  msg.innerHTML = `<div class="ai-chat-bubble">${escapeHtml(text)}</div>`;
+  msg.innerHTML = `<div class="ai-chat-sender">You</div><div class="ai-chat-bubble">${escapeHtml(text)}</div>`;
   container.appendChild(msg);
   container.scrollTop = container.scrollHeight;
-}
-
-function formatCasualText(text) {
-  let out = text;
-  // convert **bold** to <strong>HTML and separate with newlines
-  out = out.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  // break before any strong block so it appears on new line
-  out = out.replace(/<strong>/g, '\n\n<strong>');
-  // if the model returned a markdown-style table, convert to simple list
-  if (out.includes('|')) {
-    const lines = out.split('\n').map(l => l.trim()).filter(l => l && !/^\|[- ]+\|/.test(l));
-    const cleaned = lines.map(l => l.replace(/\|/g, '').trim()).join('\n');
-    out = cleaned;
-  }
-  // collapse multiple blank lines
-  out = out.replace(/\n{3,}/g, '\n\n');
-  return out.trim();
 }
 
 function appendAIMessage(text) {
   const container = document.getElementById('ai-chat-messages');
   const msg = document.createElement('div');
   msg.className = 'ai-chat-message ai';
-  const formatted = formatCasualText(text);
-  if (formatted.includes('<strong>')) {
-    // already contains HTML, don't escape
-    msg.innerHTML = `<div class="ai-chat-bubble">${formatted}</div>`;
-  } else {
-    msg.innerHTML = `<div class="ai-chat-bubble">${escapeHtml(formatted)}</div>`;
-  }
+  msg.innerHTML = `<div class="ai-chat-sender">Safi AI</div><div class="ai-chat-bubble">${renderMarkdown(text)}</div>`;
   container.appendChild(msg);
   container.scrollTop = container.scrollHeight;
 }
 
-// similar to appendAIMessage but assumes html is safe and not escaped
+// similar to appendAIMessage but assumes html is already safe
 function appendAIMessageHtml(html) {
   const container = document.getElementById('ai-chat-messages');
   const msg = document.createElement('div');
   msg.className = 'ai-chat-message ai';
-  msg.innerHTML = `<div class="ai-chat-bubble">${html}</div>`;
+  msg.innerHTML = `<div class="ai-chat-sender">Safi AI</div><div class="ai-chat-bubble">${html}</div>`;
   container.appendChild(msg);
   container.scrollTop = container.scrollHeight;
 }
@@ -819,7 +902,7 @@ function appendLoadingIndicator() {
   const msg = document.createElement('div');
   msg.className = 'ai-chat-message ai loading';
   msg.id = 'ai-chat-loading';
-  msg.innerHTML = `<div class="ai-chat-bubble"><i class="fas fa-spinner fa-spin"></i> thinking...</div>`;
+  msg.innerHTML = `<div class="ai-chat-sender">Safi AI</div><div class="ai-chat-bubble"><div class="ai-chat-typing-dots"><span></span><span></span><span></span></div></div>`;
   container.appendChild(msg);
   container.scrollTop = container.scrollHeight;
 }
