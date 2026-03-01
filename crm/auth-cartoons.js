@@ -75,6 +75,9 @@
         applyPasswordSkew(scene, true);
         // Close eyes for purple & yellow; orange & dark look away
         closeEyesForPassword();
+        // Orange gets neutral expression
+        const orangeMouth = scene.querySelector('.toon-orange .toon-mouth');
+        if (orangeMouth) orangeMouth.classList.add('neutral');
       });
       passwordInput.addEventListener('blur', () => {
         if (currentState === 'password') {
@@ -83,6 +86,9 @@
           applyPasswordSkew(scene, false);
           // Reset look-away classes
           scene.querySelectorAll('.look-away').forEach((el) => el.classList.remove('look-away'));
+          // Reset orange mouth
+          const orangeMouth = scene.querySelector('.toon-orange .toon-mouth');
+          if (orangeMouth) orangeMouth.classList.remove('neutral');
         }
       });
     }
@@ -92,6 +98,11 @@
       headState.set(toon, { x: 0 });
       scheduleRandomBlink(toon);
       scheduleRandomSmile(toon);
+    });
+
+    // Entrance animation — stagger the 'entered' class
+    requestAnimationFrame(() => {
+      toons.forEach((toon) => toon.classList.add('entered'));
     });
 
     // Start loop
