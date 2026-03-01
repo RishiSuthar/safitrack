@@ -20194,6 +20194,14 @@ function openCallLogModal(log = null) {
     document.querySelectorAll('input[name="call-outcome"]').forEach(r => r.checked = false);
   }
 
+  // Direction radio sync
+  const dirVal = log ? log.direction : 'Outbound';
+  document.getElementById('call-direction').value = dirVal;
+  document.querySelectorAll('input[name="call-direction-radio"]').forEach(r => {
+    r.checked = r.value === dirVal;
+    r.onchange = () => { document.getElementById('call-direction').value = r.value; };
+  });
+
   modal.style.display = 'flex';
 
   // Live Search Handlers
@@ -20227,18 +20235,38 @@ function initCallLogSearch() {
         matches = (window.allCompaniesData || []).filter(c => matchesTokenizedQuery(val, c.name, c.description, c.address)).slice(0, 5);
       }
 
-      let html = matches.map(m => `
-                    <div class="search-result-item" data-id="${m.id}" data-name="${m.name}">
-                      <span class="title">${m.name}</span>
-                      <span class="subtitle">${type === 'people' ? (m.companies?.name || 'N/A') : m.address}</span>
-                    </div>
-    `).join('');
+      let html = matches.map(m => {
+        let avatarHtml;
+        if (type === 'people') {
+          const initials = escapeHtml(getInitials(m.name));
+          avatarHtml = `<div class="opp-suggest-avatar opp-suggest-avatar--person"><span>${initials}</span></div>`;
+        } else {
+          const initials = escapeHtml(getInitials(m.name));
+          const domain = m.website ? m.website.replace(/^https?:\/\//, '').split('/')[0] : null;
+          const logoUrl = domain ? getCompanyLogoUrl(domain) : null;
+          avatarHtml = `<div class="opp-suggest-avatar">
+            ${logoUrl ? `<img class="opp-suggest-logo" src="${logoUrl}" alt="" loading="lazy" onerror="this.style.display='none'">` : ''}
+            <span>${initials}</span>
+          </div>`;
+        }
+        const subtitle = type === 'people'
+          ? escapeHtml(m.companies?.name || m.job_title || '')
+          : escapeHtml(m.address || m.description || '');
+        return `<div class="search-result-item" data-id="${m.id}" data-name="${escapeHtml(m.name)}">
+          ${avatarHtml}
+          <div class="search-result-text">
+            <span class="title">${escapeHtml(m.name)}</span>
+            ${subtitle ? `<span class="subtitle">${subtitle}</span>` : ''}
+          </div>
+        </div>`;
+      }).join('');
 
-      html += `
-                    <div class="search-result-item add-new" data-id="" data-name="${e.target.value}">
-                      <span class="title">Use custom: "${e.target.value}"</span>
-                    </div>
-    `;
+      html += `<div class="search-result-item add-new" data-id="" data-name="${escapeHtml(e.target.value)}">
+        <div class="opp-suggest-avatar opp-suggest-avatar--custom"><span>+</span></div>
+        <div class="search-result-text">
+          <span class="title">Use: "${escapeHtml(e.target.value)}"</span>
+        </div>
+      </div>`;
 
       resultsContainer.innerHTML = html;
       resultsContainer.classList.add('active');
