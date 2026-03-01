@@ -1,677 +1,201 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Help Center - SafiTrack | Support & Knowledge Base</title>
-    <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <style>
-        /* ===================================
-           CSS FROM LANDING.CSS (SHARED STYLES)
-           =================================== */
-        :root {
-            --color-primary: #2f5fd0;
-            --color-primary-dark: #244bb0;
-            --color-primary-light: #7da2f8;
-            --bg-primary: #0f1117;
-            --bg-secondary: #161b22;
-            --bg-tertiary: #1a2027;
-            --bg-elevated: #21262d;
-            --text-primary: #e1e4e8;
-            --text-secondary: #bac4d0;
-            --text-muted: #8b949e;
-            --border-color: #30363d;
-            --border-light: #21262d;
-            --radius-md: 12px;
-            --radius-lg: 14px;
-            --radius-xl: 20px;
-            --transition-base: 200ms ease;
-            --font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font-family);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        ul {
-            list-style: none;
-        }
-
-        .btn-primary,
-        .btn-secondary {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 12px 24px;
-            font-size: 15px;
-            font-weight: 600;
-            border-radius: var(--radius-md);
-            transition: all var(--transition-base);
-            white-space: nowrap;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-primary {
-            background: var(--color-primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--color-primary-dark);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-secondary);
-        }
-
-        /* ===================================
-           HEADER (MATCHES INDEX)
-           =================================== */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            background: rgba(15, 17, 23, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .nav-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 72px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo img {
-            height: 32px;
-        }
-
-        .logo-text {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 32px;
-        }
-
-        .nav-links a {
-            font-size: 15px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            transition: color var(--transition-base);
-        }
-
-        .nav-links a:hover {
-            color: var(--text-primary);
-        }
-
-        /* =================================== 
-           HELP CENTER HERO
-           =================================== */
-        .help-hero {
-            padding: 160px 0 100px;
-            background: radial-gradient(circle at 50% 100%, rgba(47, 95, 208, 0.12), transparent 60%);
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .hero-badge {
-            display: inline-flex;
-            padding: 6px 14px;
-            background: rgba(47, 95, 208, 0.1);
-            border: 1px solid rgba(47, 95, 208, 0.2);
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--color-primary-light);
-            margin-bottom: 24px;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .hero-title {
-            font-size: 48px;
-            font-weight: 800;
-            margin-bottom: 32px;
-            letter-spacing: -0.02em;
-        }
-
-        /* Search Bar */
-        .search-container {
-            max-width: 640px;
-            margin: 0 auto;
-            position: relative;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 18px 24px 18px 56px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-lg);
-            color: var(--text-primary);
-            font-size: 16px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-            transition: all 0.2s ease;
-        }
-
-        .search-input:focus {
-            outline: none;
-            border-color: var(--color-primary);
-            background: var(--bg-tertiary);
-            box-shadow: 0 0 0 4px rgba(47, 95, 208, 0.1);
-        }
-
-        .search-icon {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-        }
-
-        /* =================================== 
-           CATEGORY GRID
-           =================================== */
-        .category-section {
-            padding: 100px 0;
-        }
-
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-        }
-
-        .category-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-xl);
-            padding: 32px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-
-        .category-card:hover {
-            transform: translateY(-4px);
-            border-color: var(--color-primary);
-            background: var(--bg-tertiary);
-        }
-
-        .category-icon {
-            width: 48px;
-            height: 48px;
-            background: rgba(47, 95, 208, 0.1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            color: var(--color-primary-light);
-        }
-
-        .category-card h3 {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .category-card p {
-            font-size: 15px;
-            color: var(--text-secondary);
-        }
-
-        /* =================================== 
-           FEATURED ARTICLES
-           =================================== */
-        .articles-section {
-            padding-bottom: 100px;
-        }
-
-        .section-header {
-            margin-bottom: 48px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-        }
-
-        .section-header h2 {
-            font-size: 28px;
-            font-weight: 800;
-        }
-
-        .view-all {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--color-primary-light);
-        }
-
-        .article-list {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-        }
-
-        .article-item {
-            display: flex;
-            align-items: center;
-            padding: 24px;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            transition: all 0.2s ease;
-        }
-
-        .article-item:hover {
-            border-color: var(--border-light);
-            background: var(--bg-tertiary);
-        }
-
-        .article-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--color-primary);
-            margin-right: 20px;
-        }
-
-        .article-title {
-            font-size: 16px;
-            font-weight: 600;
-            flex: 1;
-        }
-
-        .article-chevron {
-            color: var(--text-muted);
-            opacity: 0.5;
-        }
-
-        /* =================================== 
-           SUPPORT CTA
-           =================================== */
-        .support-cta {
-            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-primary));
-            border: 1px solid var(--border-color);
-            border-radius: 32px;
-            padding: 80px 40px;
-            text-align: center;
-            margin-bottom: 120px;
-        }
-
-        .support-title {
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 16px;
-        }
-
-        .support-desc {
-            color: var(--text-secondary);
-            margin-bottom: 40px;
-            font-size: 18px;
-        }
-
-        .support-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        /* ===================================
-           FOOTER (MATCHES INDEX)
-           =================================== */
-        .footer {
-            padding: 80px 0 40px;
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-            gap: 64px;
-            margin-bottom: 48px;
-        }
-
-        .footer-brand {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .footer-logo-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .footer-logo {
-            height: 28px;
-        }
-
-        .footer-logo-text {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .footer-tagline {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .footer-links {
-            display: grid;
-            grid-template-columns: subgrid;
-            grid-column: 2 / 6;
-            gap: 64px;
-        }
-
-        .footer-column {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .footer-heading {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 16px;
-        }
-
-        .footer-column ul {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .footer-column a {
-            font-size: 14px;
-            color: var(--text-secondary);
-            transition: var(--transition-base);
-        }
-
-        .footer-column a:hover {
-            color: var(--text-primary);
-        }
-
-        .footer-bottom {
-            padding-top: 32px;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .footer-bottom p {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        @media (max-width: 900px) {
-            .nav-links {
-                display: none;
-            }
-
-            .hero-title {
-                font-size: 36px;
-            }
-
-            .category-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .article-list {
-                grid-template-columns: 1fr;
-            }
-
-            .support-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .footer-content {
-                grid-template-columns: 1fr 1fr;
-                gap: 40px;
-            }
-
-            .footer-links {
-                grid-column: 1 / 3;
-                grid-template-columns: 1fr 1fr;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Help Center — SafiTrack</title>
+  <link rel="stylesheet" href="../landing.css">
+  <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
 </head>
-
 <body>
-
-    <!-- Header Navigation -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="nav-content">
-                <a href="../index.html" class="logo">
-                    <img src="../assets/icons/whiteblue.png" alt="SafiTrack">
-                    <span class="logo-text">SafiTrack</span>
-                </a>
-                <div class="nav-links">
-                    <a href="features/mainfeatures.html">Features</a>
-                    <a href="pricing.html">Pricing</a>
-                    <a href="documentation.html">Documentation</a>
-                    <a href="../crm/" class="btn-primary" style="padding: 8px 16px;">Log In</a>
-                </div>
-            </div>
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <div class="nav-content">
+      <div class="nav-left">
+        <a href="../index.html" class="logo">
+          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
+        </a>
+        <div class="nav-links">
+          <a href="features/mainfeatures.html" class="nav-link">Features</a>
+          <a href="pricing.html" class="nav-link">Pricing</a>
         </div>
-    </nav>
-
-    <section class="help-hero">
-        <div class="container">
-            <div class="hero-badge">SafiTrack Support</div>
-            <h1 class="hero-title">How can we help you today?</h1>
-            <div class="search-container">
-                <div class="search-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="11" cy="11" r="8" />
-                        <path d="m21 21-4.3-4.3" />
-                    </svg>
-                </div>
-                <input type="text" class="search-input" placeholder="Search for articles, guides, and tutorials...">
-            </div>
-        </div>
-    </section>
-
-    <div class="container">
-        <!-- Categories -->
-        <section class="category-section">
-            <div class="category-grid">
-                <div class="category-card">
-                    <div class="category-icon">🚀</div>
-                    <h3>Getting Started</h3>
-                    <p>New to SafiTrack? Here's everything you need to know to hit the ground running.</p>
-                </div>
-                <div class="category-card">
-                    <div class="category-icon">📱</div>
-                    <h3>Field Operations</h3>
-                    <p>Guides for technicians and sales reps using the mobile application in the field.</p>
-                </div>
-                <div class="category-card">
-                    <div class="category-icon">⚙️</div>
-                    <h3>Administration</h3>
-                    <p>Setup users, permissions, territories, and customize your organization settings.</p>
-                </div>
-                <div class="category-card">
-                    <div class="category-icon">📊</div>
-                    <h3>Reporting & AI</h3>
-                    <p>Master our advanced analytics and predictive lead scoring engine.</p>
-                </div>
-                <div class="category-card">
-                    <div class="category-icon">💳</div>
-                    <h3>Billing & Plans</h3>
-                    <p>Manage your subscription, invoices, and per-user licensing details.</p>
-                </div>
-                <div class="category-card">
-                    <div class="category-icon">🔌</div>
-                    <h3>Integrations</h3>
-                    <p>Connect SafiTrack with Salesforce, HubSpot, SAP, and other enterprise tools.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Featured Articles -->
-        <section class="articles-section">
-            <div class="section-header">
-                <h2>Popular Articles</h2>
-                <a href="#" class="view-all">View all 148 articles →</a>
-            </div>
-            <div class="article-list">
-                <a href="#" class="article-item">
-                    <div class="article-dot"></div>
-                    <span class="article-title">How to perform your first field check-in</span>
-                    <span class="article-chevron">→</span>
-                </a>
-                <a href="#" class="article-item">
-                    <div class="article-dot"></div>
-                    <span class="article-title">Setting up geofencing for automatic visit verification</span>
-                    <span class="article-chevron">→</span>
-                </a>
-                <a href="#" class="article-item">
-                    <div class="article-dot"></div>
-                    <span class="article-title">Importing your company records from CSV</span>
-                    <span class="article-chevron">→</span>
-                </a>
-                <a href="#" class="article-item">
-                    <div class="article-dot"></div>
-                    <span class="article-title">Troubleshooting location accuracy issues</span>
-                    <span class="article-chevron">→</span>
-                </a>
-                <a href="#" class="article-item">
-                    <div class="article-dot"></div>
-                    <span class="article-title">Customizing the sales funnel for your business</span>
-                    <span class="article-chevron">→</span>
-                </a>
-                <a href="#" class="article-item">
-                    <div class="article-dot"></div>
-                    <span class="article-title">Managing offline sync for remote areas</span>
-                    <span class="article-chevron">→</span>
-                </a>
-            </div>
-        </section>
-
-        <!-- Support CTA -->
-        <section class="support-cta">
-            <h2 class="support-title">Still need help?</h2>
-            <p class="support-desc">Our dedicated support team is available 24/7 for Enterprise customers.</p>
-            <div class="support-grid">
-                <a href="mailto:support@safitrack.com" class="btn-primary">Email Support</a>
-                <a href="#" class="btn-secondary">Live Chat</a>
-            </div>
-        </section>
+      </div>
+      <div class="nav-actions">
+        <a href="/crm/" class="nav-link-sign-in">Sign in</a>
+        <a href="pricing.html" class="btn-hero-primary">Start for free</a>
+      </div>
+      <button class="mobile-menu-btn" aria-label="Toggle Menu">
+        <span></span><span></span>
+      </button>
     </div>
+  </div>
+</nav>
+<div class="mobile-nav-overlay">
+  <button class="mobile-close-btn" aria-label="Close">
+    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+  </button>
+  <div class="mobile-nav-content">
+    <a href="features/mainfeatures.html" class="mobile-link">Features</a>
+    <a href="pricing.html" class="mobile-link">Pricing</a>
+    <hr class="mobile-divider">
+    <a href="/crm/" class="mobile-link">Sign in</a>
+    <a href="pricing.html" class="btn-primary btn-block" style="text-align:center;margin-top:8px">Start for free</a>
+  </div>
+</div>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="footer-logo-wrapper">
-                        <img src="../assets/icons/whiteblue.png" alt="SafiTrack" class="footer-logo">
-                        <span class="footer-logo-text">SafiTrack</span>
-                    </div>
-                    <p class="footer-tagline">Modern CRM platform built for<br>high-performing sales teams</p>
-                </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Product</h4>
-                        <ul>
-                            <li><a href="features/mainfeatures.html">Features</a></li>
-                            <li><a href="pricing.html">Pricing</a></li>
-                            <li><a href="../crm/">Login</a></li>
-                            <li><a href="#">Integrations</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Company</h4>
-                        <ul>
-                            <li><a href="#">About</a></li>
-                            <li><a href="blog.html">Blog</a></li>
-                            <li><a href="careers.html">Careers</a></li>
-                            <li><a href="#">Contact</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Resources</h4>
-                        <ul>
-                            <li><a href="documentation.html">Documentation</a></li>
-                            <li><a href="helpcenter.html">Help Center</a></li>
-                            <li><a href="#">API Reference</a></li>
-                            <li><a href="status.html">Status</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Legal</h4>
-                        <ul>
-                            <li><a href="legal/privacy.html">Privacy Policy</a></li>
-                            <li><a href="legal/terms.html">Terms of Service</a></li>
-                            <li><a href="#">Security</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-                <div class="footer-social">
-                    <a href="#" aria-label="Twitter">Twitter</a>
-                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
-                    <a href="#" aria-label="GitHub">GitHub</a>
-                </div>
-            </div>
+<style>
+.hc-hero{padding:120px 0 72px;text-align:center;background:#0b1220}
+.hc-hero h1{font-size:clamp(2rem,4vw,2.8rem);font-weight:800;color:#fff;margin-bottom:16px}
+.hc-hero p{font-size:17px;color:#9ca3af;margin-bottom:32px}
+.search-wrap{max-width:480px;margin:0 auto;position:relative}
+.search-wrap input{width:100%;border:none;border-radius:10px;padding:14px 20px;font-size:16px;font-family:inherit;color:#0b1220;box-sizing:border-box}
+.search-wrap svg{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:#9ca3af}
+.cats-section{padding:72px 0;background:#fff}
+.section-label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6b7280;margin-bottom:12px;text-align:center}
+.section-title{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;color:#0b1220;text-align:center;margin-bottom:48px}
+.cats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
+.cat-card{border:1px solid #e6e9ef;border-radius:12px;padding:32px 24px;text-align:center;cursor:pointer;transition:all .15s}
+.cat-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-2px);border-color:#0b1220}
+.cat-card .icon{font-size:32px;margin-bottom:12px}
+.cat-card h3{font-size:16px;font-weight:700;color:#0b1220;margin-bottom:6px}
+.cat-card p{font-size:13px;color:#6b7280}
+.articles-section{padding:72px 0;background:#fafafa;border-top:1px solid #e6e9ef}
+.articles-list{max-width:720px;margin:0 auto}
+.article-row{display:flex;align-items:center;justify-content:space-between;padding:18px 0;border-bottom:1px solid #e6e9ef;cursor:pointer;transition:opacity .12s}
+.article-row:hover{opacity:.7}
+.article-row:last-child{border-bottom:none}
+.article-title{font-size:15px;font-weight:600;color:#0b1220}
+.article-tag{font-size:12px;color:#9ca3af;margin-top:4px}
+.support-band{background:#0b1220;border-radius:16px;padding:56px 48px;text-align:center;margin:0 0 80px}
+.support-band h2{font-size:1.8rem;font-weight:800;color:#fff;margin-bottom:10px}
+.support-band p{color:#9ca3af;font-size:16px;margin-bottom:28px}
+</style>
+
+<section class="hc-hero">
+  <div class="container">
+    <h1>How can we help?</h1>
+    <p>Search our knowledge base or browse categories below.</p>
+    <div class="search-wrap">
+      <input type="search" placeholder="Search articles…">
+      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35"/></svg>
+    </div>
+  </div>
+</section>
+
+<section class="cats-section">
+  <div class="container">
+    <div class="section-label">Browse</div>
+    <h2 class="section-title">Topics</h2>
+    <div class="cats-grid">
+      <div class="cat-card"><div class="icon">🚀</div><h3>Getting Started</h3><p>Account setup and onboarding guides</p></div>
+      <div class="cat-card"><div class="icon">👤</div><h3>Contacts &amp; CRM</h3><p>Managing people, companies and deals</p></div>
+      <div class="cat-card"><div class="icon">📍</div><h3>Field Visits</h3><p>Logging visits, GPS and check-ins</p></div>
+      <div class="cat-card"><div class="icon">🗺️</div><h3>Route Plans</h3><p>Building and optimising daily routes</p></div>
+      <div class="cat-card"><div class="icon">🤖</div><h3>Intelligence Hub</h3><p>AI summaries, insights and coaching</p></div>
+      <div class="cat-card"><div class="icon">🔗</div><h3>Integrations</h3><p>Connecting third-party apps and APIs</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="articles-section">
+  <div class="container">
+    <div class="section-label">Popular</div>
+    <h2 class="section-title">Frequently asked</h2>
+    <div class="articles-list">
+      <div class="article-row"><div><div class="article-title">How do I import contacts from a CSV file?</div><div class="article-tag">Getting Started</div></div><svg width="16" height="16" fill="none" stroke="#9ca3af" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></div>
+      <div class="article-row"><div><div class="article-title">Setting up GPS tracking for field reps</div><div class="article-tag">Field Visits</div></div><svg width="16" height="16" fill="none" stroke="#9ca3af" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></div>
+      <div class="article-row"><div><div class="article-title">How to create and assign route plans</div><div class="article-tag">Route Plans</div></div><svg width="16" height="16" fill="none" stroke="#9ca3af" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></div>
+      <div class="article-row"><div><div class="article-title">Connecting SafiTrack to Google Sheets</div><div class="article-tag">Integrations</div></div><svg width="16" height="16" fill="none" stroke="#9ca3af" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></div>
+      <div class="article-row"><div><div class="article-title">Understanding Intelligence Hub AI insights</div><div class="article-tag">Intelligence Hub</div></div><svg width="16" height="16" fill="none" stroke="#9ca3af" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></div>
+      <div class="article-row"><div><div class="article-title">Managing user roles and permissions</div><div class="article-tag">Account</div></div><svg width="16" height="16" fill="none" stroke="#9ca3af" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></div>
+    </div>
+  </div>
+</section>
+
+<section style="background:#fff;padding:0 0 80px">
+  <div class="container">
+    <div class="support-band">
+      <h2>Still need help?</h2>
+      <p>Our support team typically responds within 2 business hours.</p>
+      <a href="mailto:support@safitrack.com" class="btn-hero-primary" style="background:#fff;color:#0b1220">Email support</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="footer-logo-wrapper">
+          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
         </div>
-    </footer>
+        <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp; sales CRM built for modern teams.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-column">
+          <h4 class="footer-heading">Product</h4>
+          <ul>
+            <li><a href="features/mainfeatures.html">Features</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="/crm/">Login</a></li>
+            <li><a href="integrations.html">Integrations</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4 class="footer-heading">Company</h4>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="careers.html">Careers</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4 class="footer-heading">Resources</h4>
+          <ul>
+            <li><a href="documentation.html">Documentation</a></li>
+            <li><a href="helpcenter.html">Help Center</a></li>
+            <li><a href="apireference.html">API Reference</a></li>
+            <li><a href="status.html">Status</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4 class="footer-heading">Legal</h4>
+          <ul>
+            <li><a href="legal/privacy.html">Privacy Policy</a></li>
+            <li><a href="legal/terms.html">Terms of Service</a></li>
+            <li><a href="#">Security</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+      <div class="footer-social">
+        <a href="#">Twitter</a>
+        <a href="#">LinkedIn</a>
+        <a href="#">GitHub</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+(function(){
+  var mb=document.querySelector('.mobile-menu-btn'),
+      mo=document.querySelector('.mobile-nav-overlay'),
+      mc=document.querySelector('.mobile-close-btn');
+  if(mb&&mo){
+    mb.addEventListener('click',function(){mo.classList.add('active');});
+    if(mc)mc.addEventListener('click',function(){mo.classList.remove('active');});
+    mo.addEventListener('click',function(e){if(e.target===mo)mo.classList.remove('active');});
+  }
+  window.addEventListener('scroll',function(){
+    var nb=document.getElementById('navbar');
+    if(nb)nb.classList.toggle('scrolled',window.scrollY>20);
+  });
+})();
+</script>
 </body>
-
 </html>

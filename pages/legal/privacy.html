@@ -1,677 +1,180 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy - SafiTrack</title>
-    <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <style>
-        /* ===================================
-           SAFITRACK LANDING PAGE - PROFESSIONAL
-           Dark Mode | Clean Design | No Gradients
-           =================================== */
-
-        :root {
-            /* CRM Colors */
-            --color-primary: #2f5fd0;
-            --color-primary-dark: #244bb0;
-            --color-primary-light: #7da2f8;
-
-            /* Dark Theme Backgrounds */
-            --bg-primary: #0f1117;
-            --bg-secondary: #161b22;
-            --bg-tertiary: #1a2027;
-            --bg-elevated: #21262d;
-
-            /* Text */
-            --text-primary: #e1e4e8;
-            --text-secondary: #bac4d0;
-            --text-muted: #8b949e;
-
-            /* Borders */
-            --border-color: #30363d;
-            --border-light: #21262d;
-
-            /* Shadows */
-            --shadow-sm: 0 1px 0 rgba(255, 255, 255, 0.01);
-            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
-            --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.4);
-            --shadow-xl: 0 20px 48px rgba(0, 0, 0, 0.5);
-
-            /* Spacing */
-            --spacing-unit: 8px;
-
-            /* Border Radius */
-            --radius-sm: 6px;
-            --radius-md: 12px;
-            --radius-lg: 14px;
-            --radius-xl: 20px;
-
-            /* Transitions */
-            --transition-fast: 120ms ease;
-            --transition-base: 200ms ease;
-            --transition-slow: 300ms ease;
-
-            /* Typography */
-            --font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        /* ===================================
-           RESET
-           =================================== */
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        body {
-            font-family: var(--font-family);
-            font-size: 16px;
-            line-height: 1.6;
-            color: var(--text-primary);
-            background: var(--bg-primary);
-            overflow-x: hidden;
-        }
-
-        img {
-            max-width: 100%;
-            display: block;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        button {
-            font-family: inherit;
-            cursor: pointer;
-            border: none;
-            background: none;
-        }
-
-        ul {
-            list-style: none;
-        }
-
-        /* ===================================
-           UTILITIES
-           =================================== */
-
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-
-        /* ===================================
-           BUTTONS
-           =================================== */
-
-        .btn-primary,
-        .btn-secondary {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 20px;
-            font-size: 15px;
-            font-weight: 600;
-            border-radius: var(--radius-md);
-            transition: all var(--transition-base);
-            white-space: nowrap;
-        }
-
-        .btn-primary {
-            background: var(--color-primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--color-primary-dark);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-secondary);
-            border-color: var(--border-color);
-        }
-
-        .btn-lg {
-            padding: 14px 28px;
-            font-size: 16px;
-        }
-
-        .btn-block {
-            width: 100%;
-        }
-
-        /* ===================================
-           NAVBAR
-           =================================== */
-
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            background: rgba(15, 17, 23, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .nav-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 72px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo img {
-            height: 32px;
-            width: auto;
-        }
-
-        .logo-text {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-primary);
-            letter-spacing: -0.01em;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 32px;
-        }
-
-        .nav-links a {
-            font-size: 15px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            transition: color var(--transition-base);
-        }
-
-        .nav-links a:hover {
-            color: var(--text-primary);
-        }
-
-        .nav-links .nav-link-app {
-            color: var(--color-primary);
-        }
-
-        .nav-actions {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        /* ===================================
-           LEGAL PAGE CONTENT
-           =================================== */
-
-        .legal-page {
-            padding: 160px 0 80px;
-            background: var(--bg-primary);
-        }
-
-        .legal-header {
-            margin-bottom: 48px;
-        }
-
-        .legal-title {
-            font-size: 48px;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            color: var(--text-primary);
-            margin-bottom: 16px;
-        }
-
-        .legal-subtitle {
-            font-size: 18px;
-            color: var(--text-secondary);
-            max-width: 800px;
-        }
-
-        .legal-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .legal-section {
-            margin-bottom: 48px;
-        }
-
-        .legal-section h2 {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 16px;
-        }
-
-        .legal-section h3 {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 24px 0 12px;
-        }
-
-        .legal-section p {
-            font-size: 16px;
-            line-height: 1.7;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-
-        .legal-section ul {
-            margin: 16px 0 16px 24px;
-        }
-
-        .legal-section li {
-            font-size: 16px;
-            line-height: 1.7;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-            list-style-type: disc;
-        }
-
-        .legal-section a {
-            color: var(--color-primary);
-            text-decoration: underline;
-        }
-
-        .legal-section a:hover {
-            color: var(--color-primary-light);
-        }
-
-        .last-updated {
-            font-size: 14px;
-            color: var(--text-muted);
-            font-style: italic;
-            margin-top: 48px;
-        }
-
-        /* ===================================
-           FOOTER
-           =================================== */
-
-        .footer {
-            padding: 80px 0 40px;
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-            gap: 64px;
-            margin-bottom: 48px;
-        }
-
-        .footer-brand {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .footer-logo-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .footer-logo {
-            height: 28px;
-            width: auto;
-        }
-
-        .footer-logo-text {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .footer-tagline {
-            font-size: 14px;
-            line-height: 1.6;
-            color: var(--text-secondary);
-        }
-
-        .footer-links {
-            display: grid;
-            grid-template-columns: subgrid;
-            grid-column: 2 / 6;
-            gap: 64px;
-        }
-
-        .footer-column {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .footer-heading {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 16px;
-        }
-
-        .footer-column ul {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .footer-column a {
-            font-size: 14px;
-            color: var(--text-secondary);
-            transition: color var(--transition-base);
-        }
-
-        .footer-column a:hover {
-            color: var(--text-primary);
-        }
-
-        .footer-bottom {
-            padding-top: 32px;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .footer-bottom p {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        .footer-social {
-            display: flex;
-            gap: 24px;
-        }
-
-        .footer-social a {
-            font-size: 14px;
-            color: var(--text-secondary);
-            transition: color var(--transition-base);
-        }
-
-        .footer-social a:hover {
-            color: var(--text-primary);
-        }
-
-        /* ===================================
-           MOBILE RESPONSIVENESS
-           =================================== */
-
-        @media (max-width: 1024px) {
-            .legal-title {
-                font-size: 40px;
-            }
-
-            .footer-content {
-                grid-template-columns: 1fr 1fr;
-                gap: 40px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .legal-page {
-                padding: 120px 0 60px;
-            }
-
-            .legal-title {
-                font-size: 32px;
-            }
-
-            .legal-section h2 {
-                font-size: 24px;
-            }
-
-            .footer-content {
-                grid-template-columns: 1fr;
-                gap: 32px;
-            }
-
-            .footer-bottom {
-                flex-direction: column;
-                gap: 16px;
-                text-align: center;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Privacy Policy — SafiTrack</title>
+  <link rel="stylesheet" href="../../landing.css">
+  <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
 </head>
-
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="nav-content">
-                <a href="../../index.html" class="logo">
-                    <img src="../../assets/icons/whiteblue.png" alt="SafiTrack">
-                    <span class="logo-text">SafiTrack</span>
-                </a>
-
-                <!-- Desktop Links -->
-                <div class="nav-links">
-                    <a href="../features/mainfeatures.html">Features</a>
-                    <a href="../../index.html#product">Product</a>
-                    <a href="../pricing.html">Pricing</a>
-                    <a href="../../crm/" class="nav-link-app">Open App →</a>
-                </div>
-                <div class="nav-actions">
-                    <a href="../../index.html#pricing" class="btn-primary">Get Started</a>
-                </div>
-            </div>
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <div class="nav-content">
+      <div class="nav-left">
+        <a href="../../index.html" class="logo">
+          <img src="../../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
+        </a>
+        <div class="nav-links">
+          <a href="../features/mainfeatures.html" class="nav-link">Features</a>
+          <a href="../pricing.html" class="nav-link">Pricing</a>
         </div>
-    </nav>
+      </div>
+      <div class="nav-actions">
+        <a href="/crm/" class="nav-link-sign-in">Sign in</a>
+        <a href="../pricing.html" class="btn-hero-primary">Start for free</a>
+      </div>
+      <button class="mobile-menu-btn" aria-label="Toggle Menu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+<div class="mobile-nav-overlay">
+  <button class="mobile-close-btn" aria-label="Close">
+    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+  </button>
+  <div class="mobile-nav-content">
+    <a href="../features/mainfeatures.html" class="mobile-link">Features</a>
+    <a href="../pricing.html" class="mobile-link">Pricing</a>
+    <hr class="mobile-divider">
+    <a href="/crm/" class="mobile-link">Sign in</a>
+    <a href="../pricing.html" class="btn-primary btn-block" style="text-align:center;margin-top:8px">Start for free</a>
+  </div>
+</div>
 
-    <!-- Legal Page Content -->
-    <section class="legal-page">
-        <div class="container">
-            <div class="legal-header">
-                <h1 class="legal-title">Privacy Policy</h1>
-                <p class="legal-subtitle">At SafiTrack, we're committed to protecting your privacy and ensuring the
-                    security of your data. This Privacy Policy explains how we collect, use, and safeguard your
-                    information.</p>
-            </div>
+<style>
+.legal-hero{padding:120px 0 56px;background:#fafafa;border-bottom:1px solid #e6e9ef;text-align:center}
+.legal-hero h1{font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;color:#0b1220;margin-bottom:12px}
+.legal-hero p{font-size:16px;color:#9ca3af}
+.legal-layout{max-width:760px;margin:0 auto;padding:64px 24px 80px}
+.legal-layout h2{font-size:1.15rem;font-weight:700;color:#0b1220;margin:40px 0 12px}
+.legal-layout p,.legal-layout li{font-size:15px;color:#4b5563;line-height:1.8;margin-bottom:12px}
+.legal-layout ul{padding-left:20px}
+.legal-layout a{color:#0b1220;font-weight:600}
+</style>
 
-            <div class="legal-content">
-                <div class="legal-section">
-                    <h2>Information We Collect</h2>
-                    <p>We collect information to provide better services to all our users. The types of information we
-                        collect include:</p>
-                    <ul>
-                        <li>Account information: When you create an account, we collect your name, email address, job
-                            title, company name, and other relevant professional information.</li>
-                        <li>Usage data: We collect information about how you use our services, including features
-                            accessed, time spent, and interaction patterns.</li>
-                        <li>Communications: We record communications you send through our platform, including emails,
-                            notes, and other messages.</li>
-                        <li>Device information: We collect information about the devices you use to access our services,
-                            including hardware model, operating system, and unique device identifiers.</li>
-                        <li>Location data: With your consent, we may collect location information to provide features
-                            like route planning and field team management.</li>
-                    </ul>
-                </div>
+<section class="legal-hero">
+  <div class="container">
+    <h1>Privacy Policy</h1>
+    <p>Last updated: January 1, 2023</p>
+  </div>
+</section>
 
-                <div class="legal-section">
-                    <h2>How We Use Your Information</h2>
-                    <p>We use the information we collect to provide, maintain, and improve our services, including to:
-                    </p>
-                    <ul>
-                        <li>Process transactions and send related information</li>
-                        <li>Provide customer support and respond to your inquiries</li>
-                        <li>Develop new features and services</li>
-                        <li>Monitor and analyze trends and usage</li>
-                        <li>Detect, prevent, and address technical issues</li>
-                        <li>Personalize your experience and deliver content relevant to your interests</li>
-                    </ul>
-                </div>
+<div class="legal-layout">
+  <p>SafiTrack ("we", "our", "us") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, disclose, and safeguard your information when you use our platform.</p>
 
-                <div class="legal-section">
-                    <h2>Information Sharing</h2>
-                    <p>We do not sell, trade, or otherwise transfer your personal information to third parties without
-                        your consent, except in the following circumstances:</p>
-                    <ul>
-                        <li>With service providers who assist in operating our business, such as payment processors and
-                            hosting services</li>
-                        <li>When required by law, court order, or other governmental authority</li>
-                        <li>In connection with a merger, acquisition, or sale of assets, in which case we will notify
-                            you before your personal information is transferred</li>
-                        <li>To protect our rights, privacy, safety, or property, or that of our users or the public</li>
-                    </ul>
-                </div>
+  <h2>1. Information We Collect</h2>
+  <p>We collect information you provide directly (name, email, company details), information gathered automatically (IP address, device info, usage logs, GPS coordinates for field reps with location services enabled), and information from third-party integrations you connect.</p>
 
-                <div class="legal-section">
-                    <h2>Data Security</h2>
-                    <p>We implement appropriate technical and organizational measures to protect your personal
-                        information against unauthorized access, alteration, disclosure, or destruction. These measures
-                        include:</p>
-                    <ul>
-                        <li>Encryption of data in transit and at rest</li>
-                        <li>Regular security assessments and vulnerability testing</li>
-                        <li>Access controls and authentication mechanisms</li>
-                        <li>Employee training on privacy and security practices</li>
-                    </ul>
-                </div>
+  <h2>2. How We Use Your Information</h2>
+  <ul>
+    <li>To provide, operate, and maintain our services</li>
+    <li>To improve and personalise your experience</li>
+    <li>To communicate with you about updates, security alerts and support</li>
+    <li>To process transactions and send related information</li>
+    <li>To comply with legal obligations</li>
+  </ul>
 
-                <div class="legal-section">
-                    <h2>Your Rights</h2>
-                    <p>Depending on your location, you may have the following rights regarding your personal
-                        information:</p>
-                    <ul>
-                        <li>Access: You can request a copy of the personal information we hold about you</li>
-                        <li>Correction: You can request that we correct inaccurate or incomplete information</li>
-                        <li>Deletion: You can request that we delete your personal information, subject to certain legal
-                            obligations</li>
-                        <li>Portability: You can request a copy of your information in a structured, machine-readable
-                            format</li>
-                        <li>Objection: You can object to our use of your personal information for certain purposes</li>
-                    </ul>
-                </div>
+  <h2>3. Sharing of Information</h2>
+  <p>We do not sell your personal data. We may share data with trusted service providers (e.g. Supabase for database hosting, Groq for AI processing) who are contractually bound to protect your data and use it only for specified purposes.</p>
 
-                <div class="legal-section">
-                    <h2>International Data Transfers</h2>
-                    <p>Your personal information may be transferred to, and maintained on, computers located outside of
-                        your state, province, country or other governmental jurisdiction where the data protection laws
-                        may differ from those of your jurisdiction. If we transfer your personal information outside of
-                        your country, we will ensure that appropriate safeguards are in place to protect your privacy.
-                    </p>
-                </div>
+  <h2>4. Data Retention</h2>
+  <p>We retain your data for as long as your account is active or as needed to provide services. You may request deletion at any time by contacting <a href="mailto:privacy@safitrack.com">privacy@safitrack.com</a>.</p>
 
-                <div class="legal-section">
-                    <h2>Children's Privacy</h2>
-                    <p>Our services are not intended for children under the age of 13. We do not knowingly collect
-                        personally identifiable information from children under 13. If you are a parent or guardian and
-                        you are aware that your child has provided us with personal information, please contact us so
-                        that we can delete such information.</p>
-                </div>
+  <h2>5. Security</h2>
+  <p>We implement industry-standard security measures including TLS in transit, AES-256 encryption at rest, row-level security on all database tables, and regular security audits.</p>
 
-                <div class="legal-section">
-                    <h2>Changes to This Privacy Policy</h2>
-                    <p>We may update our Privacy Policy from time to time. We will notify you of any changes by posting
-                        the new Privacy Policy on this page and updating the "Last updated" date at the bottom of this
-                        policy.</p>
-                </div>
+  <h2>6. Cookies</h2>
+  <p>We use essential cookies for authentication and session management. We do not use advertising or cross-site tracking cookies. You may disable non-essential cookies in your browser settings.</p>
 
-                <div class="legal-section">
-                    <h2>Contact Us</h2>
-                    <p>If you have any questions about this Privacy Policy or our data practices, please contact us at:
-                    </p>
-                    <p>Email: privacy@safitrack.com<br>
-                        Address: SafiTrack Privacy Team, 123 Tech Street, San Francisco, CA 94105</p>
-                </div>
+  <h2>7. International Transfers</h2>
+  <p>Your data may be transferred to and maintained on servers located outside your country. By using SafiTrack, you consent to such transfers in accordance with this policy.</p>
 
-                <p class="last-updated">Last updated: January 1, 2023</p>
-            </div>
+  <h2>8. Your Rights</h2>
+  <p>Depending on your jurisdiction you may have the right to access, correct, port, or delete your personal data. To exercise any of these rights please email <a href="mailto:privacy@safitrack.com">privacy@safitrack.com</a>.</p>
+
+  <h2>9. Changes to This Policy</h2>
+  <p>We may update this Privacy Policy from time to time. We will notify you of material changes via email or a notice in the app at least 14 days before the changes take effect.</p>
+
+  <h2>Contact Us</h2>
+  <p>If you have questions about this Privacy Policy, please contact us at <a href="mailto:privacy@safitrack.com">privacy@safitrack.com</a>.</p>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="footer-logo-wrapper">
+          <img src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
         </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="footer-logo-wrapper">
-                        <img src="../../assets/icons/whiteblue.png" alt="SafiTrack" class="footer-logo">
-                        <span class="footer-logo-text">SafiTrack</span>
-                    </div>
-                    <p class="footer-tagline">Modern CRM platform built for<br>high-performing sales teams</p>
-                </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Product</h4>
-                        <ul>
-                            <li><a href="../features/mainfeatures.html">Features</a></li>
-                            <li><a href="../pricing.html">Pricing</a></li>
-                            <li><a href="../../index.html">Login</a></li>
-                            <li><a href="#">Integrations</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Company</h4>
-                        <ul>
-                            <li><a href="#">About</a></li>
-                            <li><a href="../blog.html">Blog</a></li>
-                            <li><a href="../careers.html">Careers</a></li>
-                            <li><a href="#">Contact</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Resources</h4>
-                        <ul>
-                            <li><a href="../documentation.html">Documentation</a></li>
-                            <li><a href="../helpcenter.html">Help Center</a></li>
-                            <li><a href="#">API Reference</a></li>
-                            <li><a href="../status.html">Status</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Legal</h4>
-                        <ul>
-                            <li><a href="privacy.html">Privacy Policy</a></li>
-                            <li><a href="terms.html">Terms of Service</a></li>
-                            <li><a href="#">Security</a></li>
-                            <li><a href="#">GDPR</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-                <div class="footer-social">
-                    <a href="#" aria-label="Twitter">Twitter</a>
-                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
-                    <a href="#" aria-label="GitHub">GitHub</a>
-                </div>
-            </div>
+        <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp; sales CRM built for modern teams.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-column">
+          <h4 class="footer-heading">Product</h4>
+          <ul>
+            <li><a href="../features/mainfeatures.html">Features</a></li>
+            <li><a href="../pricing.html">Pricing</a></li>
+            <li><a href="/crm/">Login</a></li>
+            <li><a href="../integrations.html">Integrations</a></li>
+          </ul>
         </div>
-    </footer>
+        <div class="footer-column">
+          <h4 class="footer-heading">Company</h4>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="../blog.html">Blog</a></li>
+            <li><a href="../careers.html">Careers</a></li>
+            <li><a href="#">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4 class="footer-heading">Resources</h4>
+          <ul>
+            <li><a href="../documentation.html">Documentation</a></li>
+            <li><a href="../helpcenter.html">Help Center</a></li>
+            <li><a href="../apireference.html">API Reference</a></li>
+            <li><a href="../status.html">Status</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4 class="footer-heading">Legal</h4>
+          <ul>
+            <li><a href="../legal/privacy.html">Privacy Policy</a></li>
+            <li><a href="../legal/terms.html">Terms of Service</a></li>
+            <li><a href="#">Security</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+      <div class="footer-social">
+        <a href="#">Twitter</a>
+        <a href="#">LinkedIn</a>
+        <a href="#">GitHub</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+(function(){
+  var mb=document.querySelector('.mobile-menu-btn'),
+      mo=document.querySelector('.mobile-nav-overlay'),
+      mc=document.querySelector('.mobile-close-btn');
+  if(mb&&mo){
+    mb.addEventListener('click',function(){mo.classList.add('active');});
+    if(mc)mc.addEventListener('click',function(){mo.classList.remove('active');});
+    mo.addEventListener('click',function(e){if(e.target===mo)mo.classList.remove('active');});
+  }
+  window.addEventListener('scroll',function(){
+    var nb=document.getElementById('navbar');
+    if(nb)nb.classList.toggle('scrolled',window.scrollY>20);
+  });
+})();
+</script>
 </body>
-
 </html>
