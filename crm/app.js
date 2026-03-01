@@ -6914,43 +6914,49 @@ function getSafiNudgeModal() {
   modal.style.display = 'none';
   modal.innerHTML = `
     <div class="modal-backdrop"></div>
-    <div class="modal-container safi-nudge-modal-container">
-      <div class="modal-header">
-        <h3><i data-lucide="sparkles"></i> Send SafiNudge</h3>
-        <button class="modal-close" type="button" id="safi-nudge-close" aria-label="Close">×</button>
+    <div class="modal-container snc-container">
+
+      <div class="snc-hero">
+        <button class="snc-close" type="button" id="safi-nudge-close" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+        <img class="snc-bot" src="${SAFI_NUDGE_BOT_GIF}" alt="" loading="eager" decoding="async">
+        <div class="snc-hero-title">Nudge a teammate</div>
+        <div class="snc-hero-sub">Send a little something. No reason needed.</div>
       </div>
-      <div class="modal-body">
-        <div class="safi-nudge-composer-hero">
-          <img class="safi-nudge-composer-bot" src="${SAFI_NUDGE_BOT_GIF}" alt="SafiNudge Bot" loading="eager" decoding="async">
-          <div class="safi-nudge-composer-copy">
-            <div class="safi-nudge-composer-title">Time to send good vibes ✨</div>
-            <div class="safi-nudge-composer-subtitle">Tiny note, big smile. Just fun human energy.</div>
-            <div class="safi-nudge-composer-tip">🤖 SafiBot tip: Say something that would make you grin too.</div>
-          </div>
-        </div>
-        <div class="form-field safi-nudge-field">
-          <label>Who gets the sparkle?</label>
-          <select id="safi-nudge-target-select">
-            <option value="">Loading teammates…</option>
+
+      <div class="snc-body">
+
+        <div class="snc-to-row">
+          <span class="snc-to-badge">To</span>
+          <select id="safi-nudge-target-select" class="snc-select">
+            <option value="">Pick a teammate…</option>
           </select>
         </div>
-        <div class="form-field safi-nudge-field">
-          <label>Your hype line</label>
-          <textarea id="safi-nudge-message" rows="3" maxlength="160" placeholder="Type a tiny fun note…"></textarea>
-          <div class="safi-nudge-counter"><span id="safi-nudge-count">0</span>/160</div>
+
+        <div class="snc-message-wrap">
+          <textarea id="safi-nudge-message" class="snc-textarea" rows="3" maxlength="160" placeholder="What do you want them to know?"></textarea>
+          <div class="snc-counter"><span id="safi-nudge-count">0</span> / 160</div>
         </div>
-        <div class="safi-nudge-quick-row">
-          <button type="button" class="btn btn-ghost btn-sm safi-nudge-quick" data-msg="hey bestie">👯 hey bestie</button>
-          <button type="button" class="btn btn-ghost btn-sm safi-nudge-quick" data-msg="hello human">🤖 hello human</button>
-          <button type="button" class="btn btn-ghost btn-sm safi-nudge-quick" data-msg="sending vibes">✨ sending vibes</button>
-          <button type="button" class="btn btn-ghost btn-sm safi-nudge-quick" data-msg="truly impressive">🌟 truly impressive</button>
-          <button type="button" class="btn btn-ghost btn-sm safi-nudge-quick" data-msg="sending motivation">💪 sending motivation</button>
+
+        <div class="snc-chips">
+          <button type="button" class="snc-chip safi-nudge-quick" data-msg="Proud of you 🌟">Proud of you 🌟</button>
+          <button type="button" class="snc-chip safi-nudge-quick" data-msg="You're on fire lately 🔥">You're on fire lately 🔥</button>
+          <button type="button" class="snc-chip safi-nudge-quick" data-msg="Just thinking of you 👋">Just thinking of you 👋</button>
+          <button type="button" class="snc-chip safi-nudge-quick" data-msg="Crushed it today 💪">Crushed it today 💪</button>
+          <button type="button" class="snc-chip safi-nudge-quick" data-msg="You've got this 🎯">You've got this 🎯</button>
+          <button type="button" class="snc-chip safi-nudge-quick" data-msg="Sending good energy ✨">Sending good energy ✨</button>
+          <button type="button" class="snc-chip safi-nudge-quick" data-msg="You matter here ♥️">You matter here ♥️</button>
+          <button type="button" class="snc-chip safi-nudge-quick" data-msg="Keep going, you're close 🙌">Keep going, you're close 🙌</button>
         </div>
+
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" type="button" id="safi-nudge-cancel">Cancel</button>
-        <button class="btn btn-primary" type="button" id="safi-nudge-send">Go Safibot!</button>
+
+      <div class="snc-footer">
+        <button class="snc-cancel-btn" type="button" id="safi-nudge-cancel">Maybe later</button>
+        <button class="snc-send-btn" type="button" id="safi-nudge-send">Send it 🚀</button>
       </div>
+
     </div>
   `;
 

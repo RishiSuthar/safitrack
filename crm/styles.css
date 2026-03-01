@@ -2265,28 +2265,23 @@ body {
 
 .safi-nudge-launcher {
   position: relative;
-  color: var(--color-primary);
-  border-color: rgba(47, 95, 208, 0.28);
-  background: var(--color-primary-bg);
+  border-color: transparent;
+  background: transparent;
+  overflow: hidden;
 }
 
-.safi-nudge-launcher::after {
-  content: '';
-  position: absolute;
-  top: 7px;
-  right: 8px;
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  background: var(--color-warning);
-  box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.5);
-  animation: safi-nudge-launcher-pulse 1.8s infinite;
+.nudge-bot-gif {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  border-radius: 4px;
+  display: block;
+  pointer-events: none;
 }
 
 .safi-nudge-launcher:hover {
-  border-color: rgba(47, 95, 208, 0.45);
-  background: rgba(47, 95, 208, 0.16);
-  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border-color: transparent;
 }
 
 .notification-badge {
@@ -2986,71 +2981,241 @@ body {
     var(--bg-elevated);
 }
 
-.safi-nudge-composer-hero {
+/* ==========================
+   SafiNudge Composer — snc-*
+   ========================== */
+@keyframes snc-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.safi-nudge-modal-container,
+.snc-container {
+  width: min(92vw, 440px);
+  border-radius: 22px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 24px 64px rgba(0,0,0,0.18);
+}
+
+/* ── Hero strip ── */
+.snc-hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1.5rem 1.375rem;
+  background: linear-gradient(160deg, #f0f4ff 0%, #eef2ff 100%);
+  border-bottom: 1px solid rgba(var(--color-primary-rgb), 0.12);
+  text-align: center;
+}
+.snc-close {
+  position: absolute;
+  top: 0.875rem;
+  right: 0.875rem;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.9rem;
-  padding: 0.65rem 0.7rem;
-  border: 1px dashed rgba(47, 95, 208, 0.32);
-  border-radius: 14px;
-  background: linear-gradient(120deg, rgba(47, 95, 208, 0.12), rgba(139, 92, 246, 0.08));
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: none;
+  background: rgba(0,0,0,0.06);
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
 }
-
-.safi-nudge-composer-bot {
-  width: 74px;
-  height: 74px;
+.snc-close:hover {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+.snc-bot {
+  width: 68px;
+  height: 68px;
   object-fit: contain;
-  animation: safi-nudge-bob 1.9s ease-in-out infinite;
+  flex-shrink: 0;
+  margin-bottom: 0.625rem;
+  animation: snc-bob 2.4s ease-in-out infinite;
+  filter: drop-shadow(0 4px 10px rgba(var(--color-primary-rgb), 0.28));
 }
-
-.safi-nudge-composer-copy {
-  min-width: 0;
-}
-
-.safi-nudge-composer-title {
+.snc-hero-title {
+  font-size: 1.05rem;
   font-weight: 800;
-  font-size: 0.96rem;
   color: var(--text-primary);
+  line-height: 1.25;
+  margin-bottom: 0.25rem;
 }
-
-.safi-nudge-composer-subtitle {
-  margin-top: 0.1rem;
+.snc-hero-sub {
   font-size: 0.8rem;
-  color: var(--text-secondary);
+  color: var(--text-muted);
+  line-height: 1.45;
 }
 
-.safi-nudge-composer-tip {
-  margin-top: 0.42rem;
-  display: inline-flex;
+/* ── Body ── */
+.snc-body {
+  padding: 1.25rem 1.375rem;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+/* To row */
+.snc-to-row {
+  display: flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.22rem 0.55rem;
+  gap: 0.625rem;
+}
+.snc-to-badge {
+  flex-shrink: 0;
+  padding: 0.3rem 0.75rem;
   border-radius: 999px;
   font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background: rgba(47, 95, 208, 0.14);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.2);
 }
-
-.safi-nudge-field {
-  padding: 0.55rem 0.6rem;
-  border-radius: 14px;
-  border: 1px solid rgba(47, 95, 208, 0.18);
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.safi-nudge-field label {
-  font-weight: 700;
+.snc-select {
+  flex: 1;
+  min-width: 0;
+  padding: 0.6rem 0.875rem;
+  font-size: 0.875rem;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-secondary);
   color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.snc-select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
 }
 
-.safi-nudge-field select,
-.safi-nudge-field textarea {
-  border-radius: 12px;
-  border-color: rgba(47, 95, 208, 0.28);
-  background: color-mix(in srgb, var(--bg-elevated) 92%, var(--color-primary-bg));
+/* Message */
+.snc-message-wrap {
+  position: relative;
 }
+.snc-textarea {
+  width: 100%;
+  padding: 0.7rem 0.875rem;
+  font-size: 0.875rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  resize: none;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+  line-height: 1.55;
+  font-family: inherit;
+}
+.snc-textarea:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+.snc-textarea::placeholder { color: var(--text-muted); opacity: 0.7; }
+.snc-counter {
+  margin-top: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+/* Quick chips */
+.snc-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.snc-chip {
+  padding: 0.35rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  border: 1px solid rgba(var(--color-primary-rgb), 0.22);
+  background: rgba(var(--color-primary-rgb), 0.05);
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+.snc-chip:hover {
+  background: var(--color-primary-bg);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+/* ── Footer ── */
+.snc-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.875rem 1.375rem;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+.snc-cancel-btn {
+  background: none;
+  border: none;
+  padding: 0.5rem 0.25rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.15s;
+  font-family: inherit;
+}
+.snc-cancel-btn:hover { color: var(--text-primary); }
+.snc-send-btn {
+  padding: 0.55rem 1.375rem;
+  border-radius: 999px;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(var(--color-primary-rgb), 0.35);
+  transition: opacity 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+  letter-spacing: 0.1px;
+}
+.snc-send-btn:hover {
+  opacity: 0.9;
+  box-shadow: 0 6px 20px rgba(var(--color-primary-rgb), 0.45);
+}
+
+/* ── Dark mode overrides ── */
+[data-theme="dark"] .snc-hero {
+  background: linear-gradient(160deg, #111827 0%, #0f172a 100%);
+  border-bottom-color: rgba(var(--color-primary-rgb), 0.15);
+}
+[data-theme="dark"] .snc-close { background: rgba(255,255,255,0.06); }
+[data-theme="dark"] .snc-close:hover { background: var(--color-primary-bg); color: var(--color-primary-light); }
+[data-theme="dark"] .snc-body { background: #0d1117; }
+[data-theme="dark"] .snc-select,
+[data-theme="dark"] .snc-textarea { background: #1a1e24; border-color: #2d343e; color: #c9d1d9; }
+[data-theme="dark"] .snc-select:focus,
+[data-theme="dark"] .snc-textarea:focus {
+  border-color: var(--color-primary-light);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.15);
+}
+[data-theme="dark"] .snc-chip {
+  background: rgba(var(--color-primary-rgb), 0.08);
+  border-color: rgba(var(--color-primary-rgb), 0.2);
+  color: var(--color-primary-light);
+}
+[data-theme="dark"] .snc-chip:hover {
+  background: rgba(var(--color-primary-rgb), 0.16);
+  border-color: var(--color-primary-light);
+  color: var(--color-primary-light);
+}
+[data-theme="dark"] .snc-footer { background: #161b22; border-top-color: #2d343e; }
 
 /* Additional polish for technician forms */
 /* Form grid: make two-column layout for wider screens inside technician cards */
@@ -10045,7 +10210,7 @@ body.is-dragging * {
 .header-ai-btn svg {
   width: 15px;
   height: 15px;
-  color: #fff;
+  color: var(--text-primary);
   flex-shrink: 0;
   transition: transform 0.3s ease;
 }
