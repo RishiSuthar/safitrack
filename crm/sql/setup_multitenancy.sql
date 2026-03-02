@@ -255,14 +255,21 @@ comment on function public.accept_invitation is
 -- ── organizations ──────────────────────────────────────────
 drop policy if exists "org: members can view own org"  on public.organizations;
 drop policy if exists "org: owner can update"          on public.organizations;
+drop policy if exists "org: manager can update"        on public.organizations;
 
 create policy "org: members can view own org"
   on public.organizations for select
   using (id = public.get_my_org_id());
 
-create policy "org: owner can update"
+create policy "org: manager can update"
   on public.organizations for update
-  using (owner_id = auth.uid());
+  using (
+    id = public.get_my_org_id()
+    and exists (
+      select 1 from public.profiles
+      where id = auth.uid() and role = 'manager'
+    )
+  );
 
 
 -- ── profiles ───────────────────────────────────────────────

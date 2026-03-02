@@ -1579,6 +1579,7 @@ async function renderSettingsView() {
         <button class="sv-nav-item" data-section="security">Security</button>
         <button class="sv-nav-item" data-section="preferences">Appearance</button>
         <button class="sv-nav-item" data-section="notifications">Notifications</button>
+        <button class="sv-nav-item" data-section="organization">Organization</button>
         <button class="sv-nav-item" data-section="members">Team Members</button>
         <button class="sv-nav-item" data-section="billing">Billing</button>
         
@@ -1786,6 +1787,38 @@ async function renderSettingsView() {
           </div>
         </section>
 
+        <!-- Organization -->
+        <section class="sv-section" data-section="organization" style="display:none;">
+          <div class="sv-section-header">
+            <h2 class="sv-section-title">Organization</h2>
+          </div>
+
+          <div class="sv-row">
+            <div class="sv-row-info">
+              <div class="sv-row-title">Organization name</div>
+              <div class="sv-row-desc">The name of your company or team workspace.</div>
+            </div>
+            <div class="sv-row-action">
+              ${isManager ? `
+                <div class="sv-org-edit-wrap">
+                  <input id="org-name-input" class="sv-input" type="text" value="${escH(currentOrganization?.name || '')}" placeholder="Organization name">
+                  <button id="org-name-save-btn" class="sv-primary-btn">Save</button>
+                </div>
+              ` : `<span class="sv-org-name-readonly">${escH(currentOrganization?.name || '—')}</span>`}
+            </div>
+          </div>
+
+          <div class="sv-row">
+            <div class="sv-row-info">
+              <div class="sv-row-title">Your role</div>
+              <div class="sv-row-desc">Your permission level within this organization.</div>
+            </div>
+            <div class="sv-row-action">
+              <span class="sv-role-badge">${roleEsc}</span>
+            </div>
+          </div>
+        </section>
+
         <!-- Members -->
         <section class="sv-section" data-section="members" style="display:none; max-width: 900px;">
           <div class="sv-section-header" style="justify-content: space-between; align-items: center; border-bottom: none; padding-bottom: 0;">
@@ -1827,23 +1860,22 @@ async function renderSettingsView() {
           </div>
           
           <div class="sv-billing-card">
-            <div class="sv-billing-header">
-              <div>
-                <div class="sv-billing-plan">Enterprise Plan</div>
-                <div class="sv-billing-cycle">Billed annually • Next invoice Sep 21, 2026</div>
+            <div class="sv-billing-plan-row">
+              <div class="sv-billing-plan-info">
+                <span class="sv-plan-badge">Free</span>
+                <div class="sv-billing-plan-name">Free Plan</div>
+                <div class="sv-billing-plan-desc">Basic access for small teams. Upgrade to unlock advanced features, higher limits, and priority support.</div>
               </div>
-              <div class="sv-billing-amount">$499<span>/mo</span></div>
+              <a href="https://safitrack.netlify.app/pages/pricing" target="_blank" class="sv-change-plan-btn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 7l5 5-5 5M6 12h12"/></svg>
+                Change plan
+              </a>
             </div>
-            
-            <div class="sv-billing-usage">
-              <div class="sv-usage-labels"><span>Included Seats</span><span>12 / 15</span></div>
-              <div class="sv-usage-bar"><div class="sv-usage-fill" style="width:80%"></div></div>
-            </div>
-
-            <div class="sv-billing-actions">
-              <button class="sv-action-btn">Manage subscription</button>
-              <button class="sv-action-btn">View invoices</button>
-            </div>
+            <div class="sv-billing-divider"></div>
+            <p class="sv-billing-notice">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Plan changes cannot be made from the CRM. Please contact our sales team — the button above will take you to our pricing page where you can explore available plans.
+            </p>
           </div>
         </section>
 
@@ -2062,18 +2094,24 @@ async function renderSettingsView() {
       .sv-members-table tbody tr:hover .sv-icon-btn { opacity: 1; }
       .sv-icon-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
 
-      /* Billing Card Redesign */
-      .sv-billing-card { border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-secondary); padding: 32px; }
-      .sv-billing-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 32px; }
-      .sv-billing-plan { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin-bottom: 6px; }
-      .sv-billing-cycle { font-size: 0.85rem; color: var(--text-muted); }
-      .sv-billing-amount { font-size: 2rem; font-weight: 800; color: var(--text-primary); line-height: 1; display: flex; align-items: baseline; gap: 4px; }
-      .sv-billing-amount span { font-size: 0.95rem; color: var(--text-muted); font-weight: 500; }
-      .sv-billing-usage { margin-bottom: 32px; }
-      .sv-usage-labels { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 12px; }
-      .sv-usage-bar { height: 8px; border-radius: 100px; background: color-mix(in srgb, var(--border-color) 60%, transparent); overflow: hidden; }
-      .sv-usage-fill { height: 100%; border-radius: 100px; background: var(--color-primary); }
-      .sv-billing-actions { display: flex; gap: 12px; }
+      /* Organization Section */
+      .sv-org-edit-wrap { display: flex; gap: 8px; align-items: center; }
+      .sv-org-edit-wrap .sv-input { min-width: 220px; }
+      .sv-org-name-readonly { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); }
+
+      /* Billing Card */
+      .sv-billing-card { border: 1px solid var(--border-color); border-radius: 14px; background: var(--bg-secondary); padding: 28px 32px; max-width: 680px; }
+      .sv-billing-plan-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
+      .sv-billing-plan-info { display: flex; flex-direction: column; gap: 8px; }
+      .sv-plan-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 12%, transparent); border: 1px solid color-mix(in srgb, var(--color-primary) 25%, transparent); width: fit-content; }
+      .sv-billing-plan-name { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
+      .sv-billing-plan-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.55; max-width: 360px; }
+      .sv-change-plan-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 8px; font-size: 0.875rem; font-weight: 600; color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 10%, transparent); border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent); text-decoration: none; white-space: nowrap; transition: background 0.15s, border-color 0.15s, transform 0.1s; flex-shrink: 0; }
+      .sv-change-plan-btn svg { width: 16px; height: 16px; }
+      .sv-change-plan-btn:hover { background: color-mix(in srgb, var(--color-primary) 18%, transparent); border-color: color-mix(in srgb, var(--color-primary) 50%, transparent); transform: translateX(2px); }
+      .sv-billing-divider { height: 1px; background: var(--border-color); margin: 24px 0; }
+      .sv-billing-notice { display: flex; align-items: flex-start; gap: 10px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; margin: 0; }
+      .sv-billing-notice svg { width: 15px; height: 15px; flex-shrink: 0; margin-top: 1px; color: var(--text-muted); }
 
       /* Responsive adjustments */
       @media (max-width: 900px) {
@@ -2193,6 +2231,39 @@ async function renderSettingsView() {
   });
 
   document.getElementById('export-data-btn')?.addEventListener('click', () => showToast('Preparing export…', 'info'));
+
+  // Org rename
+  document.getElementById('org-name-save-btn')?.addEventListener('click', async () => {
+    const input = document.getElementById('org-name-input');
+    const btn = document.getElementById('org-name-save-btn');
+    if (!input || !currentOrganization?.id) return;
+    const newName = input.value.trim();
+    if (!newName) { showToast('Organization name cannot be empty.', 'error'); return; }
+    if (newName === currentOrganization.name) { showToast('No changes to save.', 'info'); return; }
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    try {
+      const { data, error } = await supabaseClient
+        .from('organizations')
+        .update({ name: newName })
+        .eq('id', currentOrganization.id)
+        .select('name')
+        .single();
+      if (error) throw error;
+      if (!data) throw new Error('Update blocked — no rows returned. Check RLS policy.');
+      currentOrganization.name = data.name;
+      document.querySelectorAll('.org-name-display').forEach(el => el.textContent = data.name);
+      const orgNameEl = document.getElementById('org-name');
+      if (orgNameEl) orgNameEl.textContent = data.name;
+      showToast('Organization name updated.', 'success');
+    } catch (e) {
+      console.error(e);
+      showToast('Failed to update organization name.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Save';
+    }
+  });
 
   // Bind text inputs for debounced saves
   document.getElementById('profile-firstname')?.addEventListener('input', () => debounceSave('profile'));
