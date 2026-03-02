@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
     initInteractiveScreenshots();
     initCounterAnimations();
     initRoleTabs();
+    initTransformationAnimation();
     initContactModal();
     initCustomSelects();
     initIntelligenceHub();
@@ -1340,4 +1341,235 @@ function animateValue(obj, start, end, duration, suffix = '') {
         }
     };
     window.requestAnimationFrame(step);
+}
+
+// ===================================
+// TRANSFORMATION ANIMATION  — 3-phase narrative
+// ===================================
+function initTransformationAnimation() {
+    const stage      = document.getElementById('tf-stage');
+    const colHeaders = document.getElementById('tf-col-headers');
+    const chaosLayer = document.getElementById('tf-chaos-layer');
+    const aiBadge    = document.getElementById('tf-ai-badge');
+
+    if (!stage) return;
+
+    // Cards in extract order (phase 2 pop-in sequence)
+    const EXTRACT_ORDER = [
+        { id: 'tf-c1', col: 0, prog: 35  },
+        { id: 'tf-c4', col: 0, prog: 20  },
+        { id: 'tf-c2', col: 1, prog: 65  },
+        { id: 'tf-c5', col: 1, prog: 50  },
+        { id: 'tf-c6', col: 2, prog: 80  },
+        { id: 'tf-c3', col: 3, prog: 100 },
+    ];
+
+    // Cards in organise order (phase 3 column-fly sequence)
+    const ORG_ORDER = [
+        { id: 'tf-c1', col: 0, prog: 35  },
+        { id: 'tf-c4', col: 0, prog: 20  },
+        { id: 'tf-c2', col: 1, prog: 65  },
+        { id: 'tf-c5', col: 1, prog: 50  },
+        { id: 'tf-c6', col: 2, prog: 80  },
+        { id: 'tf-c3', col: 3, prog: 100 },
+    ];
+
+    const PHASE1_HOLD     = 1800;   // ms hold chaos before extracting
+    const EXTRACT_STAGGER = 210;    // ms between card pop-ins
+    const EXTRACT_ANIM    = 480;    // ms each pop-in animation runs
+    const SETTLE_HOLD     = 550;    // ms cards sit scattered before organising
+    const ORG_STAGGER     = 265;    // ms between cards flying to columns
+    const WON_DRAMA       = 90;     // extra delay before Won card organises
+    const LAND_OFFSET     = 320;    // ms after flight starts = card "arrives"
+    const AI_DELAY        = 380;    // ms after last land before badge appears
+    const ORG_HOLD        = 2700;   // ms hold organised before reset
+
+    let timers  = [];
+    let started = false;
+
+    function schedule(fn, delay) {
+        const id = setTimeout(fn, delay);
+        timers.push(id);
+        return id;
+    }
+
+    function clearAll() {
+        timers.forEach(id => clearTimeout(id));
+        timers = [];
+    }
+
+    function getCard(id)     { return document.getElementById(id); }
+    function getCountEl(col) { return document.getElementById('tf-count-' + col); }
+    function getColHdr(col)  { return colHeaders ? colHeaders.querySelector('[data-col="' + col + '"]') : null; }
+
+    // ── STEPPER HELPERS ──────────────────────────────────────────
+    function setStep(n) {
+        for (let i = 1; i <= 3; i++) {
+            const el = document.getElementById('tf-step-' + i);
+            if (!el) continue;
+            el.classList.remove('is-active', 'is-done');
+            if (i < n)  el.classList.add('is-done');
+            if (i === n) el.classList.add('is-active');
+        }
+    }
+
+    function fillConn(n) {
+        const el = document.getElementById('tf-conn-' + n);
+        if (el) el.classList.add('is-filled');
+    }
+
+    function clearConns() {
+        [1, 2].forEach(n => {
+            const el = document.getElementById('tf-conn-' + n);
+            if (el) el.classList.remove('is-filled');
+        });
+    }
+
+    // ── COLUMN COUNTER ───────────────────────────────────────────
+    function bumpCount(col, val) {
+        const el = getCountEl(col);
+        if (!el) return;
+        el.textContent = val;
+        el.classList.remove('is-bumping');
+        void el.offsetWidth;
+        el.classList.add('is-bumping');
+        setTimeout(() => el.classList.remove('is-bumping'), 450);
+
+        const hdr = getColHdr(col);
+        if (hdr) {
+            hdr.classList.add('is-accepting');
+            setTimeout(() => hdr.classList.remove('is-accepting'), 580);
+        }
+    }
+
+    // ── CARD LANDING ─────────────────────────────────────────────
+    function onCardLanded(cfg, colCounts) {
+        const card = getCard(cfg.id);
+        if (!card) return;
+
+        card.classList.add('is-landing');
+        setTimeout(() => card.classList.remove('is-landing'), 700);
+
+        const pf = card.querySelector('.tf-cprog-fill');
+        if (pf) pf.style.width = cfg.prog + '%';
+
+        colCounts[cfg.col] = (colCounts[cfg.col] || 0) + 1;
+        bumpCount(cfg.col, colCounts[cfg.col]);
+    }
+
+    // ── FULL RESET ───────────────────────────────────────────────
+    function resetAll() {
+        // Snap chaos layer back with no transition
+        if (chaosLayer) {
+            chaosLayer.classList.add('is-resetting');
+            chaosLayer.classList.remove('is-ghosted', 'is-dissolving');
+            void chaosLayer.offsetWidth;
+            chaosLayer.classList.remove('is-resetting');
+        }
+
+        // Return all cards to invisible scatter positions
+        EXTRACT_ORDER.forEach(cfg => {
+            const card = getCard(cfg.id);
+            if (!card) return;
+            card.classList.add('is-chaotic', 'is-hidden');
+            card.classList.remove('is-extracting', 'is-landing');
+            const pf = card.querySelector('.tf-cprog-fill');
+            if (pf) pf.style.width = '0%';
+        });
+
+        if (colHeaders) colHeaders.classList.remove('is-visible');
+        if (aiBadge)    aiBadge.classList.remove('is-visible');
+
+        [0, 1, 2, 3].forEach(col => {
+            const el = getCountEl(col);
+            if (el) el.textContent = '0';
+        });
+
+        setStep(1);
+        clearConns();
+    }
+
+    // ── MAIN CYCLE ───────────────────────────────────────────────
+    function runCycle() {
+        clearAll();
+        resetAll();
+
+        const colCounts = { 0: 0, 1: 0, 2: 0 };
+
+        // PHASE 1 → 2: ghost chaos layer, extract cards
+        schedule(() => {
+            if (chaosLayer) chaosLayer.classList.add('is-ghosted');
+            setStep(2);
+            fillConn(1);
+
+            EXTRACT_ORDER.forEach((cfg, i) => {
+                schedule(() => {
+                    const card = getCard(cfg.id);
+                    if (!card) return;
+                    card.classList.remove('is-hidden');
+                    card.classList.add('is-extracting');
+                    setTimeout(() => card.classList.remove('is-extracting'), EXTRACT_ANIM);
+                }, i * EXTRACT_STAGGER);
+            });
+        }, PHASE1_HOLD);
+
+        // Last extract finishes at:
+        const lastExtractT = PHASE1_HOLD + (EXTRACT_ORDER.length - 1) * EXTRACT_STAGGER + EXTRACT_ANIM;
+
+        // PHASE 2 → 3: dissolve chaos, organise cards
+        const orgStartT = lastExtractT + SETTLE_HOLD;
+
+        schedule(() => {
+            if (chaosLayer) {
+                chaosLayer.classList.remove('is-ghosted');
+                chaosLayer.classList.add('is-dissolving');
+            }
+
+            if (colHeaders) colHeaders.classList.add('is-visible');
+            setStep(3);
+            fillConn(2);
+
+            ORG_ORDER.forEach((cfg, i) => {
+                const isWon      = cfg.col === 3;
+                const extraDelay = (i === ORG_ORDER.length - 1 && isWon) ? WON_DRAMA : 0;
+                const flightT    = i * ORG_STAGGER + extraDelay;
+
+                schedule(() => {
+                    const card = getCard(cfg.id);
+                    if (card) card.classList.remove('is-chaotic');
+                }, flightT);
+
+                schedule(() => {
+                    onCardLanded(cfg, colCounts);
+                }, flightT + LAND_OFFSET);
+            });
+        }, orgStartT);
+
+        // Last card lands at:
+        const lastOrgFlight = (ORG_ORDER.length - 1) * ORG_STAGGER + WON_DRAMA;
+        const lastLandT     = orgStartT + lastOrgFlight + LAND_OFFSET;
+
+        // AI badge pop-in
+        schedule(() => {
+            if (aiBadge) aiBadge.classList.add('is-visible');
+        }, lastLandT + AI_DELAY);
+
+        // Hold organised → restart
+        schedule(() => {
+            runCycle();
+        }, lastLandT + AI_DELAY + 200 + ORG_HOLD);
+    }
+
+    // Start when stage scrolls into view
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting && !started) {
+                started = true;
+                setTimeout(runCycle, 500);
+                observer.disconnect();
+            }
+        });
+    }, { threshold: 0.2 });
+
+    observer.observe(stage);
 }
