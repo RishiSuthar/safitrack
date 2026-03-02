@@ -991,6 +991,9 @@ function goToSignupStep(target) {
   const reverse = target < current;
   _signupCurrentStep = target;
 
+  // Clear the email-taken notice whenever the user navigates away from step 3
+  if (target !== 3) document.getElementById('signup-email-taken-notice')?.remove();
+
   // Swap step panels
   document.querySelectorAll('.signup-step-panel').forEach((panel, i) => {
     const isTarget = (i + 1) === target;
@@ -1081,6 +1084,13 @@ async function handleSignup(e) {
     return;
   }
 
+  // Supabase returns a user with an empty identities array when the email is
+  // already registered — it won't expose this via an error to prevent enumeration.
+  if (data?.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+    _showSignupEmailTakenError(email);
+    return;
+  }
+
   // If Supabase has email confirmation disabled, a session is returned immediately
   // — log the user straight into the app instead of showing the verify pane.
   if (data?.session) {
@@ -1096,6 +1106,52 @@ async function handleSignup(e) {
   if (resendBtn) {
     resendBtn.dataset.email = email;
     resendBtn.style.display = 'inline';
+  }
+}
+
+// ── Email-already-exists inline error ────────────────────────────────────────
+function _showSignupEmailTakenError(email) {
+  // Remove any previous notice
+  document.getElementById('signup-email-taken-notice')?.remove();
+
+  const notice = document.createElement('div');
+  notice.id = 'signup-email-taken-notice';
+  notice.style.cssText = [
+    'margin-top:14px',
+    'padding:13px 15px',
+    'border-radius:10px',
+    'border:1px solid var(--color-warning, #c6841a)',
+    'background:var(--color-warning-bg, rgba(198,132,26,.12))',
+    'font-size:0.875rem',
+    'line-height:1.5',
+    'color:var(--text-primary)',
+    'display:flex',
+    'align-items:flex-start',
+    'gap:10px',
+  ].join(';');
+
+  notice.innerHTML = `
+    <svg style="flex-shrink:0;margin-top:1px" width="16" height="16" fill="none"
+      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+      viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/>
+      <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <span>
+      <strong>${email}</strong> is already registered.
+      <button type="button"
+        style="background:none;border:none;padding:0;margin-left:4px;font-family:inherit;
+               font-size:inherit;font-weight:700;cursor:pointer;color:var(--color-primary);
+               text-decoration:underline;text-underline-offset:2px;"
+        onclick="document.getElementById('signup-email-taken-notice')?.remove(); switchAuthPane('login'); document.getElementById('login-email').value='${email.replace(/'/g, "\\'")}'; document.getElementById('login-email').dispatchEvent(new Event('input'));">
+        Sign in instead
+      </button>
+    </span>`;
+
+  // Insert after the password field (last field in step 3's form area)
+  const step3 = document.getElementById('signup-step-3');
+  const actions = step3?.querySelector('.signup-step-actions');
+  if (actions) {
+    actions.insertAdjacentElement('beforebegin', notice);
   }
 }
 
