@@ -24,6 +24,41 @@
 
   const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+  // ── Step 0: Check for error fragments BEFORE anything else ──────────────────
+  // Supabase redirects back with #error=access_denied&error_code=otp_expired&...
+  // when the magic link is invalid or has expired.
+  {
+    const rawHash = window.location.hash.substring(1);
+    const hashParams = new URLSearchParams(rawHash);
+    const errorCode = hashParams.get('error_code');
+    const errorDesc = hashParams.get('error_description');
+
+    if (errorCode) {
+      // Replace the ugly hash so the URL looks clean
+      history.replaceState(null, '', window.location.pathname);
+
+      let friendlyMsg;
+      if (errorCode === 'otp_expired') {
+        friendlyMsg =
+          'This invitation link has expired (links are valid for 24 hours). ' +
+          'Please ask your manager to send you a new invitation.';
+      } else if (errorCode === 'otp_disabled') {
+        friendlyMsg = 'Email links are disabled for this project. Contact your administrator.';
+      } else {
+        friendlyMsg =
+          (errorDesc ? decodeURIComponent(errorDesc.replace(/\+/g, ' ')) : 'This invitation link is invalid.') +
+          ' Please ask your manager to send a new invitation.';
+      }
+
+      // Render error state immediately (helpers not yet defined, so inline it)
+      document.getElementById('state-loading').style.display = 'none';
+      document.getElementById('state-error').style.display   = 'block';
+      const msgEl = document.getElementById('error-message');
+      if (msgEl) msgEl.textContent = friendlyMsg;
+      return; // stop all further processing
+    }
+  }
+
   // ── Helpers ──────────────────────────────────────────────────────────────────
   function showState(state, errorMsg) {
     document.getElementById('state-loading').style.display = 'none';

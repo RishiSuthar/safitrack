@@ -122,16 +122,23 @@ Deno.serve(async (req: Request) => {
     }
 
     // ── 6. Check for duplicate pending invitation ──
+    // Allow re-invite if the existing invitation has already expired.
     const { data: duplicate } = await supabaseAdmin
       .from('invitations')
-      .select('id')
+      .select('id, expires_at')
       .eq('organization_id', orgId)
       .ilike('email', email)
       .eq('status', 'pending')
       .maybeSingle();
 
     if (duplicate) {
-      return json({ error: 'A pending invitation already exists for this email address' }, 400);
+      const alreadyExpired = new Date(duplicate.expires_at) <= new Date();
+      if (alreadyExpired) {
+        // Purge the stale record so a fresh one can be created
+        await supabaseAdmin.from('invitations').delete().eq('id', duplicate.id);
+      } else {
+        return json({ error: 'A pending invitation already exists for this email address. Check their spam folder or wait for it to expire before resending.' }, 400);
+      }
     }
 
     // Check if the person is already a member
