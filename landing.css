@@ -569,6 +569,12 @@ ul {
     background: var(--bg-primary);
 }
 
+@media (max-width: 640px) {
+    .showcase {
+        padding: 0 0 48px;
+    }
+}
+
 .showcase-tabs {
     position: relative;
     display: flex;
@@ -579,38 +585,103 @@ ul {
     padding: 10px 0;
 }
 
-/* Make showcase tabs wrap and become horizontally scrollable on small screens */
+/* ── Mobile showcase layout ───────────────────────────────── */
 @media (max-width: 640px) {
+    .showcase {
+        padding: 0 0 40px;
+    }
+
+    /* Tab strip: 3-column pill grid, tight spacing */
     .showcase-tabs {
-        display: flex;
-        gap: 12px;
-        padding: 8px 12px;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        justify-content: flex-start;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+        padding: 14px 14px 0;
         max-width: 100%;
+        overflow: visible;
+        margin-bottom: 10px;
     }
 
-/* Hide any divider placed at the far left or far right so edges remain open */
-.showcase-tabs .tab-divider:first-child,
-.showcase-tabs .tab-divider:last-child {
-    display: none;
-}
-
-    .showcase-tab {
-        flex: 0 0 auto;
-        padding: 10px 14px;
-        font-size: 15px;
-        border-radius: 8px;
-        background: rgba(255,255,255,0.02);
-    }
-
+    /* Hide all dividers */
     .tab-divider {
         display: none;
     }
 
+    /* Pill chip — unselected */
+    .showcase-tab {
+        flex: unset;
+        padding: 7px 6px;
+        font-size: 12px;
+        font-weight: 600;
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 0, 0, 0.09);
+        color: var(--text-secondary);
+        text-align: center;
+        width: 100%;
+        transition: background 0.22s ease, color 0.22s ease, border-color 0.22s ease;
+        /* room for progress bar at bottom */
+        padding-bottom: 9px;
+    }
+
+    /* Pill chip — selected: same look, progress bar is the indicator */
+    .showcase-tab.active {
+        background: rgba(0, 0, 0, 0.05);
+        border-color: rgba(0, 0, 0, 0.09);
+        color: var(--text-primary);
+    }
+
+    /* Thin progress bar inside the chip, at the bottom edge */
+    .tab-progress-wrap {
+        display: block;
+        position: absolute;
+        bottom: 3px;
+        left: 8px;
+        right: 8px;
+        width: auto;
+        height: 2px;
+        background: rgba(0, 0, 0, 0.08);
+        border-radius: 2px;
+        overflow: hidden;
+    }
+
+    .showcase-tab.active .tab-progress-wrap {
+        background: rgba(0, 0, 0, 0.08);
+    }
+
+    .showcase-tab .tab-progress {
+        background: var(--color-primary);
+    }
+
+    /* Hide full-width desktop border lines */
+    .showcase-tabs::before,
+    .showcase-tabs::after {
+        display: none;
+    }
+
+    /* Browser frame: rely on container padding for gutters, thin border */
     .browser-frame {
-        margin: 0 12px;
+        margin: 0;
+        border-radius: 10px;
+        border: 1px solid rgba(0, 0, 0, 0.07);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    /* Slimmer toolbar */
+    .browser-header {
+        height: 30px;
+        padding: 0 10px;
+        gap: 10px;
+    }
+
+    .browser-dots span {
+        width: 7px;
+        height: 7px;
+    }
+
+    .browser-address {
+        font-size: 10px;
+        height: 20px;
     }
 }
 
@@ -779,17 +850,21 @@ ul {
 
 @media (max-width: 480px) {
     .browser-frame {
-        max-width: 100%;
-        margin: 0 8px;
-        border-radius: 10px;
+        margin: 0;
+        border-radius: 8px;
+        border: 1px solid rgba(0, 0, 0, 0.07);
     }
 
     .browser-header .browser-address {
-        display: none; /* hide address to reduce clutter on tiny screens */
+        display: none;
     }
 
-    #showcase-image {
-        transform-origin: center;
+    .browser-dots span {
+        width: 6px;
+        height: 6px;
+    }
+
+    #showcase-video {
         width: 100%;
         height: auto;
     }
@@ -997,6 +1072,48 @@ section + section {
         height: 40px;
         max-width: 100px;
         opacity: 0.9;
+    }
+}
+
+/* ── Mobile marquee carousel ──────────────────────────────── */
+.companies-marquee {
+    display: none; /* hidden on desktop */
+}
+
+@keyframes marquee-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+}
+
+@media (max-width: 640px) {
+    /* Hide the static grid, show the marquee */
+    .companies-grid {
+        display: none;
+    }
+
+    .companies-marquee {
+        display: block;
+        overflow: hidden;
+        /* Fade edges out */
+        -webkit-mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+        mask-image: linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%);
+    }
+
+    .companies-track {
+        display: flex;
+        align-items: center;
+        gap: 36px;
+        width: max-content;
+        animation: marquee-scroll 18s linear infinite;
+    }
+
+    .companies-track .company-logo {
+        height: 36px;
+        width: auto;
+        max-width: none;
+        flex-shrink: 0;
+        filter: grayscale(100%) brightness(0.18) contrast(1.05);
+        opacity: 1;
     }
 }
 
