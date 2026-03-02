@@ -275,9 +275,12 @@
               We sent a confirmation link to <strong id="verify-email-display"></strong>.<br>
               Click that link to activate your account, then come back here to sign in.
             </p>
-            <p style="font-size:0.8rem;color:var(--text-secondary);">
+            <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:10px;">
               Didn't get it? Check spam, or&nbsp;<button type="button" id="back-to-signup-btn" class="auth-link-btn">go back</button>.
             </p>
+            <button type="button" id="resend-verify-btn" class="btn btn-secondary" style="display:none;font-size:0.85rem;" onclick="handleResendVerification(this)">
+              Resend confirmation email
+            </button>
           </div><!-- /email-verify-pane -->
 
         </div>

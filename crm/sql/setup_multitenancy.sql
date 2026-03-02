@@ -41,6 +41,8 @@ alter table public.profiles
   add column if not exists status text not null default 'active'
     check (status in ('active', 'invited', 'suspended'));
 
+alter table public.profiles enable row level security;
+
 comment on column public.profiles.organization_id is
   'Which organization this user belongs to.';
 comment on column public.profiles.status is

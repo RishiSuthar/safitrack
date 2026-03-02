@@ -1005,13 +1005,40 @@ async function handleSignup(e) {
     return;
   }
 
+  // If Supabase has email confirmation disabled, a session is returned immediately
+  // — log the user straight into the app instead of showing the verify pane.
+  if (data?.session) {
+    return; // onAuthStateChange will fire and load the app
+  }
+
   // Show email verification pane
   const verifyEmailEl = document.getElementById('verify-email-display');
   if (verifyEmailEl) verifyEmailEl.textContent = email;
   switchAuthPane('verify');
+  // Store email for the resend button
+  const resendBtn = document.getElementById('resend-verify-btn');
+  if (resendBtn) {
+    resendBtn.dataset.email = email;
+    resendBtn.style.display = 'inline';
+  }
 }
 
 // ── Invite modal ─────────────────────────────────────────────────────────────
+async function handleResendVerification(btn) {
+  const email = btn?.dataset?.email || document.getElementById('verify-email-display')?.textContent?.trim();
+  if (!email) { showToast('Email address not found.', 'error'); return; }
+  btn.disabled = true;
+  btn.textContent = 'Sending…';
+  const { error } = await supabaseClient.auth.resend({ type: 'signup', email });
+  btn.disabled = false;
+  btn.textContent = 'Resend confirmation email';
+  if (error) {
+    showToast('Could not resend: ' + error.message, 'error');
+  } else {
+    showToast('Confirmation email resent — check your inbox (and spam).', 'success');
+  }
+}
+
 function openInviteModal() {
   const overlay = document.getElementById('invite-modal-overlay');
   if (!overlay) return;
@@ -1206,15 +1233,14 @@ async function initApp() {
 }
 
 async function loadAllPeople() {
-  const [peopleResult, companiesResult] = await Promise.all([
-    supabaseClient
-      .from('people')
-      .select('id, name, email, company_id')
-      .order('name', { ascending: true }),
-    supabaseClient
-      .from('companies')
-      .select('id, name')
-  ]);
+  const orgId = currentOrganization?.id;
+  let pQ = supabaseClient.from('people').select('id, name, email, company_id').order('name', { ascending: true });
+  let cQ = supabaseClient.from('companies').select('id, name');
+  if (orgId) {
+    pQ = pQ.eq('organization_id', orgId);
+    cQ = cQ.eq('organization_id', orgId);
+  }
+  const [peopleResult, companiesResult] = await Promise.all([pQ, cQ]);
 
   const { data: people, error } = peopleResult;
   crmDebugLog('loadAllPeople.peopleResult', {
@@ -1256,10 +1282,9 @@ async function loadAllCompanies() {
   try {
     // diagnostic logs removed
     const doFetch = async () => {
-      const { data: companies, error } = await supabaseClient
-        .from('companies')
-        .select('id, name, domain')
-        .order('name', { ascending: true });
+      let q = supabaseClient.from('companies').select('id, name, domain').order('name', { ascending: true });
+      if (currentOrganization?.id) q = q.eq('organization_id', currentOrganization.id);
+      const { data: companies, error } = await q;
       return { companies, error };
     };
 
@@ -2181,9 +2206,13 @@ async function renderSettingsView() {
 
     listContainer.innerHTML = `<tr><td colspan="4" style="padding:40px;text-align:center;color:var(--text-muted);font-size:0.9rem;">Loading…</td></tr>`;
 
-    // Fetch active/invited member profiles (RLS scopes to current org automatically)
+    // Fetch active/invited member profiles scoped to this org
+    const orgId = currentOrganization?.id;
+    let pQ = supabaseClient.from('profiles').select('*').order('created_at', { ascending: false });
+    if (orgId) pQ = pQ.eq('organization_id', orgId);
+
     const [profilesResult, invitesResult] = await Promise.all([
-      supabaseClient.from('profiles').select('*').order('created_at', { ascending: false }),
+      pQ,
       isManager
         ? supabaseClient.from('invitations').select('*').eq('status', 'pending').order('created_at', { ascending: false })
         : Promise.resolve({ data: [], error: null }),
@@ -2310,18 +2339,12 @@ async function renderCompaniesView() {
   let companies = [];
   let error = null;
 
-  const primaryQuery = await supabaseClient
+  let primaryQ = supabaseClient
     .from('companies')
-    .select(`
-      *,
-      company_categories(
-        categories(
-          id,
-          name
-        )
-      )
-    `)
+    .select(`*, company_categories(categories(id, name))`)
     .order(safeSortKey, { ascending: currentSortDir === 'asc' });
+  if (currentOrganization?.id) primaryQ = primaryQ.eq('organization_id', currentOrganization.id);
+  const primaryQuery = await primaryQ;
 
   companies = primaryQuery.data || [];
   error = primaryQuery.error;
@@ -2334,10 +2357,9 @@ async function renderCompaniesView() {
   // Fallback: if relation query returns no rows without an explicit error,
   // retry a flat companies query so table data is never blocked by relation access.
   if (!error && companies.length === 0) {
-    const fallbackQuery = await supabaseClient
-      .from('companies')
-      .select('*')
-      .order(safeSortKey, { ascending: currentSortDir === 'asc' });
+    let fallbackQ = supabaseClient.from('companies').select('*').order(safeSortKey, { ascending: currentSortDir === 'asc' });
+    if (currentOrganization?.id) fallbackQ = fallbackQ.eq('organization_id', currentOrganization.id);
+    const fallbackQuery = await fallbackQ;
 
     crmDebugLog('renderCompaniesView.fallbackQuery', {
       error: fallbackQuery.error || null,
@@ -3121,20 +3143,16 @@ async function renderPeopleView() {
     currentSortDir = 'asc';
   }
 
-  const [peopleResult, companiesResult, opportunitiesResult] = await Promise.all([
-    supabaseClient
-      .from('people')
-      .select('*')
-      .order(safeSortKey, { ascending: currentSortDir === 'asc' }),
-    supabaseClient
-      .from('companies')
-      .select('id, name')
-      .order('name', { ascending: true }),
-    supabaseClient
-      .from('opportunities')
-      .select('id, name')
-      .order('name', { ascending: true })
-  ]);
+  const orgId = currentOrganization?.id;
+  let rpQ = supabaseClient.from('people').select('*').order(safeSortKey, { ascending: currentSortDir === 'asc' });
+  let rcQ = supabaseClient.from('companies').select('id, name').order('name', { ascending: true });
+  let roQ = supabaseClient.from('opportunities').select('id, name').order('name', { ascending: true });
+  if (orgId) {
+    rpQ = rpQ.eq('organization_id', orgId);
+    rcQ = rcQ.eq('organization_id', orgId);
+    roQ = roQ.eq('organization_id', orgId);
+  }
+  const [peopleResult, companiesResult, opportunitiesResult] = await Promise.all([rpQ, rcQ, roQ]);
 
   const { data: people, error: peopleError } = peopleResult;
   const { data: companies } = companiesResult;
@@ -4840,11 +4858,10 @@ async function renderSalesFunnelView() {
   let error;
 
   if (isManager) {
-    // Managers see all visits
-    const result = await supabaseClient
-      .from('visits')
-      .select('*')
-      .order('created_at', { ascending: false });
+    // Managers see all visits within their org
+    let mVisitsQ = supabaseClient.from('visits').select('*').order('created_at', { ascending: false });
+    if (currentOrganization?.id) mVisitsQ = mVisitsQ.eq('organization_id', currentOrganization.id);
+    const result = await mVisitsQ;
     visits = result.data;
     error = result.error;
   } else {
@@ -5168,21 +5185,13 @@ async function renderOpportunityPipelineView() {
   let error;
 
   if (isManager) {
-    // Managers can see all opportunities with user info
-    const result = await supabaseClient
+    // Managers see all opportunities in their org
+    let mQ = supabaseClient
       .from('opportunities')
-      .select(`
-        *,
-        profiles!inner(
-          id,
-          first_name,
-          last_name,
-          email,
-          role
-        )
-      `)
+      .select(`*, profiles!inner(id, first_name, last_name, email, role)`)
       .order('created_at', { ascending: false });
-
+    if (currentOrganization?.id) mQ = mQ.eq('organization_id', currentOrganization.id);
+    const result = await mQ;
     opportunities = result.data;
     error = result.error;
   } else {
@@ -7457,20 +7466,18 @@ async function renderTeamDashboardView() {
   `;
 
   // Fetch all data
-  const { data: allProfiles, error: profilesError } = await supabaseClient
-    .from('profiles')
-    .select('*')
-    .order('first_name', { ascending: true });
+  let tpQ = supabaseClient.from('profiles').select('*').order('first_name', { ascending: true });
+  if (currentOrganization?.id) tpQ = tpQ.eq('organization_id', currentOrganization.id);
+  const { data: allProfiles, error: profilesError } = await tpQ;
 
   if (profilesError) {
     viewContainer.innerHTML = renderError('Unable to load team data: ' + profilesError.message);
     return;
   }
 
-  const { data: visits, error: visitsError } = await supabaseClient
-    .from('visits')
-    .select('*')
-    .order('created_at', { ascending: false });
+  let tvQ = supabaseClient.from('visits').select('*').order('created_at', { ascending: false });
+  if (currentOrganization?.id) tvQ = tvQ.eq('organization_id', currentOrganization.id);
+  const { data: visits, error: visitsError } = await tvQ;
 
   if (visitsError) {
     viewContainer.innerHTML = renderError(visitsError.message);
@@ -8827,10 +8834,9 @@ async function generateVisitPDF(visitId) {
 // ======================
 
 async function renderUserManagementView() {
-  const { data: users, error } = await supabaseClient
-    .from('profiles')
-    .select('*')
-    .order('created_at', { ascending: false });
+  let usersQ = supabaseClient.from('profiles').select('*').order('created_at', { ascending: false });
+  if (currentOrganization?.id) usersQ = usersQ.eq('organization_id', currentOrganization.id);
+  const { data: users, error } = await usersQ;
 
   if (error) {
     viewContainer.innerHTML = renderError(error.message);
@@ -8981,16 +8987,16 @@ function groupRoutesByLocations(routes, routeLocations) {
 
 async function renderRoutePlanningView() {
   // Fetch companies, sales reps, and existing routes
+  const orgId = currentOrganization?.id;
+  let companiesQ = supabaseClient.from('companies').select('*').order('name', { ascending: true });
+  let profilesQ = supabaseClient.from('profiles').select('*').eq('role', 'sales_rep').order('first_name', { ascending: true });
+  if (orgId) {
+    companiesQ = companiesQ.eq('organization_id', orgId);
+    profilesQ = profilesQ.eq('organization_id', orgId);
+  }
   const [companiesResult, profilesResult, routesResult, routeLocationsResult] = await Promise.all([
-    supabaseClient
-      .from('companies')
-      .select('*')
-      .order('name', { ascending: true }),
-    supabaseClient
-      .from('profiles')
-      .select('*')
-      .eq('role', 'sales_rep')
-      .order('first_name', { ascending: true }),
+    companiesQ,
+    profilesQ,
     supabaseClient
       .from('routes')
       .select(`*, assigned_to:profiles!routes_assigned_to_fkey(id, first_name, last_name)`)
@@ -11610,12 +11616,9 @@ async function renderTasksView() {
   // Fetch sales reps for assignment dropdown (managers only)
   let salesReps = [];
   if (isManager) {
-    const { data: reps } = await supabaseClient
-      .from('profiles')
-      .select('id, first_name, last_name, email')
-      .eq('role', 'sales_rep')
-      .order('first_name', { ascending: true });
-
+    let repsQ = supabaseClient.from('profiles').select('id, first_name, last_name, email').eq('role', 'sales_rep').order('first_name', { ascending: true });
+    if (currentOrganization?.id) repsQ = repsQ.eq('organization_id', currentOrganization.id);
+    const { data: reps } = await repsQ;
     salesReps = reps || [];
   }
   // Store globally for editTask access
@@ -12467,12 +12470,9 @@ async function renderRemindersView() {
 
   let salesReps = [];
   if (isManager) {
-    const { data: reps } = await supabaseClient
-      .from('profiles')
-      .select('id, first_name, last_name, email')
-      .eq('role', 'sales_rep')
-      .order('first_name', { ascending: true });
-
+    let repsQ = supabaseClient.from('profiles').select('id, first_name, last_name, email').eq('role', 'sales_rep').order('first_name', { ascending: true });
+    if (currentOrganization?.id) repsQ = repsQ.eq('organization_id', currentOrganization.id);
+    const { data: reps } = await repsQ;
     salesReps = reps || [];
   }
 
@@ -16017,17 +16017,16 @@ function renderTechnicianVisitCard(visit) {
 
 async function renderTechniciansDashboardView() {
   // Fetch technician visits without relation joins (avoids FK alias/schema cache issues)
-  const { data: rawVisits, error: visitsError } = await supabaseClient
-    .from('technician_visits')
-    .select('*')
-    .order('created_at', { ascending: false });
+  let visitsQ = supabaseClient.from('technician_visits').select('*').order('created_at', { ascending: false });
+  let techQ = supabaseClient.from('profiles').select('id, first_name, last_name, email').eq('role', 'technician').order('first_name', { ascending: true });
+  if (currentOrganization?.id) {
+    visitsQ = visitsQ.eq('organization_id', currentOrganization.id);
+    techQ = techQ.eq('organization_id', currentOrganization.id);
+  }
 
-  // Fetch all technicians
-  const { data: technicians, error: techError } = await supabaseClient
-    .from('profiles')
-    .select('id, first_name, last_name, email')
-    .eq('role', 'technician')
-    .order('first_name', { ascending: true });
+  // Fetch technician visits and all technicians
+  const { data: rawVisits, error: visitsError } = await visitsQ;
+  const { data: technicians, error: techError } = await techQ;
 
   if (visitsError || techError) {
     crmDebugLog('renderTechniciansDashboardView.error', {
@@ -18917,16 +18916,17 @@ async function renderProfessionalDashboardView() {
       visitsResult,
       repsResult
     ] = await Promise.all([
-      supabaseClient.from('people').select('*', { count: 'exact', head: true }),
-      supabaseClient.from('companies').select('*', { count: 'exact', head: true }),
-      supabaseClient.from('tasks').select('id, status, due_date, created_at'),
-      supabaseClient.from('opportunities').select('id, value, stage, created_at, updated_at'),
+      supabaseClient.from('people').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrganization?.id || '00000000-0000-0000-0000-000000000000'),
+      supabaseClient.from('companies').select('*', { count: 'exact', head: true }).eq('organization_id', currentOrganization?.id || '00000000-0000-0000-0000-000000000000'),
+      supabaseClient.from('tasks').select('id, status, due_date, created_at').eq('organization_id', currentOrganization?.id || '00000000-0000-0000-0000-000000000000'),
+      supabaseClient.from('opportunities').select('id, value, stage, created_at, updated_at').eq('organization_id', currentOrganization?.id || '00000000-0000-0000-0000-000000000000'),
       supabaseClient
         .from('visits')
         .select('id, user_id, company_name, visit_type, lead_score, created_at, profiles(first_name, last_name)')
+        .eq('organization_id', currentOrganization?.id || '00000000-0000-0000-0000-000000000000')
         .order('created_at', { ascending: false })
         .limit(100),
-      supabaseClient.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'sales_rep')
+      supabaseClient.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'sales_rep').eq('organization_id', currentOrganization?.id || '00000000-0000-0000-0000-000000000000')
     ]);
 
     if (contactsResult.error || companiesResult.error || tasksResult.error || opportunitiesResult.error || visitsResult.error || repsResult.error) {
@@ -19432,19 +19432,17 @@ async function renderCallLogsView() {
   // Fetch reps if manager
   let reps = [];
   if (isManager && managerCallLogViewMode === 'team') {
-    const { data } = await supabaseClient
-      .from('profiles')
-      .select('id, first_name, last_name')
-      .eq('role', 'sales_rep');
+    let repsQ = supabaseClient.from('profiles').select('id, first_name, last_name').eq('role', 'sales_rep');
+    if (currentOrganization?.id) repsQ = repsQ.eq('organization_id', currentOrganization.id);
+    const { data } = await repsQ;
     reps = data || [];
   }
 
   // Ensure companies are loaded for search fallback
   if (!window.allCompaniesData) {
-    const { data: companies } = await supabaseClient
-      .from('companies')
-      .select('id, name, address')
-      .order('name', { ascending: true });
+    let companiesCacheQ = supabaseClient.from('companies').select('id, name, address').order('name', { ascending: true });
+    if (currentOrganization?.id) companiesCacheQ = companiesCacheQ.eq('organization_id', currentOrganization.id);
+    const { data: companies } = await companiesCacheQ;
     window.allCompaniesData = companies || [];
   }
 
