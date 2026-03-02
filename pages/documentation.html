@@ -1,2142 +1,242 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Documentation - SafiTrack | Developer & User Guides</title>
-    <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
-    <style>
-        :root {
-            --color-primary: #2f5fd0;
-            --color-primary-dark: #244bb0;
-            --color-primary-light: #7da2f8;
-            --bg-primary: #0f1117;
-            --bg-secondary: #161b22;
-            --bg-tertiary: #1a2027;
-            --bg-elevated: #21262d;
-            --text-primary: #e1e4e8;
-            --text-secondary: #bac4d0;
-            --text-muted: #8b949e;
-            --border-color: #30363d;
-            --border-light: #21262d;
-            --radius-sm: 8px;
-            --radius-md: 12px;
-            --radius-lg: 14px;
-            --radius-xl: 20px;
-            --transition-base: 200ms ease;
-            --font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-mono: 'JetBrains Mono', monospace;
-            --sidebar-width: 280px;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font-family);
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        ul {
-            list-style: none;
-        }
-
-        .btn-primary,
-        .btn-secondary {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 20px;
-            font-size: 14px;
-            font-weight: 600;
-            border-radius: var(--radius-md);
-            transition: all var(--transition-base);
-            white-space: nowrap;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-primary {
-            background: var(--color-primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--color-primary-dark);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        /* ── NAVBAR ── */
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            background: rgba(15, 17, 23, 0.85);
-            backdrop-filter: blur(14px);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .nav-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 64px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .logo img {
-            height: 26px;
-        }
-
-        .logo-text {
-            font-size: 17px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 24px;
-        }
-
-        .nav-links a {
-            font-size: 14px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            transition: color var(--transition-base);
-        }
-
-        .nav-links a:hover {
-            color: var(--text-primary);
-        }
-
-        .mobile-toggle {
-            display: none;
-            background: transparent;
-            border: none;
-            color: white;
-            padding: 10px;
-            cursor: pointer;
-        }
-
-        /* ── LAYOUT ── */
-        .docs-wrapper {
-            display: flex;
-            margin-top: 64px;
-            min-height: calc(100vh - 64px);
-        }
-
-        /* ── SIDEBAR ── */
-        .docs-sidebar {
-            width: var(--sidebar-width);
-            height: calc(100vh - 64px);
-            position: fixed;
-            top: 64px;
-            left: 0;
-            background: var(--bg-primary);
-            border-right: 1px solid var(--border-color);
-            padding: 28px 20px;
-            overflow-y: auto;
-            scrollbar-width: thin;
-            scrollbar-color: var(--border-color) transparent;
-        }
-
-        .docs-sidebar::-webkit-scrollbar {
-            width: 4px;
-        }
-
-        .docs-sidebar::-webkit-scrollbar-thumb {
-            background: var(--border-color);
-            border-radius: 4px;
-        }
-
-        .sidebar-search {
-            position: relative;
-            margin-bottom: 28px;
-        }
-
-        .sidebar-search input {
-            width: 100%;
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-sm);
-            padding: 8px 12px 8px 34px;
-            font-size: 13px;
-            color: var(--text-primary);
-            font-family: var(--font-family);
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .sidebar-search input::placeholder {
-            color: var(--text-muted);
-        }
-
-        .sidebar-search input:focus {
-            border-color: var(--color-primary);
-        }
-
-        .sidebar-search svg {
-            position: absolute;
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--text-muted);
-            pointer-events: none;
-        }
-
-        .sidebar-section {
-            margin-bottom: 28px;
-        }
-
-        .sidebar-title {
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: var(--text-muted);
-            margin-bottom: 8px;
-            padding: 0 8px;
-        }
-
-        .sidebar-link {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 7px 10px;
-            font-size: 13.5px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            border-radius: 8px;
-            transition: all 0.15s ease;
-            cursor: pointer;
-        }
-
-        .sidebar-link:hover {
-            background: var(--bg-secondary);
-            color: var(--text-primary);
-        }
-
-        .sidebar-link.active {
-            background: rgba(47, 95, 208, 0.12);
-            color: var(--color-primary-light);
-            font-weight: 600;
-        }
-
-        .sidebar-link .dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: var(--border-color);
-            flex-shrink: 0;
-            transition: background 0.15s;
-        }
-
-        .sidebar-link.active .dot,
-        .sidebar-link:hover .dot {
-            background: var(--color-primary-light);
-        }
-
-        /* ── MAIN ── */
-        .docs-main {
-            flex: 1;
-            margin-left: var(--sidebar-width);
-            padding: 56px 80px 120px;
-            max-width: calc(var(--sidebar-width) + 820px);
-        }
-
-        /* ── BREADCRUMB ── */
-        .breadcrumb {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-            color: var(--text-muted);
-            margin-bottom: 32px;
-        }
-
-        .breadcrumb span {
-            color: var(--text-muted);
-        }
-
-        .breadcrumb a {
-            color: var(--text-muted);
-            transition: color 0.15s;
-        }
-
-        .breadcrumb a:hover {
-            color: var(--color-primary-light);
-        }
-
-        /* ── SECTION HEADINGS ── */
-        .doc-section {
-            margin-bottom: 72px;
-            scroll-margin-top: 88px;
-        }
-
-        h1 {
-            font-size: 38px;
-            font-weight: 800;
-            margin-bottom: 14px;
-            letter-spacing: -0.02em;
-            line-height: 1.2;
-        }
-
-        .page-subtitle {
-            font-size: 17px;
-            color: var(--text-muted);
-            margin-bottom: 36px;
-        }
-
-        h2 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 20px;
-            margin-top: 44px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            scroll-margin-top: 88px;
-        }
-
-        h2 .anchor {
-            color: var(--text-muted);
-            font-size: 16px;
-            opacity: 0;
-            transition: opacity 0.15s;
-            text-decoration: none;
-        }
-
-        h2:hover .anchor {
-            opacity: 1;
-        }
-
-        h3 {
-            font-size: 16px;
-            font-weight: 700;
-            margin: 28px 0 12px;
-            color: var(--text-primary);
-        }
-
-        p {
-            font-size: 15px;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-            line-height: 1.75;
-        }
-
-        /* ── INLINE CODE ── */
-        :not(pre)>code {
-            font-family: var(--font-mono);
-            font-size: 13px;
-            background: var(--bg-elevated);
-            color: #7da2f8;
-            padding: 2px 7px;
-            border-radius: 5px;
-            border: 1px solid var(--border-color);
-        }
-
-        /* ── CODE BLOCKS ── */
-        .code-block {
-            position: relative;
-            margin: 24px 0;
-        }
-
-        .code-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--bg-elevated);
-            border: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-light);
-            border-radius: var(--radius-md) var(--radius-md) 0 0;
-            padding: 10px 18px;
-        }
-
-        .code-lang {
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.06em;
-            color: var(--text-muted);
-        }
-
-        .copy-btn {
-            font-size: 12px;
-            color: var(--text-muted);
-            background: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 4px 10px;
-            cursor: pointer;
-            font-family: var(--font-family);
-            transition: all 0.15s;
-        }
-
-        .copy-btn:hover {
-            color: var(--text-primary);
-            border-color: var(--text-muted);
-        }
-
-        pre {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-top: none;
-            border-radius: 0 0 var(--radius-md) var(--radius-md);
-            padding: 20px 22px;
-            overflow-x: auto;
-        }
-
-        .code-block pre {
-            margin: 0;
-        }
-
-        pre code {
-            font-family: var(--font-mono);
-            font-size: 13.5px;
-            color: #cdd9e5;
-            background: none;
-            border: none;
-            padding: 0;
-        }
-
-        /* Syntax-ish colouring via spans */
-        .tok-kw {
-            color: #f97583;
-        }
-
-        .tok-str {
-            color: #9ecbff;
-        }
-
-        .tok-cm {
-            color: #6a737d;
-            font-style: italic;
-        }
-
-        .tok-fn {
-            color: #b392f0;
-        }
-
-        .tok-num {
-            color: #79b8ff;
-        }
-
-        .tok-prop {
-            color: #7da2f8;
-        }
-
-        /* ── ALERTS ── */
-        .alert {
-            padding: 16px 20px;
-            border-radius: var(--radius-md);
-            margin: 24px 0;
-            display: flex;
-            gap: 14px;
-            align-items: flex-start;
-        }
-
-        .alert-tip {
-            background: rgba(47, 95, 208, 0.08);
-            border-left: 4px solid var(--color-primary);
-        }
-
-        .alert-warning {
-            background: rgba(234, 179, 8, 0.08);
-            border-left: 4px solid #eab308;
-        }
-
-        .alert-danger {
-            background: rgba(248, 81, 73, 0.08);
-            border-left: 4px solid #f85149;
-        }
-
-        .alert-success {
-            background: rgba(56, 189, 101, 0.08);
-            border-left: 4px solid #38bd65;
-        }
-
-        .alert-icon {
-            font-size: 18px;
-            line-height: 1.6;
-            flex-shrink: 0;
-        }
-
-        .alert-content {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .alert-content strong {
-            color: var(--text-primary);
-            display: block;
-            margin-bottom: 2px;
-        }
-
-        .alert-content a {
-            color: var(--color-primary-light);
-            text-decoration: underline;
-        }
-
-        /* ── TABLE ── */
-        .table-wrap {
-            overflow-x: auto;
-            margin: 28px 0;
-            border-radius: var(--radius-md);
-            border: 1px solid var(--border-color);
-        }
-
-        .docs-table {
-            width: 100%;
-            border-collapse: collapse;
-            font-size: 14px;
-        }
-
-        .docs-table th {
-            text-align: left;
-            padding: 12px 18px;
-            background: var(--bg-secondary);
-            border-bottom: 1px solid var(--border-color);
-            color: var(--text-primary);
-            font-weight: 600;
-            font-size: 13px;
-            white-space: nowrap;
-        }
-
-        .docs-table td {
-            padding: 12px 18px;
-            border-bottom: 1px solid var(--border-light);
-            color: var(--text-secondary);
-            vertical-align: top;
-        }
-
-        .docs-table tr:last-child td {
-            border-bottom: none;
-        }
-
-        .docs-table tr:hover td {
-            background: rgba(255, 255, 255, 0.015);
-        }
-
-        .badge {
-            display: inline-block;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-        }
-
-        .badge-required {
-            background: rgba(248, 81, 73, 0.15);
-            color: #f85149;
-        }
-
-        .badge-optional {
-            background: rgba(139, 148, 158, 0.15);
-            color: #8b949e;
-        }
-
-        .badge-get {
-            background: rgba(56, 189, 101, 0.15);
-            color: #38bd65;
-        }
-
-        .badge-post {
-            background: rgba(125, 162, 248, 0.15);
-            color: #7da2f8;
-        }
-
-        .badge-delete {
-            background: rgba(248, 81, 73, 0.15);
-            color: #f85149;
-        }
-
-        .badge-patch {
-            background: rgba(234, 179, 8, 0.15);
-            color: #eab308;
-        }
-
-        /* ── CARDS ── */
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-            gap: 16px;
-            margin: 28px 0;
-        }
-
-        .card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 20px;
-            transition: border-color 0.2s, transform 0.2s;
-        }
-
-        .card:hover {
-            border-color: rgba(47, 95, 208, 0.4);
-            transform: translateY(-2px);
-        }
-
-        .card-icon {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-
-        .card-title {
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 6px;
-            color: var(--text-primary);
-        }
-
-        .card-desc {
-            font-size: 13px;
-            color: var(--text-muted);
-            line-height: 1.6;
-        }
-
-        /* ── STEPS ── */
-        .steps {
-            margin: 24px 0;
-        }
-
-        .step {
-            display: flex;
-            gap: 18px;
-            margin-bottom: 28px;
-        }
-
-        .step-num {
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            background: rgba(47, 95, 208, 0.15);
-            border: 1.5px solid var(--color-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 13px;
-            font-weight: 700;
-            color: var(--color-primary-light);
-            flex-shrink: 0;
-            margin-top: 2px;
-        }
-
-        .step-body {
-            flex: 1;
-        }
-
-        .step-title {
-            font-size: 15px;
-            font-weight: 700;
-            margin-bottom: 6px;
-        }
-
-        .step-desc {
-            font-size: 14px;
-            color: var(--text-secondary);
-            line-height: 1.7;
-        }
-
-        /* ── SDK TAG TABS ── */
-        .tab-strip {
-            display: flex;
-            gap: 0;
-            border-bottom: 1px solid var(--border-color);
-            margin-bottom: -1px;
-        }
-
-        .tab {
-            padding: 8px 18px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text-muted);
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all 0.15s;
-            user-select: none;
-        }
-
-        .tab.active {
-            color: var(--color-primary-light);
-            border-bottom-color: var(--color-primary);
-        }
-
-        .tab:hover:not(.active) {
-            color: var(--text-secondary);
-        }
-
-        .tab-panel {
-            display: none;
-        }
-
-        .tab-panel.active {
-            display: block;
-        }
-
-        /* ── DIVIDER ── */
-        .divider {
-            border: none;
-            border-top: 1px solid var(--border-color);
-            margin: 48px 0;
-        }
-
-
-
-        /* ── FOOTER ── */
-        .docs-footer {
-            margin-top: 80px;
-            padding-top: 36px;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: var(--text-muted);
-            font-size: 13px;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .footer-nav {
-            display: flex;
-            gap: 20px;
-        }
-
-        .footer-nav a {
-            color: var(--text-muted);
-            transition: color 0.15s;
-        }
-
-        .footer-nav a:hover {
-            color: var(--text-primary);
-        }
-
-        /* ── RATE LIMIT BAR ── */
-        .rate-bar-wrap {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
-            border-radius: var(--radius-md);
-            padding: 16px 20px;
-            margin: 20px 0;
-        }
-
-        .rate-bar-label {
-            font-size: 13px;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-        }
-
-        .rate-bar {
-            height: 6px;
-            background: var(--bg-elevated);
-            border-radius: 99px;
-            overflow: hidden;
-        }
-
-        .rate-bar-fill {
-            height: 100%;
-            border-radius: 99px;
-            background: linear-gradient(90deg, var(--color-primary), var(--color-primary-light));
-        }
-
-        /* ── CHANGELOG TIMELINE ── */
-        .changelog {
-            position: relative;
-            padding-left: 28px;
-        }
-
-        .changelog::before {
-            content: '';
-            position: absolute;
-            left: 6px;
-            top: 0;
-            bottom: 0;
-            width: 2px;
-            background: var(--border-color);
-        }
-
-        .cl-item {
-            position: relative;
-            margin-bottom: 32px;
-        }
-
-        .cl-dot {
-            position: absolute;
-            left: -25px;
-            top: 5px;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: var(--color-primary);
-            border: 2px solid var(--bg-primary);
-        }
-
-        .cl-date {
-            font-size: 12px;
-            color: var(--text-muted);
-            margin-bottom: 4px;
-        }
-
-        .cl-title {
-            font-size: 15px;
-            font-weight: 700;
-            margin-bottom: 4px;
-        }
-
-        .cl-desc {
-            font-size: 13px;
-            color: var(--text-secondary);
-        }
-
-        /* ── RESPONSIVE ── */
-        @media(max-width:1000px) {
-            .docs-sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-                z-index: 1000;
-            }
-
-            .docs-sidebar.active {
-                transform: translateX(0);
-            }
-
-            .docs-main {
-                margin-left: 0;
-                padding: 32px 20px 80px;
-            }
-
-            .mobile-toggle {
-                display: block;
-            }
-
-            h1 {
-                font-size: 30px;
-            }
-
-            h2 {
-                font-size: 20px;
-            }
-        }
-
-        /* ── SCROLL FADE IN ── */
-        .doc-section {
-            opacity: 0;
-            transform: translateY(12px);
-            transition: opacity 0.4s ease, transform 0.4s ease;
-        }
-
-        .doc-section.visible {
-            opacity: 1;
-            transform: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Documentation — SafiTrack</title>
+  <link rel="stylesheet" href="../landing.css">
+  <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
 </head>
-
 <body>
-
-    <nav class="navbar">
-        <div class="container">
-            <div class="nav-content">
-                <div style="display:flex;align-items:center;gap:16px">
-                    <button class="mobile-toggle" id="sidebar-toggle">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                            stroke-width="2">
-                            <path d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                    </button>
-                    <a href="../index.html" class="logo">
-                        <img src="../assets/icons/whiteblue.png" alt="SafiTrack">
-                        <span class="logo-text">SafiTrack</span>
-                    </a>
-                    <span style="color:var(--border-color);font-size:20px;user-select:none">／</span>
-                    <span style="font-size:14px;color:var(--text-muted);font-weight:600">Docs</span>
-                </div>
-                <div class="nav-links">
-                    <a href="features/mainfeatures.html">Features</a>
-                    <a href="pricing.html">Pricing</a>
-                    <a href="../crm/" class="btn-primary">Open Application</a>
-                </div>
-            </div>
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <div class="nav-content">
+      <div class="nav-left">
+        <a href="../index.html" class="logo">
+          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
+        </a>
+        <div class="nav-links">
+          <a href="features/mainfeatures.html" class="nav-link">Features</a>
+          <a href="pricing.html" class="nav-link">Pricing</a>
         </div>
-    </nav>
-
-
-    <div class="docs-wrapper">
-        <!-- Sidebar -->
-        <aside class="docs-sidebar" id="sidebar">
-            <div class="sidebar-search">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                    <circle cx="11" cy="11" r="8" />
-                    <path d="M21 21l-4.35-4.35" />
-                </svg>
-                <input type="text" placeholder="Search docs…" id="search-input">
-            </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-title">Introduction</div>
-                <a href="#getting-started" class="sidebar-link active"><span class="dot"></span>Getting Started</a>
-                <a href="#core-concepts" class="sidebar-link"><span class="dot"></span>Core Concepts</a>
-                <a href="#architecture" class="sidebar-link"><span class="dot"></span>Architecture</a>
-            </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-title">Features</div>
-                <a href="#field-sales" class="sidebar-link"><span class="dot"></span>Field Sales Tracking</a>
-                <a href="#territory-mgmt" class="sidebar-link"><span class="dot"></span>Territory Management</a>
-                <a href="#inventory" class="sidebar-link"><span class="dot"></span>Real-time Inventory</a>
-                <a href="#reporting" class="sidebar-link"><span class="dot"></span>Reporting & Analytics</a>
-                <a href="#notifications" class="sidebar-link"><span class="dot"></span>Notifications</a>
-            </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-title">API Reference</div>
-                <a href="#authentication" class="sidebar-link"><span class="dot"></span>Authentication</a>
-                <a href="#endpoints" class="sidebar-link"><span class="dot"></span>Endpoints</a>
-                <a href="#webhooks" class="sidebar-link"><span class="dot"></span>Webhooks</a>
-                <a href="#rate-limits" class="sidebar-link"><span class="dot"></span>Rate Limits</a>
-                <a href="#errors" class="sidebar-link"><span class="dot"></span>Error Codes</a>
-            </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-title">SDK & Tools</div>
-                <a href="#sdk" class="sidebar-link"><span class="dot"></span>JS / Node SDK</a>
-                <a href="#sdk-python" class="sidebar-link"><span class="dot"></span>Python SDK</a>
-                <a href="#postman" class="sidebar-link"><span class="dot"></span>Postman Collection</a>
-            </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-title">Resources</div>
-                <a href="#changelog" class="sidebar-link"><span class="dot"></span>Changelog</a>
-                <a href="helpcenter.html" class="sidebar-link"><span class="dot"></span>Help Center</a>
-            </div>
-        </aside>
-
-        <!-- Main -->
-        <main class="docs-main">
-
-            <!-- ─── GETTING STARTED ─── -->
-            <div class="breadcrumb">
-                <a href="../index.html">Home</a>
-                <span>›</span>
-                <span>Documentation</span>
-            </div>
-
-            <section id="getting-started" class="doc-section">
-                <h1>SafiTrack Documentation</h1>
-                <p class="page-subtitle">Everything you need to deploy, integrate, and scale SafiTrack across your field
-                    team — from a 5-person startup to a 500-rep enterprise operation.</p>
-
-                <div class="card-grid">
-                    <div class="card">
-                        <div class="card-icon">🚀</div>
-                        <div class="card-title">Quick Start</div>
-                        <div class="card-desc">Get your first visit logged in under 10 minutes.</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">🔌</div>
-                        <div class="card-title">API Reference</div>
-                        <div class="card-desc">Full REST API documentation with live examples.</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">📦</div>
-                        <div class="card-title">SDK Downloads</div>
-                        <div class="card-desc">Official SDKs for JS, Python, and Go.</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">🗺️</div>
-                        <div class="card-title">Territory Guide</div>
-                        <div class="card-desc">Design and manage sales territories at any scale.</div>
-                    </div>
-                </div>
-
-                <h2 id="quick-install"><a class="anchor" href="#quick-install">#</a> Quick Install</h2>
-                <p>SafiTrack is a Progressive Web App (PWA). Field reps can install it from any modern browser on
-                    Android or iOS with no app store required. For backend integrations, use one of our official SDKs.
-                </p>
-
-                <div class="steps">
-                    <div class="step">
-                        <div class="step-num">1</div>
-                        <div class="step-body">
-                            <div class="step-title">Create your organization</div>
-                            <div class="step-desc">Sign up at <code>app.safitrack.io</code> and complete the onboarding
-                                wizard. You'll be assigned an Organization ID (<code>org_…</code>) and a default admin
-                                account.</div>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-num">2</div>
-                        <div class="step-body">
-                            <div class="step-title">Install the SDK</div>
-                            <div class="step-desc">Add the SafiTrack SDK to your project using your preferred package
-                                manager.</div>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-num">3</div>
-                        <div class="step-body">
-                            <div class="step-title">Initialize & authenticate</div>
-                            <div class="step-desc">Instantiate the client with your API key and preferred region. All
-                                requests are automatically signed.</div>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <div class="step-num">4</div>
-                        <div class="step-body">
-                            <div class="step-title">Invite your team</div>
-                            <div class="step-desc">Go to <strong>Settings → Team Members</strong> and send invitations.
-                                Field reps receive a magic-link install prompt for the PWA.</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="tab-strip">
-                    <div class="tab active" data-tab="npm">npm</div>
-                    <div class="tab" data-tab="yarn">yarn</div>
-                    <div class="tab" data-tab="pnpm">pnpm</div>
-                </div>
-                <div class="tab-panel active" data-panel="npm">
-                    <div class="code-block">
-                        <div class="code-header"><span class="code-lang">bash</span><button
-                                class="copy-btn">Copy</button></div>
-                        <pre><code><span class="tok-cm"># Install the core SDK</span>
-npm install @safitrack/sdk-core
-
-<span class="tok-cm"># Optional: install analytics plugin</span>
-npm install @safitrack/plugin-analytics</code></pre>
-                    </div>
-                </div>
-                <div class="tab-panel" data-panel="yarn">
-                    <div class="code-block">
-                        <div class="code-header"><span class="code-lang">bash</span><button
-                                class="copy-btn">Copy</button></div>
-                        <pre><code>yarn add @safitrack/sdk-core
-yarn add @safitrack/plugin-analytics <span class="tok-cm"># optional</span></code></pre>
-                    </div>
-                </div>
-                <div class="tab-panel" data-panel="pnpm">
-                    <div class="code-block">
-                        <div class="code-header"><span class="code-lang">bash</span><button
-                                class="copy-btn">Copy</button></div>
-                        <pre><code>pnpm add @safitrack/sdk-core</code></pre>
-                    </div>
-                </div>
-
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">javascript</span><button
-                            class="copy-btn">Copy</button></div>
-                    <pre><code><span class="tok-kw">import</span> { <span class="tok-fn">SafiTrack</span> } <span class="tok-kw">from</span> <span class="tok-str">'@safitrack/sdk-core'</span>;
-
-<span class="tok-kw">const</span> safi = <span class="tok-kw">new</span> <span class="tok-fn">SafiTrack</span>({
-  apiKey:  <span class="tok-str">'st_live_xxxxxxxxxxxxxxxxxxxx'</span>,
-  region:  <span class="tok-str">'africa-west-1'</span>,   <span class="tok-cm">// africa-west-1 | eu-central-1 | us-east-1</span>
-  timeout: <span class="tok-num">8000</span>,
-});
-
-<span class="tok-cm">// Quick smoke test</span>
-<span class="tok-kw">const</span> org = <span class="tok-kw">await</span> safi.org.<span class="tok-fn">get</span>();
-console.<span class="tok-fn">log</span>(<span class="tok-str">`Connected to: <span class="tok-prop">${org.name}</span>`</span>);</code></pre>
-                </div>
-
-                <div class="alert alert-warning">
-                    <div class="alert-icon">⚠️</div>
-                    <div class="alert-content">
-                        <strong>Security reminder</strong>
-                        Never expose <code>st_live_…</code> keys in client-side or public code. Use environment
-                        variables and server-side proxies. For browser usage, generate short-lived session tokens via
-                        <code>POST /auth/session</code>.
-                    </div>
-                </div>
-            </section>
-
-            <!-- ─── AUTHENTICATION ─── -->
-            <section id="authentication" class="doc-section">
-                <h2><a class="anchor" href="#authentication">#</a> Authentication</h2>
-                <p>SafiTrack uses API key authentication for server-to-server calls and short-lived JWT session tokens
-                    for client-side access. All requests must be made over HTTPS.</p>
-
-                <h3>API Key types</h3>
-                <div class="table-wrap">
-                    <table class="docs-table">
-                        <thead>
-                            <tr>
-                                <th>Key prefix</th>
-                                <th>Environment</th>
-                                <th>Use case</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>st_live_…</code></td>
-                                <td>Production</td>
-                                <td>Real data, billable actions</td>
-                            </tr>
-                            <tr>
-                                <td><code>st_test_…</code></td>
-                                <td>Sandbox</td>
-                                <td>Development & CI pipelines</td>
-                            </tr>
-                            <tr>
-                                <td><code>st_sess_…</code></td>
-                                <td>Both</td>
-                                <td>Short-lived client tokens (TTL 4h)</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h3>Authorization header</h3>
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">http</span><button class="copy-btn">Copy</button>
-                    </div>
-                    <pre><code>GET /v1/visits HTTP/1.1
-Host: api.safitrack.io
-Authorization: Bearer st_live_xxxxxxxxxxxxxxxxxxxx
-Content-Type: application/json</code></pre>
-                </div>
-
-                <h3>Session tokens (for PWA / browser)</h3>
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">javascript</span><button
-                            class="copy-btn">Copy</button></div>
-                    <pre><code><span class="tok-cm">// Server-side: exchange API key for a session token</span>
-<span class="tok-kw">const</span> { token } = <span class="tok-kw">await</span> safi.auth.<span class="tok-fn">createSession</span>({
-  userId:     <span class="tok-str">'usr_abc123'</span>,
-  expiresIn:  <span class="tok-num">14400</span>,  <span class="tok-cm">// seconds</span>
-  scopes:     [<span class="tok-str">'visits:write'</span>, <span class="tok-str">'companies:read'</span>],
-});
-
-<span class="tok-cm">// Pass token to your frontend — never the raw API key</span>
-<span class="tok-kw">return</span> res.<span class="tok-fn">json</span>({ sessionToken: token });</code></pre>
-                </div>
-
-                <div class="alert alert-tip">
-                    <div class="alert-icon">💡</div>
-                    <div class="alert-content">
-                        <strong>Tip — rotate keys automatically</strong>
-                        Use the <code>POST /v1/keys/rotate</code> endpoint in your CI/CD pipeline to rotate production
-                        keys on every deployment without downtime.
-                    </div>
-                </div>
-
-                <h3>Request signing parameters</h3>
-                <div class="table-wrap">
-                    <table class="docs-table">
-                        <thead>
-                            <tr>
-                                <th>Parameter</th>
-                                <th>Type</th>
-                                <th>Required</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>api_key</code></td>
-                                <td>string</td>
-                                <td><span class="badge badge-required">required</span></td>
-                                <td>Your organization API key.</td>
-                            </tr>
-                            <tr>
-                                <td><code>env</code></td>
-                                <td>enum</td>
-                                <td><span class="badge badge-required">required</span></td>
-                                <td><code>production</code> or <code>sandbox</code></td>
-                            </tr>
-                            <tr>
-                                <td><code>idempotency_key</code></td>
-                                <td>string</td>
-                                <td><span class="badge badge-optional">optional</span></td>
-                                <td>UUID to safely retry POST requests without duplicate records.</td>
-                            </tr>
-                            <tr>
-                                <td><code>x-safi-version</code></td>
-                                <td>string</td>
-                                <td><span class="badge badge-optional">optional</span></td>
-                                <td>Pin to an API version e.g. <code>2025-01-01</code>. Defaults to latest.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- ─── CORE CONCEPTS ─── -->
-            <section id="core-concepts" class="doc-section">
-                <h2><a class="anchor" href="#core-concepts">#</a> Core Concepts</h2>
-                <p>SafiTrack is built around four primary entities. Every feature — from visit logging to territory
-                    assignment — builds on top of these primitives.</p>
-
-                <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(200px,1fr))">
-                    <div class="card">
-                        <div class="card-icon">🏢</div>
-                        <div class="card-title">Companies</div>
-                        <div class="card-desc">Professional entities — shops, clinics, distributors — that your team
-                            visits or services.</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">👤</div>
-                        <div class="card-title">People</div>
-                        <div class="card-desc">Individual contacts within companies. Linked to one company but visible
-                            across your CRM.</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">📍</div>
-                        <div class="card-title">Visits</div>
-                        <div class="card-desc">Geolocation-verified check-ins. Timestamped, auditable, and enriched with
-                            form data.</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-icon">📦</div>
-                        <div class="card-title">Products</div>
-                        <div class="card-desc">Inventory items tracked per company. Updated at the point of sale or
-                            delivery.</div>
-                    </div>
-                </div>
-
-                <h3>Relationships</h3>
-                <p>A <strong>User</strong> (field rep) belongs to one or more <strong>Territories</strong>. Each
-                    territory contains <strong>Companies</strong>. Companies have <strong>People</strong>, pending
-                    <strong>Visits</strong>, and <strong>Inventory</strong> records. This hierarchy drives dashboards,
-                    performance scores, and access control.</p>
-
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">json — entity relationships</span><button
-                            class="copy-btn">Copy</button></div>
-                    <pre><code>{
-  <span class="tok-prop">"organization"</span>: {
-    <span class="tok-prop">"territories"</span>: [
-      {
-        <span class="tok-prop">"id"</span>: <span class="tok-str">"ter_nairobi_cbd"</span>,
-        <span class="tok-prop">"assignedReps"</span>: [<span class="tok-str">"usr_amara"</span>, <span class="tok-str">"usr_kwame"</span>],
-        <span class="tok-prop">"companies"</span>: [
-          {
-            <span class="tok-prop">"id"</span>: <span class="tok-str">"cmp_001"</span>,
-            <span class="tok-prop">"name"</span>: <span class="tok-str">"Westside Pharmacy"</span>,
-            <span class="tok-prop">"contacts"</span>: [<span class="tok-str">"ppl_jane"</span>],
-            <span class="tok-prop">"lastVisit"</span>: <span class="tok-str">"2026-01-18T09:42:00Z"</span>
-          }
-        ]
-      }
-    ]
-  }
-}</code></pre>
-                </div>
-            </section>
-
-            <!-- ─── FIELD SALES ─── -->
-            <section id="field-sales" class="doc-section">
-                <h2><a class="anchor" href="#field-sales">#</a> Field Sales Tracking</h2>
-                <p>SafiTrack's visit engine is the heart of the platform. It combines GPS verification, custom data
-                    forms, and offline sync so your reps can work reliably in any connectivity environment.</p>
-
-                <h3>Logging a visit</h3>
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">javascript</span><button
-                            class="copy-btn">Copy</button></div>
-                    <pre><code><span class="tok-kw">const</span> visit = <span class="tok-kw">await</span> safi.visits.<span class="tok-fn">create</span>({
-  companyId:  <span class="tok-str">'cmp_001'</span>,
-  repId:      <span class="tok-str">'usr_amara'</span>,
-  coords:     { lat: <span class="tok-num">-1.2921</span>, lng: <span class="tok-num">36.8219</span> },
-  accuracy:   <span class="tok-num">12</span>,             <span class="tok-cm">// meters</span>
-  formData: {
-    outcome:        <span class="tok-str">'sale_made'</span>,
-    orderValue:     <span class="tok-num">4800</span>,      <span class="tok-cm">// KES</span>
-    productsOrdered: [<span class="tok-str">'sku_panadol_24'</span>, <span class="tok-str">'sku_ors_10pk'</span>],
-    notes:          <span class="tok-str">'Stock was low — pushed order for next week'</span>,
-  },
-});
-
-console.<span class="tok-fn">log</span>(visit.id);  <span class="tok-cm">// vis_xxxxxxxx</span></code></pre>
-                </div>
-
-                <div class="alert alert-tip">
-                    <div class="alert-icon">💡</div>
-                    <div class="alert-content">
-                        <strong>Geofencing</strong>
-                        Enable geofence enforcement in <strong>Settings → Visit Policy</strong> to reject check-ins
-                        logged more than <em>N</em> metres from the company's registered location. Default tolerance is
-                        200 m.
-                    </div>
-                </div>
-
-                <h3>Visit states</h3>
-                <div class="table-wrap">
-                    <table class="docs-table">
-                        <thead>
-                            <tr>
-                                <th>State</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>pending</code></td>
-                                <td>Saved offline, not yet synced to the server.</td>
-                            </tr>
-                            <tr>
-                                <td><code>submitted</code></td>
-                                <td>Received by the API, pending geo-verification.</td>
-                            </tr>
-                            <tr>
-                                <td><code>verified</code></td>
-                                <td>GPS coordinates confirmed within tolerance.</td>
-                            </tr>
-                            <tr>
-                                <td><code>flagged</code></td>
-                                <td>Outside geofence or suspicious pattern detected — needs manager review.</td>
-                            </tr>
-                            <tr>
-                                <td><code>rejected</code></td>
-                                <td>Marked invalid after review. Excluded from performance metrics.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h3>Offline sync</h3>
-                <p>The PWA caches visits locally using IndexedDB when the device is offline. Once connectivity is
-                    restored, the sync engine submits queued visits in chronological order and reconciles any conflicts
-                    using the server timestamp as the source of truth.</p>
-
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">javascript</span><button
-                            class="copy-btn">Copy</button></div>
-                    <pre><code><span class="tok-cm">// Force a manual sync (usually automatic)</span>
-<span class="tok-kw">await</span> safi.sync.<span class="tok-fn">flush</span>();
-
-<span class="tok-cm">// Check the offline queue length</span>
-<span class="tok-kw">const</span> { pending } = <span class="tok-kw">await</span> safi.sync.<span class="tok-fn">status</span>();
-console.<span class="tok-fn">log</span>(<span class="tok-str">`<span class="tok-prop">${pending}</span> visits waiting to sync`</span>);</code></pre>
-                </div>
-            </section>
-
-            <!-- ─── TERRITORY MANAGEMENT ─── -->
-            <section id="territory-mgmt" class="doc-section">
-                <h2><a class="anchor" href="#territory-mgmt">#</a> Territory Management</h2>
-                <p>Territories define which companies each rep is responsible for. They can be drawn as geographic
-                    polygons on the map, defined by a list of company IDs, or auto-generated using our clustering
-                    algorithm.</p>
-
-                <h3>Creating a territory</h3>
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">javascript</span><button
-                            class="copy-btn">Copy</button></div>
-                    <pre><code><span class="tok-kw">const</span> territory = <span class="tok-kw">await</span> safi.territories.<span class="tok-fn">create</span>({
-  name:    <span class="tok-str">'Nairobi CBD'</span>,
-  color:   <span class="tok-str">'#2f5fd0'</span>,
-  polygon: [                          <span class="tok-cm">// GeoJSON coordinates</span>
-    [<span class="tok-num">36.8109</span>, <span class="tok-num">-1.2789</span>],
-    [<span class="tok-num">36.8297</span>, <span class="tok-num">-1.2789</span>],
-    [<span class="tok-num">36.8297</span>, <span class="tok-num">-1.3040</span>],
-    [<span class="tok-num">36.8109</span>, <span class="tok-num">-1.3040</span>],
-  ],
-  assignedReps: [<span class="tok-str">'usr_amara'</span>, <span class="tok-str">'usr_kwame'</span>],
-});</code></pre>
-                </div>
-
-                <h3>Auto-cluster territories</h3>
-                <p>The clustering endpoint groups all unassigned companies into <em>N</em> territories using K-Means
-                    distance weighting. Useful during initial setup.</p>
-
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">http</span><button class="copy-btn">Copy</button>
-                    </div>
-                    <pre><code>POST /v1/territories/cluster
-{
-  "targetCount": 8,
-  "balanceByVisitLoad": true
-}</code></pre>
-                </div>
-
-                <div class="alert alert-tip">
-                    <div class="alert-icon">💡</div>
-                    <div class="alert-content">
-                        <strong>Re-balance tip</strong>
-                        Run the cluster endpoint quarterly to account for new companies added and rep turnover.
-                        Clustering is non-destructive — it returns a preview that you can accept or discard.
-                    </div>
-                </div>
-            </section>
-
-            <!-- ─── INVENTORY ─── -->
-            <section id="inventory" class="doc-section">
-                <h2><a class="anchor" href="#inventory">#</a> Real-time Inventory</h2>
-                <p>Track product stock levels at each company location. Inventory is updated automatically when a rep
-                    logs a visit with order or delivery data, or via direct API writes for warehousing integrations.</p>
-
-                <h3>Recording stock</h3>
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">javascript</span><button
-                            class="copy-btn">Copy</button></div>
-                    <pre><code><span class="tok-kw">await</span> safi.inventory.<span class="tok-fn">update</span>({
-  companyId: <span class="tok-str">'cmp_001'</span>,
-  items: [
-    { sku: <span class="tok-str">'sku_panadol_24'</span>, qty: <span class="tok-num">48</span>,  action: <span class="tok-str">'set'</span>   },
-    { sku: <span class="tok-str">'sku_ors_10pk'</span>,   qty: <span class="tok-num">12</span>,  action: <span class="tok-str">'add'</span>   },
-    { sku: <span class="tok-str">'sku_expired_x'</span>,  qty: <span class="tok-num">5</span>,   action: <span class="tok-str">'remove'</span> },
-  ],
-  repId:     <span class="tok-str">'usr_amara'</span>,
-  visitId:   <span class="tok-str">'vis_abc789'</span>,  <span class="tok-cm">// link to the visit that triggered this</span>
-});</code></pre>
-                </div>
-
-                <h3>Low-stock alerts</h3>
-                <p>Configure automatic alerts when a SKU falls below a threshold. Alerts are delivered via the
-                    notification system (see Notifications) and are also surfaced in the manager dashboard.</p>
-
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">http</span><button class="copy-btn">Copy</button>
-                    </div>
-                    <pre><code>POST /v1/inventory/alerts
-{
-  "sku":       "sku_panadol_24",
-  "threshold": 10,
-  "channels":  ["email", "in_app"],
-  "assignee":  "usr_manager_01"
-}</code></pre>
-                </div>
-            </section>
-
-            <!-- ─── REPORTING ─── -->
-            <section id="reporting" class="doc-section">
-                <h2><a class="anchor" href="#reporting">#</a> Reporting & Analytics</h2>
-                <p>SafiTrack's reporting API lets you pull aggregated performance data for any date range, team, or
-                    territory. Use it to power your own BI dashboards or export to CSV.</p>
-
-                <h3>Visit summary</h3>
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">http</span><button class="copy-btn">Copy</button>
-                    </div>
-                    <pre><code>GET /v1/reports/visits/summary?from=2026-01-01&to=2026-01-31&territory=ter_nairobi_cbd
-
-200 OK
-{
-  "totalVisits":    342,
-  "verifiedVisits": 318,
-  "flaggedVisits":   14,
-  "avgVisitsPerRep": 42.75,
-  "topPerformer":   "usr_amara",
-  "coverageRate":   0.94   <span class="tok-cm">// % of assigned companies visited at least once</span>
-}</code></pre>
-                </div>
-
-                <h3>Available report types</h3>
-                <div class="table-wrap">
-                    <table class="docs-table">
-                        <thead>
-                            <tr>
-                                <th>Report</th>
-                                <th>Endpoint</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Visit Summary</td>
-                                <td><code>GET /reports/visits/summary</code></td>
-                                <td>Aggregated visit counts & rates.</td>
-                            </tr>
-                            <tr>
-                                <td>Rep Leaderboard</td>
-                                <td><code>GET /reports/reps/leaderboard</code></td>
-                                <td>Ranked reps by visits, coverage & revenue.</td>
-                            </tr>
-                            <tr>
-                                <td>Territory Coverage</td>
-                                <td><code>GET /reports/territories/coverage</code></td>
-                                <td>% of companies visited per territory.</td>
-                            </tr>
-                            <tr>
-                                <td>Revenue by SKU</td>
-                                <td><code>GET /reports/revenue/sku</code></td>
-                                <td>Order value broken down by product.</td>
-                            </tr>
-                            <tr>
-                                <td>Inactive Companies</td>
-                                <td><code>GET /reports/companies/inactive</code></td>
-                                <td>Companies not visited in N days.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- ─── NOTIFICATIONS ─── -->
-            <section id="notifications" class="doc-section">
-                <h2><a class="anchor" href="#notifications">#</a> Notifications</h2>
-                <p>SafiTrack sends notifications via in-app, email, and SMS channels. Configure rules per organization,
-                    per team, or per individual rep.</p>
-
-                <div class="table-wrap">
-                    <table class="docs-table">
-                        <thead>
-                            <tr>
-                                <th>Event</th>
-                                <th>Default channel</th>
-                                <th>Configurable?</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>visit.flagged</code></td>
-                                <td>in_app + email (manager)</td>
-                                <td>Yes</td>
-                            </tr>
-                            <tr>
-                                <td><code>visit.verified</code></td>
-                                <td>in_app (rep)</td>
-                                <td>Yes</td>
-                            </tr>
-                            <tr>
-                                <td><code>inventory.low_stock</code></td>
-                                <td>email</td>
-                                <td>Yes</td>
-                            </tr>
-                            <tr>
-                                <td><code>rep.offline_too_long</code></td>
-                                <td>in_app (manager)</td>
-                                <td>Yes</td>
-                            </tr>
-                            <tr>
-                                <td><code>report.ready</code></td>
-                                <td>email</td>
-                                <td>No</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">javascript</span><button
-                            class="copy-btn">Copy</button></div>
-                    <pre><code><span class="tok-cm">// Override notification channels for a user</span>
-<span class="tok-kw">await</span> safi.notifications.<span class="tok-fn">setPreferences</span>({
-  userId:   <span class="tok-str">'usr_amara'</span>,
-  channels: {
-    <span class="tok-str">'visit.flagged'</span>: [<span class="tok-str">'sms'</span>, <span class="tok-str">'in_app'</span>],
-    <span class="tok-str">'visit.verified'</span>: [],   <span class="tok-cm">// disable</span>
-  },
-});</code></pre>
-                </div>
-            </section>
-
-            <hr class="divider">
-
-            <!-- ─── ENDPOINTS ─── -->
-            <section id="endpoints" class="doc-section">
-                <h2><a class="anchor" href="#endpoints">#</a> API Endpoints</h2>
-                <p>Base URL: <code>https://api.safitrack.io/v1</code>. All responses are JSON. Dates follow ISO 8601.
-                    Pagination uses cursor-based <code>after</code> / <code>before</code> query params.</p>
-
-                <div class="table-wrap">
-                    <table class="docs-table">
-                        <thead>
-                            <tr>
-                                <th>Method</th>
-                                <th>Path</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><span class="badge badge-get">GET</span></td>
-                                <td><code>/companies</code></td>
-                                <td>List all companies (paginated).</td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge badge-post">POST</span></td>
-                                <td><code>/companies</code></td>
-                                <td>Create a new company.</td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge badge-get">GET</span></td>
-                                <td><code>/companies/:id</code></td>
-                                <td>Retrieve a company by ID.</td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge badge-patch">PATCH</span></td>
-                                <td><code>/companies/:id</code></td>
-                                <td>Update company fields.</td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge badge-delete">DELETE</span></td>
-                                <td><code>/companies/:id</code></td>
-                                <td>Archive a company.</td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge badge-get">GET</span></td>
-                                <td><code>/visits</code></td>
-                                <td>List visits with filters.</td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge badge-post">POST</span></td>
-                                <td><code>/visits</code></td>
-                                <td>Log a new visit.</td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge badge-get">GET</span></td>
-                                <td><code>/visits/:id</code></td>
-                                <td>Get visit detail.</td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge badge-post">POST</span></td>
-                                <td><code>/territories</code></td>
-                                <td>Create a territory.</td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge badge-get">GET</span></td>
-                                <td><code>/territories</code></td>
-                                <td>List all territories.</td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge badge-post">POST</span></td>
-                                <td><code>/inventory/update</code></td>
-                                <td>Bulk update stock levels.</td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge badge-get">GET</span></td>
-                                <td><code>/reports/visits/summary</code></td>
-                                <td>Aggregated visit metrics.</td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge badge-post">POST</span></td>
-                                <td><code>/auth/session</code></td>
-                                <td>Create a short-lived session token.</td>
-                            </tr>
-                            <tr>
-                                <td><span class="badge badge-post">POST</span></td>
-                                <td><code>/keys/rotate</code></td>
-                                <td>Rotate API key.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h3>Pagination</h3>
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">http</span><button class="copy-btn">Copy</button>
-                    </div>
-                    <pre><code>GET /v1/companies?limit=50&after=cmp_cursor_xyz
-
-200 OK
-{
-  "data": [...],
-  "pagination": {
-    "hasMore": true,
-    "nextCursor": "cmp_cursor_abc",
-    "total": 312
-  }
-}</code></pre>
-                </div>
-            </section>
-
-            <!-- ─── WEBHOOKS ─── -->
-            <section id="webhooks" class="doc-section">
-                <h2><a class="anchor" href="#webhooks">#</a> Webhooks</h2>
-                <p>Subscribe to real-time events by registering a webhook endpoint. SafiTrack signs every payload with
-                    an HMAC-SHA256 signature using your webhook secret.</p>
-
-                <h3>Registering a webhook</h3>
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">javascript</span><button
-                            class="copy-btn">Copy</button></div>
-                    <pre><code><span class="tok-kw">await</span> safi.webhooks.<span class="tok-fn">create</span>({
-  url:    <span class="tok-str">'https://yourapp.com/webhooks/safitrack'</span>,
-  events: [<span class="tok-str">'visit.verified'</span>, <span class="tok-str">'visit.flagged'</span>, <span class="tok-str">'inventory.low_stock'</span>],
-  secret: process.env.<span class="tok-prop">WEBHOOK_SECRET</span>,
-});</code></pre>
-                </div>
-
-                <h3>Verifying signatures</h3>
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">javascript</span><button
-                            class="copy-btn">Copy</button></div>
-                    <pre><code><span class="tok-kw">import</span> crypto <span class="tok-kw">from</span> <span class="tok-str">'node:crypto'</span>;
-
-<span class="tok-kw">function</span> <span class="tok-fn">verifyWebhook</span>(rawBody, signature, secret) {
-  <span class="tok-kw">const</span> expected = crypto
-    .<span class="tok-fn">createHmac</span>(<span class="tok-str">'sha256'</span>, secret)
-    .<span class="tok-fn">update</span>(rawBody)
-    .<span class="tok-fn">digest</span>(<span class="tok-str">'hex'</span>);
-  <span class="tok-kw">return</span> crypto.<span class="tok-fn">timingSafeEqual</span>(
-    Buffer.<span class="tok-fn">from</span>(<span class="tok-str">`sha256=<span class="tok-prop">${expected}</span>`</span>),
-    Buffer.<span class="tok-fn">from</span>(signature)
-  );
-}</code></pre>
-                </div>
-
-                <div class="alert alert-warning">
-                    <div class="alert-icon">⚠️</div>
-                    <div class="alert-content">
-                        <strong>Respond quickly</strong>
-                        SafiTrack expects a <code>2xx</code> response within <strong>5 seconds</strong>. For slow
-                        processing, immediately acknowledge the webhook and handle it asynchronously using a queue.
-                    </div>
-                </div>
-
-                <h3>Event payload example</h3>
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">json</span><button class="copy-btn">Copy</button>
-                    </div>
-                    <pre><code>{
-  <span class="tok-prop">"id"</span>:        <span class="tok-str">"evt_01HXZ4KQ3T9V"</span>,
-  <span class="tok-prop">"type"</span>:      <span class="tok-str">"visit.verified"</span>,
-  <span class="tok-prop">"createdAt"</span>: <span class="tok-str">"2026-01-20T08:31:05Z"</span>,
-  <span class="tok-prop">"data"</span>: {
-    <span class="tok-prop">"visitId"</span>:   <span class="tok-str">"vis_abc789"</span>,
-    <span class="tok-prop">"repId"</span>:     <span class="tok-str">"usr_amara"</span>,
-    <span class="tok-prop">"companyId"</span>: <span class="tok-str">"cmp_001"</span>,
-    <span class="tok-prop">"coords"</span>:    { <span class="tok-prop">"lat"</span>: <span class="tok-num">-1.2921</span>, <span class="tok-prop">"lng"</span>: <span class="tok-num">36.8219</span> },
-    <span class="tok-prop">"verified"</span>:  <span class="tok-prop">true</span>
-  }
-}</code></pre>
-                </div>
-            </section>
-
-            <!-- ─── RATE LIMITS ─── -->
-            <section id="rate-limits" class="doc-section">
-                <h2><a class="anchor" href="#rate-limits">#</a> Rate Limits</h2>
-                <p>Rate limits are applied per API key, per minute. Limits vary by plan. The current window usage is
-                    returned in every response header.</p>
-
-                <div class="table-wrap">
-                    <table class="docs-table">
-                        <thead>
-                            <tr>
-                                <th>Plan</th>
-                                <th>Requests / min</th>
-                                <th>Visits / day</th>
-                                <th>Webhooks</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>Starter</td>
-                                <td>60</td>
-                                <td>500</td>
-                                <td>2 endpoints</td>
-                            </tr>
-                            <tr>
-                                <td>Growth</td>
-                                <td>300</td>
-                                <td>5,000</td>
-                                <td>10 endpoints</td>
-                            </tr>
-                            <tr>
-                                <td>Enterprise</td>
-                                <td>Unlimited</td>
-                                <td>Unlimited</td>
-                                <td>Unlimited</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <div class="rate-bar-wrap">
-                    <div class="rate-bar-label">Example — Growth plan: 187 / 300 requests this minute</div>
-                    <div class="rate-bar">
-                        <div class="rate-bar-fill" style="width:62%"></div>
-                    </div>
-                </div>
-
-                <h3>Rate limit headers</h3>
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">http response headers</span><button
-                            class="copy-btn">Copy</button></div>
-                    <pre><code>X-RateLimit-Limit:     300
-X-RateLimit-Remaining: 113
-X-RateLimit-Reset:     1737541200   <span class="tok-cm"># Unix timestamp</span>
-Retry-After:           23           <span class="tok-cm"># seconds (only on 429)</span></code></pre>
-                </div>
-
-                <div class="alert alert-danger">
-                    <div class="alert-icon">🚫</div>
-                    <div class="alert-content">
-                        <strong>429 Too Many Requests</strong>
-                        When rate-limited, back off exponentially starting at the <code>Retry-After</code> value.
-                        Repeated violations may trigger temporary IP blocks.
-                    </div>
-                </div>
-            </section>
-
-            <!-- ─── ERRORS ─── -->
-            <section id="errors" class="doc-section">
-                <h2><a class="anchor" href="#errors">#</a> Error Codes</h2>
-                <p>All errors follow a consistent structure. The <code>code</code> field is machine-readable;
-                    <code>message</code> is human-readable and safe to surface in logs.</p>
-
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">json — error response</span><button
-                            class="copy-btn">Copy</button></div>
-                    <pre><code>{
-  <span class="tok-prop">"error"</span>: {
-    <span class="tok-prop">"code"</span>:    <span class="tok-str">"GEOFENCE_VIOLATION"</span>,
-    <span class="tok-prop">"message"</span>: <span class="tok-str">"Check-in location is 840m from the registered company address."</span>,
-    <span class="tok-prop">"status"</span>:  <span class="tok-num">422</span>,
-    <span class="tok-prop">"meta"</span>: {
-      <span class="tok-prop">"distance"</span>:  <span class="tok-num">840</span>,
-      <span class="tok-prop">"tolerance"</span>: <span class="tok-num">200</span>
-    }
-  }
-}</code></pre>
-                </div>
-
-                <div class="table-wrap">
-                    <table class="docs-table">
-                        <thead>
-                            <tr>
-                                <th>Code</th>
-                                <th>HTTP</th>
-                                <th>Meaning</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>UNAUTHORIZED</code></td>
-                                <td>401</td>
-                                <td>Missing or invalid API key.</td>
-                            </tr>
-                            <tr>
-                                <td><code>FORBIDDEN</code></td>
-                                <td>403</td>
-                                <td>Key lacks required scope.</td>
-                            </tr>
-                            <tr>
-                                <td><code>NOT_FOUND</code></td>
-                                <td>404</td>
-                                <td>Resource doesn't exist or is archived.</td>
-                            </tr>
-                            <tr>
-                                <td><code>VALIDATION_ERROR</code></td>
-                                <td>422</td>
-                                <td>Request body failed schema validation.</td>
-                            </tr>
-                            <tr>
-                                <td><code>GEOFENCE_VIOLATION</code></td>
-                                <td>422</td>
-                                <td>GPS coords outside company tolerance.</td>
-                            </tr>
-                            <tr>
-                                <td><code>DUPLICATE_VISIT</code></td>
-                                <td>409</td>
-                                <td>Idempotency key already used.</td>
-                            </tr>
-                            <tr>
-                                <td><code>RATE_LIMITED</code></td>
-                                <td>429</td>
-                                <td>Too many requests. See Retry-After header.</td>
-                            </tr>
-                            <tr>
-                                <td><code>INTERNAL_ERROR</code></td>
-                                <td>500</td>
-                                <td>Something went wrong on our end. Retryable.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- ─── SDK ─── -->
-            <section id="sdk" class="doc-section">
-                <h2><a class="anchor" href="#sdk">#</a> JS / Node SDK Reference</h2>
-                <p>The official <code>@safitrack/sdk-core</code> package wraps the REST API with typed methods,
-                    automatic retry logic, and offline queue support.</p>
-
-                <h3>Client configuration</h3>
-                <div class="table-wrap">
-                    <table class="docs-table">
-                        <thead>
-                            <tr>
-                                <th>Option</th>
-                                <th>Type</th>
-                                <th>Default</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>apiKey</code></td>
-                                <td>string</td>
-                                <td>—</td>
-                                <td><span class="badge badge-required">required</span> Your API key.</td>
-                            </tr>
-                            <tr>
-                                <td><code>region</code></td>
-                                <td>string</td>
-                                <td><code>africa-west-1</code></td>
-                                <td>Nearest server region.</td>
-                            </tr>
-                            <tr>
-                                <td><code>timeout</code></td>
-                                <td>number</td>
-                                <td><code>10000</code></td>
-                                <td>Request timeout in ms.</td>
-                            </tr>
-                            <tr>
-                                <td><code>retries</code></td>
-                                <td>number</td>
-                                <td><code>3</code></td>
-                                <td>Auto-retry attempts on 5xx.</td>
-                            </tr>
-                            <tr>
-                                <td><code>offlineQueue</code></td>
-                                <td>boolean</td>
-                                <td><code>true</code></td>
-                                <td>Enable IndexedDB offline queue.</td>
-                            </tr>
-                            <tr>
-                                <td><code>debug</code></td>
-                                <td>boolean</td>
-                                <td><code>false</code></td>
-                                <td>Log all requests to console.</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-
-                <h3>Available namespaces</h3>
-                <div class="card-grid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr))">
-                    <div class="card">
-                        <div class="card-title" style="font-family:var(--font-mono);font-size:13px">safi.companies</div>
-                        <div class="card-desc">CRUD + search for company records.</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title" style="font-family:var(--font-mono);font-size:13px">safi.visits</div>
-                        <div class="card-desc">Create, list, and review visits.</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title" style="font-family:var(--font-mono);font-size:13px">safi.territories
-                        </div>
-                        <div class="card-desc">Manage geographic territories.</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title" style="font-family:var(--font-mono);font-size:13px">safi.inventory</div>
-                        <div class="card-desc">Stock tracking & alerts.</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title" style="font-family:var(--font-mono);font-size:13px">safi.reports</div>
-                        <div class="card-desc">Pull aggregated analytics.</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title" style="font-family:var(--font-mono);font-size:13px">safi.auth</div>
-                        <div class="card-desc">Session & key management.</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title" style="font-family:var(--font-mono);font-size:13px">safi.webhooks</div>
-                        <div class="card-desc">Register & verify webhooks.</div>
-                    </div>
-                    <div class="card">
-                        <div class="card-title" style="font-family:var(--font-mono);font-size:13px">safi.sync</div>
-                        <div class="card-desc">Manage offline queue.</div>
-                    </div>
-                </div>
-            </section>
-
-            <section id="sdk-python" class="doc-section">
-                <h2><a class="anchor" href="#sdk-python">#</a> Python SDK</h2>
-                <p>The Python SDK mirrors the JS SDK API. Install via pip and use with any async or sync framework.</p>
-
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">bash</span><button class="copy-btn">Copy</button>
-                    </div>
-                    <pre><code>pip install safitrack</code></pre>
-                </div>
-
-                <div class="code-block">
-                    <div class="code-header"><span class="code-lang">python</span><button class="copy-btn">Copy</button>
-                    </div>
-                    <pre><code><span class="tok-kw">from</span> safitrack <span class="tok-kw">import</span> SafiTrack
-
-safi = SafiTrack(api_key=<span class="tok-str">"st_live_xxxx"</span>, region=<span class="tok-str">"africa-west-1"</span>)
-
-<span class="tok-cm"># List all verified visits from January 2026</span>
-visits = safi.visits.list(
-    status=<span class="tok-str">"verified"</span>,
-    from_date=<span class="tok-str">"2026-01-01"</span>,
-    to_date=<span class="tok-str">"2026-01-31"</span>,
-)
-
-<span class="tok-kw">for</span> v <span class="tok-kw">in</span> visits.data:
-    <span class="tok-fn">print</span>(v.id, v.company_id, v.created_at)</code></pre>
-                </div>
-            </section>
-
-            <!-- ─── POSTMAN ─── -->
-            <section id="postman" class="doc-section">
-                <h2><a class="anchor" href="#postman">#</a> Postman Collection</h2>
-                <p>Import the official SafiTrack Postman collection to explore and test every endpoint interactively.
-                    The collection includes environment templates for both <code>sandbox</code> and
-                    <code>production</code>.</p>
-
-                <div class="alert alert-success">
-                    <div class="alert-icon">✅</div>
-                    <div class="alert-content">
-                        <strong>Download collection</strong>
-                        <a href="#">safitrack-api-v1.postman_collection.json</a> — includes pre-request scripts that
-                        auto-sign requests with your API key.
-                    </div>
-                </div>
-            </section>
-
-            <hr class="divider">
-
-            <!-- ─── CHANGELOG ─── -->
-            <section id="changelog" class="doc-section">
-                <h2><a class="anchor" href="#changelog">#</a> Changelog</h2>
-                <p>All notable API changes are documented here. SafiTrack follows <a href="https://semver.org"
-                        style="color:var(--color-primary-light)">semantic versioning</a>. Non-breaking changes are added
-                    without a version bump.</p>
-
-                <div class="changelog">
-                    <div class="cl-item">
-                        <div class="cl-dot"></div>
-                        <div class="cl-date">January 20, 2026</div>
-                        <div class="cl-title">v1.4.0 — Territory clustering API</div>
-                        <div class="cl-desc">Added <code>POST /territories/cluster</code> with K-Means balancing. Python
-                            SDK updated to 1.4.0.</div>
-                    </div>
-                    <div class="cl-item">
-                        <div class="cl-dot"></div>
-                        <div class="cl-date">December 5, 2025</div>
-                        <div class="cl-title">v1.3.2 — Inventory alerts</div>
-                        <div class="cl-desc">Low-stock alerts now support SMS channel. Added
-                            <code>POST /inventory/alerts</code> endpoint.</div>
-                    </div>
-                    <div class="cl-item">
-                        <div class="cl-dot"></div>
-                        <div class="cl-date">October 14, 2025</div>
-                        <div class="cl-title">v1.3.0 — Offline sync improvements</div>
-                        <div class="cl-desc">Rewrote the IndexedDB sync engine for 3× faster queue flush. Added
-                            <code>safi.sync.status()</code>.</div>
-                    </div>
-                    <div class="cl-item">
-                        <div class="cl-dot"></div>
-                        <div class="cl-date">August 1, 2025</div>
-                        <div class="cl-title">v1.2.0 — Reporting API</div>
-                        <div class="cl-desc">Introduced <code>/reports</code> namespace with five pre-built report
-                            types. Cursor pagination added to all list endpoints.</div>
-                    </div>
-                    <div class="cl-item">
-                        <div class="cl-dot"></div>
-                        <div class="cl-date">May 22, 2025</div>
-                        <div class="cl-title">v1.0.0 — General Availability</div>
-                        <div class="cl-desc">SafiTrack API graduates from beta. Stable versioned endpoints, SLA
-                            guarantees, and enterprise support available.</div>
-                    </div>
-                </div>
-            </section>
-
-            <div class="docs-footer">
-                <div>© 2026 SafiTrack</div>
-                <div class="footer-nav">
-                    <a href="#">Privacy</a>
-                    <a href="#">Terms</a>
-                    <a href="helpcenter.html">Help Center</a>
-                    <a href="#">Status</a>
-                </div>
-                <div>Last updated: Jan 20, 2026</div>
-            </div>
-        </main>
+      </div>
+      <div class="nav-actions">
+        <a href="/crm/" class="nav-link-sign-in">Sign in</a>
+        <a href="pricing.html" class="btn-hero-primary">Start for free</a>
+      </div>
+      <button class="mobile-menu-btn" aria-label="Toggle Menu">
+        <span></span><span></span>
+      </button>
     </div>
+  </div>
+</nav>
+<div class="mobile-nav-overlay">
+  <button class="mobile-close-btn" aria-label="Close">
+    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+  </button>
+  <div class="mobile-nav-content">
+    <a href="features/mainfeatures.html" class="mobile-link">Features</a>
+    <a href="pricing.html" class="mobile-link">Pricing</a>
+    <hr class="mobile-divider">
+    <a href="/crm/" class="mobile-link">Sign in</a>
+    <a href="pricing.html" class="btn-primary btn-block" style="text-align:center;margin-top:8px">Start for free</a>
+  </div>
+</div>
 
-    <script>
-        // Sidebar toggle
-        const sidebar = document.getElementById('sidebar');
-        document.getElementById('sidebar-toggle').addEventListener('click', () => {
-            sidebar.classList.toggle('active');
-        });
+<style>
+.docs-layout{display:grid;grid-template-columns:260px 1fr;gap:0;min-height:calc(100vh - 72px);margin-top:72px}
+.docs-sidebar{border-right:1px solid #e6e9ef;padding:32px 0;position:sticky;top:72px;height:calc(100vh - 72px);overflow-y:auto;background:#fafafa}
+.sidebar-section{padding:0 20px;margin-bottom:24px}
+.sidebar-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9ca3af;padding:0 12px;margin-bottom:8px;display:block}
+.sidebar-link{display:block;padding:7px 12px;font-size:14px;color:#4b5563;border-radius:6px;text-decoration:none;transition:all .12s;line-height:1.4}
+.sidebar-link:hover,.sidebar-link.active{background:#f0f2f5;color:#0b1220;font-weight:600}
+.docs-main{padding:48px 56px;max-width:760px}
+.docs-main h1{font-size:2rem;font-weight:800;color:#0b1220;margin-bottom:8px}
+.docs-main .lead{font-size:17px;color:#4b5563;margin-bottom:40px;line-height:1.7;border-bottom:1px solid #e6e9ef;padding-bottom:32px}
+.docs-main h2{font-size:1.25rem;font-weight:700;color:#0b1220;margin:40px 0 12px}
+.docs-main p{color:#4b5563;line-height:1.8;margin-bottom:16px;font-size:15px}
+.docs-main ul{color:#4b5563;line-height:2;padding-left:20px;font-size:15px}
+code{background:#f4f6f8;border:1px solid #e6e9ef;border-radius:4px;padding:2px 6px;font-size:13px;font-family:monospace;color:#0b1220}
+pre{background:#0b1220;border-radius:10px;padding:20px 24px;margin:16px 0 24px;overflow-x:auto}
+pre code{background:none;border:none;padding:0;color:#e2e8f0;font-size:13px;line-height:1.7}
+.changelog-entry{border:1px solid #e6e9ef;border-radius:10px;padding:20px 24px;margin-bottom:16px}
+.changelog-entry .version{font-size:13px;font-weight:700;color:#0b1220;margin-bottom:4px}
+.changelog-entry .date{font-size:12px;color:#9ca3af;margin-bottom:12px}
+.changelog-entry ul{margin:0;padding-left:18px;color:#4b5563;font-size:14px;line-height:1.8}
+@media(max-width:900px){.docs-layout{grid-template-columns:1fr}.docs-sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid #e6e9ef}.docs-main{padding:32px 24px}}
+</style>
 
-        // Sidebar link active state
-        const sidebarLinks = document.querySelectorAll('.sidebar-link');
-        sidebarLinks.forEach(link => {
-            link.addEventListener('click', () => {
-                sidebarLinks.forEach(l => l.classList.remove('active'));
-                link.classList.add('active');
-                if (window.innerWidth < 1000) sidebar.classList.remove('active');
-            });
-        });
+<div class="docs-layout">
+  <aside class="docs-sidebar">
+    <div class="sidebar-section">
+      <span class="sidebar-label">Getting Started</span>
+      <a href="#overview" class="sidebar-link active">Overview</a>
+      <a href="#quickstart" class="sidebar-link">Quick Start</a>
+      <a href="#auth" class="sidebar-link">Authentication</a>
+    </div>
+    <div class="sidebar-section">
+      <span class="sidebar-label">Features</span>
+      <a href="#contacts" class="sidebar-link">Contacts &amp; Companies</a>
+      <a href="#visits" class="sidebar-link">Sales Visits</a>
+      <a href="#routes" class="sidebar-link">Route Plans</a>
+      <a href="#opportunities" class="sidebar-link">Opportunities</a>
+      <a href="#reminders" class="sidebar-link">Reminders</a>
+    </div>
+    <div class="sidebar-section">
+      <span class="sidebar-label">API Reference</span>
+      <a href="apireference.html" class="sidebar-link">REST API</a>
+      <a href="#webhooks" class="sidebar-link">Webhooks</a>
+    </div>
+    <div class="sidebar-section">
+      <span class="sidebar-label">SDKs</span>
+      <a href="#js-sdk" class="sidebar-link">JavaScript</a>
+      <a href="#python-sdk" class="sidebar-link">Python</a>
+    </div>
+    <div class="sidebar-section">
+      <span class="sidebar-label">More</span>
+      <a href="#changelog" class="sidebar-link">Changelog</a>
+    </div>
+  </aside>
 
-        // Tabs
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', () => {
-                const key = tab.dataset.tab;
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-                tab.classList.add('active');
-                document.querySelector(`[data-panel="${key}"]`).classList.add('active');
-            });
-        });
+  <main class="docs-main">
+    <h1 id="overview">Documentation</h1>
+    <p class="lead">Everything you need to integrate SafiTrack into your workflow — from quick-start guides to full API references.</p>
 
-        // Copy buttons
-        document.querySelectorAll('.copy-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const code = btn.closest('.code-block').querySelector('code');
-                navigator.clipboard.writeText(code.innerText).then(() => {
-                    btn.textContent = 'Copied!';
-                    setTimeout(() => btn.textContent = 'Copy', 2000);
-                });
-            });
-        });
+    <h2 id="quickstart">Quick Start</h2>
+    <p>Get your team set up in under 10 minutes by following these steps:</p>
+    <ul>
+      <li>Create a SafiTrack account at <a href="/crm/" style="color:#0b1220;font-weight:600">/crm/</a></li>
+      <li>Import contacts via CSV or connect a Google Sheet</li>
+      <li>Add your first company and assign reps</li>
+      <li>Log your first sales visit or create a route plan</li>
+    </ul>
 
-        // Scroll animations
-        const sections = document.querySelectorAll('.doc-section');
-        const io = new IntersectionObserver(entries => {
-            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-        }, { threshold: 0.05 });
-        sections.forEach(s => io.observe(s));
+    <h2 id="auth">Authentication</h2>
+    <p>SafiTrack uses Supabase Auth under the hood. All API calls require a Bearer token obtained after sign-in.</p>
+    <pre><code>curl -X POST https://ndrkncirkekpqjjkasiy.supabase.co/auth/v1/token \
+  -H "apikey: YOUR_ANON_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"you@company.com","password":"yourpassword","grant_type":"password"}'</code></pre>
 
+    <h2 id="contacts">Contacts &amp; Companies</h2>
+    <p>Every person and business in your pipeline lives in SafiTrack's contact graph. Push contacts via the REST API or import them in bulk using CSV files up to 50,000 rows.</p>
+    <pre><code>// Fetch all companies
+const { data, error } = await supabase
+  .from('companies')
+  .select('*')
+  .order('created_at', { ascending: false });</code></pre>
 
+    <h2 id="visits">Sales Visits</h2>
+    <p>Each visit record captures GPS coordinates, duration, notes, outcomes and attachments. Visits power the Intelligence Hub's AI summaries and the weekly performance digest.</p>
 
+    <h2 id="webhooks">Webhooks</h2>
+    <p>Subscribe to real-time events using webhook endpoints. SafiTrack sends a POST request to your URL whenever a trigger fires.</p>
+    <pre><code>// Example webhook payload
+{
+  "event": "visit.completed",
+  "timestamp": "2026-01-28T09:41:22Z",
+  "data": {
+    "visit_id": "abc123",
+    "rep_id": "rep_456",
+    "company_id": "co_789",
+    "outcome": "demo_booked"
+  }
+}</code></pre>
 
-        // Search (client-side highlight)
-        document.getElementById('search-input').addEventListener('input', e => {
-            const q = e.target.value.toLowerCase().trim();
-            sidebarLinks.forEach(link => {
-                const text = link.textContent.toLowerCase();
-                link.style.opacity = (!q || text.includes(q)) ? '1' : '0.3';
-            });
-        });
-    </script>
+    <h2 id="changelog">Changelog</h2>
+    <div class="changelog-entry">
+      <div class="version">v1.4.0</div>
+      <div class="date">December 2025</div>
+      <ul><li>Intelligence Hub: AI visit summaries and rep coaching</li><li>Bulk contact import (up to 50k rows)</li><li>Webhook delivery retries with exponential back-off</li></ul>
+    </div>
+    <div class="changelog-entry">
+      <div class="version">v1.3.0</div>
+      <div class="date">October 2025</div>
+      <ul><li>Route plan optimisation engine</li><li>Territory management UI</li><li>Google Calendar two-way sync</li></ul>
+    </div>
+    <div class="changelog-entry">
+      <div class="version">v1.2.0</div>
+      <div class="date">August 2025</div>
+      <ul><li>Opportunities Kanban board</li><li>Custom fields on contacts and companies</li><li>CSV export for all entities</li></ul>
+    </div>
+    <div class="changelog-entry">
+      <div class="version">v1.0.0</div>
+      <div class="date">May 2025</div>
+      <ul><li>Initial public launch</li><li>Core CRM, visits, reminders, call logs</li></ul>
+    </div>
+  </main>
+</div>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="footer-logo-wrapper">
+          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
+        </div>
+        <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp; sales CRM built for modern teams.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-column">
+          <h4 class="footer-heading">Product</h4>
+          <ul>
+            <li><a href="features/mainfeatures.html">Features</a></li>
+            <li><a href="pricing.html">Pricing</a></li>
+            <li><a href="integrations.html">Integrations</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4 class="footer-heading">Company</h4>
+          <ul>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="careers.html">Careers</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4 class="footer-heading">Resources</h4>
+          <ul>
+            <li><a href="documentation.html">Documentation</a></li>
+            <li><a href="helpcenter.html">Help Center</a></li>
+            <li><a href="apireference.html">API Reference</a></li>
+            <li><a href="status.html">Status</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4 class="footer-heading">Legal</h4>
+          <ul>
+            <li><a href="legal/privacy.html">Privacy Policy</a></li>
+            <li><a href="legal/terms.html">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+      <div class="footer-social">
+        <a href="#">Twitter</a>
+        <a href="#">LinkedIn</a>
+        <a href="#">GitHub</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+(function(){
+  var mb=document.querySelector('.mobile-menu-btn'),
+      mo=document.querySelector('.mobile-nav-overlay'),
+      mc=document.querySelector('.mobile-close-btn');
+  if(mb&&mo){
+    mb.addEventListener('click',function(){mo.classList.add('active');});
+    if(mc)mc.addEventListener('click',function(){mo.classList.remove('active');});
+    mo.addEventListener('click',function(e){if(e.target===mo)mo.classList.remove('active');});
+  }
+  window.addEventListener('scroll',function(){
+    var nb=document.getElementById('navbar');
+    if(nb)nb.classList.toggle('scrolled',window.scrollY>20);
+  });
+})();
+</script>
 </body>
-
 </html>

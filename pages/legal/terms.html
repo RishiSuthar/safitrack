@@ -1,723 +1,182 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
-
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terms of Service - SafiTrack</title>
-    <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <style>
-        /* ===================================
-           SAFITRACK LANDING PAGE - PROFESSIONAL
-           Dark Mode | Clean Design | No Gradients
-           =================================== */
-
-        :root {
-            /* CRM Colors */
-            --color-primary: #2f5fd0;
-            --color-primary-dark: #244bb0;
-            --color-primary-light: #7da2f8;
-
-            /* Dark Theme Backgrounds */
-            --bg-primary: #0f1117;
-            --bg-secondary: #161b22;
-            --bg-tertiary: #1a2027;
-            --bg-elevated: #21262d;
-
-            /* Text */
-            --text-primary: #e1e4e8;
-            --text-secondary: #bac4d0;
-            --text-muted: #8b949e;
-
-            /* Borders */
-            --border-color: #30363d;
-            --border-light: #21262d;
-
-            /* Shadows */
-            --shadow-sm: 0 1px 0 rgba(255, 255, 255, 0.01);
-            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
-            --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.4);
-            --shadow-xl: 0 20px 48px rgba(0, 0, 0, 0.5);
-
-            /* Spacing */
-            --spacing-unit: 8px;
-
-            /* Border Radius */
-            --radius-sm: 6px;
-            --radius-md: 12px;
-            --radius-lg: 14px;
-            --radius-xl: 20px;
-
-            /* Transitions */
-            --transition-fast: 120ms ease;
-            --transition-base: 200ms ease;
-            --transition-slow: 300ms ease;
-
-            /* Typography */
-            --font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
-        }
-
-        /* ===================================
-           RESET
-           =================================== */
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        html {
-            scroll-behavior: smooth;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
-        body {
-            font-family: var(--font-family);
-            font-size: 16px;
-            line-height: 1.6;
-            color: var(--text-primary);
-            background: var(--bg-primary);
-            overflow-x: hidden;
-        }
-
-        img {
-            max-width: 100%;
-            display: block;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        button {
-            font-family: inherit;
-            cursor: pointer;
-            border: none;
-            background: none;
-        }
-
-        ul {
-            list-style: none;
-        }
-
-        /* ===================================
-           UTILITIES
-           =================================== */
-
-        .container {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 0 24px;
-        }
-
-        /* ===================================
-           BUTTONS
-           =================================== */
-
-        .btn-primary,
-        .btn-secondary {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 10px 20px;
-            font-size: 15px;
-            font-weight: 600;
-            border-radius: var(--radius-md);
-            transition: all var(--transition-base);
-            white-space: nowrap;
-        }
-
-        .btn-primary {
-            background: var(--color-primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--color-primary-dark);
-        }
-
-        .btn-secondary {
-            background: transparent;
-            color: var(--text-primary);
-            border: 1px solid var(--border-color);
-        }
-
-        .btn-secondary:hover {
-            background: var(--bg-secondary);
-            border-color: var(--border-color);
-        }
-
-        .btn-lg {
-            padding: 14px 28px;
-            font-size: 16px;
-        }
-
-        .btn-block {
-            width: 100%;
-        }
-
-        /* ===================================
-           NAVBAR
-           =================================== */
-
-        .navbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
-            background: rgba(15, 17, 23, 0.8);
-            backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .nav-content {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            height: 72px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .logo img {
-            height: 32px;
-            width: auto;
-        }
-
-        .logo-text {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-primary);
-            letter-spacing: -0.01em;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 32px;
-        }
-
-        .nav-links a {
-            font-size: 15px;
-            font-weight: 500;
-            color: var(--text-secondary);
-            transition: color var(--transition-base);
-        }
-
-        .nav-links a:hover {
-            color: var(--text-primary);
-        }
-
-        .nav-links .nav-link-app {
-            color: var(--color-primary);
-        }
-
-        .nav-actions {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        /* ===================================
-           LEGAL PAGE CONTENT
-           =================================== */
-
-        .legal-page {
-            padding: 160px 0 80px;
-            background: var(--bg-primary);
-        }
-
-        .legal-header {
-            margin-bottom: 48px;
-        }
-
-        .legal-title {
-            font-size: 48px;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            color: var(--text-primary);
-            margin-bottom: 16px;
-        }
-
-        .legal-subtitle {
-            font-size: 18px;
-            color: var(--text-secondary);
-            max-width: 800px;
-        }
-
-        .legal-content {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .legal-section {
-            margin-bottom: 48px;
-        }
-
-        .legal-section h2 {
-            font-size: 28px;
-            font-weight: 700;
-            color: var(--text-primary);
-            margin-bottom: 16px;
-        }
-
-        .legal-section h3 {
-            font-size: 20px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin: 24px 0 12px;
-        }
-
-        .legal-section p {
-            font-size: 16px;
-            line-height: 1.7;
-            color: var(--text-secondary);
-            margin-bottom: 16px;
-        }
-
-        .legal-section ul {
-            margin: 16px 0 16px 24px;
-        }
-
-        .legal-section li {
-            font-size: 16px;
-            line-height: 1.7;
-            color: var(--text-secondary);
-            margin-bottom: 8px;
-            list-style-type: disc;
-        }
-
-        .legal-section a {
-            color: var(--color-primary);
-            text-decoration: underline;
-        }
-
-        .legal-section a:hover {
-            color: var(--color-primary-light);
-        }
-
-        .last-updated {
-            font-size: 14px;
-            color: var(--text-muted);
-            font-style: italic;
-            margin-top: 48px;
-        }
-
-        /* ===================================
-           FOOTER
-           =================================== */
-
-        .footer {
-            padding: 80px 0 40px;
-            background: var(--bg-secondary);
-            border-top: 1px solid var(--border-color);
-        }
-
-        .footer-content {
-            display: grid;
-            grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
-            gap: 64px;
-            margin-bottom: 48px;
-        }
-
-        .footer-brand {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .footer-logo-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-bottom: 16px;
-        }
-
-        .footer-logo {
-            height: 28px;
-            width: auto;
-        }
-
-        .footer-logo-text {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--text-primary);
-        }
-
-        .footer-tagline {
-            font-size: 14px;
-            line-height: 1.6;
-            color: var(--text-secondary);
-        }
-
-        .footer-links {
-            display: grid;
-            grid-template-columns: subgrid;
-            grid-column: 2 / 6;
-            gap: 64px;
-        }
-
-        .footer-column {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .footer-heading {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--text-primary);
-            margin-bottom: 16px;
-        }
-
-        .footer-column ul {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .footer-column a {
-            font-size: 14px;
-            color: var(--text-secondary);
-            transition: color var(--transition-base);
-        }
-
-        .footer-column a:hover {
-            color: var(--text-primary);
-        }
-
-        .footer-bottom {
-            padding-top: 32px;
-            border-top: 1px solid var(--border-color);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .footer-bottom p {
-            font-size: 14px;
-            color: var(--text-muted);
-        }
-
-        .footer-social {
-            display: flex;
-            gap: 24px;
-        }
-
-        .footer-social a {
-            font-size: 14px;
-            color: var(--text-secondary);
-            transition: color var(--transition-base);
-        }
-
-        .footer-social a:hover {
-            color: var(--text-primary);
-        }
-
-        /* ===================================
-           MOBILE RESPONSIVENESS
-           =================================== */
-
-        @media (max-width: 1024px) {
-            .legal-title {
-                font-size: 40px;
-            }
-
-            .footer-content {
-                grid-template-columns: 1fr 1fr;
-                gap: 40px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .legal-page {
-                padding: 120px 0 60px;
-            }
-
-            .legal-title {
-                font-size: 32px;
-            }
-
-            .legal-section h2 {
-                font-size: 24px;
-            }
-
-            .footer-content {
-                grid-template-columns: 1fr;
-                gap: 32px;
-            }
-
-            .footer-bottom {
-                flex-direction: column;
-                gap: 16px;
-                text-align: center;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <title>Terms of Service — SafiTrack</title>
+  <link rel="stylesheet" href="../../landing.css">
+  <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
 </head>
-
 <body>
-    <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container">
-            <div class="nav-content">
-                <a href="../../index.html" class="logo">
-                    <img src="../../assets/icons/whiteblue.png" alt="SafiTrack">
-                    <span class="logo-text">SafiTrack</span>
-                </a>
-
-                <!-- Desktop Links -->
-                <div class="nav-links">
-                    <a href="../features/mainfeatures.html">Features</a>
-                    <a href="../../index.html#product">Product</a>
-                    <a href="../pricing.html">Pricing</a>
-                    <a href="../../crm/" class="nav-link-app">Open App →</a>
-                </div>
-                <div class="nav-actions">
-                    <a href="../../index.html#pricing" class="btn-primary">Get Started</a>
-                </div>
-            </div>
+<nav class="navbar" id="navbar">
+  <div class="container">
+    <div class="nav-content">
+      <div class="nav-left">
+        <a href="../../index.html" class="logo">
+          <img src="../../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
+        </a>
+        <div class="nav-links">
+          <a href="../features/mainfeatures.html" class="nav-link">Features</a>
+          <a href="../pricing.html" class="nav-link">Pricing</a>
         </div>
-    </nav>
+      </div>
+      <div class="nav-actions">
+        <a href="/crm/" class="nav-link-sign-in">Sign in</a>
+        <a href="../pricing.html" class="btn-hero-primary">Start for free</a>
+      </div>
+      <button class="mobile-menu-btn" aria-label="Toggle Menu">
+        <span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+<div class="mobile-nav-overlay">
+  <button class="mobile-close-btn" aria-label="Close">
+    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+    </svg>
+  </button>
+  <div class="mobile-nav-content">
+    <a href="../features/mainfeatures.html" class="mobile-link">Features</a>
+    <a href="../pricing.html" class="mobile-link">Pricing</a>
+    <hr class="mobile-divider">
+    <a href="/crm/" class="mobile-link">Sign in</a>
+    <a href="../pricing.html" class="btn-primary btn-block" style="text-align:center;margin-top:8px">Start for free</a>
+  </div>
+</div>
 
-    <!-- Legal Page Content -->
-    <section class="legal-page">
-        <div class="container">
-            <div class="legal-header">
-                <h1 class="legal-title">Terms of Service</h1>
-                <p class="legal-subtitle">These Terms of Service govern your use of SafiTrack's CRM platform and
-                    services. By accessing or using our services, you agree to be bound by these terms.</p>
-            </div>
+<style>
+.legal-hero{padding:120px 0 56px;background:#fafafa;border-bottom:1px solid #e6e9ef;text-align:center}
+.legal-hero h1{font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800;color:#0b1220;margin-bottom:12px}
+.legal-hero p{font-size:16px;color:#9ca3af}
+.legal-layout{max-width:760px;margin:0 auto;padding:64px 24px 80px}
+.legal-layout h2{font-size:1.15rem;font-weight:700;color:#0b1220;margin:40px 0 12px}
+.legal-layout p,.legal-layout li{font-size:15px;color:#4b5563;line-height:1.8;margin-bottom:12px}
+.legal-layout ul{padding-left:20px}
+.legal-layout a{color:#0b1220;font-weight:600}
+</style>
 
-            <div class="legal-content">
-                <div class="legal-section">
-                    <h2>Acceptance of Terms</h2>
-                    <p>By accessing and using SafiTrack, you accept and agree to be bound by the terms and provision of
-                        this agreement. If you do not agree to abide by the above, please do not use this service.</p>
-                    <p>SafiTrack reserves the right to modify these terms at any time. Your continued use of the service
-                        following any such changes constitutes your acceptance of the new terms.</p>
-                </div>
+<section class="legal-hero">
+  <div class="container">
+    <h1>Terms of Service</h1>
+    <p>Last updated: January 1, 2023</p>
+  </div>
+</section>
 
-                <div class="legal-section">
-                    <h2>Description of Service</h2>
-                    <p>SafiTrack is a customer relationship management (CRM) platform designed to help sales teams
-                        manage leads, track deals, automate workflows, and optimize field operations. Our services
-                        include but are not limited to:</p>
-                    <ul>
-                        <li>Contact and company management</li>
-                        <li>Sales pipeline tracking</li>
-                        <li>AI-powered insights and summaries</li>
-                        <li>Route planning and field operations</li>
-                        <li>Analytics and reporting</li>
-                        <li>Integration with third-party services</li>
-                    </ul>
-                </div>
+<div class="legal-layout">
+  <p>Please read these Terms of Service ("Terms") carefully before using SafiTrack. By accessing or using our services you agree to be bound by these Terms.</p>
 
-                <div class="legal-section">
-                    <h2>Registration and Account Security</h2>
-                    <p>To access certain features of our service, you must register for an account. When you register,
-                        you agree to:</p>
-                    <ul>
-                        <li>Provide accurate, current, and complete information as prompted by the registration form
-                        </li>
-                        <li>Maintain and promptly update your account information</li>
-                        <li>Maintain the security of your password and account</li>
-                        <li>Accept responsibility for all activities that occur under your account</li>
-                        <li>Notify SafiTrack immediately of any unauthorized use of your account</li>
-                    </ul>
-                    <p>You are responsible for maintaining the confidentiality of your account and password and for
-                        restricting access to your computer, and you agree to accept responsibility for all activities
-                        that occur under your account or password.</p>
-                </div>
+  <h2>1. Acceptance of Terms</h2>
+  <p>By creating an account or using SafiTrack in any way, you agree to these Terms and our Privacy Policy. If you do not agree, do not use the service.</p>
 
-                <div class="legal-section">
-                    <h2>Subscription, Billing, and Renewal</h2>
-                    <h3>Subscription Terms</h3>
-                    <p>SafiTrack offers various subscription plans with different features and pricing. Subscription
-                        fees are charged in advance on a monthly or annual basis, depending on the plan you select.</p>
+  <h2>2. Description of Service</h2>
+  <p>SafiTrack is a cloud-based CRM and field-operations platform. We reserve the right to modify, suspend or discontinue any aspect of the service at any time with reasonable notice.</p>
 
-                    <h3>Payment</h3>
-                    <p>You agree to provide current, complete, and accurate purchase and account information for all
-                        purchases made through our service. You further agree to promptly update account and payment
-                        information, including email address, credit card numbers, and expiration dates, so that we can
-                        complete your transactions and contact you as needed.</p>
+  <h2>3. Account Registration</h2>
+  <p>You must provide accurate information when creating an account. You are responsible for maintaining the confidentiality of your credentials and for all activities that occur under your account.</p>
 
-                    <h3>Refunds</h3>
-                    <p>We offer a 14-day free trial for new customers. If you cancel within the trial period, you will
-                        not be charged. After the trial period, refunds are handled on a case-by-case basis. Please
-                        contact our support team for refund requests.</p>
+  <h2>4. Acceptable Use</h2>
+  <p>You agree not to: (a) violate any applicable law; (b) infringe on intellectual-property rights; (c) transmit harmful, fraudulent or deceptive content; (d) attempt to gain unauthorised access to our systems; or (e) use the service to build a competing product.</p>
 
-                    <h3>Automatic Renewal</h3>
-                    <p>Unless you cancel your subscription before the end of the current subscription period, your
-                        subscription will automatically renew and you will be charged the applicable subscription fees
-                        for the subsequent period.</p>
-                </div>
+  <h2>5. Subscription and Billing</h2>
+  <p>Paid plans are billed in advance on a monthly or annual basis. Fees are non-refundable except as required by law or as stated in our refund policy. We may change pricing with 30 days' notice.</p>
 
-                <div class="legal-section">
-                    <h2>User Conduct</h2>
-                    <p>You agree not to use the service to:</p>
-                    <ul>
-                        <li>Violate any applicable laws or regulations</li>
-                        <li>Infringe upon or violate our intellectual property rights or the intellectual property
-                            rights of others</li>
-                        <li>Harass, abuse, insult, harm, defame, or discriminate against others</li>
-                        <li>Submit false or misleading information</li>
-                        <li>Upload viruses or other malicious code</li>
-                        <li>Spam, phish, pharm, pretext, spider, crawl, or scrape</li>
-                        <li>Interfere with or circumvent the security features of the service</li>
-                        <li>Use the service for any illegal or unauthorized purpose</li>
-                    </ul>
-                </div>
+  <h2>6. Data Ownership</h2>
+  <p>You retain ownership of all data you input into SafiTrack. You grant us a limited licence to use that data solely to provide and improve the service.</p>
 
-                <div class="legal-section">
-                    <h2>Intellectual Property Rights</h2>
-                    <p>The service and its original content, features, and functionality are and will remain the
-                        exclusive property of SafiTrack and its licensors. The service is protected by copyright,
-                        trademark, and other laws of both the United States and foreign countries.</p>
-                    <p>You may not modify, reproduce, distribute, create derivative works, publicly display, publicly
-                        perform, republish, download, store, or transmit any of the material on our service, except as
-                        permitted by law or with our prior written consent.</p>
-                </div>
+  <h2>7. Intellectual Property</h2>
+  <p>SafiTrack and all related marks, logos, and content are owned by us or our licensors. Nothing in these Terms grants you a right to use our trademarks.</p>
 
-                <div class="legal-section">
-                    <h2>Privacy</h2>
-                    <p>Your privacy is important to us. Our Privacy Policy, which is incorporated into these Terms of
-                        Service, explains how we collect, use, and protect your information when you use our service. By
-                        using SafiTrack, you agree to the collection and use of information in accordance with our
-                        Privacy Policy.</p>
-                </div>
+  <h2>8. Confidentiality</h2>
+  <p>Both parties agree to keep the other's confidential information secure and not to disclose it to third parties, except as required by law or with written consent.</p>
 
-                <div class="legal-section">
-                    <h2>Termination</h2>
-                    <p>We may terminate or suspend your account and bar access to the service immediately, without prior
-                        notice or liability, under our sole discretion, for any reason whatsoever and without
-                        limitation, including but not limited to a breach of the Terms.</p>
-                    <p>If you wish to terminate your account, you may simply discontinue using the service. If you have
-                        a paid subscription, you must cancel your subscription through your account settings or by
-                        contacting our support team.</p>
-                </div>
+  <h2>9. Disclaimer of Warranties</h2>
+  <p>THE SERVICE IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.</p>
 
-                <div class="legal-section">
-                    <h2>Disclaimer of Warranties</h2>
-                    <p>The service is provided on an "AS IS" and "AS AVAILABLE" basis. We make no representations or
-                        warranties of any kind, express or implied, as to the operation of the service or the
-                        information, content, materials, or products included on this service.</p>
-                    <p>You expressly agree that your use of the service is at your sole risk. To the fullest extent
-                        permissible by applicable law, we disclaim all warranties, express or implied, including but not
-                        limited to implied warranties of merchantability and fitness for a particular purpose.</p>
-                </div>
+  <h2>10. Limitation of Liability</h2>
+  <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, SAFITRACK SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, OR ANY LOSS OF PROFITS OR DATA.</p>
 
-                <div class="legal-section">
-                    <h2>Limitation of Liability</h2>
-                    <p>In no event shall SafiTrack, its directors, employees, partners, agents, suppliers, or affiliates
-                        be liable for any indirect, incidental, special, consequential, or punitive damages, including
-                        without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting
-                        from your use of the service.</p>
-                    <p>Our total liability to you for any cause of action whatsoever, and regardless of the form of the
-                        action, will at all times be limited to the amount paid, if any, by you to us for the service
-                        during the term of subscription.</p>
-                </div>
+  <h2>11. Indemnification</h2>
+  <p>You agree to indemnify and hold harmless SafiTrack and its officers from any claims arising from your use of the service or violation of these Terms.</p>
 
-                <div class="legal-section">
-                    <h2>Governing Law</h2>
-                    <p>These Terms shall be interpreted and governed by the laws of the State of California, United
-                        States, without regard to its conflict of law provisions. Any dispute relating in any way to
-                        your use of the service shall be submitted to the exclusive jurisdiction of the state and
-                        federal courts located in San Francisco, California.</p>
-                </div>
+  <h2>12. Governing Law</h2>
+  <p>These Terms are governed by the laws of the jurisdiction in which SafiTrack is incorporated, without regard to conflict-of-law principles.</p>
 
-                <div class="legal-section">
-                    <h2>Changes to Terms of Service</h2>
-                    <p>We reserve the right, at our sole discretion, to modify or replace these Terms at any time. If a
-                        revision is material, we will provide at least 30 days' notice prior to any new terms taking
-                        effect. What constitutes a material change will be determined at our sole discretion.</p>
-                    <p>By continuing to access or use our service after those revisions become effective, you agree to
-                        be bound by the revised terms. If you do not agree to the new terms, you must stop using the
-                        service.</p>
-                </div>
+  <h2>13. Changes to Terms</h2>
+  <p>We may update these Terms at any time. Continued use of the service after changes take effect constitutes acceptance of the new Terms.</p>
 
-                <div class="legal-section">
-                    <h2>Contact Information</h2>
-                    <p>If you have any questions about these Terms of Service, please contact us at:</p>
-                    <p>Email: legal@safitrack.com<br>
-                        Address: SafiTrack Legal Team, 123 Tech Street, San Francisco, CA 94105</p>
-                </div>
+  <h2>Contact Us</h2>
+  <p>Questions about these Terms? Email <a href="mailto:legal@safitrack.com">legal@safitrack.com</a>.</p>
+</div>
 
-                <p class="last-updated">Last updated: January 1, 2023</p>
-            </div>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-content">
+      <div class="footer-brand">
+        <div class="footer-logo-wrapper">
+          <img src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
         </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="footer-logo-wrapper">
-                        <img src="../../assets/icons/whiteblue.png" alt="SafiTrack" class="footer-logo">
-                        <span class="footer-logo-text">SafiTrack</span>
-                    </div>
-                    <p class="footer-tagline">Modern CRM platform built for<br>high-performing sales teams</p>
-                </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Product</h4>
-                        <ul>
-                            <li><a href="../features/mainfeatures.html">Features</a></li>
-                            <li><a href="../pricing.html">Pricing</a></li>
-                            <li><a href="../../index.html">Login</a></li>
-                            <li><a href="#">Integrations</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Company</h4>
-                        <ul>
-                            <li><a href="#">About</a></li>
-                            <li><a href="../blog.html">Blog</a></li>
-                            <li><a href="../careers.html">Careers</a></li>
-                            <li><a href="#">Contact</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Resources</h4>
-                        <ul>
-                            <li><a href="../documentation.html">Documentation</a></li>
-                            <li><a href="../helpcenter.html">Help Center</a></li>
-                            <li><a href="#">API Reference</a></li>
-                            <li><a href="../status.html">Status</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Legal</h4>
-                        <ul>
-                            <li><a href="privacy.html">Privacy Policy</a></li>
-                            <li><a href="terms.html">Terms of Service</a></li>
-                            <li><a href="#">Security</a></li>
-                            <li><a href="#">GDPR</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-                <div class="footer-social">
-                    <a href="#" aria-label="Twitter">Twitter</a>
-                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
-                    <a href="#" aria-label="GitHub">GitHub</a>
-                </div>
-            </div>
+        <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp; sales CRM built for modern teams.</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-column">
+          <h4 class="footer-heading">Product</h4>
+          <ul>
+            <li><a href="../features/mainfeatures.html">Features</a></li>
+            <li><a href="../pricing.html">Pricing</a></li>
+            <li><a href="../integrations.html">Integrations</a></li>
+          </ul>
         </div>
-    </footer>
+        <div class="footer-column">
+          <h4 class="footer-heading">Company</h4>
+          <ul>
+            <li><a href="../blog.html">Blog</a></li>
+            <li><a href="../careers.html">Careers</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4 class="footer-heading">Resources</h4>
+          <ul>
+            <li><a href="../documentation.html">Documentation</a></li>
+            <li><a href="../helpcenter.html">Help Center</a></li>
+            <li><a href="../apireference.html">API Reference</a></li>
+            <li><a href="../status.html">Status</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4 class="footer-heading">Legal</h4>
+          <ul>
+            <li><a href="../legal/privacy.html">Privacy Policy</a></li>
+            <li><a href="../legal/terms.html">Terms of Service</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+      <div class="footer-social">
+        <a href="#">Twitter</a>
+        <a href="#">LinkedIn</a>
+        <a href="#">GitHub</a>
+      </div>
+    </div>
+  </div>
+</footer>
+<script>
+(function(){
+  var mb=document.querySelector('.mobile-menu-btn'),
+      mo=document.querySelector('.mobile-nav-overlay'),
+      mc=document.querySelector('.mobile-close-btn');
+  if(mb&&mo){
+    mb.addEventListener('click',function(){mo.classList.add('active');});
+    if(mc)mc.addEventListener('click',function(){mo.classList.remove('active');});
+    mo.addEventListener('click',function(e){if(e.target===mo)mo.classList.remove('active');});
+  }
+  window.addEventListener('scroll',function(){
+    var nb=document.getElementById('navbar');
+    if(nb)nb.classList.toggle('scrolled',window.scrollY>20);
+  });
+})();
+</script>
 </body>
-
 </html>

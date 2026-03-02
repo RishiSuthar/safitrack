@@ -571,9 +571,11 @@ function initContactModal() {
     const feedbackBtns = document.querySelectorAll('.close-feedback');
     const planInput = document.getElementById('selected-plan');
 
-    // Initialize EmailJS with Public Key
+    // Keys are loaded from config.js (gitignored).
+    // Copy config.example.js → config.js and fill in your values.
+    const _cfg = window.APP_CONFIG || {};
     emailjs.init({
-        publicKey: "gBlS97W9mCMXx6qRf",
+        publicKey: _cfg.EMAILJS_PUBLIC_KEY || '',
     });
 
     let currentStep = 1;
@@ -688,9 +690,9 @@ function initContactModal() {
             submitText.style.display = 'none';
             loader.style.display = 'block';
 
-            // Send via EmailJS
-            // USER: Replace Service ID and Template ID
-            emailjs.sendForm('service_5hj9xoc', 'template_suu7kp6', this)
+            // Send via EmailJS — IDs come from window.APP_CONFIG (config.js)
+            const _eCfg = window.APP_CONFIG || {};
+            emailjs.sendForm(_eCfg.EMAILJS_SERVICE_ID || '', _eCfg.EMAILJS_TEMPLATE_ID || '', this)
                 .then(() => {
                     form.style.display = 'none';
                     document.getElementById('form-success').style.display = 'block';

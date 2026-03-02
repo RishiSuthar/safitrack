@@ -1,0 +1,22 @@
+# ============================================================
+# SafiTrack – .gitignore
+# ============================================================
+
+# config.js files are committed — they only contain public-safe keys.
+# (Groq API key is stored as a Supabase secret, never here.)
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+.vscode/settings.json
+
+# If you ever add a Node-based build step
+node_modules/
+dist/
+.env
+.env.local
+.env.*.local
+
+# Supabase CLI local secrets (contains real keys for local dev)
+supabase/.env
+supabase/functions/.env
