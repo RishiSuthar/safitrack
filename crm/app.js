@@ -789,6 +789,14 @@ function initEventListeners() {
   document.getElementById('show-login-btn')?.addEventListener('click', () => switchAuthPane('login'));
   document.getElementById('back-to-signup-btn')?.addEventListener('click', () => switchAuthPane('signup'));
   document.getElementById('signup-form')?.addEventListener('submit', handleSignup);
+  // On steps 1–2, Enter key should advance rather than submit
+  document.getElementById('signup-form')?.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    const activePanel = document.querySelector('.signup-step-panel.active');
+    if (!activePanel) return;
+    const step = parseInt(activePanel.id.replace('signup-step-', ''), 10);
+    if (step < 3) { e.preventDefault(); goToSignupStep(step + 1); }
+  });
 
   // ── Invite modal ──────────────────────────────────────────────────────
   document.getElementById('invite-modal-close')?.addEventListener('click', closeInviteModal);
@@ -963,6 +971,74 @@ function switchAuthPane(pane) {
   loginPane.style.display  = pane === 'login'  ? '' : 'none';
   signupPane.style.display = pane === 'signup' ? '' : 'none';
   verifyPane.style.display = pane === 'verify' ? '' : 'none';
+  // Always restart the wizard from step 1 when the signup pane is shown
+  if (pane === 'signup') goToSignupStep(1);
+}
+
+// ── Signup multi-step wizard ─────────────────────────────────────────────────
+let _signupCurrentStep = 1;
+
+const _SIGNUP_STEP_COPY = {
+  1: { title: 'Tell us about you',         sub: "You're 3 quick steps away from your workspace." },
+  2: { title: 'Set up your workspace',     sub: 'Almost there — just a few more details.' },
+  3: { title: 'Choose your plan',          sub: 'Start free. Upgrade whenever you need to.' },
+};
+
+function goToSignupStep(target) {
+  const current = _signupCurrentStep;
+  if (target > current && !_validateSignupStep(current)) return;
+
+  const reverse = target < current;
+  _signupCurrentStep = target;
+
+  // Swap step panels
+  document.querySelectorAll('.signup-step-panel').forEach((panel, i) => {
+    const isTarget = (i + 1) === target;
+    panel.classList.remove('active', 'step-reverse');
+    if (isTarget) {
+      // Force reflow so the animation always replays
+      void panel.offsetWidth;
+      if (reverse) panel.classList.add('step-reverse');
+      panel.classList.add('active');
+    }
+  });
+
+  // Update stepper dots
+  document.querySelectorAll('.ss-step').forEach((stepEl, i) => {
+    const s = i + 1;
+    stepEl.classList.remove('active', 'completed');
+    if (s === target)     stepEl.classList.add('active');
+    else if (s < target)  stepEl.classList.add('completed');
+  });
+
+  // Update heading copy
+  const copy = _SIGNUP_STEP_COPY[target];
+  if (copy) {
+    const titleEl = document.getElementById('signup-step-title');
+    const subEl   = document.getElementById('signup-step-subtitle');
+    if (titleEl) titleEl.textContent = copy.title;
+    if (subEl)   subEl.textContent   = copy.sub;
+  }
+}
+
+function _validateSignupStep(step) {
+  if (step === 1) {
+    const fn = document.getElementById('signup-firstname')?.value.trim();
+    const ln = document.getElementById('signup-lastname')?.value.trim();
+    if (!fn) { showToast('Please enter your first name.', 'error'); return false; }
+    if (!ln) { showToast('Please enter your last name.', 'error');  return false; }
+  }
+  if (step === 2) {
+    const co = document.getElementById('signup-company')?.value.trim();
+    const em = document.getElementById('signup-email')?.value.trim();
+    const pw = document.getElementById('signup-password')?.value ?? '';
+    if (!co) { showToast('Please enter your company name.', 'error');  return false; }
+    if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
+      showToast('Please enter a valid work email.', 'error'); return false;
+    }
+    if (pw.length < 8) { showToast('Password must be at least 8 characters.', 'error'); return false; }
+  }
+  return true;
 }
 
 // ── Sign-up handler (manager self-registration) ──────────────────────────────

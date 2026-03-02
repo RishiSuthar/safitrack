@@ -2198,6 +2198,319 @@ body {
   }
 }
 
+/* ─────────────────────────────────────────────────────────────────────────────
+   SIGNUP MULTI-STEP WIZARD
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Tighten the header when inside the signup wizard */
+.signup-header {
+  margin-bottom: 1.5rem;
+}
+
+/* ── Stepper ── */
+.signup-stepper {
+  margin-bottom: 2rem;
+}
+
+.signup-stepper-track {
+  display: flex;
+  align-items: center;
+}
+
+.ss-step {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.ss-step:last-child {
+  flex: 0;
+}
+
+.ss-dot {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid var(--border-color);
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+  position: relative;
+}
+
+.ss-num {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  transition: opacity 0.15s ease;
+  line-height: 1;
+}
+
+.ss-check {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  opacity: 0;
+  color: #fff;
+  transition: opacity 0.15s ease;
+}
+
+/* Active step */
+.ss-step.active .ss-dot {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: scale(1.08);
+  box-shadow: 0 0 0 4px rgba(47, 95, 208, 0.15);
+}
+
+.ss-step.active .ss-num {
+  color: #fff;
+}
+
+/* Completed step */
+.ss-step.completed .ss-dot {
+  background: var(--color-success);
+  border-color: var(--color-success);
+  transform: scale(1);
+  box-shadow: none;
+}
+
+.ss-step.completed .ss-num {
+  opacity: 0;
+}
+
+.ss-step.completed .ss-check {
+  opacity: 1;
+}
+
+.ss-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border-color);
+  margin: 0 6px;
+  border-radius: 2px;
+  transition: background 0.35s ease;
+}
+
+.ss-step.completed .ss-line {
+  background: var(--color-success);
+}
+
+.signup-stepper-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.signup-stepper-labels span {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex: 1;
+  text-align: center;
+}
+
+.signup-stepper-labels span:first-child { text-align: left; }
+.signup-stepper-labels span:last-child  { text-align: right; }
+
+/* ── Step Panels ── */
+.signup-step-panel {
+  display: none;
+  flex-direction: column;
+}
+
+.signup-step-panel.active {
+  display: flex;
+  animation: signupStepIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.signup-step-panel.active.step-reverse {
+  animation: signupStepInReverse 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes signupStepIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes signupStepInReverse {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+/* ── Step action row (Back + Continue) ── */
+.signup-step-actions {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  margin-top: 16px;
+  align-items: stretch;
+}
+
+.signup-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+  flex-shrink: 0;
+}
+
+.signup-back-btn:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+
+.signup-next-btn {
+  height: 44px !important;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 10px !important;
+  margin-top: 16px;
+  letter-spacing: 0.2px;
+  gap: 8px;
+}
+
+/* When next-btn is inside the actions grid, remove its top margin */
+.signup-step-actions .signup-next-btn {
+  margin-top: 0;
+}
+
+/* ── Plan Card ── */
+.signup-plan-card {
+  border: 1.5px solid var(--color-primary);
+  border-radius: 16px;
+  padding: 22px 22px 20px;
+  background: rgba(47, 95, 208, 0.04);
+  position: relative;
+  overflow: hidden;
+}
+
+.signup-plan-card::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(47, 95, 208, 0.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.signup-plan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--color-success);
+  color: #fff;
+  padding: 4px 11px 4px 9px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.signup-plan-name {
+  font-size: 1.625rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+  margin-bottom: 5px;
+}
+
+.signup-plan-tagline {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-bottom: 18px;
+  line-height: 1.5;
+}
+
+.signup-plan-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.signup-plan-features li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.signup-plan-features li svg {
+  flex-shrink: 0;
+  color: var(--color-success);
+}
+
+.signup-plan-upgrade-note {
+  margin-top: 18px;
+  font-size: 0.775rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border-color-light);
+  padding-top: 14px;
+}
+
+/* Match auth-form input styles for the signup wizard inputs */
+#signup-form .form-field label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+#signup-form .input-wrapper.modern-input input {
+  padding: 0 45px 0 14px !important;
+  font-size: 0.9375rem;
+  height: 44px;
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] .signup-plan-card {
+  background: rgba(47, 95, 208, 0.07);
+  border-color: rgba(47, 95, 208, 0.35);
+}
+
+[data-theme="dark"] .signup-plan-card::before {
+  background: radial-gradient(circle, rgba(47, 95, 208, 0.18) 0%, transparent 70%);
+}
+
+[data-theme="dark"] .ss-dot {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .signup-back-btn {
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .signup-back-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+}
+
 /* ===== BUTTONS - Professional CRM System ===== */
 
 /* Base Button - Clean, Professional Design */
