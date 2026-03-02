@@ -1113,7 +1113,7 @@ async function initApp() {
 
   const { data: profile, error } = await supabaseClient
     .from('profiles')
-    .select('role, first_name, last_name, email, date_format')
+    .select('role, first_name, last_name, email, date_format, organization_id')
     .eq('id', currentUser.id)
     .single();
 
@@ -1135,6 +1135,10 @@ async function initApp() {
         .eq('id', profile.organization_id)
         .single();
       currentOrganization = org || null;
+      const orgNameEl = document.getElementById('sidebar-org-name');
+      if (orgNameEl && currentOrganization?.name) {
+        orgNameEl.textContent = currentOrganization.name;
+      }
     } catch (_orgErr) { /* non-critical */ }
   }
 
