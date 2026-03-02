@@ -2942,7 +2942,8 @@ function initCompanyModalListeners(company) {
         latitude,
         longitude,
         radius,
-        created_by: currentUser.id
+        created_by: currentUser.id,
+        organization_id: currentOrganization?.id
       };
 
       let result;
@@ -3940,7 +3941,8 @@ function initPersonModalListeners(person) {
         job_title: jobTitle || null,
         phone_numbers: phoneNumbers.length > 0 ? phoneNumbers : null,
         opportunity_id: opportunityId || null,
-        created_by: currentUser.id
+        created_by: currentUser.id,
+        organization_id: currentOrganization?.id
       };
 
       let result;
@@ -4629,7 +4631,8 @@ function initLogVisitForm(companies) {
         travel_time: travelTime ? parseInt(travelTime) : null,
         tags: visitTags,
         mentioned_people: mentionedPeople,
-        created_at: new Date().toISOString()
+        created_at: new Date().toISOString(),
+        organization_id: currentOrganization?.id
       };
 
       const { error } = await supabaseClient.from('visits').insert([visitData]);
@@ -6389,7 +6392,8 @@ function initOpportunityModalListeners(opportunity) {
         next_step_date: nextStepDate || null,
         notes: notes || null,
         competitors: competitors.length > 0 ? JSON.stringify(competitors) : null,
-        mentioned_people: mentionedPeople
+        mentioned_people: mentionedPeople,
+        organization_id: currentOrganization?.id
       };
 
       let result;
@@ -9557,7 +9561,8 @@ function initRoutePlanning(companies, salesReps) {
         assigned_to: assignedTo || null,
         estimated_duration: parseInt(document.getElementById('route-duration').textContent),
         total_distance: Math.round(totalDistance * 1000), // Convert to meters
-        created_by: currentUser.id
+        created_by: currentUser.id,
+        organization_id: currentOrganization?.id
       };
 
       const { data: route, error: routeError } = await supabaseClient
@@ -10816,7 +10821,8 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
             assigned_to: repId,
             estimated_duration: route.estimatedDuration,
             total_distance: Math.round(route.totalDistance * 1000),
-            created_by: currentUser.id
+            created_by: currentUser.id,
+            organization_id: currentOrganization?.id
           };
 
           const { data: savedRoute, error: routeError } = await supabaseClient
@@ -12381,7 +12387,8 @@ function initTaskModalListeners(task) {
         created_by: currentUser.id,
         due_date: dueDate ? new Date(dueDate).toISOString() : null,
         priority,
-        status
+        status,
+        organization_id: currentOrganization?.id
       };
 
       let result;
@@ -12870,7 +12877,8 @@ function initReminderModalListeners(reminder) {
         assigned_to: assignedTo,
         created_by: currentUser.id,
         reminder_date: new Date(reminderDate).toISOString(),
-        is_completed: false
+        is_completed: false,
+        organization_id: currentOrganization?.id
       };
 
       let result;
@@ -13358,7 +13366,7 @@ async function runCompaniesImportFromCsv() {
         } else {
           const { data: inserted, error: insertError } = await supabaseClient
             .from('companies')
-            .insert([{ ...companyPayload, created_by: currentUser.id }])
+            .insert([{ ...companyPayload, created_by: currentUser.id, organization_id: currentOrganization?.id }])
             .select('id')
             .single();
 
@@ -14882,7 +14890,8 @@ function initSurveyVisitForm(locationData) {
           latitude: window.technicianVisitForm.capturedLocation?.latitude,
           longitude: window.technicianVisitForm.capturedLocation?.longitude,
           created_at: new Date().toISOString(),
-          form_data: formData
+          form_data: formData,
+          organization_id: currentOrganization?.id
         };
 
         const { error } = await supabaseClient.from('technician_visits').insert([visitData]);
@@ -15340,7 +15349,8 @@ function initInstallationVisitForm(locationData) {
         latitude: window.technicianVisitForm.capturedLocation?.latitude,
         longitude: window.technicianVisitForm.capturedLocation?.longitude,
         created_at: new Date().toISOString(),
-        form_data: formData
+        form_data: formData,
+        organization_id: currentOrganization?.id
       };
 
       const { error } = await supabaseClient.from('technician_visits').insert([visitData]);
@@ -15690,7 +15700,8 @@ function initMaintenanceVisitForm(locationData) {
         latitude: window.technicianVisitForm.capturedLocation?.latitude,
         longitude: window.technicianVisitForm.capturedLocation?.longitude,
         created_at: new Date().toISOString(),
-        form_data: formData
+        form_data: formData,
+        organization_id: currentOrganization?.id
       };
 
       const { error } = await supabaseClient.from('technician_visits').insert([visitData]);
@@ -18000,7 +18011,8 @@ async function saveNewNote(showNotification = true) {
     title,
     content,
     created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
+    organization_id: currentOrganization?.id
   };
 
   const { data, error } = await supabaseClient
@@ -18854,7 +18866,8 @@ function openNoteModal(note = null) {
       user_id: currentUser.id,
       title,
       content,
-      updated_at: new Date().toISOString()
+      updated_at: new Date().toISOString(),
+      organization_id: currentOrganization?.id
     };
 
     let result;
@@ -20539,7 +20552,8 @@ async function saveCallLog(logId = null) {
     call_at: new Date(callAt).toISOString(),
     duration_seconds: durationMins ? durationMins * 60 : null,
     outcome: outcomeEl.value,
-    notes
+    notes,
+    organization_id: currentOrganization?.id
   };
 
   const saveBtn = document.getElementById('save-call-log-btn');

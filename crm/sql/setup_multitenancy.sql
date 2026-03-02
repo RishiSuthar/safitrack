@@ -77,16 +77,28 @@ comment on table public.invitations is
 -- 4. ADD organization_id TO ALL DATA TABLES
 -- ─────────────────────────────────────────────────────────────
 -- These run with IF NOT EXISTS so they are idempotent.
-alter table public.companies     add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
-alter table public.people        add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
-alter table public.visits        add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
-alter table public.tasks         add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
-alter table public.reminders     add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
-alter table public.opportunities add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
+alter table public.companies          add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
+alter table public.people             add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
+alter table public.visits             add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
+alter table public.tasks              add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
+alter table public.reminders          add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
+alter table public.opportunities      add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
+alter table public.call_logs          add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
+alter table public.technician_visits  add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
+alter table public.routes             add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
+alter table public.notes              add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
 
--- Add to any other tables you have (call_logs, route_plans, technician_visits, etc.)
--- alter table public.call_logs     add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
--- alter table public.route_plans   add column if not exists organization_id uuid references public.organizations(id) on delete cascade;
+-- Enable RLS on every data table so policies are enforced
+alter table public.companies         enable row level security;
+alter table public.people            enable row level security;
+alter table public.visits            enable row level security;
+alter table public.tasks             enable row level security;
+alter table public.reminders         enable row level security;
+alter table public.opportunities     enable row level security;
+alter table public.call_logs         enable row level security;
+alter table public.technician_visits enable row level security;
+alter table public.routes            enable row level security;
+alter table public.notes             enable row level security;
 
 
 -- ─────────────────────────────────────────────────────────────
@@ -342,6 +354,38 @@ create policy "opportunities: org isolation"
   with check (organization_id = public.get_my_org_id());
 
 
+-- ── call_logs ──────────────────────────────────────────────
+drop policy if exists "call_logs: org isolation" on public.call_logs;
+create policy "call_logs: org isolation"
+  on public.call_logs for all
+  using (organization_id = public.get_my_org_id())
+  with check (organization_id = public.get_my_org_id());
+
+
+-- ── technician_visits ──────────────────────────────────────
+drop policy if exists "technician_visits: org isolation" on public.technician_visits;
+create policy "technician_visits: org isolation"
+  on public.technician_visits for all
+  using (organization_id = public.get_my_org_id())
+  with check (organization_id = public.get_my_org_id());
+
+
+-- ── routes ─────────────────────────────────────────────────
+drop policy if exists "routes: org isolation" on public.routes;
+create policy "routes: org isolation"
+  on public.routes for all
+  using (organization_id = public.get_my_org_id())
+  with check (organization_id = public.get_my_org_id());
+
+
+-- ── notes ──────────────────────────────────────────────────
+drop policy if exists "notes: org isolation" on public.notes;
+create policy "notes: org isolation"
+  on public.notes for all
+  using (organization_id = public.get_my_org_id())
+  with check (organization_id = public.get_my_org_id());
+
+
 -- ─────────────────────────────────────────────────────────────
 -- 9. BACKFILL EXISTING DATA (run once if you have existing rows)
 -- ─────────────────────────────────────────────────────────────
@@ -352,21 +396,24 @@ create policy "opportunities: org isolation"
 --
 -- REMOVE THE /* and */ around this block to enable it:
 
-/*
+
 do $$
 declare
-  v_org_id uuid := '00000000-0000-0000-0000-000000000000'; -- ← CHANGE THIS
+  v_org_id uuid := '08d16378-aee7-43cf-859b-207f0f93f6c5'; -- ← CHANGE THIS
 begin
-  update public.profiles     set organization_id = v_org_id where organization_id is null;
-  update public.companies    set organization_id = v_org_id where organization_id is null;
-  update public.people       set organization_id = v_org_id where organization_id is null;
-  update public.visits       set organization_id = v_org_id where organization_id is null;
-  update public.tasks        set organization_id = v_org_id where organization_id is null;
-  update public.reminders    set organization_id = v_org_id where organization_id is null;
-  update public.opportunities set organization_id = v_org_id where organization_id is null;
+  update public.profiles          set organization_id = v_org_id where organization_id is null;
+  update public.companies          set organization_id = v_org_id where organization_id is null;
+  update public.people             set organization_id = v_org_id where organization_id is null;
+  update public.visits             set organization_id = v_org_id where organization_id is null;
+  update public.tasks              set organization_id = v_org_id where organization_id is null;
+  update public.reminders          set organization_id = v_org_id where organization_id is null;
+  update public.opportunities      set organization_id = v_org_id where organization_id is null;
+  update public.call_logs          set organization_id = v_org_id where organization_id is null;
+  update public.technician_visits  set organization_id = v_org_id where organization_id is null;
+  update public.routes             set organization_id = v_org_id where organization_id is null;
+  update public.notes              set organization_id = v_org_id where organization_id is null;
 end;
 $$;
-*/
 
 
 -- ─────────────────────────────────────────────────────────────
