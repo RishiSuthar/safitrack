@@ -739,6 +739,30 @@ ul {
     transition: opacity 0.4s ease;
 }
 
+#showcase-video {
+    width: 100%;
+    height: auto;
+    display: block;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+}
+
+#showcase-video.fade-out {
+    opacity: 0;
+}
+
+/* Covers any watermark / org name in the bottom-left of the CRM recordings */
+.showcase-cover-bl {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 14%;
+    height: 11%;
+    background: #fbfbfb;
+    pointer-events: none;
+    z-index: 2;
+}
+
 /* Ensure the showcase image scales well on small screens and keep aspect ratio */
 @media (max-width: 900px) {
     .browser-frame {

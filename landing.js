@@ -1112,21 +1112,21 @@ function initTestimonialCarousel() {
 
 function initShowcase() {
     const tabs = document.querySelectorAll('.showcase-tab');
-    const image = document.getElementById('showcase-image');
-    if (!tabs.length || !image) return;
+    const video = document.getElementById('showcase-video');
+    if (!tabs.length || !video) return;
 
-    const intervalTime = 6000; // 6 seconds
+    const intervalTime = 8000; // 8 seconds
     let currentIndex = 0;
     let timer = null;
     let startTime = null;
 
     const screenshots = {
-        opportunities: 'assets/safitrackscreenshots/opportunity_sc.png',
-        visits: 'assets/safitrackscreenshots/visits_sc.png',
-        routes: 'assets/safitrackscreenshots/route_sc.png',
-        companies: 'assets/safitrackscreenshots/company_sc.png',
-        people: 'assets/safitrackscreenshots/people_sc.png',
-        ai: 'assets/safitrackscreenshots/ai_sc.png'
+        ai:            'assets/safitrackscreenshots/ai.webm',
+        opportunities: 'assets/safitrackscreenshots/op.webm',
+        visits:        'assets/safitrackscreenshots/visits.webm',
+        routes:        'assets/safitrackscreenshots/routeplan.webm',
+        companies:     'assets/safitrackscreenshots/companies.webm',
+        people:        'assets/safitrackscreenshots/people.webm'
     };
 
     function switchTab(index) {
@@ -1141,15 +1141,17 @@ function initShowcase() {
         const nextTab = tabs[index];
         nextTab.classList.add('active');
 
-        // Fade image
-        image.classList.add('fade-out');
+        // Fade video
+        video.classList.add('fade-out');
 
         setTimeout(() => {
             const tabKey = nextTab.getAttribute('data-tab');
             if (screenshots[tabKey]) {
-                image.src = screenshots[tabKey];
+                video.querySelector('source').src = screenshots[tabKey];
+                video.load();
+                video.play();
             }
-            image.classList.remove('fade-out');
+            video.classList.remove('fade-out');
         }, 400);
 
         currentIndex = index;
