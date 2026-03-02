@@ -18,6 +18,7 @@
         <div class="nav-links">
           <a href="features/mainfeatures.html" class="nav-link">Features</a>
           <a href="pricing.html" class="nav-link">Pricing</a>
+          <a href="helpcenter.html" class="nav-link" style="color:#0b1220;font-weight:700">Help</a>
         </div>
       </div>
       <div class="nav-actions">
@@ -39,6 +40,7 @@
   <div class="mobile-nav-content">
     <a href="features/mainfeatures.html" class="mobile-link">Features</a>
     <a href="pricing.html" class="mobile-link">Pricing</a>
+    <a href="helpcenter.html" class="mobile-link" style="color:#0b1220;font-weight:700">Help</a>
     <hr class="mobile-divider">
     <a href="/crm/" class="mobile-link">Sign in</a>
     <a href="pricing.html" class="btn-primary btn-block" style="text-align:center;margin-top:8px">Start for free</a>
@@ -46,80 +48,310 @@
 </div>
 
 <style>
-.hc-hero{padding:120px 0 72px;text-align:center;background:#0b1220}
-.hc-hero h1{font-size:clamp(2rem,4vw,2.8rem);font-weight:800;color:#fff;margin-bottom:16px}
-.hc-hero p{font-size:17px;color:#9ca3af;margin-bottom:32px}
-.search-wrap{max-width:480px;margin:0 auto;position:relative}
-.search-wrap input{width:100%;border:none;border-radius:10px;padding:14px 20px;font-size:16px;font-family:inherit;color:#0b1220;box-sizing:border-box}
-.search-wrap svg{position:absolute;right:16px;top:50%;transform:translateY(-50%);color:#9ca3af}
-.cats-section{padding:72px 0;background:#fff}
+*{box-sizing:border-box}
+.hc-hero{padding:100px 0 72px;text-align:center;background:#fafafa;border-bottom:1px solid #e6e9ef}
+.hc-hero .hero-badge{display:inline-flex;align-items:center;gap:8px;background:#f4f4f5;border:1px solid #e4e4e7;border-radius:50px;padding:6px 16px;font-size:12.5px;font-weight:600;color:#6b7280;margin-bottom:24px}
+.hc-hero h1{font-size:clamp(1.9rem,4vw,2.8rem);font-weight:800;color:#0b1220;margin-bottom:14px;line-height:1.2}
+.hc-hero .sub{font-size:16px;color:#6b7280;margin-bottom:32px}
+.search-wrap{max-width:520px;margin:0 auto 20px;position:relative}
+.search-wrap .search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);pointer-events:none}
+.search-wrap input{width:100%;border:1.5px solid #e4e4e7;border-radius:12px;padding:15px 20px 15px 46px;font-size:15px;font-family:inherit;color:#0b1220;background:#fff;outline:none;box-shadow:0 2px 12px rgba(0,0,0,.06);transition:border-color .15s}
+.search-wrap input:focus{border-color:#0b1220;box-shadow:0 2px 12px rgba(0,0,0,.1)}
+.popular-pills{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:18px}
+.popular-pill{font-size:12.5px;color:#4b5563;background:#fff;border:1.5px solid #e4e4e7;border-radius:50px;padding:5px 14px;cursor:pointer;transition:all .12s}
+.popular-pill:hover{border-color:#0b1220;color:#0b1220}
+.search-results{display:none;position:absolute;top:calc(100% + 8px);left:0;right:0;background:#fff;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.18);z-index:100;max-height:340px;overflow-y:auto;text-align:left}
+.search-result-item{display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid #f4f4f5;cursor:pointer;transition:background .1s}
+.search-result-item:last-child{border-bottom:none}
+.search-result-item:hover{background:#fafafa}
+.sr-icon{width:30px;height:30px;background:#f4f4f5;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sr-text{flex:1}
+.sr-title{font-size:14px;font-weight:600;color:#0b1220;margin-bottom:2px}
+.sr-cat{font-size:12px;color:#9ca3af}
+.search-no-results{padding:20px;text-align:center;font-size:14px;color:#9ca3af}
 .section-label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6b7280;margin-bottom:12px;text-align:center}
-.section-title{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;color:#0b1220;text-align:center;margin-bottom:48px}
-.cats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
-.cat-card{border:1px solid #e6e9ef;border-radius:12px;padding:32px 24px;text-align:center;cursor:pointer;transition:all .15s}
-.cat-card:hover{box-shadow:0 8px 24px rgba(0,0,0,.08);transform:translateY(-2px);border-color:#0b1220}
-.cat-card .icon{font-size:32px;margin-bottom:12px}
-.cat-card h3{font-size:16px;font-weight:700;color:#0b1220;margin-bottom:6px}
-.cat-card p{font-size:13px;color:#6b7280}
-.articles-section{padding:72px 0;background:#fafafa;border-top:1px solid #e6e9ef}
-.articles-list{max-width:720px;margin:0 auto}
-.article-row{display:flex;align-items:center;justify-content:space-between;padding:18px 0;border-bottom:1px solid #e6e9ef;cursor:pointer;transition:opacity .12s}
-.article-row:hover{opacity:.7}
-.article-row:last-child{border-bottom:none}
-.article-title{font-size:15px;font-weight:600;color:#0b1220}
-.article-tag{font-size:12px;color:#9ca3af;margin-top:4px}
-.support-band{background:#0b1220;border-radius:16px;padding:56px 48px;text-align:center;margin:0 0 80px}
-.support-band h2{font-size:1.8rem;font-weight:800;color:#fff;margin-bottom:10px}
-.support-band p{color:#9ca3af;font-size:16px;margin-bottom:28px}
+.section-title{font-size:clamp(1.5rem,2.5vw,2rem);font-weight:800;color:#0b1220;text-align:center;margin-bottom:48px}
+.cats-section{padding:72px 0;background:#fff}
+.cats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:16px}
+.cat-card{border:1.5px solid #e6e9ef;border-radius:12px;padding:28px 22px;cursor:pointer;transition:all .15s;text-decoration:none;display:block}
+.cat-card:hover{box-shadow:0 8px 28px rgba(0,0,0,.09);transform:translateY(-2px);border-color:#0b1220}
+.cat-icon{width:44px;height:44px;background:#f4f4f5;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.cat-card h3{font-size:15px;font-weight:700;color:#0b1220;margin-bottom:5px}
+.cat-card p{font-size:12.5px;color:#6b7280;margin-bottom:14px;line-height:1.5}
+.cat-count{font-size:12px;font-weight:700;color:#9ca3af;background:#f4f4f5;border-radius:50px;padding:2px 10px;display:inline-block}
+.faq-section{padding:72px 0;background:#fafafa;border-top:1px solid #e6e9ef}
+.faq-filter{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:48px}
+.faq-filter-btn{padding:8px 20px;border-radius:50px;border:1.5px solid #e4e4e7;background:#fff;font-size:13.5px;font-weight:600;color:#6b7280;cursor:pointer;transition:all .15s}
+.faq-filter-btn:hover{border-color:#0b1220;color:#0b1220}
+.faq-filter-btn.active{background:#0b1220;border-color:#0b1220;color:#fff}
+.faq-groups{max-width:760px;margin:0 auto}
+.faq-group{margin-bottom:40px}
+.faq-group-label{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:#9ca3af;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.faq-group-label::after{content:'';flex:1;height:1px;background:#e6e9ef}
+.faq-item{border:1.5px solid #e6e9ef;border-radius:10px;margin-bottom:8px;background:#fff;overflow:hidden;transition:border-color .15s}
+.faq-item.open{border-color:#0b1220}
+.faq-q{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:17px 20px;cursor:pointer;user-select:none}
+.faq-q-text{font-size:14.5px;font-weight:600;color:#0b1220;line-height:1.4}
+.faq-chevron{width:20px;height:20px;flex-shrink:0;transition:transform .2s;color:#9ca3af}
+.faq-item.open .faq-chevron{transform:rotate(180deg);color:#0b1220}
+.faq-answer{display:none;padding:0 20px 18px;font-size:14px;color:#4b5563;line-height:1.8}
+.faq-answer a{color:#0b1220;font-weight:600;text-underline-offset:2px}
+.faq-answer code{background:#f4f4f5;border:1px solid #e4e4e7;border-radius:4px;padding:1px 6px;font-size:12.5px;font-family:monospace;color:#0b1220}
+.faq-answer ul{padding-left:18px;margin:8px 0}
+.faq-item.open .faq-answer{display:block}
+.support-section{padding:72px 0;background:#fff;border-top:1px solid #e6e9ef}
+.channels-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.channel-card{border:1.5px solid #e6e9ef;border-radius:12px;padding:28px 24px}
+.channel-icon{width:44px;height:44px;background:#f4f4f5;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.channel-card h3{font-size:15px;font-weight:700;color:#0b1220;margin-bottom:6px}
+.channel-card p{font-size:13px;color:#6b7280;line-height:1.6;margin-bottom:12px}
+.channel-status{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#6b7280;margin-bottom:18px}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.status-dot.online{background:#16a34a}
+.channel-btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;background:#0b1220;color:#fff;border-radius:8px;font-size:13.5px;font-weight:600;text-decoration:none;border:none;cursor:pointer;transition:background .15s}
+.channel-btn:hover{background:#1f2937}
+.channel-btn.secondary{background:#fff;color:#0b1220;border:1.5px solid #e4e4e7}
+.channel-btn.secondary:hover{border-color:#0b1220}
+@media(max-width:640px){.cats-grid{grid-template-columns:1fr 1fr}.channels-grid{grid-template-columns:1fr}.popular-pills{display:none}}
 </style>
 
 <section class="hc-hero">
   <div class="container">
-    <h1>How can we help?</h1>
-    <p>Search our knowledge base or browse categories below.</p>
-    <div class="search-wrap">
-      <input type="search" placeholder="Search articles…">
-      <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35"/></svg>
+    <div class="hero-badge">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Knowledge Base &amp; Support
+    </div>
+    <h1>How can we help you?</h1>
+    <p class="sub">Search across 60+ articles or browse by topic below.</p>
+    <div class="search-wrap" id="searchWrap">
+      <svg class="search-icon" width="18" height="18" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="hcSearch" placeholder="Search for anything — imports, routes, GPS…" autocomplete="off">
+      <div class="search-results" id="searchResults"></div>
+    </div>
+    <div class="popular-pills">
+      <span class="popular-pill" onclick="setSearch('import contacts')">Import contacts</span>
+      <span class="popular-pill" onclick="setSearch('route plan')">Route plans</span>
+      <span class="popular-pill" onclick="setSearch('GPS')">GPS tracking</span>
+      <span class="popular-pill" onclick="setSearch('billing')">Billing</span>
+      <span class="popular-pill" onclick="setSearch('API')">API access</span>
+      <span class="popular-pill" onclick="setSearch('mobile app')">Mobile app</span>
     </div>
   </div>
 </section>
 
 <section class="cats-section">
   <div class="container">
-    <div class="section-label">Browse</div>
-    <h2 class="section-title">Topics</h2>
+    <div class="section-label">Browse by topic</div>
+    <h2 class="section-title">What do you need help with?</h2>
     <div class="cats-grid">
-      <div class="cat-card"><div class="icon">🚀</div><h3>Getting Started</h3><p>Account setup and onboarding guides</p></div>
-      <div class="cat-card"><div class="icon">👤</div><h3>Contacts &amp; CRM</h3><p>Managing people, companies and deals</p></div>
-      <div class="cat-card"><div class="icon">📍</div><h3>Field Visits</h3><p>Logging visits, GPS and check-ins</p></div>
-      <div class="cat-card"><div class="icon">🗺️</div><h3>Route Plans</h3><p>Building and optimising daily routes</p></div>
-      <div class="cat-card"><div class="icon">🤖</div><h3>Intelligence Hub</h3><p>AI summaries, insights and coaching</p></div>
-      <div class="cat-card"><div class="icon">🔗</div><h3>Integrations</h3><p>Connecting third-party apps and APIs</p></div>
+      <a class="cat-card" href="#getting-started" onclick="filterFaq('getting-started');return false;">
+        <div class="cat-icon"><svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+        <h3>Getting Started</h3><p>Account setup, onboarding, and first steps</p>
+        <span class="cat-count">12 articles</span>
+      </a>
+      <a class="cat-card" href="#contacts" onclick="filterFaq('contacts');return false;">
+        <div class="cat-icon"><svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <h3>Contacts &amp; CRM</h3><p>Managing people, companies, and deals</p>
+        <span class="cat-count">11 articles</span>
+      </a>
+      <a class="cat-card" href="#visits" onclick="filterFaq('visits');return false;">
+        <div class="cat-icon"><svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+        <h3>Field Visits</h3><p>Logging visits, GPS check-ins and outcomes</p>
+        <span class="cat-count">9 articles</span>
+      </a>
+      <a class="cat-card" href="#routes" onclick="filterFaq('routes');return false;">
+        <div class="cat-icon"><svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <h3>Route Plans</h3><p>Building and optimising daily field routes</p>
+        <span class="cat-count">8 articles</span>
+      </a>
+      <a class="cat-card" href="#account" onclick="filterFaq('account');return false;">
+        <div class="cat-icon"><svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <h3>Account &amp; Billing</h3><p>Plans, billing, team members and permissions</p>
+        <span class="cat-count">10 articles</span>
+      </a>
+      <a class="cat-card" href="#intelligence" onclick="filterFaq('intelligence');return false;">
+        <div class="cat-icon"><svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <h3>Intelligence Hub</h3><p>AI summaries, rep coaching and insights</p>
+        <span class="cat-count">7 articles</span>
+      </a>
+      <a class="cat-card" href="#integrations" onclick="filterFaq('integrations');return false;">
+        <div class="cat-icon"><svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div>
+        <h3>Integrations &amp; API</h3><p>Third-party apps, webhooks and API keys</p>
+        <span class="cat-count">8 articles</span>
+      </a>
+      <a class="cat-card" href="#mobile" onclick="filterFaq('mobile');return false;">
+        <div class="cat-icon"><svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+        <h3>Mobile App</h3><p>iOS and Android setup, offline mode and sync</p>
+        <span class="cat-count">6 articles</span>
+      </a>
     </div>
   </div>
 </section>
 
-<section class="articles-section">
+<section class="faq-section">
   <div class="container">
-    <div class="section-label">Popular</div>
-    <h2 class="section-title">Frequently asked</h2>
-    <div class="articles-list">
-      <div class="article-row"><div><div class="article-title">How do I import contacts from a CSV file?</div><div class="article-tag">Getting Started</div></div><svg width="16" height="16" fill="none" stroke="#9ca3af" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></div>
-      <div class="article-row"><div><div class="article-title">Setting up GPS tracking for field reps</div><div class="article-tag">Field Visits</div></div><svg width="16" height="16" fill="none" stroke="#9ca3af" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></div>
-      <div class="article-row"><div><div class="article-title">How to create and assign route plans</div><div class="article-tag">Route Plans</div></div><svg width="16" height="16" fill="none" stroke="#9ca3af" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></div>
-      <div class="article-row"><div><div class="article-title">Connecting SafiTrack to Google Sheets</div><div class="article-tag">Integrations</div></div><svg width="16" height="16" fill="none" stroke="#9ca3af" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></div>
-      <div class="article-row"><div><div class="article-title">Understanding Intelligence Hub AI insights</div><div class="article-tag">Intelligence Hub</div></div><svg width="16" height="16" fill="none" stroke="#9ca3af" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></div>
-      <div class="article-row"><div><div class="article-title">Managing user roles and permissions</div><div class="article-tag">Account</div></div><svg width="16" height="16" fill="none" stroke="#9ca3af" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m9 18 6-6-6-6"/></svg></div>
+    <div class="section-label">Articles</div>
+    <h2 class="section-title">Frequently asked questions</h2>
+    <div class="faq-filter" id="faqFilter">
+      <button class="faq-filter-btn active" data-cat="all" onclick="filterFaq('all')">All topics</button>
+      <button class="faq-filter-btn" data-cat="getting-started" onclick="filterFaq('getting-started')">Getting Started</button>
+      <button class="faq-filter-btn" data-cat="contacts" onclick="filterFaq('contacts')">Contacts &amp; CRM</button>
+      <button class="faq-filter-btn" data-cat="visits" onclick="filterFaq('visits')">Field Visits</button>
+      <button class="faq-filter-btn" data-cat="routes" onclick="filterFaq('routes')">Route Plans</button>
+      <button class="faq-filter-btn" data-cat="account" onclick="filterFaq('account')">Account &amp; Billing</button>
+      <button class="faq-filter-btn" data-cat="integrations" onclick="filterFaq('integrations')">Integrations</button>
+    </div>
+    <div class="faq-groups" id="faqGroups">
+
+      <div class="faq-group" data-cat="getting-started" id="getting-started">
+        <div class="faq-group-label">Getting Started</div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">How do I create a SafiTrack account?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">Go to <a href="/crm/">safitrack.com/crm/</a> and click <strong>Sign up</strong>. Enter your work email, create a password, and complete the 5-step onboarding flow to configure your workspace, import your first contacts, and invite team members. The whole process takes under 10 minutes.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">How do I import contacts from a CSV file?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">Navigate to <strong>Contacts &rarr; Import</strong> in the dashboard and upload a <code>.csv</code> file. Required columns are <code>first_name</code> and <code>email</code>. Optional columns include <code>last_name</code>, <code>phone</code>, <code>company_name</code>, and <code>tags</code>. Imports are limited to 50,000 rows per file. Duplicate emails are automatically de-duplicated.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">How do I invite team members?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">Go to <strong>Settings &rarr; Team</strong> and click <strong>Invite member</strong>. Enter the person's email and select a role &mdash; <em>Manager</em>, <em>Rep</em>, or <em>Read-only</em>. They receive an invitation email valid for 7 days. You can resend or revoke invitations from the same page.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">Is there a free trial?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">Yes &mdash; all new accounts start on a 14-day free trial of the <strong>Growth</strong> plan with no credit card required. You get access to all features including the Intelligence Hub, route optimisation, and API access. After the trial you can subscribe or downgrade to the free Starter tier.</div>
+        </div>
+      </div>
+
+      <div class="faq-group" data-cat="contacts" id="contacts">
+        <div class="faq-group-label">Contacts &amp; CRM</div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">What's the difference between a Contact and a Company?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">A <strong>Contact</strong> is an individual person (e.g. a buyer or decision-maker). A <strong>Company</strong> is the organisation they work for. One contact can belong to multiple companies. Visits, opportunities, and reminders can be attached to either a contact or a company (or both).</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">Can I add custom fields to contacts?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">Yes. Go to <strong>Settings &rarr; Custom Fields</strong> and add fields of type <em>Text</em>, <em>Number</em>, <em>Date</em>, or <em>Select</em>. Custom fields appear on contact and company detail pages and are included in API responses and CSV exports. Available on Growth and Enterprise plans.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">How do I merge duplicate contacts?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">Open a contact record, click the <strong>&ctdot; menu</strong> in the top-right, and select <strong>Merge with&hellip;</strong>. Search for the duplicate and choose which record to keep as primary. All visits, notes, tasks, and opportunities from the secondary record are transferred to the primary before it is deleted.</div>
+        </div>
+      </div>
+
+      <div class="faq-group" data-cat="visits" id="visits">
+        <div class="faq-group-label">Field Visits</div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">How does GPS check-in work?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">When you tap <strong>New Visit</strong> on the mobile app, your device's GPS coordinates are captured automatically and stored with the visit record. Managers can view the GPS trail for any rep in the <strong>Activity</strong> tab. Location permission must be set to <em>Always</em> for background tracking to work.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">Can I log visits from the web dashboard?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">Yes &mdash; go to <strong>Visits &rarr; New Visit</strong> in the web app. You can enter a company, contact, outcome, duration, and notes manually. GPS is not captured on web visits, but you can optionally enter a location. Web visits appear as "Manual entry" in the activity log.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">What visit outcomes are available?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">Default outcomes are: <code>Demo booked</code>, <code>Follow-up needed</code>, <code>No contact</code>, and <code>Closed won</code>. Admins can add or rename outcomes from <strong>Settings &rarr; Visit Outcomes</strong> on Growth and Enterprise plans.</div>
+        </div>
+      </div>
+
+      <div class="faq-group" data-cat="routes" id="routes">
+        <div class="faq-group-label">Route Plans</div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">How does route optimisation work?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">SafiTrack uses a Travelling Salesman Problem (TSP) algorithm to sequence your stops for minimum driving time. Add up to 25 stops, tap <strong>Optimise</strong>, and the engine returns a ranked order. It respects business hours preferences and your starting location. Routes sync to the mobile app within seconds.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">Can I assign a route plan to a specific rep?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">Yes. When creating a route plan, select the rep from the <strong>Assign to</strong> dropdown. The plan will appear in their mobile app under <strong>My Routes</strong> on the scheduled date. Managers can create plans for the whole team from the web dashboard.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">How many stops can a route plan have?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">Route plans support up to <strong>25 stops</strong> on all paid plans. The Starter free tier is limited to 10 stops per route. There is no limit on the number of route plans you can create.</div>
+        </div>
+      </div>
+
+      <div class="faq-group" data-cat="account" id="account">
+        <div class="faq-group-label">Account &amp; Billing</div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">How does per-seat billing work?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">You're billed for each <em>active</em> member (anyone with a Rep or Manager role who logged in during the billing period). Read-only users are not counted. Seats are prorated daily &mdash; adding a rep mid-month charges only for the remaining days in the cycle.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">Can I change my plan at any time?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">Yes. Go to <strong>Settings &rarr; Billing</strong> to upgrade, downgrade, or cancel. Upgrades take effect immediately. Downgrades take effect at the start of the next billing period. If you cancel, you keep access until the end of the paid period, and your data is retained for 90 days before permanent deletion.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">What payment methods do you accept?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">We accept all major credit and debit cards (Visa, Mastercard, Amex) via Stripe. Enterprise customers can be invoiced annually and pay by bank transfer. We currently do not accept PayPal or cryptocurrency.</div>
+        </div>
+      </div>
+
+      <div class="faq-group" data-cat="integrations" id="integrations">
+        <div class="faq-group-label">Integrations &amp; API</div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">How do I connect SafiTrack to Google Sheets?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">Go to <strong>Settings &rarr; Integrations &rarr; Google Sheets</strong>, click <strong>Connect</strong>, and authorise SafiTrack to access your Google account. Select the spreadsheet and sheet you want to sync. Data syncs every 15 minutes. Column headers must match SafiTrack field names &mdash; see the <a href="documentation.html">documentation</a> for the full list.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">Where do I find my API keys?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">API keys are in <strong>Settings &rarr; Developer &rarr; API Keys</strong>. Click <strong>Create key</strong>, give it a name, and copy the key immediately &mdash; it is shown only once. You can have up to 10 active keys per workspace. Rotate or revoke keys at any time from the same page.</div>
+        </div>
+        <div class="faq-item">
+          <div class="faq-q" onclick="toggleFaq(this)"><span class="faq-q-text">Does SafiTrack support Zapier or Make?</span><svg class="faq-chevron" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg></div>
+          <div class="faq-answer">The Zapier integration is in private beta. Join the waitlist from <strong>Settings &rarr; Integrations &rarr; Zapier</strong>. In the meantime, you can build automations using <a href="documentation.html#webhooks">webhooks</a> or the <a href="apireference.html">REST API</a> directly with Make (Integromat) via the HTTP module.</div>
+        </div>
+      </div>
+
     </div>
   </div>
 </section>
 
-<section style="background:#fff;padding:0 0 80px">
+<section class="support-section">
   <div class="container">
-    <div class="support-band">
-      <h2>Still need help?</h2>
-      <p>Our support team typically responds within 2 business hours.</p>
-      <a href="mailto:support@safitrack.com" class="btn-hero-primary" style="background:#fff;color:#0b1220">Email support</a>
+    <div class="section-label">Contact us</div>
+    <h2 class="section-title">Still need help?</h2>
+    <div class="channels-grid">
+      <div class="channel-card">
+        <div class="channel-icon"><svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+        <h3>Email support</h3>
+        <p>Send us a detailed message and we'll get back to you with a full answer.</p>
+        <div class="channel-status"><span class="status-dot online"></span>Typically replies within 2 hours</div>
+        <a href="mailto:support@safitrack.com" class="channel-btn">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          support@safitrack.com
+        </a>
+      </div>
+      <div class="channel-card">
+        <div class="channel-icon"><svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+        <h3>Live chat</h3>
+        <p>Chat with our support team directly inside the app for quick questions.</p>
+        <div class="channel-status"><span class="status-dot online"></span>Mon&ndash;Fri, 8 am&ndash;6 pm EAT</div>
+        <a href="/crm/" class="channel-btn">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          Open in app
+        </a>
+      </div>
+      <div class="channel-card">
+        <div class="channel-icon"><svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+        <h3>Documentation</h3>
+        <p>In-depth guides, API reference and SDK examples for developers and power users.</p>
+        <div class="channel-status"><span class="status-dot online"></span>Always available</div>
+        <a href="documentation.html" class="channel-btn secondary">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          View docs
+        </a>
+      </div>
+      <div class="channel-card">
+        <div class="channel-icon"><svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <h3>System status</h3>
+        <p>Check real-time uptime for the API, mobile apps, and Intelligence Hub.</p>
+        <div class="channel-status"><span class="status-dot online"></span>All systems operational</div>
+        <a href="status.html" class="channel-btn secondary">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          View status
+        </a>
+      </div>
     </div>
   </div>
 </section>
@@ -191,6 +423,91 @@
     var nb=document.getElementById('navbar');
     if(nb)nb.classList.toggle('scrolled',window.scrollY>20);
   });
+
+  // FAQ accordion
+  window.toggleFaq=function(btn){
+    var item=btn.closest('.faq-item');
+    var wasOpen=item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(function(i){i.classList.remove('open');});
+    if(!wasOpen) item.classList.add('open');
+  };
+
+  // FAQ category filter
+  window.filterFaq=function(cat){
+    document.querySelectorAll('.faq-filter-btn').forEach(function(b){
+      b.classList.toggle('active',b.dataset.cat===cat);
+    });
+    document.querySelectorAll('.faq-group').forEach(function(g){
+      g.style.display=(cat==='all'||g.dataset.cat===cat)?'block':'none';
+    });
+    if(cat!=='all'){
+      var faqSec=document.querySelector('.faq-section');
+      if(faqSec) setTimeout(function(){faqSec.scrollIntoView({behavior:'smooth',block:'start'});},50);
+    }
+  };
+
+  // search dataset
+  var ARTICLES=[
+    {title:'How do I create a SafiTrack account?',cat:'Getting Started',group:'getting-started'},
+    {title:'How do I import contacts from a CSV file?',cat:'Getting Started',group:'getting-started'},
+    {title:'How do I invite team members?',cat:'Getting Started',group:'getting-started'},
+    {title:'Is there a free trial?',cat:'Getting Started',group:'getting-started'},
+    {title:"What's the difference between a Contact and a Company?",cat:'Contacts & CRM',group:'contacts'},
+    {title:'Can I add custom fields to contacts?',cat:'Contacts & CRM',group:'contacts'},
+    {title:'How do I merge duplicate contacts?',cat:'Contacts & CRM',group:'contacts'},
+    {title:'How does GPS check-in work?',cat:'Field Visits',group:'visits'},
+    {title:'Can I log visits from the web dashboard?',cat:'Field Visits',group:'visits'},
+    {title:'What visit outcomes are available?',cat:'Field Visits',group:'visits'},
+    {title:'How does route optimisation work?',cat:'Route Plans',group:'routes'},
+    {title:'Can I assign a route plan to a specific rep?',cat:'Route Plans',group:'routes'},
+    {title:'How many stops can a route plan have?',cat:'Route Plans',group:'routes'},
+    {title:'How does per-seat billing work?',cat:'Account & Billing',group:'account'},
+    {title:'Can I change my plan at any time?',cat:'Account & Billing',group:'account'},
+    {title:'What payment methods do you accept?',cat:'Account & Billing',group:'account'},
+    {title:'How do I connect SafiTrack to Google Sheets?',cat:'Integrations & API',group:'integrations'},
+    {title:'Where do I find my API keys?',cat:'Integrations & API',group:'integrations'},
+    {title:'Does SafiTrack support Zapier or Make?',cat:'Integrations & API',group:'integrations'}
+  ];
+
+  var searchInput=document.getElementById('hcSearch');
+  var searchResultsEl=document.getElementById('searchResults');
+  var searchWrap=document.getElementById('searchWrap');
+
+  function renderResults(q){
+    if(!q){searchResultsEl.style.display='none';return;}
+    var hits=ARTICLES.filter(function(a){
+      return a.title.toLowerCase().includes(q)||a.cat.toLowerCase().includes(q);
+    }).slice(0,7);
+    if(!hits.length){
+      searchResultsEl.innerHTML='<div class="search-no-results">No results for "'+q+'"</div>';
+    } else {
+      searchResultsEl.innerHTML=hits.map(function(a){
+        return '<div class="search-result-item" onclick="goArticle(\''+a.group+'\')">'+
+          '<div class="sr-icon"><svg width="14" height="14" fill="none" stroke="#374151" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>'+
+          '<div class="sr-text"><div class="sr-title">'+a.title+'</div><div class="sr-cat">'+a.cat+'</div></div>'+
+          '<svg width="14" height="14" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>'+
+          '</div>';
+      }).join('');
+    }
+    searchResultsEl.style.display='block';
+  }
+
+  window.goArticle=function(group){
+    searchResultsEl.style.display='none';
+    if(searchInput) searchInput.value='';
+    filterFaq(group);
+  };
+
+  window.setSearch=function(q){
+    if(searchInput){searchInput.value=q;searchInput.focus();}
+    renderResults(q.toLowerCase());
+  };
+
+  if(searchInput){
+    searchInput.addEventListener('input',function(){renderResults(this.value.toLowerCase().trim());});
+    searchInput.addEventListener('focus',function(){if(this.value.trim()) renderResults(this.value.toLowerCase().trim());});
+    document.addEventListener('click',function(e){if(searchWrap&&!searchWrap.contains(e.target)) searchResultsEl.style.display='none';});
+  }
 })();
 </script>
 </body>
