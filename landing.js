@@ -447,45 +447,122 @@ function initCounterAnimations() {
 // ===================================
 
 function initRoleTabs() {
-    const buttons = document.querySelectorAll('.dock-btn');
+    const buttons = document.querySelectorAll('.rs-tab-row .dock-btn');
     const views = document.querySelectorAll('.role-view');
     const contexts = document.querySelectorAll('.role-context');
+
+    if (!buttons.length) return;
+
+    const roles = ['manager', 'salesrep', 'technician'];
+    const CYCLE_MS = 4500; // time per tab
+    let currentIndex = 0;
+    let cycleTimer = null;
+    let paused = false;
 
     // Default init
     if (document.querySelector('.role-view.active#view-manager')) {
         initManagerAnimations();
     }
 
+    function switchTo(role) {
+        currentIndex = roles.indexOf(role);
+
+        // Buttons
+        buttons.forEach(b => {
+            b.classList.remove('active');
+            const prog = b.querySelector('.rs-tab-progress');
+            if (prog) { prog.style.transition = 'none'; prog.style.width = '0%'; }
+        });
+        const activeBtn = [...buttons].find(b => b.getAttribute('data-role') === role);
+        if (activeBtn) activeBtn.classList.add('active');
+
+        // Context panels
+        contexts.forEach(ctx => ctx.classList.toggle('active', ctx.getAttribute('data-role') === role));
+
+        // Views
+        views.forEach(view => {
+            view.classList.remove('active');
+            if (view.id === `view-${role}`) view.classList.add('active');
+        });
+
+        // Animations
+        if (role === 'manager') initManagerAnimations();
+        if (role === 'technician') initTechAnimations();
+    }
+
+    function startProgress(btn) {
+        const prog = btn.querySelector('.rs-tab-progress');
+        if (!prog) return;
+        prog.style.transition = 'none';
+        prog.style.width = '0%';
+        // Force reflow
+        prog.getBoundingClientRect();
+        prog.style.transition = `width ${CYCLE_MS}ms linear`;
+        prog.style.width = '100%';
+    }
+
+    function tick() {
+        if (paused) return;
+        currentIndex = (currentIndex + 1) % roles.length;
+        switchTo(roles[currentIndex]);
+        const activeBtn = [...buttons].find(b => b.getAttribute('data-role') === roles[currentIndex]);
+        if (activeBtn) startProgress(activeBtn);
+    }
+
+    function resetCycle() {
+        clearInterval(cycleTimer);
+        cycleTimer = setInterval(tick, CYCLE_MS);
+    }
+
+    // Manual click — pause cycling for 12s then resume
     buttons.forEach(btn => {
         btn.addEventListener('click', function () {
             const role = this.getAttribute('data-role');
+            switchTo(role);
 
-            // 1. Update Buttons
-            buttons.forEach(b => b.classList.remove('active'));
-            this.classList.add('active');
+            // Reset & pause
+            paused = true;
+            clearInterval(cycleTimer);
+            startProgress(this);
 
-            // 2. Update Context Text
-            contexts.forEach(ctx => {
-                if (ctx.getAttribute('data-role') === role) {
-                    ctx.classList.add('active');
-                } else {
-                    ctx.classList.remove('active');
-                }
-            });
-
-            // 3. Update Visual View
-            views.forEach(view => {
-                view.classList.remove('active');
-                if (view.id === `view-${role}`) {
-                    view.classList.add('active');
-
-                    // Trigger animations
-                    if (role === 'manager') initManagerAnimations();
-                    if (role === 'technician') initTechAnimations();
-                }
-            });
+            setTimeout(() => {
+                paused = false;
+                resetCycle();
+            }, 12000);
         });
     });
+
+    // Pause on hover over the whole card
+    const card = document.querySelector('.rs-card');
+    if (card) {
+        card.addEventListener('mouseenter', () => { paused = true; });
+        card.addEventListener('mouseleave', () => {
+            paused = false;
+            resetCycle();
+        });
+    }
+
+    // Wire up interactive buttons
+    function wireBtn(id, labels) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('click', () => {
+            el.disabled = true;
+            el.textContent = labels[1];
+            setTimeout(() => { el.textContent = labels[0]; el.disabled = false; }, 1400);
+        });
+    }
+    wireBtn('rs-mgr-btn',    ['Open Dashboard →', 'Opening…']);
+    wireBtn('rs-mgr-export', ['Export Report',     'Exporting…']);
+    wireBtn('rs-sales-btn',  ['+ Add Deal',        'Adding…']);
+    wireBtn('rs-sales-ai',   ['✨ AI Score All',   'Scoring…']);
+    wireBtn('rs-tech-route', ['📍 Plan My Route',  'Planning…']);
+    wireBtn('rs-tech-log',   ['Log a Visit',        'Logging…']);
+
+    // Kick off auto-cycle
+    const firstBtn = [...buttons].find(b => b.classList.contains('active'));
+    if (firstBtn) startProgress(firstBtn);
+    resetCycle();
 }
 
 // Manager Role Animations

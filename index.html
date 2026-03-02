@@ -446,74 +446,72 @@
         </div>
     </section>
 
-    <!-- Premium Roles Showcase - REDESIGN -->
-    <section class="roles-showcase">
-        <div class="roles-bg-glow"></div>
+    <!-- Roles Showcase -->
+    <section class="roles-showcase" id="roles">
         <div class="container">
-            <div class="split-layout">
-                <!-- Left Column: Navigation & Context -->
-                <div class="role-nav-col">
-                    <div class="nav-sticky-content">
-                        <div class="section-label">Unified Platform</div>
-                        <h2 class="role-heading">One OS for your<br>entire team.</h2>
 
-                        <div class="role-dock vertical">
-                            <button class="dock-btn active" data-role="manager">
-                                <span class="d-icon">📊</span>
-                                <div class="d-text">
-                                    <span class="d-title">Managers</span>
-                                    <span class="d-desc">Command Center</span>
-                                </div>
-                            </button>
-                            <button class="dock-btn" data-role="salesrep">
-                                <span class="d-icon">⚡️</span>
-                                <div class="d-text">
-                                    <span class="d-title">Sales Reps</span>
-                                    <span class="d-desc">Pipeline & Deals</span>
-                                </div>
-                            </button>
-                            <button class="dock-btn" data-role="technician">
-                                <span class="d-icon">📍</span>
-                                <div class="d-text">
-                                    <span class="d-title">Technicians</span>
-                                    <span class="d-desc">Field Operations</span>
-                                </div>
-                            </button>
-                        </div>
+            <!-- Header -->
+            <div class="rs-header">
+                <span class="rs-eyebrow">Built for every role</span>
+                <h2 class="rs-title">One platform,<br>every team member covered.</h2>
+                <p class="rs-subtitle">SafiTrack adapts to how each person on your team actually works — from the field to the boardroom.</p>
+            </div>
 
-                        <!-- Dynamic Description Area -->
-                        <div class="role-context active" data-role="manager">
-                            <p class="context-desc">Get a bird's eye view of revenue, team performance, and field
-                                operations in real-time.</p>
-                            <div class="context-tags">
-                                <span>Revenue Pulse</span>
-                                <span>Team Activity</span>
-                                <span>Admin Controls</span>
-                            </div>
-                        </div>
-                        <div class="role-context" data-role="salesrep">
-                            <p class="context-desc">Move deals faster with a visual pipeline and AI-assisted workflows.
-                            </p>
-                            <div class="context-tags">
-                                <span>Kanban Board</span>
-                                <span>Deal Scoring</span>
-                                <span>One-click Actions</span>
-                            </div>
-                        </div>
-                        <div class="role-context" data-role="technician">
-                            <p class="context-desc">Optimize routes and log visits effortlessly with the mobile field
-                                app.</p>
-                            <div class="context-tags">
-                                <span>Smart Routing</span>
-                                <span>Visit Logging</span>
-                                <span>Photo Evidence</span>
-                            </div>
-                        </div>
+            <!-- Tab Pills -->
+            <div class="rs-tab-row" id="rs-tab-row">
+                <button class="dock-btn active" data-role="manager">
+                    <span class="rs-tab-icon">📊</span> Managers
+                    <span class="rs-tab-progress"></span>
+                </button>
+                <button class="dock-btn" data-role="salesrep">
+                    <span class="rs-tab-icon">⚡️</span> Sales Reps
+                    <span class="rs-tab-progress"></span>
+                </button>
+                <button class="dock-btn" data-role="technician">
+                    <span class="rs-tab-icon">📍</span> Technicians
+                    <span class="rs-tab-progress"></span>
+                </button>
+            </div>
+
+            <!-- Content Card -->
+            <div class="rs-card">
+
+                <!-- Left: Text panels -->
+                <div class="rs-text-area">
+                    <div class="role-context active" data-role="manager">
+                        <span class="rs-role-badge rs-badge-manager">📊 Managers</span>
+                        <h3 class="rs-panel-heading">Command your pipeline with total clarity</h3>
+                        <p class="rs-panel-desc">Get a real-time bird's-eye view of revenue, team performance, and field operations — all in one place.</p>
+                        <ul class="rs-bullets">
+                            <li>Live revenue dashboard &amp; forecasts</li>
+                            <li>Team activity feed &amp; performance scores</li>
+                            <li>Admin controls &amp; role permissions</li>
+                        </ul>
+                    </div>
+                    <div class="role-context" data-role="salesrep">
+                        <span class="rs-role-badge rs-badge-salesrep">⚡️ Sales Reps</span>
+                        <h3 class="rs-panel-heading">Close deals faster with a visual pipeline</h3>
+                        <p class="rs-panel-desc">Move opportunities through every stage with AI-assisted scoring and one-click follow-up actions.</p>
+                        <ul class="rs-bullets">
+                            <li>Visual kanban pipeline board</li>
+                            <li>AI deal scoring &amp; win probability</li>
+                            <li>One-click follow-up actions</li>
+                        </ul>
+                    </div>
+                    <div class="role-context" data-role="technician">
+                        <span class="rs-role-badge rs-badge-tech">📍 Technicians</span>
+                        <h3 class="rs-panel-heading">Field-ready tools that work where you do</h3>
+                        <p class="rs-panel-desc">Optimise routes, log visits, and submit evidence straight from your phone — even offline.</p>
+                        <ul class="rs-bullets">
+                            <li>Smart route planning &amp; navigation</li>
+                            <li>Visit logging with photo evidence</li>
+                            <li>Works offline, syncs instantly</li>
+                        </ul>
                     </div>
                 </div>
 
-                <!-- Right Column: The App Window -->
-                <div class="role-visual-col">
+                <!-- Right: App mockup -->
+                <div class="rs-visual-area">
                     <div class="saas-window">
                         <div class="saas-header">
                             <div class="saas-controls"><span></span><span></span><span></span></div>
@@ -523,113 +521,81 @@
                                 <div class="s-action"></div>
                             </div>
                         </div>
-
                         <div class="saas-content">
-                            <!-- MANAGER VIEW - MISSION CONTROL -->
+                            <!-- MANAGER VIEW -->
                             <div class="role-view active" id="view-manager">
                                 <div class="dashboard-grid">
-                                    <!-- Revenue Card (Full Width) -->
                                     <div class="dash-widget revenue-main">
                                         <div class="w-head">
                                             <span>Revenue Overview</span>
-                                            <select class="mini-select">
-                                                <option>This Quarter</option>
-                                            </select>
+                                            <select class="mini-select"><option>This Quarter</option></select>
                                         </div>
                                         <div class="rev-big-price">$1,240,500 <span class="trend up">+12%</span></div>
                                         <div class="rev-chart-area">
-                                            <!-- Simple CSS Line Chart Representation -->
                                             <svg viewBox="0 0 100 25" preserveAspectRatio="none" class="chart-svg">
-                                                <path
-                                                    d="M0 25 L10 20 L20 22 L30 15 L40 18 L50 10 L60 12 L70 5 L80 8 L90 2 L100 15 V25 H0 Z"
-                                                    fill="rgba(47, 95, 208, 0.1)" />
-                                                <path
-                                                    d="M0 25 L10 20 L20 22 L30 15 L40 18 L50 10 L60 12 L70 5 L80 8 L90 2 L100 15"
-                                                    fill="none" stroke="#2f5fd0" stroke-width="0.5" />
+                                                <path d="M0 25 L10 20 L20 22 L30 15 L40 18 L50 10 L60 12 L70 5 L80 8 L90 2 L100 15 V25 H0 Z" fill="rgba(47,95,208,0.1)"/>
+                                                <path d="M0 25 L10 20 L20 22 L30 15 L40 18 L50 10 L60 12 L70 5 L80 8 L90 2 L100 15" fill="none" stroke="#2f5fd0" stroke-width="0.5"/>
                                             </svg>
                                         </div>
                                     </div>
-
-                                    <!-- Team Status -->
                                     <div class="dash-widget team-stat">
                                         <div class="w-head">Active Agents</div>
                                         <div class="team-avatars">
-                                            <div class="av">SC</div>
-                                            <div class="av">MR</div>
-                                            <div class="av">DK</div>
-                                            <div class="av count">+5</div>
+                                            <div class="av">SC</div><div class="av">MR</div><div class="av">DK</div><div class="av count">+5</div>
                                         </div>
-                                        <div class="online-indicator">
-                                            <span class="pulsing-dot"></span> 8 Online now
-                                        </div>
+                                        <div class="online-indicator"><span class="pulsing-dot"></span> 8 Online now</div>
                                     </div>
-
-                                    <!-- Live Feed -->
                                     <div class="dash-widget live-list">
                                         <div class="w-head">Live Activity</div>
                                         <div class="activity-feed-scroller" id="manager-feed-list">
-                                            <div class="act-item">
-                                                <span class="act-icon">💰</span>
-                                                <div class="act-text"><strong>Sarah</strong> closed Acme deal</div>
-                                                <span class="act-time">2m</span>
-                                            </div>
-                                            <div class="act-item">
-                                                <span class="act-icon">📞</span>
-                                                <div class="act-text"><strong>Mike</strong> called Stark Ind</div>
-                                                <span class="act-time">5m</span>
-                                            </div>
+                                            <div class="act-item"><span class="act-icon">💰</span><div class="act-text"><strong>Sarah</strong> closed Acme deal</div><span class="act-time">2m</span></div>
+                                            <div class="act-item"><span class="act-icon">📞</span><div class="act-text"><strong>Mike</strong> called Stark Ind</div><span class="act-time">5m</span></div>
                                         </div>
                                     </div>
                                 </div>
+                                <div class="rs-view-actions">
+                                    <button class="rs-view-btn" id="rs-mgr-btn">Open Dashboard →</button>
+                                    <button class="rs-view-btn rs-view-ghost" id="rs-mgr-export">Export Report</button>
+                                </div>
                             </div>
-
-                            <!-- SALES VIEW - PIPELINE -->
+                            <!-- SALES VIEW -->
                             <div class="role-view" id="view-salesrep">
                                 <div class="pipeline-board">
                                     <div class="pipe-col">
                                         <div class="pipe-head">New Leads <span class="p-badge">3</span></div>
-                                        <div class="pipe-card">
-                                            <div class="pc-tag">Enterprise</div>
-                                            <div class="pc-title">Acme Corp</div>
-                                            <div class="pc-val">$45k</div>
-                                        </div>
-                                        <div class="pipe-card">
-                                            <div class="pc-tag urgent">Urgent</div>
-                                            <div class="pc-title">Globex</div>
-                                            <div class="pc-val">$12k</div>
-                                        </div>
+                                        <div class="pipe-card"><div class="pc-tag">Enterprise</div><div class="pc-title">Acme Corp</div><div class="pc-val">$45k</div></div>
+                                        <div class="pipe-card"><div class="pc-tag urgent">Urgent</div><div class="pc-title">Globex</div><div class="pc-val">$12k</div></div>
                                     </div>
                                     <div class="pipe-col">
                                         <div class="pipe-head">Discovery <span class="p-badge">1</span></div>
-                                        <div class="pipe-card active-drag">
-                                            <div class="pc-tag">SaaS</div>
-                                            <div class="pc-title">Stark Ind</div>
-                                            <div class="pc-val">$120k</div>
-                                            <div class="ai-insight">✨ 80% Win Prob</div>
-                                        </div>
+                                        <div class="pipe-card active-drag"><div class="pc-tag">SaaS</div><div class="pc-title">Stark Ind</div><div class="pc-val">$120k</div><div class="ai-insight">✨ 80% Win Prob</div></div>
                                         <div class="drop-target"></div>
                                     </div>
                                     <div class="pipe-col">
                                         <div class="pipe-head">Negotiation <span class="p-badge">2</span></div>
-                                        <div class="pipe-card">
-                                            <div class="pc-title">Wayne Ent</div>
-                                            <div class="pc-val">$85k</div>
-                                        </div>
+                                        <div class="pipe-card"><div class="pc-title">Wayne Ent</div><div class="pc-val">$85k</div></div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <!-- TECHNICIAN VIEW - MAP -->
-                            <div class="role-view" id="view-technician" style="text-align:center;">
-                                <img src="https://i.imgur.com/uzQkNVo.png" alt="Technician map screenshot" style="max-width:100%;height:auto;display:inline-block;">
-                            </div>
+                                <div class="rs-view-actions">
+                                    <button class="rs-view-btn" id="rs-sales-btn">+ Add Deal</button>
+                                    <button class="rs-view-btn rs-view-ghost" id="rs-sales-ai">✨ AI Score All</button>
                                 </div>
                             </div>
-
+                            <!-- TECHNICIAN VIEW -->
+                            <div class="role-view" id="view-technician">
+                                <div class="rs-tech-img-wrap">
+                                    <img src="https://i.imgur.com/uzQkNVo.png" alt="Technician map screenshot">
+                                </div>
+                                <div class="rs-view-actions">
+                                    <button class="rs-view-btn" id="rs-tech-route">📍 Plan My Route</button>
+                                    <button class="rs-view-btn rs-view-ghost" id="rs-tech-log">Log a Visit</button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
+
+            </div><!-- /.rs-card -->
         </div>
     </section>
 
