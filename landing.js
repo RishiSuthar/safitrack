@@ -1125,7 +1125,8 @@ function initShowcase() {
         visits: 'assets/safitrackscreenshots/visits_sc.png',
         routes: 'assets/safitrackscreenshots/route_sc.png',
         companies: 'assets/safitrackscreenshots/company_sc.png',
-        people: 'assets/safitrackscreenshots/people_sc.png'
+        people: 'assets/safitrackscreenshots/people_sc.png',
+        ai: 'assets/safitrackscreenshots/ai_sc.png'
     };
 
     function switchTab(index) {

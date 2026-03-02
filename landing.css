@@ -679,21 +679,21 @@ ul {
     width: 100%;
     max-width: 1100px;
     margin: 0 auto;
-    background: #161b22;
+    background: #f0f0f0;
     border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 32px 64px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 32px 64px rgba(0, 0, 0, 0.22);
     overflow: hidden;
 }
 
 .browser-header {
     height: 44px;
-    background: #21262d;
+    background: #e4e4e4;
     display: flex;
     align-items: center;
     padding: 0 20px;
     gap: 24px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
 }
 
 .browser-dots {
@@ -705,25 +705,28 @@ ul {
     width: 10px;
     height: 10px;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.1);
 }
+
+.browser-dots span:nth-child(1) { background: #ff5f57; }
+.browser-dots span:nth-child(2) { background: #febc2e; }
+.browser-dots span:nth-child(3) { background: #28c840; }
 
 .browser-address {
     flex: 1;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.75);
     border-radius: 6px;
     height: 28px;
     display: flex;
     align-items: center;
     padding: 0 12px;
     font-size: 12px;
-    color: var(--text-muted);
+    color: #555;
     font-family: 'JetBrains Mono', monospace;
 }
 
 .showcase-image-container {
     padding: 0;
-    background: #0d1117;
+    background: #ffffff;
     line-height: 0;
     position: relative;
 }
