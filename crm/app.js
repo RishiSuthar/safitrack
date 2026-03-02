@@ -1925,28 +1925,64 @@ async function renderSettingsView() {
             <h2 class="sv-section-title">Organization</h2>
           </div>
 
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <div class="sv-row-title">Organization name</div>
-              <div class="sv-row-desc">The name of your company or team workspace.</div>
+          <!-- Workspace identity card -->
+          <div class="sv-org-card">
+            <div class="sv-org-card-avatar">${((currentOrganization?.name || 'W').match(/\b\w/g) || []).slice(0,2).join('').toUpperCase()}</div>
+            <div class="sv-org-card-body">
+              <div class="sv-org-card-name">${escH(currentOrganization?.name || '—')}</div>
+              <div class="sv-org-card-id">ID&nbsp;&nbsp;<span class="sv-org-card-id-val">${escH((currentOrganization?.id || '').slice(0, 8).toUpperCase()) || '—'}</span></div>
             </div>
-            <div class="sv-row-action">
-              ${isManager ? `
-                <div class="sv-org-edit-wrap">
-                  <input id="org-name-input" class="sv-input" type="text" value="${escH(currentOrganization?.name || '')}" placeholder="Organization name">
-                  <button id="org-name-save-btn" class="sv-primary-btn">Save</button>
-                </div>
-              ` : `<span class="sv-org-name-readonly">${escH(currentOrganization?.name || '—')}</span>`}
-            </div>
+            ${isManager ? `
+            <button class="sv-org-card-edit-btn" id="sv-org-name-edit-trigger" title="Rename workspace">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Rename
+            </button>` : ''}
           </div>
 
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <div class="sv-row-title">Your role</div>
-              <div class="sv-row-desc">Your permission level within this organization.</div>
+          <!-- Inline rename form (manager only, hidden by default) -->
+          ${isManager ? `
+          <div class="sv-org-rename-form" id="sv-org-rename-form" style="display:none;">
+            <div class="sv-org-rename-field">
+              <label class="sv-org-rename-label" for="org-name-input">Workspace name</label>
+              <div class="sv-org-rename-row">
+                <input id="org-name-input" class="sv-input" type="text" value="${escH(currentOrganization?.name || '')}" placeholder="Organization name" autocomplete="off">
+                <button id="org-name-save-btn" class="sv-primary-btn">Save changes</button>
+                <button type="button" class="sv-action-btn" id="sv-org-rename-cancel">Cancel</button>
+              </div>
+              <p class="sv-org-rename-hint">This name appears in your team's sidebar and email invitations.</p>
             </div>
-            <div class="sv-row-action">
-              <span class="sv-role-badge">${roleEsc}</span>
+          </div>` : ''}
+
+          <!-- Stat tiles -->
+          <div class="sv-org-stats">
+            <div class="sv-org-stat-tile">
+              <div class="sv-org-stat-tile-icon">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
+              </div>
+              <div class="sv-org-stat-tile-body">
+                <div class="sv-org-stat-tile-label">Your role</div>
+                <div class="sv-org-stat-tile-value"><span class="sv-role-badge">${roleEsc}</span></div>
+              </div>
+            </div>
+
+            <div class="sv-org-stat-tile">
+              <div class="sv-org-stat-tile-icon">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25 1.18-6.88-5-4.87 6.91-1.01L12 2z"/></svg>
+              </div>
+              <div class="sv-org-stat-tile-body">
+                <div class="sv-org-stat-tile-label">Current plan</div>
+                <div class="sv-org-stat-tile-value"><span class="sv-plan-badge">Free</span></div>
+              </div>
+            </div>
+
+            <div class="sv-org-stat-tile">
+              <div class="sv-org-stat-tile-icon">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div class="sv-org-stat-tile-body">
+                <div class="sv-org-stat-tile-label">Member limit</div>
+                <div class="sv-org-stat-tile-value sv-org-stat-tile-mono">${currentOrganization?.max_members ?? 2} seats</div>
+              </div>
             </div>
           </div>
         </section>
@@ -2231,6 +2267,33 @@ async function renderSettingsView() {
       .sv-org-edit-wrap .sv-input { min-width: 220px; }
       .sv-org-name-readonly { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); }
 
+      /* Workspace identity card */
+      .sv-org-card { display: flex; align-items: center; gap: 18px; padding: 22px 24px; border: 1px solid var(--border-color); border-radius: 14px; background: var(--bg-secondary); max-width: 640px; margin-bottom: 24px; }
+      .sv-org-card-avatar { width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, var(--color-primary) 0%, #6366f1 100%); display: flex; align-items: center; justify-content: center; font-size: 1.15rem; font-weight: 800; color: #fff; letter-spacing: -0.03em; flex-shrink: 0; box-shadow: 0 4px 12px rgba(47,95,208,0.25); }
+      .sv-org-card-body { flex: 1; min-width: 0; }
+      .sv-org-card-name { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.02em; }
+      .sv-org-card-id { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+      .sv-org-card-id-val { font-family: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace; letter-spacing: 0.06em; background: var(--bg-tertiary); padding: 1px 6px; border-radius: 4px; font-size: 0.72rem; color: var(--text-secondary); }
+      .sv-org-card-edit-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-secondary); font-size: 0.8125rem; font-weight: 500; font-family: inherit; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; flex-shrink: 0; }
+      .sv-org-card-edit-btn:hover { background: var(--bg-tertiary); border-color: var(--color-primary); color: var(--color-primary); }
+
+      /* Rename form */
+      .sv-org-rename-form { max-width: 640px; padding: 20px 24px; border: 1px solid var(--border-color); border-radius: 14px; background: var(--bg-secondary); margin-bottom: 24px; }
+      .sv-org-rename-label { display: block; font-size: 0.825rem; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+      .sv-org-rename-row { display: flex; align-items: center; gap: 8px; }
+      .sv-org-rename-row .sv-input { flex: 1; max-width: 300px; }
+      .sv-org-rename-hint { font-size: 0.775rem; color: var(--text-muted); margin: 10px 0 0; line-height: 1.5; }
+
+      /* Stat tiles grid */
+      .sv-org-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 640px; }
+      .sv-org-stat-tile { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-secondary); }
+      .sv-org-stat-tile-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--bg-tertiary); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+      .sv-org-stat-tile-body { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+      .sv-org-stat-tile-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+      .sv-org-stat-tile-value { display: flex; align-items: center; }
+      .sv-org-stat-tile-mono { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); font-family: 'SF Mono', 'Fira Code', monospace; letter-spacing: -0.01em; }
+      @media (max-width: 640px) { .sv-org-stats { grid-template-columns: 1fr; } .sv-org-rename-row { flex-wrap: wrap; } }
+
       /* Billing Card */
       .sv-billing-card { border: 1px solid var(--border-color); border-radius: 14px; background: var(--bg-secondary); padding: 28px 32px; max-width: 680px; }
       .sv-billing-plan-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
@@ -2364,7 +2427,26 @@ async function renderSettingsView() {
 
   document.getElementById('export-data-btn')?.addEventListener('click', () => showToast('Preparing export…', 'info'));
 
-  // Org rename
+  // Org rename — toggle show/hide the rename form
+  document.getElementById('sv-org-name-edit-trigger')?.addEventListener('click', () => {
+    const form = document.getElementById('sv-org-rename-form');
+    if (!form) return;
+    form.style.display = 'block';
+    document.getElementById('org-name-input')?.focus();
+    document.getElementById('sv-org-name-edit-trigger').style.display = 'none';
+  });
+
+  document.getElementById('sv-org-rename-cancel')?.addEventListener('click', () => {
+    const form = document.getElementById('sv-org-rename-form');
+    if (form) form.style.display = 'none';
+    const trigger = document.getElementById('sv-org-name-edit-trigger');
+    if (trigger) trigger.style.display = '';
+    // Reset input to current name
+    const input = document.getElementById('org-name-input');
+    if (input) input.value = currentOrganization?.name || '';
+  });
+
+  // Org rename — save
   document.getElementById('org-name-save-btn')?.addEventListener('click', async () => {
     const input = document.getElementById('org-name-input');
     const btn = document.getElementById('org-name-save-btn');
@@ -2387,13 +2469,21 @@ async function renderSettingsView() {
       document.querySelectorAll('.org-name-display').forEach(el => el.textContent = data.name);
       const orgNameEl = document.getElementById('org-name');
       if (orgNameEl) orgNameEl.textContent = data.name;
+      // Update identity card name in-place
+      const cardName = document.querySelector('.sv-org-card-name');
+      if (cardName) cardName.textContent = data.name;
+      // Close form, restore trigger button
+      const form = document.getElementById('sv-org-rename-form');
+      if (form) form.style.display = 'none';
+      const trigger = document.getElementById('sv-org-name-edit-trigger');
+      if (trigger) trigger.style.display = '';
       showToast('Organization name updated.', 'success');
     } catch (e) {
       console.error(e);
       showToast('Failed to update organization name.', 'error');
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Save';
+      btn.textContent = 'Save changes';
     }
   });
 
