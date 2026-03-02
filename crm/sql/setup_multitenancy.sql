@@ -22,7 +22,7 @@ create table if not exists public.organizations (
   id          uuid        primary key default gen_random_uuid(),
   name        text        not null,
   owner_id    uuid        references auth.users(id) on delete set null,
-  max_members integer     not null default 10,
+  max_members integer     not null default 2,
   created_at  timestamptz not null default now()
 );
 

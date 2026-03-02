@@ -310,7 +310,7 @@
                   <ul class="signup-plan-features">
                     <li>
                       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-                      Up to 10 team members
+                      Up to 2 team members
                     </li>
                     <li>
                       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
@@ -2239,7 +2239,7 @@
     .auth-switch-row {
       margin-top: 16px;
       text-align: center;
-      font-size: 0.83rem;
+      font-size: 0.9rem;
       color: var(--text-secondary);
     }
     .auth-link-btn {
@@ -2253,9 +2253,11 @@
       padding: 0;
       text-decoration: underline;
       text-decoration-color: transparent;
-      transition: text-decoration-color 0.15s;
+      transition: text-decoration-color 0.15s, color 0.15s;
     }
     .auth-link-btn:hover { text-decoration-color: currentColor; }
+    [data-theme="dark"] .auth-link-btn { color: #7da2f8; }
+    [data-theme="dark"] .auth-link-btn:hover { color: #a8c0ff; }
 
     /* ── Invite role cards ────────────────────────────────── */
     .invite-role-card {
