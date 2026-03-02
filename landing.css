@@ -1798,46 +1798,85 @@ section + section {
     }
 
     .split-side {
-        min-height: 500px;
+        min-height: 420px;
     }
 }
 
 @media (max-width: 768px) {
     .transformation-split {
-        padding: 80px 0;
+        padding: 52px 0;
+        overflow: hidden;
     }
 
     .split-container {
-        margin-top: 48px;
-        gap: 32px;
+        margin-top: 32px;
+        gap: 16px;
     }
 
     .split-side {
-        padding: 32px 24px;
-        min-height: 450px;
+        padding: 20px 16px;
+        min-height: auto;
+        overflow: hidden;
     }
 
+    .side-label {
+        margin-bottom: 16px;
+    }
+
+    /* Keep chaos items visible but cap the box height — clip overflow */
     .chaos-visualization {
-        min-height: 350px;
+        min-height: 220px;
+        overflow: hidden;
     }
 
+    /* Scale down absolute items so they fit the reduced height */
     .sticky-note {
-        width: 120px;
-        padding: 10px;
+        width: 100px;
+        padding: 8px;
+        font-size: 11px;
     }
+
+    .sticky-note.note-1 { top: 10px; left: 16px; }
+    .sticky-note.note-2 { top: 56px; right: 16px; }
+    /* Hide the third note — it sat at top:180px and forced extra height */
+    .sticky-note.note-3 { display: none; }
 
     .spreadsheet {
-        width: 180px;
+        top: 80px;
+        right: 16px;
+        left: auto;
+        max-width: 48%;
+        width: 150px;
     }
 
+    /* Hide the alert badges — they pushed the box to 320px+ */
+    .alert-badge {
+        display: none;
+    }
+
+    /* Keep pipeline and after-side compact */
     .pipeline-columns {
-        grid-template-columns: 1fr;
-        gap: 10px;
+        display: flex;
+        overflow-x: auto;
+        gap: 8px;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+
+    .pipeline-columns::-webkit-scrollbar { display: none; }
+
+    .pipeline-col {
+        flex: 0 0 110px;
     }
 
     .side-stats {
-        margin-top: 24px;
-        padding-top: 20px;
+        margin-top: 16px;
+        padding-top: 16px;
+    }
+
+    /* Shrink divider */
+    .split-divider {
+        height: 40px;
     }
 }
 
@@ -3570,12 +3609,12 @@ section + section {
 
     /* 4. Roles Showcase (Stacked & Robust) */
     .roles-showcase {
-        padding: 60px 0;
+        padding: 52px 0;
     }
 
     .split-layout {
         grid-template-columns: 1fr;
-        gap: 32px;
+        gap: 24px;
     }
 
     .role-nav-col {
@@ -3585,7 +3624,28 @@ section + section {
     }
 
     .role-heading {
-        margin-bottom: 24px;
+        font-size: 32px;
+        line-height: 1.15;
+        margin-bottom: 16px;
+    }
+
+    .section-label {
+        margin-bottom: 12px;
+        font-size: 11px;
+    }
+
+    .context-desc {
+        font-size: 15px;
+        margin-bottom: 16px;
+    }
+
+    .context-tags span {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .context-tags {
+        gap: 8px;
     }
 
     /* Roles Switcher: 3-Col Grid (No Scroll) */
@@ -3647,10 +3707,9 @@ section + section {
 
     /* Reduce Window Height */
     .saas-window {
-        height: 60vh;
-        /* Responsive height */
-        min-height: 400px;
-        max-height: 600px;
+        height: 46vh;
+        min-height: 320px;
+        max-height: 480px;
     }
 
     /* Dashboard Stack - Manager */
@@ -6290,12 +6349,52 @@ section + section {
     }
 
     .px-nav {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 8px;
+        padding: 12px;
         border-right: none;
         border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+        white-space: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
     }
 
+    .px-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .px-nav .px-tab {
+        flex: 0 0 auto;
+        padding: 10px 14px;
+    }
+
+    .px-tab-meta {
+        display: none;
+    }
+
+    /* Lock the stage height so switching tabs never causes layout shift */
+    .px-stage {
+        min-height: 320px;
+    }
+
+    /* Horizontal scrollable kanban on mobile keeps all tab panels roughly equal height */
     .px-kanban {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(3, minmax(150px, 1fr));
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 6px;
+        gap: 10px;
+    }
+
+    .px-kanban::-webkit-scrollbar {
+        display: none;
+    }
+
+    .px-col {
+        min-height: 160px;
     }
 }
 
@@ -6440,11 +6539,15 @@ section + section {
     }
 
     .roles-showcase {
-        padding: 52px 0;
+        padding: 40px 0;
+    }
+
+    .role-heading {
+        font-size: 26px;
     }
 
     .role-dock.vertical {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr 1fr 1fr;
     }
 
     .dock-btn {
@@ -6456,8 +6559,8 @@ section + section {
     }
 
     .saas-window {
-        min-height: 360px;
-        height: 58vh;
+        min-height: 280px;
+        height: 44vh;
     }
 
     .dashboard-grid {
