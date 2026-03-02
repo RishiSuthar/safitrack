@@ -745,6 +745,8 @@ ul {
     display: block;
     opacity: 1;
     transition: opacity 0.4s ease;
+    pointer-events: none;
+    user-select: none;
 }
 
 #showcase-video.fade-out {
