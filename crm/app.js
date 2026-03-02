@@ -25,6 +25,7 @@ let lastToastMeta = { key: '', at: 0 };
 let dueNotificationsPollId = null;
 let duePopupHideTimers = [];
 let currentUserProfile = null;
+let currentOrganization = null;   // The tenant/org this user belongs to
 let safiNudgeChannel = null;
 let safiNudgeSubscribed = false;
 let safiNudgeQueue = [];
@@ -783,6 +784,23 @@ function initEventListeners() {
   // Login form
   document.getElementById('login-form').addEventListener('submit', handleLogin);
 
+  // ── Auth pane switchers (login ↔ signup ↔ email-verify) ──────────────
+  document.getElementById('show-signup-btn')?.addEventListener('click', () => switchAuthPane('signup'));
+  document.getElementById('show-login-btn')?.addEventListener('click', () => switchAuthPane('login'));
+  document.getElementById('back-to-signup-btn')?.addEventListener('click', () => switchAuthPane('signup'));
+  document.getElementById('signup-form')?.addEventListener('submit', handleSignup);
+
+  // ── Invite modal ──────────────────────────────────────────────────────
+  document.getElementById('invite-modal-close')?.addEventListener('click', closeInviteModal);
+  document.getElementById('invite-modal-overlay')?.addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeInviteModal();
+  });
+  document.getElementById('invite-form')?.addEventListener('submit', handleInviteSubmit);
+  // Delegate invite-member-btn click (rendered inside settings view)
+  document.addEventListener('click', (e) => {
+    if (e.target.closest('#invite-member-btn')) openInviteModal();
+  });
+
   // Logout
   logoutBtn.addEventListener('click', handleLogout);
 
@@ -936,6 +954,151 @@ async function handleLogout() {
   location.reload();
 }
 
+// ── Auth pane switcher ───────────────────────────────────────────────────────
+function switchAuthPane(pane) {
+  const loginPane  = document.getElementById('login-pane');
+  const signupPane = document.getElementById('signup-pane');
+  const verifyPane = document.getElementById('email-verify-pane');
+  if (!loginPane) return;
+  loginPane.style.display  = pane === 'login'  ? '' : 'none';
+  signupPane.style.display = pane === 'signup' ? '' : 'none';
+  verifyPane.style.display = pane === 'verify' ? '' : 'none';
+}
+
+// ── Sign-up handler (manager self-registration) ──────────────────────────────
+async function handleSignup(e) {
+  e.preventDefault();
+  const firstName   = document.getElementById('signup-firstname').value.trim();
+  const lastName    = document.getElementById('signup-lastname').value.trim();
+  const companyName = document.getElementById('signup-company').value.trim();
+  const email       = document.getElementById('signup-email').value.trim();
+  const password    = document.getElementById('signup-password').value;
+  const btn         = document.getElementById('signup-btn');
+
+  if (!firstName || !lastName) { showToast('Please enter your full name.', 'error'); return; }
+  if (!companyName)            { showToast('Please enter your company name.', 'error'); return; }
+  if (password.length < 8)     { showToast('Password must be at least 8 characters.', 'error'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account…';
+
+  // The `company_name`, `first_name`, `last_name` in user_metadata trigger the
+  // `handle_new_user` DB trigger which auto-creates the organization + manager profile.
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password,
+    options: {
+      data: {
+        first_name:   firstName,
+        last_name:    lastName,
+        company_name: companyName,
+      },
+      emailRedirectTo: window.location.origin + window.location.pathname,
+    },
+  });
+
+  btn.disabled = false;
+  btn.innerHTML = 'Create account';
+
+  if (error) {
+    showToast(error.message, 'error');
+    return;
+  }
+
+  // Show email verification pane
+  const verifyEmailEl = document.getElementById('verify-email-display');
+  if (verifyEmailEl) verifyEmailEl.textContent = email;
+  switchAuthPane('verify');
+}
+
+// ── Invite modal ─────────────────────────────────────────────────────────────
+function openInviteModal() {
+  const overlay = document.getElementById('invite-modal-overlay');
+  if (!overlay) return;
+  // Reset form
+  document.getElementById('invite-form')?.reset();
+  const msgEl = document.getElementById('invite-msg');
+  if (msgEl) { msgEl.style.display = 'none'; msgEl.textContent = ''; }
+  const submitBtn = document.getElementById('invite-submit-btn');
+  if (submitBtn) submitBtn.disabled = false;
+  overlay.style.display = 'flex';
+}
+
+function closeInviteModal() {
+  const overlay = document.getElementById('invite-modal-overlay');
+  if (overlay) overlay.style.display = 'none';
+}
+
+async function handleInviteSubmit(e) {
+  e.preventDefault();
+  const email    = (document.getElementById('invite-email')?.value || '').trim();
+  const roleEl   = document.querySelector('input[name="invite-role"]:checked');
+  const role     = roleEl ? roleEl.value : 'sales_rep';
+  const msgEl    = document.getElementById('invite-msg');
+  const submitBtn = document.getElementById('invite-submit-btn');
+
+  if (!email) { setInviteMsg('Please enter an email address.', 'error'); return; }
+
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
+
+  try {
+    const SUPABASE_URL = (window.APP_CONFIG || {}).SUPABASE_URL;
+    const session = (await supabaseClient.auth.getSession()).data.session;
+    const accessToken = session?.access_token;
+
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/send-invite`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+        'apikey': (window.APP_CONFIG || {}).SUPABASE_KEY,
+      },
+      body: JSON.stringify({ email, role }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || result.error) {
+      setInviteMsg(result.error || 'Failed to send invitation.', 'error');
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg> Send invitation';
+      return;
+    }
+
+    // Success
+    setInviteMsg(`Invitation sent to ${email}! They'll receive an email shortly.`, 'success');
+    submitBtn.innerHTML = '✓ Sent!';
+    setTimeout(() => {
+      closeInviteModal();
+      // Refresh the members list if it's visible
+      const membersList = document.getElementById('sv-members-container');
+      if (membersList) membersList.closest('section')?.querySelector('.sv-primary-btn')?.dispatchEvent(new Event('refresh'));
+    }, 2200);
+
+  } catch (err) {
+    setInviteMsg(`Error: ${err.message}`, 'error');
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg> Send invitation';
+  }
+}
+
+function setInviteMsg(text, type) {
+  const el = document.getElementById('invite-msg');
+  if (!el) return;
+  el.textContent = text;
+  el.style.display = 'block';
+  if (type === 'error') {
+    el.style.background = 'rgba(239,68,68,0.1)';
+    el.style.border = '1px solid rgba(239,68,68,0.3)';
+    el.style.color = '#fca5a5';
+  } else {
+    el.style.background = 'rgba(34,197,94,0.1)';
+    el.style.border = '1px solid rgba(34,197,94,0.3)';
+    el.style.color = '#86efac';
+  }
+}
+
 // ======================
 // APP INITIALIZATION
 // ======================
@@ -962,6 +1125,18 @@ async function initApp() {
   isManager = profile.role === 'manager';
   isTechnician = profile.role === 'technician';
   currentUserProfile = profile;
+
+  // Load organization for this user (used in invite flow, member list, etc.)
+  if (profile.organization_id) {
+    try {
+      const { data: org } = await supabaseClient
+        .from('organizations')
+        .select('id, name, owner_id, max_members')
+        .eq('id', profile.organization_id)
+        .single();
+      currentOrganization = org || null;
+    } catch (_orgErr) { /* non-critical */ }
+  }
 
   // Initialize date format preference from profile if present
   try {
@@ -1585,8 +1760,11 @@ async function renderSettingsView() {
         <!-- Members -->
         <section class="sv-section" data-section="members" style="display:none; max-width: 900px;">
           <div class="sv-section-header" style="justify-content: space-between; align-items: center; border-bottom: none; padding-bottom: 0;">
-            <h2 class="sv-section-title">Team Members</h2>
-            <button class="sv-primary-btn">Invite member</button>
+            <div>
+              <h2 class="sv-section-title">Team Members</h2>
+              ${currentOrganization ? `<div style="font-size:0.78rem;color:var(--text-secondary);margin-top:2px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;vertical-align:middle;margin-right:4px;"><path d="M3 21h18M3 7V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2M3 7h18M3 7l2 14h14l2-14"/></svg>${escH(currentOrganization.name)}</div>` : ''}
+            </div>
+            ${isManager ? '<button class="sv-primary-btn" id="invite-member-btn">Invite member</button>' : ''}
           </div>
           
           <div class="sv-members-toolbar mt-6">
@@ -1992,78 +2170,111 @@ async function renderSettingsView() {
   document.getElementById('profile-lastname')?.addEventListener('input', () => debounceSave('profile'));
   document.getElementById('pref-email-notifs')?.addEventListener('change', () => autoSaveSettings('preferences'));
 
-  // Load Members
+  // Load Members (profiles + pending invitations)
   const loadMembers = async () => {
     const listContainer = document.getElementById('sv-members-container');
     if (!listContainer || typeof supabaseClient === 'undefined') return;
 
-    const { data: users, error } = await supabaseClient
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
+    listContainer.innerHTML = `<tr><td colspan="4" style="padding:40px;text-align:center;color:var(--text-muted);font-size:0.9rem;">Loading…</td></tr>`;
 
-    if (error) {
-      listContainer.innerHTML = `<tr><td colspan="4" style="padding:40px;text-align:center;color:#ef4444;">Failed to load members</td></tr>`;
+    // Fetch active/invited member profiles (RLS scopes to current org automatically)
+    const [profilesResult, invitesResult] = await Promise.all([
+      supabaseClient.from('profiles').select('*').order('created_at', { ascending: false }),
+      isManager
+        ? supabaseClient.from('invitations').select('*').eq('status', 'pending').order('created_at', { ascending: false })
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+
+    if (profilesResult.error) {
+      listContainer.innerHTML = `<tr><td colspan="4" style="padding:40px;text-align:center;color:#ef4444;">Failed to load members: ${escH(profilesResult.error.message)}</td></tr>`;
       return;
     }
 
-    if (!users || !users.length) {
-      listContainer.innerHTML = `<tr><td colspan="4" style="padding:40px;text-align:center;color:var(--text-muted);">No members found.</td></tr>`;
+    const users   = profilesResult.data || [];
+    const invites = invitesResult.data  || [];
+
+    if (!users.length && !invites.length) {
+      listContainer.innerHTML = `<tr><td colspan="4" style="padding:40px;text-align:center;color:var(--text-muted);">No members yet. Invite your team!</td></tr>`;
       return;
     }
 
-    listContainer.innerHTML = users.map((u, i) => {
+    const avatarColors = ['', 'sv-member-avatar--alt', 'sv-member-avatar--alt2'];
+
+    // Active/existing member rows
+    const memberRows = users.map((u, i) => {
       const uFullName = (`${u.first_name || ''} ${u.last_name || ''}`).trim() || u.email || 'Teammate';
       const uInitials = getInitials(uFullName);
-      const isMgr = u.role === 'manager';
-      // Use different avatar gradients based on index
-      const avatarColors = ['', 'sv-member-avatar--alt', 'sv-member-avatar--alt2'];
       const avatarCls = avatarColors[i % 3];
       const isMe = u.id === currentUser?.id;
-
-      let actionsHtml = '';
-      let roleHtml = '';
-
-      if (isManager && !isMe) {
-        actionsHtml = `<button class="sv-icon-btn sv-icon-btn--danger" title="Remove member" onclick="if(typeof deleteUser === 'function') deleteUser('${u.id}', '${uFullName}', '${u.role || ''}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M18 6L6 18M6 6l12 12"></path></svg></button>`;
-      }
-
       const displayRole = u.role === 'manager' ? 'Manager' : u.role === 'sales_rep' ? 'Sales Rep' : u.role === 'technician' ? 'Technician' : 'Member';
-      roleHtml = `<span style="font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); padding: 4px 8px;">${displayRole}</span>`;
-
+      const actionsHtml = (isManager && !isMe)
+        ? `<button class="sv-icon-btn sv-icon-btn--danger" title="Remove member" onclick="if(typeof deleteUser==='function') deleteUser('${u.id}','${uFullName.replace(/'/g, "\\'")}','${u.role||''}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M18 6L6 18M6 6l12 12"></path></svg></button>`
+        : '';
       return `
         <tr>
           <td>
             <div class="sv-member-cell">
-              <div class="sv-member-avatar ${avatarCls}">${uInitials}</div>
+              <div class="sv-member-avatar ${avatarCls}">${escH(uInitials)}</div>
               <div class="sv-member-info">
-                <div class="sv-member-name">${uFullName} ${isMe ? '<span style="color:var(--text-muted);font-weight:700;font-size:0.65rem;letter-spacing:0.04em;text-transform:uppercase;background:var(--bg-secondary);padding:2px 6px;border-radius:4px;margin-left:8px;border:1px solid var(--border-color);">You</span>' : ''}</div>
-                <div class="sv-member-email">${u.email}</div>
+                <div class="sv-member-name">${escH(uFullName)} ${isMe ? '<span style="color:var(--text-muted);font-weight:700;font-size:0.65rem;letter-spacing:0.04em;text-transform:uppercase;background:var(--bg-secondary);padding:2px 6px;border-radius:4px;margin-left:8px;border:1px solid var(--border-color);">You</span>' : ''}</div>
+                <div class="sv-member-email">${escH(u.email || '')}</div>
               </div>
             </div>
           </td>
-          <td>${roleHtml}</td>
+          <td><span style="font-size:0.85rem;font-weight:500;color:var(--text-secondary);padding:4px 8px;">${escH(displayRole)}</span></td>
+          <td><div class="sv-status-badge"><span class="sv-status-dot active"></span> Active</div></td>
+          <td class="sv-member-actions-cell">${actionsHtml}</td>
+        </tr>`;
+    });
+
+    // Pending invitation rows
+    const inviteRows = invites.map((inv, i) => {
+      const idx = users.length + i;
+      const avatarCls = avatarColors[idx % 3];
+      const initials = (inv.email || '?')[0].toUpperCase();
+      const displayRole = inv.role === 'manager' ? 'Manager' : inv.role === 'sales_rep' ? 'Sales Rep' : inv.role === 'technician' ? 'Technician' : 'Member';
+      const revokeHtml = isManager
+        ? `<button class="sv-icon-btn sv-icon-btn--danger" title="Revoke invitation"
+              onclick="(async()=>{if(!confirm('Revoke this invitation?'))return;const{error}=await supabaseClient.from('invitations').update({status:'revoked'}).eq('id','${inv.id}');if(!error){this.closest('tr').remove();showToast('Invitation revoked','info');}else{showToast('Failed to revoke: '+error.message,'error');}})()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+          </button>`
+        : '';
+      return `
+        <tr style="opacity:0.75;">
           <td>
-            <div class="sv-status-badge">
-              <span class="sv-status-dot active"></span> Active
+            <div class="sv-member-cell">
+              <div class="sv-member-avatar ${avatarCls}" style="background:linear-gradient(135deg,#64748b,#94a3b8);">${escH(initials)}</div>
+              <div class="sv-member-info">
+                <div class="sv-member-name">${escH(inv.email)}</div>
+                <div class="sv-member-email" style="font-style:italic;">Invitation sent · expires ${new Date(inv.expires_at).toLocaleDateString()}</div>
+              </div>
             </div>
           </td>
-          <td class="sv-member-actions-cell">
-            ${actionsHtml}
-          </td>
-        </tr>
-      `;
-    }).join('');
+          <td><span style="font-size:0.85rem;font-weight:500;color:var(--text-secondary);padding:4px 8px;">${escH(displayRole)}</span></td>
+          <td><div class="sv-status-badge"><span class="sv-status-dot invited"></span> Pending invite</div></td>
+          <td class="sv-member-actions-cell">${revokeHtml}</td>
+        </tr>`;
+    });
+
+    listContainer.innerHTML = [...memberRows, ...inviteRows].join('');
+
+    // Update seat usage in billing section if org data is available
+    if (currentOrganization) {
+      const usedSlotsEl = document.querySelector('.sv-usage-labels span:last-child');
+      const usageBarEl  = document.querySelector('.sv-usage-fill');
+      const total    = (users.length + invites.length);
+      const maxSlots = currentOrganization.max_members || 10;
+      if (usedSlotsEl) usedSlotsEl.textContent = `${total} / ${maxSlots}`;
+      if (usageBarEl)  usageBarEl.style.width = `${Math.min(100, Math.round((total / maxSlots) * 100))}%`;
+    }
 
     const searchInput = document.getElementById('sv-member-search');
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
         const val = e.target.value.toLowerCase();
-        const rows = document.querySelectorAll('#sv-members-container tr');
-        rows.forEach(row => {
+        document.querySelectorAll('#sv-members-container tr').forEach(row => {
           const text = row.querySelector('.sv-member-cell')?.textContent?.toLowerCase() || '';
-          if (text.includes(val)) row.style.display = '';
-          else row.style.display = 'none';
+          row.style.display = text.includes(val) ? '' : 'none';
         });
       });
     }

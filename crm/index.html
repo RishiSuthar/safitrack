@@ -141,53 +141,145 @@
       <!-- Right Side: Login Form -->
       <div class="auth-form-side">
         <div class="auth-form-wrapper">
-          <div class="auth-header">
-            <div class="auth-logo-mobile">
-              <img src="../assets/icons/transparentMain.png" alt="SafiTrack" width="200" class="mobile-logo-main">
-            </div>
-            <h2>Welcome back</h2>
-            <p>Please enter your details to sign in.</p>
-          </div>
 
-          <form id="login-form" class="auth-form">
-            <div class="form-field">
-              <label for="login-email">Email</label>
-              <div class="input-wrapper modern-input">
-                <input type="email" id="login-email" placeholder="work@domain.com" required autocomplete="email" />
+          <!-- ─── LOGIN PANE ──────────────────────────────────────────── -->
+          <div id="login-pane">
+            <div class="auth-header">
+              <div class="auth-logo-mobile">
+                <img src="../assets/icons/transparentMain.png" alt="SafiTrack" width="200" class="mobile-logo-main">
               </div>
+              <h2>Welcome back</h2>
+              <p>Please enter your details to sign in.</p>
             </div>
 
-            <div class="form-field">
-              <label for="login-password">Password</label>
-              <div class="input-wrapper modern-input">
-                <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password" />
-
-                <button type="button" class="toggle-password" aria-label="Toggle password visibility">
-                  <!-- Eye Icon SVG -->
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                    class="lucide lucide-eye-icon lucide-eye">
-                    <path
-                      d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
-                    <circle cx="12" cy="12" r="3" />
-                  </svg>
-                </button>
+            <form id="login-form" class="auth-form">
+              <div class="form-field">
+                <label for="login-email">Email</label>
+                <div class="input-wrapper modern-input">
+                  <input type="email" id="login-email" placeholder="work@domain.com" required autocomplete="email" />
+                </div>
               </div>
+
+              <div class="form-field">
+                <label for="login-password">Password</label>
+                <div class="input-wrapper modern-input">
+                  <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password" />
+                  <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                      class="lucide lucide-eye-icon lucide-eye">
+                      <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary btn-lg btn-block btn-glow">
+                Sign In
+              </button>
+            </form>
+
+            <div class="auth-switch-row">
+              New here?&nbsp;<button type="button" id="show-signup-btn" class="auth-link-btn">Create a free account</button>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-lg btn-block btn-glow">
-              Sign In
-            </button>
-          </form>
+            <div class="auth-footer-links" style="margin-top: 12px; text-align: center;">
+              <a href="/" class="btn btn-lg btn-block btn-back-home">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Home
+              </a>
+            </div>
+          </div><!-- /login-pane -->
 
-          <div class="auth-footer-links" style="margin-top: 16px; text-align: center;">
-            <a href="/" class="btn btn-lg btn-block btn-back-home">
-              <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-              </svg>
-              Back to Home
-            </a>
-          </div>
+          <!-- ─── SIGN-UP PANE ────────────────────────────────────────── -->
+          <div id="signup-pane" style="display:none;">
+            <div class="auth-header">
+              <div class="auth-logo-mobile">
+                <img src="../assets/icons/transparentMain.png" alt="SafiTrack" width="200" class="mobile-logo-main">
+              </div>
+              <h2>Create your account</h2>
+              <p>Set up SafiTrack for your company. Free to start.</p>
+            </div>
+
+            <form id="signup-form" class="auth-form" novalidate>
+              <div class="auth-name-row" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+                <div class="form-field">
+                  <label for="signup-firstname">First name</label>
+                  <div class="input-wrapper modern-input">
+                    <input type="text" id="signup-firstname" placeholder="Grace" required autocomplete="given-name" />
+                  </div>
+                </div>
+                <div class="form-field">
+                  <label for="signup-lastname">Last name</label>
+                  <div class="input-wrapper modern-input">
+                    <input type="text" id="signup-lastname" placeholder="Wanjiru" required autocomplete="family-name" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label for="signup-company">Company name</label>
+                <div class="input-wrapper modern-input">
+                  <input type="text" id="signup-company" placeholder="Acme Corp" required autocomplete="organization" />
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label for="signup-email">Work email</label>
+                <div class="input-wrapper modern-input">
+                  <input type="email" id="signup-email" placeholder="you@company.com" required autocomplete="email" />
+                </div>
+              </div>
+
+              <div class="form-field">
+                <label for="signup-password">Password</label>
+                <div class="input-wrapper modern-input">
+                  <input type="password" id="signup-password" placeholder="At least 8 characters" required minlength="8" autocomplete="new-password" />
+                  <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <button type="submit" id="signup-btn" class="btn btn-primary btn-lg btn-block btn-glow">
+                Create account
+              </button>
+            </form>
+
+            <div class="auth-switch-row">
+              Already have an account?&nbsp;<button type="button" id="show-login-btn" class="auth-link-btn">Sign in</button>
+            </div>
+
+            <div class="auth-footer-links" style="margin-top: 12px; text-align: center;">
+              <a href="/" class="btn btn-lg btn-block btn-back-home">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Home
+              </a>
+            </div>
+          </div><!-- /signup-pane -->
+
+          <!-- ─── EMAIL VERIFICATION PANE ─────────────────────────────── -->
+          <div id="email-verify-pane" style="display:none; text-align:center; padding: 20px 0;">
+            <div style="width:56px;height:56px;border-radius:50%;background:rgba(47,95,208,0.12);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:1.6rem;">📬</div>
+            <h2 style="font-size:1.4rem;font-weight:800;margin-bottom:8px;">Check your inbox</h2>
+            <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;margin-bottom:24px;">
+              We sent a confirmation link to <strong id="verify-email-display"></strong>.<br>
+              Click that link to activate your account, then come back here to sign in.
+            </p>
+            <p style="font-size:0.8rem;color:var(--text-secondary);">
+              Didn't get it? Check spam, or&nbsp;<button type="button" id="back-to-signup-btn" class="auth-link-btn">go back</button>.
+            </p>
+          </div><!-- /email-verify-pane -->
+
         </div>
       </div>
     </div>
@@ -1988,6 +2080,107 @@
   </div>
 
   <div id="toast-container"></div>
+
+  <!-- ─── INVITE MEMBER MODAL ──────────────────────────────────────────── -->
+  <div id="invite-modal-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);z-index:900;align-items:center;justify-content:center;">
+    <div id="invite-modal" style="background:var(--bg-secondary,#1a1d27);border:1px solid var(--border-color,#2c2f3e);border-radius:16px;padding:32px 36px;width:100%;max-width:440px;position:relative;">
+      <button id="invite-modal-close" style="position:absolute;top:14px;right:14px;background:none;border:none;color:var(--text-secondary);cursor:pointer;padding:4px;line-height:0;" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:18px;height:18px;"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+      <h3 style="font-size:1.1rem;font-weight:800;margin-bottom:4px;">Invite a team member</h3>
+      <p style="color:var(--text-secondary);font-size:0.83rem;margin-bottom:22px;">They'll receive an email with a link to join your organization.</p>
+
+      <form id="invite-form" novalidate>
+        <div style="margin-bottom:16px;">
+          <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:6px;letter-spacing:0.02em;" for="invite-email">Email address</label>
+          <input type="email" id="invite-email" placeholder="colleague@company.com" required
+            style="width:100%;padding:10px 13px;background:rgba(255,255,255,0.04);border:1px solid var(--border-color,#2c2f3e);border-radius:9px;color:var(--text-primary);font-family:inherit;font-size:0.88rem;outline:none;transition:border-color 0.15s;"
+            onfocus="this.style.borderColor='var(--color-primary)'" onblur="this.style.borderColor=''" />
+        </div>
+
+        <div style="margin-bottom:22px;">
+          <label style="display:block;font-size:0.8rem;font-weight:600;color:var(--text-secondary);margin-bottom:8px;letter-spacing:0.02em;">Role</label>
+          <div id="invite-role-options" style="display:flex;gap:10px;">
+            <label class="invite-role-pill" style="flex:1;">
+              <input type="radio" name="invite-role" value="sales_rep" checked style="display:none;">
+              <div class="invite-role-card" data-role="sales_rep">
+                <span style="font-size:1.1rem;">💼</span>
+                <span style="font-size:0.8rem;font-weight:700;margin-top:2px;">Sales Rep</span>
+              </div>
+            </label>
+            <label class="invite-role-pill" style="flex:1;">
+              <input type="radio" name="invite-role" value="technician" style="display:none;">
+              <div class="invite-role-card" data-role="technician">
+                <span style="font-size:1.1rem;">🔧</span>
+                <span style="font-size:0.8rem;font-weight:700;margin-top:2px;">Technician</span>
+              </div>
+            </label>
+            <label class="invite-role-pill" style="flex:1;">
+              <input type="radio" name="invite-role" value="manager" style="display:none;">
+              <div class="invite-role-card" data-role="manager">
+                <span style="font-size:1.1rem;">🏢</span>
+                <span style="font-size:0.8rem;font-weight:700;margin-top:2px;">Manager</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <button type="submit" id="invite-submit-btn"
+          style="width:100%;padding:12px;background:var(--color-primary,#2f5fd0);color:#fff;border:none;border-radius:9px;font-family:inherit;font-size:0.9rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.15s;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+          Send invitation
+        </button>
+        <div id="invite-msg" style="margin-top:12px;font-size:0.82rem;font-weight:500;display:none;padding:10px 12px;border-radius:8px;"></div>
+      </form>
+    </div>
+  </div>
+
+  <style>
+    /* ── Auth pane switch ─────────────────────────────────── */
+    .auth-switch-row {
+      margin-top: 16px;
+      text-align: center;
+      font-size: 0.83rem;
+      color: var(--text-secondary);
+    }
+    .auth-link-btn {
+      background: none;
+      border: none;
+      color: var(--color-primary, #2f5fd0);
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+      text-decoration: underline;
+      text-decoration-color: transparent;
+      transition: text-decoration-color 0.15s;
+    }
+    .auth-link-btn:hover { text-decoration-color: currentColor; }
+
+    /* ── Invite role cards ────────────────────────────────── */
+    .invite-role-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 8px;
+      border: 1.5px solid var(--border-color, #2c2f3e);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      color: var(--text-secondary);
+    }
+    .invite-role-pill input:checked + .invite-role-card {
+      border-color: var(--color-primary, #2f5fd0);
+      background: rgba(47, 95, 208, 0.08);
+      color: var(--text-primary);
+    }
+    .invite-role-card:hover {
+      border-color: var(--color-primary, #2f5fd0);
+      background: rgba(47, 95, 208, 0.06);
+    }
+  </style>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
