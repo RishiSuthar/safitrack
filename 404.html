@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Page Not Found — SafiTrack</title>
+    <meta name="robots" content="noindex">
+    <link rel="icon" type="image/x-icon" href="assets/icons/whiteblue.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="landing.css">
+    <style>
+        .not-found-page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 24px;
+            text-align: center;
+            background: var(--bg-primary);
+        }
+
+        .nf-code {
+            font-size: 120px;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -4px;
+            color: var(--border-color);
+            margin-bottom: 8px;
+            font-family: var(--font-family);
+        }
+
+        .nf-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 12px;
+            font-family: var(--font-family);
+        }
+
+        .nf-desc {
+            font-size: 16px;
+            color: var(--text-secondary);
+            max-width: 400px;
+            line-height: 1.6;
+            margin: 0 auto 36px;
+            font-family: var(--font-family);
+        }
+
+        .nf-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-bottom: 56px;
+        }
+
+        .nf-btn-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 22px;
+            background: var(--text-primary);
+            color: #fff;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            font-family: var(--font-family);
+            transition: opacity 0.15s ease;
+        }
+        .nf-btn-primary:hover { opacity: 0.85; }
+
+        .nf-btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 12px 22px;
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            font-family: var(--font-family);
+            transition: border-color 0.15s ease, background 0.15s ease;
+        }
+        .nf-btn-secondary:hover { background: var(--bg-secondary); border-color: var(--text-muted); }
+
+        .nf-links-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            font-family: var(--font-family);
+        }
+
+        .nf-links {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .nf-link {
+            padding: 8px 16px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-family: var(--font-family);
+            transition: color 0.15s ease, border-color 0.15s ease;
+        }
+        .nf-link:hover { color: var(--text-primary); border-color: var(--text-muted); }
+
+        .nf-logo {
+            margin-bottom: 48px;
+        }
+        .nf-logo img {
+            height: 32px;
+            opacity: 0.7;
+        }
+
+        /* Decorative pipeline visual */
+        .nf-visual {
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 480px) {
+            .nf-code { font-size: 80px; letter-spacing: -2px; }
+            .nf-title { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="not-found-page">
+
+        <div class="nf-logo">
+            <a href="/">
+                <img src="assets/icons/transparentMain.png" alt="SafiTrack">
+            </a>
+        </div>
+
+        <!-- Tiny pipeline SVG to keep it on-brand -->
+        <div class="nf-visual">
+            <svg width="220" height="44" viewBox="0 0 220 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="0" y="4" width="44" height="36" rx="8" fill="#f3f4f6" stroke="#e6e9ef" stroke-width="1"/>
+                <text x="22" y="26" text-anchor="middle" font-size="11" font-weight="600" fill="#9ca3af" font-family="Manrope,sans-serif">Qualified</text>
+                <path d="M44 22 L58 22" stroke="#e6e9ef" stroke-width="1.5" stroke-dasharray="3 2"/>
+                <rect x="58" y="4" width="44" height="36" rx="8" fill="#f3f4f6" stroke="#e6e9ef" stroke-width="1"/>
+                <text x="80" y="26" text-anchor="middle" font-size="11" font-weight="600" fill="#9ca3af" font-family="Manrope,sans-serif">Proposal</text>
+                <path d="M102 22 L116 22" stroke="#e6e9ef" stroke-width="1.5" stroke-dasharray="3 2"/>
+                <rect x="116" y="4" width="44" height="36" rx="8" fill="#f3f4f6" stroke="#e6e9ef" stroke-width="1"/>
+                <text x="138" y="26" text-anchor="middle" font-size="10" font-weight="600" fill="#9ca3af" font-family="Manrope,sans-serif">Negotiate</text>
+                <path d="M160 22 L174 22" stroke="#e6e9ef" stroke-width="1.5" stroke-dasharray="3 2"/>
+                <rect x="174" y="4" width="46" height="36" rx="8" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1"/>
+                <text x="197" y="26" text-anchor="middle" font-size="11" font-weight="600" fill="#16a34a" font-family="Manrope,sans-serif">Won ✓</text>
+            </svg>
+        </div>
+
+        <div class="nf-code">404</div>
+        <h1 class="nf-title">This page doesn't exist</h1>
+        <p class="nf-desc">Looks like this deal fell through the cracks. Let's get you back on track.</p>
+
+        <div class="nf-actions">
+            <a href="/" class="nf-btn-primary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Back to home
+            </a>
+            <a href="/crm/" class="nf-btn-secondary">
+                Open app
+            </a>
+        </div>
+
+        <div class="nf-links-label">Or find what you're looking for</div>
+        <div class="nf-links">
+            <a href="/pages/features/mainfeatures.html" class="nf-link">Features</a>
+            <a href="/pages/pricing.html" class="nf-link">Pricing</a>
+            <a href="/pages/documentation.html" class="nf-link">Documentation</a>
+            <a href="/pages/helpcenter.html" class="nf-link">Help Center</a>
+            <a href="/pages/blog.html" class="nf-link">Blog</a>
+            <a href="/pages/status.html" class="nf-link">Status</a>
+        </div>
+
+    </div>
+</body>
+</html>
