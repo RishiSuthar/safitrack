@@ -1,487 +1,197 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meeting Notes - SafiTrack CRM</title>
+    <title>Notes — SafiTrack CRM</title>
     <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../landing.css">
-    <style>
-        body {
-            background: var(--bg-primary);
-            overflow-x: hidden;
-        }
-
-        .f-hero {
-            padding: 180px 0 100px;
-            text-align: center;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .f-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            background: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 24px;
-        }
-
-        .f-title {
-            font-size: 64px;
-            font-weight: 800;
-            letter-spacing: -1.5px;
-            line-height: 1.1;
-            margin-bottom: 24px;
-            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .f-subtitle {
-            font-size: 21px;
-            color: var(--text-secondary);
-            max-width: 680px;
-            margin: 0 auto 60px;
-            line-height: 1.6;
-        }
-
-        .mockup-container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .mockup-flat {
-            background: var(--bg-secondary);
-            border-radius: 20px;
-            border: 1px solid var(--border-glass);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
-            position: relative;
-            overflow: hidden;
-            height: 500px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .story-section {
-            padding: 120px 0;
-        }
-
-        .story-block {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            align-items: center;
-            margin-bottom: 120px;
-        }
-
-        .story-block.reversed {
-            direction: rtl;
-        }
-
-        .story-block.reversed .story-text {
-            direction: ltr;
-        }
-
-        .story-text h3 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-        }
-
-        .story-text p {
-            font-size: 17px;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            margin-bottom: 24px;
-        }
-
-        .story-list li {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            color: var(--text-secondary);
-        }
-
-        .story-list svg {
-            color: #3b82f6;
-            flex-shrink: 0;
-        }
-
-        .story-visual {
-            background: var(--bg-elevated);
-            border-radius: 24px;
-            border: 1px solid var(--border-glass);
-            height: 400px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-xl);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .power-grid-section {
-            background: var(--bg-secondary);
-            padding: 100px 0;
-            border-top: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .power-header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-
-        .power-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
-        }
-
-        .power-card {
-            background: var(--bg-primary);
-            padding: 32px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-        }
-
-        .power-card h4 {
-            font-size: 18px;
-            font-weight: 700;
-            margin: 16px 0 8px;
-        }
-
-        .power-card p {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .big-cta {
-            padding: 120px 0;
-            text-align: center;
-            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
-        }
-
-        .big-cta h2 {
-            font-size: 48px;
-            font-weight: 800;
-            margin-bottom: 32px;
-        }
-
-        @media (max-width: 768px) {
-            .f-title {
-                font-size: 40px;
-            }
-
-            .story-block,
-            .power-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .story-block.reversed {
-                direction: ltr;
-            }
-
-            .mockup-flat {
-                height: 300px;
-            }
-        }
-
-        /* Voice Wave Animation */
-        .voice-wave {
-            display: flex;
-            gap: 4px;
-            align-items: center;
-            height: 40px;
-        }
-
-        .voice-bar {
-            width: 4px;
-            background: #3b82f6;
-            border-radius: 2px;
-            animation: wave 1s infinite ease-in-out;
-        }
-
-        .voice-bar:nth-child(2) {
-            animation-delay: 0.1s;
-            height: 60%;
-        }
-
-        .voice-bar:nth-child(3) {
-            animation-delay: 0.2s;
-            height: 80%;
-        }
-
-        .voice-bar:nth-child(4) {
-            animation-delay: 0.3s;
-            height: 40%;
-        }
-
-        .voice-bar:nth-child(5) {
-            animation-delay: 0.4s;
-            height: 100%;
-        }
-
-        @keyframes wave {
-
-            0%,
-            100% {
-                transform: scaleY(0.5);
-            }
-
-            50% {
-                transform: scaleY(1);
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="feature-page.css">
+    <style>:root{--accent:#f59e0b;}</style>
 </head>
-
 <body>
-    <nav class="navbar" id="navbar">
-        <div class="container">
-            <div class="nav-content">
-                <a href="../../index.html" class="logo"><img src="../../assets/icons/whiteblue.png"
-                        alt="SafiTrack"><span class="logo-text">SafiTrack</span></a>
-                <div class="nav-links">
-                    <a href="mainfeatures.html" class="active">Features</a>
-                    <a href="../../index.html#product">Product</a>
-                    <a href="../../pages/pricing.html">Pricing</a>
-                    <a href="../../crm/" class="btn-primary">Open App</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-    <header class="f-hero">
-        <div class="container">
-            <span class="f-badge">Intelligence</span>
-            <h1 class="f-title">Don't just take notes.<br>Capture wisdom.</h1>
-            <p class="f-subtitle">Transform unstructured brain dumps into structured data. Rich text formatting and file
-                attachments for every interaction.</p>
-            <div class="mockup-container">
-                <div class="mockup-flat">
-                    <div style="width: 100%; height: 100%; background: var(--bg-primary); display: flex;">
-                        <!-- Sidebar List -->
-                        <div
-                            style="width: 260px; border-right: 1px solid var(--border-color); display: flex; flex-direction: column;">
-                            <div style="padding: 20px; font-weight: 700; border-bottom: 1px solid var(--border-color);">
-                                All Notes</div>
-                            <div style="flex-grow: 1; overflow-y: auto;">
-                                <div
-                                    style="padding: 16px; border-bottom: 1px solid var(--border-color); background: var(--bg-tertiary);">
-                                    <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">Q4 Budget Review
-                                    </div>
-                                    <div
-                                        style="font-size: 12px; color: var(--text-secondary); display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                                        Customer expressed concern about the rising material costs but wants to...</div>
-                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">2h ago •
-                                        Meeting</div>
-                                </div>
-                                <div style="padding: 16px; border-bottom: 1px solid var(--border-color);">
-                                    <div style="font-weight: 600; font-size: 14px; margin-bottom: 4px;">Intro Call -
-                                        Highland</div>
-                                    <div style="font-size: 12px; color: var(--text-secondary);">Met with Sarah. She's
-                                        the new DM. Needs to see the pricing deck by Friday.</div>
-                                    <div style="font-size: 11px; color: var(--text-muted); margin-top: 8px;">Yesterday
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- Main Note Area -->
-                        <div style="flex-grow: 1; padding: 40px; display: flex; flex-direction: column;">
-                            <div style="font-size: 24px; font-weight: 700; margin-bottom: 16px;">Q4 Budget Review</div>
-                            <div style="display: flex; gap: 12px; margin-bottom: 24px;">
-                                <div
-                                    style="padding: 4px 12px; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-radius: 100px; font-size: 12px; font-weight: 600;">
-                                    Meeting</div>
-                                <div
-                                    style="padding: 4px 12px; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 100px; font-size: 12px; font-weight: 600;">
-                                    Acme Corp</div>
-                            </div>
-                            <!-- Editor Mockup -->
-                            <div style="flex-grow: 1; line-height: 1.8; color: var(--text-secondary);">
-                                <p>Meeting went well. They are ready to move forward with the <strong>Enterprise
-                                        Plan</strong>.</p>
-                                <div
-                                    style="margin: 24px 0; padding: 16px; background: var(--bg-secondary); border-radius: 12px; border: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 8px;">
-                                    <div
-                                        style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
-                                        Key Takeaways</div>
-                                    <div style="display: flex; gap: 8px;">
-                                        <div style="width: 4px; background: #3b82f6; border-radius: 2px;"></div>
-                                        <p style="font-size: 14px; margin: 0;">Client requires implementation within 2
-                                            weeks.</p>
-                                    </div>
-                                    <div style="display: flex; gap: 8px;">
-                                        <div style="width: 4px; background: #3b82f6; border-radius: 2px;"></div>
-                                        <p style="font-size: 14px; margin: 0;">Budget approval pending finance review.
-                                        </p>
-                                    </div>
-                                </div>
-                                <p>Key Objections:</p>
-                                <ul style="padding-left: 20px;">
-                                    <li>Implementation timeline</li>
-                                    <li>Compliance review pending</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-    <section class="story-section container">
-        <div class="story-block">
-            <div class="story-text">
-                <h3>Detailed Logging</h3>
-                <p>Capture every detail. Record meeting outcomes, duration, and key takeaways immediately after a call.
-                    SafiTrack ensures your team creates a permanent record of every interaction.</p>
-                <ul class="story-list">
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Rich text support</li>
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Outcome categorizations</li>
-                </ul>
-            </div>
-            <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
-                <div
-                    style="width: 250px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px;">
-                    <div style="font-weight: 700; margin-bottom: 12px;">Call Outcome</div>
-                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                        <span
-                            style="padding: 4px 12px; border-radius: 100px; background: rgba(16, 185, 129, 0.1); color: #10b981; font-size: 12px; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.2);">Connected</span>
-                        <span
-                            style="padding: 4px 12px; border-radius: 100px; background: var(--bg-tertiary); color: var(--text-muted); font-size: 12px; border: 1px solid var(--border-color);">Voicemail</span>
-                        <span
-                            style="padding: 4px 12px; border-radius: 100px; background: var(--bg-tertiary); color: var(--text-muted); font-size: 12px; border: 1px solid var(--border-color);">No
-                            Answer</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="story-block reversed">
-            <div class="story-text">
-                <h3>Collaborative Context</h3>
-                <p>Notes shouldn't live in silos. @Mention team members to loop them in, or share a note directly to
-                    Slack or Teams to keep engineering and support informed.</p>
-                <ul class="story-list">
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> @Mentions & Notifications</li>
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Real-time sync</li>
-                </ul>
-            </div>
-            <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
-                <div
-                    style="background: var(--bg-primary); padding: 20px; border-radius: 12px; border: 1px solid var(--border-glass); box-shadow: var(--shadow-xl);">
-                    <div style="font-size: 14px; margin-bottom: 8px;">Can we expedite shipping? <span
-                            style="color: #3b82f6;">@SarahM</span></div>
-                    <div style="font-size: 12px; color: var(--text-muted);">Notification sent to Sarah Miller</div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="power-grid-section">
-        <div class="container">
-            <div class="power-header">
-                <h2>For Detail-Oriented Reps</h2>
-            </div>
-            <div class="power-grid">
-                <div class="power-card">
-                    <h4>Rich Text</h4>
-                    <p>Bold, lists, performant tables. Format your notes so they are actually readable.</p>
-                </div>
-                <div class="power-card">
-                    <h4>File Attachments</h4>
-                    <p>Attach PDFs, images, or contracts directly to the note for safekeeping.</p>
-                </div>
-                <div class="power-card">
-                    <h4>Searchable</h4>
-                    <p>Every word is indexed. Find that one detail from a meeting 6 months ago instantly.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="big-cta">
-        <div class="container">
-            <h2>Remember everything.</h2>
-            <a href="../../crm/" class="btn-primary" style="padding: 16px 32px; font-size: 18px;">Start Free Trial</a>
-        </div>
-    </section>
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="footer-logo-wrapper">
-                        <img src="../../assets/icons/whiteblue.png" alt="SafiTrack" class="footer-logo">
-                        <span class="footer-logo-text">SafiTrack</span>
-                    </div>
-                    <p class="footer-tagline">Modern CRM platform built for<br>high-performing sales teams</p>
-                </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Product</h4>
-                        <ul>
-                            <li><a href="/pages/features/mainfeatures.html">Features</a></li>
-                            <li><a href="/pages/pricing.html">Pricing</a></li>
-                            <li><a href="#">Integrations</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Company</h4>
-                        <ul>
-                            <li><a href="../blog.html">Blog</a></li>
-                            <li><a href="../careers.html">Careers</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Resources</h4>
-                        <ul>
-                            <li><a href="../documentation.html">Documentation</a></li>
-                            <li><a href="../helpcenter.html">Help Center</a></li>
-                            <li><a href="#">API Reference</a></li>
-                            <li><a href="../status.html">Status</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Legal</h4>
-                        <ul>
-                            <li><a href="pages/legal/privacy.html">Privacy Policy</a></li>
-                            <li><a href="pages/legal/terms.html">Terms of Service</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-                <div class="footer-social">
-                    <a href="#" aria-label="Twitter">Twitter</a>
-                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
-                    <a href="#" aria-label="GitHub">GitHub</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-</body>
+<nav class="navbar" id="navbar"><div class="container"><div class="nav-content"><div class="nav-left"><a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack"></a><div class="nav-links"><a href="mainfeatures.html" class="active">Features</a><a href="../../index.html#product">Product</a><a href="../pricing.html">Pricing</a></div></div><div class="nav-actions"><a href="/crm/" class="nav-link-sign-in">Sign in</a><a href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a></div><button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button></div></div></nav>
+<div class="mobile-nav-overlay"><button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button><div class="mobile-nav-content"><a href="mainfeatures.html" class="mobile-link">Features</a><a href="../../index.html#product" class="mobile-link">Product</a><a href="../pricing.html" class="mobile-link">Pricing</a><hr class="mobile-divider"><a href="/crm/" class="mobile-link">Open App</a></div></div>
 
+<header class="fp-hero">
+    <div class="fp-container">
+        <span class="fp-badge"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg> Productivity</span>
+        <h1>Capture every<br><span>conversation detail</span></h1>
+        <p class="fp-subtitle">Rich notes that link to any contact, company, or deal. Never lose context — write once, reference everywhere, and let your team stay aligned.</p>
+
+        <div class="fp-mockup">
+            <div class="fp-mockup-window">
+                <div class="fp-mockup-bar"><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div></div>
+                <div class="fp-mockup-body" style="padding:0;min-height:380px;display:flex;">
+                    <!-- Sidebar note list -->
+                    <div style="width:240px;border-right:1px solid #e6e9ef;padding:16px;background:#fafafa;flex-shrink:0;">
+                        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280;margin-bottom:12px;">Recent Notes</div>
+                        <div style="display:flex;flex-direction:column;gap:6px;">
+                            <div style="padding:10px 12px;background:#fff;border:1.5px solid #f59e0b;border-radius:8px;">
+                                <div style="font-size:13px;font-weight:600;color:#0b1220;">Q3 Strategy Call</div>
+                                <div style="font-size:11px;color:#6b7280;margin-top:2px;">Acme Corp · Today</div>
+                            </div>
+                            <div style="padding:10px 12px;border-radius:8px;">
+                                <div style="font-size:13px;font-weight:600;color:#0b1220;">Product Feedback</div>
+                                <div style="font-size:11px;color:#6b7280;margin-top:2px;">Wayne Ent. · Yesterday</div>
+                            </div>
+                            <div style="padding:10px 12px;border-radius:8px;">
+                                <div style="font-size:13px;font-weight:600;color:#0b1220;">Pricing Discussion</div>
+                                <div style="font-size:11px;color:#6b7280;margin-top:2px;">Globex · 2d ago</div>
+                            </div>
+                            <div style="padding:10px 12px;border-radius:8px;">
+                                <div style="font-size:13px;font-weight:600;color:#0b1220;">Onboarding Plan</div>
+                                <div style="font-size:11px;color:#6b7280;margin-top:2px;">Initech · 3d ago</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Note editor -->
+                    <div style="flex:1;padding:20px 24px;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                            <div>
+                                <div style="font-size:17px;font-weight:700;color:#0b1220;">Q3 Strategy Call</div>
+                                <div style="font-size:12px;color:#6b7280;margin-top:2px;">Linked: <span style="color:#f59e0b;font-weight:600;">Acme Corp</span> · <span style="color:#3b82f6;font-weight:600;">Eleanor Pena</span></div>
+                            </div>
+                            <div style="font-size:11px;color:#6b7280;">Mar 5, 2025 · 2:30 PM</div>
+                        </div>
+                        <!-- Toolbar -->
+                        <div style="display:flex;gap:4px;padding:6px 8px;background:#f3f4f6;border-radius:8px;margin-bottom:14px;">
+                            <div style="padding:4px 8px;font-size:11px;font-weight:700;color:#374151;">B</div>
+                            <div style="padding:4px 8px;font-size:11px;font-style:italic;color:#374151;">I</div>
+                            <div style="padding:4px 8px;font-size:11px;text-decoration:underline;color:#374151;">U</div>
+                            <div style="padding:4px 8px;font-size:11px;color:#374151;">H1</div>
+                            <div style="padding:4px 8px;font-size:11px;color:#374151;">• List</div>
+                            <div style="padding:4px 8px;font-size:11px;color:#374151;">@ Link</div>
+                        </div>
+                        <!-- Note content -->
+                        <div style="font-size:13px;line-height:1.8;color:#374151;">
+                            <p style="margin-bottom:10px;"><strong>Key Takeaways:</strong></p>
+                            <p style="margin-bottom:6px;">• Budget approved for $45K — need to send proposal by <span style="background:rgba(245,158,11,.15);padding:2px 4px;border-radius:3px;color:#b45309;font-weight:600;">March 10th</span></p>
+                            <p style="margin-bottom:6px;">• Decision maker changed to <span style="background:rgba(59,130,246,.1);padding:2px 4px;border-radius:3px;color:#3b82f6;font-weight:600;">@Robert Garcia</span> (VP Sales)</p>
+                            <p style="margin-bottom:6px;">• They want integration with Salesforce</p>
+                            <p style="margin-bottom:6px;">• Timeline: Go-live by end of Q2</p>
+                            <p style="margin-bottom:10px;"><strong>Next Steps:</strong></p>
+                            <p style="margin-bottom:6px;">☐ Send revised proposal</p>
+                            <p>☐ Schedule technical deep-dive</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Section 1: Rich linking -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split">
+            <div>
+                <p class="fp-section-label">Contextual Notes</p>
+                <h2 class="fp-section-title">Notes that connect to everything</h2>
+                <p class="fp-section-desc">Link any note to contacts, companies, and deals. When you open a record, all related notes appear in the timeline. Mention team members with @mentions to loop them in.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Link to multiple records simultaneously</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> @mention teammates for collaboration</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Timeline view shows all notes chronologically</li>
+                </ul>
+            </div>
+            <div class="fp-visual">
+                <div class="fp-visual-inner">
+                    <svg width="100%" height="220" viewBox="0 0 420 220" fill="none" style="display:block;">
+                        <!-- Note node at center -->
+                        <rect x="150" y="75" width="120" height="70" rx="14" fill="#f59e0b" fill-opacity="0.08" stroke="#f59e0b" stroke-opacity="0.3"/>
+                        <text x="210" y="102" text-anchor="middle" font-size="11" font-weight="700" fill="#0b1220" font-family="Manrope,sans-serif">📝 Strategy Call</text>
+                        <text x="210" y="120" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Manrope,sans-serif">Mar 5, 2025</text>
+                        <text x="210" y="138" text-anchor="middle" font-size="10" fill="#f59e0b" font-family="Manrope,sans-serif">by James T.</text>
+                        <!-- Contact -->
+                        <rect x="20" y="30" width="100" height="36" rx="8" fill="#fff" stroke="#3b82f6" stroke-opacity="0.4"/>
+                        <text x="70" y="52" text-anchor="middle" font-size="10" font-weight="600" fill="#3b82f6" font-family="Manrope,sans-serif">Eleanor Pena</text>
+                        <line x1="120" y1="48" x2="150" y2="95" stroke="#3b82f6" stroke-opacity="0.3" stroke-width="1.5" stroke-dasharray="4 3"/>
+                        <!-- Company -->
+                        <rect x="300" y="30" width="100" height="36" rx="8" fill="#fff" stroke="#0ea5e9" stroke-opacity="0.4"/>
+                        <text x="350" y="52" text-anchor="middle" font-size="10" font-weight="600" fill="#0ea5e9" font-family="Manrope,sans-serif">Acme Corp</text>
+                        <line x1="300" y1="48" x2="270" y2="95" stroke="#0ea5e9" stroke-opacity="0.3" stroke-width="1.5" stroke-dasharray="4 3"/>
+                        <!-- Deal -->
+                        <rect x="20" y="160" width="100" height="36" rx="8" fill="#fff" stroke="#10b981" stroke-opacity="0.4"/>
+                        <text x="70" y="182" text-anchor="middle" font-size="10" font-weight="600" fill="#10b981" font-family="Manrope,sans-serif">$45K Deal</text>
+                        <line x1="120" y1="178" x2="150" y2="130" stroke="#10b981" stroke-opacity="0.3" stroke-width="1.5" stroke-dasharray="4 3"/>
+                        <!-- Task -->
+                        <rect x="300" y="160" width="100" height="36" rx="8" fill="#fff" stroke="#8b5cf6" stroke-opacity="0.4"/>
+                        <text x="350" y="182" text-anchor="middle" font-size="10" font-weight="600" fill="#8b5cf6" font-family="Manrope,sans-serif">Send Proposal</text>
+                        <line x1="300" y1="178" x2="270" y2="130" stroke="#8b5cf6" stroke-opacity="0.3" stroke-width="1.5" stroke-dasharray="4 3"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 2: Quick capture -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split reversed">
+            <div>
+                <p class="fp-section-label">Quick Capture</p>
+                <h2 class="fp-section-title">Write now, organize later</h2>
+                <p class="fp-section-desc">Capture notes instantly and link them after the fact. Rich text formatting, checklists, and highlight support make notes scannable and easy to reference weeks later.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Rich text editor with formatting</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Checklist and highlight support</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Full-text search across all notes</li>
+                </ul>
+            </div>
+            <div class="fp-visual">
+                <div class="fp-visual-inner" style="padding:20px;">
+                    <!-- Quick note bubbles -->
+                    <div style="display:flex;flex-direction:column;gap:10px;">
+                        <div class="ui-bubble ui-bubble-ai" style="font-size:13px;">
+                            <strong>Meeting Update:</strong> Spoke with Sarah — they want to pilot with 20 users first before full rollout. Budget is aligned for Q2.
+                        </div>
+                        <div class="ui-bubble" style="font-size:13px;">
+                            Quick note: Robert prefers email over calls. Best time to reach: 2-4 PM EST.
+                        </div>
+                        <div class="ui-bubble ui-bubble-ai" style="font-size:13px;">
+                            <strong>⚡ Action Item:</strong> Send case study deck by Friday. Include enterprise pricing tier.
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:6px;margin-top:14px;">
+                        <span class="ui-tag" style="background:rgba(245,158,11,.1);color:#f59e0b;">3 notes today</span>
+                        <span class="ui-tag" style="background:rgba(59,130,246,.1);color:#3b82f6;">2 linked records</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Feature grid -->
+<section class="fp-grid-section" style="background:#f9fafb;">
+    <div class="fp-container">
+        <div class="fp-grid-header"><p class="fp-section-label">Capabilities</p><h2 class="fp-section-title">Notes built for sales teams</h2></div>
+        <div class="fp-grid">
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><h4>Rich Text Editor</h4><p>Bold, italic, headers, lists, and highlights for clear, structured notes.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><h4>Full-Text Search</h4><p>Find any note instantly by searching keywords, linked records, or dates.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><h4>Team Visibility</h4><p>All team notes on a record are visible so reps never ask "What did we discuss?"</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><h4>Activity Timeline</h4><p>Notes appear alongside calls, tasks, and visits in a unified activity feed.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></div><h4>Templates</h4><p>Create note templates for discovery calls, meetings, and follow-ups.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div><h4>Deep Linking</h4><p>Link notes to multiple records — contacts, deals, or companies at once.</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="fp-cta">
+    <div class="fp-container">
+        <h2>Your team's memory, organized</h2>
+        <p>Stop losing meeting insights. Start building institutional knowledge.</p>
+        <a href="../pricing.html#pricing-grid" class="fp-cta-btn">Start free trial <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></a>
+    </div>
+</section>
+
+<footer class="footer"><div class="container"><div class="footer-content"><div class="footer-brand"><div class="footer-logo-wrapper"><a href="../../index.html"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a></div></div><div class="footer-links"><div class="footer-column"><h4 class="footer-heading">Product</h4><ul><li><a href="mainfeatures.html">Features</a></li><li><a href="../pricing.html">Pricing</a></li><li><a href="../integrations.html">Integrations</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Company</h4><ul><li><a href="../blog.html">Blog</a></li><li><a href="../careers.html">Careers</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Resources</h4><ul><li><a href="../documentation.html">Documentation</a></li><li><a href="../helpcenter.html">Help Center</a></li><li><a href="../apireference.html">API Reference</a></li><li><a href="../status.html">Status</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Legal</h4><ul><li><a href="../legal/privacy.html">Privacy Policy</a></li><li><a href="../legal/terms.html">Terms of Service</a></li></ul></div></div></div><div class="footer-bottom"><p>&copy; 2026 SafiTrack. All rights reserved.</p><div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div></div></div></footer>
+<script src="feature-page.js"></script>
+<script src="../../landing.js"></script>
+</body>
 </html>

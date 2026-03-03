@@ -1,452 +1,345 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>People & Contacts - SafiTrack CRM</title>
+    <title>People & Contacts — SafiTrack CRM</title>
     <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../landing.css">
-    <style>
-        body {
-            background: var(--bg-primary);
-            overflow-x: hidden;
-        }
-
-        .f-hero {
-            padding: 180px 0 100px;
-            text-align: center;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .f-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            background: rgba(59, 130, 246, 0.1);
-            color: #3b82f6;
-            border: 1px solid rgba(59, 130, 246, 0.2);
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 24px;
-        }
-
-        .f-title {
-            font-size: 64px;
-            font-weight: 800;
-            letter-spacing: -1.5px;
-            line-height: 1.1;
-            margin-bottom: 24px;
-            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .f-subtitle {
-            font-size: 21px;
-            color: var(--text-secondary);
-            max-width: 680px;
-            margin: 0 auto 60px;
-            line-height: 1.6;
-        }
-
-        .mockup-container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .mockup-flat {
-            background: var(--bg-secondary);
-            border-radius: 20px;
-            border: 1px solid var(--border-glass);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
-            position: relative;
-            overflow: hidden;
-            height: 500px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .story-section {
-            padding: 120px 0;
-        }
-
-        .story-block {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            align-items: center;
-            margin-bottom: 120px;
-        }
-
-        .story-block.reversed {
-            direction: rtl;
-        }
-
-        .story-block.reversed .story-text {
-            direction: ltr;
-        }
-
-        .story-text h3 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-        }
-
-        .story-text p {
-            font-size: 17px;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            margin-bottom: 24px;
-        }
-
-        .story-list li {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            color: var(--text-secondary);
-        }
-
-        .story-list svg {
-            color: #3b82f6;
-            flex-shrink: 0;
-        }
-
-        .story-visual {
-            background: var(--bg-elevated);
-            border-radius: 24px;
-            border: 1px solid var(--border-glass);
-            height: 400px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-xl);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .power-grid-section {
-            background: var(--bg-secondary);
-            padding: 100px 0;
-            border-top: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .power-header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-
-        .power-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
-        }
-
-        .power-card {
-            background: var(--bg-primary);
-            padding: 32px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-        }
-
-        .power-card h4 {
-            font-size: 18px;
-            font-weight: 700;
-            margin: 16px 0 8px;
-        }
-
-        .power-card p {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .big-cta {
-            padding: 120px 0;
-            text-align: center;
-            background: radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15) 0%, transparent 60%);
-        }
-
-        .big-cta h2 {
-            font-size: 48px;
-            font-weight: 800;
-            margin-bottom: 32px;
-        }
-
-        @media (max-width: 768px) {
-            .f-title {
-                font-size: 40px;
-            }
-
-            .story-block,
-            .power-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .story-block.reversed {
-                direction: ltr;
-            }
-
-            .mockup-flat {
-                height: 300px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="feature-page.css">
+    <style>:root{--accent:#3b82f6;}</style>
 </head>
-
 <body>
-    <nav class="navbar" id="navbar">
-        <div class="container">
-            <div class="nav-content">
-                <a href="../../index.html" class="logo"><img src="../../assets/icons/whiteblue.png"
-                        alt="SafiTrack"><span class="logo-text">SafiTrack</span></a>
+
+<!-- Nav -->
+<nav class="navbar" id="navbar">
+    <div class="container">
+        <div class="nav-content">
+            <div class="nav-left">
+                <a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack"></a>
                 <div class="nav-links">
                     <a href="mainfeatures.html" class="active">Features</a>
                     <a href="../../index.html#product">Product</a>
-                    <a href="../../pages/pricing.html">Pricing</a>
-                    <a href="../../crm/" class="btn-primary">Open App</a>
+                    <a href="../pricing.html">Pricing</a>
                 </div>
             </div>
+            <div class="nav-actions">
+                <a href="/crm/" class="nav-link-sign-in">Sign in</a>
+                <a href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a>
+            </div>
+            <button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button>
         </div>
-    </nav>
-    <header class="f-hero">
-        <div class="container">
-            <span class="f-badge">Contacts</span>
-            <h1 class="f-title">People power your<br>business pipeline.</h1>
-            <p class="f-subtitle">Manage relationships with ease. Track every email, call, and coffee, and know exactly
-                when to reach out next.</p>
-            <div class="mockup-container">
-                <div class="mockup-flat">
-                    <div style="width: 100%; height: 100%; display: flex; flex-direction: column;">
-                        <!-- Header -->
-                        <div
-                            style="height: 60px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); padding: 0 24px; display: flex; align-items: center; justify-content: space-between;">
-                            <div style="font-weight: 700;">Eleanor Pena</div>
-                            <div style="display: flex; gap: 8px;">
-                                <div
-                                    style="padding: 6px 12px; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border-radius: 6px; font-size: 13px;">
-                                    Email</div>
-                                <div
-                                    style="padding: 6px 12px; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 6px; font-size: 13px;">
-                                    Call</div>
-                            </div>
-                        </div>
-                        <!-- Content -->
-                        <div style="flex-grow: 1; padding: 24px; display: flex; background: var(--bg-elevated);">
-                            <!-- Left Profile -->
-                            <div
-                                style="width: 250px; background: var(--bg-primary); border-radius: 12px; border: 1px solid var(--border-color); padding: 24px; margin-right: 24px;">
-                                <div
-                                    style="width: 80px; height: 80px; background: #3b82f6; border-radius: 50%; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; font-size: 24px;">
-                                    EP</div>
-                                <div style="text-align: center; font-weight: 700; margin-bottom: 4px;">Eleanor Pena
-                                </div>
-                                <div
-                                    style="text-align: center; font-size: 13px; color: var(--text-secondary); margin-bottom: 24px;">
-                                    VP of Procurement</div>
+    </div>
+</nav>
+<div class="mobile-nav-overlay">
+    <button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+    <div class="mobile-nav-content">
+        <a href="mainfeatures.html" class="mobile-link">Features</a>
+        <a href="../../index.html#product" class="mobile-link">Product</a>
+        <a href="../pricing.html" class="mobile-link">Pricing</a>
+        <hr class="mobile-divider">
+        <a href="/crm/" class="mobile-link">Open App</a>
+    </div>
+</div>
 
-                                <div
-                                    style="font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;">
-                                    Contact Info</div>
-                                <div style="font-size: 13px; margin-bottom: 8px;">eleanor@acme.com</div>
-                                <div style="font-size: 13px; margin-bottom: 24px;">+1 (555) 012-3456</div>
-                            </div>
-                            <!-- Right Activity -->
-                            <div
-                                style="flex-grow: 1; background: var(--bg-primary); border-radius: 12px; border: 1px solid var(--border-color); padding: 24px;">
-                                <div style="font-weight: 700; margin-bottom: 16px;">Activity Stream</div>
-                                <!-- Item 1 -->
-                                <div style="display: flex; gap: 12px; margin-bottom: 24px; position: relative;">
-                                    <div
-                                        style="position: absolute; top: 0; bottom: -24px; left: 16px; width: 1px; background: var(--border-color);">
-                                    </div>
-                                    <div
-                                        style="width: 32px; height: 32px; background: #3b82f6; border-radius: 50%; flex-shrink: 0; z-index: 1;">
-                                    </div>
-                                    <div>
-                                        <div style="font-size: 14px; font-weight: 600;">Email Sent: Proposal Review
-                                        </div>
-                                        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">
-                                            Sent the latest Q3 breakdown as requested.</div>
-                                        <div style="font-size: 12px; color: var(--text-muted);">Today at 10:42 AM</div>
-                                    </div>
-                                </div>
-                                <!-- Item 2 -->
-                                <div style="display: flex; gap: 12px; margin-bottom: 0px;">
-                                    <div
-                                        style="width: 32px; height: 32px; background: #10b981; border-radius: 50%; flex-shrink: 0; z-index: 1;">
-                                    </div>
-                                    <div>
-                                        <div style="font-size: 14px; font-weight: 600;">Call Logged</div>
-                                        <div style="font-size: 13px; color: var(--text-secondary); margin-bottom: 4px;">
-                                            Discussed budget constraints for the upcoming project.</div>
-                                        <div style="font-size: 12px; color: var(--text-muted);">Yesterday</div>
-                                    </div>
-                                </div>
+<!-- Hero -->
+<header class="fp-hero">
+    <div class="fp-container">
+        <span class="fp-badge"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg> Contacts</span>
+        <h1>Every relationship,<br><span>one source of truth</span></h1>
+        <p class="fp-subtitle">Your contacts are more than rows in a spreadsheet. SafiTrack gives you a living, breathing view of every person in your network — with full interaction history, smart segmentation, and zero data entry.</p>
+
+        <!-- Hero mockup — contact profile -->
+        <div class="fp-mockup">
+            <div class="fp-mockup-window">
+                <div class="fp-mockup-bar">
+                    <div class="fp-mockup-dot"></div>
+                    <div class="fp-mockup-dot"></div>
+                    <div class="fp-mockup-dot"></div>
+                </div>
+                <div class="fp-mockup-body" style="display:flex;min-height:440px;">
+                    <!-- Sidebar -->
+                    <div style="width:260px;border-right:1px solid #e6e9ef;padding:28px 24px;background:#f9fafb;">
+                        <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;margin:0 auto 16px;">EP</div>
+                        <div style="text-align:center;font-size:17px;font-weight:700;color:#0b1220;margin-bottom:4px;">Eleanor Pena</div>
+                        <div style="text-align:center;font-size:13px;color:#6b7280;margin-bottom:24px;">VP of Procurement · Acme Corp</div>
+                        <div style="font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:#9ca3af;margin-bottom:10px;">Contact Details</div>
+                        <div style="font-size:13px;color:#374151;margin-bottom:6px;display:flex;align-items:center;gap:8px;"><svg width="14" height="14" fill="none" stroke="#6b7280" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> eleanor@acme.com</div>
+                        <div style="font-size:13px;color:#374151;margin-bottom:6px;display:flex;align-items:center;gap:8px;"><svg width="14" height="14" fill="none" stroke="#6b7280" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.11 2 2 0 0 1 4.11 2h3"/></svg> +1 (555) 012-3456</div>
+                        <div style="font-size:13px;color:#374151;display:flex;align-items:center;gap:8px;"><svg width="14" height="14" fill="none" stroke="#6b7280" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> San Francisco, CA</div>
+                        <div style="margin-top:24px;display:flex;gap:8px;">
+                            <span style="padding:4px 12px;background:rgba(59,130,246,.1);color:#3b82f6;border-radius:100px;font-size:11px;font-weight:600;">Decision Maker</span>
+                            <span style="padding:4px 12px;background:rgba(16,185,129,.1);color:#10b981;border-radius:100px;font-size:11px;font-weight:600;">Champion</span>
+                        </div>
+                    </div>
+                    <!-- Main area -->
+                    <div style="flex:1;padding:28px 32px;overflow:hidden;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+                            <div style="font-size:16px;font-weight:700;color:#0b1220;">Activity Timeline</div>
+                            <div style="display:flex;gap:8px;">
+                                <span style="padding:5px 14px;background:#3b82f6;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">+ Log Activity</span>
                             </div>
                         </div>
+                        <!-- Timeline items -->
+                        <div style="position:relative;padding-left:28px;">
+                            <div style="position:absolute;top:8px;bottom:0;left:8px;width:2px;background:#e6e9ef;"></div>
+                            <!-- Item 1 -->
+                            <div style="position:relative;margin-bottom:28px;">
+                                <div style="position:absolute;left:-28px;top:2px;width:18px;height:18px;border-radius:50%;background:#3b82f6;border:3px solid #fff;box-shadow:0 0 0 2px #e6e9ef;"></div>
+                                <div style="font-size:13px;font-weight:600;color:#0b1220;margin-bottom:2px;">Email Sent: Q3 Proposal Review</div>
+                                <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Sent the latest Q3 breakdown as requested. She confirmed receipt and will review with her team.</div>
+                                <div style="font-size:11px;color:#9ca3af;">Today · 10:42 AM</div>
+                            </div>
+                            <!-- Item 2 -->
+                            <div style="position:relative;margin-bottom:28px;">
+                                <div style="position:absolute;left:-28px;top:2px;width:18px;height:18px;border-radius:50%;background:#10b981;border:3px solid #fff;box-shadow:0 0 0 2px #e6e9ef;"></div>
+                                <div style="font-size:13px;font-weight:600;color:#0b1220;margin-bottom:2px;">Sales Visit — Acme HQ</div>
+                                <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Discussed budget constraints for upcoming project. Eleanor is pushing for Q3 approval.</div>
+                                <div style="font-size:11px;color:#9ca3af;">Yesterday · 2:15 PM</div>
+                            </div>
+                            <!-- Item 3 -->
+                            <div style="position:relative;margin-bottom:28px;">
+                                <div style="position:absolute;left:-28px;top:2px;width:18px;height:18px;border-radius:50%;background:#f59e0b;border:3px solid #fff;box-shadow:0 0 0 2px #e6e9ef;"></div>
+                                <div style="font-size:13px;font-weight:600;color:#0b1220;margin-bottom:2px;">Note Added</div>
+                                <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Eleanor mentioned they are evaluating two competitor solutions. Need to prep a comparison deck.</div>
+                                <div style="font-size:11px;color:#9ca3af;">Feb 27 · 11:30 AM</div>
+                            </div>
+                            <!-- Item 4 -->
+                            <div style="position:relative;">
+                                <div style="position:absolute;left:-28px;top:2px;width:18px;height:18px;border-radius:50%;background:#8b5cf6;border:3px solid #fff;box-shadow:0 0 0 2px #e6e9ef;"></div>
+                                <div style="font-size:13px;font-weight:600;color:#0b1220;margin-bottom:2px;">Call Logged — 18 min</div>
+                                <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Initial discovery call. Identified procurement timeline and decision process.</div>
+                                <div style="font-size:11px;color:#9ca3af;">Feb 22 · 3:45 PM</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </header>
-    <section class="story-section container">
-        <div class="story-block">
-            <div class="story-text">
-                <h3>360° View</h3>
-                <p>See the full picture. Calls, notes, and visits are automatically aggregated into a single timeline so
-                    you never miss a beat.</p>
-                <ul class="story-list">
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg> Interaction history</li>
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg> Centralized notes</li>
+    </div>
+</header>
+
+<!-- Section 1: 360° View -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split">
+            <div>
+                <p class="fp-section-label">Complete Context</p>
+                <h2 class="fp-section-title">360° relationship view</h2>
+                <p class="fp-section-desc">Every email, call, visit, and note is automatically aggregated into one unified timeline. Stop hunting across inboxes and calendars for context before your next meeting.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Unified interaction history across all touchpoints</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Automatic activity logging — no manual entry</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Linked notes, deals, and companies</li>
                 </ul>
             </div>
-            <div class="story-visual" style="display: flex; justify-content: center; align-items: center;">
-                <div
-                    style="width: 60px; height: 60px; background: #ea4335; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 24px; margin-right: -10px; z-index: 1;">
-                    M</div>
-                <div
-                    style="width: 60px; height: 60px; background: #0078d4; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 24px; margin-left: -10px; z-index: 2;">
-                    O</div>
+            <div class="fp-visual">
+                <div class="fp-visual-inner">
+                    <!-- Diagram: data flowing into contact profile -->
+                    <svg width="100%" height="220" viewBox="0 0 460 220" fill="none" style="display:block;">
+                        <!-- Center profile -->
+                        <rect x="170" y="70" width="120" height="80" rx="16" fill="#3b82f6" fill-opacity="0.08" stroke="#3b82f6" stroke-opacity="0.3"/>
+                        <text x="230" y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#0b1220" font-family="Manrope,sans-serif">Contact</text>
+                        <text x="230" y="118" text-anchor="middle" font-size="11" fill="#6b7280" font-family="Manrope,sans-serif">Eleanor Pena</text>
+                        <text x="230" y="138" text-anchor="middle" font-size="10" fill="#3b82f6" font-family="Manrope,sans-serif">360° View</text>
+                        <!-- Left nodes -->
+                        <rect x="10" y="20" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="60" y="45" text-anchor="middle" font-size="11" fill="#374151" font-family="Manrope,sans-serif">📧 Emails</text>
+                        <line x1="110" y1="40" x2="170" y2="90" stroke="#3b82f6" stroke-opacity="0.3" stroke-dasharray="4 4"/>
+                        <rect x="10" y="90" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="60" y="115" text-anchor="middle" font-size="11" fill="#374151" font-family="Manrope,sans-serif">📞 Calls</text>
+                        <line x1="110" y1="110" x2="170" y2="110" stroke="#3b82f6" stroke-opacity="0.3" stroke-dasharray="4 4"/>
+                        <rect x="10" y="160" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="60" y="185" text-anchor="middle" font-size="11" fill="#374151" font-family="Manrope,sans-serif">📋 Notes</text>
+                        <line x1="110" y1="180" x2="170" y2="130" stroke="#3b82f6" stroke-opacity="0.3" stroke-dasharray="4 4"/>
+                        <!-- Right nodes -->
+                        <rect x="350" y="20" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="400" y="45" text-anchor="middle" font-size="11" fill="#374151" font-family="Manrope,sans-serif">📍 Visits</text>
+                        <line x1="350" y1="40" x2="290" y2="90" stroke="#3b82f6" stroke-opacity="0.3" stroke-dasharray="4 4"/>
+                        <rect x="350" y="90" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="400" y="115" text-anchor="middle" font-size="11" fill="#374151" font-family="Manrope,sans-serif">💰 Deals</text>
+                        <line x1="350" y1="110" x2="290" y2="110" stroke="#3b82f6" stroke-opacity="0.3" stroke-dasharray="4 4"/>
+                        <rect x="350" y="160" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="400" y="185" text-anchor="middle" font-size="11" fill="#374151" font-family="Manrope,sans-serif">✅ Tasks</text>
+                        <line x1="350" y1="180" x2="290" y2="130" stroke="#3b82f6" stroke-opacity="0.3" stroke-dasharray="4 4"/>
+                    </svg>
+                </div>
             </div>
         </div>
-        <div class="story-block reversed">
-            <div class="story-text">
-                <h3>Smart Segmentation</h3>
-                <p>Slice and dice your contact list. Create dynamic lists based on criteria like "Last Contacted,"
-                    "Title," or "Location" to send targeted outreach.</p>
-                <ul class="story-list">
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg> Dynamic filters</li>
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                            <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                        </svg> Save custom views</li>
+    </div>
+</section>
+
+<!-- Section 2: Smart Segmentation -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split reversed">
+            <div>
+                <p class="fp-section-label">Segmentation</p>
+                <h2 class="fp-section-title">Filter, segment, and act</h2>
+                <p class="fp-section-desc">Create dynamic lists from any combination of fields. Find every CEO in California, every contact you haven't spoken to in 30 days, or every champion at enterprise accounts — in seconds.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Dynamic filters across all contact fields</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Save and share custom views with your team</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Sort by "last contacted" to spot relationship decay</li>
                 </ul>
             </div>
-            <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
-                <div
-                    style="padding: 16px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px;">
-                    <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 4px;">Dynamic List</div>
-                    <div style="font-weight: 700; margin-bottom: 12px;">"CEOs in California"</div>
-                    <div style="display: flex; gap: -8px;">
-                        <div
-                            style="width: 24px; height: 24px; border-radius: 50%; background: #475569; border: 2px solid var(--bg-primary);">
-                        </div>
-                        <div
-                            style="width: 24px; height: 24px; border-radius: 50%; background: #3b82f6; border: 2px solid var(--bg-primary); margin-left: -8px;">
-                        </div>
-                        <div
-                            style="width: 24px; height: 24px; border-radius: 50%; background: #f59e0b; border: 2px solid var(--bg-primary); margin-left: -8px;">
-                        </div>
-                        <div
-                            style="width: 24px; height: 24px; border-radius: 50%; background: #1e293b; border: 2px solid var(--bg-primary); margin-left: -8px; font-size: 10px; display: flex; align-items: center; justify-content: center; color: white;">
-                            +42</div>
+            <div class="fp-visual">
+                <div class="fp-visual-inner" style="padding:24px;">
+                    <!-- Filter UI mockup -->
+                    <div style="margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+                        <div style="padding:6px 14px;background:#3b82f6;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">Title = VP</div>
+                        <div style="padding:6px 14px;background:rgba(59,130,246,.1);color:#3b82f6;border:1px solid rgba(59,130,246,.2);border-radius:8px;font-size:12px;font-weight:600;">State = California</div>
+                        <div style="padding:6px 14px;background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.2);border-radius:8px;font-size:12px;font-weight:600;">Last Contact &lt; 30d</div>
                     </div>
+                    <div style="font-size:11px;color:#6b7280;margin-bottom:12px;">42 contacts match</div>
+                    <!-- Mini contact list -->
+                    <table class="ui-table">
+                        <thead><tr><th>Name</th><th>Company</th><th>Title</th><th>Last Contact</th></tr></thead>
+                        <tbody>
+                            <tr>
+                                <td style="display:flex;align-items:center;gap:8px;"><span class="ui-avatar" style="background:#3b82f6;width:26px;height:26px;font-size:10px;">EP</span> Eleanor Pena</td>
+                                <td>Acme Corp</td>
+                                <td>VP Procurement</td>
+                                <td>Today</td>
+                            </tr>
+                            <tr>
+                                <td style="display:flex;align-items:center;gap:8px;"><span class="ui-avatar" style="background:#8b5cf6;width:26px;height:26px;font-size:10px;">RG</span> Robert Garcia</td>
+                                <td>Globex Inc</td>
+                                <td>VP Sales</td>
+                                <td>2 days ago</td>
+                            </tr>
+                            <tr>
+                                <td style="display:flex;align-items:center;gap:8px;"><span class="ui-avatar" style="background:#f59e0b;width:26px;height:26px;font-size:10px;">JS</span> Jane Smith</td>
+                                <td>Wayne Ent</td>
+                                <td>VP Operations</td>
+                                <td>5 days ago</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-    </section>
-    <section class="power-grid-section">
-        <div class="container">
-            <div class="power-header">
-                <h2>For Networkers</h2>
+    </div>
+</section>
+
+<!-- Section 3: Stakeholder Mapping -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split">
+            <div>
+                <p class="fp-section-label">Stakeholder Intelligence</p>
+                <h2 class="fp-section-title">Map the buying committee</h2>
+                <p class="fp-section-desc">Tag contacts by their role in the deal — champion, decision maker, blocker, influencer. Visualize the org chart and understand exactly who you need to win over.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Role-based contact tagging</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Company-to-contact relationship mapping</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Visual org chart inside every deal</li>
+                </ul>
             </div>
-            <div class="power-grid">
-                <div class="power-card">
-                    <h4>Social Profiling</h4>
-                    <p>Store LinkedIn, Twitter, and other social profile links for quick access.</p>
-                </div>
-                <div class="power-card">
-                    <h4>Important Dates</h4>
-                    <p>Track birthdays and anniversaries to build deeper personal relationships.</p>
-                </div>
-                <div class="power-card">
-                    <h4>Last Contacted</h4>
-                    <p>Sort by relationship decay to see who you need to reconnect with.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="big-cta">
-        <div class="container">
-            <h2>Know your network.</h2>
-            <a href="../../crm/" class="btn-primary" style="padding: 16px 32px; font-size: 18px;">Start Free Trial</a>
-        </div>
-    </section>
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="footer-logo-wrapper">
-                        <img src="../../assets/icons/whiteblue.png" alt="SafiTrack" class="footer-logo">
-                        <span class="footer-logo-text">SafiTrack</span>
-                    </div>
-                    <p class="footer-tagline">Modern CRM platform built for<br>high-performing sales teams</p>
-                </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Product</h4>
-                        <ul>
-                            <li><a href="/pages/features/mainfeatures.html">Features</a></li>
-                            <li><a href="/pages/pricing.html">Pricing</a></li>
-                            <li><a href="#">Integrations</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Company</h4>
-                        <ul>
-                            <li><a href="../blog.html">Blog</a></li>
-                            <li><a href="../careers.html">Careers</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Resources</h4>
-                        <ul>
-                            <li><a href="../documentation.html">Documentation</a></li>
-                            <li><a href="../helpcenter.html">Help Center</a></li>
-                            <li><a href="#">API Reference</a></li>
-                            <li><a href="../status.html">Status</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Legal</h4>
-                        <ul>
-                            <li><a href="pages/legal/privacy.html">Privacy Policy</a></li>
-                            <li><a href="pages/legal/terms.html">Terms of Service</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-                <div class="footer-social">
-                    <a href="#" aria-label="Twitter">Twitter</a>
-                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
-                    <a href="#" aria-label="GitHub">GitHub</a>
+            <div class="fp-visual">
+                <div class="fp-visual-inner" style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+                    <!-- Org chart diagram -->
+                    <svg width="100%" height="200" viewBox="0 0 400 200" fill="none" style="display:block;">
+                        <!-- CEO -->
+                        <rect x="140" y="10" width="120" height="48" rx="12" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="200" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#0b1220" font-family="Manrope,sans-serif">Sarah Chen</text>
+                        <text x="200" y="46" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Manrope,sans-serif">CEO · Decision Maker</text>
+                        <circle cx="254" cy="18" r="6" fill="#f43f5e" fill-opacity="0.15" stroke="#f43f5e" stroke-opacity="0.4"/>
+                        <text x="254" y="21" text-anchor="middle" font-size="7" fill="#f43f5e" font-family="Manrope,sans-serif">DM</text>
+                        <!-- Lines -->
+                        <line x1="170" y1="58" x2="100" y2="90" stroke="#e6e9ef" stroke-width="1.5"/>
+                        <line x1="230" y1="58" x2="300" y2="90" stroke="#e6e9ef" stroke-width="1.5"/>
+                        <!-- VP Procurement -->
+                        <rect x="30" y="90" width="140" height="48" rx="12" fill="#3b82f6" fill-opacity="0.06" stroke="#3b82f6" stroke-opacity="0.25"/>
+                        <text x="100" y="110" text-anchor="middle" font-size="12" font-weight="700" fill="#0b1220" font-family="Manrope,sans-serif">Eleanor Pena</text>
+                        <text x="100" y="126" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Manrope,sans-serif">VP Procurement · Champion</text>
+                        <circle cx="164" cy="98" r="6" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-opacity="0.4"/>
+                        <text x="164" y="101" text-anchor="middle" font-size="6" fill="#10b981" font-family="Manrope,sans-serif">★</text>
+                        <!-- CFO -->
+                        <rect x="230" y="90" width="140" height="48" rx="12" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="300" y="110" text-anchor="middle" font-size="12" font-weight="700" fill="#0b1220" font-family="Manrope,sans-serif">Mike Torres</text>
+                        <text x="300" y="126" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Manrope,sans-serif">CFO · Influencer</text>
+                        <!-- Line to Technical -->
+                        <line x1="100" y1="138" x2="100" y2="160" stroke="#e6e9ef" stroke-width="1.5"/>
+                        <rect x="30" y="158" width="140" height="36" rx="10" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="100" y="180" text-anchor="middle" font-size="11" fill="#374151" font-family="Manrope,sans-serif">David Park · Technical Lead</text>
+                    </svg>
                 </div>
             </div>
         </div>
-    </footer>
+    </div>
+</section>
+
+<!-- Feature grid -->
+<section class="fp-grid-section" style="background:#f9fafb;">
+    <div class="fp-container">
+        <div class="fp-grid-header">
+            <p class="fp-section-label">Capabilities</p>
+            <h2 class="fp-section-title">Built for relationship-driven sales</h2>
+        </div>
+        <div class="fp-grid">
+            <div class="fp-card fp-animate">
+                <div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                <h4>Rich Profiles</h4>
+                <p>Store phone, email, social links, custom fields, and notes on every contact. All the context you need in one place.</p>
+            </div>
+            <div class="fp-card fp-animate">
+                <div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                <h4>Last-Contacted Tracking</h4>
+                <p>Sort your contacts by recency. Spot relationships that are going cold and reconnect before it's too late.</p>
+            </div>
+            <div class="fp-card fp-animate">
+                <div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></div>
+                <h4>Bulk Actions</h4>
+                <p>Select multiple contacts to assign, export, or tag in bulk. Handle your database at scale without the tedium.</p>
+            </div>
+            <div class="fp-card fp-animate">
+                <div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></div>
+                <h4>Custom Fields</h4>
+                <p>Add any field you need — industry, budget size, lead source. Your contacts, your data model.</p>
+            </div>
+            <div class="fp-card fp-animate">
+                <div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+                <h4>Engagement Scoring</h4>
+                <p>See at a glance which contacts are hot, warm, or cold based on recent interaction frequency.</p>
+            </div>
+            <div class="fp-card fp-animate">
+                <div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+                <h4>CSV Import & Export</h4>
+                <p>Bring your existing contacts in with smart field mapping, or export any list for use elsewhere.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA -->
+<section class="fp-cta">
+    <div class="fp-container">
+        <h2>Know every relationship that matters</h2>
+        <p>Start managing your contacts the way they deserve — with full context and zero friction.</p>
+        <a href="../pricing.html#pricing-grid" class="fp-cta-btn">Start free trial <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></a>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-brand"><div class="footer-logo-wrapper"><a href="../../index.html"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a></div></div>
+            <div class="footer-links">
+                <div class="footer-column"><h4 class="footer-heading">Product</h4><ul><li><a href="mainfeatures.html">Features</a></li><li><a href="../pricing.html">Pricing</a></li><li><a href="../integrations.html">Integrations</a></li></ul></div>
+                <div class="footer-column"><h4 class="footer-heading">Company</h4><ul><li><a href="../blog.html">Blog</a></li><li><a href="../careers.html">Careers</a></li></ul></div>
+                <div class="footer-column"><h4 class="footer-heading">Resources</h4><ul><li><a href="../documentation.html">Documentation</a></li><li><a href="../helpcenter.html">Help Center</a></li><li><a href="../apireference.html">API Reference</a></li><li><a href="../status.html">Status</a></li></ul></div>
+                <div class="footer-column"><h4 class="footer-heading">Legal</h4><ul><li><a href="../legal/privacy.html">Privacy Policy</a></li><li><a href="../legal/terms.html">Terms of Service</a></li></ul></div>
+            </div>
+        </div>
+        <div class="footer-bottom"><p>&copy; 2026 SafiTrack. All rights reserved.</p><div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div></div>
+    </div>
+</footer>
+<script src="feature-page.js"></script>
+<script src="../../landing.js"></script>
 </body>
-
 </html>

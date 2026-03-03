@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Route Plans - SafiTrack CRM</title>
+    <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../landing.css">
+    <style>
+        body {
+            background: var(--bg-primary);
+            overflow-x: hidden;
+        }
+
+        .f-hero {
+            padding: 180px 0 100px;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .f-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            background: rgba(245, 158, 11, 0.1);
+            color: #f59e0b;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 100px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 24px;
+        }
+
+        .f-title {
+            font-size: 64px;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .f-subtitle {
+            font-size: 21px;
+            color: var(--text-secondary);
+            max-width: 680px;
+            margin: 0 auto 60px;
+            line-height: 1.6;
+        }
+
+        .mockup-container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .mockup-flat {
+            background: var(--bg-secondary);
+            border-radius: 20px;
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+            height: 500px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .story-section {
+            padding: 120px 0;
+        }
+
+        .story-block {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+            margin-bottom: 120px;
+        }
+
+        .story-block.reversed {
+            direction: rtl;
+        }
+
+        .story-block.reversed .story-text {
+            direction: ltr;
+        }
+
+        .story-text h3 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .story-text p {
+            font-size: 17px;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        .story-list li {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+        }
+
+        .story-list svg {
+            color: #f59e0b;
+            flex-shrink: 0;
+        }
+
+        .story-visual {
+            background: var(--bg-elevated);
+            border-radius: 24px;
+            border: 1px solid var(--border-glass);
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .power-grid-section {
+            background: var(--bg-secondary);
+            padding: 100px 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .power-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .power-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        .power-card {
+            background: var(--bg-primary);
+            padding: 32px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+
+        .power-card h4 {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 16px 0 8px;
+        }
+
+        .power-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .big-cta {
+            padding: 120px 0;
+            text-align: center;
+            background: radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.15) 0%, transparent 60%);
+        }
+
+        .big-cta h2 {
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 32px;
+        }
+
+        @media (max-width: 768px) {
+            .f-title {
+                font-size: 40px;
+            }
+
+            .story-block,
+            .power-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .story-block.reversed {
+                direction: ltr;
+            }
+
+            .mockup-flat {
+                height: 300px;
+            }
+        }
+
+        /* Route Line Animation */
+        .route-path {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: drawRoute 3s ease forwards;
+        }
+
+        @keyframes drawRoute {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <a href="../../index.html" class="logo"><img src="../../assets/icons/whiteblue.png"
+                        alt="SafiTrack"><span class="logo-text">SafiTrack</span></a>
+                <div class="nav-links">
+                    <a href="mainfeatures.html" class="active">Features</a>
+                    <a href="../../index.html#product">Product</a>
+                    <a href="../../pages/pricing.html">Pricing</a>
+                    <a href="../../crm/" class="btn-primary">Open App</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <header class="f-hero">
+        <div class="container">
+            <span class="f-badge">Logistics</span>
+            <h1 class="f-title">Drive less.<br>Sell more.</h1>
+            <p class="f-subtitle">Intelligent route optimization that squeezes more meetings into your day while
+                reducing fuel costs and windshield time.</p>
+            <div class="mockup-container">
+                <div class="mockup-flat">
+                    <div style="width: 100%; height: 100%; display: flex;">
+                        <!-- Sidebar -->
+                        <div
+                            style="width: 250px; background: var(--bg-tertiary); border-right: 1px solid var(--border-color); padding: 20px;">
+                            <div style="font-weight: 700; color: var(--text-secondary); margin-bottom: 16px;">TUESDAY
+                                ROUTE</div>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <!-- Stops -->
+                                <div
+                                    style="padding: 12px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; color: white; display: flex; gap: 10px; align-items: center;">
+                                    <div
+                                        style="width: 20px; height: 20px; background: #f59e0b; border-radius: 50%; color: black; font-weight: 700; font-size: 11px; display: flex; align-items: center; justify-content: center;">
+                                        1</div>
+                                    <div style="font-size: 13px;">North Point Biz Park</div>
+                                </div>
+                                <div
+                                    style="padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-secondary); display: flex; gap: 10px; align-items: center;">
+                                    <div
+                                        style="width: 20px; height: 20px; background: var(--bg-elevated); border: 1px solid var(--text-muted); border-radius: 50%; color: var(--text-muted); font-weight: 700; font-size: 11px; display: flex; align-items: center; justify-content: center;">
+                                        2</div>
+                                    <div style="font-size: 13px;">Westside Logistics</div>
+                                </div>
+                                <div
+                                    style="padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-secondary); display: flex; gap: 10px; align-items: center;">
+                                    <div
+                                        style="width: 20px; height: 20px; background: var(--bg-elevated); border: 1px solid var(--text-muted); border-radius: 50%; color: var(--text-muted); font-weight: 700; font-size: 11px; display: flex; align-items: center; justify-content: center;">
+                                        3</div>
+                                    <div style="font-size: 13px;">Downtown Retail</div>
+                                </div>
+                            </div>
+                            <div
+                                style="margin-top: 24px; padding: 12px; background: var(--bg-elevated); border-radius: 8px; font-size: 12px; color: var(--text-muted);">
+                                Total Distance: <span style="color: white; font-weight: 700;">42 miles</span><br>
+                                Est. Time: <span style="color: white; font-weight: 700;">3h 15m</span>
+                            </div>
+                        </div>
+                        <!-- Map Area -->
+                        <div style="flex-grow: 1; background: #0f172a; position: relative; overflow: hidden;">
+                            <svg width="100%" height="100%" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice"
+                                style="position: absolute; top: 0; left: 0;">
+                                <!-- Grid -->
+                                <defs>
+                                    <pattern id="mapGrid" width="50" height="50" patternUnits="userSpaceOnUse">
+                                        <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(255,255,255,0.03)"
+                                            stroke-width="1" />
+                                    </pattern>
+                                    <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:#fbbf24;stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <rect width="100%" height="100%" fill="url(#mapGrid)" />
+
+                                <!-- Territory Zones -->
+                                <path d="M 50 50 L 300 30 L 350 200 L 100 250 Z" fill="rgba(47, 95, 208, 0.05)"
+                                    stroke="rgba(47, 95, 208, 0.2)" stroke-width="2" stroke-dasharray="4 4" />
+                                <text x="60" y="45" fill="rgba(255,255,255,0.2)" font-size="10" font-weight="700"
+                                    text-transform="uppercase">North Zone</text>
+
+                                <path d="M 600 300 L 950 250 L 920 450 L 550 480 Z" fill="rgba(16, 185, 129, 0.05)"
+                                    stroke="rgba(16, 185, 129, 0.2)" stroke-width="2" stroke-dasharray="4 4" />
+                                <text x="850" y="410" fill="rgba(255,255,255,0.2)" font-size="10" font-weight="700"
+                                    text-transform="uppercase">East Sector</text>
+
+                                <!-- Main Route Path -->
+                                <path d="M 40 400 L 180 320 L 320 380 L 520 220 L 750 280 L 940 100" fill="none"
+                                    stroke="url(#routeGradient)" stroke-width="5" stroke-linecap="round"
+                                    stroke-linejoin="round" class="route-path" opacity="0.8" />
+
+                                <!-- Connection Pulses/Nodes -->
+                                <g class="map-node">
+                                    <circle cx="40" cy="400" r="8" fill="#f59e0b" stroke="white" stroke-width="3" />
+                                    <circle cx="40" cy="400" r="16" fill="#f59e0b" opacity="0.2">
+                                        <animate attributeName="r" from="8" to="24" dur="1.5s"
+                                            repeatCount="indefinite" />
+                                        <animate attributeName="opacity" from="0.3" to="0" dur="1.5s"
+                                            repeatCount="indefinite" />
+                                    </circle>
+                                </g>
+
+                                <circle cx="180" cy="320" r="5" fill="#1e293b" stroke="#f59e0b" stroke-width="2" />
+                                <circle cx="320" cy="380" r="5" fill="#1e293b" stroke="#f59e0b" stroke-width="2" />
+                                <circle cx="520" cy="220" r="5" fill="#1e293b" stroke="#f59e0b" stroke-width="2" />
+                                <circle cx="750" cy="280" r="5" fill="#1e293b" stroke="#f59e0b" stroke-width="2" />
+                                <circle cx="940" cy="100" r="5" fill="#f59e0b" stroke="white" stroke-width="2" />
+
+                                <!-- Live Location Pulse -->
+                                <g transform="translate(680, 230)">
+                                    <circle r="4" fill="#60a5fa" shadow="0 0 10px #60a5fa" />
+                                    <circle r="4" fill="#60a5fa" opacity="0.4">
+                                        <animate attributeName="r" from="4" to="12" dur="2s" repeatCount="indefinite" />
+                                        <animate attributeName="opacity" from="0.4" to="0" dur="2s"
+                                            repeatCount="indefinite" />
+                                    </circle>
+                                    <text y="-12" x="-20" fill="#60a5fa" font-size="10" font-weight="700">R. Miller
+                                        (Live)</text>
+                                </g>
+                            </svg>
+                            <!-- Floating Directions -->
+                            <div
+                                style="position: absolute; top: 20px; right: 20px; width: 220px; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 12px; padding: 16px; box-shadow: var(--shadow-xl);">
+                                <div
+                                    style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">
+                                    Next Turn</div>
+                                <div style="font-size: 14px; font-weight: 600; display: flex; gap: 8px;"><span
+                                        style="font-size: 18px;">↰</span> Turn left on Main St.</div>
+                                <div style="font-size: 12px; color: var(--text-secondary);">0.4 miles</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <section class="story-section container">
+        <div class="story-block">
+            <div class="story-text">
+                <h3>Efficient Routing</h3>
+                <p>Don't let inefficient driving eat your profits. Our routing engine calculates the most optimal path
+                    between multiple stops instantly, keeping you on track.</p>
+                <ul class="story-list">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                        </svg> Reduce mileage by 20%</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                        </svg> Prioritize VIP accounts</li>
+                </ul>
+            </div>
+            <div class="story-visual">
+                <div style="text-align: center;">
+                    <div style="font-size: 48px; font-weight: 800; color: #f59e0b;">-22%</div>
+                    <div style="font-size: 18px; color: var(--text-secondary);">Estimated fuel savings<br>per
+                        fleet/month</div>
+                </div>
+            </div>
+        </div>
+        <div class="story-block reversed">
+            <div class="story-text">
+                <h3>Territory Management</h3>
+                <p>Visualize your customers on a map and draw territories that make sense. Assign reps to geographic
+                    zones to ensure total coverage without overlap.</p>
+                <ul class="story-list">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                        </svg> Drag-and-drop assignment</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+                        </svg> Heatmaps of customer density</li>
+                </ul>
+            </div>
+            <div class="story-visual"
+                style="display: flex; align-items: center; justify-content: center; background: #0f172a;">
+                <svg width="100%" height="100%" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
+                    <!-- Subtle Background Grid -->
+                    <defs>
+                        <pattern id="microGrid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <circle cx="1" cy="1" r="0.5" fill="rgba(255,255,255,0.05)" />
+                        </pattern>
+                    </defs>
+                    <rect width="100%" height="100%" fill="url(#microGrid)" />
+
+                    <!-- Territory Heatmap/Clusters (Random dots) -->
+                    <g opacity="0.4">
+                        <circle cx="60" cy="80" r="2" fill="white" opacity="0.6" />
+                        <circle cx="65" cy="85" r="2" fill="white" opacity="0.6" />
+                        <circle cx="75" cy="70" r="2" fill="white" opacity="0.6" />
+                        <circle cx="120" cy="150" r="2" fill="white" opacity="0.6" />
+                        <circle cx="125" cy="155" r="2" fill="white" opacity="0.6" />
+                        <circle cx="280" cy="60" r="2" fill="white" opacity="0.6" />
+                        <circle cx="290" cy="70" r="2" fill="white" opacity="0.6" />
+                        <circle cx="310" cy="180" r="2" fill="white" opacity="0.6" />
+                        <circle cx="305" cy="190" r="2" fill="white" opacity="0.6" />
+                        <circle cx="200" cy="220" r="2" fill="white" opacity="0.6" />
+                    </g>
+
+                    <!-- Zone 1: West Zone (Inactive) -->
+                    <path d="M 30 50 L 150 40 L 180 140 L 40 160 Z" fill="rgba(47, 95, 208, 0.1)"
+                        stroke="rgba(47, 95, 208, 0.3)" stroke-width="1.5" />
+                    <text x="50" y="70" fill="rgba(255,255,255,0.3)" font-size="9" font-weight="700"
+                        text-transform="uppercase">NW Sector</text>
+
+                    <!-- Zone 2: Central Core (Active/Selected) -->
+                    <path d="M 180 140 L 320 120 L 340 240 L 160 260 Z" fill="rgba(245, 158, 11, 0.15)" stroke="#f59e0b"
+                        stroke-width="2" stroke-dasharray="4 2" />
+
+                    <!-- Selection Nodes -->
+                    <circle cx="180" cy="140" r="3" fill="#f59e0b" stroke="white" stroke-width="1" />
+                    <circle cx="320" cy="120" r="3" fill="#f59e0b" stroke="white" stroke-width="1" />
+                    <circle cx="340" cy="240" r="3" fill="#f59e0b" stroke="white" stroke-width="1" />
+                    <circle cx="160" cy="260" r="3" fill="#f59e0b" stroke="white" stroke-width="1" />
+
+                    <text x="210" y="160" fill="#f59e0b" font-size="11" font-weight="800">WEST RADIUS</text>
+                    <text x="210" y="175" fill="rgba(255,255,255,0.5)" font-size="9">142 Accounts</text>
+
+                    <!-- Selection Lasso (Drawing Effect) -->
+                    <path d="M 350 50 C 370 70, 380 120, 340 150" fill="none" stroke="#60a5fa" stroke-width="2"
+                        stroke-dasharray="3 3">
+                        <animate attributeName="stroke-dashoffset" from="10" to="0" dur="1s" repeatCount="indefinite" />
+                    </path>
+                    <circle cx="340" cy="150" r="3" fill="#60a5fa" />
+                </svg>
+            </div>
+        </div>
+    </section>
+    <section class="power-grid-section">
+        <div class="container">
+            <div class="power-header">
+                <h2>For Fleet Managers</h2>
+            </div>
+            <div class="power-grid">
+                <div class="power-card">
+                    <h4>Live Tracking</h4>
+                    <p>See exactly where your team is in real-time. Know when they arrive and leave.</p>
+                </div>
+                <div class="power-card">
+                    <h4>Mileage Exports</h4>
+                    <p>One-click CSV exports for mileage reimbursement or tax purposes.</p>
+                </div>
+                <div class="power-card">
+                    <h4>Smart Scheduling</h4>
+                    <p>Drag a dropped pin to a rep's calendar to auto-schedule the visit.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="big-cta">
+        <div class="container">
+            <h2>Optimize your day.</h2>
+            <a href="../../crm/" class="btn-primary" style="padding: 16px 32px; font-size: 18px;">Start Free Trial</a>
+        </div>
+    </section>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo-wrapper">
+                        <img src="../../assets/icons/whiteblue.png" alt="SafiTrack" class="footer-logo">
+                        <span class="footer-logo-text">SafiTrack</span>
+                    </div>
+                    <p class="footer-tagline">Modern CRM platform built for<br>high-performing sales teams</p>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Product</h4>
+                        <ul>
+                            <li><a href="/pages/features/mainfeatures.html">Features</a></li>
+                            <li><a href="/pages/pricing.html">Pricing</a></li>
+                            <li><a href="#">Integrations</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Company</h4>
+                        <ul>
+                            <li><a href="../blog.html">Blog</a></li>
+                            <li><a href="../careers.html">Careers</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Resources</h4>
+                        <ul>
+                            <li><a href="../documentation.html">Documentation</a></li>
+                            <li><a href="../helpcenter.html">Help Center</a></li>
+                            <li><a href="#">API Reference</a></li>
+                            <li><a href="../status.html">Status</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Legal</h4>
+                        <ul>
+                            <li><a href="pages/legal/privacy.html">Privacy Policy</a></li>
+                            <li><a href="pages/legal/terms.html">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+                <div class="footer-social">
+                    <a href="#" aria-label="Twitter">Twitter</a>
+                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
+                    <a href="#" aria-label="GitHub">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+
+</html>

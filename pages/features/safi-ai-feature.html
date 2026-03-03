@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safi AI — SafiTrack CRM</title>
+    <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../landing.css">
+    <link rel="stylesheet" href="feature-page.css">
+    <style>
+        :root{--accent:#7c3aed;}
+        .ai-glow{background:linear-gradient(135deg,rgba(124,58,237,.06),rgba(139,92,246,.04));border:1px solid rgba(124,58,237,.12);}
+        @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+        .ai-shimmer{background:linear-gradient(90deg,transparent,rgba(124,58,237,.08),transparent);background-size:200% 100%;animation:shimmer 3s linear infinite;}
+    </style>
+</head>
+<body>
+<nav class="navbar" id="navbar"><div class="container"><div class="nav-content"><div class="nav-left"><a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack"></a><div class="nav-links"><a href="mainfeatures.html" class="active">Features</a><a href="../../index.html#product">Product</a><a href="../pricing.html">Pricing</a></div></div><div class="nav-actions"><a href="/crm/" class="nav-link-sign-in">Sign in</a><a href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a></div><button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button></div></div></nav>
+<div class="mobile-nav-overlay"><button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button><div class="mobile-nav-content"><a href="mainfeatures.html" class="mobile-link">Features</a><a href="../../index.html#product" class="mobile-link">Product</a><a href="../pricing.html" class="mobile-link">Pricing</a><hr class="mobile-divider"><a href="/crm/" class="mobile-link">Open App</a></div></div>
+
+<header class="fp-hero">
+    <div class="fp-container">
+        <span class="fp-badge" style="background:linear-gradient(135deg,rgba(124,58,237,.1),rgba(139,92,246,.05));border-color:rgba(124,58,237,.2);"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg> Intelligence</span>
+        <h1>Meet Safi AI,<br><span>your CRM copilot</span></h1>
+        <p class="fp-subtitle">An AI assistant that lives inside your CRM. Ask anything about your pipeline, get deal recommendations, auto-generate visit reports, and let AI surface insights you'd never find manually.</p>
+
+        <div class="fp-mockup">
+            <div class="fp-mockup-window">
+                <div class="fp-mockup-bar"><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div></div>
+                <div class="fp-mockup-body" style="padding:0;min-height:440px;display:flex;">
+                    <!-- Chat interface -->
+                    <div style="flex:1;display:flex;flex-direction:column;">
+                        <div style="padding:16px 20px;border-bottom:1px solid #e6e9ef;display:flex;align-items:center;gap:10px;">
+                            <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;">
+                                <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                            </div>
+                            <div><div style="font-size:14px;font-weight:700;color:#0b1220;">Safi AI</div><div style="font-size:11px;color:#10b981;">Online · Analyzing your CRM</div></div>
+                        </div>
+                        <div style="flex:1;padding:20px;display:flex;flex-direction:column;gap:14px;overflow:hidden;">
+                            <!-- User message -->
+                            <div style="display:flex;justify-content:flex-end;">
+                                <div style="max-width:75%;padding:12px 16px;background:#7c3aed;color:#fff;border-radius:16px 16px 4px 16px;font-size:13px;line-height:1.5;">
+                                    Which deals are most likely to close this month?
+                                </div>
+                            </div>
+                            <!-- AI response -->
+                            <div style="display:flex;gap:10px;align-items:flex-start;">
+                                <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                    <svg width="12" height="12" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg>
+                                </div>
+                                <div style="max-width:80%;padding:14px 16px;background:#f9fafb;border:1px solid #e6e9ef;border-radius:4px 16px 16px 16px;font-size:13px;line-height:1.7;color:#374151;">
+                                    Based on your pipeline data, here are the <strong>3 deals most likely to close this month</strong>:
+                                    <div style="margin-top:10px;display:flex;flex-direction:column;gap:6px;">
+                                        <div style="padding:8px 12px;background:#fff;border:1px solid #e6e9ef;border-radius:8px;display:flex;align-items:center;justify-content:space-between;">
+                                            <div><span style="font-weight:600;color:#0b1220;">Acme Corp</span> <span style="color:#6b7280;">· $45,000</span></div>
+                                            <span style="font-size:12px;font-weight:700;color:#10b981;">92% likely</span>
+                                        </div>
+                                        <div style="padding:8px 12px;background:#fff;border:1px solid #e6e9ef;border-radius:8px;display:flex;align-items:center;justify-content:space-between;">
+                                            <div><span style="font-weight:600;color:#0b1220;">Globex Inc</span> <span style="color:#6b7280;">· $28,000</span></div>
+                                            <span style="font-size:12px;font-weight:700;color:#f59e0b;">74% likely</span>
+                                        </div>
+                                        <div style="padding:8px 12px;background:#fff;border:1px solid #e6e9ef;border-radius:8px;display:flex;align-items:center;justify-content:space-between;">
+                                            <div><span style="font-weight:600;color:#0b1220;">Wayne Ent.</span> <span style="color:#6b7280;">· $62,000</span></div>
+                                            <span style="font-size:12px;font-weight:700;color:#f59e0b;">68% likely</span>
+                                        </div>
+                                    </div>
+                                    <div style="margin-top:10px;padding:8px 12px;background:rgba(124,58,237,.05);border-radius:8px;font-size:12px;color:#7c3aed;">💡 <strong>Suggestion:</strong> Acme Corp hasn't been contacted in 5 days. Consider a check-in call to keep momentum.</div>
+                                </div>
+                            </div>
+                            <!-- Typing indicator -->
+                            <div style="display:flex;gap:10px;align-items:flex-start;">
+                                <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;flex-shrink:0;opacity:.5;">
+                                    <svg width="12" height="12" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg>
+                                </div>
+                                <div style="padding:12px 16px;background:#f9fafb;border:1px solid #e6e9ef;border-radius:4px 16px 16px 16px;display:flex;gap:4px;align-items:center;">
+                                    <div style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:pulse 1.4s ease-in-out infinite;"></div>
+                                    <div style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:pulse 1.4s ease-in-out .2s infinite;"></div>
+                                    <div style="width:6px;height:6px;border-radius:50%;background:#a78bfa;animation:pulse 1.4s ease-in-out .4s infinite;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Input -->
+                        <div style="padding:14px 20px;border-top:1px solid #e6e9ef;display:flex;gap:10px;align-items:center;">
+                            <div style="flex:1;padding:10px 14px;background:#f3f4f6;border-radius:10px;font-size:13px;color:#9ca3af;">Ask Safi anything about your CRM...</div>
+                            <div style="width:36px;height:36px;border-radius:10px;background:#7c3aed;display:flex;align-items:center;justify-content:center;">
+                                <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Insights panel -->
+                    <div style="width:240px;border-left:1px solid #e6e9ef;background:#faf5ff;flex-shrink:0;padding:16px;display:flex;flex-direction:column;gap:12px;">
+                        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#7c3aed;">⚡ AI Insights</div>
+                        <div class="ai-glow" style="padding:12px;border-radius:10px;">
+                            <div style="font-size:11px;font-weight:700;color:#0b1220;margin-bottom:4px;">Pipeline Health</div>
+                            <div style="font-size:20px;font-weight:800;color:#10b981;">Strong</div>
+                            <div style="font-size:11px;color:#6b7280;">$135K expected this month</div>
+                        </div>
+                        <div class="ai-glow" style="padding:12px;border-radius:10px;">
+                            <div style="font-size:11px;font-weight:700;color:#0b1220;margin-bottom:4px;">At-Risk Deals</div>
+                            <div style="font-size:20px;font-weight:800;color:#f43f5e;">2</div>
+                            <div style="font-size:11px;color:#6b7280;">Stalled >7 days without activity</div>
+                        </div>
+                        <div class="ai-glow" style="padding:12px;border-radius:10px;">
+                            <div style="font-size:11px;font-weight:700;color:#0b1220;margin-bottom:4px;">Suggested Actions</div>
+                            <div style="font-size:12px;color:#374151;line-height:1.5;">
+                                • Call Acme Corp (5 days idle)<br>
+                                • Wayne Ent. proposal overdue<br>
+                                • 3 tasks due today
+                            </div>
+                        </div>
+                        <div class="ai-shimmer" style="padding:12px;border-radius:10px;">
+                            <div style="font-size:11px;font-weight:700;color:#7c3aed;">✨ Weekly summary ready</div>
+                            <div style="font-size:11px;color:#6b7280;">Tap to view AI-generated report</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Section 1: Conversational AI -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split">
+            <div>
+                <p class="fp-section-label">Conversational AI</p>
+                <h2 class="fp-section-title">Ask anything about your pipeline</h2>
+                <p class="fp-section-desc">No more digging through reports. Ask Safi AI natural-language questions and get instant, accurate answers drawn directly from your CRM data. It's like having a data analyst on demand.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Natural language pipeline queries</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> "Show me deals closing this week"</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> "Who hasn't been contacted in 2 weeks?"</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> "What's our win rate this quarter?"</li>
+                </ul>
+            </div>
+            <div class="fp-visual">
+                <div class="fp-visual-inner">
+                    <svg width="100%" height="250" viewBox="0 0 420 250" fill="none" style="display:block;">
+                        <!-- AI brain in center -->
+                        <circle cx="210" cy="125" r="45" fill="#7c3aed" fill-opacity="0.06" stroke="#7c3aed" stroke-opacity="0.2"/>
+                        <circle cx="210" cy="125" r="28" fill="#7c3aed" fill-opacity="0.1" stroke="#7c3aed" stroke-opacity="0.3"/>
+                        <text x="210" y="120" text-anchor="middle" font-size="20" font-family="Manrope,sans-serif">🧠</text>
+                        <text x="210" y="140" text-anchor="middle" font-size="10" font-weight="700" fill="#7c3aed" font-family="Manrope,sans-serif">Safi AI</text>
+                        <!-- Data sources connected -->
+                        <rect x="10" y="20" width="90" height="36" rx="8" fill="#fff" stroke="#3b82f6" stroke-opacity="0.3"/>
+                        <text x="55" y="42" text-anchor="middle" font-size="10" font-weight="600" fill="#3b82f6" font-family="Manrope,sans-serif">👤 Contacts</text>
+                        <line x1="100" y1="38" x2="175" y2="105" stroke="#3b82f6" stroke-opacity="0.2" stroke-width="1.5" stroke-dasharray="4 3"/>
+                        
+                        <rect x="320" y="20" width="90" height="36" rx="8" fill="#fff" stroke="#10b981" stroke-opacity="0.3"/>
+                        <text x="365" y="42" text-anchor="middle" font-size="10" font-weight="600" fill="#10b981" font-family="Manrope,sans-serif">💰 Deals</text>
+                        <line x1="320" y1="38" x2="245" y2="105" stroke="#10b981" stroke-opacity="0.2" stroke-width="1.5" stroke-dasharray="4 3"/>
+                        
+                        <rect x="10" y="190" width="90" height="36" rx="8" fill="#fff" stroke="#f59e0b" stroke-opacity="0.3"/>
+                        <text x="55" y="212" text-anchor="middle" font-size="10" font-weight="600" fill="#f59e0b" font-family="Manrope,sans-serif">📍 Visits</text>
+                        <line x1="100" y1="208" x2="175" y2="145" stroke="#f59e0b" stroke-opacity="0.2" stroke-width="1.5" stroke-dasharray="4 3"/>
+                        
+                        <rect x="320" y="190" width="90" height="36" rx="8" fill="#fff" stroke="#ec4899" stroke-opacity="0.3"/>
+                        <text x="365" y="212" text-anchor="middle" font-size="10" font-weight="600" fill="#ec4899" font-family="Manrope,sans-serif">📝 Notes</text>
+                        <line x1="320" y1="208" x2="245" y2="145" stroke="#ec4899" stroke-opacity="0.2" stroke-width="1.5" stroke-dasharray="4 3"/>
+                        
+                        <rect x="145" y="0" width="130" height="28" rx="8" fill="#fff" stroke="#0ea5e9" stroke-opacity="0.3"/>
+                        <text x="210" y="18" text-anchor="middle" font-size="10" font-weight="600" fill="#0ea5e9" font-family="Manrope,sans-serif">🏢 Companies</text>
+                        <line x1="210" y1="28" x2="210" y2="80" stroke="#0ea5e9" stroke-opacity="0.2" stroke-width="1.5" stroke-dasharray="4 3"/>
+                        
+                        <rect x="145" y="222" width="130" height="28" rx="8" fill="#fff" stroke="#8b5cf6" stroke-opacity="0.3"/>
+                        <text x="210" y="240" text-anchor="middle" font-size="10" font-weight="600" fill="#8b5cf6" font-family="Manrope,sans-serif">✅ Tasks & Calls</text>
+                        <line x1="210" y1="170" x2="210" y2="222" stroke="#8b5cf6" stroke-opacity="0.2" stroke-width="1.5" stroke-dasharray="4 3"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 2: Deal scoring -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split reversed">
+            <div>
+                <p class="fp-section-label">Predictive Intelligence</p>
+                <h2 class="fp-section-title">AI-powered deal scoring</h2>
+                <p class="fp-section-desc">Safi AI analyzes deal velocity, engagement patterns, and historical win data to score every opportunity. Focus your energy on deals with the highest probability of closing.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Win probability score for every deal</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> At-risk deal alerts and recovery suggestions</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Revenue forecast with confidence intervals</li>
+                </ul>
+            </div>
+            <div class="fp-visual">
+                <div class="fp-visual-inner" style="padding:20px;">
+                    <div style="font-size:13px;font-weight:700;color:#0b1220;margin-bottom:14px;">Deal Health Scores</div>
+                    <div style="display:flex;flex-direction:column;gap:10px;">
+                        <div style="padding:12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                                <span style="font-size:13px;font-weight:600;color:#0b1220;">Acme Corp</span>
+                                <span style="font-size:14px;font-weight:800;color:#10b981;">92%</span>
+                            </div>
+                            <div class="ui-progress" style="height:6px;"><div class="ui-progress-fill" style="width:92%;background:#10b981;"></div></div>
+                            <div style="font-size:11px;color:#6b7280;margin-top:4px;">Strong engagement · Budget confirmed · Champion identified</div>
+                        </div>
+                        <div style="padding:12px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                                <span style="font-size:13px;font-weight:600;color:#0b1220;">Globex Inc</span>
+                                <span style="font-size:14px;font-weight:800;color:#f59e0b;">74%</span>
+                            </div>
+                            <div class="ui-progress" style="height:6px;"><div class="ui-progress-fill" style="width:74%;background:#f59e0b;"></div></div>
+                            <div style="font-size:11px;color:#6b7280;margin-top:4px;">Good velocity · Missing procurement contact</div>
+                        </div>
+                        <div style="padding:12px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;">
+                            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+                                <span style="font-size:13px;font-weight:600;color:#0b1220;">Stark Labs</span>
+                                <span style="font-size:14px;font-weight:800;color:#f43f5e;">35%</span>
+                            </div>
+                            <div class="ui-progress" style="height:6px;"><div class="ui-progress-fill" style="width:35%;background:#f43f5e;"></div></div>
+                            <div style="font-size:11px;color:#f43f5e;margin-top:4px;">⚠ No contact in 14 days · Stalled at proposal</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 3: Visit summaries -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split">
+            <div>
+                <p class="fp-section-label">Auto-Summarization</p>
+                <h2 class="fp-section-title">AI that writes your reports</h2>
+                <p class="fp-section-desc">After every visit, call, or meeting, Safi AI takes your raw notes and transforms them into structured summaries. Key decisions, action items, and next steps — all extracted automatically.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Visit report summarization</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Action item extraction from notes</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Weekly and monthly team digests</li>
+                </ul>
+            </div>
+            <div class="fp-visual">
+                <div class="fp-visual-inner" style="padding:20px;">
+                    <div style="font-size:11px;font-weight:600;color:#6b7280;margin-bottom:8px;">RAW INPUT</div>
+                    <div style="padding:10px 14px;background:#f3f4f6;border-radius:8px;font-size:12px;color:#6b7280;line-height:1.6;margin-bottom:14px;font-style:italic;">
+                        "met eleanor and robert at acme. budget is 45k approved. they need sf integration. proposal due march 10. robert now owns the deal. want to go live by end q2."
+                    </div>
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:14px;">
+                        <div style="width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#7c3aed,#a78bfa);display:flex;align-items:center;justify-content:center;">
+                            <svg width="10" height="10" fill="none" stroke="#fff" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/></svg>
+                        </div>
+                        <span style="font-size:11px;font-weight:700;color:#7c3aed;">Safi AI processed</span>
+                        <svg width="16" height="16" fill="none" stroke="#7c3aed" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <div style="font-size:11px;font-weight:600;color:#7c3aed;margin-bottom:8px;">AI OUTPUT</div>
+                    <div style="padding:14px;background:linear-gradient(135deg,rgba(124,58,237,.04),rgba(139,92,246,.02));border:1px solid rgba(124,58,237,.12);border-radius:10px;font-size:12px;line-height:1.7;color:#374151;">
+                        <strong>Meeting:</strong> Q3 Budget Review<br>
+                        <strong>Attendees:</strong> Eleanor Pena, Robert Garcia<br>
+                        <strong>Budget:</strong> $45,000 — Approved ✅<br>
+                        <strong>Key Decision:</strong> Robert Garcia is the new deal owner<br>
+                        <strong>Requirements:</strong> Salesforce integration<br>
+                        <strong>Timeline:</strong> Go-live by end of Q2<br>
+                        <strong>Action Items:</strong><br>
+                        ☐ Send proposal by March 10<br>
+                        ☐ Update deal owner to Robert Garcia
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Feature grid -->
+<section class="fp-grid-section" style="background:#f9fafb;">
+    <div class="fp-container">
+        <div class="fp-grid-header"><p class="fp-section-label">Capabilities</p><h2 class="fp-section-title">AI that works for your sales team</h2></div>
+        <div class="fp-grid">
+            <div class="fp-card fp-animate"><div class="fp-card-icon" style="background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(139,92,246,.04));"><svg width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div><h4>CRM Chat</h4><p>Ask natural language questions and get instant answers from your pipeline data.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon" style="background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(139,92,246,.04));"><svg width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></div><h4>Deal Scoring</h4><p>AI-powered win probability scores based on engagement, velocity, and history.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon" style="background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(139,92,246,.04));"><svg width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div><h4>Visit Summaries</h4><p>Auto-generate structured reports from raw visit notes and conversations.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon" style="background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(139,92,246,.04));"><svg width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><h4>At-Risk Alerts</h4><p>Get proactive warnings when deals are stalling or need immediate attention.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon" style="background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(139,92,246,.04));"><svg width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><h4>Weekly Digests</h4><p>AI-generated weekly summaries of team activity, wins, and areas needing focus.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon" style="background:linear-gradient(135deg,rgba(124,58,237,.08),rgba(139,92,246,.04));"><svg width="20" height="20" fill="none" stroke="#7c3aed" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><h4>Forecast Predictions</h4><p>Revenue forecasts powered by deal scores, pipeline velocity, and historical data.</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="fp-cta" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">
+    <div class="fp-container">
+        <h2 style="color:#fff;">Your AI-powered sales advantage</h2>
+        <p style="color:rgba(255,255,255,.8);">Let Safi AI analyze your pipeline, score your deals, and surface the insights that close revenue.</p>
+        <a href="../pricing.html#pricing-grid" class="fp-cta-btn" style="background:#fff;color:#7c3aed;">Start free trial <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></a>
+    </div>
+</section>
+
+<footer class="footer"><div class="container"><div class="footer-content"><div class="footer-brand"><div class="footer-logo-wrapper"><a href="../../index.html"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a></div></div><div class="footer-links"><div class="footer-column"><h4 class="footer-heading">Product</h4><ul><li><a href="mainfeatures.html">Features</a></li><li><a href="../pricing.html">Pricing</a></li><li><a href="../integrations.html">Integrations</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Company</h4><ul><li><a href="../blog.html">Blog</a></li><li><a href="../careers.html">Careers</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Resources</h4><ul><li><a href="../documentation.html">Documentation</a></li><li><a href="../helpcenter.html">Help Center</a></li><li><a href="../apireference.html">API Reference</a></li><li><a href="../status.html">Status</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Legal</h4><ul><li><a href="../legal/privacy.html">Privacy Policy</a></li><li><a href="../legal/terms.html">Terms of Service</a></li></ul></div></div></div><div class="footer-bottom"><p>&copy; 2026 SafiTrack. All rights reserved.</p><div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div></div></div></footer>
+<script src="feature-page.js"></script>
+<script src="../../landing.js"></script>
+<style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}</style>
+</body>
+</html>

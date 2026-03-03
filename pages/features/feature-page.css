@@ -1,0 +1,682 @@
+/* ============================================
+   SafiTrack Feature Pages — Shared Styles
+   Premium, Attio-inspired design system
+   ============================================ */
+
+/* Page-level accent via CSS custom property.
+   Each page sets  --accent  on :root            */
+
+:root {
+    --accent: #3b82f6;
+    --accent-light: color-mix(in srgb, var(--accent) 12%, transparent);
+    --accent-mid: color-mix(in srgb, var(--accent) 30%, transparent);
+}
+
+/* ---------- Base ---------- */
+body {
+    background: #ffffff;
+    overflow-x: hidden;
+    color: #0b1220;
+}
+
+/* ---------- Shared container (mirrors landing.css) ---------- */
+.fp-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+/* ---------- HERO ---------- */
+.fp-hero {
+    padding: 160px 0 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.fp-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 900px;
+    height: 600px;
+    background: radial-gradient(ellipse at center, var(--accent-light) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+.fp-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 14px;
+    background: var(--accent-light);
+    color: var(--accent);
+    border: 1px solid var(--accent-mid);
+    border-radius: 100px;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 28px;
+    position: relative;
+    z-index: 1;
+}
+
+.fp-badge svg {
+    width: 14px;
+    height: 14px;
+}
+
+.fp-hero h1 {
+    font-size: clamp(40px, 5.5vw, 68px);
+    font-weight: 800;
+    letter-spacing: -1.8px;
+    line-height: 1.08;
+    margin-bottom: 24px;
+    color: #0b1220;
+    position: relative;
+    z-index: 1;
+}
+
+.fp-hero h1 span {
+    background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #7c3aed));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.fp-hero .fp-subtitle {
+    font-size: 20px;
+    color: #4b5563;
+    max-width: 620px;
+    margin: 0 auto 56px;
+    line-height: 1.65;
+    position: relative;
+    z-index: 1;
+}
+
+/* ---------- HERO MOCKUP ---------- */
+.fp-mockup {
+    max-width: 1060px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+}
+
+.fp-mockup-window {
+    background: #ffffff;
+    border-radius: 16px;
+    border: 1px solid #e6e9ef;
+    box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.04),
+        0 4px 12px rgba(0, 0, 0, 0.04),
+        0 16px 48px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+}
+
+.fp-mockup-bar {
+    height: 44px;
+    background: #f9fafb;
+    border-bottom: 1px solid #e6e9ef;
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    gap: 8px;
+}
+
+.fp-mockup-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #e6e9ef;
+}
+
+.fp-mockup-dot:nth-child(1) { background: #fca5a5; }
+.fp-mockup-dot:nth-child(2) { background: #fde68a; }
+.fp-mockup-dot:nth-child(3) { background: #86efac; }
+
+.fp-mockup-body {
+    min-height: 420px;
+    position: relative;
+}
+
+/* ---------- SECTIONS ---------- */
+.fp-section {
+    padding: 100px 0;
+}
+
+.fp-section:nth-child(even) {
+    background: #f9fafb;
+}
+
+.fp-section-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+}
+
+.fp-section-title {
+    font-size: clamp(28px, 3.5vw, 42px);
+    font-weight: 800;
+    letter-spacing: -0.8px;
+    line-height: 1.15;
+    color: #0b1220;
+    margin-bottom: 16px;
+}
+
+.fp-section-desc {
+    font-size: 18px;
+    color: #4b5563;
+    line-height: 1.65;
+    max-width: 560px;
+}
+
+/* ---------- SPLIT SECTION (text + visual) ---------- */
+.fp-split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+}
+
+.fp-split.reversed {
+    direction: rtl;
+}
+
+.fp-split.reversed > * {
+    direction: ltr;
+}
+
+/* ---------- VISUAL PANEL ---------- */
+.fp-visual {
+    background: #f9fafb;
+    border-radius: 20px;
+    border: 1px solid #e6e9ef;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+}
+
+.fp-visual-inner {
+    padding: 32px;
+}
+
+/* ---------- CHECK LIST ---------- */
+.fp-checklist {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0 0;
+}
+
+.fp-checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 14px;
+    font-size: 15px;
+    color: #374151;
+    line-height: 1.5;
+}
+
+.fp-checklist li svg {
+    flex-shrink: 0;
+    color: var(--accent);
+    margin-top: 2px;
+}
+
+/* ---------- FEATURE GRID ---------- */
+.fp-grid-section {
+    padding: 100px 0;
+}
+
+.fp-grid-header {
+    text-align: center;
+    margin-bottom: 64px;
+}
+
+.fp-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+}
+
+.fp-card {
+    background: #ffffff;
+    border: 1px solid #e6e9ef;
+    border-radius: 16px;
+    padding: 32px;
+    transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.fp-card:hover {
+    border-color: var(--accent-mid);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+    transform: translateY(-2px);
+}
+
+.fp-card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--accent-light);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+.fp-card h4 {
+    font-size: 17px;
+    font-weight: 700;
+    color: #0b1220;
+    margin-bottom: 8px;
+}
+
+.fp-card p {
+    font-size: 14.5px;
+    color: #6b7280;
+    line-height: 1.6;
+}
+
+/* ---------- STAT ROW ---------- */
+.fp-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    max-width: 900px;
+    margin: 64px auto 0;
+}
+
+.fp-stat {
+    text-align: center;
+    padding: 32px 24px;
+    background: #ffffff;
+    border: 1px solid #e6e9ef;
+    border-radius: 16px;
+}
+
+.fp-stat-num {
+    font-size: 40px;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -1px;
+    margin-bottom: 4px;
+}
+
+.fp-stat-label {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* ---------- WORKFLOW / DIAGRAM ---------- */
+.fp-workflow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 48px 32px;
+    flex-wrap: wrap;
+}
+
+.fp-workflow-step {
+    text-align: center;
+    flex: 0 0 auto;
+}
+
+.fp-workflow-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 16px;
+    background: var(--accent-light);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    border: 1px solid var(--accent-mid);
+}
+
+.fp-workflow-step h5 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0b1220;
+    margin-bottom: 4px;
+}
+
+.fp-workflow-step p {
+    font-size: 12px;
+    color: #6b7280;
+    max-width: 120px;
+    margin: 0 auto;
+}
+
+.fp-workflow-arrow {
+    color: #d1d5db;
+    flex-shrink: 0;
+    margin: 0 20px;
+    margin-bottom: 30px;
+}
+
+/* ---------- CTA ---------- */
+.fp-cta {
+    padding: 120px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.fp-cta::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 700px;
+    height: 400px;
+    background: radial-gradient(ellipse, var(--accent-light) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.fp-cta h2 {
+    font-size: clamp(32px, 4vw, 52px);
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: #0b1220;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 1;
+}
+
+.fp-cta p {
+    font-size: 18px;
+    color: #6b7280;
+    margin-bottom: 40px;
+    position: relative;
+    z-index: 1;
+}
+
+.fp-cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 36px;
+    background: #0b1220;
+    color: #ffffff;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+    position: relative;
+    z-index: 1;
+}
+
+.fp-cta-btn:hover {
+    background: #1e293b;
+    transform: translateY(-1px);
+    box-shadow: 0 8px 24px rgba(11, 18, 32, 0.15);
+}
+
+/* ---------- INLINE UI COMPONENTS ---------- */
+/* These are used inside mockups / visuals     */
+
+/* Mini table */
+.ui-table {
+    width: 100%;
+    font-size: 13px;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.ui-table th {
+    text-align: left;
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6b7280;
+    border-bottom: 1px solid #e6e9ef;
+    background: #f9fafb;
+}
+
+.ui-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f3f4f6;
+    color: #374151;
+}
+
+.ui-table tr:last-child td {
+    border-bottom: none;
+}
+
+/* Mini tag */
+.ui-tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 100px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+/* Mini avatar */
+.ui-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #ffffff;
+    flex-shrink: 0;
+}
+
+/* Kanban column */
+.ui-kanban {
+    display: flex;
+    gap: 16px;
+    padding: 24px;
+    overflow-x: auto;
+}
+
+.ui-kanban-col {
+    flex: 0 0 200px;
+    background: #f9fafb;
+    border-radius: 12px;
+    padding: 16px;
+    min-height: 280px;
+}
+
+.ui-kanban-col h6 {
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: #6b7280;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ui-kanban-col h6 .count {
+    background: #e5e7eb;
+    color: #374151;
+    font-size: 10px;
+    padding: 1px 7px;
+    border-radius: 100px;
+}
+
+.ui-kanban-card {
+    background: #ffffff;
+    border: 1px solid #e6e9ef;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.ui-kanban-card .deal-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: #0b1220;
+    margin-bottom: 4px;
+}
+
+.ui-kanban-card .deal-amount {
+    font-size: 12px;
+    color: #6b7280;
+}
+
+/* Chat / AI bubble */
+.ui-chat {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.ui-bubble {
+    max-width: 80%;
+    padding: 14px 18px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.55;
+    color: #374151;
+}
+
+.ui-bubble.user {
+    background: #0b1220;
+    color: #ffffff;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+
+.ui-bubble.ai {
+    background: #f3f4f6;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
+
+/* Progress bar */
+.ui-progress {
+    height: 6px;
+    background: #e5e7eb;
+    border-radius: 100px;
+    overflow: hidden;
+}
+
+.ui-progress-fill {
+    height: 100%;
+    border-radius: 100px;
+    background: var(--accent);
+    transition: width 0.6s ease;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 1024px) {
+    .fp-split {
+        grid-template-columns: 1fr;
+        gap: 48px;
+    }
+
+    .fp-split.reversed {
+        direction: ltr;
+    }
+
+    .fp-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .fp-stats {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .fp-hero {
+        padding: 130px 0 60px;
+    }
+
+    .fp-hero h1 {
+        font-size: 36px;
+        letter-spacing: -1px;
+    }
+
+    .fp-section {
+        padding: 64px 0;
+    }
+
+    .fp-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .fp-stats {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .fp-mockup-body {
+        min-height: 280px;
+    }
+
+    .ui-kanban {
+        padding: 16px;
+    }
+
+    .ui-kanban-col {
+        flex: 0 0 160px;
+    }
+
+    .fp-workflow {
+        flex-direction: column;
+        gap: 8px;
+        padding: 32px 16px;
+    }
+
+    .fp-workflow-arrow {
+        transform: rotate(90deg);
+        margin: 0;
+    }
+
+    .fp-cta h2 {
+        font-size: 32px;
+    }
+}
+
+@media (max-width: 480px) {
+    .fp-hero h1 {
+        font-size: 30px;
+    }
+
+    .fp-hero .fp-subtitle {
+        font-size: 16px;
+    }
+}
+
+/* ---------- ANIMATIONS ---------- */
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.fp-animate {
+    opacity: 0;
+    transform: translateY(24px);
+}
+
+.fp-animate.visible {
+    animation: fadeUp 0.6s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+}
+
+/* stagger children */
+.fp-animate.visible:nth-child(2) { animation-delay: 0.08s; }
+.fp-animate.visible:nth-child(3) { animation-delay: 0.16s; }
+.fp-animate.visible:nth-child(4) { animation-delay: 0.24s; }

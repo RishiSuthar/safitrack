@@ -1,416 +1,223 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Call Logs - SafiTrack CRM</title>
+    <title>Call Logs — SafiTrack CRM</title>
     <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../landing.css">
-    <style>
-        body {
-            background: var(--bg-primary);
-            overflow-x: hidden;
-        }
-
-        .f-hero {
-            padding: 180px 0 100px;
-            text-align: center;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .f-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            background: rgba(47, 95, 208, 0.15);
-            color: #7da2f8;
-            border: 1px solid rgba(47, 95, 208, 0.3);
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 24px;
-        }
-
-        .f-title {
-            font-size: 64px;
-            font-weight: 800;
-            letter-spacing: -1.5px;
-            line-height: 1.1;
-            margin-bottom: 24px;
-            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .f-subtitle {
-            font-size: 21px;
-            color: var(--text-secondary);
-            max-width: 680px;
-            margin: 0 auto 60px;
-            line-height: 1.6;
-        }
-
-        .mockup-container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-
-        .mockup-flat {
-            background: var(--bg-secondary);
-            border-radius: 20px;
-            border: 1px solid var(--border-glass);
-            box-shadow: 0 40px 80px -10px rgba(0, 0, 0, 0.5);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            text-align: left;
-        }
-
-        /* Call Log Specific Styles for Mockup */
-        .cl-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 16px 24px;
-            border-bottom: 1px solid var(--border-color);
-            background: var(--bg-tertiary);
-        }
-
-        .cl-row:last-child {
-            border-bottom: none;
-        }
-
-        .cl-avatar {
-            width: 40px;
-            height: 40px;
-            background: #2f5fd0;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 700;
-        }
-
-        .story-section {
-            padding: 120px 0;
-        }
-
-        .story-block {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            align-items: center;
-            margin-bottom: 120px;
-        }
-
-        .story-block.reversed {
-            direction: rtl;
-        }
-
-        .story-block.reversed .story-text {
-            direction: ltr;
-        }
-
-        .story-text h3 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-        }
-
-        .story-text p {
-            font-size: 17px;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            margin-bottom: 24px;
-        }
-
-        .story-list li {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            color: var(--text-secondary);
-        }
-
-        .story-list svg {
-            color: #2f5fd0;
-            flex-shrink: 0;
-        }
-
-        .story-visual {
-            background: var(--bg-elevated);
-            border-radius: 24px;
-            border: 1px solid var(--border-glass);
-            height: 400px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-xl);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .power-grid-section {
-            background: var(--bg-secondary);
-            padding: 100px 0;
-            border-top: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .power-header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-
-        .power-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
-        }
-
-        .power-card {
-            background: var(--bg-primary);
-            padding: 32px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-        }
-
-        .power-card h4 {
-            font-size: 18px;
-            font-weight: 700;
-            margin: 16px 0 8px;
-        }
-
-        .power-card p {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .big-cta {
-            padding: 120px 0;
-            text-align: center;
-            background: radial-gradient(circle at 50% 50%, rgba(47, 95, 208, 0.15) 0%, transparent 60%);
-        }
-
-        .big-cta h2 {
-            font-size: 48px;
-            font-weight: 800;
-            margin-bottom: 32px;
-        }
-
-        @media (max-width: 768px) {
-            .f-title {
-                font-size: 40px;
-            }
-
-            .story-block,
-            .power-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .story-block.reversed {
-                direction: ltr;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="feature-page.css">
+    <style>:root{--accent:#06b6d4;}</style>
 </head>
-
 <body>
-    <nav class="navbar" id="navbar">
-        <div class="container">
-            <div class="nav-content">
-                <a href="../../index.html" class="logo"><img src="../../assets/icons/whiteblue.png"
-                        alt="SafiTrack"><span class="logo-text">SafiTrack</span></a>
-                <div class="nav-links">
-                    <a href="mainfeatures.html" class="active">Features</a>
-                    <a href="../../index.html#product">Product</a>
-                    <a href="../../pages/pricing.html">Pricing</a>
-                    <a href="../../crm/" class="btn-primary">Open App</a>
+<nav class="navbar" id="navbar"><div class="container"><div class="nav-content"><div class="nav-left"><a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack"></a><div class="nav-links"><a href="mainfeatures.html" class="active">Features</a><a href="../../index.html#product">Product</a><a href="../pricing.html">Pricing</a></div></div><div class="nav-actions"><a href="/crm/" class="nav-link-sign-in">Sign in</a><a href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a></div><button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button></div></div></nav>
+<div class="mobile-nav-overlay"><button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button><div class="mobile-nav-content"><a href="mainfeatures.html" class="mobile-link">Features</a><a href="../../index.html#product" class="mobile-link">Product</a><a href="../pricing.html" class="mobile-link">Pricing</a><hr class="mobile-divider"><a href="/crm/" class="mobile-link">Open App</a></div></div>
+
+<header class="fp-hero">
+    <div class="fp-container">
+        <span class="fp-badge"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg> Productivity</span>
+        <h1>Every call, <br><span>logged and tracked</span></h1>
+        <p class="fp-subtitle">Log inbound and outbound calls with one tap. Record outcomes, durations, and follow-up actions — everything auto-links to the right contact and deal.</p>
+
+        <div class="fp-mockup">
+            <div class="fp-mockup-window">
+                <div class="fp-mockup-bar"><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div></div>
+                <div class="fp-mockup-body" style="padding:24px;min-height:380px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+                        <div style="font-size:18px;font-weight:700;color:#0b1220;">Call Activity</div>
+                        <div style="display:flex;gap:8px;">
+                            <div style="padding:5px 14px;background:#f3f4f6;border:1px solid #e6e9ef;border-radius:8px;font-size:12px;color:#374151;">This Week</div>
+                            <div style="padding:5px 14px;background:#06b6d4;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">+ Log Call</div>
+                        </div>
+                    </div>
+                    <!-- Stats row -->
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+                        <div style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;padding:12px;text-align:center;">
+                            <div style="font-size:22px;font-weight:800;color:#0b1220;">47</div><div style="font-size:11px;color:#6b7280;">Total Calls</div>
+                        </div>
+                        <div style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;padding:12px;text-align:center;">
+                            <div style="font-size:22px;font-weight:800;color:#10b981;">32</div><div style="font-size:11px;color:#6b7280;">Connected</div>
+                        </div>
+                        <div style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;padding:12px;text-align:center;">
+                            <div style="font-size:22px;font-weight:800;color:#f59e0b;">8</div><div style="font-size:11px;color:#6b7280;">Voicemail</div>
+                        </div>
+                        <div style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;padding:12px;text-align:center;">
+                            <div style="font-size:22px;font-weight:800;color:#06b6d4;">4m 12s</div><div style="font-size:11px;color:#6b7280;">Avg Duration</div>
+                        </div>
+                    </div>
+                    <!-- Call log entries -->
+                    <div style="display:flex;flex-direction:column;gap:4px;">
+                        <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
+                            <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(16,185,129,.1);flex-shrink:0;">
+                                <svg width="16" height="16" fill="none" stroke="#10b981" stroke-width="2"><path d="M15 3l-6 6M15 3h-4M15 3v4"/></svg>
+                            </div>
+                            <div style="flex:1;">
+                                <div style="font-size:14px;font-weight:600;color:#0b1220;">Eleanor Pena <span style="font-size:11px;font-weight:500;color:#6b7280;">· Acme Corp</span></div>
+                                <div style="font-size:12px;color:#6b7280;">Outbound · 6m 32s · <span style="color:#10b981;font-weight:600;">Connected</span></div>
+                            </div>
+                            <div style="font-size:11px;color:#6b7280;">10:30 AM</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
+                            <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(59,130,246,.1);flex-shrink:0;">
+                                <svg width="16" height="16" fill="none" stroke="#3b82f6" stroke-width="2"><path d="M1 13l6-6M1 13h4M1 13V9"/></svg>
+                            </div>
+                            <div style="flex:1;">
+                                <div style="font-size:14px;font-weight:600;color:#0b1220;">Marcus Chen <span style="font-size:11px;font-weight:500;color:#6b7280;">· Globex</span></div>
+                                <div style="font-size:12px;color:#6b7280;">Inbound · 3m 15s · <span style="color:#3b82f6;font-weight:600;">Connected</span></div>
+                            </div>
+                            <div style="font-size:11px;color:#6b7280;">9:45 AM</div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
+                            <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(245,158,11,.1);flex-shrink:0;">
+                                <svg width="16" height="16" fill="none" stroke="#f59e0b" stroke-width="2"><path d="M15 3l-6 6M15 3h-4M15 3v4"/></svg>
+                            </div>
+                            <div style="flex:1;">
+                                <div style="font-size:14px;font-weight:600;color:#0b1220;">Sarah Kim <span style="font-size:11px;font-weight:500;color:#6b7280;">· Wayne Ent.</span></div>
+                                <div style="font-size:12px;color:#6b7280;">Outbound · 0m 45s · <span style="color:#f59e0b;font-weight:600;">Voicemail</span></div>
+                            </div>
+                            <div style="font-size:11px;color:#6b7280;">9:15 AM</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </nav>
-    <header class="f-hero">
-        <div class="container">
-            <span class="f-badge">Call Center</span>
-            <h1 class="f-title">Every conversation<br>accounted for.</h1>
-            <p class="f-subtitle">Track every conversation. Log durations, outcomes, and notes in one place to maintain
-                a complete history of client interactions.</p>
+    </div>
+</header>
 
-            <div class="mockup-container">
-                <div class="mockup-flat">
-                    <!-- Standard Mac window dots -->
-                    <div
-                        style="padding: 16px 24px; border-bottom: 1px solid var(--border-color); background: var(--bg-tertiary); display:flex; gap:8px;">
-                        <div style="width:10px; height:10px; border-radius:50%; background:#ff5f56;"></div>
-                        <div style="width:10px; height:10px; border-radius:50%; background:#ffbd2e;"></div>
-                        <div style="width:10px; height:10px; border-radius:50%; background:#27c93f;"></div>
-                    </div>
-
-                    <div style="flex-grow: 1; padding: 32px; display: flex; flex-direction: column;">
-                        <div
-                            style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
-                            <div style="display:flex; gap:16px; align-items:center;">
-                                <div class="cl-avatar">SM</div>
-                                <div>
-                                    <div style="font-size: 24px; font-weight: 700; margin-bottom: 4px;">Discovery Call
-                                    </div>
-                                    <div style="color: var(--text-secondary);">with Sarah Miller • Acme Corp</div>
-                                </div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">14m 20s
-                                </div>
-                                <div style="font-size: 12px; color: var(--text-muted);">Outbound</div>
-                            </div>
-                        </div>
-                        <!-- Outcome Badge -->
-                        <div style="margin-bottom: 24px;">
-                            <span
-                                style="display: inline-block; padding: 4px 12px; background: rgba(16, 185, 129, 0.1); color: #10b981; border-radius: 100px; font-size: 13px; font-weight: 600; border: 1px solid rgba(16, 185, 129, 0.2);">Connected</span>
-                        </div>
-                        <!-- Notes -->
-                        <div
-                            style="flex-grow: 1; background: var(--bg-primary); border-radius: 12px; border: 1px solid var(--border-color); padding: 20px;">
-                            <p style="color: var(--text-secondary); line-height: 1.6; font-size: 14px;">Discussed the
-                                new
-                                requirement for API access. Sarah mentioned budget approval is expected next Tuesday.
-                                Need
-                                to send the updated spec sheet before then.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <section class="story-section container">
-        <div class="story-block">
-            <div class="story-text">
-                <h3>Outcome Analysis</h3>
-                <p>Know exactly why deals are stalling. Track call outcomes (Connected, Voicemail, Busy) to analyze
-                    connection rates and optimize calling times.</p>
-                <ul class="story-list">
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Connection rate tracking</li>
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Disposition reporting</li>
+<!-- Section 1: Outcome tracking -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split">
+            <div>
+                <p class="fp-section-label">Outcome Tracking</p>
+                <h2 class="fp-section-title">Know what happened on every call</h2>
+                <p class="fp-section-desc">Log call outcomes — connected, voicemail, no answer, busy — and add follow-up actions in seconds. Outcomes feed your analytics so you understand call patterns across the team.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Connected, voicemail, no answer, busy outcomes</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Quick follow-up actions from any call</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Duration tracking for performance metrics</li>
                 </ul>
             </div>
-            <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; width: 80%;">
-                    <div
-                        style="background: var(--bg-tertiary); padding: 16px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color);">
-                        <div style="font-size: 24px; font-weight: 700; color: #10b981; margin-bottom: 4px;">42%</div>
-                        <div style="font-size: 12px; color: var(--text-muted);">Connection Rate</div>
-                    </div>
-                    <div
-                        style="background: var(--bg-tertiary); padding: 16px; border-radius: 12px; text-align: center; border: 1px solid var(--border-color);">
-                        <div style="font-size: 24px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">
-                            180</div>
-                        <div style="font-size: 12px; color: var(--text-muted);">Calls This Week</div>
-                    </div>
+            <div class="fp-visual">
+                <div class="fp-visual-inner">
+                    <svg width="100%" height="220" viewBox="0 0 420 220" fill="none" style="display:block;">
+                        <!-- Call flow diagram -->
+                        <rect x="150" y="10" width="120" height="40" rx="10" fill="#06b6d4" fill-opacity="0.1" stroke="#06b6d4" stroke-opacity="0.3"/>
+                        <text x="210" y="34" text-anchor="middle" font-size="12" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">📞 Call Made</text>
+                        <!-- Arrow -->
+                        <line x1="210" y1="50" x2="210" y2="70" stroke="#d1d5db" stroke-width="1.5"/>
+                        <polygon points="206,68 210,76 214,68" fill="#d1d5db"/>
+                        <!-- Outcomes -->
+                        <rect x="30" y="80" width="90" height="36" rx="8" fill="#10b981" fill-opacity="0.1" stroke="#10b981" stroke-opacity="0.3"/>
+                        <text x="75" y="102" text-anchor="middle" font-size="11" font-weight="600" fill="#10b981" font-family="Manrope,sans-serif">Connected</text>
+                        <rect x="130" y="80" width="82" height="36" rx="8" fill="#f59e0b" fill-opacity="0.1" stroke="#f59e0b" stroke-opacity="0.3"/>
+                        <text x="171" y="102" text-anchor="middle" font-size="11" font-weight="600" fill="#f59e0b" font-family="Manrope,sans-serif">Voicemail</text>
+                        <rect x="222" y="80" width="82" height="36" rx="8" fill="#6b7280" fill-opacity="0.1" stroke="#6b7280" stroke-opacity="0.3"/>
+                        <text x="263" y="102" text-anchor="middle" font-size="11" font-weight="600" fill="#6b7280" font-family="Manrope,sans-serif">No Answer</text>
+                        <rect x="314" y="80" width="76" height="36" rx="8" fill="#f43f5e" fill-opacity="0.1" stroke="#f43f5e" stroke-opacity="0.3"/>
+                        <text x="352" y="102" text-anchor="middle" font-size="11" font-weight="600" fill="#f43f5e" font-family="Manrope,sans-serif">Busy</text>
+                        <!-- Lines from center to outcomes -->
+                        <line x1="175" y1="76" x2="120" y2="88" stroke="#d1d5db" stroke-width="1"/>
+                        <line x1="200" y1="76" x2="171" y2="80" stroke="#d1d5db" stroke-width="1"/>
+                        <line x1="220" y1="76" x2="263" y2="80" stroke="#d1d5db" stroke-width="1"/>
+                        <line x1="245" y1="76" x2="314" y2="88" stroke="#d1d5db" stroke-width="1"/>
+                        <!-- Actions from Connected -->
+                        <line x1="75" y1="116" x2="75" y2="138" stroke="#10b981" stroke-width="1" stroke-dasharray="3 3"/>
+                        <rect x="10" y="140" width="130" height="60" rx="10" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="75" y="158" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Manrope,sans-serif">FOLLOW-UP</text>
+                        <text x="75" y="173" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">📝 Add Note</text>
+                        <text x="75" y="190" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">✅ Create Task</text>
+                        <!-- Actions from Voicemail -->
+                        <line x1="171" y1="116" x2="171" y2="138" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3 3"/>
+                        <rect x="120" y="140" width="100" height="60" rx="10" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="170" y="158" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Manrope,sans-serif">AUTO</text>
+                        <text x="170" y="173" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">🔔 Retry in 2h</text>
+                        <text x="170" y="190" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">📧 Send email</text>
+                    </svg>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section class="power-grid-section">
-        <div class="container">
-            <div class="power-header">
-                <h2>Why you'll love it</h2>
+<!-- Section 2: Analytics -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split reversed">
+            <div>
+                <p class="fp-section-label">Call Analytics</p>
+                <h2 class="fp-section-title">Measure what matters</h2>
+                <p class="fp-section-desc">Track call volume, connect rates, average duration, and outcomes over time. Identify top performers and coach reps who need more conversations.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Daily, weekly, and monthly call reports</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Outcome distribution analysis</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Per-rep performance leaderboards</li>
+                </ul>
             </div>
-            <div class="power-grid">
-                <div class="power-card">
-                    <h4>Quick Logging</h4>
-                    <p>Start calls with one tap. The system dialer integration makes it easy to log outcomes
-                        immediately.</p>
-                </div>
-                <div class="power-card">
-                    <h4>Manager Review</h4>
-                    <p>Managers can review call activity and leave coaching notes on specific outcomes.</p>
-                </div>
-                <div class="power-card">
-                    <h4>Outcome Tracking</h4>
-                    <p>See which reps are booking the most meetings and analyze call outcomes at scale.</p>
+            <div class="fp-visual">
+                <div class="fp-visual-inner" style="padding:20px;">
+                    <div style="font-size:13px;font-weight:700;color:#0b1220;margin-bottom:14px;">Weekly Call Volume</div>
+                    <!-- Bar chart -->
+                    <div style="display:flex;align-items:flex-end;gap:10px;height:120px;padding-bottom:4px;border-bottom:1px solid #e6e9ef;">
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                            <div style="width:100%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#06b6d4,#0891b2);height:50px;"></div>
+                            <span style="font-size:10px;color:#6b7280;">Mon</span>
+                        </div>
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                            <div style="width:100%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#06b6d4,#0891b2);height:80px;"></div>
+                            <span style="font-size:10px;color:#6b7280;">Tue</span>
+                        </div>
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                            <div style="width:100%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#06b6d4,#0891b2);height:110px;"></div>
+                            <span style="font-size:10px;color:#6b7280;">Wed</span>
+                        </div>
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                            <div style="width:100%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#06b6d4,#0891b2);height:70px;"></div>
+                            <span style="font-size:10px;color:#6b7280;">Thu</span>
+                        </div>
+                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                            <div style="width:100%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#06b6d4,#0891b2);height:90px;"></div>
+                            <span style="font-size:10px;color:#6b7280;">Fri</span>
+                        </div>
+                    </div>
+                    <div style="display:flex;gap:14px;margin-top:14px;">
+                        <span class="ui-tag" style="background:rgba(6,182,212,.1);color:#06b6d4;">68% connect rate</span>
+                        <span class="ui-tag" style="background:rgba(16,185,129,.1);color:#10b981;">+12% vs last week</span>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <section class="big-cta">
-        <div class="container">
-            <h2>Make every call count.</h2>
-            <a href="../../crm/" class="btn-primary" style="padding: 16px 32px; font-size: 18px;">Start Free Trial</a>
+<!-- Feature grid -->
+<section class="fp-grid-section" style="background:#f9fafb;">
+    <div class="fp-container">
+        <div class="fp-grid-header"><p class="fp-section-label">Capabilities</p><h2 class="fp-section-title">Call management, perfected</h2></div>
+        <div class="fp-grid">
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M15.05 5A5 5 0 0 1 19 8.95M15.05 1A9 9 0 0 1 23 8.94"/><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.11 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div><h4>One-Tap Logging</h4><p>Log a call in seconds — select the outcome, add a note, and you're done.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h4>Duration Tracking</h4><p>Automatic call duration capture to understand how long conversations take.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><h4>Auto-Link Contacts</h4><p>Calls are automatically linked to the contact and their company record.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><h4>Call Reports</h4><p>Team-wide and individual call analytics to track performance over time.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div><h4>Follow-Up Actions</h4><p>Create tasks, schedule callbacks, or add notes — all from the call log.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></div><h4>Outcome Analytics</h4><p>Break down calls by outcome to optimize talk time and connect rates.</p></div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="footer-logo-wrapper">
-                        <img src="../../assets/icons/whiteblue.png" alt="SafiTrack" class="footer-logo">
-                        <span class="footer-logo-text">SafiTrack</span>
-                    </div>
-                    <p class="footer-tagline">Modern CRM platform built for<br>high-performing sales teams</p>
-                </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Product</h4>
-                        <ul>
-                            <li><a href="mainfeatures.html">Features</a></li>
-                            <li><a href="../../pages/pricing.html">Pricing</a></li>
-                            <li><a href="#">Integrations</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Company</h4>
-                        <ul>
-                            <li><a href="../blog.html">Blog</a></li>
-                            <li><a href="../careers.html">Careers</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Resources</h4>
-                        <ul>
-                            <li><a href="../documentation.html">Documentation</a></li>
-                            <li><a href="../helpcenter.html">Help Center</a></li>
-                            <li><a href="#">API Reference</a></li>
-                            <li><a href="../status.html">Status</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Legal</h4>
-                        <ul>
-                            <li><a href="../../pages/legal/privacy.html">Privacy Policy</a></li>
-                            <li><a href="../../pages/legal/terms.html">Terms of Service</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-                <div class="footer-social">
-                    <a href="#" aria-label="Twitter">Twitter</a>
-                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
-                    <a href="#" aria-label="GitHub">GitHub</a>
-                </div>
-            </div>
-        </div>
-    </footer>
+<section class="fp-cta">
+    <div class="fp-container">
+        <h2>Make every call count</h2>
+        <p>Track conversations, measure outcomes, and close more deals.</p>
+        <a href="../pricing.html#pricing-grid" class="fp-cta-btn">Start free trial <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></a>
+    </div>
+</section>
+
+<footer class="footer"><div class="container"><div class="footer-content"><div class="footer-brand"><div class="footer-logo-wrapper"><a href="../../index.html"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a></div></div><div class="footer-links"><div class="footer-column"><h4 class="footer-heading">Product</h4><ul><li><a href="mainfeatures.html">Features</a></li><li><a href="../pricing.html">Pricing</a></li><li><a href="../integrations.html">Integrations</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Company</h4><ul><li><a href="../blog.html">Blog</a></li><li><a href="../careers.html">Careers</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Resources</h4><ul><li><a href="../documentation.html">Documentation</a></li><li><a href="../helpcenter.html">Help Center</a></li><li><a href="../apireference.html">API Reference</a></li><li><a href="../status.html">Status</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Legal</h4><ul><li><a href="../legal/privacy.html">Privacy Policy</a></li><li><a href="../legal/terms.html">Terms of Service</a></li></ul></div></div></div><div class="footer-bottom"><p>&copy; 2026 SafiTrack. All rights reserved.</p><div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div></div></div></footer>
+<script src="feature-page.js"></script>
+<script src="../../landing.js"></script>
 </body>
-
 </html>

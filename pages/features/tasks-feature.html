@@ -1,414 +1,190 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tasks & Todos - SafiTrack CRM</title>
+    <title>Tasks — SafiTrack CRM</title>
     <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../landing.css">
-    <style>
-        body {
-            background: var(--bg-primary);
-            overflow-x: hidden;
-        }
-
-        .f-hero {
-            padding: 180px 0 100px;
-            text-align: center;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .f-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            background: rgba(139, 92, 246, 0.1);
-            color: #8b5cf6;
-            border: 1px solid rgba(139, 92, 246, 0.2);
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 24px;
-        }
-
-        .f-title {
-            font-size: 64px;
-            font-weight: 800;
-            letter-spacing: -1.5px;
-            line-height: 1.1;
-            margin-bottom: 24px;
-            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .f-subtitle {
-            font-size: 21px;
-            color: var(--text-secondary);
-            max-width: 680px;
-            margin: 0 auto 60px;
-            line-height: 1.6;
-        }
-
-        .mockup-container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .mockup-flat {
-            background: var(--bg-secondary);
-            border-radius: 20px;
-            border: 1px solid var(--border-glass);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
-            position: relative;
-            overflow: hidden;
-            height: 500px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .story-section {
-            padding: 120px 0;
-        }
-
-        .story-block {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            align-items: center;
-            margin-bottom: 120px;
-        }
-
-        .story-block.reversed {
-            direction: rtl;
-        }
-
-        .story-block.reversed .story-text {
-            direction: ltr;
-        }
-
-        .story-text h3 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-        }
-
-        .story-text p {
-            font-size: 17px;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            margin-bottom: 24px;
-        }
-
-        .story-list li {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            color: var(--text-secondary);
-        }
-
-        .story-list svg {
-            color: #8b5cf6;
-            flex-shrink: 0;
-        }
-
-        .story-visual {
-            background: var(--bg-elevated);
-            border-radius: 24px;
-            border: 1px solid var(--border-glass);
-            height: 400px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-xl);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .power-grid-section {
-            background: var(--bg-secondary);
-            padding: 100px 0;
-            border-top: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .power-header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-
-        .power-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
-        }
-
-        .power-card {
-            background: var(--bg-primary);
-            padding: 32px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-        }
-
-        .power-card h4 {
-            font-size: 18px;
-            font-weight: 700;
-            margin: 16px 0 8px;
-        }
-
-        .power-card p {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .big-cta {
-            padding: 120px 0;
-            text-align: center;
-            background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
-        }
-
-        .big-cta h2 {
-            font-size: 48px;
-            font-weight: 800;
-            margin-bottom: 32px;
-        }
-
-        @media (max-width: 768px) {
-            .f-title {
-                font-size: 40px;
-            }
-
-            .story-block,
-            .power-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .story-block.reversed {
-                direction: ltr;
-            }
-
-            .mockup-flat {
-                height: 300px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="feature-page.css">
+    <style>:root{--accent:#8b5cf6;}</style>
 </head>
-
 <body>
-    <nav class="navbar" id="navbar">
-        <div class="container">
-            <div class="nav-content">
-                <a href="../../index.html" class="logo"><img src="../../assets/icons/whiteblue.png"
-                        alt="SafiTrack"><span class="logo-text">SafiTrack</span></a>
-                <div class="nav-links">
-                    <a href="mainfeatures.html" class="active">Features</a>
-                    <a href="../../index.html#product">Product</a>
-                    <a href="../../pages/pricing.html">Pricing</a>
-                    <a href="../../crm/" class="btn-primary">Open App</a>
+<nav class="navbar" id="navbar"><div class="container"><div class="nav-content"><div class="nav-left"><a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack"></a><div class="nav-links"><a href="mainfeatures.html" class="active">Features</a><a href="../../index.html#product">Product</a><a href="../pricing.html">Pricing</a></div></div><div class="nav-actions"><a href="/crm/" class="nav-link-sign-in">Sign in</a><a href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a></div><button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button></div></div></nav>
+<div class="mobile-nav-overlay"><button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button><div class="mobile-nav-content"><a href="mainfeatures.html" class="mobile-link">Features</a><a href="../../index.html#product" class="mobile-link">Product</a><a href="../pricing.html" class="mobile-link">Pricing</a><hr class="mobile-divider"><a href="/crm/" class="mobile-link">Open App</a></div></div>
+
+<header class="fp-hero">
+    <div class="fp-container">
+        <span class="fp-badge"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Productivity</span>
+        <h1>Nothing falls<br><span>through the cracks</span></h1>
+        <p class="fp-subtitle">Assign, prioritize, and track every follow-up, deliverable, and to-do across your entire team. Tasks are linked to contacts, deals, and companies so you always have context.</p>
+
+        <div class="fp-mockup">
+            <div class="fp-mockup-window">
+                <div class="fp-mockup-bar"><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div></div>
+                <div class="fp-mockup-body" style="padding:24px;min-height:400px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                        <div style="font-size:18px;font-weight:700;color:#0b1220;">My Tasks <span style="font-size:13px;font-weight:500;color:#6b7280;margin-left:8px;">12 open</span></div>
+                        <div style="display:flex;gap:8px;">
+                            <div style="padding:6px 14px;background:#f3f4f6;border:1px solid #e6e9ef;border-radius:8px;font-size:12px;color:#374151;">Due Today (3)</div>
+                            <div style="padding:6px 14px;background:#8b5cf6;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">+ New Task</div>
+                        </div>
+                    </div>
+                    <!-- Task list -->
+                    <div style="display:flex;flex-direction:column;gap:2px;">
+                        <!-- Overdue -->
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;margin-bottom:4px;">
+                            <div style="width:20px;height:20px;border:2px solid #f43f5e;border-radius:6px;flex-shrink:0;"></div>
+                            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#0b1220;">Send revised proposal to Wayne Enterprises</div><div style="font-size:12px;color:#f43f5e;font-weight:500;">Overdue — was due Feb 28</div></div>
+                            <span class="ui-tag" style="background:rgba(244,63,94,.1);color:#f43f5e;">High</span>
+                            <span class="ui-avatar" style="background:#3b82f6;width:26px;height:26px;font-size:9px;">JT</span>
+                        </div>
+                        <!-- Today -->
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;margin-bottom:4px;">
+                            <div style="width:20px;height:20px;border:2px solid #8b5cf6;border-radius:6px;flex-shrink:0;"></div>
+                            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#0b1220;">Schedule demo with Acme Corp</div><div style="font-size:12px;color:#6b7280;">Due today · Linked to Acme Corp deal</div></div>
+                            <span class="ui-tag" style="background:rgba(139,92,246,.1);color:#8b5cf6;">Medium</span>
+                            <span class="ui-avatar" style="background:#10b981;width:26px;height:26px;font-size:9px;">SR</span>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;margin-bottom:4px;">
+                            <div style="width:20px;height:20px;border:2px solid #8b5cf6;border-radius:6px;flex-shrink:0;"></div>
+                            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#0b1220;">Follow up on Globex pricing request</div><div style="font-size:12px;color:#6b7280;">Due today · Linked to Robert Garcia</div></div>
+                            <span class="ui-tag" style="background:rgba(245,158,11,.1);color:#f59e0b;">Normal</span>
+                            <span class="ui-avatar" style="background:#f59e0b;width:26px;height:26px;font-size:9px;">MK</span>
+                        </div>
+                        <!-- Completed -->
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;opacity:.6;">
+                            <div style="width:20px;height:20px;border:2px solid #10b981;border-radius:6px;background:#10b981;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="12" height="12" fill="none" stroke="#fff" stroke-width="2.5"><polyline points="10 3 5 10 2 7"/></svg></div>
+                            <div style="flex:1;"><div style="font-size:14px;font-weight:600;color:#0b1220;text-decoration:line-through;">Prepare Q3 deck for review</div><div style="font-size:12px;color:#6b7280;">Completed yesterday</div></div>
+                            <span class="ui-tag" style="background:rgba(16,185,129,.1);color:#10b981;">Done</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </nav>
-    <header class="f-hero">
-        <div class="container">
-            <span class="f-badge">Productivity</span>
-            <h1 class="f-title">Nothing falls through<br>the cracks.</h1>
-            <p class="f-subtitle">A unified task list for follow-ups, calls, and admin work. Prioritize your day and
-                check things off with satisfaction.</p>
-            <div class="mockup-container">
-                <div class="mockup-flat">
-                    <div
-                        style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: var(--bg-primary);">
-                        <div
-                            style="width: 400px; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 16px; padding: 24px; box-shadow: var(--shadow-xl);">
-                            <div style="font-size: 18px; font-weight: 700; margin-bottom: 24px;">My Tasks (3)</div>
-                            <!-- Task 1 -->
-                            <div
-                                style="display: flex; align-items: center; gap: 12px; padding: 12px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 12px;">
-                                <div style="width: 20px; height: 20px; border: 2px solid #8b5cf6; border-radius: 6px;">
-                                </div>
-                                <div style="flex-grow: 1;">
-                                    <div style="font-size: 14px; font-weight: 600;">Email proposal to Nike</div>
-                                    <div style="font-size: 12px; color: #ef4444;">Due Today</div>
-                                </div>
+    </div>
+</header>
+
+<!-- Section 1: Context-linked tasks -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split">
+            <div>
+                <p class="fp-section-label">Connected Tasks</p>
+                <h2 class="fp-section-title">Tasks that live where your work lives</h2>
+                <p class="fp-section-desc">Every task links to a contact, company, or deal. When you open a deal, you see its tasks. When you complete a task, the activity logs automatically to the related record.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Link to contacts, companies, and opportunities</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Auto-log completion to activity timeline</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Create tasks from notes, visits, or calls</li>
+                </ul>
+            </div>
+            <div class="fp-visual">
+                <div class="fp-visual-inner">
+                    <svg width="100%" height="200" viewBox="0 0 420 200" fill="none" style="display:block;">
+                        <!-- Task in center -->
+                        <rect x="140" y="70" width="140" height="60" rx="14" fill="#8b5cf6" fill-opacity="0.08" stroke="#8b5cf6" stroke-opacity="0.3"/>
+                        <text x="210" y="95" text-anchor="middle" font-size="12" font-weight="700" fill="#0b1220" font-family="Manrope,sans-serif">Schedule Demo</text>
+                        <text x="210" y="115" text-anchor="middle" font-size="11" fill="#8b5cf6" font-family="Manrope,sans-serif">Due: Mar 5 · High</text>
+                        <!-- Connected entities -->
+                        <rect x="10" y="10" width="110" height="44" rx="10" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="65" y="28" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Manrope,sans-serif">CONTACT</text>
+                        <text x="65" y="44" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">Eleanor Pena</text>
+                        <line x1="120" y1="36" x2="140" y2="85" stroke="#e6e9ef" stroke-width="1.5" stroke-dasharray="4 4"/>
+                        <rect x="300" y="10" width="110" height="44" rx="10" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="355" y="28" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Manrope,sans-serif">DEAL</text>
+                        <text x="355" y="44" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">Acme — $45K</text>
+                        <line x1="300" y1="36" x2="280" y2="85" stroke="#e6e9ef" stroke-width="1.5" stroke-dasharray="4 4"/>
+                        <rect x="10" y="150" width="110" height="44" rx="10" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="65" y="168" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Manrope,sans-serif">COMPANY</text>
+                        <text x="65" y="184" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">Acme Corp</text>
+                        <line x1="120" y1="172" x2="140" y2="115" stroke="#e6e9ef" stroke-width="1.5" stroke-dasharray="4 4"/>
+                        <rect x="300" y="150" width="110" height="44" rx="10" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="355" y="168" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Manrope,sans-serif">ASSIGNED</text>
+                        <text x="355" y="184" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">Sarah R.</text>
+                        <line x1="300" y1="172" x2="280" y2="115" stroke="#e6e9ef" stroke-width="1.5" stroke-dasharray="4 4"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 2: Team management -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split reversed">
+            <div>
+                <p class="fp-section-label">Team Productivity</p>
+                <h2 class="fp-section-title">Assign, delegate, and track</h2>
+                <p class="fp-section-desc">Assign tasks to any team member, set priorities and due dates, and see at a glance who's overloaded and who has capacity. Managers get a bird's-eye view of team workload.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Priority levels: Low, Normal, High, Urgent</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Team workload overview for managers</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Overdue alerts and escalation</li>
+                </ul>
+            </div>
+            <div class="fp-visual">
+                <div class="fp-visual-inner" style="padding:24px;">
+                    <div style="font-size:13px;font-weight:700;color:#0b1220;margin-bottom:16px;">Team Workload</div>
+                    <!-- Team member rows -->
+                    <div style="display:flex;flex-direction:column;gap:14px;">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <span class="ui-avatar" style="background:#3b82f6;width:30px;height:30px;font-size:10px;">JT</span>
+                            <div style="flex:1;">
+                                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="font-weight:600;">James T.</span><span style="color:#f43f5e;">8 tasks · 2 overdue</span></div>
+                                <div class="ui-progress" style="height:6px;"><div class="ui-progress-fill" style="width:85%;background:linear-gradient(90deg,#8b5cf6,#f43f5e);"></div></div>
                             </div>
-                            <!-- Task List -->
-                            <div style="flex-grow: 1; padding: 24px; display: flex; flex-direction: column; gap: 12px;">
-                                <div
-                                    style="display: flex; gap: 12px; align-items: center; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-color);">
-                                    <div
-                                        style="width: 20px; height: 20px; border: 2px solid var(--border-color); border-radius: 6px;">
-                                    </div>
-                                    <div style="flex-grow: 1; font-size: 14px; font-weight: 500;">Prepare Q3
-                                        Presentation</div>
-                                </div>
-                                <div
-                                    style="display: flex; gap: 12px; align-items: center; padding: 12px; background: var(--bg-tertiary); border-radius: 8px; border: 1px solid var(--border-color);">
-                                    <div
-                                        style="width: 20px; height: 20px; background: #3b82f6; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
-                                        <svg width="12" height="12" fill="none" stroke="white" stroke-width="3"
-                                            stroke-linecap="round" stroke-linejoin="round">
-                                            <polyline points="20 6 9 17 4 12"></polyline>
-                                        </svg>
-                                    </div>
-                                    <div
-                                        style="flex-grow: 1; font-size: 14px; color: var(--text-muted); text-decoration: line-through;">
-                                        Email Sarah about contract</div>
-                                </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <span class="ui-avatar" style="background:#10b981;width:30px;height:30px;font-size:10px;">SR</span>
+                            <div style="flex:1;">
+                                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="font-weight:600;">Sarah R.</span><span style="color:#6b7280;">5 tasks · 0 overdue</span></div>
+                                <div class="ui-progress" style="height:6px;"><div class="ui-progress-fill" style="width:50%;background:#8b5cf6;"></div></div>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <span class="ui-avatar" style="background:#f59e0b;width:30px;height:30px;font-size:10px;">MK</span>
+                            <div style="flex:1;">
+                                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="font-weight:600;">Mike K.</span><span style="color:#6b7280;">3 tasks · 0 overdue</span></div>
+                                <div class="ui-progress" style="height:6px;"><div class="ui-progress-fill" style="width:30%;background:#8b5cf6;"></div></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </header>
-    <section class="story-section container">
-        <div class="story-block">
-            <div class="story-text">
-                <h3>Efficient Workflow</h3>
-                <p>Spend less time managing tasks and more time doing them. Create tasks in seconds and mark them
-                    complete with a single click.</p>
-                <ul class="story-list">
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> One-click completion</li>
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Easy categorization</li>
-                </ul>
-            </div>
-            <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
-                <div
-                    style="width: 250px; background: var(--bg-secondary); border-radius: 12px; padding: 20px; border: 1px solid var(--border-color);">
-                    <div style="display: flex; gap: 12px; align-items: center;">
-                        <div
-                            style="width: 24px; height: 24px; border: 2px solid #3b82f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #3b82f6;">
-                            +</div>
-                        <span style="font-size: 14px; color: var(--text-secondary);">Add new task...</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="story-block reversed">
-            <div class="story-text">
-                <h3>Automated To-Dos</h3>
-                <p>Set it and forget it. Create sequences that automatically generate tasks for you when a deal moves to
-                    a new stage or a lead goes quiet.</p>
-                <ul class="story-list">
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Workflow automation</li>
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Recurring tasks</li>
-                </ul>
-            </div>
-            <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
-                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-                    <div
-                        style="padding: 12px 24px; background: var(--bg-primary); border: 1px solid var(--border-color); border-radius: 8px; font-size: 14px;">
-                        Deal moved to "Proposal"</div>
-                    <div style="height: 20px; width: 2px; background: var(--border-color);"></div>
-                    <div
-                        style="padding: 12px 24px; background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.3); color: #8b5cf6; border-radius: 8px; font-size: 14px; font-weight: 600;">
-                        ⚡ Auto-Create Task: "Send Design"</div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="power-grid-section">
-        <div class="container">
-            <div class="power-header">
-                <h2>For Action Takers</h2>
-            </div>
-            <div class="power-grid">
-                <div class="power-card">
-                    <h4>Due Date Logic</h4>
-                    <p class="f-subtitle">Quickly add tasks, set due dates, and organize your day. Keep your to-do list
-                        clean and your focus sharp.</p>
-                </div>
-                <div class="power-card">
-                    <h4>Delegation</h4>
-                    <p>Assign tasks to teammates and track their completion status.</p>
-                </div>
-                <div class="power-card">
-                    <h4>Priority Views</h4>
-                    <p>Focus mode hides everything except what is due today and high priority.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="big-cta">
-        <div class="container">
-            <h2>Get things done.</h2>
-            <a href="../../crm/" class="btn-primary" style="padding: 16px 32px; font-size: 18px;">Start Free Trial</a>
-        </div>
-    </section>
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="footer-logo-wrapper">
-                        <img src="../../assets/icons/whiteblue.png" alt="SafiTrack" class="footer-logo">
-                        <span class="footer-logo-text">SafiTrack</span>
-                    </div>
-                    <p class="footer-tagline">Modern CRM platform built for<br>high-performing sales teams</p>
-                </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Product</h4>
-                        <ul>
-                            <li><a href="/pages/features/mainfeatures.html">Features</a></li>
-                            <li><a href="/pages/pricing.html">Pricing</a></li>
-                            <li><a href="#">Integrations</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Company</h4>
-                        <ul>
-                            <li><a href="../blog.html">Blog</a></li>
-                            <li><a href="../careers.html">Careers</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Resources</h4>
-                        <ul>
-                            <li><a href="../documentation.html">Documentation</a></li>
-                            <li><a href="../helpcenter.html">Help Center</a></li>
-                            <li><a href="#">API Reference</a></li>
-                            <li><a href="../status.html">Status</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Legal</h4>
-                        <ul>
-                            <li><a href="pages/legal/privacy.html">Privacy Policy</a></li>
-                            <li><a href="pages/legal/terms.html">Terms of Service</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-                <div class="footer-social">
-                    <a href="#" aria-label="Twitter">Twitter</a>
-                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
-                    <a href="#" aria-label="GitHub">GitHub</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-</body>
+    </div>
+</section>
 
+<!-- Feature grid -->
+<section class="fp-grid-section" style="background:#f9fafb;">
+    <div class="fp-container">
+        <div class="fp-grid-header"><p class="fp-section-label">Capabilities</p><h2 class="fp-section-title">Everything you need to stay on top</h2></div>
+        <div class="fp-grid">
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><h4>Due Date Reminders</h4><p>Get notified before tasks are due and again when they go overdue.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></div><h4>Priority Levels</h4><p>Four priority tiers with color coding so you always tackle the most critical work first.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><h4>Calendar Integration</h4><p>Tasks appear in your calendar view alongside visits and meetings.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><h4>Quick Complete</h4><p>Check off tasks with one click. Add a completion note for the record.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><h4>Filter & Search</h4><p>Find any task by assignee, status, priority, due date, or linked record.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-4"/></svg></div><h4>Completion Analytics</h4><p>Track team productivity with completion rates and average turnaround times.</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="fp-cta">
+    <div class="fp-container">
+        <h2>Get things done, together</h2>
+        <p>Never drop the ball on a follow-up again.</p>
+        <a href="../pricing.html#pricing-grid" class="fp-cta-btn">Start free trial <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></a>
+    </div>
+</section>
+
+<footer class="footer"><div class="container"><div class="footer-content"><div class="footer-brand"><div class="footer-logo-wrapper"><a href="../../index.html"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a></div></div><div class="footer-links"><div class="footer-column"><h4 class="footer-heading">Product</h4><ul><li><a href="mainfeatures.html">Features</a></li><li><a href="../pricing.html">Pricing</a></li><li><a href="../integrations.html">Integrations</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Company</h4><ul><li><a href="../blog.html">Blog</a></li><li><a href="../careers.html">Careers</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Resources</h4><ul><li><a href="../documentation.html">Documentation</a></li><li><a href="../helpcenter.html">Help Center</a></li><li><a href="../apireference.html">API Reference</a></li><li><a href="../status.html">Status</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Legal</h4><ul><li><a href="../legal/privacy.html">Privacy Policy</a></li><li><a href="../legal/terms.html">Terms of Service</a></li></ul></div></div></div><div class="footer-bottom"><p>&copy; 2026 SafiTrack. All rights reserved.</p><div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div></div></div></footer>
+<script src="feature-page.js"></script>
+<script src="../../landing.js"></script>
+</body>
 </html>

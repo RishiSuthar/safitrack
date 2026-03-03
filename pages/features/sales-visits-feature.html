@@ -1,563 +1,228 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sales Visits - SafiTrack CRM</title>
+    <title>Sales Visits — SafiTrack CRM</title>
     <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../landing.css">
-    <style>
-        body {
-            background: var(--bg-primary);
-            overflow-x: hidden;
-        }
-
-        /* Feature V2 Standard Styles */
-        .f-hero {
-            padding: 180px 0 100px;
-            text-align: center;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .f-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            background: rgba(16, 185, 129, 0.1);
-            color: #10b981;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 24px;
-        }
-
-        .f-title {
-            font-size: 64px;
-            font-weight: 800;
-            letter-spacing: -1.5px;
-            line-height: 1.1;
-            margin-bottom: 24px;
-            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .f-subtitle {
-            font-size: 21px;
-            color: var(--text-secondary);
-            max-width: 680px;
-            margin: 0 auto 60px;
-            line-height: 1.6;
-        }
-
-        /* 3D Mockup Container - FLATTENED */
-        .mockup-container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .mockup-flat {
-            background: var(--bg-secondary);
-            border-radius: 20px;
-            border: 1px solid var(--border-glass);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
-            position: relative;
-            overflow: hidden;
-            height: 500px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* Removed rotation/hover transform */
-
-        /* Story Section (Z-Pattern) */
-        .story-section {
-            padding: 120px 0;
-        }
-
-        .story-block {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            align-items: center;
-            margin-bottom: 120px;
-        }
-
-        .story-block.reversed {
-            direction: rtl;
-        }
-
-        /* Quick hack for swapping, fix text alignment below */
-        .story-block.reversed .story-text {
-            direction: ltr;
-        }
-
-        .story-text h3 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-        }
-
-        .story-text p {
-            font-size: 17px;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            margin-bottom: 24px;
-        }
-
-        .story-list li {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            color: var(--text-secondary);
-        }
-
-        .story-list svg {
-            color: #10b981;
-            flex-shrink: 0;
-        }
-
-        .story-visual {
-            background: var(--bg-elevated);
-            border-radius: 24px;
-            border: 1px solid var(--border-glass);
-            height: 400px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-xl);
-        }
-
-        /* Power Grid */
-        .power-grid-section {
-            background: var(--bg-secondary);
-            padding: 100px 0;
-            border-top: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .power-header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-
-        .power-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
-        }
-
-        .power-card {
-            background: var(--bg-primary);
-            padding: 32px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-        }
-
-        .power-card h4 {
-            font-size: 18px;
-            font-weight: 700;
-            margin: 16px 0 8px;
-        }
-
-        .power-card p {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        /* CTA */
-        .big-cta {
-            padding: 120px 0;
-            text-align: center;
-            background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.15) 0%, transparent 60%);
-        }
-
-        .big-cta h2 {
-            font-size: 48px;
-            font-weight: 800;
-            margin-bottom: 32px;
-        }
-
-        /* UI INTERNAL MOCKUPS (The "Genuine" Stuff) */
-        .mobile-frame {
-            width: 320px;
-            height: 100%;
-            border-right: 1px solid var(--border-color);
-            background: var(--bg-primary);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .mf-header {
-            padding: 20px;
-            border-bottom: 1px solid var(--border-color);
-            font-weight: 700;
-            font-size: 15px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .map-view {
-            flex-grow: 1;
-            background: #1e293b;
-            position: relative;
-        }
-
-        .map-pin {
-            position: absolute;
-            top: 40%;
-            left: 50%;
-            width: 20px;
-            height: 20px;
-            background: #10b981;
-            border: 3px solid white;
-            border-radius: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-            animation: pulse 2s infinite;
-        }
-
-        .visit-card-overlay {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: var(--bg-secondary);
-            padding: 16px;
-            border-radius: 12px;
-            border: 1px solid var(--border-glass);
-            animation: slideUp 0.5s ease forwards 0.5s;
-            opacity: 0;
-            transform: translateY(20px);
-        }
-
-        /* Animation Keyframes */
-        @keyframes pulse {
-            0% {
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
-            }
-
-            70% {
-                box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
-            }
-
-            100% {
-                box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
-            }
-        }
-
-        @keyframes slideUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* Typewriter effect for story */
-        .typing-effect {
-            overflow: hidden;
-            border-right: 2px solid #10b981;
-            white-space: nowrap;
-            animation: typing 3.5s steps(40, end), blink-caret .75s step-end infinite;
-            display: inline-block;
-            max-width: 0;
-            animation-fill-mode: forwards;
-        }
-
-        @keyframes typing {
-            from {
-                width: 0
-            }
-
-            to {
-                width: 100%
-            }
-        }
-
-        @keyframes blink-caret {
-
-            from,
-            to {
-                border-color: transparent
-            }
-
-            50% {
-                border-color: #10b981;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .f-title {
-                font-size: 40px;
-            }
-
-            .story-block,
-            .power-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .story-block.reversed {
-                direction: ltr;
-            }
-
-            .mockup-flat {
-                height: 300px;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="feature-page.css">
+    <style>:root{--accent:#10b981;}</style>
 </head>
-
 <body>
-    <!-- Navbar -->
-    <nav class="navbar" id="navbar">
-        <div class="container">
-            <div class="nav-content">
-                <a href="../../index.html" class="logo">
-                    <img src="../../assets/icons/whiteblue.png" alt="SafiTrack">
-                    <span class="logo-text">SafiTrack</span>
-                </a>
-                <div class="nav-links">
-                    <a href="mainfeatures.html" class="active">Features</a>
-                    <a href="../../index.html#product">Product</a>
-                    <a href="../../pages/pricing.html">Pricing</a>
-                    <a href="../../crm/" class="btn-primary">Open App</a>
-                </div>
-            </div>
-        </div>
-    </nav>
+<nav class="navbar" id="navbar"><div class="container"><div class="nav-content"><div class="nav-left"><a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack"></a><div class="nav-links"><a href="mainfeatures.html" class="active">Features</a><a href="../../index.html#product">Product</a><a href="../pricing.html">Pricing</a></div></div><div class="nav-actions"><a href="/crm/" class="nav-link-sign-in">Sign in</a><a href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a></div><button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button></div></div></nav>
+<div class="mobile-nav-overlay"><button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button><div class="mobile-nav-content"><a href="mainfeatures.html" class="mobile-link">Features</a><a href="../../index.html#product" class="mobile-link">Product</a><a href="../pricing.html" class="mobile-link">Pricing</a><hr class="mobile-divider"><a href="/crm/" class="mobile-link">Open App</a></div></div>
 
-    <!-- Hero -->
-    <header class="f-hero">
-        <div class="container">
-            <span class="f-badge">Field Intelligence</span>
-            <h1 class="f-title">Prove you were there.<br>Capture what matters.</h1>
-            <p class="f-subtitle">The first mobile CRM experience designed for the reality of field sales. GPS
-                verification, one-tap check-ins, and AI that analyzes.</p>
+<header class="fp-hero">
+    <div class="fp-container">
+        <span class="fp-badge"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Field Intelligence</span>
+        <h1>Verified field visits,<br><span>zero guesswork</span></h1>
+        <p class="fp-subtitle">Geofenced check-ins, photo evidence, visit summaries, and AI-generated reports. Know exactly when your reps visited, what they discussed, and what happens next.</p>
 
-            <div class="mockup-container">
-                <div class="mockup-flat">
-                    <!-- Complex Internal UI Mockup -->
-                    <div style="display: flex; width: 100%; height: 100%;">
-                        <!-- Left Sidebar (Desktop View) -->
-                        <div
-                            style="width: 240px; border-right: 1px solid var(--border-color); background: var(--bg-tertiary); padding: 20px; display: flex; flex-direction: column; gap: 16px;">
-                            <div
-                                style="font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
-                                Today's Route</div>
-                            <div
-                                style="padding: 12px; background: rgba(16, 185, 129, 0.1); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.2); color: #e1e4e8; font-size: 14px;">
-                                📍 Highland Industries</div>
-                            <div style="padding: 12px; color: var(--text-secondary); font-size: 14px;">🏢 Acme Corp HQ
+        <div class="fp-mockup">
+            <div class="fp-mockup-window">
+                <div class="fp-mockup-bar"><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div></div>
+                <div class="fp-mockup-body" style="padding:0;min-height:400px;display:flex;">
+                    <!-- Visit detail -->
+                    <div style="flex:1;padding:24px;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+                            <div>
+                                <div style="font-size:18px;font-weight:700;color:#0b1220;">Visit Report</div>
+                                <div style="font-size:13px;color:#6b7280;">Acme Corp · Mar 5, 2025</div>
                             </div>
-                            <div style="padding: 12px; color: var(--text-secondary); font-size: 14px;">🏭 Delta
-                                Manufacturing</div>
+                            <span class="ui-tag" style="background:rgba(16,185,129,.1);color:#10b981;font-weight:600;">✓ Verified</span>
                         </div>
-
-                        <!-- Main Content -->
-                        <div style="flex-grow: 1; display: flex; flex-direction: column;">
-                            <div
-                                style="height: 60px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); display: flex; align-items: center; justify-content: space-between; padding: 0 24px;">
-                                <div style="font-weight: 700;">Visit: Highland Industries</div>
-                                <div
-                                    style="padding: 6px 12px; background: #10b981; color: white; font-weight: 600; border-radius: 6px; font-size: 13px;">
-                                    Check In</div>
+                        <!-- Visit meta -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px;">
+                            <div style="padding:12px;background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;">
+                                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:4px;">Check-in</div>
+                                <div style="font-size:13px;font-weight:700;color:#10b981;">9:02 AM</div>
                             </div>
-                            <div style="flex-grow: 1; background: #0f1117; position: relative; overflow: hidden;">
-                                <!-- Map Background -->
-                                <div
-                                    style="position: absolute; inset: 0; opacity: 0.3; background-image: radial-gradient(#334155 1px, transparent 1px); background-size: 20px 20px;">
-                                </div>
-                                <!-- Center Card -->
-                                <div
-                                    style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 400px; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 12px; padding: 24px; box-shadow: var(--shadow-xl);">
-                                    <div style="display: flex; gap: 16px; margin-bottom: 16px;">
-                                        <div
-                                            style="width: 48px; height: 48px; background: #334155; border-radius: 8px;">
-                                        </div>
-                                        <div>
-                                            <div style="font-weight: 700; font-size: 16px;">Highland Industries</div>
-                                            <div style="color: var(--text-secondary); font-size: 13px;">10:00 AM - 11:30
-                                                AM</div>
-                                        </div>
-                                    </div>
-                                    <div style="font-size: 14px; margin-bottom: 16px; color: var(--text-muted);">
-                                        <span style="color: #10b981;">●</span> Verified on-site
-                                    </div>
-                                    <div
-                                        style="padding: 12px; background: var(--bg-primary); border-radius: 8px; border: 1px solid var(--border-glass); font-size: 13px; color: var(--text-secondary); font-family: monospace;">
-                                        <span class="typing-effect" style="width: 100%;">AI Summary: Client interested
-                                            in Q4 expansion...</span>
-                                    </div>
-                                </div>
+                            <div style="padding:12px;background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;">
+                                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:4px;">Check-out</div>
+                                <div style="font-size:13px;font-weight:700;color:#f43f5e;">9:47 AM</div>
+                            </div>
+                            <div style="padding:12px;background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;">
+                                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:4px;">Duration</div>
+                                <div style="font-size:13px;font-weight:700;color:#0b1220;">45 min</div>
+                            </div>
+                            <div style="padding:12px;background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;">
+                                <div style="font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:4px;">People met</div>
+                                <div style="font-size:13px;font-weight:700;color:#0b1220;">Eleanor P., Robert G.</div>
                             </div>
                         </div>
+                        <!-- Visit summary -->
+                        <div style="padding:14px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;margin-bottom:14px;">
+                            <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#10b981;margin-bottom:6px;">🤖 AI Visit Summary</div>
+                            <div style="font-size:13px;line-height:1.6;color:#374151;">Discussed Q3 budget expansion. Eleanor confirmed $45K is approved. Robert wants integration with their existing Salesforce instance. Next step: send revised proposal by March 10th.</div>
+                        </div>
+                        <!-- Photos -->
+                        <div style="display:flex;gap:8px;">
+                            <div style="width:60px;height:60px;background:#e6e9ef;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;">📸</div>
+                            <div style="width:60px;height:60px;background:#e6e9ef;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;">📸</div>
+                            <div style="width:60px;height:60px;background:#f3f4f6;border:1px dashed #d1d5db;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;color:#6b7280;">+ Add</div>
+                        </div>
+                    </div>
+                    <!-- Geofence sidebar -->
+                    <div style="width:240px;border-left:1px solid #e6e9ef;background:linear-gradient(180deg,#ecfdf5,#f0fdf4);padding:0;flex-shrink:0;display:flex;flex-direction:column;">
+                        <div style="padding:16px;border-bottom:1px solid #e6e9ef;">
+                            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:8px;">Location Proof</div>
+                            <div style="font-size:12px;color:#10b981;font-weight:600;">📍 Within geofence</div>
+                        </div>
+                        <!-- Mini map -->
+                        <div style="flex:1;position:relative;overflow:hidden;">
+                            <svg width="100%" height="100%" viewBox="0 0 240 260" fill="none">
+                                <!-- Map grid -->
+                                <rect width="240" height="260" fill="#d1fae5" fill-opacity="0.3"/>
+                                <line x1="0" y1="60" x2="240" y2="60" stroke="#a7f3d0" stroke-width="4" opacity="0.4"/>
+                                <line x1="0" y1="140" x2="240" y2="140" stroke="#a7f3d0" stroke-width="4" opacity="0.4"/>
+                                <line x1="0" y1="220" x2="240" y2="220" stroke="#a7f3d0" stroke-width="4" opacity="0.4"/>
+                                <line x1="60" y1="0" x2="60" y2="260" stroke="#a7f3d0" stroke-width="4" opacity="0.4"/>
+                                <line x1="120" y1="0" x2="120" y2="260" stroke="#a7f3d0" stroke-width="4" opacity="0.4"/>
+                                <line x1="180" y1="0" x2="180" y2="260" stroke="#a7f3d0" stroke-width="4" opacity="0.4"/>
+                                <!-- Geofence radius -->
+                                <circle cx="120" cy="130" r="50" fill="#10b981" fill-opacity="0.1" stroke="#10b981" stroke-width="2" stroke-dasharray="6 4"/>
+                                <!-- Building -->
+                                <rect x="100" y="115" width="40" height="30" rx="4" fill="#10b981" fill-opacity="0.2" stroke="#10b981"/>
+                                <!-- Pin -->
+                                <circle cx="120" cy="125" r="6" fill="#10b981"/>
+                                <circle cx="120" cy="125" r="3" fill="#fff"/>
+                                <!-- Rep location -->
+                                <circle cx="115" cy="132" r="5" fill="#3b82f6" stroke="#fff" stroke-width="2"/>
+                            </svg>
+                        </div>
+                        <div style="padding:12px;background:rgba(255,255,255,.8);border-top:1px solid #e6e9ef;">
+                            <div style="font-size:11px;color:#374151;line-height:1.5;">
+                                <strong>Acme Corp HQ</strong><br>
+                                123 Business Ave, Suite 400<br>
+                                <span style="color:#10b981;">✓ 12m inside geofence</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </header>
+    </div>
+</header>
 
-    <!-- Deep Dive (Z-Pattern) -->
-    <section class="story-section container">
-
-        <!-- Block 1 -->
-        <div class="story-block">
-            <div class="story-text">
-                <h3>Geofenced Verification</h3>
-                <p>Trust but verify. SafiTrack uses GPS geofencing to automatically log when a rep arrives at a client
-                    site and when they leave. No more manual time logs or guessing games.</p>
-                <ul class="story-list">
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Automatic perimeter detection</li>
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Fraud-proof location history</li>
+<!-- Section 1: Geofenced check-in -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split">
+            <div>
+                <p class="fp-section-label">Verified Presence</p>
+                <h2 class="fp-section-title">Geofenced check-ins you can trust</h2>
+                <p class="fp-section-desc">When a rep checks into a visit, SafiTrack verifies they're within the client's geofence radius. Managers see verified badges on every visit — automated proof of presence, no manual GPS screenshots needed.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Automatic geofence validation on check-in</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Configurable radius per client location</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Duration tracking with check-in / check-out</li>
                 </ul>
             </div>
-            <div class="story-visual">
-                <div style="width: 100%; height: 100%; position: relative; background: #1e293b;">
-                    <div class="map-pin"></div>
-                    <!-- Radar ripple -->
-                    <div
-                        style="position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); width: 200px; height: 200px; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 50%;">
-                    </div>
+            <div class="fp-visual">
+                <div class="fp-visual-inner">
+                    <svg width="100%" height="220" viewBox="0 0 420 220" fill="none" style="display:block;">
+                        <!-- Flow: Rep arrives → Geofence check → Verified badge -->
+                        <rect x="20" y="80" width="100" height="60" rx="12" fill="#3b82f6" fill-opacity="0.08" stroke="#3b82f6" stroke-opacity="0.3"/>
+                        <text x="70" y="105" text-anchor="middle" font-size="18" font-family="Manrope,sans-serif">🚗</text>
+                        <text x="70" y="125" text-anchor="middle" font-size="10" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">Rep arrives</text>
+                        <!-- Arrow -->
+                        <line x1="120" y1="110" x2="150" y2="110" stroke="#d1d5db" stroke-width="1.5"/>
+                        <polygon points="148,106 156,110 148,114" fill="#d1d5db"/>
+                        <!-- Geofence check -->
+                        <rect x="160" y="80" width="100" height="60" rx="12" fill="#f59e0b" fill-opacity="0.08" stroke="#f59e0b" stroke-opacity="0.3"/>
+                        <text x="210" y="105" text-anchor="middle" font-size="18" font-family="Manrope,sans-serif">📍</text>
+                        <text x="210" y="125" text-anchor="middle" font-size="10" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">Geofence check</text>
+                        <!-- Arrow -->
+                        <line x1="260" y1="110" x2="290" y2="110" stroke="#d1d5db" stroke-width="1.5"/>
+                        <polygon points="288,106 296,110 288,114" fill="#d1d5db"/>
+                        <!-- Verified -->
+                        <rect x="300" y="80" width="100" height="60" rx="12" fill="#10b981" fill-opacity="0.08" stroke="#10b981" stroke-opacity="0.3"/>
+                        <text x="350" y="105" text-anchor="middle" font-size="18" font-family="Manrope,sans-serif">✅</text>
+                        <text x="350" y="125" text-anchor="middle" font-size="10" font-weight="600" fill="#10b981" font-family="Manrope,sans-serif">Verified ✓</text>
+                        <!-- Labels -->
+                        <text x="210" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#0b1220" font-family="Manrope,sans-serif">Automated Visit Verification</text>
+                        <text x="210" y="48" text-anchor="middle" font-size="11" fill="#6b7280" font-family="Manrope,sans-serif">No manual steps required</text>
+                        <!-- Alt flow -->
+                        <line x1="210" y1="140" x2="210" y2="170" stroke="#f43f5e" stroke-width="1" stroke-dasharray="3 3"/>
+                        <rect x="155" y="172" width="110" height="32" rx="8" fill="#fef2f2" stroke="#fecaca"/>
+                        <text x="210" y="192" text-anchor="middle" font-size="10" font-weight="600" fill="#f43f5e" font-family="Manrope,sans-serif">⚠ Outside radius</text>
+                    </svg>
                 </div>
             </div>
         </div>
+    </div>
+</section>
 
-        <!-- Block 2 (Reversed) -->
-        <div class="story-block reversed">
-            <div class="story-text">
-                <h3>Meeting Intelligence</h3>
-                <p>Log visits in seconds, not minutes. Use our smart quick-entry fields to capture the key details, and
-                    let our AI generate the executive summary for you.</p>
-                <ul class="story-list">
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Smart quick-entry</li>
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Auto-detected follow ups</li>
+<!-- Section 2: Visit reports -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split reversed">
+            <div>
+                <p class="fp-section-label">AI Reports</p>
+                <h2 class="fp-section-title">AI-generated visit summaries</h2>
+                <p class="fp-section-desc">After each visit, Safi AI creates a structured summary of what was discussed, decisions made, and follow-up actions. Reps write quick notes — AI turns them into professional reports.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Auto-generated from visit notes</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Key decisions and action items extracted</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Photo evidence attached to visit record</li>
                 </ul>
             </div>
-            <div class="story-visual"
-                style="background: var(--bg-secondary); display: flex; align-items: center; justify-content: center;">
-                <div
-                    style="width: 80%; background: var(--bg-tertiary); padding: 24px; border-radius: 12px; border: 1px solid var(--border-color);">
-                    <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 16px;">
-                        <div
-                            style="width: 32px; height: 32px; background: rgba(16,185,129,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            ✨</div>
-                        <div style="font-weight: 700; color: #10b981;">AI Extracted</div>
+            <div class="fp-visual">
+                <div class="fp-visual-inner" style="padding:20px;">
+                    <div class="ui-bubble" style="font-size:12px;margin-bottom:10px;background:#f3f4f6;">
+                        "Met Eleanor and Robert. Budget OK, need SF integration. Send proposal by 10th."
                     </div>
-                    <div style="font-size: 14px; color: var(--text-secondary); line-height: 1.6;">
-                        "John mentioned budget approval next Tuesday. <strong
-                            style="color:white; background:rgba(255,255,255,0.1);">Action Item: Send proposal by
-                            Friday.</strong>"
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px;">
+                        <svg width="16" height="16" fill="none" stroke="#10b981" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+                        <span style="font-size:11px;font-weight:600;color:#10b981;">Safi AI processing...</span>
+                    </div>
+                    <div style="padding:16px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;">
+                        <div style="font-size:12px;font-weight:700;color:#0b1220;margin-bottom:8px;">📋 AI Visit Report</div>
+                        <div style="font-size:12px;line-height:1.7;color:#374151;">
+                            <strong>Meeting:</strong> Q3 Budget Discussion<br>
+                            <strong>Attendees:</strong> Eleanor Pena (CFO), Robert Garcia (VP Sales)<br>
+                            <strong>Decisions:</strong> $45K budget approved for Phase 1<br>
+                            <strong>Requirements:</strong> Salesforce integration mandatory<br>
+                            <strong>Action Items:</strong><br>
+                            • Send revised proposal by March 10 ⚡<br>
+                            • Schedule technical deep-dive
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Power Grid -->
-    <section class="power-grid-section">
-        <div class="container">
-            <div class="power-header">
-                <h2>Built for power users</h2>
-            </div>
-            <div class="power-grid">
-                <div class="power-card">
-                    <h4>Offline Mode</h4>
-                    <p>Works flawlessly without signal. Data syncs automatically when you're back online.</p>
-                </div>
-                <div class="power-card">
-                    <h4>Photo Capture</h4>
-                    <p>Snap photos of shelf displays or equipment and attach them directly to the visit log.</p>
-                </div>
-                <div class="power-card">
-                    <h4>Competitor Intel</h4>
-                    <p>Dedicated fields to log competitor pricing or presence seen on-site.</p>
-                </div>
-            </div>
+<!-- Feature grid -->
+<section class="fp-grid-section" style="background:#f9fafb;">
+    <div class="fp-container">
+        <div class="fp-grid-header"><p class="fp-section-label">Capabilities</p><h2 class="fp-section-title">Complete field visit management</h2></div>
+        <div class="fp-grid">
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><h4>Geofenced Check-in</h4><p>Verified presence with GPS coordinates and configurable radius.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div><h4>Photo Capture</h4><p>Take photos during visits as evidence — product displays, meetings, site conditions.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><h4>AI Summaries</h4><p>Safi AI generates structured visit reports from your raw notes automatically.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h4>Duration Tracking</h4><p>Automatic check-in/check-out timestamps for visit duration analytics.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><h4>People Met</h4><p>Record who you met during each visit — linked to your contacts database.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><h4>Visit Analytics</h4><p>Track visit frequency, average duration, and coverage per territory.</p></div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- Big CTA -->
-    <section class="big-cta">
-        <div class="container">
-            <h2>Ready to hit the road?</h2>
-            <a href="../../crm/" class="btn-primary" style="padding: 16px 32px; font-size: 18px;">Start Free Trial</a>
-        </div>
-    </section>
+<section class="fp-cta">
+    <div class="fp-container">
+        <h2>See what happens in the field</h2>
+        <p>Verified visits, AI reports, and total visibility into your sales team's activity.</p>
+        <a href="../pricing.html#pricing-grid" class="fp-cta-btn">Start free trial <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></a>
+    </div>
+</section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="footer-logo-wrapper">
-                        <img src="../../assets/icons/whiteblue.png" alt="SafiTrack" class="footer-logo">
-                        <span class="footer-logo-text">SafiTrack</span>
-                    </div>
-                    <p class="footer-tagline">Modern CRM platform built for<br>high-performing sales teams</p>
-                </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Product</h4>
-                        <ul>
-                            <li><a href="/pages/features/mainfeatures.html">Features</a></li>
-                            <li><a href="/pages/pricing.html">Pricing</a></li>
-                            <li><a href="#">Integrations</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Company</h4>
-                        <ul>
-                            <li><a href="../blog.html">Blog</a></li>
-                            <li><a href="../careers.html">Careers</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Resources</h4>
-                        <ul>
-                            <li><a href="../documentation.html">Documentation</a></li>
-                            <li><a href="../helpcenter.html">Help Center</a></li>
-                            <li><a href="#">API Reference</a></li>
-                            <li><a href="../status.html">Status</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Legal</h4>
-                        <ul>
-                            <li><a href="pages/legal/privacy.html">Privacy Policy</a></li>
-                            <li><a href="pages/legal/terms.html">Terms of Service</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-                <div class="footer-social">
-                    <a href="#" aria-label="Twitter">Twitter</a>
-                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
-                    <a href="#" aria-label="GitHub">GitHub</a>
-                </div>
-            </div>
-        </div>
-    </footer>
+<footer class="footer"><div class="container"><div class="footer-content"><div class="footer-brand"><div class="footer-logo-wrapper"><a href="../../index.html"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a></div></div><div class="footer-links"><div class="footer-column"><h4 class="footer-heading">Product</h4><ul><li><a href="mainfeatures.html">Features</a></li><li><a href="../pricing.html">Pricing</a></li><li><a href="../integrations.html">Integrations</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Company</h4><ul><li><a href="../blog.html">Blog</a></li><li><a href="../careers.html">Careers</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Resources</h4><ul><li><a href="../documentation.html">Documentation</a></li><li><a href="../helpcenter.html">Help Center</a></li><li><a href="../apireference.html">API Reference</a></li><li><a href="../status.html">Status</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Legal</h4><ul><li><a href="../legal/privacy.html">Privacy Policy</a></li><li><a href="../legal/terms.html">Terms of Service</a></li></ul></div></div></div><div class="footer-bottom"><p>&copy; 2026 SafiTrack. All rights reserved.</p><div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div></div></div></footer>
+<script src="feature-page.js"></script>
+<script src="../../landing.js"></script>
 </body>
-
 </html>

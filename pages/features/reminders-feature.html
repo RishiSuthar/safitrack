@@ -1,459 +1,210 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reminders & Alerts - SafiTrack CRM</title>
+    <title>Reminders — SafiTrack CRM</title>
     <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../landing.css">
-    <style>
-        body {
-            background: var(--bg-primary);
-            overflow-x: hidden;
-        }
-
-        .f-hero {
-            padding: 180px 0 100px;
-            text-align: center;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .f-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            background: rgba(244, 63, 94, 0.1);
-            color: #f43f5e;
-            border: 1px solid rgba(244, 63, 94, 0.2);
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 24px;
-        }
-
-        .f-title {
-            font-size: 64px;
-            font-weight: 800;
-            letter-spacing: -1.5px;
-            line-height: 1.1;
-            margin-bottom: 24px;
-            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .f-subtitle {
-            font-size: 21px;
-            color: var(--text-secondary);
-            max-width: 680px;
-            margin: 0 auto 60px;
-            line-height: 1.6;
-        }
-
-        .mockup-container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .mockup-flat {
-            background: var(--bg-secondary);
-            border-radius: 20px;
-            border: 1px solid var(--border-glass);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
-            position: relative;
-            overflow: hidden;
-            height: 500px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .story-section {
-            padding: 120px 0;
-        }
-
-        .story-block {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            align-items: center;
-            margin-bottom: 120px;
-        }
-
-        .story-block.reversed {
-            direction: rtl;
-        }
-
-        .story-block.reversed .story-text {
-            direction: ltr;
-        }
-
-        .story-text h3 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-        }
-
-        .story-text p {
-            font-size: 17px;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            margin-bottom: 24px;
-        }
-
-        .story-list li {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            color: var(--text-secondary);
-        }
-
-        .story-list svg {
-            color: #f43f5e;
-            flex-shrink: 0;
-        }
-
-        .story-visual {
-            background: var(--bg-elevated);
-            border-radius: 24px;
-            border: 1px solid var(--border-glass);
-            height: 400px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-xl);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .power-grid-section {
-            background: var(--bg-secondary);
-            padding: 100px 0;
-            border-top: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .power-header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-
-        .power-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
-        }
-
-        .power-card {
-            background: var(--bg-primary);
-            padding: 32px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-        }
-
-        .power-card h4 {
-            font-size: 18px;
-            font-weight: 700;
-            margin: 16px 0 8px;
-        }
-
-        .power-card p {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .big-cta {
-            padding: 120px 0;
-            text-align: center;
-            background: radial-gradient(circle at 50% 50%, rgba(244, 63, 94, 0.15) 0%, transparent 60%);
-        }
-
-        .big-cta h2 {
-            font-size: 48px;
-            font-weight: 800;
-            margin-bottom: 32px;
-        }
-
-        @media (max-width: 768px) {
-            .f-title {
-                font-size: 40px;
-            }
-
-            .story-block,
-            .power-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .story-block.reversed {
-                direction: ltr;
-            }
-
-            .mockup-flat {
-                height: 300px;
-            }
-        }
-
-        /* Bell Animation */
-        @keyframes ring {
-            0% {
-                transform: rotate(0);
-            }
-
-            10% {
-                transform: rotate(15deg);
-            }
-
-            20% {
-                transform: rotate(-10deg);
-            }
-
-            30% {
-                transform: rotate(5deg);
-            }
-
-            40% {
-                transform: rotate(-5deg);
-            }
-
-            50%,
-            100% {
-                transform: rotate(0);
-            }
-        }
-
-        .bell-icon {
-            animation: ring 3s infinite ease-in-out;
-            transform-origin: top center;
-        }
-    </style>
+    <link rel="stylesheet" href="feature-page.css">
+    <style>:root{--accent:#f43f5e;}</style>
 </head>
-
 <body>
-    <nav class="navbar" id="navbar">
-        <div class="container">
-            <div class="nav-content">
-                <a href="../../index.html" class="logo"><img src="../../assets/icons/whiteblue.png"
-                        alt="SafiTrack"><span class="logo-text">SafiTrack</span></a>
-                <div class="nav-links">
-                    <a href="mainfeatures.html" class="active">Features</a>
-                    <a href="../../index.html#product">Product</a>
-                    <a href="../../pages/pricing.html">Pricing</a>
-                    <a href="../../crm/" class="btn-primary">Open App</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-    <header class="f-hero">
-        <div class="container">
-            <span class="f-badge">Notifications</span>
-            <h1 class="f-title">Never miss a<br>crucial moment.</h1>
-            <p class="f-subtitle">Set, track, and complete follow-ups. Ensure no prospect falls through the cracks with
-                intelligent scheduling.</p>
-            <div class="mockup-container">
-                <div class="mockup-flat">
-                    <div
-                        style="width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; background: radial-gradient(circle at 50% 100%, #1e293b 0%, #0f1117 100%);">
-                        <!-- Notification Card 1 -->
-                        <div
-                            style="width: 360px; background: rgba(30, 41, 59, 0.9); border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transform: translateY(0); animation: slideUp 0.5s ease;">
-                            <div style="display: flex; gap: 12px;">
-                                <div
-                                    style="width: 40px; height: 40px; background: #3b82f6; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
-                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path
-                                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z">
-                                        </path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <div style="font-weight: 600; font-size: 14px; margin-bottom: 2px;">Call with Acme
-                                        Corp</div>
-                                    <div style="font-size: 12px; color: var(--text-secondary);">Starting in 10 minutes
-                                    </div>
-                                </div>
-                                <div style="margin-left: auto; font-size: 11px; color: var(--text-muted);">Now</div>
-                            </div>
-                        </div>
-                        <!-- Notification Card 2 -->
-                        <div
-                            style="width: 360px; background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); border-radius: 16px; padding: 16px; transform: scale(0.95) translateY(-5px); opacity: 0.8;">
-                            <div style="display: flex; gap: 12px;">
-                                <div
-                                    style="width: 40px; height: 40px; background: #10b981; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: white;">
-                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2">
-                                        <path d="M12 2v20M2 12h20"></path>
-                                    </svg>
-                                </div>
-                                <div>
-                                    <div style="font-weight: 600; font-size: 14px; margin-bottom: 2px;">Deal Won: Stark
-                                        Ind</div>
-                                    <div style="font-size: 12px; color: var(--text-secondary);">$85,000 revenue closed.
-                                    </div>
-                                </div>
-                                <div style="margin-left: auto; font-size: 11px; color: var(--text-muted);">2h</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </header>
-    <section class="story-section container">
-        <div class="story-block">
-            <div class="story-text">
-                <h3>Priority Management</h3>
-                <p>Focus on what matters. Filter reminders by status (Pending, Completed, Overdue) to ensure you are
-                    always working on the most critical tasks.</p>
-                <ul class="story-list">
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Clear due dates</li>
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Status filtering</li>
-                </ul>
-            </div>
-            <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
-                <div
-                    style="width: 250px; background: var(--bg-secondary); border-radius: 12px; padding: 20px; border: 1px solid var(--border-color);">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
-                        <span style="font-weight: 700; color: var(--text-primary);">Overdue</span>
-                        <span
-                            style="background: rgba(239, 68, 68, 0.1); color: #ef4444; padding: 2px 8px; border-radius: 100px; font-size: 12px; font-weight: 700;">2</span>
-                    </div>
-                    <div style="height: 4px; background: var(--bg-tertiary); border-radius: 2px; overflow: hidden;">
-                        <div style="width: 100%; height: 100%; background: #ef4444;"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="story-block reversed">
-            <div class="story-text">
-                <h3>Smart Filters</h3>
-                <p>Cut through the noise. Quickly identify high-value opportunities that are stalling or tasks that need
-                    immediate attention.</p>
-                <ul class="story-list">
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Priority sorting</li>
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="20 6 9 17 4 12"></polyline>
-                        </svg> Category grouping</li>
-                </ul>
-            </div>
-            <div class="story-visual" style="display: flex; align-items: center; justify-content: center;">
-                <div
-                    style="background: var(--bg-primary); padding: 16px; border-radius: 12px; border: 1px solid var(--border-color); width: 280px;">
-                    <div style="display: flex; gap: 8px; margin-bottom: 12px;">
-                        <span
-                            style="padding: 4px 12px; background: #3b82f6; color: white; border-radius: 6px; font-size: 12px; font-weight: 600;">High
-                            Priority</span>
-                        <span
-                            style="padding: 4px 12px; background: var(--bg-tertiary); color: var(--text-secondary); border-radius: 6px; font-size: 12px;">All
-                            Tasks</span>
-                    </div>
-                    <div
-                        style="display: flex; gap: 8px; align-items: center; padding: 12px; border-radius: 8px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2);">
-                        <div style="width: 8px; height: 8px; border-radius: 50%; background: #ef4444;"></div>
-                        <div style="font-size: 13px; font-weight: 500; color: var(--text-primary);">Follow up with Acme
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="power-grid-section">
-        <div class="container">
-            <div class="power-header">
-                <h2>For Busy Teams</h2>
-            </div>
-            <div class="power-grid">
-                <div class="power-card">
-                    <h4>Daily Digest</h4>
-                    <p>Wake up to a morning briefing email summarizing everything on your plate for the day.</p>
-                </div>
-                <div class="power-card">
-                    <h4>Team Mentions</h4>
-                    <p>Get notified instantly when someone tags you in a note or comment.</p>
-                </div>
-                <div class="power-card">
-                    <h4>Snooze</h4>
-                    <p>Not ready to deal with it? Snooze alerts for 1 hour, tomorrow, or next week.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-    <section class="big-cta">
-        <div class="container">
-            <h2>Stay alert.</h2>
-            <a href="../../crm/" class="btn-primary" style="padding: 16px 32px; font-size: 18px;">Start Free Trial</a>
-        </div>
-    </section>
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="footer-logo-wrapper">
-                        <img src="../../assets/icons/whiteblue.png" alt="SafiTrack" class="footer-logo">
-                        <span class="footer-logo-text">SafiTrack</span>
-                    </div>
-                    <p class="footer-tagline">Modern CRM platform built for<br>high-performing sales teams</p>
-                </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Product</h4>
-                        <ul>
-                            <li><a href="/pages/features/mainfeatures.html">Features</a></li>
-                            <li><a href="/pages/pricing.html">Pricing</a></li>
-                            <li><a href="#">Integrations</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Company</h4>
-                        <ul>
-                            <li><a href="../blog.html">Blog</a></li>
-                            <li><a href="../careers.html">Careers</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Resources</h4>
-                        <ul>
-                            <li><a href="../documentation.html">Documentation</a></li>
-                            <li><a href="../helpcenter.html">Help Center</a></li>
-                            <li><a href="#">API Reference</a></li>
-                            <li><a href="../status.html">Status</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Legal</h4>
-                        <ul>
-                            <li><a href="pages/legal/privacy.html">Privacy Policy</a></li>
-                            <li><a href="pages/legal/terms.html">Terms of Service</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-                <div class="footer-social">
-                    <a href="#" aria-label="Twitter">Twitter</a>
-                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
-                    <a href="#" aria-label="GitHub">GitHub</a>
-                </div>
-            </div>
-        </div>
-    </footer>
-</body>
+<nav class="navbar" id="navbar"><div class="container"><div class="nav-content"><div class="nav-left"><a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack"></a><div class="nav-links"><a href="mainfeatures.html" class="active">Features</a><a href="../../index.html#product">Product</a><a href="../pricing.html">Pricing</a></div></div><div class="nav-actions"><a href="/crm/" class="nav-link-sign-in">Sign in</a><a href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a></div><button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button></div></div></nav>
+<div class="mobile-nav-overlay"><button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button><div class="mobile-nav-content"><a href="mainfeatures.html" class="mobile-link">Features</a><a href="../../index.html#product" class="mobile-link">Product</a><a href="../pricing.html" class="mobile-link">Pricing</a><hr class="mobile-divider"><a href="/crm/" class="mobile-link">Open App</a></div></div>
 
+<header class="fp-hero">
+    <div class="fp-container">
+        <span class="fp-badge"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg> Productivity</span>
+        <h1>Never forget a<br><span>follow-up again</span></h1>
+        <p class="fp-subtitle">Set smart reminders for any contact, deal, or task. Get notified at the right time via push notifications, in-app alerts, or email — keep every promise you make to a prospect.</p>
+
+        <div class="fp-mockup">
+            <div class="fp-mockup-window">
+                <div class="fp-mockup-bar"><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div></div>
+                <div class="fp-mockup-body" style="padding:24px;min-height:360px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+                        <div style="font-size:18px;font-weight:700;color:#0b1220;">Upcoming Reminders</div>
+                        <div style="padding:5px 14px;background:#f43f5e;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">+ New Reminder</div>
+                    </div>
+                    <!-- Reminder entries grouped by time -->
+                    <div style="margin-bottom:18px;">
+                        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#f43f5e;margin-bottom:8px;">⏰ In 15 minutes</div>
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;">
+                            <div style="width:8px;height:8px;border-radius:50%;background:#f43f5e;flex-shrink:0;animation:pulse 2s infinite;"></div>
+                            <div style="flex:1;">
+                                <div style="font-size:14px;font-weight:600;color:#0b1220;">Call back Eleanor Pena</div>
+                                <div style="font-size:12px;color:#6b7280;">Re: Acme Corp pricing · Set 2 hours ago</div>
+                            </div>
+                            <div style="display:flex;gap:6px;">
+                                <div style="padding:4px 10px;background:#fff;border:1px solid #e6e9ef;border-radius:6px;font-size:11px;color:#374151;">Snooze</div>
+                                <div style="padding:4px 10px;background:#f43f5e;border-radius:6px;font-size:11px;color:#fff;font-weight:600;">Done</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:18px;">
+                        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:8px;">📅 Today — 3:00 PM</div>
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;margin-bottom:6px;">
+                            <div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></div>
+                            <div style="flex:1;">
+                                <div style="font-size:14px;font-weight:600;color:#0b1220;">Send follow-up to Marcus Chen</div>
+                                <div style="font-size:12px;color:#6b7280;">Re: Globex deal · Linked to opportunity</div>
+                            </div>
+                            <span class="ui-tag" style="background:rgba(245,158,11,.1);color:#f59e0b;">3:00 PM</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:8px;">📅 Tomorrow — 10:00 AM</div>
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
+                            <div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></div>
+                            <div style="flex:1;">
+                                <div style="font-size:14px;font-weight:600;color:#0b1220;">Review contract with legal team</div>
+                                <div style="font-size:12px;color:#6b7280;">Wayne Enterprises · Negotiation stage</div>
+                            </div>
+                            <span class="ui-tag" style="background:rgba(59,130,246,.1);color:#3b82f6;">10:00 AM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+<!-- Section 1: Smart scheduling -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split">
+            <div>
+                <p class="fp-section-label">Smart Scheduling</p>
+                <h2 class="fp-section-title">Set it once, never think about it again</h2>
+                <p class="fp-section-desc">Schedule reminders for any time — 15 minutes, 2 hours, tomorrow morning, or a specific date. Snooze if you're busy. The reminder stays until you act on it.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Quick presets: 15m, 1h, tomorrow, next week</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Custom date and time picker</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Snooze and reschedule with one click</li>
+                </ul>
+            </div>
+            <div class="fp-visual">
+                <div class="fp-visual-inner">
+                    <svg width="100%" height="220" viewBox="0 0 420 220" fill="none" style="display:block;">
+                        <!-- Timeline flow -->
+                        <line x1="210" y1="20" x2="210" y2="200" stroke="#e6e9ef" stroke-width="2"/>
+                        <!-- Now -->
+                        <circle cx="210" cy="30" r="8" fill="#f43f5e"/>
+                        <text x="230" y="34" font-size="11" font-weight="700" fill="#f43f5e" font-family="Manrope,sans-serif">NOW</text>
+                        <rect x="255" y="18" width="140" height="28" rx="8" fill="#fef2f2" stroke="#fecaca"/>
+                        <text x="325" y="36" text-anchor="middle" font-size="10" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">🔔 Call Eleanor back</text>
+                        <!-- 3 PM -->
+                        <circle cx="210" cy="80" r="6" fill="#f59e0b" fill-opacity="0.5"/>
+                        <text x="230" y="84" font-size="11" font-weight="600" fill="#6b7280" font-family="Manrope,sans-serif">3:00 PM</text>
+                        <rect x="255" y="68" width="140" height="28" rx="8" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="325" y="86" text-anchor="middle" font-size="10" fill="#374151" font-family="Manrope,sans-serif">Follow up Marcus</text>
+                        <!-- Tomorrow -->
+                        <circle cx="210" cy="130" r="6" fill="#3b82f6" fill-opacity="0.5"/>
+                        <text x="230" y="134" font-size="11" font-weight="600" fill="#6b7280" font-family="Manrope,sans-serif">Tomorrow 10 AM</text>
+                        <rect x="255" y="118" width="140" height="28" rx="8" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="325" y="136" text-anchor="middle" font-size="10" fill="#374151" font-family="Manrope,sans-serif">Review contract</text>
+                        <!-- Next week -->
+                        <circle cx="210" cy="180" r="6" fill="#8b5cf6" fill-opacity="0.5"/>
+                        <text x="230" y="184" font-size="11" font-weight="600" fill="#6b7280" font-family="Manrope,sans-serif">Next Monday</text>
+                        <rect x="255" y="168" width="140" height="28" rx="8" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="325" y="186" text-anchor="middle" font-size="10" fill="#374151" font-family="Manrope,sans-serif">Check proposal status</text>
+                        <!-- Presets on left -->
+                        <rect x="20" y="55" width="160" height="120" rx="12" fill="#fff" stroke="#e6e9ef"/>
+                        <text x="100" y="78" text-anchor="middle" font-size="11" font-weight="700" fill="#0b1220" font-family="Manrope,sans-serif">Quick Presets</text>
+                        <rect x="32" y="90" width="64" height="26" rx="6" fill="#fef2f2" stroke="#fecaca"/>
+                        <text x="64" y="107" text-anchor="middle" font-size="10" font-weight="600" fill="#f43f5e" font-family="Manrope,sans-serif">15 min</text>
+                        <rect x="104" y="90" width="64" height="26" rx="6" fill="#f3f4f6" stroke="#e6e9ef"/>
+                        <text x="136" y="107" text-anchor="middle" font-size="10" font-weight="600" fill="#374151" font-family="Manrope,sans-serif">1 hour</text>
+                        <rect x="32" y="124" width="64" height="26" rx="6" fill="#f3f4f6" stroke="#e6e9ef"/>
+                        <text x="64" y="141" text-anchor="middle" font-size="10" font-weight="600" fill="#374151" font-family="Manrope,sans-serif">Tomorrow</text>
+                        <rect x="104" y="124" width="64" height="26" rx="6" fill="#f3f4f6" stroke="#e6e9ef"/>
+                        <text x="136" y="141" text-anchor="middle" font-size="10" font-weight="600" fill="#374151" font-family="Manrope,sans-serif">Next week</text>
+                    </svg>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 2: Notification channels -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split reversed">
+            <div>
+                <p class="fp-section-label">Multi-Channel</p>
+                <h2 class="fp-section-title">Get notified where you work</h2>
+                <p class="fp-section-desc">Choose how you want to be reminded — in-app notifications, push alerts on your phone, or email digests. Never miss a follow-up, even when you're on the road.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> In-app bell notifications</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Mobile push notifications (PWA)</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Daily email digest of upcoming reminders</li>
+                </ul>
+            </div>
+            <div class="fp-visual">
+                <div class="fp-visual-inner" style="padding:24px;">
+                    <div style="display:flex;flex-direction:column;gap:12px;">
+                        <!-- Notification types -->
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;">
+                            <div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#f43f5e;font-size:18px;">🔔</div>
+                            <div>
+                                <div style="font-size:13px;font-weight:700;color:#0b1220;">In-App Alert</div>
+                                <div style="font-size:12px;color:#6b7280;">Real-time bell notification in SafiTrack</div>
+                            </div>
+                            <div style="margin-left:auto;width:36px;height:20px;border-radius:10px;background:#f43f5e;position:relative;"><div style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;right:2px;"></div></div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
+                            <div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#f3f4f6;font-size:18px;">📱</div>
+                            <div>
+                                <div style="font-size:13px;font-weight:700;color:#0b1220;">Push Notification</div>
+                                <div style="font-size:12px;color:#6b7280;">Mobile alerts even when app is closed</div>
+                            </div>
+                            <div style="margin-left:auto;width:36px;height:20px;border-radius:10px;background:#f43f5e;position:relative;"><div style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;right:2px;"></div></div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:14px;padding:14px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
+                            <div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#f3f4f6;font-size:18px;">📧</div>
+                            <div>
+                                <div style="font-size:13px;font-weight:700;color:#0b1220;">Email Digest</div>
+                                <div style="font-size:12px;color:#6b7280;">Morning summary of today's reminders</div>
+                            </div>
+                            <div style="margin-left:auto;width:36px;height:20px;border-radius:10px;background:#d1d5db;position:relative;"><div style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;"></div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Feature grid -->
+<section class="fp-grid-section" style="background:#f9fafb;">
+    <div class="fp-container">
+        <div class="fp-grid-header"><p class="fp-section-label">Capabilities</p><h2 class="fp-section-title">Reminders that keep you accountable</h2></div>
+        <div class="fp-grid">
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h4>Flexible Scheduling</h4><p>Preset intervals or custom dates. You choose when to be reminded.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div><h4>Record Linking</h4><p>Attach reminders to contacts, deals, companies, or tasks for full context.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div><h4>Snooze & Reschedule</h4><p>Busy right now? Snooze for 15 minutes or reschedule for later.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><h4>Smart Notifications</h4><p>Multi-channel delivery: in-app, push, and email. Choose per reminder.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><h4>Calendar View</h4><p>See all reminders on a daily, weekly, or monthly calendar grid.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><h4>Team Reminders</h4><p>Set reminders for teammates. Managers can create follow-up assignments.</p></div>
+        </div>
+    </div>
+</section>
+
+<section class="fp-cta">
+    <div class="fp-container">
+        <h2>Follow up like clockwork</h2>
+        <p>Smart reminders that keep your promises to every prospect.</p>
+        <a href="../pricing.html#pricing-grid" class="fp-cta-btn">Start free trial <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></a>
+    </div>
+</section>
+
+<footer class="footer"><div class="container"><div class="footer-content"><div class="footer-brand"><div class="footer-logo-wrapper"><a href="../../index.html"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a></div></div><div class="footer-links"><div class="footer-column"><h4 class="footer-heading">Product</h4><ul><li><a href="mainfeatures.html">Features</a></li><li><a href="../pricing.html">Pricing</a></li><li><a href="../integrations.html">Integrations</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Company</h4><ul><li><a href="../blog.html">Blog</a></li><li><a href="../careers.html">Careers</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Resources</h4><ul><li><a href="../documentation.html">Documentation</a></li><li><a href="../helpcenter.html">Help Center</a></li><li><a href="../apireference.html">API Reference</a></li><li><a href="../status.html">Status</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Legal</h4><ul><li><a href="../legal/privacy.html">Privacy Policy</a></li><li><a href="../legal/terms.html">Terms of Service</a></li></ul></div></div></div><div class="footer-bottom"><p>&copy; 2026 SafiTrack. All rights reserved.</p><div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div></div></div></footer>
+<script src="feature-page.js"></script>
+<script src="../../landing.js"></script>
+<style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}</style>
+</body>
 </html>

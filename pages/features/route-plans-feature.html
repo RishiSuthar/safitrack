@@ -1,533 +1,230 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
-
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Route Plans - SafiTrack CRM</title>
+    <title>Route Plans — SafiTrack CRM</title>
     <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../../landing.css">
-    <style>
-        body {
-            background: var(--bg-primary);
-            overflow-x: hidden;
-        }
-
-        .f-hero {
-            padding: 180px 0 100px;
-            text-align: center;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .f-badge {
-            display: inline-block;
-            padding: 6px 12px;
-            background: rgba(245, 158, 11, 0.1);
-            color: #f59e0b;
-            border: 1px solid rgba(245, 158, 11, 0.2);
-            border-radius: 100px;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 24px;
-        }
-
-        .f-title {
-            font-size: 64px;
-            font-weight: 800;
-            letter-spacing: -1.5px;
-            line-height: 1.1;
-            margin-bottom: 24px;
-            background: linear-gradient(135deg, #fff 0%, #cbd5e1 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .f-subtitle {
-            font-size: 21px;
-            color: var(--text-secondary);
-            max-width: 680px;
-            margin: 0 auto 60px;
-            line-height: 1.6;
-        }
-
-        .mockup-container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-
-        .mockup-flat {
-            background: var(--bg-secondary);
-            border-radius: 20px;
-            border: 1px solid var(--border-glass);
-            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
-            position: relative;
-            overflow: hidden;
-            height: 500px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .story-section {
-            padding: 120px 0;
-        }
-
-        .story-block {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            align-items: center;
-            margin-bottom: 120px;
-        }
-
-        .story-block.reversed {
-            direction: rtl;
-        }
-
-        .story-block.reversed .story-text {
-            direction: ltr;
-        }
-
-        .story-text h3 {
-            font-size: 32px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            color: var(--text-primary);
-        }
-
-        .story-text p {
-            font-size: 17px;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            margin-bottom: 24px;
-        }
-
-        .story-list li {
-            display: flex;
-            gap: 12px;
-            margin-bottom: 12px;
-            color: var(--text-secondary);
-        }
-
-        .story-list svg {
-            color: #f59e0b;
-            flex-shrink: 0;
-        }
-
-        .story-visual {
-            background: var(--bg-elevated);
-            border-radius: 24px;
-            border: 1px solid var(--border-glass);
-            height: 400px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-xl);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .power-grid-section {
-            background: var(--bg-secondary);
-            padding: 100px 0;
-            border-top: 1px solid var(--border-color);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        .power-header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-
-        .power-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 32px;
-        }
-
-        .power-card {
-            background: var(--bg-primary);
-            padding: 32px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-        }
-
-        .power-card h4 {
-            font-size: 18px;
-            font-weight: 700;
-            margin: 16px 0 8px;
-        }
-
-        .power-card p {
-            font-size: 14px;
-            color: var(--text-secondary);
-        }
-
-        .big-cta {
-            padding: 120px 0;
-            text-align: center;
-            background: radial-gradient(circle at 50% 50%, rgba(245, 158, 11, 0.15) 0%, transparent 60%);
-        }
-
-        .big-cta h2 {
-            font-size: 48px;
-            font-weight: 800;
-            margin-bottom: 32px;
-        }
-
-        @media (max-width: 768px) {
-            .f-title {
-                font-size: 40px;
-            }
-
-            .story-block,
-            .power-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .story-block.reversed {
-                direction: ltr;
-            }
-
-            .mockup-flat {
-                height: 300px;
-            }
-        }
-
-        /* Route Line Animation */
-        .route-path {
-            stroke-dasharray: 1000;
-            stroke-dashoffset: 1000;
-            animation: drawRoute 3s ease forwards;
-        }
-
-        @keyframes drawRoute {
-            to {
-                stroke-dashoffset: 0;
-            }
-        }
-    </style>
+    <link rel="stylesheet" href="feature-page.css">
+    <style>:root{--accent:#f59e0b;}</style>
 </head>
-
 <body>
-    <nav class="navbar" id="navbar">
-        <div class="container">
-            <div class="nav-content">
-                <a href="../../index.html" class="logo"><img src="../../assets/icons/whiteblue.png"
-                        alt="SafiTrack"><span class="logo-text">SafiTrack</span></a>
-                <div class="nav-links">
-                    <a href="mainfeatures.html" class="active">Features</a>
-                    <a href="../../index.html#product">Product</a>
-                    <a href="../../pages/pricing.html">Pricing</a>
-                    <a href="../../crm/" class="btn-primary">Open App</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-    <header class="f-hero">
-        <div class="container">
-            <span class="f-badge">Logistics</span>
-            <h1 class="f-title">Drive less.<br>Sell more.</h1>
-            <p class="f-subtitle">Intelligent route optimization that squeezes more meetings into your day while
-                reducing fuel costs and windshield time.</p>
-            <div class="mockup-container">
-                <div class="mockup-flat">
-                    <div style="width: 100%; height: 100%; display: flex;">
-                        <!-- Sidebar -->
-                        <div
-                            style="width: 250px; background: var(--bg-tertiary); border-right: 1px solid var(--border-color); padding: 20px;">
-                            <div style="font-weight: 700; color: var(--text-secondary); margin-bottom: 16px;">TUESDAY
-                                ROUTE</div>
-                            <div style="display: flex; flex-direction: column; gap: 8px;">
-                                <!-- Stops -->
-                                <div
-                                    style="padding: 12px; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; color: white; display: flex; gap: 10px; align-items: center;">
-                                    <div
-                                        style="width: 20px; height: 20px; background: #f59e0b; border-radius: 50%; color: black; font-weight: 700; font-size: 11px; display: flex; align-items: center; justify-content: center;">
-                                        1</div>
-                                    <div style="font-size: 13px;">North Point Biz Park</div>
-                                </div>
-                                <div
-                                    style="padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-secondary); display: flex; gap: 10px; align-items: center;">
-                                    <div
-                                        style="width: 20px; height: 20px; background: var(--bg-elevated); border: 1px solid var(--text-muted); border-radius: 50%; color: var(--text-muted); font-weight: 700; font-size: 11px; display: flex; align-items: center; justify-content: center;">
-                                        2</div>
-                                    <div style="font-size: 13px;">Westside Logistics</div>
-                                </div>
-                                <div
-                                    style="padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-secondary); display: flex; gap: 10px; align-items: center;">
-                                    <div
-                                        style="width: 20px; height: 20px; background: var(--bg-elevated); border: 1px solid var(--text-muted); border-radius: 50%; color: var(--text-muted); font-weight: 700; font-size: 11px; display: flex; align-items: center; justify-content: center;">
-                                        3</div>
-                                    <div style="font-size: 13px;">Downtown Retail</div>
-                                </div>
+<nav class="navbar" id="navbar"><div class="container"><div class="nav-content"><div class="nav-left"><a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack"></a><div class="nav-links"><a href="mainfeatures.html" class="active">Features</a><a href="../../index.html#product">Product</a><a href="../pricing.html">Pricing</a></div></div><div class="nav-actions"><a href="/crm/" class="nav-link-sign-in">Sign in</a><a href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a></div><button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button></div></div></nav>
+<div class="mobile-nav-overlay"><button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button><div class="mobile-nav-content"><a href="mainfeatures.html" class="mobile-link">Features</a><a href="../../index.html#product" class="mobile-link">Product</a><a href="../pricing.html" class="mobile-link">Pricing</a><hr class="mobile-divider"><a href="/crm/" class="mobile-link">Open App</a></div></div>
+
+<header class="fp-hero">
+    <div class="fp-container">
+        <span class="fp-badge"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> Field Intelligence</span>
+        <h1>Plan smarter<br><span>routes, faster</span></h1>
+        <p class="fp-subtitle">Build optimized daily routes for your field team. Assign stops, reorder by proximity, and track progress in real time. Less driving, more selling.</p>
+
+        <div class="fp-mockup">
+            <div class="fp-mockup-window">
+                <div class="fp-mockup-bar"><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div></div>
+                <div class="fp-mockup-body" style="padding:0;min-height:400px;display:flex;">
+                    <!-- Route map mock -->
+                    <div style="flex:1;background:linear-gradient(135deg,#fef3c7 0%,#fde68a 30%,#fef9c3 60%,#fffbeb 100%);position:relative;min-height:400px;overflow:hidden;">
+                        <!-- Grid roads -->
+                        <svg width="100%" height="100%" viewBox="0 0 500 400" fill="none" style="position:absolute;top:0;left:0;">
+                            <!-- Streets -->
+                            <line x1="60" y1="0" x2="60" y2="400" stroke="#e5e7eb" stroke-width="8" opacity="0.5"/>
+                            <line x1="180" y1="0" x2="180" y2="400" stroke="#e5e7eb" stroke-width="8" opacity="0.5"/>
+                            <line x1="300" y1="0" x2="300" y2="400" stroke="#e5e7eb" stroke-width="8" opacity="0.5"/>
+                            <line x1="0" y1="80" x2="500" y2="80" stroke="#e5e7eb" stroke-width="8" opacity="0.5"/>
+                            <line x1="0" y1="200" x2="500" y2="200" stroke="#e5e7eb" stroke-width="8" opacity="0.5"/>
+                            <line x1="0" y1="320" x2="500" y2="320" stroke="#e5e7eb" stroke-width="8" opacity="0.5"/>
+                            <!-- Route path -->
+                            <path d="M80 60 L180 80 L300 150 L180 200 L300 310 L420 330" stroke="#f59e0b" stroke-width="3" stroke-dasharray="8 4" fill="none" opacity="0.8"/>
+                            <!-- Stop markers -->
+                            <circle cx="80" cy="60" r="16" fill="#f59e0b"/>
+                            <text x="80" y="65" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Manrope,sans-serif">1</text>
+                            <circle cx="180" cy="80" r="16" fill="#f59e0b"/>
+                            <text x="180" y="85" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Manrope,sans-serif">2</text>
+                            <circle cx="300" cy="150" r="16" fill="#f59e0b"/>
+                            <text x="300" y="155" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Manrope,sans-serif">3</text>
+                            <circle cx="180" cy="200" r="16" fill="#f59e0b" opacity="0.5"/>
+                            <text x="180" y="205" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Manrope,sans-serif">4</text>
+                            <circle cx="300" cy="310" r="16" fill="#f59e0b" opacity="0.5"/>
+                            <text x="300" y="315" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Manrope,sans-serif">5</text>
+                            <circle cx="420" cy="330" r="16" fill="#f59e0b" opacity="0.3"/>
+                            <text x="420" y="335" text-anchor="middle" font-size="12" font-weight="700" fill="#fff" font-family="Manrope,sans-serif">6</text>
+                            <!-- Labels -->
+                            <rect x="50" y="38" width="62" height="16" rx="4" fill="#fff" fill-opacity="0.9"/>
+                            <text x="81" y="49" text-anchor="middle" font-size="8" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">Acme Corp</text>
+                            <rect x="150" y="58" width="62" height="16" rx="4" fill="#fff" fill-opacity="0.9"/>
+                            <text x="181" y="69" text-anchor="middle" font-size="8" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">Globex Inc</text>
+                            <rect x="268" y="128" width="66" height="16" rx="4" fill="#fff" fill-opacity="0.9"/>
+                            <text x="301" y="139" text-anchor="middle" font-size="8" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">Wayne Ent.</text>
+                        </svg>
+                        <!-- Progress overlay -->
+                        <div style="position:absolute;bottom:16px;left:16px;right:16px;background:rgba(255,255,255,.95);backdrop-filter:blur(8px);border-radius:12px;padding:14px 18px;border:1px solid rgba(0,0,0,.06);display:flex;align-items:center;justify-content:space-between;">
+                            <div>
+                                <div style="font-size:13px;font-weight:700;color:#0b1220;">Today's Route</div>
+                                <div style="font-size:12px;color:#6b7280;">2 of 6 stops completed · 1h 20m remaining</div>
                             </div>
-                            <div
-                                style="margin-top: 24px; padding: 12px; background: var(--bg-elevated); border-radius: 8px; font-size: 12px; color: var(--text-muted);">
-                                Total Distance: <span style="color: white; font-weight: 700;">42 miles</span><br>
-                                Est. Time: <span style="color: white; font-weight: 700;">3h 15m</span>
+                            <div style="display:flex;gap:8px;">
+                                <span class="ui-tag" style="background:rgba(245,158,11,.1);color:#b45309;">34 km total</span>
+                                <span class="ui-tag" style="background:rgba(16,185,129,.1);color:#10b981;">On track</span>
                             </div>
                         </div>
-                        <!-- Map Area -->
-                        <div style="flex-grow: 1; background: #0f172a; position: relative; overflow: hidden;">
-                            <svg width="100%" height="100%" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid slice"
-                                style="position: absolute; top: 0; left: 0;">
-                                <!-- Grid -->
-                                <defs>
-                                    <pattern id="mapGrid" width="50" height="50" patternUnits="userSpaceOnUse">
-                                        <path d="M 50 0 L 0 0 0 50" fill="none" stroke="rgba(255,255,255,0.03)"
-                                            stroke-width="1" />
-                                    </pattern>
-                                    <linearGradient id="routeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                        <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
-                                        <stop offset="100%" style="stop-color:#fbbf24;stop-opacity:1" />
-                                    </linearGradient>
-                                </defs>
-                                <rect width="100%" height="100%" fill="url(#mapGrid)" />
-
-                                <!-- Territory Zones -->
-                                <path d="M 50 50 L 300 30 L 350 200 L 100 250 Z" fill="rgba(47, 95, 208, 0.05)"
-                                    stroke="rgba(47, 95, 208, 0.2)" stroke-width="2" stroke-dasharray="4 4" />
-                                <text x="60" y="45" fill="rgba(255,255,255,0.2)" font-size="10" font-weight="700"
-                                    text-transform="uppercase">North Zone</text>
-
-                                <path d="M 600 300 L 950 250 L 920 450 L 550 480 Z" fill="rgba(16, 185, 129, 0.05)"
-                                    stroke="rgba(16, 185, 129, 0.2)" stroke-width="2" stroke-dasharray="4 4" />
-                                <text x="850" y="410" fill="rgba(255,255,255,0.2)" font-size="10" font-weight="700"
-                                    text-transform="uppercase">East Sector</text>
-
-                                <!-- Main Route Path -->
-                                <path d="M 40 400 L 180 320 L 320 380 L 520 220 L 750 280 L 940 100" fill="none"
-                                    stroke="url(#routeGradient)" stroke-width="5" stroke-linecap="round"
-                                    stroke-linejoin="round" class="route-path" opacity="0.8" />
-
-                                <!-- Connection Pulses/Nodes -->
-                                <g class="map-node">
-                                    <circle cx="40" cy="400" r="8" fill="#f59e0b" stroke="white" stroke-width="3" />
-                                    <circle cx="40" cy="400" r="16" fill="#f59e0b" opacity="0.2">
-                                        <animate attributeName="r" from="8" to="24" dur="1.5s"
-                                            repeatCount="indefinite" />
-                                        <animate attributeName="opacity" from="0.3" to="0" dur="1.5s"
-                                            repeatCount="indefinite" />
-                                    </circle>
-                                </g>
-
-                                <circle cx="180" cy="320" r="5" fill="#1e293b" stroke="#f59e0b" stroke-width="2" />
-                                <circle cx="320" cy="380" r="5" fill="#1e293b" stroke="#f59e0b" stroke-width="2" />
-                                <circle cx="520" cy="220" r="5" fill="#1e293b" stroke="#f59e0b" stroke-width="2" />
-                                <circle cx="750" cy="280" r="5" fill="#1e293b" stroke="#f59e0b" stroke-width="2" />
-                                <circle cx="940" cy="100" r="5" fill="#f59e0b" stroke="white" stroke-width="2" />
-
-                                <!-- Live Location Pulse -->
-                                <g transform="translate(680, 230)">
-                                    <circle r="4" fill="#60a5fa" shadow="0 0 10px #60a5fa" />
-                                    <circle r="4" fill="#60a5fa" opacity="0.4">
-                                        <animate attributeName="r" from="4" to="12" dur="2s" repeatCount="indefinite" />
-                                        <animate attributeName="opacity" from="0.4" to="0" dur="2s"
-                                            repeatCount="indefinite" />
-                                    </circle>
-                                    <text y="-12" x="-20" fill="#60a5fa" font-size="10" font-weight="700">R. Miller
-                                        (Live)</text>
-                                </g>
-                            </svg>
-                            <!-- Floating Directions -->
-                            <div
-                                style="position: absolute; top: 20px; right: 20px; width: 220px; background: var(--bg-secondary); border: 1px solid var(--border-glass); border-radius: 12px; padding: 16px; box-shadow: var(--shadow-xl);">
-                                <div
-                                    style="font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 8px;">
-                                    Next Turn</div>
-                                <div style="font-size: 14px; font-weight: 600; display: flex; gap: 8px;"><span
-                                        style="font-size: 18px;">↰</span> Turn left on Main St.</div>
-                                <div style="font-size: 12px; color: var(--text-secondary);">0.4 miles</div>
+                    </div>
+                    <!-- Stop list sidebar -->
+                    <div style="width:220px;border-left:1px solid #e6e9ef;padding:16px;background:#fff;flex-shrink:0;">
+                        <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:12px;">Route Stops</div>
+                        <div style="display:flex;flex-direction:column;gap:6px;">
+                            <div style="display:flex;align-items:center;gap:8px;padding:8px;background:#f0fdf4;border-radius:8px;">
+                                <div style="width:22px;height:22px;border-radius:50%;background:#10b981;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;">✓</div>
+                                <div><div style="font-size:12px;font-weight:600;color:#0b1220;">Acme Corp</div><div style="font-size:10px;color:#6b7280;">9:00 AM · Done</div></div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;padding:8px;background:#f0fdf4;border-radius:8px;">
+                                <div style="width:22px;height:22px;border-radius:50%;background:#10b981;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;">✓</div>
+                                <div><div style="font-size:12px;font-weight:600;color:#0b1220;">Globex Inc</div><div style="font-size:10px;color:#6b7280;">10:15 AM · Done</div></div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;padding:8px;background:#fffbeb;border:1px solid #fde68a;border-radius:8px;">
+                                <div style="width:22px;height:22px;border-radius:50%;background:#f59e0b;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;">3</div>
+                                <div><div style="font-size:12px;font-weight:600;color:#0b1220;">Wayne Ent.</div><div style="font-size:10px;color:#f59e0b;">En route · 12 min</div></div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;">
+                                <div style="width:22px;height:22px;border-radius:50%;background:#e6e9ef;color:#6b7280;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;">4</div>
+                                <div><div style="font-size:12px;font-weight:600;color:#0b1220;">Initech</div><div style="font-size:10px;color:#6b7280;">12:30 PM</div></div>
+                            </div>
+                            <div style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;">
+                                <div style="width:22px;height:22px;border-radius:50%;background:#e6e9ef;color:#6b7280;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;">5</div>
+                                <div><div style="font-size:12px;font-weight:600;color:#0b1220;">Stark Labs</div><div style="font-size:10px;color:#6b7280;">2:00 PM</div></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </header>
-    <section class="story-section container">
-        <div class="story-block">
-            <div class="story-text">
-                <h3>Efficient Routing</h3>
-                <p>Don't let inefficient driving eat your profits. Our routing engine calculates the most optimal path
-                    between multiple stops instantly, keeping you on track.</p>
-                <ul class="story-list">
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-                        </svg> Reduce mileage by 20%</li>
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-                        </svg> Prioritize VIP accounts</li>
+    </div>
+</header>
+
+<!-- Section 1: Route optimization -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split">
+            <div>
+                <p class="fp-section-label">Optimization</p>
+                <h2 class="fp-section-title">Minimize drive time, maximize face time</h2>
+                <p class="fp-section-desc">Build routes by dragging and dropping stops. SafiTrack suggests the most efficient order based on proximity and time windows. Reps spend less time in traffic and more time selling.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Drag-and-drop stop reordering</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Proximity-based optimization suggestions</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Estimated travel time between stops</li>
                 </ul>
             </div>
-            <div class="story-visual">
-                <div style="text-align: center;">
-                    <div style="font-size: 48px; font-weight: 800; color: #f59e0b;">-22%</div>
-                    <div style="font-size: 18px; color: var(--text-secondary);">Estimated fuel savings<br>per
-                        fleet/month</div>
+            <div class="fp-visual">
+                <div class="fp-visual-inner">
+                    <svg width="100%" height="240" viewBox="0 0 420 240" fill="none" style="display:block;">
+                        <!-- Before/After comparison -->
+                        <text x="105" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="#6b7280" font-family="Manrope,sans-serif">BEFORE</text>
+                        <text x="315" y="20" text-anchor="middle" font-size="11" font-weight="700" fill="#f59e0b" font-family="Manrope,sans-serif">AFTER OPTIMIZATION</text>
+                        <!-- Before - zigzag path -->
+                        <rect x="20" y="30" width="170" height="200" rx="12" fill="#f9fafb" stroke="#e6e9ef"/>
+                        <path d="M40 60 L170 80 L50 120 L160 160 L60 200" stroke="#f43f5e" stroke-width="2" fill="none" stroke-dasharray="4 4"/>
+                        <circle cx="40" cy="60" r="8" fill="#f43f5e"/><text x="40" y="64" text-anchor="middle" font-size="8" fill="#fff" font-weight="700" font-family="Manrope,sans-serif">1</text>
+                        <circle cx="170" cy="80" r="8" fill="#f43f5e"/><text x="170" y="84" text-anchor="middle" font-size="8" fill="#fff" font-weight="700" font-family="Manrope,sans-serif">2</text>
+                        <circle cx="50" cy="120" r="8" fill="#f43f5e"/><text x="50" y="124" text-anchor="middle" font-size="8" fill="#fff" font-weight="700" font-family="Manrope,sans-serif">3</text>
+                        <circle cx="160" cy="160" r="8" fill="#f43f5e"/><text x="160" y="164" text-anchor="middle" font-size="8" fill="#fff" font-weight="700" font-family="Manrope,sans-serif">4</text>
+                        <circle cx="60" cy="200" r="8" fill="#f43f5e"/><text x="60" y="204" text-anchor="middle" font-size="8" fill="#fff" font-weight="700" font-family="Manrope,sans-serif">5</text>
+                        <text x="105" y="225" text-anchor="middle" font-size="10" fill="#f43f5e" font-weight="600" font-family="Manrope,sans-serif">87 km · 2h 30m</text>
+                        <!-- After - efficient path -->
+                        <rect x="230" y="30" width="170" height="200" rx="12" fill="#fffbeb" stroke="#fde68a"/>
+                        <path d="M250 60 L270 90 L280 130 L310 170 L380 200" stroke="#f59e0b" stroke-width="2.5" fill="none"/>
+                        <circle cx="250" cy="60" r="8" fill="#f59e0b"/><text x="250" y="64" text-anchor="middle" font-size="8" fill="#fff" font-weight="700" font-family="Manrope,sans-serif">1</text>
+                        <circle cx="270" cy="90" r="8" fill="#f59e0b"/><text x="270" y="94" text-anchor="middle" font-size="8" fill="#fff" font-weight="700" font-family="Manrope,sans-serif">2</text>
+                        <circle cx="280" cy="130" r="8" fill="#f59e0b"/><text x="280" y="134" text-anchor="middle" font-size="8" fill="#fff" font-weight="700" font-family="Manrope,sans-serif">3</text>
+                        <circle cx="310" cy="170" r="8" fill="#f59e0b"/><text x="310" y="174" text-anchor="middle" font-size="8" fill="#fff" font-weight="700" font-family="Manrope,sans-serif">4</text>
+                        <circle cx="380" cy="200" r="8" fill="#f59e0b"/><text x="380" y="204" text-anchor="middle" font-size="8" fill="#fff" font-weight="700" font-family="Manrope,sans-serif">5</text>
+                        <text x="315" y="225" text-anchor="middle" font-size="10" fill="#10b981" font-weight="600" font-family="Manrope,sans-serif">34 km · 55m ✓ 61% shorter</text>
+                    </svg>
                 </div>
             </div>
         </div>
-        <div class="story-block reversed">
-            <div class="story-text">
-                <h3>Territory Management</h3>
-                <p>Visualize your customers on a map and draw territories that make sense. Assign reps to geographic
-                    zones to ensure total coverage without overlap.</p>
-                <ul class="story-list">
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-                        </svg> Drag-and-drop assignment</li>
-                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-                        </svg> Heatmaps of customer density</li>
+    </div>
+</section>
+
+<!-- Section 2: Manager visibility -->
+<section class="fp-section">
+    <div class="fp-container">
+        <div class="fp-split reversed">
+            <div>
+                <p class="fp-section-label">Manager Dashboard</p>
+                <h2 class="fp-section-title">See your team in the field</h2>
+                <p class="fp-section-desc">Managers get a real-time view of every rep's route progress. See who's ahead, who's behind, and which stops are completed — without a single phone call.</p>
+                <ul class="fp-checklist">
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Real-time route progress tracking</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Completed vs. remaining stops at a glance</li>
+                    <li><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Historical route analytics</li>
                 </ul>
             </div>
-            <div class="story-visual"
-                style="display: flex; align-items: center; justify-content: center; background: #0f172a;">
-                <svg width="100%" height="100%" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
-                    <!-- Subtle Background Grid -->
-                    <defs>
-                        <pattern id="microGrid" width="20" height="20" patternUnits="userSpaceOnUse">
-                            <circle cx="1" cy="1" r="0.5" fill="rgba(255,255,255,0.05)" />
-                        </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill="url(#microGrid)" />
-
-                    <!-- Territory Heatmap/Clusters (Random dots) -->
-                    <g opacity="0.4">
-                        <circle cx="60" cy="80" r="2" fill="white" opacity="0.6" />
-                        <circle cx="65" cy="85" r="2" fill="white" opacity="0.6" />
-                        <circle cx="75" cy="70" r="2" fill="white" opacity="0.6" />
-                        <circle cx="120" cy="150" r="2" fill="white" opacity="0.6" />
-                        <circle cx="125" cy="155" r="2" fill="white" opacity="0.6" />
-                        <circle cx="280" cy="60" r="2" fill="white" opacity="0.6" />
-                        <circle cx="290" cy="70" r="2" fill="white" opacity="0.6" />
-                        <circle cx="310" cy="180" r="2" fill="white" opacity="0.6" />
-                        <circle cx="305" cy="190" r="2" fill="white" opacity="0.6" />
-                        <circle cx="200" cy="220" r="2" fill="white" opacity="0.6" />
-                    </g>
-
-                    <!-- Zone 1: West Zone (Inactive) -->
-                    <path d="M 30 50 L 150 40 L 180 140 L 40 160 Z" fill="rgba(47, 95, 208, 0.1)"
-                        stroke="rgba(47, 95, 208, 0.3)" stroke-width="1.5" />
-                    <text x="50" y="70" fill="rgba(255,255,255,0.3)" font-size="9" font-weight="700"
-                        text-transform="uppercase">NW Sector</text>
-
-                    <!-- Zone 2: Central Core (Active/Selected) -->
-                    <path d="M 180 140 L 320 120 L 340 240 L 160 260 Z" fill="rgba(245, 158, 11, 0.15)" stroke="#f59e0b"
-                        stroke-width="2" stroke-dasharray="4 2" />
-
-                    <!-- Selection Nodes -->
-                    <circle cx="180" cy="140" r="3" fill="#f59e0b" stroke="white" stroke-width="1" />
-                    <circle cx="320" cy="120" r="3" fill="#f59e0b" stroke="white" stroke-width="1" />
-                    <circle cx="340" cy="240" r="3" fill="#f59e0b" stroke="white" stroke-width="1" />
-                    <circle cx="160" cy="260" r="3" fill="#f59e0b" stroke="white" stroke-width="1" />
-
-                    <text x="210" y="160" fill="#f59e0b" font-size="11" font-weight="800">WEST RADIUS</text>
-                    <text x="210" y="175" fill="rgba(255,255,255,0.5)" font-size="9">142 Accounts</text>
-
-                    <!-- Selection Lasso (Drawing Effect) -->
-                    <path d="M 350 50 C 370 70, 380 120, 340 150" fill="none" stroke="#60a5fa" stroke-width="2"
-                        stroke-dasharray="3 3">
-                        <animate attributeName="stroke-dashoffset" from="10" to="0" dur="1s" repeatCount="indefinite" />
-                    </path>
-                    <circle cx="340" cy="150" r="3" fill="#60a5fa" />
-                </svg>
-            </div>
-        </div>
-    </section>
-    <section class="power-grid-section">
-        <div class="container">
-            <div class="power-header">
-                <h2>For Fleet Managers</h2>
-            </div>
-            <div class="power-grid">
-                <div class="power-card">
-                    <h4>Live Tracking</h4>
-                    <p>See exactly where your team is in real-time. Know when they arrive and leave.</p>
-                </div>
-                <div class="power-card">
-                    <h4>Mileage Exports</h4>
-                    <p>One-click CSV exports for mileage reimbursement or tax purposes.</p>
-                </div>
-                <div class="power-card">
-                    <h4>Smart Scheduling</h4>
-                    <p>Drag a dropped pin to a rep's calendar to auto-schedule the visit.</p>
+            <div class="fp-visual">
+                <div class="fp-visual-inner" style="padding:20px;">
+                    <div style="font-size:13px;font-weight:700;color:#0b1220;margin-bottom:14px;">Team Routes — Today</div>
+                    <div style="display:flex;flex-direction:column;gap:12px;">
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <span class="ui-avatar" style="background:#3b82f6;width:32px;height:32px;font-size:10px;">JT</span>
+                            <div style="flex:1;">
+                                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="font-weight:600;">James T.</span><span style="color:#10b981;font-weight:600;">5/6 stops</span></div>
+                                <div class="ui-progress" style="height:6px;"><div class="ui-progress-fill" style="width:83%;background:#10b981;"></div></div>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <span class="ui-avatar" style="background:#10b981;width:32px;height:32px;font-size:10px;">SR</span>
+                            <div style="flex:1;">
+                                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="font-weight:600;">Sarah R.</span><span style="color:#f59e0b;font-weight:600;">2/6 stops</span></div>
+                                <div class="ui-progress" style="height:6px;"><div class="ui-progress-fill" style="width:33%;background:#f59e0b;"></div></div>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:12px;">
+                            <span class="ui-avatar" style="background:#f59e0b;width:32px;height:32px;font-size:10px;">MK</span>
+                            <div style="flex:1;">
+                                <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px;"><span style="font-weight:600;">Mike K.</span><span style="color:#10b981;font-weight:600;">4/5 stops</span></div>
+                                <div class="ui-progress" style="height:6px;"><div class="ui-progress-fill" style="width:80%;background:#10b981;"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="margin-top:14px;padding:12px;background:#f9fafb;border-radius:8px;display:flex;justify-content:space-between;">
+                        <div style="text-align:center;"><div style="font-size:18px;font-weight:800;color:#0b1220;">11/17</div><div style="font-size:10px;color:#6b7280;">Stops Done</div></div>
+                        <div style="text-align:center;"><div style="font-size:18px;font-weight:800;color:#10b981;">65%</div><div style="font-size:10px;color:#6b7280;">Completion</div></div>
+                        <div style="text-align:center;"><div style="font-size:18px;font-weight:800;color:#f59e0b;">2h 10m</div><div style="font-size:10px;color:#6b7280;">Remaining</div></div>
+                    </div>
                 </div>
             </div>
         </div>
-    </section>
-    <section class="big-cta">
-        <div class="container">
-            <h2>Optimize your day.</h2>
-            <a href="../../crm/" class="btn-primary" style="padding: 16px 32px; font-size: 18px;">Start Free Trial</a>
+    </div>
+</section>
+
+<!-- Feature grid -->
+<section class="fp-grid-section" style="background:#f9fafb;">
+    <div class="fp-container">
+        <div class="fp-grid-header"><p class="fp-section-label">Capabilities</p><h2 class="fp-section-title">Route planning for field teams</h2></div>
+        <div class="fp-grid">
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><h4>Drag & Drop Stops</h4><p>Build routes by adding and reordering stops with a simple drag interface.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/></svg></div><h4>Smart Optimization</h4><p>Auto-suggest the most efficient stop sequence to reduce total drive time.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h4>Time Estimates</h4><p>See estimated travel and visit time for each stop along the route.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><h4>Team Assignment</h4><p>Assign routes to specific reps or let them build their own.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div><h4>Route History</h4><p>Review completed routes and compare performance over time.</p></div>
+            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div><h4>Weekly Planning</h4><p>Plan an entire week of routes ahead of time from the planning view.</p></div>
         </div>
-    </section>
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-brand">
-                    <div class="footer-logo-wrapper">
-                        <img src="../../assets/icons/whiteblue.png" alt="SafiTrack" class="footer-logo">
-                        <span class="footer-logo-text">SafiTrack</span>
-                    </div>
-                    <p class="footer-tagline">Modern CRM platform built for<br>high-performing sales teams</p>
-                </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Product</h4>
-                        <ul>
-                            <li><a href="/pages/features/mainfeatures.html">Features</a></li>
-                            <li><a href="/pages/pricing.html">Pricing</a></li>
-                            <li><a href="#">Integrations</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Company</h4>
-                        <ul>
-                            <li><a href="../blog.html">Blog</a></li>
-                            <li><a href="../careers.html">Careers</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Resources</h4>
-                        <ul>
-                            <li><a href="../documentation.html">Documentation</a></li>
-                            <li><a href="../helpcenter.html">Help Center</a></li>
-                            <li><a href="#">API Reference</a></li>
-                            <li><a href="../status.html">Status</a></li>
-                        </ul>
-                    </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Legal</h4>
-                        <ul>
-                            <li><a href="pages/legal/privacy.html">Privacy Policy</a></li>
-                            <li><a href="pages/legal/terms.html">Terms of Service</a></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-                <div class="footer-social">
-                    <a href="#" aria-label="Twitter">Twitter</a>
-                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
-                    <a href="#" aria-label="GitHub">GitHub</a>
-                </div>
-            </div>
-        </div>
-    </footer>
+    </div>
+</section>
+
+<section class="fp-cta">
+    <div class="fp-container">
+        <h2>Put your field team on the best path</h2>
+        <p>Smarter routes mean more visits, less windshield time, and higher revenue.</p>
+        <a href="../pricing.html#pricing-grid" class="fp-cta-btn">Start free trial <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></a>
+    </div>
+</section>
+
+<footer class="footer"><div class="container"><div class="footer-content"><div class="footer-brand"><div class="footer-logo-wrapper"><a href="../../index.html"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a></div></div><div class="footer-links"><div class="footer-column"><h4 class="footer-heading">Product</h4><ul><li><a href="mainfeatures.html">Features</a></li><li><a href="../pricing.html">Pricing</a></li><li><a href="../integrations.html">Integrations</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Company</h4><ul><li><a href="../blog.html">Blog</a></li><li><a href="../careers.html">Careers</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Resources</h4><ul><li><a href="../documentation.html">Documentation</a></li><li><a href="../helpcenter.html">Help Center</a></li><li><a href="../apireference.html">API Reference</a></li><li><a href="../status.html">Status</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Legal</h4><ul><li><a href="../legal/privacy.html">Privacy Policy</a></li><li><a href="../legal/terms.html">Terms of Service</a></li></ul></div></div></div><div class="footer-bottom"><p>&copy; 2026 SafiTrack. All rights reserved.</p><div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div></div></div></footer>
+<script src="feature-page.js"></script>
+<script src="../../landing.js"></script>
 </body>
-
 </html>
