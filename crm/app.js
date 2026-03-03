@@ -723,6 +723,9 @@ function initAuth() {
         initApp();
       } else {
         authScreen.style.display = 'flex';
+        if (new URLSearchParams(window.location.search).get('signup') === '1') {
+          setTimeout(() => switchAuthPane('signup'), 0);
+        }
       }
     };
 
@@ -759,6 +762,9 @@ function initAuth() {
       currentUserProfile = null;
       mainApp.style.display = 'none';
       authScreen.style.display = 'flex';
+      if (new URLSearchParams(window.location.search).get('signup') === '1') {
+        setTimeout(() => switchAuthPane('signup'), 0);
+      }
     }
   });
 }
