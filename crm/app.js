@@ -705,7 +705,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initTheme() {
-  const savedTheme = localStorage.getItem('safitrack_theme') || localStorage.getItem('theme') || 'dark';
+  const savedTheme = localStorage.getItem('safitrack_theme') || localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
 }
 
