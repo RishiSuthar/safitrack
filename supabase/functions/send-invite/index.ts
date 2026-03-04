@@ -110,7 +110,7 @@ Deno.serve(async (req: Request) => {
       .eq('status', 'pending');
 
     const totalSlots = (memberCount ?? 0) + (pendingCount ?? 0);
-    const maxMembers = org?.max_members ?? 10;
+    const maxMembers = org?.max_members ?? 2;
 
     if (totalSlots >= maxMembers) {
       return json(

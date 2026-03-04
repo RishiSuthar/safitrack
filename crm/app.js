@@ -2595,7 +2595,7 @@ async function renderSettingsView() {
       const usedSlotsEl = document.querySelector('.sv-usage-labels span:last-child');
       const usageBarEl  = document.querySelector('.sv-usage-fill');
       const total    = (users.length + invites.length);
-      const maxSlots = currentOrganization.max_members || 10;
+      const maxSlots = currentOrganization.max_members || 2;
       if (usedSlotsEl) usedSlotsEl.textContent = `${total} / ${maxSlots}`;
       if (usageBarEl)  usageBarEl.style.width = `${Math.min(100, Math.round((total / maxSlots) * 100))}%`;
     }
