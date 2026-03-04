@@ -6932,21 +6932,23 @@ async function fetchDueNotificationItems() {
   const horizonIso = horizon.toISOString();
   const horizonDate = horizonIso.split('T')[0];
 
-  const tasksQuery = supabaseClient
+  let tasksQuery = supabaseClient
     .from('tasks')
     .select('id, title, due_date, status, assigned_to, created_by')
     .not('due_date', 'is', null)
     .neq('status', 'completed')
     .lte('due_date', horizonIso)
     .or(`assigned_to.eq.${currentUser.id},created_by.eq.${currentUser.id}`);
+  if (currentOrganization?.id) tasksQuery = tasksQuery.eq('organization_id', currentOrganization.id);
 
-  const remindersQuery = supabaseClient
+  let remindersQuery = supabaseClient
     .from('reminders')
     .select('id, title, reminder_date, is_completed, assigned_to, created_by')
     .not('reminder_date', 'is', null)
     .neq('is_completed', true)
     .lte('reminder_date', horizonIso)
     .or(`assigned_to.eq.${currentUser.id},created_by.eq.${currentUser.id}`);
+  if (currentOrganization?.id) remindersQuery = remindersQuery.eq('organization_id', currentOrganization.id);
 
   let opportunitiesQuery = supabaseClient
     .from('opportunities')
@@ -6959,6 +6961,7 @@ async function fetchDueNotificationItems() {
   if (!isManager) {
     opportunitiesQuery = opportunitiesQuery.eq('user_id', currentUser.id);
   }
+  if (currentOrganization?.id) opportunitiesQuery = opportunitiesQuery.eq('organization_id', currentOrganization.id);
 
   const [tasksRes, remindersRes, opportunitiesRes] = await Promise.all([
     tasksQuery,
@@ -7378,7 +7381,10 @@ async function startSafiNudgeRealtime() {
     // Error during realtime setup
   }
 
-  safiNudgeChannel = supabaseClient.channel(SAFI_NUDGE_CHANNEL, {
+  const nudgeChannelName = currentOrganization?.id
+    ? `${SAFI_NUDGE_CHANNEL}:${currentOrganization.id}`
+    : SAFI_NUDGE_CHANNEL;
+  safiNudgeChannel = supabaseClient.channel(nudgeChannelName, {
     config: {
       broadcast: { self: false }
     }
@@ -7568,11 +7574,13 @@ async function populateSafiNudgeRecipients(selectEl, preselectedUserId = null) {
     }
   };
 
-  // Primary source: direct profiles (works when policy allows)
-  const { data: users, error } = await supabaseClient
+  // Primary source: direct profiles scoped to current org
+  let profilesQ = supabaseClient
     .from('profiles')
     .select('id, first_name, last_name, email')
     .order('first_name', { ascending: true });
+  if (currentOrganization?.id) profilesQ = profilesQ.eq('organization_id', currentOrganization.id);
+  const { data: users, error } = await profilesQ;
 
   if (!error && Array.isArray(users)) {
     users.forEach(addTeammate);
