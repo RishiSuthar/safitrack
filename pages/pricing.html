@@ -5,16 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pricing — SafiTrack CRM</title>
-    <meta name="description" content="Simple, transparent pricing for SafiTrack CRM. Free, Starter, Pro, and Enterprise plans for sales teams of every size.">
+    <meta name="description"
+        content="Simple, transparent pricing for SafiTrack CRM. Free, Core, Pro, and Enterprise plans for sales teams of every size.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://safitrack.netlify.app/pages/pricing.html">
     <meta property="og:title" content="Pricing — SafiTrack CRM">
-    <meta property="og:description" content="Simple, transparent pricing for SafiTrack CRM. Free, Starter, Pro, and Enterprise plans for sales teams of every size.">
+    <meta property="og:description"
+        content="Simple, transparent pricing for SafiTrack CRM. Free, Core, Pro, and Enterprise plans for sales teams of every size.">
     <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://safitrack.netlify.app/pages/pricing.html">
     <meta property="twitter:title" content="Pricing — SafiTrack CRM">
-    <meta property="twitter:description" content="Simple, transparent pricing for SafiTrack CRM. Free, Starter, Pro, and Enterprise plans for sales teams of every size.">
+    <meta property="twitter:description"
+        content="Simple, transparent pricing for SafiTrack CRM. Free, Core, Pro, and Enterprise plans for sales teams of every size.">
     <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
     <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,20 +31,49 @@
     <style>
         /* Pricing Specific overrides if needed, otherwise using landing.css */
         .pricing-page-hero {
-            padding: 120px 0 40px; /* tightened to pull plans closer to divider */
+            padding: 120px 0 40px;
+            /* tightened to pull plans closer to divider */
             text-align: center;
             background: none;
         }
+
         /* Plan comparison styles */
-        .plan-comparison .section-title { font-size: 28px; }
-        .comparison-wrapper { margin-top: 8px; }
-        .comparison-table th { font-weight: 700; padding: 12px 16px; color: var(--text-primary); }
-        .comparison-table td { padding: 14px 16px; color: var(--text-primary); }
-        .comparison-table tbody tr { transition: background .15s ease; }
-        .comparison-table tbody tr:nth-child(odd) { background: rgba(0,0,0,0.02); }
-        .comparison-table button { padding: 8px 14px; border-radius: 8px; }
+        .plan-comparison .section-title {
+            font-size: 28px;
+        }
+
+        .comparison-wrapper {
+            margin-top: 8px;
+        }
+
+        .comparison-table th {
+            font-weight: 700;
+            padding: 12px 16px;
+            color: var(--text-primary);
+        }
+
+        .comparison-table td {
+            padding: 14px 16px;
+            color: var(--text-primary);
+        }
+
+        .comparison-table tbody tr {
+            transition: background .15s ease;
+        }
+
+        .comparison-table tbody tr:nth-child(odd) {
+            background: rgba(0, 0, 0, 0.02);
+        }
+
+        .comparison-table button {
+            padding: 8px 14px;
+            border-radius: 8px;
+        }
+
         @media (max-width: 720px) {
-            .comparison-table { min-width: 640px; }
+            .comparison-table {
+                min-width: 640px;
+            }
         }
     </style>
 </head>
@@ -155,10 +187,10 @@
                 </div>
                 <div class="price-card">
                     <div class="price-header">
-                        <h3 class="price-name">Starter</h3>
+                        <h3 class="price-name">Core</h3>
                         <div class="price-amount">
                             <span class="price-currency">$</span>
-                            <span class="price-value">20</span>
+                            <span class="price-value">19</span>
                         </div>
                         <div class="price-period">Per user/month</div>
                         <p class="price-description">Perfect for small teams getting started</p>
@@ -169,7 +201,7 @@
                                 stroke-linecap="round" stroke-linejoin="round">
                                 <polyline points="20 6 9 17 4 12" />
                             </svg>
-                            <span>Up to 5 users</span>
+                            <span>Up to 20 users</span>
                         </li>
                         <li>
                             <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
@@ -200,7 +232,8 @@
                             <span>Email support</span>
                         </li>
                     </ul>
-                    <button class="btn-secondary btn-block get-started-btn" data-plan="Starter">Continue with Starter</button>
+                    <button class="btn-secondary btn-block get-started-btn" data-plan="Core">Continue with
+                        Core</button>
                 </div>
 
                 <div class="price-card price-card-featured">
@@ -251,7 +284,8 @@
                             <span>Priority support</span>
                         </li>
                     </ul>
-                    <button class="btn-primary btn-block get-started-btn" data-plan="Professional">Continue with Pro</button>
+                    <button class="btn-primary btn-block get-started-btn" data-plan="Professional">Continue with
+                        Pro</button>
                 </div>
 
                 <div class="price-card">
@@ -285,30 +319,38 @@
                             <span>Priority support</span>
                         </li>
                     </ul>
-                    <button class="btn-secondary btn-block get-started-btn" data-plan="Enterprise">Let&apos;s Talk</button>
+                    <button class="btn-secondary btn-block get-started-btn" data-plan="Enterprise">Let&apos;s
+                        Talk</button>
                 </div>
             </div>
         </div>
     </section>
-    
+
     <!-- Plan Comparison Section (Polished) -->
     <section class="plan-comparison" style="padding: 72px 0;">
         <div class="container">
             <h2 class="section-title" style="text-align: center; margin-bottom: 8px;">Compare plans</h2>
-            <p style="text-align: center; max-width: 820px; margin: 0 auto 28px; color: var(--text-secondary);">A clean, clear comparison to help you pick the right plan. Data below is mock — we can swap real values later.</p>
+            <p style="text-align: center; max-width: 820px; margin: 0 auto 28px; color: var(--text-secondary);">A clean,
+                clear comparison to help you pick the right plan. Data below is mock — we can swap real values later.
+            </p>
 
-            <div class="comparison-panel" style="background: var(--bg-primary); border-radius:12px; padding:18px; box-shadow: 0 6px 18px rgba(8,10,25,0.06);">
+            <div class="comparison-panel"
+                style="background: var(--bg-primary); border-radius:12px; padding:18px; box-shadow: 0 6px 18px rgba(8,10,25,0.06);">
                 <!-- Header Row -->
-                <div class="compare-row header" style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:12px 8px;">
+                <div class="compare-row header"
+                    style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:12px 8px;">
                     <div class="cell label" style="font-weight:700;">Features</div>
                     <div class="cell" style="text-align:center; font-weight:700;">Free</div>
-                    <div class="cell" style="text-align:center; font-weight:700;">Starter</div>
-                    <div class="cell" style="text-align:center; font-weight:700;">Pro <span class="badge-featured" style="background:linear-gradient(90deg,#2f5fd0,#2bb7ff); color:#fff; padding:4px 8px; border-radius:999px; font-size:12px; margin-left:8px;">Most Popular</span></div>
+                    <div class="cell" style="text-align:center; font-weight:700;">Core</div>
+                    <div class="cell" style="text-align:center; font-weight:700;">Pro <span class="badge-featured"
+                            style="background:linear-gradient(90deg,#2f5fd0,#2bb7ff); color:#fff; padding:4px 8px; border-radius:999px; font-size:12px; margin-left:8px;">Most
+                            Popular</span></div>
                     <div class="cell" style="text-align:center; font-weight:700;">Enterprise</div>
                 </div>
 
                 <!-- Rows -->
-                <div class="compare-row" style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
+                <div class="compare-row"
+                    style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
                     <div class="cell label">Users</div>
                     <div class="cell" style="text-align:center;">Up to 2</div>
                     <div class="cell" style="text-align:center;">Up to 5</div>
@@ -316,7 +358,8 @@
                     <div class="cell" style="text-align:center;">Custom</div>
                 </div>
 
-                <div class="compare-row" style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
+                <div class="compare-row"
+                    style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
                     <div class="cell label">Contact management</div>
                     <div class="cell" style="text-align:center;">✓</div>
                     <div class="cell" style="text-align:center;">✓</div>
@@ -324,7 +367,8 @@
                     <div class="cell" style="text-align:center;">✓</div>
                 </div>
 
-                <div class="compare-row" style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
+                <div class="compare-row"
+                    style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
                     <div class="cell label">Pipeline tracking</div>
                     <div class="cell" style="text-align:center;">Basic</div>
                     <div class="cell" style="text-align:center;">Standard</div>
@@ -332,7 +376,8 @@
                     <div class="cell" style="text-align:center;">Advanced</div>
                 </div>
 
-                <div class="compare-row" style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
+                <div class="compare-row"
+                    style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
                     <div class="cell label">Route planning</div>
                     <div class="cell" style="text-align:center;">—</div>
                     <div class="cell" style="text-align:center;">Basic</div>
@@ -340,7 +385,8 @@
                     <div class="cell" style="text-align:center;">Full</div>
                 </div>
 
-                <div class="compare-row" style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
+                <div class="compare-row"
+                    style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
                     <div class="cell label">Analytics</div>
                     <div class="cell" style="text-align:center;">Basic</div>
                     <div class="cell" style="text-align:center;">Standard</div>
@@ -348,7 +394,8 @@
                     <div class="cell" style="text-align:center;">Advanced</div>
                 </div>
 
-                <div class="compare-row" style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
+                <div class="compare-row"
+                    style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
                     <div class="cell label">Support</div>
                     <div class="cell" style="text-align:center;">Email</div>
                     <div class="cell" style="text-align:center;">Email</div>
@@ -357,12 +404,17 @@
                 </div>
 
                 <!-- CTA Row -->
-                <div class="compare-row cta" style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:18px 8px; border-top:1px solid var(--border-color);">
+                <div class="compare-row cta"
+                    style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:18px 8px; border-top:1px solid var(--border-color);">
                     <div class="cell label"></div>
-                    <div class="cell" style="text-align:center;"><a href="/crm/?signup=1" class="btn-secondary">Start for free</a></div>
-                    <div class="cell" style="text-align:center;"><button class="btn-secondary get-started-btn" data-plan="Starter">Start</button></div>
-                    <div class="cell" style="text-align:center;"><button class="btn-primary get-started-btn" data-plan="Pro">Choose Pro</button></div>
-                    <div class="cell" style="text-align:center;"><button class="btn-secondary get-started-btn" data-plan="Enterprise">Contact Sales</button></div>
+                    <div class="cell" style="text-align:center;"><a href="/crm/?signup=1" class="btn-secondary">Start
+                            for free</a></div>
+                    <div class="cell" style="text-align:center;"><button class="btn-secondary get-started-btn"
+                            data-plan="Core">Choose Core</button></div>
+                    <div class="cell" style="text-align:center;"><button class="btn-primary get-started-btn"
+                            data-plan="Pro">Choose Pro</button></div>
+                    <div class="cell" style="text-align:center;"><button class="btn-secondary get-started-btn"
+                            data-plan="Enterprise">Contact Sales</button></div>
                 </div>
             </div>
         </div>
@@ -567,7 +619,8 @@
             <div class="footer-content">
                 <div class="footer-brand">
                     <div class="footer-logo-wrapper">
-                        <a href="../index.html"><img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a>
+                        <a href="../index.html"><img src="../assets/icons/transparentMain.png" alt="SafiTrack"
+                                class="footer-logo"></a>
                     </div>
                 </div>
                 <div class="footer-links">

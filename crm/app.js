@@ -1969,6 +1969,16 @@ async function renderSettingsView() {
   const currentTheme = localStorage.getItem('safitrack_theme') || localStorage.getItem('theme') || 'dark';
   function escH(s) { return (s || '').toString().replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
 
+  const maxSeats = currentOrganization?.max_members ?? 2;
+  const getPlan = (seats) => seats <= 2 ? 'Free' : seats <= 20 ? 'Core' : 'Pro';
+  const currentPlan = getPlan(maxSeats);
+  const planPrice = { Free: '0', Core: '19', Pro: '79' };
+  const planDesc = {
+    Free: 'Basic access for small teams. Upgrade to unlock advanced features, higher limits, and priority support.',
+    Core: 'Core plan — extended team access with higher limits and priority support.',
+    Pro: 'Pro plan — unlimited members, advanced features, and dedicated support.',
+  };
+
   const firstNameEsc = escH((currentUserProfile && currentUserProfile.first_name) ? currentUserProfile.first_name : '');
   const lastNameEsc = escH((currentUserProfile && currentUserProfile.last_name) ? currentUserProfile.last_name : '');
   const userEmailEsc = escH((currentUser && currentUser.email) ? currentUser.email : '');
@@ -2049,7 +2059,12 @@ async function renderSettingsView() {
               </div>
               <div class="sv-field-control">
                 <div class="sv-avatar-wrap">
-                  <div class="sv-avatar-circle">${initials}</div>
+                  <div class="sv-avatar-circle">
+                    ${initials}
+                    <div class="sv-avatar-overlay">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    </div>
+                  </div>
                   <div class="sv-avatar-info">
                     <span class="sv-avatar-name">${fullName}</span>
                     <button class="sv-ghost-btn">
@@ -2101,18 +2116,19 @@ async function renderSettingsView() {
                 <div class="sv-field-label">Email address</div>
                 <div class="sv-field-hint">Used for sign-in and system notifications.</div>
               </div>
-              <div class="sv-field-control sv-field-control--split">
-                <div class="sv-email-row">
-                  <span class="sv-email-val">${userEmailEsc}</span>
+              <div class="sv-field-control">
+                <div class="sv-locked-field">
+                  <svg class="sv-locked-field-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <span class="sv-locked-field-val">${userEmailEsc}</span>
                   <span class="sv-verified-chip">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px;"><polyline points="20 6 9 17 4 12"/></svg>
                     Verified
                   </span>
+                  <button class="sv-locked-field-btn">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                    Change
+                  </button>
                 </div>
-                <button class="sv-ghost-btn">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                  Change
-                </button>
               </div>
             </div>
 
@@ -2134,7 +2150,11 @@ async function renderSettingsView() {
                 <div class="sv-field-label">Two-factor authentication</div>
                 <div class="sv-field-hint">Require a verification code in addition to your password.</div>
               </div>
-              <div class="sv-field-control">
+              <div class="sv-field-control" style="gap:12px;">
+                <span class="sv-2fa-status">
+                  <span class="sv-status-dot sv-status-dot--active"></span>
+                  Active
+                </span>
                 <label class="sv-toggle">
                   <input type="checkbox" checked>
                   <span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span>
@@ -2326,11 +2346,17 @@ async function renderSettingsView() {
             </div>
             <div class="sv-stat-tile">
               <div class="sv-stat-tile-label">Current plan</div>
-              <div class="sv-stat-tile-value"><span class="sv-plan-chip">Free</span></div>
+              <div class="sv-stat-tile-value" style="gap:8px;">
+                <span class="sv-plan-chip" data-plan="${currentPlan.toLowerCase()}">${currentPlan}</span>
+                ${currentPlan === 'Free' ? `<a href="https://safitrack.netlify.app/pages/pricing" target="_blank" class="sv-stat-upgrade-link">Upgrade <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;"><path d="M13 7l5 5-5 5M6 12h12"/></svg></a>` : ''}
+              </div>
             </div>
             <div class="sv-stat-tile">
-              <div class="sv-stat-tile-label">Seats</div>
-              <div class="sv-stat-tile-value sv-stat-tile-value--mono">${currentOrganization?.max_members ?? 2}</div>
+              <div class="sv-stat-tile-label">Seats used</div>
+              <div class="sv-stat-tile-value--mono" id="sv-seat-count">— / ${currentOrganization?.max_members ?? 2}</div>
+              <div class="sv-seat-bar-track">
+                <div class="sv-seat-bar-fill" id="sv-seat-bar" style="width:0%"></div>
+              </div>
             </div>
           </div>
         </section>
@@ -2377,17 +2403,55 @@ async function renderSettingsView() {
           </div>
 
           <div class="sv-billing-block">
-            <div class="sv-billing-top">
-              <div class="sv-billing-plan-info">
-                <span class="sv-plan-chip">Free</span>
-                <div class="sv-billing-plan-name">Free Plan</div>
-                <div class="sv-billing-plan-desc">Basic access for small teams. Upgrade to unlock advanced features, higher limits, and priority support.</div>
+
+            <!-- Current plan header -->
+            <div class="sv-billing-plan-header">
+              <div class="sv-billing-plan-left">
+                <span class="sv-plan-chip" data-plan="${currentPlan.toLowerCase()}">${currentPlan}</span>
+                <div class="sv-billing-plan-name">${currentPlan} Plan</div>
+                <div class="sv-billing-plan-desc">${planDesc[currentPlan]}</div>
               </div>
-              <a href="https://safitrack.netlify.app/pages/pricing" target="_blank" class="sv-primary-btn" style="text-decoration:none;white-space:nowrap;flex-shrink:0;">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;margin-right:6px;"><path d="M13 7l5 5-5 5M6 12h12"/></svg>
-                Upgrade plan
-              </a>
+              <div class="sv-billing-price-block">
+                <div class="sv-billing-price-amount">
+                  <span class="sv-billing-price-currency">$</span>
+                  <span class="sv-billing-price-number">${planPrice[currentPlan]}</span>
+                </div>
+                <div class="sv-billing-price-meta">per user / month</div>
+                <a href="https://safitrack.netlify.app/pages/pricing" target="_blank" class="sv-primary-btn" style="text-decoration:none;margin-top:12px;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;margin-right:6px;"><path d="M13 7l5 5-5 5M6 12h12"/></svg>
+                  ${currentPlan === 'Pro' ? 'Manage plan' : 'Upgrade plan'}
+                </a>
+              </div>
             </div>
+
+            <!-- Plan comparison tiers -->
+            <div class="sv-billing-tiers">
+              <div class="sv-billing-tier ${currentPlan === 'Free' ? 'is-current' : ''}">
+                <div class="sv-billing-tier-top">
+                  <span class="sv-billing-tier-name">Free</span>
+                  ${currentPlan === 'Free' ? '<span class="sv-billing-tier-badge">Current</span>' : ''}
+                </div>
+                <div class="sv-billing-tier-price"><span class="sv-billing-tier-amount">$0</span><span class="sv-billing-tier-cadence">/user/mo</span></div>
+                <div class="sv-billing-tier-seats">Up to 2 seats</div>
+              </div>
+              <div class="sv-billing-tier ${currentPlan === 'Core' ? 'is-current' : ''}">
+                <div class="sv-billing-tier-top">
+                  <span class="sv-billing-tier-name">Core</span>
+                  ${currentPlan === 'Core' ? '<span class="sv-billing-tier-badge">Current</span>' : ''}
+                </div>
+                <div class="sv-billing-tier-price"><span class="sv-billing-tier-amount">$19</span><span class="sv-billing-tier-cadence">/user/mo</span></div>
+                <div class="sv-billing-tier-seats">Up to 20 seats</div>
+              </div>
+              <div class="sv-billing-tier ${currentPlan === 'Pro' ? 'is-current' : ''}">
+                <div class="sv-billing-tier-top">
+                  <span class="sv-billing-tier-name">Pro</span>
+                  ${currentPlan === 'Pro' ? '<span class="sv-billing-tier-badge">Current</span>' : ''}
+                </div>
+                <div class="sv-billing-tier-price"><span class="sv-billing-tier-amount">$79</span><span class="sv-billing-tier-cadence">/user/mo</span></div>
+                <div class="sv-billing-tier-seats">Unlimited seats</div>
+              </div>
+            </div>
+
             <div class="sv-billing-notice">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
               Plan changes cannot be made from the CRM. The button above links to our pricing page.
@@ -2429,25 +2493,35 @@ async function renderSettingsView() {
             </div>
           </div>
 
-          <div class="sv-field-group sv-field-group--danger">
-            <div class="sv-field-row">
+          <div class="sv-danger-callout">
+            <div class="sv-danger-callout-header">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              <span>Danger zone — these actions are irreversible</span>
+            </div>
+
+            <div class="sv-danger-field-row">
               <div class="sv-field-meta">
                 <div class="sv-field-label">Deactivate account</div>
-                <div class="sv-field-hint">Temporarily suspend access. You can reactivate by signing in again.</div>
+                <div class="sv-field-hint">Temporarily suspends your access. You can reactivate by signing in again.</div>
               </div>
               <div class="sv-field-control">
-                <button class="sv-ghost-btn sv-ghost-btn--danger">Deactivate</button>
+                <button class="sv-ghost-btn sv-ghost-btn--danger">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><circle cx="12" cy="12" r="10"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                  Deactivate
+                </button>
               </div>
             </div>
 
-            <div class="sv-field-row">
+            <div class="sv-danger-divider"></div>
+
+            <div class="sv-danger-field-row">
               <div class="sv-field-meta">
                 <div class="sv-field-label">Delete account permanently</div>
-                <div class="sv-field-hint">This action cannot be undone. All your data will be removed from SafiTrack.</div>
+                <div class="sv-field-hint">Removes your account, data, and workspace access from SafiTrack forever.</div>
               </div>
               <div class="sv-field-control">
                 <button id="delete-account-btn" class="sv-danger-btn">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
                   Delete account
                 </button>
               </div>
@@ -2523,7 +2597,7 @@ async function renderSettingsView() {
       .sv-nav-item.active {
         background: color-mix(in srgb, var(--color-primary) 10%, transparent);
         color: var(--color-primary);
-        font-weight: 550;
+        font-weight: 600;
       }
       .sv-nav-icon {
         width: 15px;
@@ -2557,6 +2631,10 @@ async function renderSettingsView() {
         margin-bottom: 32px;
         padding-bottom: 24px;
         border-bottom: 1px solid var(--border-color);
+      }
+      .sv-page-header > div:first-child {
+        padding-left: 14px;
+        border-left: 2.5px solid var(--color-primary);
       }
       .sv-page-title {
         font-size: 1.25rem;
@@ -2757,6 +2835,16 @@ async function renderSettingsView() {
         padding: 3px 8px;
         font-size: 0.7rem;
       }
+      .sv-plan-chip[data-plan="core"] {
+        background: rgba(5,150,105,0.10);
+        color: #059669;
+        border-color: rgba(5,150,105,0.22);
+      }
+      .sv-plan-chip[data-plan="pro"] {
+        background: rgba(124,58,237,0.10);
+        color: #a78bfa;
+        border-color: rgba(167,139,250,0.28);
+      }
 
       /* ── Chips / display elements ── */
       .sv-verified-chip {
@@ -2811,7 +2899,23 @@ async function renderSettingsView() {
         color: #fff;
         flex-shrink: 0;
         letter-spacing: -0.03em;
+        position: relative;
+        cursor: pointer;
+        overflow: hidden;
       }
+      .sv-avatar-overlay {
+        position: absolute;
+        inset: 0;
+        border-radius: 50%;
+        background: rgba(0,0,0,0.45);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.18s;
+      }
+      .sv-avatar-overlay svg { width: 18px; height: 18px; color: #fff; }
+      .sv-avatar-circle:hover .sv-avatar-overlay { opacity: 1; }
       .sv-avatar-info { display: flex; flex-direction: column; gap: 5px; }
       .sv-avatar-name { font-size: 0.96rem; font-weight: 600; color: var(--text-primary); letter-spacing: -0.02em; }
 
@@ -2964,7 +3068,80 @@ async function renderSettingsView() {
       }
       .sv-stat-tile-label { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 8px; }
       .sv-stat-tile-value { display: flex; align-items: center; }
-      .sv-stat-tile-value--mono { font-size: 1rem; font-weight: 700; color: var(--text-primary); font-family: 'Geist Mono', ui-monospace, monospace; letter-spacing: -0.02em; }
+      .sv-stat-tile-value--mono { font-size: 1rem; font-weight: 700; color: var(--text-primary); font-family: 'Geist Mono', ui-monospace, monospace; letter-spacing: -0.02em; margin-bottom: 10px; }
+      .sv-stat-upgrade-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 3px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--color-primary);
+        text-decoration: none;
+        opacity: 0.8;
+        transition: opacity 0.12s;
+      }
+      .sv-stat-upgrade-link:hover { opacity: 1; }
+
+      /* ── Seat progress bar ── */
+      .sv-seat-bar-track {
+        height: 4px;
+        border-radius: 100px;
+        background: var(--border-color);
+        margin-top: 10px;
+        overflow: hidden;
+      }
+      .sv-seat-bar-fill {
+        height: 100%;
+        border-radius: 100px;
+        background: var(--color-primary);
+        transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+      }
+      .sv-seat-bar-fill.is-full { background: #ef4444; }
+
+      /* ── Locked field (Security email) ── */
+      .sv-locked-field {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 14px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--bg-secondary);
+        max-width: 100%;
+      }
+      .sv-locked-field-icon {
+        width: 14px;
+        height: 14px;
+        color: var(--text-muted);
+        flex-shrink: 0;
+      }
+      .sv-locked-field-val {
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-primary);
+        letter-spacing: -0.01em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .sv-locked-field-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        margin-left: 4px;
+        padding: 4px 9px;
+        border-radius: 5px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        color: var(--text-secondary);
+        font-size: 0.78rem;
+        font-weight: 500;
+        font-family: inherit;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: background 0.1s, color 0.1s, border-color 0.1s;
+      }
+      .sv-locked-field-btn:hover { background: var(--bg-tertiary, var(--bg-secondary)); color: var(--text-primary); border-color: color-mix(in srgb, var(--border-color) 60%, var(--text-primary)); }
 
       /* ── Members table ── */
       .sv-members-search-bar {
@@ -2994,7 +3171,6 @@ async function renderSettingsView() {
         width: 30px;
         height: 30px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--color-primary), #818cf8);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -3004,6 +3180,12 @@ async function renderSettingsView() {
         flex-shrink: 0;
         letter-spacing: -0.02em;
       }
+      .sv-member-avatar[data-color="0"] { background: linear-gradient(135deg, #3b82f6, #6366f1); }
+      .sv-member-avatar[data-color="1"] { background: linear-gradient(135deg, #0d9488, #06b6d4); }
+      .sv-member-avatar[data-color="2"] { background: linear-gradient(135deg, #f59e0b, #f97316); }
+      .sv-member-avatar[data-color="3"] { background: linear-gradient(135deg, #ec4899, #f43f5e); }
+      .sv-member-avatar[data-color="4"] { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+      .sv-member-avatar[data-color="5"] { background: linear-gradient(135deg, #10b981, #34d399); }
       .sv-member-info { display: flex; flex-direction: column; gap: 2px; }
       .sv-member-name { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; }
       .sv-member-email { font-size: 0.82rem; color: var(--text-muted); }
@@ -3037,26 +3219,175 @@ async function renderSettingsView() {
       /* ── Billing ── */
       .sv-billing-block {
         border: 1px solid var(--border-color);
-        border-radius: 8px;
+        border-radius: 10px;
         overflow: hidden;
         background: var(--bg-secondary);
       }
-      .sv-billing-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding: 24px; }
-      .sv-billing-plan-info { display: flex; flex-direction: column; gap: 6px; }
-      .sv-billing-plan-name { font-size: 1.02rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
-      .sv-billing-plan-desc { font-size: 0.86rem; color: var(--text-muted); line-height: 1.55; max-width: 300px; }
+      .sv-billing-plan-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        padding: 24px 24px 20px;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .sv-billing-plan-left { display: flex; flex-direction: column; gap: 7px; }
+      .sv-billing-plan-name { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
+      .sv-billing-plan-desc { font-size: 0.84rem; color: var(--text-muted); line-height: 1.55; max-width: 280px; }
+
+      .sv-billing-price-block {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        flex-shrink: 0;
+      }
+      .sv-billing-price-amount {
+        display: flex;
+        align-items: flex-start;
+        gap: 2px;
+        line-height: 1;
+      }
+      .sv-billing-price-currency {
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-top: 4px;
+      }
+      .sv-billing-price-number {
+        font-size: 2.6rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.04em;
+        line-height: 1;
+      }
+      .sv-billing-price-meta {
+        font-size: 0.76rem;
+        color: var(--text-muted);
+        font-weight: 500;
+        margin-top: 4px;
+        text-align: right;
+      }
+
+      /* ── Plan tier comparison row ── */
+      .sv-billing-tiers {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        border-bottom: 1px solid var(--border-color);
+      }
+      .sv-billing-tier {
+        padding: 16px 20px;
+        border-right: 1px solid var(--border-color);
+        transition: background 0.12s;
+      }
+      .sv-billing-tier:last-child { border-right: none; }
+      .sv-billing-tier.is-current {
+        background: color-mix(in srgb, var(--color-primary) 5%, transparent);
+      }
+      .sv-billing-tier-top {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      .sv-billing-tier-name {
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+      }
+      .sv-billing-tier.is-current .sv-billing-tier-name { color: var(--color-primary); }
+      .sv-billing-tier-badge {
+        font-size: 0.65rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--color-primary);
+        background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+        border: 1px solid color-mix(in srgb, var(--color-primary) 22%, transparent);
+        border-radius: 100px;
+        padding: 1px 7px;
+      }
+      .sv-billing-tier-price {
+        display: flex;
+        align-items: baseline;
+        gap: 3px;
+        margin-bottom: 4px;
+      }
+      .sv-billing-tier-amount {
+        font-size: 1.3rem;
+        font-weight: 800;
+        color: var(--text-primary);
+        letter-spacing: -0.03em;
+      }
+      .sv-billing-tier.is-current .sv-billing-tier-amount { color: var(--color-primary); }
+      .sv-billing-tier-cadence {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+      .sv-billing-tier-seats {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+
       .sv-billing-notice {
         display: flex;
         align-items: flex-start;
         gap: 8px;
-        padding: 14px 24px;
+        padding: 13px 24px;
         background: var(--bg-primary);
-        border-top: 1px solid var(--border-color);
-        font-size: 0.84rem;
+        font-size: 0.82rem;
         color: var(--text-muted);
         line-height: 1.5;
       }
       .sv-billing-notice svg { width: 13px; height: 13px; flex-shrink: 0; margin-top: 1px; }
+
+      /* ── 2FA status badge ── */
+      .sv-2fa-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #059669;
+        background: rgba(5,150,105,0.08);
+        border: 1px solid rgba(5,150,105,0.18);
+        border-radius: 100px;
+        padding: 3px 9px;
+      }
+
+      /* ── Danger zone card ── */
+      .sv-danger-callout {
+        border: 1px solid rgba(220,38,38,0.25);
+        border-radius: 10px;
+        background: rgba(220,38,38,0.03);
+        overflow: hidden;
+      }
+      .sv-danger-callout-header {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 12px 20px;
+        background: rgba(220,38,38,0.06);
+        border-bottom: 1px solid rgba(220,38,38,0.15);
+        font-size: 0.8rem;
+        font-weight: 700;
+        color: #dc2626;
+        letter-spacing: 0.01em;
+      }
+      .sv-danger-callout-header svg { width: 15px; height: 15px; flex-shrink: 0; }
+      .sv-danger-field-row {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        padding: 20px;
+      }
+      .sv-danger-field-row .sv-field-meta { flex: 0 0 220px; }
+      .sv-danger-field-row .sv-field-control { flex: 1; display: flex; justify-content: flex-end; }
+      .sv-danger-field-row .sv-field-label { color: var(--text-primary); }
+      .sv-danger-divider { height: 1px; background: rgba(220,38,38,0.12); margin: 0 20px; }
 
       /* ── Responsive ── */
       @media (max-width: 860px) {
@@ -3271,6 +3602,7 @@ async function renderSettingsView() {
 
     const roleLabel = r => r === 'manager' ? 'Manager' : r === 'sales_rep' ? 'Sales Rep' : r === 'technician' ? 'Technician' : 'Member';
     const roleChip = r => `<span class="sv-role-chip" data-role="${r || 'member'}">${roleLabel(r)}</span>`;
+    const nameColor = s => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h % 6; };
 
     const memberRows = users.map(u => {
       const uFullName = (`${u.first_name || ''} ${u.last_name || ''}`).trim() || u.email || 'Teammate';
@@ -3282,7 +3614,7 @@ async function renderSettingsView() {
       return `
         <tr>
           <td><div class="sv-member-cell">
-            <div class="sv-member-avatar">${escH(uInitials)}</div>
+            <div class="sv-member-avatar" data-color="${nameColor(uFullName)}">${escH(uInitials)}</div>
             <div class="sv-member-info">
               <div class="sv-member-name">${escH(uFullName)}${isMe ? '<span class="sv-you-badge">You</span>' : ''}</div>
               <div class="sv-member-email">${escH(u.email || '')}</div>
@@ -3304,7 +3636,7 @@ async function renderSettingsView() {
       return `
         <tr style="opacity:0.65;">
           <td><div class="sv-member-cell">
-            <div class="sv-member-avatar" style="background:linear-gradient(135deg,#64748b,#94a3b8);">${escH(initials)}</div>
+            <div class="sv-member-avatar" data-color="${nameColor(inv.email || '?')}">${escH(initials)}</div>
             <div class="sv-member-info">
               <div class="sv-member-name">${escH(inv.email)}</div>
               <div class="sv-member-email">Invite sent · expires ${new Date(inv.expires_at).toLocaleDateString()}</div>
@@ -3325,6 +3657,15 @@ async function renderSettingsView() {
       const usageBarEl = document.querySelector('.sv-usage-fill');
       if (usedSlotsEl) usedSlotsEl.textContent = `${total} / ${maxSlots}`;
       if (usageBarEl) usageBarEl.style.width = `${Math.min(100, Math.round((total / maxSlots) * 100))}%`;
+      // Update org stats tile seat bar
+      const seatCount = document.getElementById('sv-seat-count');
+      const seatBar = document.getElementById('sv-seat-bar');
+      if (seatCount) seatCount.textContent = `${total} / ${maxSlots}`;
+      if (seatBar) {
+        const pct = Math.min(100, Math.round((total / maxSlots) * 100));
+        seatBar.style.width = `${pct}%`;
+        if (pct >= 100) seatBar.classList.add('is-full');
+      }
     }
 
     const searchInput = document.getElementById('sv-member-search');
@@ -3345,7 +3686,6 @@ async function renderSettingsView() {
   _pendingSettingsSection = null;
   setActiveSection(_initSection);
 }
-
 
 
 async function renderCompaniesView() {
