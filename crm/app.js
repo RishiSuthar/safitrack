@@ -754,7 +754,6 @@ function initAuth() {
     if (event === 'SIGNED_IN') {
       currentUser = session.user;
       loadingScreen.style.display = 'none';
-      authScreen.style.display = 'none';
       initApp();
     } else if (event === 'SIGNED_OUT') {
       stopDueNotificationsMonitor();
@@ -763,8 +762,14 @@ function initAuth() {
       currentUserProfile = null;
       mainApp.style.display = 'none';
       authScreen.style.display = 'flex';
+
+      const completePane = document.getElementById('complete-profile-pane');
+      if (completePane) completePane.style.display = 'none';
+
       if (new URLSearchParams(window.location.search).get('signup') === '1') {
         setTimeout(() => switchAuthPane('signup'), 0);
+      } else {
+        setTimeout(() => switchAuthPane('login'), 0);
       }
     }
   });
@@ -1116,12 +1121,71 @@ function switchAuthPane(pane) {
   const loginPane = document.getElementById('login-pane');
   const signupPane = document.getElementById('signup-pane');
   const verifyPane = document.getElementById('email-verify-pane');
+  const completePane = document.getElementById('complete-profile-pane');
+
   if (!loginPane) return;
   loginPane.style.display = pane === 'login' ? '' : 'none';
   signupPane.style.display = pane === 'signup' ? '' : 'none';
   verifyPane.style.display = pane === 'verify' ? '' : 'none';
+  if (completePane) completePane.style.display = 'none';
+
   // Always restart the wizard from step 1 when the signup pane is shown
   if (pane === 'signup') goToSignupStep(1);
+}
+
+// ── Google OAuth ─────────────────────────────────────────────────────────────
+async function handleGoogleAuth() {
+  const { error } = await supabaseClient.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo: window.location.origin + window.location.pathname
+    }
+  });
+
+  if (error) {
+    showToast(error.message, 'error');
+  }
+}
+
+// ── Complete Google Profile ──────────────────────────────────────────────────
+async function handleCompleteGoogleProfile(e) {
+  e.preventDefault();
+  const firstName = document.getElementById('complete-profile-firstname').value.trim();
+  const lastName = document.getElementById('complete-profile-lastname').value.trim();
+  const companyName = document.getElementById('complete-profile-company').value.trim();
+  const btn = document.getElementById('complete-profile-btn');
+
+  if (!firstName || !lastName || !companyName) {
+    showToast('Please fill out all fields.', 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Setting up your workspace...';
+
+  // Call the SQL RPC to create the org and attach to the profile
+  const { data, error } = await supabaseClient.rpc('complete_google_signup', {
+    p_company_name: companyName,
+    p_first_name: firstName,
+    p_last_name: lastName
+  });
+
+  btn.disabled = false;
+  btn.textContent = 'Complete Setup';
+
+  if (error || (data && !data.success)) {
+    showToast(error?.message || data?.error || 'Failed to complete profile', 'error');
+    return;
+  }
+
+  // Reload the session locally to pick up the new role/org changes
+  await supabaseClient.auth.refreshSession();
+
+  // Transition to the app
+  const completePane = document.getElementById('complete-profile-pane');
+  if (completePane) completePane.style.display = 'none';
+
+  initApp();
 }
 
 // ── Signup multi-step wizard ─────────────────────────────────────────────────
@@ -1428,21 +1492,60 @@ let appInitialized = false;
 
 async function initApp() {
   if (appInitialized) return;
+  authScreen.style.display = 'none';
+  mainApp.style.display = 'flex';
+
+  const { data: profile, error: profileError } = await supabaseClient
+    .from('profiles')
+    .select('role, first_name, last_name, email, date_format, organization_id')
+    .eq('id', currentUser.id)
+    .maybeSingle();
+
+  if (!profile || !profile.organization_id) {
+    console.log('[SafiTrack] No profile or organization found yet. Redirecting to complete setup.');
+
+    // Show complete profile pane and ensure everything else is hidden
+    authScreen.style.display = 'flex';
+    mainApp.style.display = 'none';
+
+    const loginPane = document.getElementById('login-pane');
+    const signupPane = document.getElementById('signup-pane');
+    const verifyPane = document.getElementById('email-verify-pane');
+    const completePane = document.getElementById('complete-profile-pane');
+
+    if (loginPane) loginPane.style.display = 'none';
+    if (signupPane) signupPane.style.display = 'none';
+    if (verifyPane) verifyPane.style.display = 'none';
+
+    if (completePane) {
+      completePane.style.display = '';
+
+      // Clear company name to start fresh
+      const companyInput = document.getElementById('complete-profile-company');
+      if (companyInput) companyInput.value = '';
+
+      // Pre-fill name from metadata if possible
+      const fnameInput = document.getElementById('complete-profile-firstname');
+      const lnameInput = document.getElementById('complete-profile-lastname');
+
+      if (fnameInput && !fnameInput.value) {
+        const nameArr = (currentUser.user_metadata?.full_name || currentUser.user_metadata?.name || '').split(' ');
+        fnameInput.value = currentUser.user_metadata?.first_name || nameArr[0] || '';
+        if (nameArr.length > 1 && lnameInput) {
+          lnameInput.value = currentUser.user_metadata?.last_name || nameArr.slice(1).join(' ');
+        }
+      }
+    }
+    return;
+  }
+
+  // If we reach here, user has a profile AND an organization
   appInitialized = true;
   authScreen.style.display = 'none';
   mainApp.style.display = 'flex';
 
-  const { data: profile, error } = await supabaseClient
-    .from('profiles')
-    .select('role, first_name, last_name, email, date_format, organization_id')
-    .eq('id', currentUser.id)
-    .single();
-
-  if (error) {
-    showToast('Error loading profile: ' + error.message, 'error');
-    return;
-  }
-
+  const completePane = document.getElementById('complete-profile-pane');
+  if (completePane) completePane.style.display = 'none';
   isManager = profile.role === 'manager';
   isTechnician = profile.role === 'technician';
   currentUserProfile = profile;
@@ -2681,12 +2784,16 @@ async function renderSettingsView() {
     let pQ = supabaseClient.from('profiles').select('*').order('created_at', { ascending: false });
     if (orgId) pQ = pQ.eq('organization_id', orgId);
 
-    const [profilesResult, invitesResult] = await Promise.all([
-      pQ,
-      isManager
-        ? supabaseClient.from('invitations').select('*').eq('status', 'pending').order('created_at', { ascending: false })
-        : Promise.resolve({ data: [], error: null }),
-    ]);
+    const promises = [pQ];
+
+    // Only fetch pending invitations if manager AND we have an orgId
+    if (isManager && orgId) {
+      promises.push(supabaseClient.from('invitations').select('*').eq('status', 'pending').eq('organization_id', orgId).order('created_at', { ascending: false }));
+    } else {
+      promises.push(Promise.resolve({ data: [], error: null }));
+    }
+
+    const [profilesResult, invitesResult] = await Promise.all(promises);
 
     if (profilesResult.error) {
       listContainer.innerHTML = `<tr><td colspan="4" style="padding:40px;text-align:center;color:#ef4444;">Failed to load members: ${escH(profilesResult.error.message)}</td></tr>`;

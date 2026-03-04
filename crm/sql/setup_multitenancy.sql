@@ -311,7 +311,7 @@ create policy "invitations: manager crud"
 create policy "invitations: invitee can view"
   on public.invitations for select
   using (
-    lower(email) = lower((select email from auth.users where id = auth.uid()))
+    lower(email) = lower((auth.jwt() ->> 'email')::text)
   );
 
 
