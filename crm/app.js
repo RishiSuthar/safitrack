@@ -35,6 +35,7 @@ let safiNudgeLastStatus = 'idle';
 let safiNudgeReconnectTimer = null;
 let safiNudgeReconnectAttempt = 0;
 let safiNudgeStarting = false;
+let _pendingSettingsSection = null;
 
 const SAFI_NUDGE_EVENT = 'safi-nudge';
 const SAFI_NUDGE_CHANNEL = 'safitrack-team-nudges';
@@ -931,6 +932,148 @@ function initEventListeners() {
   if (_inlineGenerateBtn && !_inlineGenerateBtn.parentElement) {
     // no-op, just safe-guard
   }
+
+  initWorkspaceMenu();
+}
+
+// ======================
+// WORKSPACE MENU
+// ======================
+
+function initWorkspaceMenu() {
+  const btn = document.getElementById('ws-btn');
+  if (!btn) return;
+
+  // Expose toggle as a global so the inline onclick always works
+  window.toggleWorkspaceMenu = function (e) {
+    if (e) e.stopPropagation();
+    const menu = document.getElementById('ws-menu');
+    if (!menu) return;
+    if (menu.style.display === 'none' || menu.style.display === '') {
+      _openWorkspaceMenu();
+    } else {
+      _closeWorkspaceMenu();
+    }
+  };
+
+  const menu = document.createElement('div');
+  menu.id = 'ws-menu';
+  menu.className = 'ws-menu';
+  menu.style.display = 'none';
+  menu.innerHTML = `
+    <div class="ws-menu-org-row">
+      <span class="ws-menu-org-avatar" id="ws-menu-avatar">S</span>
+      <span class="ws-menu-org-name" id="ws-menu-org-label">My Workspace</span>
+    </div>
+    <div class="ws-menu-divider"></div>
+    <button class="ws-menu-item" data-ws-action="account">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+      Account settings
+    </button>
+    <button class="ws-menu-item" data-ws-action="workspace">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+      Organization settings
+    </button>
+    <div class="ws-menu-divider"></div>
+    <button class="ws-menu-item" data-ws-action="invite">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
+      Invite team members
+    </button>
+    <button class="ws-menu-item" data-ws-action="upgrade">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Upgrade SafiTrack
+    </button>
+    <div class="ws-menu-divider"></div>
+    <button class="ws-menu-item" data-ws-action="integrations">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+      Apps &amp; integrations
+    </button>
+    <div class="ws-menu-divider"></div>
+    <button class="ws-menu-item ws-menu-item--danger" data-ws-action="signout">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+      Logout
+    </button>
+  `;
+  document.body.appendChild(menu);
+
+  // Header org button (visible on desktop where sidebar-header is hidden)
+  const headerOrgBtn = document.getElementById('header-org-btn');
+
+  function _openWorkspaceMenu(triggerEl) {
+    const orgLabel = menu.querySelector('#ws-menu-org-label');
+    const orgAvatar = menu.querySelector('#ws-menu-avatar');
+    if (currentOrganization?.name) {
+      if (orgLabel) orgLabel.textContent = currentOrganization.name;
+      if (orgAvatar) orgAvatar.textContent = currentOrganization.name[0].toUpperCase();
+    }
+    const rect = triggerEl.getBoundingClientRect();
+    menu.style.left = rect.left + 'px';
+    menu.style.width = Math.max(rect.width, 230) + 'px';
+    menu.style.top = (rect.bottom + 6) + 'px';
+    menu.style.display = 'block';
+    triggerEl.classList.add('open');
+    menu._activeTrigger = triggerEl;
+  }
+
+  function _closeWorkspaceMenu() {
+    menu.style.display = 'none';
+    if (menu._activeTrigger) {
+      menu._activeTrigger.classList.remove('open');
+      menu._activeTrigger = null;
+    }
+    btn.classList.remove('open');
+    if (headerOrgBtn) headerOrgBtn.classList.remove('open');
+  }
+
+  const openMenu = _openWorkspaceMenu;
+  const closeMenu = _closeWorkspaceMenu;
+
+  btn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menu.style.display === 'none' || menu.style.display === '' ? openMenu(btn) : closeMenu();
+  });
+
+  if (headerOrgBtn) {
+    headerOrgBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      menu.style.display === 'none' || menu.style.display === '' ? openMenu(headerOrgBtn) : closeMenu();
+    });
+  }
+
+  menu.addEventListener('click', async (e) => {
+    const item = e.target.closest('[data-ws-action]');
+    if (!item) return;
+    closeMenu();
+    const action = item.dataset.wsAction;
+    switch (action) {
+      case 'account':
+        _pendingSettingsSection = 'profile';
+        await loadView('settings');
+        break;
+      case 'workspace':
+        _pendingSettingsSection = 'organization';
+        await loadView('settings');
+        break;
+      case 'invite':
+        openInviteModal();
+        break;
+      case 'upgrade':
+        window.open('https://safitrack.netlify.app/pages/pricing', '_blank', 'noopener');
+        break;
+      case 'integrations':
+        window.open('https://safitrack.netlify.app/pages/integrations', '_blank', 'noopener');
+        break;
+      case 'signout':
+        handleLogout();
+        break;
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (menu.style.display !== 'none' && !menu.contains(e.target) && !btn.contains(e.target) && (!headerOrgBtn || !headerOrgBtn.contains(e.target))) {
+      closeMenu();
+    }
+  });
 }
 
 // ======================
@@ -970,11 +1113,11 @@ async function handleLogout() {
 
 // ── Auth pane switcher ───────────────────────────────────────────────────────
 function switchAuthPane(pane) {
-  const loginPane  = document.getElementById('login-pane');
+  const loginPane = document.getElementById('login-pane');
   const signupPane = document.getElementById('signup-pane');
   const verifyPane = document.getElementById('email-verify-pane');
   if (!loginPane) return;
-  loginPane.style.display  = pane === 'login'  ? '' : 'none';
+  loginPane.style.display = pane === 'login' ? '' : 'none';
   signupPane.style.display = pane === 'signup' ? '' : 'none';
   verifyPane.style.display = pane === 'verify' ? '' : 'none';
   // Always restart the wizard from step 1 when the signup pane is shown
@@ -985,9 +1128,9 @@ function switchAuthPane(pane) {
 let _signupCurrentStep = 1;
 
 const _SIGNUP_STEP_COPY = {
-  1: { title: 'Tell us about you',         sub: "You're 3 quick steps away from your workspace." },
-  2: { title: 'Set up your workspace',     sub: 'Almost there — just a few more details.' },
-  3: { title: 'Choose your plan',          sub: 'Start free. Upgrade whenever you need to.' },
+  1: { title: 'Tell us about you', sub: "You're 3 quick steps away from your workspace." },
+  2: { title: 'Set up your workspace', sub: 'Almost there — just a few more details.' },
+  3: { title: 'Choose your plan', sub: 'Start free. Upgrade whenever you need to.' },
 };
 
 function goToSignupStep(target) {
@@ -1016,17 +1159,17 @@ function goToSignupStep(target) {
   document.querySelectorAll('.ss-step').forEach((stepEl, i) => {
     const s = i + 1;
     stepEl.classList.remove('active', 'completed');
-    if (s === target)     stepEl.classList.add('active');
-    else if (s < target)  stepEl.classList.add('completed');
+    if (s === target) stepEl.classList.add('active');
+    else if (s < target) stepEl.classList.add('completed');
   });
 
   // Update heading copy
   const copy = _SIGNUP_STEP_COPY[target];
   if (copy) {
     const titleEl = document.getElementById('signup-step-title');
-    const subEl   = document.getElementById('signup-step-subtitle');
+    const subEl = document.getElementById('signup-step-subtitle');
     if (titleEl) titleEl.textContent = copy.title;
-    if (subEl)   subEl.textContent   = copy.sub;
+    if (subEl) subEl.textContent = copy.sub;
   }
 }
 
@@ -1035,13 +1178,13 @@ function _validateSignupStep(step) {
     const fn = document.getElementById('signup-firstname')?.value.trim();
     const ln = document.getElementById('signup-lastname')?.value.trim();
     if (!fn) { showToast('Please enter your first name.', 'error'); return false; }
-    if (!ln) { showToast('Please enter your last name.', 'error');  return false; }
+    if (!ln) { showToast('Please enter your last name.', 'error'); return false; }
   }
   if (step === 2) {
     const co = document.getElementById('signup-company')?.value.trim();
     const em = document.getElementById('signup-email')?.value.trim();
     const pw = document.getElementById('signup-password')?.value ?? '';
-    if (!co) { showToast('Please enter your company name.', 'error');  return false; }
+    if (!co) { showToast('Please enter your company name.', 'error'); return false; }
     if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
       showToast('Please enter a valid work email.', 'error'); return false;
     }
@@ -1053,16 +1196,16 @@ function _validateSignupStep(step) {
 // ── Sign-up handler (manager self-registration) ──────────────────────────────
 async function handleSignup(e) {
   e.preventDefault();
-  const firstName   = document.getElementById('signup-firstname').value.trim();
-  const lastName    = document.getElementById('signup-lastname').value.trim();
+  const firstName = document.getElementById('signup-firstname').value.trim();
+  const lastName = document.getElementById('signup-lastname').value.trim();
   const companyName = document.getElementById('signup-company').value.trim();
-  const email       = document.getElementById('signup-email').value.trim();
-  const password    = document.getElementById('signup-password').value;
-  const btn         = document.getElementById('signup-btn');
+  const email = document.getElementById('signup-email').value.trim();
+  const password = document.getElementById('signup-password').value;
+  const btn = document.getElementById('signup-btn');
 
   if (!firstName || !lastName) { showToast('Please enter your full name.', 'error'); return; }
-  if (!companyName)            { showToast('Please enter your company name.', 'error'); return; }
-  if (password.length < 8)     { showToast('Password must be at least 8 characters.', 'error'); return; }
+  if (!companyName) { showToast('Please enter your company name.', 'error'); return; }
+  if (password.length < 8) { showToast('Password must be at least 8 characters.', 'error'); return; }
 
   btn.disabled = true;
   btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account…';
@@ -1074,8 +1217,8 @@ async function handleSignup(e) {
     password,
     options: {
       data: {
-        first_name:   firstName,
-        last_name:    lastName,
+        first_name: firstName,
+        last_name: lastName,
         company_name: companyName,
       },
       emailRedirectTo: window.location.origin + window.location.pathname,
@@ -1196,10 +1339,10 @@ function closeInviteModal() {
 
 async function handleInviteSubmit(e) {
   e.preventDefault();
-  const email    = (document.getElementById('invite-email')?.value || '').trim();
-  const roleEl   = document.querySelector('input[name="invite-role"]:checked');
-  const role     = roleEl ? roleEl.value : 'sales_rep';
-  const msgEl    = document.getElementById('invite-msg');
+  const email = (document.getElementById('invite-email')?.value || '').trim();
+  const roleEl = document.querySelector('input[name="invite-role"]:checked');
+  const role = roleEl ? roleEl.value : 'sales_rep';
+  const msgEl = document.getElementById('invite-msg');
   const submitBtn = document.getElementById('invite-submit-btn');
 
   if (!email) { setInviteMsg('Please enter an email address.', 'error'); return; }
@@ -1251,16 +1394,29 @@ async function handleInviteSubmit(e) {
 function setInviteMsg(text, type) {
   const el = document.getElementById('invite-msg');
   if (!el) return;
-  el.textContent = text;
   el.style.display = 'block';
+
+  const isSeatLimit = type === 'error' && text.toLowerCase().includes('plan allows');
+
   if (type === 'error') {
-    el.style.background = 'rgba(239,68,68,0.1)';
-    el.style.border = '1px solid rgba(239,68,68,0.3)';
-    el.style.color = '#fca5a5';
+    el.style.background = 'rgba(239,68,68,0.12)';
+    el.style.border = '1px solid rgba(239,68,68,0.4)';
+    el.style.color = 'var(--text-primary, #111)';
   } else {
-    el.style.background = 'rgba(34,197,94,0.1)';
-    el.style.border = '1px solid rgba(34,197,94,0.3)';
-    el.style.color = '#86efac';
+    el.style.background = 'rgba(34,197,94,0.12)';
+    el.style.border = '1px solid rgba(34,197,94,0.4)';
+    el.style.color = 'var(--text-primary, #111)';
+  }
+
+  if (isSeatLimit) {
+    el.innerHTML = `
+      <span>${escapeHtml(text)}</span>
+      <a href="https://safitrack.netlify.app/pages/pricing" target="_blank" rel="noopener"
+         style="display:block;margin-top:8px;padding:6px 14px;border-radius:6px;background:#000;color:#fff;font-size:0.82rem;font-weight:600;text-decoration:none;text-align:center;">
+        Upgrade plan
+      </a>`;
+  } else {
+    el.textContent = text;
   }
 }
 
@@ -1300,9 +1456,16 @@ async function initApp() {
         .eq('id', profile.organization_id)
         .single();
       currentOrganization = org || null;
-      const orgNameEl = document.getElementById('sidebar-org-name');
-      if (orgNameEl && currentOrganization?.name) {
-        orgNameEl.textContent = currentOrganization.name;
+      const orgNameEl = document.getElementById('ws-btn-org-name');
+      const orgAvatarEl = document.getElementById('ws-btn-avatar');
+      const headerOrgNameEl = document.getElementById('header-org-name');
+      if (currentOrganization?.name) {
+        const truncated = currentOrganization.name.length > 16
+          ? currentOrganization.name.slice(0, 16) + '…'
+          : currentOrganization.name;
+        if (orgNameEl) orgNameEl.textContent = truncated;
+        if (orgAvatarEl) orgAvatarEl.textContent = currentOrganization.name[0].toUpperCase();
+        if (headerOrgNameEl) headerOrgNameEl.textContent = currentOrganization.name;
       }
     } catch (_orgErr) { /* non-critical */ }
   }
@@ -1933,7 +2096,7 @@ async function renderSettingsView() {
 
           <!-- Workspace identity card -->
           <div class="sv-org-card">
-            <div class="sv-org-card-avatar">${((currentOrganization?.name || 'W').match(/\b\w/g) || []).slice(0,2).join('').toUpperCase()}</div>
+            <div class="sv-org-card-avatar">${((currentOrganization?.name || 'W').match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase()}</div>
             <div class="sv-org-card-body">
               <div class="sv-org-card-name">${escH(currentOrganization?.name || '—')}</div>
               <div class="sv-org-card-id">ID&nbsp;&nbsp;<span class="sv-org-card-id-val">${escH((currentOrganization?.id || '').slice(0, 8).toUpperCase()) || '—'}</span></div>
@@ -2475,6 +2638,14 @@ async function renderSettingsView() {
       document.querySelectorAll('.org-name-display').forEach(el => el.textContent = data.name);
       const orgNameEl = document.getElementById('org-name');
       if (orgNameEl) orgNameEl.textContent = data.name;
+      // Sync header and sidebar workspace button
+      const headerOrgEl = document.getElementById('header-org-name');
+      if (headerOrgEl) headerOrgEl.textContent = data.name;
+      const wsBtnName = document.getElementById('ws-btn-org-name');
+      if (wsBtnName) wsBtnName.textContent = data.name.length > 16
+        ? data.name.slice(0, 16) + '\u2026' : data.name;
+      const wsBtnAvatar = document.getElementById('ws-btn-avatar');
+      if (wsBtnAvatar) wsBtnAvatar.textContent = data.name[0].toUpperCase();
       // Update identity card name in-place
       const cardName = document.querySelector('.sv-org-card-name');
       if (cardName) cardName.textContent = data.name;
@@ -2522,8 +2693,8 @@ async function renderSettingsView() {
       return;
     }
 
-    const users   = profilesResult.data || [];
-    const invites = invitesResult.data  || [];
+    const users = profilesResult.data || [];
+    const invites = invitesResult.data || [];
 
     if (!users.length && !invites.length) {
       listContainer.innerHTML = `<tr><td colspan="4" style="padding:40px;text-align:center;color:var(--text-muted);">No members yet. Invite your team!</td></tr>`;
@@ -2540,7 +2711,7 @@ async function renderSettingsView() {
       const isMe = u.id === currentUser?.id;
       const displayRole = u.role === 'manager' ? 'Manager' : u.role === 'sales_rep' ? 'Sales Rep' : u.role === 'technician' ? 'Technician' : 'Member';
       const actionsHtml = (isManager && !isMe)
-        ? `<button class="sv-icon-btn sv-icon-btn--danger" title="Remove member" onclick="if(typeof deleteUser==='function') deleteUser('${u.id}','${uFullName.replace(/'/g, "\\'")}','${u.role||''}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M18 6L6 18M6 6l12 12"></path></svg></button>`
+        ? `<button class="sv-icon-btn sv-icon-btn--danger" title="Remove member" onclick="if(typeof deleteUser==='function') deleteUser('${u.id}','${uFullName.replace(/'/g, "\\'")}','${u.role || ''}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M18 6L6 18M6 6l12 12"></path></svg></button>`
         : '';
       return `
         <tr>
@@ -2593,11 +2764,11 @@ async function renderSettingsView() {
     // Update seat usage in billing section if org data is available
     if (currentOrganization) {
       const usedSlotsEl = document.querySelector('.sv-usage-labels span:last-child');
-      const usageBarEl  = document.querySelector('.sv-usage-fill');
-      const total    = (users.length + invites.length);
+      const usageBarEl = document.querySelector('.sv-usage-fill');
+      const total = (users.length + invites.length);
       const maxSlots = currentOrganization.max_members || 2;
       if (usedSlotsEl) usedSlotsEl.textContent = `${total} / ${maxSlots}`;
-      if (usageBarEl)  usageBarEl.style.width = `${Math.min(100, Math.round((total / maxSlots) * 100))}%`;
+      if (usageBarEl) usageBarEl.style.width = `${Math.min(100, Math.round((total / maxSlots) * 100))}%`;
     }
 
     const searchInput = document.getElementById('sv-member-search');
@@ -2614,7 +2785,9 @@ async function renderSettingsView() {
 
   loadMembers();
 
-  setActiveSection('profile');
+  const _initSection = _pendingSettingsSection || 'profile';
+  _pendingSettingsSection = null;
+  setActiveSection(_initSection);
 }
 
 
