@@ -7557,10 +7557,19 @@ async function populateSafiNudgeRecipients(selectEl, preselectedUserId = null) {
 
   selectEl.innerHTML = '<option value="">Loading teammates…</option>';
 
+  // Guard: we must know the org before we can safely scope the query
+  const orgId = currentOrganization?.id;
+  if (!orgId) {
+    selectEl.innerHTML = '<option value="">No teammates visible for your role</option>';
+    return;
+  }
+
   const teammateMap = new Map();
 
   const addTeammate = (profileLike) => {
     if (!profileLike?.id) return;
+    // Never include cross-org profiles that may arrive via FK joins
+    if (profileLike.organization_id && profileLike.organization_id !== orgId) return;
     const id = String(profileLike.id);
     if (id === String(currentUser?.id || '')) return;
 
@@ -7574,42 +7583,45 @@ async function populateSafiNudgeRecipients(selectEl, preselectedUserId = null) {
     }
   };
 
-  // Primary source: direct profiles scoped to current org
-  let profilesQ = supabaseClient
+  // Primary source: profiles strictly scoped to current org
+  const { data: users, error } = await supabaseClient
     .from('profiles')
-    .select('id, first_name, last_name, email')
+    .select('id, first_name, last_name, email, organization_id')
+    .eq('organization_id', orgId)
     .order('first_name', { ascending: true });
-  if (currentOrganization?.id) profilesQ = profilesQ.eq('organization_id', currentOrganization.id);
-  const { data: users, error } = await profilesQ;
 
   if (!error && Array.isArray(users)) {
     users.forEach(addTeammate);
   }
 
   // Fallback sources for restricted roles (e.g., sales reps with limited profiles visibility)
+  // All queries are org-scoped to prevent cross-org profile bleed via FK joins.
   if (teammateMap.size === 0) {
 
     const [tasksRes, remindersRes, routesRes] = await Promise.all([
       supabaseClient
         .from('tasks')
         .select(`
-          assigned_to_profile:profiles!tasks_assigned_to_fkey(id, first_name, last_name, email),
-          created_by_profile:profiles!tasks_created_by_fkey(id, first_name, last_name, email)
+          assigned_to_profile:profiles!tasks_assigned_to_fkey(id, first_name, last_name, email, organization_id),
+          created_by_profile:profiles!tasks_created_by_fkey(id, first_name, last_name, email, organization_id)
         `)
+        .eq('organization_id', orgId)
         .limit(400),
       supabaseClient
         .from('reminders')
         .select(`
-          assigned_to_profile:profiles!reminders_assigned_to_fkey(id, first_name, last_name, email),
-          created_by_profile:profiles!reminders_created_by_fkey(id, first_name, last_name, email)
+          assigned_to_profile:profiles!reminders_assigned_to_fkey(id, first_name, last_name, email, organization_id),
+          created_by_profile:profiles!reminders_created_by_fkey(id, first_name, last_name, email, organization_id)
         `)
+        .eq('organization_id', orgId)
         .limit(400),
       supabaseClient
         .from('routes')
         .select(`
-          assigned_to_profile:profiles!routes_assigned_to_fkey(id, first_name, last_name, email),
-          created_by_profile:profiles!routes_created_by_fkey(id, first_name, last_name, email)
+          assigned_to_profile:profiles!routes_assigned_to_fkey(id, first_name, last_name, email, organization_id),
+          created_by_profile:profiles!routes_created_by_fkey(id, first_name, last_name, email, organization_id)
         `)
+        .eq('organization_id', orgId)
         .limit(400)
     ]);
 
