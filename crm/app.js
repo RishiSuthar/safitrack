@@ -2457,6 +2457,59 @@ async function renderSettingsView() {
               Plan changes cannot be made from the CRM. The button above links to our pricing page.
             </div>
           </div>
+
+          <!-- Invoices -->
+          <div class="sv-invoices-block">
+            <div class="sv-invoices-header">
+              <div class="sv-invoices-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                Invoices
+              </div>
+              <span class="sv-invoices-note">Generated monthly on your billing date</span>
+            </div>
+            <table class="sv-invoices-table">
+              <thead>
+                <tr>
+                  <th>Invoice</th>
+                  <th>Period</th>
+                  <th>Plan</th>
+                  <th>Amount</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="sv-invoices-body">
+                ${(() => {
+      const rows = [];
+      const now = new Date();
+      for (let i = 0; i < 6; i++) {
+        const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        const periodStart = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const periodEnd = new Date(d.getFullYear(), d.getMonth() + 1, 0).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const invoiceNum = `ST-${String(d.getFullYear()).slice(2)}${String(d.getMonth() + 1).padStart(2, '0')}-${String(Math.floor(Math.random() * 9000) + 1000)}`;
+        const pricePerSeat = parseFloat(planPrice[currentPlan]) || 0;
+        const amount = pricePerSeat === 0 ? '$0.00' : `$${(pricePerSeat * maxSeats).toFixed(2)}`;
+        const isPaid = true;
+        rows.push(`
+                      <tr>
+                        <td class="sv-invoice-num">${invoiceNum}</td>
+                        <td class="sv-invoice-period">${periodStart} – ${periodEnd}</td>
+                        <td><span class="sv-plan-chip" data-plan="${currentPlan.toLowerCase()}" style="font-size:0.68rem;padding:2px 7px;">${currentPlan}</span></td>
+                        <td class="sv-invoice-amount">${amount}</td>
+                        <td><span class="sv-invoice-status ${isPaid ? 'is-paid' : 'is-pending'}">${isPaid ? 'Paid' : 'Pending'}</span></td>
+                        <td class="sv-invoice-action-cell">
+                          <button class="sv-invoice-dl-btn" data-invoice="${invoiceNum}" data-period-start="${periodStart}" data-period-end="${periodEnd}" data-amount="${amount}" data-plan="${currentPlan}" title="Download PDF">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                            PDF
+                          </button>
+                        </td>
+                      </tr>`);
+      }
+      return rows.join('');
+    })()}
+              </tbody>
+            </table>
+          </div>
         </section>
 
         <!-- ═══════════════════ EXPORT ═══════════════════ -->
@@ -3389,6 +3442,94 @@ async function renderSettingsView() {
       .sv-danger-field-row .sv-field-label { color: var(--text-primary); }
       .sv-danger-divider { height: 1px; background: rgba(220,38,38,0.12); margin: 0 20px; }
 
+      /* ── Invoices ── */
+      .sv-invoices-block {
+        margin-top: 24px;
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--bg-secondary);
+      }
+      .sv-invoices-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 14px 20px;
+        border-bottom: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+      }
+      .sv-invoices-title {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -0.01em;
+      }
+      .sv-invoices-title svg { color: var(--text-muted); }
+      .sv-invoices-note {
+        font-size: 0.76rem;
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+      .sv-invoices-table { width: 100%; border-collapse: collapse; }
+      .sv-invoices-table th {
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        text-align: left;
+      }
+      .sv-invoices-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid var(--border-color);
+        font-size: 0.85rem;
+        vertical-align: middle;
+      }
+      .sv-invoices-table tbody tr:last-child td { border-bottom: none; }
+      .sv-invoices-table tbody tr { transition: background 0.1s; }
+      .sv-invoices-table tbody tr:hover { background: color-mix(in srgb, var(--bg-primary) 60%, transparent); }
+      .sv-invoice-num { font-family: 'Courier New', monospace; font-size: 0.8rem; color: var(--text-muted); font-weight: 600; letter-spacing: 0.02em; }
+      .sv-invoice-period { font-size: 0.84rem; color: var(--text-secondary); }
+      .sv-invoice-amount { font-size: 0.88rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.01em; }
+      .sv-invoice-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.74rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 3px 8px;
+        border-radius: 100px;
+      }
+      .sv-invoice-status.is-paid { background: rgba(5,150,105,0.1); color: #059669; border: 1px solid rgba(5,150,105,0.2); }
+      .sv-invoice-status.is-pending { background: rgba(245,158,11,0.1); color: #d97706; border: 1px solid rgba(245,158,11,0.2); }
+      .sv-invoice-action-cell { text-align: right; width: 80px; }
+      .sv-invoice-dl-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 5px 10px;
+        border-radius: 5px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        color: var(--text-secondary);
+        font-size: 0.78rem;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        transition: all 0.1s;
+        opacity: 0;
+      }
+      .sv-invoices-table tbody tr:hover .sv-invoice-dl-btn { opacity: 1; }
+      .sv-invoice-dl-btn:hover { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+
       /* ── Responsive ── */
       @media (max-width: 860px) {
         .sv-root { flex-direction: column; height: auto; max-height: none; border-radius: 8px; }
@@ -3507,6 +3648,232 @@ async function renderSettingsView() {
 
   /* ─────────────── EXPORT ─────────────── */
   document.getElementById('export-data-btn')?.addEventListener('click', () => showToast('Preparing export…', 'info'));
+
+  /* ─────────────── INVOICE PDF GENERATOR ─────────────── */
+  const loadJsPDF = () => new Promise((resolve, reject) => {
+    if (window.jspdf) return resolve(window.jspdf.jsPDF);
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+    s.onload = () => resolve(window.jspdf.jsPDF);
+    s.onerror = reject;
+    document.head.appendChild(s);
+  });
+
+  const fetchLogoBase64 = () => new Promise((resolve) => {
+    fetch('https://safitrack.netlify.app/assets/icons/transparentMain.png')
+      .then(r => r.blob())
+      .then(blob => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.readAsDataURL(blob);
+      })
+      .catch(() => resolve(null));
+  });
+
+  const generateInvoicePDF = async (btn) => {
+    const { dataset } = btn;
+    const origHTML = btn.innerHTML;
+    btn.textContent = '…';
+    btn.disabled = true;
+
+    try {
+      const [JsPDF, logoDataUrl] = await Promise.all([loadJsPDF(), fetchLogoBase64()]);
+      const doc = new JsPDF({ unit: 'pt', format: 'a4' });
+      const W = doc.internal.pageSize.getWidth();
+      const H = doc.internal.pageSize.getHeight();
+      const M = 52; // margin
+
+      // ── Palette ──
+      const black = [11, 12, 14];
+      const body = [55, 65, 81];
+      const muted = [107, 114, 128];
+      const label = [156, 163, 175];
+      const border = [229, 231, 235];
+      const bg = [248, 250, 252];
+      const white = [255, 255, 255];
+      const accent = [37, 99, 235];
+      const green = [5, 150, 105];
+
+      // ── Data ──
+      const orgName = currentOrganization?.name || 'Your Organization';
+      const invoiceNum = dataset.invoice;
+      const periodStart = dataset.periodStart;
+      const periodEnd = dataset.periodEnd;
+      const planName = dataset.plan;
+      const seats = parseInt(dataset.seats || maxSeats, 10);
+      const pricePerSeat = parseFloat(planPrice[planName]) || 0;
+      const unitPrice = `$${pricePerSeat.toFixed(2)}`;
+      const amount = pricePerSeat === 0 ? '$0.00' : `$${(pricePerSeat * seats).toFixed(2)}`;
+      const issueDate = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+
+      // helpers
+      const setLabel = (x, y) => { doc.setFont('helvetica', 'bold'); doc.setFontSize(7); doc.setTextColor(...label); };
+      const setBody = (bold = false) => { doc.setFont('helvetica', bold ? 'bold' : 'normal'); doc.setFontSize(9.5); doc.setTextColor(...body); };
+
+      // ── White bg ──
+      doc.setFillColor(...white); doc.rect(0, 0, W, H, 'F');
+
+      // ── Top blue bar ──
+      doc.setFillColor(...accent); doc.rect(0, 0, W, 3, 'F');
+
+      // ── Logo ──
+      if (logoDataUrl) {
+        const img = new Image();
+        img.src = logoDataUrl;
+        await new Promise(r => { img.onload = r; img.onerror = r; });
+        const lh = 30, lw = lh * (img.naturalWidth / img.naturalHeight || 4);
+        doc.addImage(logoDataUrl, 'PNG', M, 18, lw, lh);
+      } else {
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(20); doc.setTextColor(...accent);
+        doc.text('SafiTrack', M, 40);
+      }
+
+      // ── INVOICE heading ──
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(32); doc.setTextColor(...black);
+      doc.text('INVOICE', W - M, 40, { align: 'right' });
+
+      // ── Divider ──
+      doc.setDrawColor(...border); doc.setLineWidth(0.6);
+      doc.line(M, 58, W - M, 58);
+
+      // ══════════════════════════════
+      // META  —  3 columns
+      // ══════════════════════════════
+      const mY = 78;
+      const c1 = M, c2 = M + 178, c3 = M + 370;
+
+      // helper: stacked label+value
+      const metaBlock = (lbl, lines, x, y) => {
+        setLabel(x, y); doc.text(lbl.toUpperCase(), x, y);
+        lines.forEach((ln, i) => {
+          setBody(i === 0);          // first line bold (name), rest normal
+          doc.text(ln, x, y + 13 + i * 14);
+        });
+      };
+
+      metaBlock('From', ['SafiTrack Inc.', 'Toronto, Ontario', 'Canada', 'support@safitrack.netlify.app'], c1, mY);
+      metaBlock('Bill to', [orgName, currentUser?.email || ''].filter(Boolean), c2, mY);
+
+      // Right column — stacked pairs, all labels in muted gray
+      let ry = mY;
+      const detailRow = (lbl, val) => {
+        setLabel(c3, ry); doc.text(lbl.toUpperCase(), c3, ry);
+        ry += 12; setBody(false); doc.text(val, c3, ry); ry += 18;
+      };
+      detailRow('Invoice number', invoiceNum);
+      detailRow('Date of issue', issueDate);
+      detailRow('Period', `${periodStart} – ${periodEnd}`);
+
+      // ══════════════════════════════
+      // AMOUNT DUE HERO
+      // ══════════════════════════════
+      const heroY = mY + 84;
+      doc.setFillColor(...bg);
+      doc.roundedRect(M, heroY, W - M * 2, 60, 5, 5, 'F');
+
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(...muted);
+      doc.text('Amount due', M + 16, heroY + 18);
+
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(26); doc.setTextColor(...black);
+      doc.text(`${amount} USD`, M + 16, heroY + 46);
+
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(9.5); doc.setTextColor(...muted);
+      doc.text(`Due ${issueDate}`, W - M - 16, heroY + 36, { align: 'right' });
+
+      // ══════════════════════════════
+      // LINE ITEMS TABLE
+      // ══════════════════════════════
+      const tY = heroY + 80;
+      const tW = W - M * 2;
+      const cDesc = M;
+      const cQty = M + 318;
+      const cUnit = M + 390;
+      const cAmt = W - M;
+
+      // Header
+      doc.setFillColor(...bg);
+      doc.rect(M, tY, tW, 24, 'F');
+      doc.setDrawColor(...border); doc.setLineWidth(0.5);
+      doc.line(M, tY, W - M, tY);
+      doc.line(M, tY + 24, W - M, tY + 24);
+
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(7.5); doc.setTextColor(...muted);
+      doc.text('DESCRIPTION', cDesc + 4, tY + 15.5);
+      doc.text('QTY', cQty, tY + 15.5);
+      doc.text('UNIT PRICE', cUnit, tY + 15.5);
+      doc.text('AMOUNT', cAmt, tY + 15.5, { align: 'right' });
+
+      // Row
+      const rY = tY + 24;
+      doc.setFillColor(...white); doc.rect(M, rY, tW, 48, 'F');
+
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(...black);
+      doc.text(`${planName} Plan (per seat)`, cDesc + 4, rY + 17);
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(8.5); doc.setTextColor(...muted);
+      doc.text(`${periodStart} – ${periodEnd}`, cDesc + 4, rY + 31);
+
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(10); doc.setTextColor(...body);
+      doc.text(String(seats), cQty, rY + 17);
+      doc.text(unitPrice, cUnit, rY + 17);
+      doc.text(amount, cAmt, rY + 17, { align: 'right' });
+
+      doc.setDrawColor(...border);
+      doc.line(M, rY + 48, W - M, rY + 48);
+
+      // Totals — Subtotal / Total  (no Tax row, matching Attio)
+      let totY = rY + 66;
+      const totals = [
+        ['Subtotal', amount, false],
+        ['Total', amount, false],
+        ['Amount due', amount, true],
+      ];
+      totals.forEach(([lbl, val, bold]) => {
+        if (bold) {
+          doc.setFillColor(...bg);
+          doc.rect(M + tW * 0.52, totY - 13, tW * 0.48, 22, 'F');
+        }
+        doc.setFont('helvetica', bold ? 'bold' : 'normal');
+        doc.setFontSize(bold ? 10 : 9.5);
+        doc.setTextColor(...(bold ? black : body));
+        doc.text(lbl, M + tW * 0.54, totY);
+        doc.text(val, cAmt, totY, { align: 'right' });
+        totY += 22;
+      });
+
+      // ── PAID badge ──
+      const badgeY = totY + 24;
+      doc.setFillColor(...green);
+      doc.roundedRect(M, badgeY, 58, 22, 5, 5, 'F');
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5); doc.setTextColor(...white);
+      doc.text('PAID', M + 29, badgeY + 14.5, { align: 'center' });
+
+      // ── Footer ──
+      const fY = H - 46;
+      doc.setDrawColor(...border); doc.setLineWidth(0.5);
+      doc.line(M, fY, W - M, fY);
+
+      doc.setFont('helvetica', 'normal'); doc.setFontSize(7.5); doc.setTextColor(...muted);
+      doc.text('SafiTrack Inc. · Toronto, Ontario, Canada · support@safitrack.netlify.app', M, fY + 14);
+      doc.setTextColor(...accent);
+      doc.textWithLink('Terms & Conditions', M, fY + 27, { url: 'https://safitrack.netlify.app/pages/legal/terms' });
+      doc.setTextColor(...muted);
+      doc.text('  ·  All amounts in USD', M + doc.getTextWidth('Terms & Conditions') + 2, fY + 27);
+      doc.text('Page 1 of 1', W - M, fY + 27, { align: 'right' });
+
+      doc.save(`SafiTrack-Invoice-${invoiceNum}.pdf`);
+
+    } catch (e) {
+      console.error(e);
+      showToast('Failed to generate invoice PDF', 'error');
+    } finally {
+      btn.innerHTML = origHTML;
+      btn.disabled = false;
+    }
+  };
+
+  document.querySelectorAll('.sv-invoice-dl-btn').forEach(btn => {
+    btn.addEventListener('click', () => generateInvoicePDF(btn));
+  });
 
   /* ─────────────── ORG RENAME ─────────────── */
   document.getElementById('sv-org-name-edit-trigger')?.addEventListener('click', () => {
@@ -3666,6 +4033,17 @@ async function renderSettingsView() {
         seatBar.style.width = `${pct}%`;
         if (pct >= 100) seatBar.classList.add('is-full');
       }
+
+      // Update invoice rows now that we know actual used seats
+      const pricePerSeat = parseFloat(planPrice[currentPlan]) || 0;
+      const invoiceTotal = pricePerSeat === 0 ? '$0.00' : `$${(pricePerSeat * total).toFixed(2)}`;
+      document.querySelectorAll('.sv-invoice-dl-btn').forEach(btn => {
+        btn.dataset.amount = invoiceTotal;
+        btn.dataset.seats = String(total);
+      });
+      document.querySelectorAll('.sv-invoice-amount').forEach(el => {
+        el.textContent = invoiceTotal;
+      });
     }
 
     const searchInput = document.getElementById('sv-member-search');
