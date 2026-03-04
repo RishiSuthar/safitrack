@@ -85,13 +85,14 @@
   --motion-distance-hover: -1px;
 
   /* Z-index layers */
-  --z-dropdown: 100;
+  --z-dropdown: 1000;
   --z-sticky: 200;
   --z-fixed: 300;
   --z-modal-backdrop: 400;
   --z-modal: 500;
   --z-toast: 600;
   --z-loading: 700;
+  --z-header: 800;
 }
 
 /* AI Generate Button - visual equivalent of Tailwind utilities provided */
