@@ -1961,6 +1961,8 @@ async function loadView(viewName) {
 // ======================
 // SETTINGS VIEW (REDESIGN v2)
 // ======================
+
+
 async function renderSettingsView() {
   const dateFormatPref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
   const emailNotifPref = (localStorage.getItem('safitrack_email_notifs') || 'true') === 'true';
@@ -1976,635 +1978,1115 @@ async function renderSettingsView() {
 
   viewContainer.innerHTML = `
     <div class="sv-root">
+
+      <!-- LEFT SIDEBAR NAV -->
       <nav class="sv-nav">
-        <div class="sv-nav-header">Account Settings</div>
-        
-        <button class="sv-nav-item active" data-section="profile">My Profile</button>
-        <button class="sv-nav-item" data-section="security">Security</button>
-        <button class="sv-nav-item" data-section="preferences">Appearance</button>
-        <button class="sv-nav-item" data-section="notifications">Notifications</button>
-        <button class="sv-nav-item" data-section="organization">Organization</button>
-        <button class="sv-nav-item" data-section="members">Team Members</button>
-        <button class="sv-nav-item" data-section="billing">Billing</button>
-        
+        <div class="sv-nav-section-label">Account</div>
+        <button class="sv-nav-item active" data-section="profile">
+          <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Profile
+        </button>
+        <button class="sv-nav-item" data-section="security">
+          <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Security
+        </button>
+        <button class="sv-nav-item" data-section="preferences">
+          <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a7 7 0 1 0 10 10"/></svg>
+          Appearance
+        </button>
+        <button class="sv-nav-item" data-section="notifications">
+          <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          Notifications
+        </button>
+
+        <div class="sv-nav-section-label" style="margin-top:24px;">Workspace</div>
+        <button class="sv-nav-item" data-section="organization">
+          <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          Organization
+        </button>
+        <button class="sv-nav-item" data-section="members">
+          <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          Members
+        </button>
+        <button class="sv-nav-item" data-section="billing">
+          <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
+          Billing
+        </button>
+
         <div class="sv-nav-divider"></div>
-        
-        <button class="sv-nav-item" data-section="export">Data Export</button>
-        <button class="sv-nav-item sv-nav-item-danger" data-section="danger">Delete Account</button>
+
+        <button class="sv-nav-item" data-section="export">
+          <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export Data
+        </button>
+        <button class="sv-nav-item sv-nav-danger" data-section="danger">
+          <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          Delete Account
+        </button>
       </nav>
 
+      <!-- MAIN CONTENT -->
       <main class="sv-content">
-        <!-- Profile -->
+
+        <!-- ═══════════════════ PROFILE ═══════════════════ -->
         <section class="sv-section" data-section="profile">
-          <div class="sv-section-header">
-            <h2 class="sv-section-title">My Profile</h2>
-            <div id="profile-save-status" class="sv-save-status"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg>Saved</div>
-          </div>
-          
-          <div class="sv-row sv-row-avatar">
-            <div class="sv-row-info">
-              <div class="sv-row-title">Profile Picture</div>
-              <div class="sv-row-desc">Your avatar is used to identify you across the workspace.</div>
+          <div class="sv-page-header">
+            <div>
+              <h2 class="sv-page-title">Profile</h2>
+              <p class="sv-page-subtitle">Manage how you appear across your workspace.</p>
             </div>
-            <div class="sv-row-action">
-              <div class="sv-avatar-container">
-                <div class="sv-profile-avatar">${initials}</div>
-                <button class="sv-action-btn">Upload</button>
+            <div id="profile-save-status" class="sv-saved-pill">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Saved
+            </div>
+          </div>
+
+          <div class="sv-field-group">
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Avatar</div>
+                <div class="sv-field-hint">Shown on comments, assignments, and mentions.</div>
+              </div>
+              <div class="sv-field-control">
+                <div class="sv-avatar-wrap">
+                  <div class="sv-avatar-circle">${initials}</div>
+                  <div class="sv-avatar-info">
+                    <span class="sv-avatar-name">${fullName}</span>
+                    <button class="sv-ghost-btn">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                      Upload photo
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <div class="sv-row-title">Name</div>
-              <div class="sv-row-desc">Your full name as it appears to other members.</div>
+
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Full name</div>
+                <div class="sv-field-hint">Your name as it appears to other members.</div>
+              </div>
+              <div class="sv-field-control">
+                <div class="sv-input-pair">
+                  <input id="profile-firstname" class="sv-input" type="text" placeholder="First name" value="${firstNameEsc}">
+                  <input id="profile-lastname" class="sv-input" type="text" placeholder="Last name" value="${lastNameEsc}">
+                </div>
+              </div>
             </div>
-            <div class="sv-row-action sv-row-action-inputs">
-              <input id="profile-firstname" class="sv-input" type="text" placeholder="First name" value="${firstNameEsc}">
-              <input id="profile-lastname" class="sv-input" type="text" placeholder="Last name" value="${lastNameEsc}">
-            </div>
-          </div>
-          
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <div class="sv-row-title">Role</div>
-              <div class="sv-row-desc">Your current permission level within this workspace.</div>
-            </div>
-            <div class="sv-row-action">
-              <span class="sv-role-badge">${roleEsc}</span>
+
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Role</div>
+                <div class="sv-field-hint">Your permission level in this workspace.</div>
+              </div>
+              <div class="sv-field-control">
+                <span class="sv-role-chip" data-role="${roleEsc.toLowerCase()}">${roleEsc}</span>
+              </div>
             </div>
           </div>
         </section>
 
-        <!-- Security -->
+        <!-- ═══════════════════ SECURITY ═══════════════════ -->
         <section class="sv-section" data-section="security" style="display:none;">
-          <div class="sv-section-header">
-            <h2 class="sv-section-title">Security</h2>
-          </div>
-          
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <div class="sv-row-title">Email address</div>
-              <div class="sv-row-desc">The email address associated with your account.</div>
-            </div>
-            <div class="sv-row-action sv-row-action-email">
-              <div class="sv-email-display">
-                 <span class="sv-email-text">${userEmailEsc}</span>
-                 <span class="sv-email-status">Verified</span>
-              </div>
-              <button class="sv-action-btn"><i data-lucide="edit-2" style="width:14px;height:14px;margin-right:6px"></i> Edit</button>
-            </div>
-          </div>
-          
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <div class="sv-row-title">Password</div>
-              <div class="sv-row-desc">Set a unique password to protect your account.</div>
-            </div>
-            <div class="sv-row-action">
-              <button id="profile-change-password-btn" class="sv-action-btn">Change Password</button>
+          <div class="sv-page-header">
+            <div>
+              <h2 class="sv-page-title">Security</h2>
+              <p class="sv-page-subtitle">Control access and authentication for your account.</p>
             </div>
           </div>
 
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <div class="sv-row-title">2-step verification</div>
-              <div class="sv-row-desc">Make your account extra secure. Along with your password, you'll need to enter a code.</div>
+          <div class="sv-field-group">
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Email address</div>
+                <div class="sv-field-hint">Used for sign-in and system notifications.</div>
+              </div>
+              <div class="sv-field-control sv-field-control--split">
+                <div class="sv-email-row">
+                  <span class="sv-email-val">${userEmailEsc}</span>
+                  <span class="sv-verified-chip">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px;"><polyline points="20 6 9 17 4 12"/></svg>
+                    Verified
+                  </span>
+                </div>
+                <button class="sv-ghost-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  Change
+                </button>
+              </div>
             </div>
-            <div class="sv-row-action">
-              <label class="sv-toggle"><input type="checkbox" checked><span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span></label>
+
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Password</div>
+                <div class="sv-field-hint">Keep your account secure with a strong password.</div>
+              </div>
+              <div class="sv-field-control">
+                <button id="profile-change-password-btn" class="sv-ghost-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  Update password
+                </button>
+              </div>
+            </div>
+
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Two-factor authentication</div>
+                <div class="sv-field-hint">Require a verification code in addition to your password.</div>
+              </div>
+              <div class="sv-field-control">
+                <label class="sv-toggle">
+                  <input type="checkbox" checked>
+                  <span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span>
+                </label>
+              </div>
             </div>
           </div>
         </section>
 
-        <!-- Appearance -->
+        <!-- ═══════════════════ APPEARANCE ═══════════════════ -->
         <section class="sv-section" data-section="preferences" style="display:none;">
-          <div class="sv-section-header">
-            <h2 class="sv-section-title">Appearance</h2>
-            <div id="pref-save-status" class="sv-save-status"><svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M20 6L9 17l-5-5"></path></svg>Saved</div>
-          </div>
-          
-          <div class="sv-row sv-row-vertical">
-            <div class="sv-row-info">
-              <div class="sv-row-title">Theme</div>
-              <div class="sv-row-desc">Select a theme to personalize your platform's appearance.</div>
+          <div class="sv-page-header">
+            <div>
+              <h2 class="sv-page-title">Appearance</h2>
+              <p class="sv-page-subtitle">Customize how SafiTrack looks and feels for you.</p>
             </div>
-            <div class="sv-theme-cards sv-theme-segmented mt-4">
-              <button class="sv-theme-card ${currentTheme === 'light' ? 'active' : ''}" data-theme-val="light">
-                <div class="sv-theme-preview sv-preview-light">
-                   <div class="sv-mock-sidebar">
-                     <div class="sv-mock-line" style="width:40%"></div>
-                     <div class="sv-mock-line" style="width:60%;margin-top:6px;"></div>
-                     <div class="sv-mock-line" style="width:50%;margin-top:4px;"></div>
-                     <div class="sv-mock-line" style="width:70%;margin-top:4px;"></div>
-                   </div>
-                   <div class="sv-mock-content">
-                     <div class="sv-mock-table">
-                       <div class="sv-mock-row"></div><div class="sv-mock-row"></div><div class="sv-mock-row"></div>
-                     </div>
-                   </div>
-                </div>
-                <div class="sv-theme-label">Light</div>
-              </button>
-              <button class="sv-theme-card ${currentTheme === 'dark' ? 'active' : ''}" data-theme-val="dark">
-                <div class="sv-theme-preview sv-preview-dark">
-                   <div class="sv-mock-sidebar">
-                     <div class="sv-mock-line" style="width:40%"></div>
-                     <div class="sv-mock-line" style="width:60%;margin-top:6px;"></div>
-                     <div class="sv-mock-line" style="width:50%;margin-top:4px;"></div>
-                     <div class="sv-mock-line" style="width:70%;margin-top:4px;"></div>
-                   </div>
-                   <div class="sv-mock-content">
-                     <div class="sv-mock-table">
-                       <div class="sv-mock-row"></div><div class="sv-mock-row"></div><div class="sv-mock-row"></div>
-                     </div>
-                   </div>
-                </div>
-                <div class="sv-theme-label">Dark</div>
-              </button>
-              <button class="sv-theme-card ${currentTheme === 'system' ? 'active' : ''}" data-theme-val="system">
-                <div class="sv-theme-preview sv-preview-system">
-                   <div class="sv-mock-half light-half">
-                     <div class="sv-mock-sidebar">
-                       <div class="sv-mock-line" style="width:40%"></div>
-                       <div class="sv-mock-line" style="width:60%;margin-top:6px;"></div>
-                       <div class="sv-mock-line" style="width:50%;margin-top:4px;"></div>
-                       <div class="sv-mock-line" style="width:70%;margin-top:4px;"></div>
-                     </div>
-                     <div class="sv-mock-content" style="border-right:none;border-radius:4px 0 0 4px;">
-                       <div class="sv-mock-table">
-                         <div class="sv-mock-row"></div><div class="sv-mock-row"></div><div class="sv-mock-row"></div>
-                       </div>
-                     </div>
-                   </div>
-                    <div class="sv-mock-half dark-half">
-                      <div class="sv-mock-content">
-                       <div class="sv-mock-table">
-                         <div class="sv-mock-row"></div><div class="sv-mock-row"></div><div class="sv-mock-row"></div>
-                       </div>
-                     </div>
-                   </div>
-                </div>
-                <div class="sv-theme-label">System</div>
-              </button>
+            <div id="pref-save-status" class="sv-saved-pill">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              Saved
             </div>
           </div>
-          
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <div class="sv-row-title">Date format</div>
-              <div class="sv-row-desc">How dates are displayed throughout the app.</div>
+
+          <div class="sv-field-group">
+            <div class="sv-field-row sv-field-row--block">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Theme</div>
+                <div class="sv-field-hint">Choose a color scheme for the interface.</div>
+              </div>
+              <div class="sv-theme-grid">
+                <button class="sv-theme-tile ${currentTheme === 'light' ? 'is-active' : ''}" data-theme-val="light">
+                  <div class="sv-theme-mock sv-theme-mock--light">
+                    <div class="sv-mock-sidebar-strip"></div>
+                    <div class="sv-mock-body">
+                      <div class="sv-mock-header-bar"></div>
+                      <div class="sv-mock-rows">
+                        <div class="sv-mock-row-item"></div>
+                        <div class="sv-mock-row-item"></div>
+                        <div class="sv-mock-row-item"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="sv-theme-tile-footer">
+                    <span class="sv-theme-tile-dot"></span>
+                    Light
+                  </div>
+                </button>
+
+                <button class="sv-theme-tile ${currentTheme === 'dark' ? 'is-active' : ''}" data-theme-val="dark">
+                  <div class="sv-theme-mock sv-theme-mock--dark">
+                    <div class="sv-mock-sidebar-strip"></div>
+                    <div class="sv-mock-body">
+                      <div class="sv-mock-header-bar"></div>
+                      <div class="sv-mock-rows">
+                        <div class="sv-mock-row-item"></div>
+                        <div class="sv-mock-row-item"></div>
+                        <div class="sv-mock-row-item"></div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="sv-theme-tile-footer">
+                    <span class="sv-theme-tile-dot"></span>
+                    Dark
+                  </div>
+                </button>
+
+                <button class="sv-theme-tile ${currentTheme === 'system' ? 'is-active' : ''}" data-theme-val="system">
+                  <div class="sv-theme-mock sv-theme-mock--system">
+                    <div class="sv-theme-mock-half sv-theme-mock-half--light">
+                      <div class="sv-mock-sidebar-strip"></div>
+                      <div class="sv-mock-body">
+                        <div class="sv-mock-header-bar"></div>
+                        <div class="sv-mock-rows">
+                          <div class="sv-mock-row-item"></div>
+                          <div class="sv-mock-row-item"></div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="sv-theme-mock-half sv-theme-mock-half--dark">
+                      <div class="sv-mock-sidebar-strip"></div>
+                      <div class="sv-mock-body">
+                        <div class="sv-mock-header-bar"></div>
+                        <div class="sv-mock-rows">
+                          <div class="sv-mock-row-item"></div>
+                          <div class="sv-mock-row-item"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="sv-theme-tile-footer">
+                    <span class="sv-theme-tile-dot"></span>
+                    System
+                  </div>
+                </button>
+              </div>
             </div>
-            <div class="sv-row-action">
-              <div class="sv-segmented sv-date-segmented">
-                <button class="sv-seg-btn ${dateFormatPref === 'DD/MM/YYYY' ? 'sv-seg-active' : ''}" data-value="DD/MM/YYYY">DD/MM/YYYY</button>
-                <button class="sv-seg-btn ${dateFormatPref === 'MM/DD/YYYY' ? 'sv-seg-active' : ''}" data-value="MM/DD/YYYY">MM/DD/YYYY</button>
+
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Date format</div>
+                <div class="sv-field-hint">Controls how dates are displayed across the app.</div>
+              </div>
+              <div class="sv-field-control">
+                <div class="sv-seg sv-date-segmented">
+                  <button class="sv-seg-btn ${dateFormatPref === 'DD/MM/YYYY' ? 'is-active' : ''}" data-value="DD/MM/YYYY">DD/MM/YYYY</button>
+                  <button class="sv-seg-btn ${dateFormatPref === 'MM/DD/YYYY' ? 'is-active' : ''}" data-value="MM/DD/YYYY">MM/DD/YYYY</button>
+                </div>
               </div>
             </div>
           </div>
         </section>
 
-        <!-- Notifications -->
+        <!-- ═══════════════════ NOTIFICATIONS ═══════════════════ -->
         <section class="sv-section" data-section="notifications" style="display:none;">
-          <div class="sv-section-header">
-            <h2 class="sv-section-title">Notifications</h2>
-          </div>
-          
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <div class="sv-row-title">Email notifications</div>
-              <div class="sv-row-desc">Receive email summaries, activity updates, and important alerts.</div>
-            </div>
-            <div class="sv-row-action">
-              <label class="sv-toggle"><input id="pref-email-notifs" type="checkbox" ${emailNotifPref ? 'checked' : ''}><span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span></label>
+          <div class="sv-page-header">
+            <div>
+              <h2 class="sv-page-title">Notifications</h2>
+              <p class="sv-page-subtitle">Choose what you want to be notified about.</p>
             </div>
           </div>
-          
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <div class="sv-row-title">Browser push notifications</div>
-              <div class="sv-row-desc">Get instant alerts for reminders and mentions directly in your browser.</div>
+
+          <div class="sv-field-group">
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Email notifications</div>
+                <div class="sv-field-hint">Summaries, activity updates, and important alerts by email.</div>
+              </div>
+              <div class="sv-field-control">
+                <label class="sv-toggle">
+                  <input id="pref-email-notifs" type="checkbox" ${emailNotifPref ? 'checked' : ''}>
+                  <span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span>
+                </label>
+              </div>
             </div>
-            <div class="sv-row-action">
-              <button id="enable-browser-notifs" class="sv-action-btn">Enable</button>
+
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Browser push notifications</div>
+                <div class="sv-field-hint">Instant alerts for reminders and @mentions in your browser.</div>
+              </div>
+              <div class="sv-field-control">
+                <button id="enable-browser-notifs" class="sv-ghost-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                  Enable push
+                </button>
+              </div>
             </div>
           </div>
         </section>
 
-        <!-- Organization -->
+        <!-- ═══════════════════ ORGANIZATION ═══════════════════ -->
         <section class="sv-section" data-section="organization" style="display:none;">
-          <div class="sv-section-header">
-            <h2 class="sv-section-title">Organization</h2>
+          <div class="sv-page-header">
+            <div>
+              <h2 class="sv-page-title">Organization</h2>
+              <p class="sv-page-subtitle">Workspace identity and plan information.</p>
+            </div>
           </div>
 
-          <!-- Workspace identity card -->
-          <div class="sv-org-card">
-            <div class="sv-org-card-avatar">${((currentOrganization?.name || 'W').match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase()}</div>
-            <div class="sv-org-card-body">
-              <div class="sv-org-card-name">${escH(currentOrganization?.name || '—')}</div>
-              <div class="sv-org-card-id">ID&nbsp;&nbsp;<span class="sv-org-card-id-val">${escH((currentOrganization?.id || '').slice(0, 8).toUpperCase()) || '—'}</span></div>
+          <div class="sv-org-identity-card">
+            <div class="sv-org-identity-avatar">${((currentOrganization?.name || 'W').match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase()}</div>
+            <div class="sv-org-identity-body">
+              <div class="sv-org-identity-name">${escH(currentOrganization?.name || '—')}</div>
+              <div class="sv-org-identity-id">
+                <span class="sv-mono-chip">${escH((currentOrganization?.id || '').slice(0, 8).toUpperCase()) || '—'}</span>
+              </div>
             </div>
             ${isManager ? `
-            <button class="sv-org-card-edit-btn" id="sv-org-name-edit-trigger" title="Rename workspace">
-              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            <button class="sv-ghost-btn" id="sv-org-name-edit-trigger">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               Rename
             </button>` : ''}
           </div>
 
-          <!-- Inline rename form (manager only, hidden by default) -->
           ${isManager ? `
-          <div class="sv-org-rename-form" id="sv-org-rename-form" style="display:none;">
-            <div class="sv-org-rename-field">
-              <label class="sv-org-rename-label" for="org-name-input">Workspace name</label>
-              <div class="sv-org-rename-row">
-                <input id="org-name-input" class="sv-input" type="text" value="${escH(currentOrganization?.name || '')}" placeholder="Organization name" autocomplete="off">
-                <button id="org-name-save-btn" class="sv-primary-btn">Save changes</button>
-                <button type="button" class="sv-action-btn" id="sv-org-rename-cancel">Cancel</button>
-              </div>
-              <p class="sv-org-rename-hint">This name appears in your team's sidebar and email invitations.</p>
+          <div class="sv-org-rename-block" id="sv-org-rename-form" style="display:none;">
+            <label class="sv-field-label" style="display:block;margin-bottom:8px;" for="org-name-input">Workspace name</label>
+            <div class="sv-org-rename-row">
+              <input id="org-name-input" class="sv-input" type="text" value="${escH(currentOrganization?.name || '')}" placeholder="Organization name" autocomplete="off" style="max-width:260px;">
+              <button id="org-name-save-btn" class="sv-primary-btn">Save</button>
+              <button type="button" class="sv-ghost-btn" id="sv-org-rename-cancel">Cancel</button>
             </div>
+            <p class="sv-field-hint" style="margin-top:8px;">Appears in your sidebar and email invitations.</p>
           </div>` : ''}
 
-          <!-- Stat tiles -->
-          <div class="sv-org-stats">
-            <div class="sv-org-stat-tile">
-              <div class="sv-org-stat-tile-icon">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
-              </div>
-              <div class="sv-org-stat-tile-body">
-                <div class="sv-org-stat-tile-label">Your role</div>
-                <div class="sv-org-stat-tile-value"><span class="sv-role-badge">${roleEsc}</span></div>
-              </div>
+          <div class="sv-stat-row">
+            <div class="sv-stat-tile">
+              <div class="sv-stat-tile-label">Your role</div>
+              <div class="sv-stat-tile-value"><span class="sv-role-chip" data-role="${roleEsc.toLowerCase()}">${roleEsc}</span></div>
             </div>
-
-            <div class="sv-org-stat-tile">
-              <div class="sv-org-stat-tile-icon">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25 1.18-6.88-5-4.87 6.91-1.01L12 2z"/></svg>
-              </div>
-              <div class="sv-org-stat-tile-body">
-                <div class="sv-org-stat-tile-label">Current plan</div>
-                <div class="sv-org-stat-tile-value"><span class="sv-plan-badge">Free</span></div>
-              </div>
+            <div class="sv-stat-tile">
+              <div class="sv-stat-tile-label">Current plan</div>
+              <div class="sv-stat-tile-value"><span class="sv-plan-chip">Free</span></div>
             </div>
-
-            <div class="sv-org-stat-tile">
-              <div class="sv-org-stat-tile-icon">
-                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              </div>
-              <div class="sv-org-stat-tile-body">
-                <div class="sv-org-stat-tile-label">Member limit</div>
-                <div class="sv-org-stat-tile-value sv-org-stat-tile-mono">${currentOrganization?.max_members ?? 2} seats</div>
-              </div>
+            <div class="sv-stat-tile">
+              <div class="sv-stat-tile-label">Seats</div>
+              <div class="sv-stat-tile-value sv-stat-tile-value--mono">${currentOrganization?.max_members ?? 2}</div>
             </div>
           </div>
         </section>
 
-        <!-- Members -->
-        <section class="sv-section" data-section="members" style="display:none; max-width: 900px;">
-          <div class="sv-section-header" style="justify-content: space-between; align-items: center; border-bottom: none; padding-bottom: 0;">
+        <!-- ═══════════════════ MEMBERS ═══════════════════ -->
+        <section class="sv-section" data-section="members" style="display:none;">
+          <div class="sv-page-header">
             <div>
-              <h2 class="sv-section-title">Team Members</h2>
-              ${currentOrganization ? `<div style="font-size:0.78rem;color:var(--text-secondary);margin-top:2px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;vertical-align:middle;margin-right:4px;"><path d="M3 21h18M3 7V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2M3 7h18M3 7l2 14h14l2-14"/></svg>${escH(currentOrganization.name)}</div>` : ''}
+              <h2 class="sv-page-title">Members</h2>
+              ${currentOrganization ? `<p class="sv-page-subtitle">${escH(currentOrganization.name)}</p>` : '<p class="sv-page-subtitle">Manage who has access to this workspace.</p>'}
             </div>
-            ${isManager ? '<button class="sv-primary-btn" id="invite-member-btn">Invite member</button>' : ''}
-          </div>
-          
-          <div class="sv-members-toolbar mt-6">
-            <div class="sv-search-input">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-              <input type="text" placeholder="Search members by name or email..." id="sv-member-search">
-            </div>
+            ${isManager ? '<button class="sv-primary-btn" id="invite-member-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;margin-right:6px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Invite member</button>' : ''}
           </div>
 
-          <div class="sv-members-table-container mt-4">
+          <div class="sv-members-search-bar">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" placeholder="Search by name or email…" id="sv-member-search">
+          </div>
+
+          <div class="sv-members-table-wrap">
             <table class="sv-members-table">
               <thead>
                 <tr>
                   <th>Member</th>
-                  <th>Access level</th>
+                  <th>Role</th>
                   <th>Status</th>
                   <th></th>
                 </tr>
               </thead>
               <tbody id="sv-members-container">
-                <tr><td colspan="4" style="padding:40px;text-align:center;color:var(--text-muted);font-size:0.9rem;">Loading members...</td></tr>
+                <tr><td colspan="4" class="sv-table-empty">Loading members…</td></tr>
               </tbody>
             </table>
           </div>
         </section>
 
-        <!-- Billing -->
+        <!-- ═══════════════════ BILLING ═══════════════════ -->
         <section class="sv-section" data-section="billing" style="display:none;">
-          <div class="sv-section-header">
-            <h2 class="sv-section-title">Billing</h2>
+          <div class="sv-page-header">
+            <div>
+              <h2 class="sv-page-title">Billing</h2>
+              <p class="sv-page-subtitle">Your subscription and plan details.</p>
+            </div>
           </div>
-          
-          <div class="sv-billing-card">
-            <div class="sv-billing-plan-row">
+
+          <div class="sv-billing-block">
+            <div class="sv-billing-top">
               <div class="sv-billing-plan-info">
-                <span class="sv-plan-badge">Free</span>
+                <span class="sv-plan-chip">Free</span>
                 <div class="sv-billing-plan-name">Free Plan</div>
                 <div class="sv-billing-plan-desc">Basic access for small teams. Upgrade to unlock advanced features, higher limits, and priority support.</div>
               </div>
-              <a href="https://safitrack.netlify.app/pages/pricing" target="_blank" class="sv-change-plan-btn">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 7l5 5-5 5M6 12h12"/></svg>
-                Change plan
+              <a href="https://safitrack.netlify.app/pages/pricing" target="_blank" class="sv-primary-btn" style="text-decoration:none;white-space:nowrap;flex-shrink:0;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;margin-right:6px;"><path d="M13 7l5 5-5 5M6 12h12"/></svg>
+                Upgrade plan
               </a>
             </div>
-            <div class="sv-billing-divider"></div>
-            <p class="sv-billing-notice">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-              Plan changes cannot be made from the CRM. Please contact our sales team — the button above will take you to our pricing page where you can explore available plans.
-            </p>
+            <div class="sv-billing-notice">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Plan changes cannot be made from the CRM. The button above links to our pricing page.
+            </div>
           </div>
         </section>
 
-        <!-- Export -->
+        <!-- ═══════════════════ EXPORT ═══════════════════ -->
         <section class="sv-section" data-section="export" style="display:none;">
-          <div class="sv-section-header">
-            <h2 class="sv-section-title">Data Export</h2>
-          </div>
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <div class="sv-row-title">Export your data</div>
-              <div class="sv-row-desc">Download a full copy of your personal data and activity records as a JSON file.</div>
+          <div class="sv-page-header">
+            <div>
+              <h2 class="sv-page-title">Export Data</h2>
+              <p class="sv-page-subtitle">Download a copy of your data and activity records.</p>
             </div>
-            <div class="sv-row-action">
-              <button id="export-data-btn" class="sv-action-btn">Export data</button>
+          </div>
+
+          <div class="sv-field-group">
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Personal data export</div>
+                <div class="sv-field-hint">A JSON file containing your profile, activity, and records.</div>
+              </div>
+              <div class="sv-field-control">
+                <button id="export-data-btn" class="sv-ghost-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Export as JSON
+                </button>
+              </div>
             </div>
           </div>
         </section>
 
-        <!-- Danger Zone -->
+        <!-- ═══════════════════ DANGER ═══════════════════ -->
         <section class="sv-section" data-section="danger" style="display:none;">
-          <div class="sv-section-header">
-            <h2 class="sv-section-title">Delete Account</h2>
-          </div>
-          
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <div class="sv-row-title">Deactivate my account</div>
-              <div class="sv-row-desc">This will shut down your account. Your account will be reactive when you sign in again.</div>
-            </div>
-            <div class="sv-row-action">
-              <button class="sv-action-btn">Deactivate</button>
+          <div class="sv-page-header">
+            <div>
+              <h2 class="sv-page-title">Delete Account</h2>
+              <p class="sv-page-subtitle">Permanently remove your account and all associated data.</p>
             </div>
           </div>
 
-          <div class="sv-row">
-            <div class="sv-row-info">
-              <div class="sv-row-title">Delete Account</div>
-              <div class="sv-row-desc">This will delete your account. Your account will be permanently deleted from SafiTrack.</div>
+          <div class="sv-field-group sv-field-group--danger">
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Deactivate account</div>
+                <div class="sv-field-hint">Temporarily suspend access. You can reactivate by signing in again.</div>
+              </div>
+              <div class="sv-field-control">
+                <button class="sv-ghost-btn sv-ghost-btn--danger">Deactivate</button>
+              </div>
             </div>
-            <div class="sv-row-action">
-              <button id="delete-account-btn" class="sv-delete-btn">Delete Account</button>
+
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Delete account permanently</div>
+                <div class="sv-field-hint">This action cannot be undone. All your data will be removed from SafiTrack.</div>
+              </div>
+              <div class="sv-field-control">
+                <button id="delete-account-btn" class="sv-danger-btn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>
+                  Delete account
+                </button>
+              </div>
             </div>
           </div>
         </section>
+
       </main>
     </div>
   `;
 
+  /* ─────────────── STYLES ─────────────── */
   if (!document.getElementById('sv-styles')) {
     const style = document.createElement('style');
     style.id = 'sv-styles';
     style.textContent = `
-      .sv-root { 
-        display:flex; 
-        height: 720px; 
+      /* ── Root shell ── */
+      .sv-root {
+        display: flex;
+        height: 720px;
         max-height: 90vh;
         width: 100%;
-        max-width: 1200px;
+        max-width: 1100px;
         margin: 0 auto;
-        overflow:hidden; 
-        background:var(--bg-primary); 
-        font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif; 
-        border-radius: 10px; 
+        overflow: hidden;
+        background: var(--bg-primary);
+        font-family: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+        border-radius: 12px;
         border: 1px solid var(--border-color);
-        box-shadow: var(--shadow-lg);
+        box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
       }
-      
-      /* Navigation Sidebar */
-      .sv-nav { width: 240px; flex-shrink: 0; border-right: 1px solid var(--border-color); padding: 32px 16px; background: var(--bg-primary); display: flex; flex-direction: column; gap: 4px; overflow-y: auto; }
-      .sv-nav-header { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 12px; padding: 0 12px; }
-      .sv-nav-item { display: flex; align-items: center; width: 100%; padding: 8px 12px; border: none; background: transparent; border-radius: 6px; font-size: 0.9rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; text-align: left; font-family: inherit; transition: background 0.15s, color 0.15s; }
-      .sv-nav-item:hover { background: var(--bg-secondary); color: var(--text-primary); }
-      .sv-nav-item.active { background: color-mix(in srgb, var(--color-primary) 15%, transparent); color: var(--color-primary); font-weight: 500; }
-      .sv-nav-divider { height: 1px; background: var(--border-color); margin: 16px 12px; }
-      .sv-nav-item-danger { color: #ef4444 !important; }
-      .sv-nav-item-danger:hover { background: rgba(239, 68, 68, 0.08); }
-      .sv-nav-item-danger.active { background: rgba(239, 68, 68, 0.12); color: #ef4444 !important; }
 
-      /* Main Content Area */
-      .sv-content { flex: 1; min-width: 0; overflow-y: auto; padding: 48px 64px; background: var(--bg-primary); scroll-behavior: smooth; }
-      .sv-section { display: block; max-width: 940px; }
-      .sv-section-header { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; padding-bottom: 16px; border-bottom: 1px solid var(--border-color); }
-      .sv-section-title { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin: 0; letter-spacing: -0.01em; }
-      .sv-save-status { font-size: 0.85rem; font-weight: 500; color: #10b981; display: flex; align-items: center; gap: 6px; opacity: 0; transition: opacity 0.3s; margin-left: auto; }
-      .sv-save-status svg { width: 16px; height: 16px; }
+      /* ── Sidebar ── */
+      .sv-nav {
+        width: 210px;
+        flex-shrink: 0;
+        padding: 20px 10px;
+        border-right: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        overflow-y: auto;
+      }
+      .sv-nav-section-label {
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        padding: 6px 10px 4px;
+        margin-top: 4px;
+      }
+      .sv-nav-item {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        width: 100%;
+        padding: 7px 10px;
+        border: none;
+        background: transparent;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        color: var(--text-secondary);
+        cursor: pointer;
+        text-align: left;
+        font-family: inherit;
+        transition: background 0.1s, color 0.1s;
+        letter-spacing: -0.01em;
+      }
+      .sv-nav-item:hover { background: var(--bg-tertiary, rgba(0,0,0,0.04)); color: var(--text-primary); }
+      .sv-nav-item.active {
+        background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+        color: var(--color-primary);
+        font-weight: 550;
+      }
+      .sv-nav-icon {
+        width: 15px;
+        height: 15px;
+        flex-shrink: 0;
+        opacity: 0.7;
+      }
+      .sv-nav-item.active .sv-nav-icon { opacity: 1; }
+      .sv-nav-divider { height: 1px; background: var(--border-color); margin: 10px 10px; }
+      .sv-nav-danger { color: #dc2626 !important; }
+      .sv-nav-danger:hover { background: rgba(220,38,38,0.06) !important; }
+      .sv-nav-danger.active { background: rgba(220,38,38,0.08) !important; color: #dc2626 !important; }
 
-      /* Row Layout */
-      .sv-row { display: flex; align-items: flex-start; gap: 40px; padding: 24px 0; border-bottom: 1px solid var(--border-color); }
-      .sv-row:last-child { border-bottom: none; }
-      .sv-row-vertical { flex-direction: column; gap: 16px; align-items: stretch; }
-      .sv-row-info { flex: 0 0 320px; }
-      .sv-row-title { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); margin-bottom: 6px; }
-      .sv-row-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.5; }
-      .sv-row-action { flex: 1; display: flex; justify-content: flex-end; align-items: center; }
-      .sv-row-vertical .sv-row-info { flex: none; width: 100%; }
-      .sv-row-vertical .sv-row-action { justify-content: flex-start; }
+      /* ── Main content ── */
+      .sv-content {
+        flex: 1;
+        min-width: 0;
+        overflow-y: auto;
+        padding: 40px 52px;
+        background: var(--bg-primary);
+        scroll-behavior: smooth;
+      }
+      .sv-section { max-width: 680px; }
 
-      /* Inputs and Buttons */
-      .sv-input { width: 100%; max-width: 320px; padding: 10px 14px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 0.9rem; font-family: inherit; transition: border-color 0.15s, box-shadow 0.15s; outline: none; box-sizing: border-box; }
-      .sv-input:focus { border-color: var(--color-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent); }
-      .sv-input:disabled { opacity: 0.6; cursor: not-allowed; background: var(--bg-secondary); }
-      
-      .sv-row-action-inputs { display: flex; gap: 12px; width: 100%; justify-content: flex-end; }
-      .sv-row-action-inputs .sv-input { max-width: 220px; }
+      /* ── Page header ── */
+      .sv-page-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        margin-bottom: 32px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .sv-page-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -0.025em;
+        margin: 0 0 4px;
+        line-height: 1.2;
+      }
+      .sv-page-subtitle {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+        margin: 0;
+        line-height: 1.5;
+      }
 
-      .sv-action-btn { display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.15s; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
-      .sv-action-btn:hover { background: var(--bg-secondary); border-color: color-mix(in srgb, var(--border-color) 80%, var(--text-primary)); }
-      
-      .sv-primary-btn { display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; border-radius: 8px; border: none; background: var(--color-primary); color: #ffffff; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: opacity 0.15s; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-      .sv-primary-btn:hover { opacity: 0.9; }
+      /* ── Saved pill ── */
+      .sv-saved-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 0.8rem;
+        font-weight: 550;
+        color: #059669;
+        background: rgba(5,150,105,0.08);
+        border: 1px solid rgba(5,150,105,0.18);
+        border-radius: 100px;
+        padding: 4px 10px;
+        opacity: 0;
+        transition: opacity 0.25s;
+        white-space: nowrap;
+        flex-shrink: 0;
+        margin-top: 4px;
+      }
+      .sv-saved-pill svg { width: 11px; height: 11px; }
 
-      .sv-delete-btn { display: inline-flex; align-items: center; justify-content: center; padding: 8px 16px; border-radius: 8px; border: 1px solid rgba(239,68,68,0.3); background: var(--bg-primary); color: #ef4444; font-size: 0.85rem; font-weight: 500; cursor: pointer; transition: all 0.15s; }
-      .sv-delete-btn:hover { background: rgba(239,68,68,0.05); border-color: #ef4444; }
+      /* ── Field groups ── */
+      .sv-field-group {
+        display: flex;
+        flex-direction: column;
+      }
+      .sv-field-group--danger .sv-field-row { border-color: rgba(220,38,38,0.12); }
+      .sv-field-row {
+        display: flex;
+        align-items: center;
+        gap: 32px;
+        padding: 20px 0;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .sv-field-row:first-child { padding-top: 0; }
+      .sv-field-row:last-child { border-bottom: none; padding-bottom: 0; }
+      .sv-field-row--block { flex-direction: column; align-items: flex-start; gap: 16px; }
+      .sv-field-meta { flex: 0 0 220px; }
+      .sv-field-label {
+        font-size: 0.92rem;
+        font-weight: 600;
+        color: var(--text-primary);
+        letter-spacing: -0.01em;
+        margin-bottom: 3px;
+      }
+      .sv-field-hint {
+        font-size: 0.84rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+      .sv-field-control {
+        flex: 1;
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 8px;
+      }
+      .sv-field-control--split { justify-content: flex-end; gap: 12px; }
+      .sv-field-row--block .sv-field-meta { flex: none; }
+      .sv-field-row--block .sv-field-control { justify-content: flex-start; width: 100%; }
 
-      /* Profile Specifics */
-      .sv-avatar-container { display: flex; align-items: center; gap: 24px; }
-      .sv-profile-avatar { width: 64px; height: 64px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary), #6366f1); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700; color: #fff; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-      .sv-role-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 4px 10px; border-radius: 100px; background: color-mix(in srgb, var(--color-primary) 12%, transparent); color: var(--color-primary); border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent); }
+      /* ── Inputs ── */
+      .sv-input {
+        width: 100%;
+        padding: 8px 12px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-size: 0.92rem;
+        font-family: inherit;
+        transition: border-color 0.12s, box-shadow 0.12s;
+        outline: none;
+        box-sizing: border-box;
+        letter-spacing: -0.01em;
+      }
+      .sv-input:focus {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 14%, transparent);
+      }
+      .sv-input-pair { display: flex; gap: 8px; width: 100%; justify-content: flex-end; }
+      .sv-input-pair .sv-input { max-width: 180px; }
 
-      /* Security Specifics */
-      .sv-email-display { display: flex; align-items: center; gap: 12px; margin-right: 16px; }
-      .sv-email-text { font-size: 0.95rem; color: var(--text-primary); font-weight: 500; }
-      .sv-email-status { font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #10b981; background: rgba(16,185,129,0.1); padding: 2px 6px; border-radius: 4px; }
+      /* ── Buttons ── */
+      .sv-primary-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 7px 14px;
+        border-radius: 6px;
+        border: none;
+        background: var(--color-primary);
+        color: #fff;
+        font-size: 0.88rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: opacity 0.12s;
+        font-family: inherit;
+        letter-spacing: -0.01em;
+      }
+      .sv-primary-btn:hover { opacity: 0.88; }
 
-      /* Appearance Specifics */
-      .sv-theme-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; }
-      .sv-theme-card { border: 2px solid var(--border-color); border-radius: 12px; background: transparent; padding: 0; cursor: pointer; overflow: hidden; transition: all 0.15s; text-align: left; }
-      .sv-theme-card:hover { border-color: color-mix(in srgb, var(--border-color) 70%, var(--text-primary)); }
-      .sv-theme-card.active { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary); }
-      .sv-theme-preview { height: 120px; background: var(--bg-primary); border-bottom: 1px solid var(--border-color); display: flex; padding: 16px 16px 0 16px; transition: border-color 0.15s; }
-      .sv-theme-card.active .sv-theme-preview { border-bottom-color: var(--color-primary); }
-      .sv-preview-dark { background: #0f172a; }
-      .sv-preview-system { background: transparent; padding: 0; }
-      .sv-preview-light { background: #ffffff; }
-      .sv-preview-light .sv-mock-content { background: #f8fafc; border-color: #e2e8f0; }
-      .sv-preview-light .sv-mock-sidebar { border-color: #e2e8f0; }
-      .sv-preview-light .sv-mock-table { background: #ffffff; border-color: rgba(0,0,0,0.05); }
-      .sv-preview-light .sv-mock-line { background: rgba(0,0,0,0.1); }
-      .sv-preview-light .sv-mock-row { background: rgba(0,0,0,0.05); }
-      
-      .sv-mock-half { flex: 1; display: flex; padding: 16px 16px 0 16px; overflow: hidden; }
-      .sv-mock-half.light-half { background: #ffffff; }
-      .sv-mock-half.dark-half { background: #0f172a; }
-      .sv-mock-half.dark-half .sv-mock-content { background: #1e293b; border-color: rgba(255,255,255,0.05); }
-      .sv-mock-half.dark-half .sv-mock-table { background: #0f172a; border-color: rgba(255,255,255,0.05); }
-      .sv-mock-half.dark-half .sv-mock-row { background: rgba(255,255,255,0.04); }
-      .sv-mock-half.dark-half .sv-mock-line { background: rgba(255,255,255,0.1); }
+      .sv-ghost-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 11px;
+        border-radius: 6px;
+        border: 1px solid var(--border-color);
+        background: transparent;
+        color: var(--text-secondary);
+        font-size: 0.86rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background 0.1s, border-color 0.1s, color 0.1s;
+        font-family: inherit;
+        letter-spacing: -0.01em;
+      }
+      .sv-ghost-btn:hover { background: var(--bg-secondary); color: var(--text-primary); border-color: color-mix(in srgb, var(--border-color) 60%, var(--text-primary)); }
+      .sv-ghost-btn--danger { color: #dc2626 !important; border-color: rgba(220,38,38,0.25) !important; }
+      .sv-ghost-btn--danger:hover { background: rgba(220,38,38,0.05) !important; border-color: rgba(220,38,38,0.4) !important; }
 
-      .sv-theme-label { padding: 12px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); display: flex; align-items: center; justify-content: center; background: var(--bg-primary); }
-      .sv-theme-card.active .sv-theme-label { color: var(--color-primary); }
-      
-      .sv-mock-sidebar { width: 32px; border-right: 1px solid rgba(0,0,0,0.05); margin-right: 12px; padding-top: 4px; display: flex; flex-direction: column; }
-      .sv-mock-content { flex: 1; border: 1px solid rgba(0,0,0,0.05); border-bottom: none; border-radius: 6px 6px 0 0; background: var(--bg-secondary); padding: 10px; }
-      .sv-preview-dark .sv-mock-sidebar { border-color: rgba(255,255,255,0.05); }
-      .sv-preview-dark .sv-mock-content { border-color: rgba(255,255,255,0.05); background: #1e293b; }
-      .sv-mock-line { height: 2px; border-radius: 1px; background: rgba(0,0,0,0.1); }
-      .sv-preview-dark .sv-mock-line { background: rgba(255,255,255,0.1); }
-      .sv-mock-table { width: 100%; height: 100%; border: 1px solid rgba(0,0,0,0.05); border-radius: 4px; background: var(--bg-primary); padding: 6px; display: flex; flex-direction: column; gap: 6px; }
-      .sv-preview-dark .sv-mock-table { background: #0f172a; border-color: rgba(255,255,255,0.05); }
+      .sv-danger-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 6px;
+        border: 1px solid rgba(220,38,38,0.3);
+        background: rgba(220,38,38,0.05);
+        color: #dc2626;
+        font-size: 0.86rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.12s, border-color 0.12s;
+        font-family: inherit;
+      }
+      .sv-danger-btn:hover { background: rgba(220,38,38,0.1); border-color: #dc2626; }
 
-      /* Force System Light side to stay light in Dark Mode */
-      .light-half .sv-mock-sidebar { border-color: rgba(0,0,0,0.05) !important; }
-      .light-half .sv-mock-content { background: #f8fafc !important; border-color: rgba(0,0,0,0.05) !important; }
-      .light-half .sv-mock-table { background: #ffffff !important; border-color: rgba(0,0,0,0.05) !important; }
-      .light-half .sv-mock-line { background: rgba(0,0,0,0.1) !important; }
-      .light-half .sv-mock-row { background: rgba(0,0,0,0.05) !important; }
-      .sv-mock-row { height: 6px; border-radius: 2px; background: rgba(0,0,0,0.04); }
-      .sv-preview-dark .sv-mock-row { background: rgba(255,255,255,0.04); }
+      /* ── Role / plan chips ── */
+      .sv-role-chip, .sv-plan-chip {
+        display: inline-flex;
+        align-items: center;
+        padding: 3px 10px;
+        border-radius: 100px;
+        font-size: 0.74rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+      }
+      .sv-role-chip {
+        background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+        color: var(--color-primary);
+        border: 1px solid color-mix(in srgb, var(--color-primary) 22%, transparent);
+        text-transform: capitalize;
+      }
+      .sv-role-chip[data-role="manager"] {
+        background: rgba(167,139,250,0.14);
+        color: #a78bfa;
+        border-color: rgba(167,139,250,0.28);
+      }
+      .sv-role-chip[data-role="sales_rep"] {
+        background: rgba(5,150,105,0.10);
+        color: #059669;
+        border-color: rgba(5,150,105,0.22);
+      }
+      .sv-role-chip[data-role="technician"] {
+        background: rgba(234,88,12,0.10);
+        color: #ea580c;
+        border-color: rgba(234,88,12,0.22);
+      }
+      .sv-role-chip[data-role="member"] {
+        background: rgba(100,116,139,0.10);
+        color: #64748b;
+        border-color: rgba(100,116,139,0.22);
+      }
+      .sv-plan-chip {
+        background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+        color: var(--color-primary);
+        border: 1px solid color-mix(in srgb, var(--color-primary) 22%, transparent);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 3px 8px;
+        font-size: 0.7rem;
+      }
 
-      /* Segmented Controls (Date Format) */
-      .sv-segmented { display: inline-flex; border-radius: 8px; border: 1px solid var(--border-color); overflow: hidden; background: var(--bg-primary); pading: 2px; }
-      .sv-seg-btn { padding: 8px 16px; border: none; background: transparent; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; font-family: inherit; transition: all 0.15s; }
-      .sv-seg-btn:hover { color: var(--text-primary); }
-      .sv-seg-active { background: var(--color-primary); color: #ffffff; font-weight: 500; box-shadow: 0 2px 4px rgba(var(--color-primary-rgb), 0.2); border-radius: 6px; margin: 2px; }
+      /* ── Chips / display elements ── */
+      .sv-verified-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 0.74rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: #059669;
+        background: rgba(5,150,105,0.08);
+        border: 1px solid rgba(5,150,105,0.16);
+        border-radius: 4px;
+        padding: 2px 7px;
+      }
+      .sv-mono-chip {
+        font-family: 'Geist Mono', 'Fira Code', ui-monospace, monospace;
+        font-size: 0.72rem;
+        color: var(--text-muted);
+        background: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        padding: 2px 7px;
+        letter-spacing: 0.08em;
+      }
 
-      /* iOS Style Toggles */
-      .sv-toggle { position: relative; display: inline-block; width: 44px; height: 24px; flex-shrink: 0; cursor: pointer; }
+      /* ── Email row ── */
+      .sv-email-row { display: flex; align-items: center; gap: 10px; }
+      .sv-email-val { font-size: 0.92rem; font-weight: 500; color: var(--text-primary); letter-spacing: -0.01em; }
+
+      /* ── Toggle ── */
+      .sv-toggle { position: relative; display: inline-block; width: 40px; height: 22px; flex-shrink: 0; cursor: pointer; }
       .sv-toggle input { opacity: 0; width: 0; height: 0; position: absolute; }
-      .sv-toggle-track { position: absolute; inset: 0; border-radius: 100px; background: var(--border-color); transition: background 0.25s ease; }
+      .sv-toggle-track { position: absolute; inset: 0; border-radius: 100px; background: var(--border-color); transition: background 0.2s; }
       .sv-toggle input:checked + .sv-toggle-track { background: var(--color-primary); }
-      .sv-toggle-thumb { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: #ffffff; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: transform 0.25s cubic-bezier(0.4, 0.0, 0.2, 1); }
-      .sv-toggle input:checked ~ .sv-toggle-track .sv-toggle-thumb { transform: translateX(20px); }
+      .sv-toggle-thumb { position: absolute; top: 2px; left: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.18); transition: transform 0.2s cubic-bezier(0.4,0,0.2,1); }
+      .sv-toggle input:checked ~ .sv-toggle-track .sv-toggle-thumb { transform: translateX(18px); }
 
-      /* Members Table Overhaul */
-      .sv-members-toolbar { margin-bottom: 24px; }
-      .sv-search-input { position: relative; max-width: 400px; }
-      .sv-search-input svg { position: absolute; left: 12px; top: 11px; width: 16px; height: 16px; color: var(--text-muted); }
-      .sv-search-input input { width: 100%; padding: 10px 14px 10px 38px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); color: var(--text-primary); font-size: 0.9rem; transition: all 0.15s; outline: none; }
-      .sv-search-input input:focus { border-color: var(--color-primary); background: var(--bg-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-primary) 15%, transparent); }
-      
-      .sv-members-table-container { border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-primary); overflow: hidden; }
-      .sv-members-table { width: 100%; border-collapse: collapse; text-align: left; }
-      .sv-members-table th { font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; padding: 16px 20px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); }
-      .sv-members-table td { padding: 16px 20px; border-bottom: 1px solid var(--border-color); vertical-align: middle; }
-      .sv-members-table tr:last-child td { border-bottom: none; }
-      .sv-members-table tbody tr { transition: background 0.15s; }
-      .sv-members-table tbody tr:hover { background: color-mix(in srgb, var(--bg-secondary) 50%, transparent); }
-      
-      .sv-member-cell { display: flex; align-items: center; gap: 16px; }
-      .sv-member-avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--color-primary), #6366f1); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; color: #fff; flex-shrink: 0; }
-      .sv-member-info { display: flex; flex-direction: column; gap: 2px; }
-      .sv-member-name { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
-      .sv-member-email { font-size: 0.8rem; color: var(--text-muted); }
-      
-      .sv-role-select { -webkit-appearance: none; appearance: none; background: transparent; border: 1px solid transparent; border-radius: 6px; padding: 6px 28px 6px 10px; font-size: 0.85rem; font-weight: 500; color: var(--text-secondary); cursor: pointer; transition: all 0.15s; outline: none; background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="%237a8390" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>'); background-repeat: no-repeat; background-position: right 8px center; }
-      .sv-role-select:hover { background-color: var(--bg-secondary); border-color: var(--border-color); color: var(--text-primary); }
-      
-      .sv-status-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); }
-      .sv-status-dot { width: 8px; height: 8px; border-radius: 50%; }
-      .sv-status-dot.active { background: #10b981; }
-      .sv-status-dot.invited { background: #f59e0b; }
-      
-      .sv-member-actions-cell { text-align: right; width: 60px; }
-      .sv-icon-btn { width: 32px; height: 32px; border-radius: 6px; border: none; background: transparent; color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.15s; opacity: 0; }
-      .sv-members-table tbody tr:hover .sv-icon-btn { opacity: 1; }
-      .sv-icon-btn:hover { background: var(--bg-secondary); color: var(--text-primary); }
+      /* ── Profile avatar ── */
+      .sv-avatar-wrap { display: flex; align-items: center; gap: 16px; }
+      .sv-avatar-circle {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--color-primary) 0%, #818cf8 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #fff;
+        flex-shrink: 0;
+        letter-spacing: -0.03em;
+      }
+      .sv-avatar-info { display: flex; flex-direction: column; gap: 5px; }
+      .sv-avatar-name { font-size: 0.96rem; font-weight: 600; color: var(--text-primary); letter-spacing: -0.02em; }
 
-      /* Organization Section */
-      .sv-org-edit-wrap { display: flex; gap: 8px; align-items: center; }
-      .sv-org-edit-wrap .sv-input { min-width: 220px; }
-      .sv-org-name-readonly { font-size: 0.95rem; font-weight: 600; color: var(--text-primary); }
+      /* ── Theme tiles ── */
+      .sv-theme-grid { display: flex; gap: 12px; width: 100%; }
+      .sv-theme-tile {
+        flex: 1;
+        border: 1.5px solid var(--border-color);
+        border-radius: 8px;
+        background: transparent;
+        padding: 0;
+        cursor: pointer;
+        overflow: hidden;
+        transition: border-color 0.15s;
+        text-align: left;
+        font-family: inherit;
+      }
+      .sv-theme-tile:hover { border-color: color-mix(in srgb, var(--border-color) 50%, var(--text-primary)); }
+      .sv-theme-tile.is-active { border-color: var(--color-primary); box-shadow: 0 0 0 1px var(--color-primary); }
 
-      /* Workspace identity card */
-      .sv-org-card { display: flex; align-items: center; gap: 18px; padding: 22px 24px; border: 1px solid var(--border-color); border-radius: 14px; background: var(--bg-secondary); max-width: 640px; margin-bottom: 24px; }
-      .sv-org-card-avatar { width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, var(--color-primary) 0%, #6366f1 100%); display: flex; align-items: center; justify-content: center; font-size: 1.15rem; font-weight: 800; color: #fff; letter-spacing: -0.03em; flex-shrink: 0; box-shadow: 0 4px 12px rgba(47,95,208,0.25); }
-      .sv-org-card-body { flex: 1; min-width: 0; }
-      .sv-org-card-name { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; letter-spacing: -0.02em; }
-      .sv-org-card-id { font-size: 0.75rem; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
-      .sv-org-card-id-val { font-family: 'SF Mono', 'Fira Code', 'Fira Mono', 'Roboto Mono', monospace; letter-spacing: 0.06em; background: var(--bg-tertiary); padding: 1px 6px; border-radius: 4px; font-size: 0.72rem; color: var(--text-secondary); }
-      .sv-org-card-edit-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-secondary); font-size: 0.8125rem; font-weight: 500; font-family: inherit; cursor: pointer; transition: background 0.15s, border-color 0.15s, color 0.15s; flex-shrink: 0; }
-      .sv-org-card-edit-btn:hover { background: var(--bg-tertiary); border-color: var(--color-primary); color: var(--color-primary); }
+      .sv-theme-mock {
+        height: 90px;
+        display: flex;
+        border-bottom: 1.5px solid var(--border-color);
+        overflow: hidden;
+      }
+      .sv-theme-tile.is-active .sv-theme-mock { border-bottom-color: var(--color-primary); }
+      .sv-theme-mock--light { background: #f8fafc; }
+      .sv-theme-mock--dark { background: #0d1117; }
+      .sv-theme-mock--system { background: transparent; }
 
-      /* Rename form */
-      .sv-org-rename-form { max-width: 640px; padding: 20px 24px; border: 1px solid var(--border-color); border-radius: 14px; background: var(--bg-secondary); margin-bottom: 24px; }
-      .sv-org-rename-label { display: block; font-size: 0.825rem; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+      .sv-theme-mock-half { flex: 1; display: flex; }
+      .sv-theme-mock-half--light { background: #f8fafc; }
+      .sv-theme-mock-half--dark { background: #0d1117; }
+
+      .sv-mock-sidebar-strip {
+        width: 28px;
+        flex-shrink: 0;
+        border-right: 1px solid rgba(0,0,0,0.07);
+      }
+      .sv-theme-mock--dark .sv-mock-sidebar-strip,
+      .sv-theme-mock-half--dark .sv-mock-sidebar-strip { border-right-color: rgba(255,255,255,0.06); }
+
+      .sv-mock-body { flex: 1; padding: 10px 8px; }
+      .sv-mock-header-bar { height: 3px; border-radius: 2px; background: rgba(0,0,0,0.08); margin-bottom: 8px; width: 55%; }
+      .sv-theme-mock--dark .sv-mock-header-bar,
+      .sv-theme-mock-half--dark .sv-mock-header-bar { background: rgba(255,255,255,0.1); }
+
+      .sv-mock-rows { display: flex; flex-direction: column; gap: 5px; }
+      .sv-mock-row-item { height: 2px; border-radius: 1px; background: rgba(0,0,0,0.06); }
+      .sv-mock-row-item:nth-child(2) { width: 75%; }
+      .sv-mock-row-item:nth-child(3) { width: 50%; }
+      .sv-theme-mock--dark .sv-mock-row-item,
+      .sv-theme-mock-half--dark .sv-mock-row-item { background: rgba(255,255,255,0.07); }
+
+      .sv-theme-tile-footer {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        padding: 9px 12px;
+        font-size: 0.84rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        background: var(--bg-primary);
+        letter-spacing: -0.01em;
+      }
+      .sv-theme-tile.is-active .sv-theme-tile-footer { color: var(--color-primary); }
+      .sv-theme-tile-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        border: 1.5px solid var(--border-color);
+        flex-shrink: 0;
+        transition: background 0.15s, border-color 0.15s;
+      }
+      .sv-theme-tile.is-active .sv-theme-tile-dot { background: var(--color-primary); border-color: var(--color-primary); }
+
+      /* ── Segmented ── */
+      .sv-seg {
+        display: inline-flex;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
+        padding: 2px;
+        background: var(--bg-secondary);
+        gap: 2px;
+      }
+      .sv-seg-btn {
+        padding: 6px 14px;
+        border: none;
+        background: transparent;
+        font-size: 0.86rem;
+        font-weight: 500;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 4px;
+        transition: background 0.12s, color 0.12s;
+        letter-spacing: -0.01em;
+      }
+      .sv-seg-btn:hover { color: var(--text-primary); }
+      .sv-seg-btn.is-active { background: var(--color-primary); color: #ffffff; font-weight: 600; box-shadow: 0 1px 3px rgba(0,0,0,0.15); }
+
+      /* ── Organization identity card ── */
+      .sv-org-identity-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 18px 20px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--bg-secondary);
+        margin-bottom: 16px;
+      }
+      .sv-org-identity-avatar {
+        width: 42px;
+        height: 42px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, var(--color-primary) 0%, #818cf8 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: #fff;
+        letter-spacing: -0.04em;
+        flex-shrink: 0;
+      }
+      .sv-org-identity-body { flex: 1; min-width: 0; }
+      .sv-org-identity-name { font-size: 0.98rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; margin-bottom: 4px; }
+      .sv-org-identity-id { display: flex; align-items: center; }
+
+      /* ── Org rename block ── */
+      .sv-org-rename-block {
+        padding: 16px 20px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--bg-secondary);
+        margin-bottom: 16px;
+      }
       .sv-org-rename-row { display: flex; align-items: center; gap: 8px; }
-      .sv-org-rename-row .sv-input { flex: 1; max-width: 300px; }
-      .sv-org-rename-hint { font-size: 0.775rem; color: var(--text-muted); margin: 10px 0 0; line-height: 1.5; }
 
-      /* Stat tiles grid */
-      .sv-org-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; max-width: 640px; }
-      .sv-org-stat-tile { display: flex; align-items: center; gap: 14px; padding: 16px 18px; border: 1px solid var(--border-color); border-radius: 12px; background: var(--bg-secondary); }
-      .sv-org-stat-tile-icon { width: 34px; height: 34px; border-radius: 9px; background: var(--bg-tertiary); color: var(--text-secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-      .sv-org-stat-tile-body { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
-      .sv-org-stat-tile-label { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
-      .sv-org-stat-tile-value { display: flex; align-items: center; }
-      .sv-org-stat-tile-mono { font-size: 0.9rem; font-weight: 700; color: var(--text-primary); font-family: 'SF Mono', 'Fira Code', monospace; letter-spacing: -0.01em; }
-      @media (max-width: 640px) { .sv-org-stats { grid-template-columns: 1fr; } .sv-org-rename-row { flex-wrap: wrap; } }
+      /* ── Stat row ── */
+      .sv-stat-row { display: flex; gap: 10px; }
+      .sv-stat-tile {
+        flex: 1;
+        padding: 14px 16px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--bg-secondary);
+      }
+      .sv-stat-tile-label { font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 8px; }
+      .sv-stat-tile-value { display: flex; align-items: center; }
+      .sv-stat-tile-value--mono { font-size: 1rem; font-weight: 700; color: var(--text-primary); font-family: 'Geist Mono', ui-monospace, monospace; letter-spacing: -0.02em; }
 
-      /* Billing Card */
-      .sv-billing-card { border: 1px solid var(--border-color); border-radius: 14px; background: var(--bg-secondary); padding: 28px 32px; max-width: 680px; }
-      .sv-billing-plan-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; }
-      .sv-billing-plan-info { display: flex; flex-direction: column; gap: 8px; }
-      .sv-plan-badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 100px; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 12%, transparent); border: 1px solid color-mix(in srgb, var(--color-primary) 25%, transparent); width: fit-content; }
-      .sv-billing-plan-name { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
-      .sv-billing-plan-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.55; max-width: 360px; }
-      .sv-change-plan-btn { display: inline-flex; align-items: center; gap: 7px; padding: 9px 18px; border-radius: 8px; font-size: 0.875rem; font-weight: 600; color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 10%, transparent); border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent); text-decoration: none; white-space: nowrap; transition: background 0.15s, border-color 0.15s, transform 0.1s; flex-shrink: 0; }
-      .sv-change-plan-btn svg { width: 16px; height: 16px; }
-      .sv-change-plan-btn:hover { background: color-mix(in srgb, var(--color-primary) 18%, transparent); border-color: color-mix(in srgb, var(--color-primary) 50%, transparent); transform: translateX(2px); }
-      .sv-billing-divider { height: 1px; background: var(--border-color); margin: 24px 0; }
-      .sv-billing-notice { display: flex; align-items: flex-start; gap: 10px; font-size: 0.82rem; color: var(--text-muted); line-height: 1.55; margin: 0; }
-      .sv-billing-notice svg { width: 15px; height: 15px; flex-shrink: 0; margin-top: 1px; color: var(--text-muted); }
+      /* ── Members table ── */
+      .sv-members-search-bar {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        border: 1px solid var(--border-color);
+        border-radius: 7px;
+        padding: 0 12px;
+        background: var(--bg-secondary);
+        margin-bottom: 16px;
+        max-width: 360px;
+      }
+      .sv-members-search-bar svg { width: 14px; height: 14px; color: var(--text-muted); flex-shrink: 0; }
+      .sv-members-search-bar input { flex: 1; border: none; background: transparent; outline: none; padding: 9px 0; font-size: 0.9rem; color: var(--text-primary); font-family: inherit; }
+      .sv-members-table-wrap { border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
+      .sv-members-table { width: 100%; border-collapse: collapse; text-align: left; }
+      .sv-members-table th { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; padding: 11px 16px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); }
+      .sv-members-table td { padding: 13px 16px; border-bottom: 1px solid var(--border-color); vertical-align: middle; font-size: 0.9rem; }
+      .sv-members-table tbody tr:last-child td { border-bottom: none; }
+      .sv-members-table tbody tr { transition: background 0.1s; }
+      .sv-members-table tbody tr:hover { background: color-mix(in srgb, var(--bg-secondary) 60%, transparent); }
+      .sv-table-empty { padding: 48px; text-align: center; color: var(--text-muted); font-size: 0.9rem; }
 
-      /* Responsive adjustments */
-      @media (max-width: 900px) {
-        .sv-root { flex-direction: column; }
-        .sv-nav { width: 100%; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; padding: 16px; border-right: none; border-bottom: 1px solid var(--border-color); gap: 8px; }
-        .sv-nav-header, .sv-nav-divider { display: none; }
-        .sv-nav-item { white-space: nowrap; width: auto; padding: 8px 16px; border-radius: 100px; }
-        .sv-content { padding: 32px 24px; }
-        .sv-row { flex-direction: column; gap: 16px; }
-        .sv-row-info { width: 100%; flex: none; }
-        .sv-row-action { justify-content: flex-start; width: 100%; }
-        .sv-theme-cards { grid-template-columns: 1fr; }
+      .sv-member-cell { display: flex; align-items: center; gap: 12px; }
+      .sv-member-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--color-primary), #818cf8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.72rem;
+        color: #fff;
+        flex-shrink: 0;
+        letter-spacing: -0.02em;
+      }
+      .sv-member-info { display: flex; flex-direction: column; gap: 2px; }
+      .sv-member-name { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; }
+      .sv-member-email { font-size: 0.82rem; color: var(--text-muted); }
+      .sv-you-badge { font-size: 0.64rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 3px; padding: 1px 5px; margin-left: 6px; }
+
+      .sv-status-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+      .sv-status-dot--active { background: #10b981; }
+      .sv-status-dot--invited { background: #f59e0b; }
+      .sv-status-text { font-size: 0.86rem; color: var(--text-muted); }
+
+
+
+      .sv-member-remove-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 5px;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        cursor: pointer;
+        opacity: 0;
+        transition: opacity 0.12s, background 0.12s, color 0.12s;
+      }
+      .sv-members-table tbody tr:hover .sv-member-remove-btn { opacity: 1; }
+      .sv-member-remove-btn:hover { background: rgba(220,38,38,0.08); color: #dc2626; }
+      .sv-member-actions-cell { text-align: right; width: 48px; }
+
+      /* ── Billing ── */
+      .sv-billing-block {
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        overflow: hidden;
+        background: var(--bg-secondary);
+      }
+      .sv-billing-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; padding: 24px; }
+      .sv-billing-plan-info { display: flex; flex-direction: column; gap: 6px; }
+      .sv-billing-plan-name { font-size: 1.02rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; }
+      .sv-billing-plan-desc { font-size: 0.86rem; color: var(--text-muted); line-height: 1.55; max-width: 300px; }
+      .sv-billing-notice {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 14px 24px;
+        background: var(--bg-primary);
+        border-top: 1px solid var(--border-color);
+        font-size: 0.84rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+      }
+      .sv-billing-notice svg { width: 13px; height: 13px; flex-shrink: 0; margin-top: 1px; }
+
+      /* ── Responsive ── */
+      @media (max-width: 860px) {
+        .sv-root { flex-direction: column; height: auto; max-height: none; border-radius: 8px; }
+        .sv-nav { width: 100%; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; padding: 10px; border-right: none; border-bottom: 1px solid var(--border-color); gap: 2px; }
+        .sv-nav-section-label, .sv-nav-divider { display: none; }
+        .sv-nav-item { white-space: nowrap; width: auto; padding: 7px 12px; border-radius: 100px; font-size: 0.86rem; }
+        .sv-nav-icon { display: none; }
+        .sv-content { padding: 28px 20px; }
+        .sv-field-row { flex-direction: column; gap: 12px; align-items: flex-start; }
+        .sv-field-meta { flex: none; width: 100%; }
+        .sv-field-control { justify-content: flex-start; }
+        .sv-input-pair { flex-direction: column; }
+        .sv-input-pair .sv-input { max-width: 100%; }
+        .sv-theme-grid { flex-direction: column; }
+        .sv-stat-row { flex-direction: column; }
       }
     `;
     document.head.appendChild(style);
   }
 
+  /* ─────────────── SECTION NAV ─────────────── */
   function setActiveSection(name) {
     document.querySelectorAll('.sv-nav-item').forEach(b => b.classList.toggle('active', b.dataset.section === name));
     document.querySelectorAll('.sv-section').forEach(s => s.style.display = s.dataset.section === name ? 'block' : 'none');
   }
-
   document.querySelectorAll('.sv-nav-item').forEach(btn => btn.addEventListener('click', () => setActiveSection(btn.dataset.section)));
 
+  /* ─────────────── AUTO-SAVE ─────────────── */
   let saveTimeout;
-
   const showSaveStatus = (id) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -2616,7 +3098,7 @@ async function renderSettingsView() {
     try {
       const firstName = document.getElementById('profile-firstname')?.value?.trim();
       const lastName = document.getElementById('profile-lastname')?.value?.trim();
-      const dateFormat = document.querySelector('.sv-date-segmented .sv-seg-active')?.dataset?.value || dateFormatPref;
+      const dateFormat = document.querySelector('.sv-date-segmented .is-active')?.dataset?.value || dateFormatPref;
       const emailNotifs = document.getElementById('pref-email-notifs')?.checked || false;
 
       localStorage.setItem('safitrack_date_format', dateFormat);
@@ -2632,20 +3114,18 @@ async function renderSettingsView() {
         if (!error) {
           try { currentUserProfile = { ...(currentUserProfile || {}), ...(updated || {}) }; } catch (e) { }
           showSaveStatus(sectionId === 'profile' ? 'profile-save-status' : 'pref-save-status');
-
-          // update user avatar display instantly
           const fName = updated.first_name || '';
           const lName = updated.last_name || '';
           const email = currentUser?.email || '';
           const init = ((fName ? fName[0] : '') + (lName ? lName[0] : '')).toUpperCase() || (email ? email[0].toUpperCase() : 'U');
           const full = [fName, lName].filter(Boolean).join(' ') || 'Your Name';
-          document.querySelectorAll('.sv-nav-avatar, .sv-profile-avatar').forEach(el => el.textContent = init);
-          document.querySelectorAll('.sv-nav-user-name, .sv-profile-name').forEach(el => el.textContent = full);
+          document.querySelectorAll('.sv-nav-avatar, .sv-avatar-circle').forEach(el => el.textContent = init);
+          document.querySelectorAll('.sv-nav-user-name, .sv-avatar-name').forEach(el => el.textContent = full);
         }
       } else {
         showSaveStatus(sectionId === 'profile' ? 'profile-save-status' : 'pref-save-status');
       }
-      if (sectionId !== 'profile') refreshCurrentView(); // Only trigger heavy refresh if it affects appearance
+      if (sectionId !== 'profile') refreshCurrentView();
     } catch (e) { console.error(e); }
   };
 
@@ -2654,37 +3134,33 @@ async function renderSettingsView() {
     saveTimeout = setTimeout(() => autoSaveSettings(sectionId), 700);
   };
 
-  // Date segmented interaction
+  /* ─────────────── DATE SEGMENT ─────────────── */
   document.querySelectorAll('.sv-date-segmented .sv-seg-btn').forEach(b => b.addEventListener('click', () => {
-    document.querySelectorAll('.sv-date-segmented .sv-seg-btn').forEach(x => x.classList.remove('sv-seg-active'));
-    b.classList.add('sv-seg-active');
+    document.querySelectorAll('.sv-date-segmented .sv-seg-btn').forEach(x => x.classList.remove('is-active'));
+    b.classList.add('is-active');
     autoSaveSettings('preferences');
   }));
 
-  // Theme card interaction
-  document.querySelectorAll('.sv-theme-card').forEach(btn => {
+  /* ─────────────── THEME TILES ─────────────── */
+  document.querySelectorAll('.sv-theme-tile').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.sv-theme-card').forEach(x => x.classList.remove('active'));
-      btn.classList.add('active');
+      document.querySelectorAll('.sv-theme-tile').forEach(x => x.classList.remove('is-active'));
+      btn.classList.add('is-active');
       const newTheme = btn.dataset.themeVal;
-
       localStorage.setItem('safitrack_theme', newTheme);
-
       let actualTheme = newTheme;
-      if (newTheme === 'system') {
-        actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      }
+      if (newTheme === 'system') actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
       document.documentElement.setAttribute('data-theme', actualTheme);
-
-      // Fire generic global re-render function if exists to update charts etc.
       if (typeof updateChartColors === 'function') setTimeout(updateChartColors, 50);
     });
   });
 
+  /* ─────────────── CHANGE PASSWORD ─────────────── */
   document.getElementById('profile-change-password-btn')?.addEventListener('click', () => {
     try { openChangePasswordModal(); } catch (e) { console.error(e); }
   });
 
+  /* ─────────────── BROWSER NOTIFS ─────────────── */
   document.getElementById('enable-browser-notifs')?.addEventListener('click', async () => {
     try {
       const perm = await Notification.requestPermission();
@@ -2692,14 +3168,16 @@ async function renderSettingsView() {
     } catch (e) { showToast('Unable to enable notifications', 'error'); }
   });
 
+  /* ─────────────── DELETE ACCOUNT ─────────────── */
   document.getElementById('delete-account-btn')?.addEventListener('click', () => {
     if (confirm('Delete your account and all owned data? This cannot be undone.'))
       showToast('Account deletion requested. Contact support to complete the process.', 'warning');
   });
 
+  /* ─────────────── EXPORT ─────────────── */
   document.getElementById('export-data-btn')?.addEventListener('click', () => showToast('Preparing export…', 'info'));
 
-  // Org rename — toggle show/hide the rename form
+  /* ─────────────── ORG RENAME ─────────────── */
   document.getElementById('sv-org-name-edit-trigger')?.addEventListener('click', () => {
     const form = document.getElementById('sv-org-rename-form');
     if (!form) return;
@@ -2713,12 +3191,10 @@ async function renderSettingsView() {
     if (form) form.style.display = 'none';
     const trigger = document.getElementById('sv-org-name-edit-trigger');
     if (trigger) trigger.style.display = '';
-    // Reset input to current name
     const input = document.getElementById('org-name-input');
     if (input) input.value = currentOrganization?.name || '';
   });
 
-  // Org rename — save
   document.getElementById('org-name-save-btn')?.addEventListener('click', async () => {
     const input = document.getElementById('org-name-input');
     const btn = document.getElementById('org-name-save-btn');
@@ -2729,30 +3205,21 @@ async function renderSettingsView() {
     btn.disabled = true;
     btn.textContent = 'Saving…';
     try {
-      const { data, error } = await supabaseClient
-        .from('organizations')
-        .update({ name: newName })
-        .eq('id', currentOrganization.id)
-        .select('name')
-        .single();
+      const { data, error } = await supabaseClient.from('organizations').update({ name: newName }).eq('id', currentOrganization.id).select('name').single();
       if (error) throw error;
       if (!data) throw new Error('Update blocked — no rows returned. Check RLS policy.');
       currentOrganization.name = data.name;
       document.querySelectorAll('.org-name-display').forEach(el => el.textContent = data.name);
       const orgNameEl = document.getElementById('org-name');
       if (orgNameEl) orgNameEl.textContent = data.name;
-      // Sync header and sidebar workspace button
       const headerOrgEl = document.getElementById('header-org-name');
       if (headerOrgEl) headerOrgEl.textContent = data.name;
       const wsBtnName = document.getElementById('ws-btn-org-name');
-      if (wsBtnName) wsBtnName.textContent = data.name.length > 16
-        ? data.name.slice(0, 16) + '\u2026' : data.name;
+      if (wsBtnName) wsBtnName.textContent = data.name.length > 16 ? data.name.slice(0, 16) + '\u2026' : data.name;
       const wsBtnAvatar = document.getElementById('ws-btn-avatar');
       if (wsBtnAvatar) wsBtnAvatar.textContent = data.name[0].toUpperCase();
-      // Update identity card name in-place
-      const cardName = document.querySelector('.sv-org-card-name');
+      const cardName = document.querySelector('.sv-org-identity-name');
       if (cardName) cardName.textContent = data.name;
-      // Close form, restore trigger button
       const form = document.getElementById('sv-org-rename-form');
       if (form) form.style.display = 'none';
       const trigger = document.getElementById('sv-org-name-edit-trigger');
@@ -2763,40 +3230,34 @@ async function renderSettingsView() {
       showToast('Failed to update organization name.', 'error');
     } finally {
       btn.disabled = false;
-      btn.textContent = 'Save changes';
+      btn.textContent = 'Save';
     }
   });
 
-  // Bind text inputs for debounced saves
+  /* ─────────────── INPUT DEBOUNCE ─────────────── */
   document.getElementById('profile-firstname')?.addEventListener('input', () => debounceSave('profile'));
   document.getElementById('profile-lastname')?.addEventListener('input', () => debounceSave('profile'));
   document.getElementById('pref-email-notifs')?.addEventListener('change', () => autoSaveSettings('preferences'));
 
-  // Load Members (profiles + pending invitations)
+  /* ─────────────── LOAD MEMBERS ─────────────── */
   const loadMembers = async () => {
     const listContainer = document.getElementById('sv-members-container');
     if (!listContainer || typeof supabaseClient === 'undefined') return;
+    listContainer.innerHTML = `<tr><td colspan="4" class="sv-table-empty">Loading…</td></tr>`;
 
-    listContainer.innerHTML = `<tr><td colspan="4" style="padding:40px;text-align:center;color:var(--text-muted);font-size:0.9rem;">Loading…</td></tr>`;
-
-    // Fetch active/invited member profiles scoped to this org
     const orgId = currentOrganization?.id;
     let pQ = supabaseClient.from('profiles').select('*').order('created_at', { ascending: false });
     if (orgId) pQ = pQ.eq('organization_id', orgId);
 
-    const promises = [pQ];
-
-    // Only fetch pending invitations if manager AND we have an orgId
-    if (isManager && orgId) {
-      promises.push(supabaseClient.from('invitations').select('*').eq('status', 'pending').eq('organization_id', orgId).order('created_at', { ascending: false }));
-    } else {
-      promises.push(Promise.resolve({ data: [], error: null }));
-    }
-
-    const [profilesResult, invitesResult] = await Promise.all(promises);
+    const [profilesResult, invitesResult] = await Promise.all([
+      pQ,
+      isManager
+        ? supabaseClient.from('invitations').select('*').eq('status', 'pending').order('created_at', { ascending: false })
+        : Promise.resolve({ data: [], error: null }),
+    ]);
 
     if (profilesResult.error) {
-      listContainer.innerHTML = `<tr><td colspan="4" style="padding:40px;text-align:center;color:#ef4444;">Failed to load members: ${escH(profilesResult.error.message)}</td></tr>`;
+      listContainer.innerHTML = `<tr><td colspan="4" class="sv-table-empty" style="color:#dc2626;">Failed to load members: ${escH(profilesResult.error.message)}</td></tr>`;
       return;
     }
 
@@ -2804,76 +3265,64 @@ async function renderSettingsView() {
     const invites = invitesResult.data || [];
 
     if (!users.length && !invites.length) {
-      listContainer.innerHTML = `<tr><td colspan="4" style="padding:40px;text-align:center;color:var(--text-muted);">No members yet. Invite your team!</td></tr>`;
+      listContainer.innerHTML = `<tr><td colspan="4" class="sv-table-empty">No members yet. Invite your team!</td></tr>`;
       return;
     }
 
-    const avatarColors = ['', 'sv-member-avatar--alt', 'sv-member-avatar--alt2'];
+    const roleLabel = r => r === 'manager' ? 'Manager' : r === 'sales_rep' ? 'Sales Rep' : r === 'technician' ? 'Technician' : 'Member';
+    const roleChip = r => `<span class="sv-role-chip" data-role="${r || 'member'}">${roleLabel(r)}</span>`;
 
-    // Active/existing member rows
-    const memberRows = users.map((u, i) => {
+    const memberRows = users.map(u => {
       const uFullName = (`${u.first_name || ''} ${u.last_name || ''}`).trim() || u.email || 'Teammate';
       const uInitials = getInitials(uFullName);
-      const avatarCls = avatarColors[i % 3];
       const isMe = u.id === currentUser?.id;
-      const displayRole = u.role === 'manager' ? 'Manager' : u.role === 'sales_rep' ? 'Sales Rep' : u.role === 'technician' ? 'Technician' : 'Member';
       const actionsHtml = (isManager && !isMe)
-        ? `<button class="sv-icon-btn sv-icon-btn--danger" title="Remove member" onclick="if(typeof deleteUser==='function') deleteUser('${u.id}','${uFullName.replace(/'/g, "\\'")}','${u.role || ''}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M18 6L6 18M6 6l12 12"></path></svg></button>`
+        ? `<button class="sv-member-remove-btn" title="Remove member" onclick="if(typeof deleteUser==='function') deleteUser('${u.id}','${uFullName.replace(/'/g, "\\'")}','${u.role || ''}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`
         : '';
       return `
         <tr>
-          <td>
-            <div class="sv-member-cell">
-              <div class="sv-member-avatar ${avatarCls}">${escH(uInitials)}</div>
-              <div class="sv-member-info">
-                <div class="sv-member-name">${escH(uFullName)} ${isMe ? '<span style="color:var(--text-muted);font-weight:700;font-size:0.65rem;letter-spacing:0.04em;text-transform:uppercase;background:var(--bg-secondary);padding:2px 6px;border-radius:4px;margin-left:8px;border:1px solid var(--border-color);">You</span>' : ''}</div>
-                <div class="sv-member-email">${escH(u.email || '')}</div>
-              </div>
+          <td><div class="sv-member-cell">
+            <div class="sv-member-avatar">${escH(uInitials)}</div>
+            <div class="sv-member-info">
+              <div class="sv-member-name">${escH(uFullName)}${isMe ? '<span class="sv-you-badge">You</span>' : ''}</div>
+              <div class="sv-member-email">${escH(u.email || '')}</div>
             </div>
-          </td>
-          <td><span style="font-size:0.85rem;font-weight:500;color:var(--text-secondary);padding:4px 8px;">${escH(displayRole)}</span></td>
-          <td><div class="sv-status-badge"><span class="sv-status-dot active"></span> Active</div></td>
+          </div></td>
+          <td>${roleChip(u.role)}</td>
+          <td><span class="sv-status-dot sv-status-dot--active"></span><span class="sv-status-text">Active</span></td>
           <td class="sv-member-actions-cell">${actionsHtml}</td>
         </tr>`;
     });
 
-    // Pending invitation rows
-    const inviteRows = invites.map((inv, i) => {
-      const idx = users.length + i;
-      const avatarCls = avatarColors[idx % 3];
+    const inviteRows = invites.map(inv => {
       const initials = (inv.email || '?')[0].toUpperCase();
-      const displayRole = inv.role === 'manager' ? 'Manager' : inv.role === 'sales_rep' ? 'Sales Rep' : inv.role === 'technician' ? 'Technician' : 'Member';
       const revokeHtml = isManager
-        ? `<button class="sv-icon-btn sv-icon-btn--danger" title="Revoke invitation"
+        ? `<button class="sv-member-remove-btn" title="Revoke invitation"
               onclick="(async()=>{if(!confirm('Revoke this invitation?'))return;const{error}=await supabaseClient.from('invitations').update({status:'revoked'}).eq('id','${inv.id}');if(!error){this.closest('tr').remove();showToast('Invitation revoked','info');}else{showToast('Failed to revoke: '+error.message,'error');}})()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:16px;height:16px;"><path d="M18 6L6 18M6 6l12 12"></path></svg>
-          </button>`
-        : '';
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>` : '';
       return `
-        <tr style="opacity:0.75;">
-          <td>
-            <div class="sv-member-cell">
-              <div class="sv-member-avatar ${avatarCls}" style="background:linear-gradient(135deg,#64748b,#94a3b8);">${escH(initials)}</div>
-              <div class="sv-member-info">
-                <div class="sv-member-name">${escH(inv.email)}</div>
-                <div class="sv-member-email" style="font-style:italic;">Invitation sent · expires ${new Date(inv.expires_at).toLocaleDateString()}</div>
-              </div>
+        <tr style="opacity:0.65;">
+          <td><div class="sv-member-cell">
+            <div class="sv-member-avatar" style="background:linear-gradient(135deg,#64748b,#94a3b8);">${escH(initials)}</div>
+            <div class="sv-member-info">
+              <div class="sv-member-name">${escH(inv.email)}</div>
+              <div class="sv-member-email">Invite sent · expires ${new Date(inv.expires_at).toLocaleDateString()}</div>
             </div>
-          </td>
-          <td><span style="font-size:0.85rem;font-weight:500;color:var(--text-secondary);padding:4px 8px;">${escH(displayRole)}</span></td>
-          <td><div class="sv-status-badge"><span class="sv-status-dot invited"></span> Pending invite</div></td>
+          </div></td>
+          <td>${roleChip(inv.role)}</td>
+          <td><span class="sv-status-dot sv-status-dot--invited"></span><span class="sv-status-text">Pending</span></td>
           <td class="sv-member-actions-cell">${revokeHtml}</td>
         </tr>`;
     });
 
     listContainer.innerHTML = [...memberRows, ...inviteRows].join('');
 
-    // Update seat usage in billing section if org data is available
     if (currentOrganization) {
+      const total = users.length + invites.length;
+      const maxSlots = currentOrganization.max_members || 2;
       const usedSlotsEl = document.querySelector('.sv-usage-labels span:last-child');
       const usageBarEl = document.querySelector('.sv-usage-fill');
-      const total = (users.length + invites.length);
-      const maxSlots = currentOrganization.max_members || 2;
       if (usedSlotsEl) usedSlotsEl.textContent = `${total} / ${maxSlots}`;
       if (usageBarEl) usageBarEl.style.width = `${Math.min(100, Math.round((total / maxSlots) * 100))}%`;
     }
@@ -2896,6 +3345,7 @@ async function renderSettingsView() {
   _pendingSettingsSection = null;
   setActiveSection(_initSection);
 }
+
 
 
 async function renderCompaniesView() {
