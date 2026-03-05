@@ -270,6 +270,11 @@ body {
     margin-bottom: 20px;
 }
 
+/* ensure icon strokes that extend beyond the 20x20 viewbox aren’t clipped */
+.fp-card-icon svg {
+    overflow: visible;
+}
+
 .fp-card h4 {
     font-size: 17px;
     font-weight: 700;
