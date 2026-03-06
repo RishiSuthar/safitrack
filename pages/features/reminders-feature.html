@@ -1,274 +1,645 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reminders - SafiTrack CRM</title>
-    <meta name="description" content="Never miss a follow-up with SafiTrack Reminders. Smart alerts for deals at risk, outstanding tasks, and upcoming meetings — across every channel.">
+    <meta name="description"
+        content="Never miss a follow-up with SafiTrack Reminders. Smart alerts for deals at risk, outstanding tasks, and upcoming meetings — across every channel.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://safitrack.netlify.app/pages/features/reminders-feature.html">
     <meta property="og:title" content="Reminders — SafiTrack CRM">
-    <meta property="og:description" content="Never miss a follow-up with SafiTrack Reminders. Smart alerts for deals at risk, outstanding tasks, and upcoming meetings — across every channel.">
+    <meta property="og:description"
+        content="Never miss a follow-up with SafiTrack Reminders. Smart alerts for deals at risk, outstanding tasks, and upcoming meetings — across every channel.">
     <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://safitrack.netlify.app/pages/features/reminders-feature.html">
     <meta property="twitter:title" content="Reminders — SafiTrack CRM">
-    <meta property="twitter:description" content="Never miss a follow-up with SafiTrack Reminders. Smart alerts for deals at risk, outstanding tasks, and upcoming meetings — across every channel.">
+    <meta property="twitter:description"
+        content="Never miss a follow-up with SafiTrack Reminders. Smart alerts for deals at risk, outstanding tasks, and upcoming meetings — across every channel.">
     <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
     <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="../../landing.css">
     <link rel="stylesheet" href="feature-page.css">
-    <style>:root{--accent:#f43f5e;}</style>
+    <style>
+        :root {
+            --accent: #f43f5e;
+        }
+    </style>
 </head>
+
 <body>
-<nav class="navbar" id="navbar">
-    <div class="container">
-        <div class="nav-content">
-            <div class="nav-left">
-                <a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack"></a>
-                <div class="nav-links">
-                    <div class="nav-item nav-features">
-                        <a href="#" class="nav-link-toggle">Features
-                            <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                        </a>
-                        <div class="mega-menu" aria-hidden="true">
-                            <div class="mega-left">
-                                <a href="safi-ai-feature.html" class="mega-feature large"><span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><rect x="8" y="8" width="8" height="8" rx="1"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M12 2v2"/><path d="M12 20v2"/></svg></span><div class="mega-text"><h4>Safi AI</h4><p>AI insights native to your CRM</p></div></a>
-                                <a href="sales-visits-feature.html" class="mega-feature large"><span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-7.5 7-11a7 7 0 10-14 0c0 3.5 7 11 7 11z"/><circle cx="12" cy="10" r="2"/></svg></span><div class="mega-text"><h4>Sales visits</h4><p>Manage field visits and visit logs</p></div></a>
-                                <a href="opportunities-feature.html" class="mega-feature large"><span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span><div class="mega-text"><h4>Opportunities &amp; Pipelines</h4><p>Track deals and pipelines</p></div></a>
-                                <a href="route-plans-feature.html" class="mega-feature large"><span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></span><div class="mega-text"><h4>Route plans</h4><p>Optimise routing for field visits</p></div></a>
-                            </div>
-                            <div class="mega-right">
-                                <ul class="mega-list">
-                                    <li><a href="companies-feature.html">Companies</a></li>
-                                    <li><a href="people-feature.html">People</a></li>
-                                    <li><a href="call-logs-feature.html">Call Intelligence</a></li>
-                                    <li><a href="notes-feature.html">Notes</a></li>
-                                    <li><a href="reminders-feature.html">Reminders</a></li>
-                                    <li><a href="tasks-feature.html">Tasks</a></li>
-                                    <li><a href="technician-visits-feature.html">Technician visits</a></li>
-                                </ul>
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="nav-left">
+                    <a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png"
+                            alt="SafiTrack"></a>
+                    <div class="nav-links">
+                        <div class="nav-item nav-features">
+                            <a href="mainfeatures.html" class="nav-link-toggle">Features
+                                <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg></span>
+                            </a>
+                            <div class="mega-menu" aria-hidden="true">
+                                <div class="mega-left">
+                                    <a href="safi-ai-feature.html" class="mega-feature large"><span
+                                            class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                                                aria-hidden="true">
+                                                <rect x="4" y="4" width="16" height="16" rx="3" />
+                                                <rect x="8" y="8" width="8" height="8" rx="1" />
+                                                <path d="M2 12h2" />
+                                                <path d="M20 12h2" />
+                                                <path d="M12 2v2" />
+                                                <path d="M12 20v2" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>Safi AI</h4>
+                                            <p>AI insights native to your CRM</p>
+                                        </div>
+                                    </a>
+                                    <a href="sales-visits-feature.html" class="mega-feature large"><span
+                                            class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                                                aria-hidden="true">
+                                                <path d="M12 21s7-7.5 7-11a7 7 0 10-14 0c0 3.5 7 11 7 11z" />
+                                                <circle cx="12" cy="10" r="2" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>Sales visits</h4>
+                                            <p>Manage field visits and visit logs</p>
+                                        </div>
+                                    </a>
+                                    <a href="opportunities-feature.html" class="mega-feature large"><span
+                                            class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                                                aria-hidden="true">
+                                                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                                <path d="M2 17l10 5 10-5" />
+                                                <path d="M2 12l10 5 10-5" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>Opportunities &amp; Pipelines</h4>
+                                            <p>Track deals and pipelines</p>
+                                        </div>
+                                    </a>
+                                    <a href="route-plans-feature.html" class="mega-feature large"><span
+                                            class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                                                aria-hidden="true">
+                                                <path d="M22 2L11 13" />
+                                                <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>Route plans</h4>
+                                            <p>Optimise routing for field visits</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="mega-right">
+                                    <ul class="mega-list">
+                                        <li><a href="companies-feature.html">Companies</a></li>
+                                        <li><a href="people-feature.html">People</a></li>
+                                        <li><a href="call-logs-feature.html">Call Intelligence</a></li>
+                                        <li><a href="notes-feature.html">Notes</a></li>
+                                        <li><a href="reminders-feature.html">Reminders</a></li>
+                                        <li><a href="tasks-feature.html">Tasks</a></li>
+                                        <li><a href="technician-visits-feature.html">Technician visits</a></li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <a href="../../index.html#product">Product</a>
-                    <a href="../pricing.html">Pricing</a>
-                </div>
-            </div>
-            <div class="nav-actions">
-                <a href="/crm/" class="nav-link-sign-in">Sign in</a>
-                <a href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a>
-            </div>
-            <button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button>
-        </div>
-    </div>
-</nav>
-<div class="mobile-nav-overlay">
-    <button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-    <div class="mobile-nav-content">
-        <a href="safi-ai-feature.html" class="mobile-link">Safi AI</a>
-        <a href="sales-visits-feature.html" class="mobile-link">Sales visits</a>
-        <a href="opportunities-feature.html" class="mobile-link">Opportunities &amp; Pipelines</a>
-        <a href="route-plans-feature.html" class="mobile-link">Route plans</a>
-        <a href="mainfeatures.html" class="mobile-link">More features</a>
-        <a href="../../index.html#product" class="mobile-link">Product</a>
-        <a href="../pricing.html" class="mobile-link">Pricing</a>
-        <hr class="mobile-divider">
-        <a href="/crm/" class="mobile-link">Open App</a>
-    </div>
-</div>
-
-<header class="fp-hero">
-    <div class="fp-container">
-        <h1>Never forget a<br><span>follow-up again</span></h1>
-        <p class="fp-subtitle">Set smart reminders for any contact, deal, or task. Get notified at the right time via push notifications, in-app alerts, or email — keep every promise you make to a prospect.</p>
-
-        <div class="fp-mockup">
-            <div class="fp-mockup-window">
-                <div class="fp-mockup-bar"><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div></div>
-                <div class="fp-mockup-body" style="padding:24px;min-height:360px;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-                        <div style="font-size:18px;font-weight:700;color:#0b1220;">Upcoming Reminders</div>
-                        <div style="padding:5px 14px;background:#f43f5e;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">+ New Reminder</div>
-                    </div>
-                    <!-- Reminder entries grouped by time -->
-                    <div style="margin-bottom:18px;">
-                        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#f43f5e;margin-bottom:8px;">⏰ In 15 minutes</div>
-                        <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;">
-                            <div style="width:8px;height:8px;border-radius:50%;background:#f43f5e;flex-shrink:0;animation:pulse 2s infinite;"></div>
-                            <div style="flex:1;">
-                                <div style="font-size:14px;font-weight:600;color:#0b1220;">Call back Eleanor Pena</div>
-                                <div style="font-size:12px;color:#6b7280;">Re: Acme Corp pricing · Set 2 hours ago</div>
-                            </div>
-                            <div style="display:flex;gap:6px;">
-                                <div style="padding:4px 10px;background:#fff;border:1px solid #e6e9ef;border-radius:6px;font-size:11px;color:#374151;">Snooze</div>
-                                <div style="padding:4px 10px;background:#f43f5e;border-radius:6px;font-size:11px;color:#fff;font-weight:600;">Done</div>
+                        <div class="nav-item nav-resources">
+                            <a href="../documentation.html" class="nav-link-toggle">Resources
+                                <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg></span>
+                            </a>
+                            <div class="mega-menu" aria-hidden="true">
+                                <div class="mega-left">
+                                    <a href="../documentation.html" class="mega-feature"><span class="icon-box"><svg
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                                <polyline points="14 2 14 8 20 8" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>Documentation</h4>
+                                            <p>Guides and tutorials</p>
+                                        </div>
+                                    </a>
+                                    <a href="../apireference.html" class="mega-feature"><span class="icon-box"><svg
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="16 18 22 12 16 6" />
+                                                <polyline points="8 6 2 12 8 18" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>API Reference</h4>
+                                            <p>Build on SafiTrack</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="mega-right">
+                                    <ul class="mega-list">
+                                        <li><a href="../helpcenter.html">Help Center</a></li>
+                                        <li><a href="../blog.html">Blog</a></li>
+                                        <li><a href="../careers.html">Careers</a></li>
+                                        <li><a href="../status.html">Status</a></li>
+                                    </ul>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div style="margin-bottom:18px;">
-                        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:8px;">📅 Today — 3:00 PM</div>
-                        <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;margin-bottom:6px;">
-                            <div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0;"></div>
-                            <div style="flex:1;">
-                                <div style="font-size:14px;font-weight:600;color:#0b1220;">Send follow-up to Marcus Chen</div>
-                                <div style="font-size:12px;color:#6b7280;">Re: Globex deal · Linked to opportunity</div>
-                            </div>
-                            <span class="ui-tag" style="background:rgba(245,158,11,.1);color:#f59e0b;">3:00 PM</span>
-                        </div>
-                    </div>
-                    <div>
-                        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:8px;">📅 Tomorrow — 10:00 AM</div>
-                        <div style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
-                            <div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></div>
-                            <div style="flex:1;">
-                                <div style="font-size:14px;font-weight:600;color:#0b1220;">Review contract with legal team</div>
-                                <div style="font-size:12px;color:#6b7280;">Wayne Enterprises · Negotiation stage</div>
-                            </div>
-                            <span class="ui-tag" style="background:rgba(59,130,246,.1);color:#3b82f6;">10:00 AM</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</header>
-
-<!-- Section 1: Smart scheduling -->
-<section class="fp-section">
-    <div class="fp-container">
-        <div class="fp-split">
-            <div>
-                <p class="fp-section-label">Smart Scheduling</p>
-                <h2 class="fp-section-title">Set it once, never think about it again</h2>
-                <p class="fp-section-desc">Schedule reminders for any time — 15 minutes, 2 hours, tomorrow morning, or a specific date. Snooze if you're busy. The reminder stays until you act on it.</p>
-                <ul class="fp-checklist">
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Quick presets: 15m, 1h, tomorrow, next week</li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Custom date and time picker</li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Snooze and reschedule with one click</li>
-                </ul>
-            </div>
-            <div class="fp-visual">
-                <div class="fp-visual-inner">
-                    <svg width="100%" height="220" viewBox="0 0 420 220" fill="none" style="display:block;">
-                        <!-- Timeline flow -->
-                        <line x1="210" y1="20" x2="210" y2="200" stroke="#e6e9ef" stroke-width="2"/>
-                        <!-- Now -->
-                        <circle cx="210" cy="30" r="8" fill="#f43f5e"/>
-                        <text x="230" y="34" font-size="11" font-weight="700" fill="#f43f5e" font-family="Manrope,sans-serif">NOW</text>
-                        <rect x="255" y="18" width="140" height="28" rx="8" fill="#fef2f2" stroke="#fecaca"/>
-                        <text x="325" y="36" text-anchor="middle" font-size="10" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">🔔 Call Eleanor back</text>
-                        <!-- 3 PM -->
-                        <circle cx="210" cy="80" r="6" fill="#f59e0b" fill-opacity="0.5"/>
-                        <text x="230" y="84" font-size="11" font-weight="600" fill="#6b7280" font-family="Manrope,sans-serif">3:00 PM</text>
-                        <rect x="255" y="68" width="140" height="28" rx="8" fill="#fff" stroke="#e6e9ef"/>
-                        <text x="325" y="86" text-anchor="middle" font-size="10" fill="#374151" font-family="Manrope,sans-serif">Follow up Marcus</text>
-                        <!-- Tomorrow -->
-                        <circle cx="210" cy="130" r="6" fill="#3b82f6" fill-opacity="0.5"/>
-                        <text x="230" y="134" font-size="11" font-weight="600" fill="#6b7280" font-family="Manrope,sans-serif">Tomorrow 10 AM</text>
-                        <rect x="255" y="118" width="140" height="28" rx="8" fill="#fff" stroke="#e6e9ef"/>
-                        <text x="325" y="136" text-anchor="middle" font-size="10" fill="#374151" font-family="Manrope,sans-serif">Review contract</text>
-                        <!-- Next week -->
-                        <circle cx="210" cy="180" r="6" fill="#8b5cf6" fill-opacity="0.5"/>
-                        <text x="230" y="184" font-size="11" font-weight="600" fill="#6b7280" font-family="Manrope,sans-serif">Next Monday</text>
-                        <rect x="255" y="168" width="140" height="28" rx="8" fill="#fff" stroke="#e6e9ef"/>
-                        <text x="325" y="186" text-anchor="middle" font-size="10" fill="#374151" font-family="Manrope,sans-serif">Check proposal status</text>
-                        <!-- Presets on left -->
-                        <rect x="20" y="55" width="160" height="120" rx="12" fill="#fff" stroke="#e6e9ef"/>
-                        <text x="100" y="78" text-anchor="middle" font-size="11" font-weight="700" fill="#0b1220" font-family="Manrope,sans-serif">Quick Presets</text>
-                        <rect x="32" y="90" width="64" height="26" rx="6" fill="#fef2f2" stroke="#fecaca"/>
-                        <text x="64" y="107" text-anchor="middle" font-size="10" font-weight="600" fill="#f43f5e" font-family="Manrope,sans-serif">15 min</text>
-                        <rect x="104" y="90" width="64" height="26" rx="6" fill="#f3f4f6" stroke="#e6e9ef"/>
-                        <text x="136" y="107" text-anchor="middle" font-size="10" font-weight="600" fill="#374151" font-family="Manrope,sans-serif">1 hour</text>
-                        <rect x="32" y="124" width="64" height="26" rx="6" fill="#f3f4f6" stroke="#e6e9ef"/>
-                        <text x="64" y="141" text-anchor="middle" font-size="10" font-weight="600" fill="#374151" font-family="Manrope,sans-serif">Tomorrow</text>
-                        <rect x="104" y="124" width="64" height="26" rx="6" fill="#f3f4f6" stroke="#e6e9ef"/>
-                        <text x="136" y="141" text-anchor="middle" font-size="10" font-weight="600" fill="#374151" font-family="Manrope,sans-serif">Next week</text>
-                    </svg>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Section 2: Notification channels -->
-<section class="fp-section">
-    <div class="fp-container">
-        <div class="fp-split reversed">
-            <div>
-                <p class="fp-section-label">Multi-Channel</p>
-                <h2 class="fp-section-title">Get notified where you work</h2>
-                <p class="fp-section-desc">Choose how you want to be reminded — in-app notifications, push alerts on your phone, or email digests. Never miss a follow-up, even when you're on the road.</p>
-                <ul class="fp-checklist">
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> In-app bell notifications</li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Mobile push notifications (PWA)</li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Daily email digest of upcoming reminders</li>
-                </ul>
-            </div>
-            <div class="fp-visual">
-                <div class="fp-visual-inner" style="padding:24px;">
-                    <div style="display:flex;flex-direction:column;gap:12px;">
-                        <!-- Notification types -->
-                        <div style="display:flex;align-items:center;gap:14px;padding:14px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;">
-                            <div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#f43f5e;font-size:18px;">🔔</div>
-                            <div>
-                                <div style="font-size:13px;font-weight:700;color:#0b1220;">In-App Alert</div>
-                                <div style="font-size:12px;color:#6b7280;">Real-time bell notification in SafiTrack</div>
-                            </div>
-                            <div style="margin-left:auto;width:36px;height:20px;border-radius:10px;background:#f43f5e;position:relative;"><div style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;right:2px;"></div></div>
-                        </div>
-                        <div style="display:flex;align-items:center;gap:14px;padding:14px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
-                            <div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#f3f4f6;font-size:18px;">📱</div>
-                            <div>
-                                <div style="font-size:13px;font-weight:700;color:#0b1220;">Push Notification</div>
-                                <div style="font-size:12px;color:#6b7280;">Mobile alerts even when app is closed</div>
-                            </div>
-                            <div style="margin-left:auto;width:36px;height:20px;border-radius:10px;background:#f43f5e;position:relative;"><div style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;right:2px;"></div></div>
-                        </div>
-                        <div style="display:flex;align-items:center;gap:14px;padding:14px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
-                            <div style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#f3f4f6;font-size:18px;">📧</div>
-                            <div>
-                                <div style="font-size:13px;font-weight:700;color:#0b1220;">Email Digest</div>
-                                <div style="font-size:12px;color:#6b7280;">Morning summary of today's reminders</div>
-                            </div>
-                            <div style="margin-left:auto;width:36px;height:20px;border-radius:10px;background:#d1d5db;position:relative;"><div style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;"></div></div>
-                        </div>
+                        <a href="../pricing.html">Pricing</a>
                     </div>
                 </div>
+                <div class="nav-actions"><a href="/crm/" class="nav-link-sign-in">Sign in</a><a
+                        href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a></div>
+                <button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button>
             </div>
         </div>
-    </div>
-</section>
-
-<!-- Feature grid -->
-<section class="fp-grid-section" style="background:#f9fafb;">
-    <div class="fp-container">
-        <div class="fp-grid-header"><p class="fp-section-label">Capabilities</p><h2 class="fp-section-title">Reminders that keep you accountable</h2></div>
-        <div class="fp-grid">
-            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><h4>Flexible Scheduling</h4><p>Preset intervals or custom dates. You choose when to be reminded.</p></div>
-            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></div><h4>Record Linking</h4><p>Attach reminders to contacts, deals, companies, or tasks for full context.</p></div>
-            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></div><h4>Snooze & Reschedule</h4><p>Busy right now? Snooze for 15 minutes or reschedule for later.</p></div>
-            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></div><h4>Smart Notifications</h4><p>Multi-channel delivery: in-app, push, and email. Choose per reminder.</p></div>
-            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div><h4>Calendar View</h4><p>See all reminders on a daily, weekly, or monthly calendar grid.</p></div>
-            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><h4>Team Reminders</h4><p>Set reminders for teammates. Managers can create follow-up assignments.</p></div>
+    </nav>
+    <div class="mobile-nav-overlay"><button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg></button>
+        <div class="mobile-nav-content"><a href="mainfeatures.html" class="mobile-link">Features</a><a
+                href="../pricing.html" class="mobile-link">Pricing</a>
+            <hr class="mobile-divider"><a href="/crm/" class="mobile-link">Open App</a><a
+                href="../pricing.html#pricing-grid" class="btn-hero-primary"
+                style="margin-top: 1rem; text-align: center;">Get Started</a>
         </div>
     </div>
-</section>
 
-<section class="fp-cta">
-    <div class="fp-container">
-        <h2>Follow up like clockwork</h2>
-        <p>Smart reminders that keep your promises to every prospect.</p>
-        <a href="../pricing.html#pricing-grid" class="fp-cta-btn">Start free trial <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></a>
-    </div>
-</section>
+    <header class="fp-hero">
+        <div class="fp-container">
+            <h1>Never forget a<br><span>follow-up again</span></h1>
+            <p class="fp-subtitle">Set smart reminders for any contact, deal, or task. Get notified at the right time
+                via push notifications, in-app alerts, or email — keep every promise you make to a prospect.</p>
 
-<footer class="footer"><div class="container"><div class="footer-content"><div class="footer-brand"><div class="footer-logo-wrapper"><a href="../../index.html"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a></div></div><div class="footer-links"><div class="footer-column"><h4 class="footer-heading">Product</h4><ul><li><a href="mainfeatures.html">Features</a></li><li><a href="../pricing.html">Pricing</a></li><li><a href="../integrations.html">Integrations</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Company</h4><ul><li><a href="../blog.html">Blog</a></li><li><a href="../careers.html">Careers</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Resources</h4><ul><li><a href="../documentation.html">Documentation</a></li><li><a href="../helpcenter.html">Help Center</a></li><li><a href="../apireference.html">API Reference</a></li><li><a href="../status.html">Status</a></li></ul></div><div class="footer-column"><h4 class="footer-heading">Legal</h4><ul><li><a href="../legal/privacy.html">Privacy Policy</a></li><li><a href="../legal/terms.html">Terms of Service</a></li></ul></div></div></div><div class="footer-bottom"><p>&copy; 2026 SafiTrack. All rights reserved.</p><div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div></div></div></footer>
-<script src="feature-page.js"></script>
-<script src="../../landing.js"></script>
-<style>@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}</style>
+            <div class="fp-mockup">
+                <div class="fp-mockup-window">
+                    <div class="fp-mockup-bar">
+                        <div class="fp-mockup-dot"></div>
+                        <div class="fp-mockup-dot"></div>
+                        <div class="fp-mockup-dot"></div>
+                    </div>
+                    <div class="fp-mockup-body" style="padding:24px;min-height:360px;">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+                            <div style="font-size:18px;font-weight:700;color:#0b1220;">Upcoming Reminders</div>
+                            <div
+                                style="padding:5px 14px;background:#f43f5e;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">
+                                + New Reminder</div>
+                        </div>
+                        <!-- Reminder entries grouped by time -->
+                        <div style="margin-bottom:18px;">
+                            <div
+                                style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#f43f5e;margin-bottom:8px;">
+                                ⏰ In 15 minutes</div>
+                            <div
+                                style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;">
+                                <div
+                                    style="width:8px;height:8px;border-radius:50%;background:#f43f5e;flex-shrink:0;animation:pulse 2s infinite;">
+                                </div>
+                                <div style="flex:1;">
+                                    <div style="font-size:14px;font-weight:600;color:#0b1220;">Call back Eleanor Pena
+                                    </div>
+                                    <div style="font-size:12px;color:#6b7280;">Re: Acme Corp pricing · Set 2 hours ago
+                                    </div>
+                                </div>
+                                <div style="display:flex;gap:6px;">
+                                    <div
+                                        style="padding:4px 10px;background:#fff;border:1px solid #e6e9ef;border-radius:6px;font-size:11px;color:#374151;">
+                                        Snooze</div>
+                                    <div
+                                        style="padding:4px 10px;background:#f43f5e;border-radius:6px;font-size:11px;color:#fff;font-weight:600;">
+                                        Done</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom:18px;">
+                            <div
+                                style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:8px;">
+                                📅 Today — 3:00 PM</div>
+                            <div
+                                style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;margin-bottom:6px;">
+                                <div style="width:8px;height:8px;border-radius:50%;background:#f59e0b;flex-shrink:0;">
+                                </div>
+                                <div style="flex:1;">
+                                    <div style="font-size:14px;font-weight:600;color:#0b1220;">Send follow-up to Marcus
+                                        Chen</div>
+                                    <div style="font-size:12px;color:#6b7280;">Re: Globex deal · Linked to opportunity
+                                    </div>
+                                </div>
+                                <span class="ui-tag" style="background:rgba(245,158,11,.1);color:#f59e0b;">3:00
+                                    PM</span>
+                            </div>
+                        </div>
+                        <div>
+                            <div
+                                style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280;margin-bottom:8px;">
+                                📅 Tomorrow — 10:00 AM</div>
+                            <div
+                                style="display:flex;align-items:center;gap:14px;padding:14px 16px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
+                                <div style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0;">
+                                </div>
+                                <div style="flex:1;">
+                                    <div style="font-size:14px;font-weight:600;color:#0b1220;">Review contract with
+                                        legal team</div>
+                                    <div style="font-size:12px;color:#6b7280;">Wayne Enterprises · Negotiation stage
+                                    </div>
+                                </div>
+                                <span class="ui-tag" style="background:rgba(59,130,246,.1);color:#3b82f6;">10:00
+                                    AM</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Section 1: Smart scheduling -->
+    <section class="fp-section">
+        <div class="fp-container">
+            <div class="fp-split">
+                <div>
+                    <p class="fp-section-label">Smart Scheduling</p>
+                    <h2 class="fp-section-title">Set it once, never think about it again</h2>
+                    <p class="fp-section-desc">Schedule reminders for any time — 15 minutes, 2 hours, tomorrow morning,
+                        or a specific date. Snooze if you're busy. The reminder stays until you act on it.</p>
+                    <ul class="fp-checklist">
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Quick presets: 15m, 1h, tomorrow, next week</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Custom date and time picker</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Snooze and reschedule with one click</li>
+                    </ul>
+                </div>
+                <div class="fp-visual">
+                    <div class="fp-visual-inner">
+                        <svg width="100%" height="220" viewBox="0 0 420 220" fill="none" style="display:block;">
+                            <!-- Timeline flow -->
+                            <line x1="210" y1="20" x2="210" y2="200" stroke="#e6e9ef" stroke-width="2" />
+                            <!-- Now -->
+                            <circle cx="210" cy="30" r="8" fill="#f43f5e" />
+                            <text x="230" y="34" font-size="11" font-weight="700" fill="#f43f5e"
+                                font-family="Manrope,sans-serif">NOW</text>
+                            <rect x="255" y="18" width="140" height="28" rx="8" fill="#fef2f2" stroke="#fecaca" />
+                            <text x="325" y="36" text-anchor="middle" font-size="10" font-weight="600" fill="#0b1220"
+                                font-family="Manrope,sans-serif">🔔 Call Eleanor back</text>
+                            <!-- 3 PM -->
+                            <circle cx="210" cy="80" r="6" fill="#f59e0b" fill-opacity="0.5" />
+                            <text x="230" y="84" font-size="11" font-weight="600" fill="#6b7280"
+                                font-family="Manrope,sans-serif">3:00 PM</text>
+                            <rect x="255" y="68" width="140" height="28" rx="8" fill="#fff" stroke="#e6e9ef" />
+                            <text x="325" y="86" text-anchor="middle" font-size="10" fill="#374151"
+                                font-family="Manrope,sans-serif">Follow up Marcus</text>
+                            <!-- Tomorrow -->
+                            <circle cx="210" cy="130" r="6" fill="#3b82f6" fill-opacity="0.5" />
+                            <text x="230" y="134" font-size="11" font-weight="600" fill="#6b7280"
+                                font-family="Manrope,sans-serif">Tomorrow 10 AM</text>
+                            <rect x="255" y="118" width="140" height="28" rx="8" fill="#fff" stroke="#e6e9ef" />
+                            <text x="325" y="136" text-anchor="middle" font-size="10" fill="#374151"
+                                font-family="Manrope,sans-serif">Review contract</text>
+                            <!-- Next week -->
+                            <circle cx="210" cy="180" r="6" fill="#8b5cf6" fill-opacity="0.5" />
+                            <text x="230" y="184" font-size="11" font-weight="600" fill="#6b7280"
+                                font-family="Manrope,sans-serif">Next Monday</text>
+                            <rect x="255" y="168" width="140" height="28" rx="8" fill="#fff" stroke="#e6e9ef" />
+                            <text x="325" y="186" text-anchor="middle" font-size="10" fill="#374151"
+                                font-family="Manrope,sans-serif">Check proposal status</text>
+                            <!-- Presets on left -->
+                            <rect x="20" y="55" width="160" height="120" rx="12" fill="#fff" stroke="#e6e9ef" />
+                            <text x="100" y="78" text-anchor="middle" font-size="11" font-weight="700" fill="#0b1220"
+                                font-family="Manrope,sans-serif">Quick Presets</text>
+                            <rect x="32" y="90" width="64" height="26" rx="6" fill="#fef2f2" stroke="#fecaca" />
+                            <text x="64" y="107" text-anchor="middle" font-size="10" font-weight="600" fill="#f43f5e"
+                                font-family="Manrope,sans-serif">15 min</text>
+                            <rect x="104" y="90" width="64" height="26" rx="6" fill="#f3f4f6" stroke="#e6e9ef" />
+                            <text x="136" y="107" text-anchor="middle" font-size="10" font-weight="600" fill="#374151"
+                                font-family="Manrope,sans-serif">1 hour</text>
+                            <rect x="32" y="124" width="64" height="26" rx="6" fill="#f3f4f6" stroke="#e6e9ef" />
+                            <text x="64" y="141" text-anchor="middle" font-size="10" font-weight="600" fill="#374151"
+                                font-family="Manrope,sans-serif">Tomorrow</text>
+                            <rect x="104" y="124" width="64" height="26" rx="6" fill="#f3f4f6" stroke="#e6e9ef" />
+                            <text x="136" y="141" text-anchor="middle" font-size="10" font-weight="600" fill="#374151"
+                                font-family="Manrope,sans-serif">Next week</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: Notification channels -->
+    <section class="fp-section">
+        <div class="fp-container">
+            <div class="fp-split reversed">
+                <div>
+                    <p class="fp-section-label">Multi-Channel</p>
+                    <h2 class="fp-section-title">Get notified where you work</h2>
+                    <p class="fp-section-desc">Choose how you want to be reminded — in-app notifications, push alerts on
+                        your phone, or email digests. Never miss a follow-up, even when you're on the road.</p>
+                    <ul class="fp-checklist">
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> In-app bell notifications</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Mobile push notifications (PWA)</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Daily email digest of upcoming reminders</li>
+                    </ul>
+                </div>
+                <div class="fp-visual">
+                    <div class="fp-visual-inner" style="padding:24px;">
+                        <div style="display:flex;flex-direction:column;gap:12px;">
+                            <!-- Notification types -->
+                            <div
+                                style="display:flex;align-items:center;gap:14px;padding:14px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;">
+                                <div
+                                    style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#f43f5e;font-size:18px;">
+                                    🔔</div>
+                                <div>
+                                    <div style="font-size:13px;font-weight:700;color:#0b1220;">In-App Alert</div>
+                                    <div style="font-size:12px;color:#6b7280;">Real-time bell notification in SafiTrack
+                                    </div>
+                                </div>
+                                <div
+                                    style="margin-left:auto;width:36px;height:20px;border-radius:10px;background:#f43f5e;position:relative;">
+                                    <div
+                                        style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;right:2px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                style="display:flex;align-items:center;gap:14px;padding:14px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
+                                <div
+                                    style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#f3f4f6;font-size:18px;">
+                                    📱</div>
+                                <div>
+                                    <div style="font-size:13px;font-weight:700;color:#0b1220;">Push Notification</div>
+                                    <div style="font-size:12px;color:#6b7280;">Mobile alerts even when app is closed
+                                    </div>
+                                </div>
+                                <div
+                                    style="margin-left:auto;width:36px;height:20px;border-radius:10px;background:#f43f5e;position:relative;">
+                                    <div
+                                        style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;right:2px;">
+                                    </div>
+                                </div>
+                            </div>
+                            <div
+                                style="display:flex;align-items:center;gap:14px;padding:14px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
+                                <div
+                                    style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:#f3f4f6;font-size:18px;">
+                                    📧</div>
+                                <div>
+                                    <div style="font-size:13px;font-weight:700;color:#0b1220;">Email Digest</div>
+                                    <div style="font-size:12px;color:#6b7280;">Morning summary of today's reminders
+                                    </div>
+                                </div>
+                                <div
+                                    style="margin-left:auto;width:36px;height:20px;border-radius:10px;background:#d1d5db;position:relative;">
+                                    <div
+                                        style="width:16px;height:16px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Feature grid -->
+    <section class="fp-grid-section" style="background:#f9fafb;">
+        <div class="fp-container">
+            <div class="fp-grid-header">
+                <p class="fp-section-label">Capabilities</p>
+                <h2 class="fp-section-title">Reminders that keep you accountable</h2>
+            </div>
+            <div class="fp-grid">
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg></div>
+                    <h4>Flexible Scheduling</h4>
+                    <p>Preset intervals or custom dates. You choose when to be reminded.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                        </svg></div>
+                    <h4>Record Linking</h4>
+                    <p>Attach reminders to contacts, deals, companies, or tasks for full context.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <polyline points="23 4 23 10 17 10" />
+                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                        </svg></div>
+                    <h4>Snooze & Reschedule</h4>
+                    <p>Busy right now? Snooze for 15 minutes or reschedule for later.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                        </svg></div>
+                    <h4>Smart Notifications</h4>
+                    <p>Multi-channel delivery: in-app, push, and email. Choose per reminder.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="4" width="18" height="18" rx="2" />
+                            <line x1="16" y1="2" x2="16" y2="6" />
+                            <line x1="8" y1="2" x2="8" y2="6" />
+                            <line x1="3" y1="10" x2="21" y2="10" />
+                        </svg></div>
+                    <h4>Calendar View</h4>
+                    <p>See all reminders on a daily, weekly, or monthly calendar grid.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg></div>
+                    <h4>Team Reminders</h4>
+                    <p>Set reminders for teammates. Managers can create follow-up assignments.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="fp-cta">
+        <div class="fp-container">
+            <h2>Follow up like clockwork</h2>
+            <p>Smart reminders that keep your promises to every prospect.</p>
+            <a href="../pricing.html#pricing-grid" class="fp-cta-btn">Start free trial <svg width="16" height="16"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12l5-5-5-5" />
+                </svg></a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo-wrapper"><a href="../../index.html"><img
+                                src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Product</h4>
+                        <ul>
+                            <li><a href="mainfeatures.html">Features</a></li>
+                            <li><a href="../pricing.html">Pricing</a></li>
+                            <li><a href="../integrations.html">Integrations</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Company</h4>
+                        <ul>
+                            <li><a href="../blog.html">Blog</a></li>
+                            <li><a href="../careers.html">Careers</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Resources</h4>
+                        <ul>
+                            <li><a href="../documentation.html">Documentation</a></li>
+                            <li><a href="../helpcenter.html">Help Center</a></li>
+                            <li><a href="../apireference.html">API Reference</a></li>
+                            <li><a href="../status.html">Status</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Legal</h4>
+                        <ul>
+                            <li><a href="../legal/privacy.html">Privacy Policy</a></li>
+                            <li><a href="../legal/terms.html">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+                <div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div>
+            </div>
+        </div>
+    </footer>
+    <script src="feature-page.js"></script>
+    <script src="../../landing.js"></script>
+    <style>
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .4
+            }
+        }
+    </style>
 </body>
+
 </html>

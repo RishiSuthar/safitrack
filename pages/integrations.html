@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Integrations - SafiTrack</title>
-  <meta name="description" content="Connect SafiTrack with the tools your team already uses. Native and API integrations for sales, marketing, operations, and communication.">
+  <meta name="description"
+    content="Connect SafiTrack with the tools your team already uses. Native and API integrations for sales, marketing, operations, and communication.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://safitrack.netlify.app/pages/integrations.html">
   <meta property="og:title" content="Integrations — SafiTrack">
-  <meta property="og:description" content="Connect SafiTrack with the tools your team already uses. Native and API integrations for sales, marketing, operations, and communication.">
+  <meta property="og:description"
+    content="Connect SafiTrack with the tools your team already uses. Native and API integrations for sales, marketing, operations, and communication.">
   <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://safitrack.netlify.app/pages/integrations.html">
   <meta property="twitter:title" content="Integrations — SafiTrack">
-  <meta property="twitter:description" content="Connect SafiTrack with the tools your team already uses. Native and API integrations for sales, marketing, operations, and communication.">
+  <meta property="twitter:description"
+    content="Connect SafiTrack with the tools your team already uses. Native and API integrations for sales, marketing, operations, and communication.">
   <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
   <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,395 +25,1113 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../landing.css">
 </head>
+
 <body>
-<nav class="navbar" id="navbar">
-  <div class="container">
-    <div class="nav-content">
-      <div class="nav-left">
-        <a href="../index.html" class="logo">
-          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
-        </a>
-        <div class="nav-links">
-          <a href="features/mainfeatures.html" class="nav-link">Features</a>
-          <a href="pricing.html" class="nav-link">Pricing</a>
-          <a href="integrations.html" class="nav-link" style="color:#3b7bfc;font-weight:600">Integrations</a>
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <div class="nav-content">
+        <div class="nav-left">
+          <a href="../index.html" class="logo">
+            <img src="../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
+          </a>
+          <div class="nav-links">
+            <div class="nav-item nav-features">
+              <a href="#" class="nav-link-toggle">Features
+                <span class="nav-caret" aria-hidden="true">
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </a>
+              <div class="mega-menu" aria-hidden="true">
+                <div class="mega-content-grid">
+                  <div class="mega-category">
+                    <div class="mega-category-header">Platform</div>
+                    <div class="mega-items-grid">
+                      <a href="features/safi-ai-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Safi AI</div>
+                          <div class="mega-desc">AI insights native to your CRM</div>
+                        </div>
+                      </a>
+                      <a href="features/opportunities-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Pipelines</div>
+                          <div class="mega-desc">Visual deal tracking & management</div>
+                        </div>
+                      </a>
+                      <a href="features/companies-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+                            <path d="M9 22v-4h6v4" />
+                            <path d="M8 6h.01" />
+                            <path d="M16 6h.01" />
+                            <path d="M8 10h.01" />
+                            <path d="M16 10h.01" />
+                            <path d="M8 14h.01" />
+                            <path d="M16 14h.01" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Companies</div>
+                          <div class="mega-desc">Complete organization context</div>
+                        </div>
+                      </a>
+                      <a href="features/people-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">People</div>
+                          <div class="mega-desc">Unified contact management</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Operations</div>
+                    <div class="mega-items-grid">
+                      <a href="features/sales-visits-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Sales visits</div>
+                          <div class="mega-desc">Field activity & visit logging</div>
+                        </div>
+                      </a>
+                      <a href="features/route-plans-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="6" cy="19" r="3" />
+                            <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
+                            <circle cx="18" cy="5" r="3" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Route plans</div>
+                          <div class="mega-desc">Optimized field routing</div>
+                        </div>
+                      </a>
+                      <a href="features/technician-visits-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                              d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Service visits</div>
+                          <div class="mega-desc">Post-sales technician tracking</div>
+                        </div>
+                      </a>
+                      <a href="features/tasks-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 11 12 14 22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Tasks</div>
+                          <div class="mega-desc">Operational to-do management</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Insights & Ecosystem</div>
+                    <div class="mega-items-grid">
+                      <a href="features/call-logs-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Call Intelligence</div>
+                          <div class="mega-desc">Record & analyze meetings</div>
+                        </div>
+                      </a>
+                      <a href="features/notes-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Notes</div>
+                          <div class="mega-desc">Native meeting summaries</div>
+                        </div>
+                      </a>
+                      <a href="features/reminders-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Reminders</div>
+                          <div class="mega-desc">Smart follow-up alerts</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="mega-sidebar">
+                  <div class="mega-sidebar-header">Get Started</div>
+                  <ul class="mega-sidebar-list">
+                    <li><a href="/crm/"><span>Open CRM</span></a></li>
+                    <li><a href="pricing.html"><span>View Pricing</span></a></li>
+                    <li><a href="../index.html#pricing"><span>Request Demo</span></a></li>
+                  </ul>
+                  <div class="mega-sidebar-footer">
+                    <p>Trusted by 2,000+ teams</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="nav-item nav-resources">
+              <a href="#" class="nav-link-toggle">Resources
+                <span class="nav-caret" aria-hidden="true">
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </a>
+              <div class="mega-menu" aria-hidden="true">
+                <div class="mega-content-grid">
+                  <div class="mega-category">
+                    <div class="mega-category-header">Insights</div>
+                    <div class="mega-items-grid">
+                      <a href="integrations.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Integrations</div>
+                          <div class="mega-desc">Connect your stack</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Support</div>
+                    <div class="mega-items-grid">
+                      <a href="documentation.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Documentation</div>
+                          <div class="mega-desc">Guides and tutorials</div>
+                        </div>
+                      </a>
+                      <a href="helpcenter.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Help Center</div>
+                          <div class="mega-desc">Get support</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Developers</div>
+                    <div class="mega-items-grid">
+                      <a href="apireference.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 18 22 12 16 6" />
+                            <polyline points="8 6 2 12 8 18" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">API Reference</div>
+                          <div class="mega-desc">Build with SafiTrack</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="mega-sidebar">
+                  <div class="mega-sidebar-header">More</div>
+                  <ul class="mega-sidebar-list">
+                    <li><a href="blog.html"><span>Blog</span></a></li>
+                    <li><a href="careers.html"><span>Careers</span></a></li>
+                    <li><a href="status.html"><span>Status</span></a></li>
+                  </ul>
+                  <div class="mega-sidebar-footer">
+                    <p>Always growing</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <a href="pricing.html">Pricing</a>
+          </div>
         </div>
-      </div>
-      <div class="nav-actions">
-        <a href="/crm/" class="nav-link-sign-in">Sign in</a>
-        <a href="pricing.html" class="btn-hero-primary">Start for free</a>
-      </div>
-      <button class="mobile-menu-btn" aria-label="Toggle Menu">
-        <span></span><span></span>
-      </button>
-    </div>
-  </div>
-</nav>
-<div class="mobile-nav-overlay">
-  <button class="mobile-close-btn" aria-label="Close">
-    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-    </svg>
-  </button>
-  <div class="mobile-nav-content">
-    <a href="features/mainfeatures.html" class="mobile-link">Features</a>
-    <a href="pricing.html" class="mobile-link">Pricing</a>
-    <a href="integrations.html" class="mobile-link">Integrations</a>
-    <hr class="mobile-divider">
-    <a href="/crm/" class="mobile-link">Sign in</a>
-    <a href="pricing.html" class="btn-primary btn-block" style="text-align:center;margin-top:8px">Start for free</a>
-  </div>
-</div>
-
-<style>
-.page-hero{padding:112px 0 0;text-align:center;background:#fafafa;border-bottom:1px solid #e6e9ef}
-.page-hero h1{font-size:clamp(2rem,4vw,3rem);font-weight:800;color:#0b1220;margin-bottom:14px}
-.page-hero .sub{font-size:18px;color:#4b5563;max-width:540px;margin:0 auto 28px;line-height:1.6}
-.search-wrap{display:flex;justify-content:center}
-.search-wrap .search-box{position:relative;width:100%;max-width:380px}
-.search-wrap .search-box svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#9ca3af;pointer-events:none}
-.search-wrap input{width:100%;border:1.5px solid #e6e9ef;border-radius:10px;padding:11px 16px 11px 40px;font-size:15px;font-family:inherit;color:#0b1220;background:#fff;transition:border-color .15s;box-sizing:border-box}
-.search-wrap input:focus{outline:none;border-color:#3b7bfc}
-.filter-tabs{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:28px 0}
-.filter-tab{padding:7px 18px;border-radius:50px;border:1.5px solid #e6e9ef;font-size:14px;font-weight:500;cursor:pointer;background:#fff;color:#4b5563;transition:all .15s;font-family:inherit;line-height:1}
-.filter-tab.active,.filter-tab:hover{background:#0b1220;color:#fff;border-color:#0b1220}
-.stats-bar{display:flex;align-items:center;padding:0 0 20px;border-bottom:1px solid #f0f2f5;margin-bottom:40px}
-.stats-bar .count{font-size:14px;color:#6b7280;font-weight:500}
-.stats-bar .count span{color:#0b1220;font-weight:700}
-.integrations-section{background:#fff;padding:64px 0 80px}
-.integrations-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:20px;margin-bottom:64px}
-.integration-card{border:1.5px solid #e6e9ef;border-radius:14px;padding:24px;background:#fff;display:flex;flex-direction:column;gap:14px;transition:box-shadow .15s,transform .15s,border-color .15s;cursor:pointer}
-.integration-card:hover{box-shadow:0 8px 32px rgba(0,0,0,.08);transform:translateY(-2px);border-color:#d0d7e4}
-.integration-card.hidden{display:none}
-.int-logo-wrap{width:52px;height:52px;border-radius:12px;border:1px solid #f0f2f5;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
-.int-logo-fallback{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;line-height:1;flex-shrink:0}
-.int-meta{display:flex;flex-direction:column;gap:5px}
-.int-name{font-weight:700;font-size:15px;color:#0b1220;line-height:1.2}
-.int-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:50px;letter-spacing:.2px;width:fit-content}
-.int-badge.native{background:#dcfce7;color:#15803d}
-.int-badge.api{background:#dbeafe;color:#1d4ed8}
-.int-badge.soon{background:#f3f4f6;color:#6b7280}
-.int-desc{font-size:13px;color:#6b7280;line-height:1.55;flex:1}
-.int-connect{margin-top:auto;padding:9px 0;border-radius:8px;border:1.5px solid #e6e9ef;background:#fff;color:#374151;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;text-align:center;width:100%}
-.int-connect:hover{background:#0b1220;color:#fff;border-color:#0b1220}
-.int-connect.native-btn{background:#f0f7ff;color:#1d4ed8;border-color:#bfdbfe}
-.int-connect.native-btn:hover{background:#1d4ed8;color:#fff;border-color:#1d4ed8}
-.no-results{display:none;flex-direction:column;align-items:center;justify-content:center;padding:80px 0;gap:14px;text-align:center}
-.no-results svg{color:#d1d5db}
-.no-results p{font-size:16px;color:#6b7280}
-.no-results.visible{display:flex}
-.cta-band{background:#0b1220;border-radius:16px;padding:56px 48px;text-align:center}
-.cta-band h2{font-size:2rem;font-weight:800;color:#fff;margin-bottom:10px}
-.cta-band p{color:#9ca3af;font-size:16px;margin-bottom:28px;line-height:1.6}
-.cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.btn-ghost-white{padding:11px 24px;border-radius:8px;border:2px solid rgba(255,255,255,.25);color:#fff;font-size:15px;font-weight:600;text-decoration:none;transition:background .15s;background:transparent}
-.btn-ghost-white:hover{background:rgba(255,255,255,.1)}
-.modal-overlay{position:fixed;inset:0;background:rgba(11,18,32,.5);backdrop-filter:blur(4px);z-index:900;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s}
-.modal-overlay.open{opacity:1;pointer-events:all}
-.modal-box{background:#fff;border-radius:20px;padding:40px 36px;max-width:420px;width:100%;position:relative;transform:translateY(14px);transition:transform .22s;text-align:center}
-.modal-overlay.open .modal-box{transform:translateY(0)}
-.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;padding:6px;color:#9ca3af;border-radius:7px;line-height:1;display:flex;align-items:center}
-.modal-close:hover{color:#0b1220;background:#f3f4f6}
-.modal-logo-wrap{width:72px;height:72px;border-radius:18px;border:1.5px solid #f0f2f5;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;margin:0 auto 20px}
-.modal-logo-fallback{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#fff}
-.modal-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:4px 12px;border-radius:50px;background:#fef9ec;color:#b45309;margin-bottom:14px}
-.modal-title{font-size:1.35rem;font-weight:800;color:#0b1220;margin-bottom:8px}
-.modal-desc{font-size:14px;color:#6b7280;line-height:1.6;margin-bottom:24px}
-.modal-notify-form{display:flex;gap:8px;max-width:310px;margin:0 auto 12px}
-.modal-notify-form input{flex:1;border:1.5px solid #e6e9ef;border-radius:9px;padding:10px 13px;font-size:14px;font-family:inherit;color:#0b1220;min-width:0;transition:border-color .15s}
-.modal-notify-form input:focus{outline:none;border-color:#3b7bfc}
-.modal-notify-form button{padding:10px 16px;border-radius:9px;border:none;background:#0b1220;color:#fff;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .15s}
-.modal-notify-form button:hover{background:#1a2a44}
-.modal-success{display:none;align-items:center;gap:8px;justify-content:center;font-size:14px;font-weight:600;color:#15803d;margin-bottom:12px}
-.modal-privacy{font-size:12px;color:#9ca3af}
-@media(max-width:560px){.modal-box{padding:32px 20px}.cta-band{padding:40px 20px}}
-</style>
-
-<section class="page-hero">
-  <div class="container">
-    <h1>Connect your favourite tools</h1>
-    <p class="sub">SafiTrack integrates with the apps your team already uses &#8212; no developer required.</p>
-    <div class="search-wrap">
-      <div class="search-box">
-        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
-        </svg>
-        <input type="search" id="searchInput" placeholder="Search integrations&#8230;" autocomplete="off">
+        <div class="nav-actions">
+          <a href="/crm/" class="nav-link-sign-in">Sign in</a>
+          <a href="pricing.html" class="btn-hero-primary">Start for free</a>
+        </div>
+        <button class="mobile-menu-btn" aria-label="Toggle Menu">
+          <span></span><span></span>
+        </button>
       </div>
     </div>
-    <div class="filter-tabs" id="filterTabs">
-      <button class="filter-tab active" data-cat="all">All</button>
-      <button class="filter-tab" data-cat="productivity">Productivity</button>
-      <button class="filter-tab" data-cat="communication">Communication</button>
-      <button class="filter-tab" data-cat="payments">Payments</button>
-      <button class="filter-tab" data-cat="crm">CRM</button>
-      <button class="filter-tab" data-cat="analytics">Analytics</button>
-      <button class="filter-tab" data-cat="automation">Automation</button>
-    </div>
-  </div>
-</section>
-
-<section class="integrations-section">
-  <div class="container">
-    <div class="stats-bar">
-      <p class="count">Showing <span id="visibleCount">26</span> integrations</p>
-    </div>
-    <div class="integrations-grid" id="intGrid"></div>
-    <div class="no-results" id="noResults">
-      <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-        <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
-      </svg>
-      <p>No integrations match your search.</p>
-    </div>
-    <div class="cta-band">
-      <h2>Don&#8217;t see your tool?</h2>
-      <p>Request an integration or connect anything with our REST API and webhooks.</p>
-      <div class="cta-actions">
-        <a href="apireference.html" class="btn-hero-primary" style="background:#fff;color:#0b1220">View API docs</a>
-        <a href="mailto:hello@safitrack.com" class="btn-ghost-white">Request integration</a>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <div class="modal-box">
-    <button class="modal-close" id="modalClose" aria-label="Close">
-      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+  </nav>
+  <div class="mobile-nav-overlay">
+    <button class="mobile-close-btn" aria-label="Close">
+      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
     </button>
-    <div class="modal-logo-wrap" id="modalLogoWrap"></div>
-    <div class="modal-badge">
-      <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-      </svg>
-      Coming soon
-    </div>
-    <h2 class="modal-title" id="modalTitle">Integration</h2>
-    <p class="modal-desc" id="modalDesc">We&#8217;re actively building this integration. Be the first to know when it launches.</p>
-    <div class="modal-notify-form" id="modalForm">
-      <input type="email" id="modalEmail" placeholder="your@email.com" autocomplete="email">
-      <button type="button" id="modalNotifyBtn">Notify me</button>
-    </div>
-    <div class="modal-success" id="modalSuccess">
-      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-      </svg>
-      You&#8217;re on the list!
-    </div>
-    <p class="modal-privacy">We&#8217;ll only use your email to notify you about this integration.</p>
-  </div>
-</div>
-
-<footer class="footer">
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-brand">
-        <div class="footer-logo-wrapper">
-          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
-        </div>
-        <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp; sales CRM built for modern teams.</p>
-      </div>
-      <div class="footer-links">
-        <div class="footer-column">
-          <h4 class="footer-heading">Product</h4>
-          <ul>
-            <li><a href="features/mainfeatures.html">Features</a></li>
-            <li><a href="pricing.html">Pricing</a></li>
-            <li><a href="integrations.html">Integrations</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Company</h4>
-          <ul>
-            <li><a href="blog.html">Blog</a></li>
-            <li><a href="careers.html">Careers</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Resources</h4>
-          <ul>
-            <li><a href="documentation.html">Documentation</a></li>
-            <li><a href="helpcenter.html">Help Center</a></li>
-            <li><a href="apireference.html">API Reference</a></li>
-            <li><a href="status.html">Status</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Legal</h4>
-          <ul>
-            <li><a href="legal/privacy.html">Privacy Policy</a></li>
-            <li><a href="legal/terms.html">Terms of Service</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-      <div class="footer-social">
-        <a href="#">Twitter</a>
-        <a href="#">LinkedIn</a>
-        <a href="#">GitHub</a>
-      </div>
+    <div class="mobile-nav-content">
+      <a href="features/mainfeatures.html" class="mobile-link">Features</a>
+      <a href="pricing.html" class="mobile-link">Pricing</a>
+      <hr class="mobile-divider">
+      <a href="/crm/" class="mobile-link">Open App</a>
+      <button class="btn-primary btn-block get-started-btn">Get Started</button>
     </div>
   </div>
-</footer>
-<script>
-var INTEGRATIONS=[
-  {name:'Google Sheets',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/3/30/Google_Sheets_logo_%282014-2020%29.svg',category:'productivity',badge:'native',desc:'Sync contacts, visits and pipeline data to any spreadsheet automatically.',color:'#0f9d58',initials:'GS'},
-  {name:'Google Calendar',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg',category:'productivity',badge:'native',desc:'Create route-plan events and reminders directly from SafiTrack.',color:'#4285f4',initials:'GC'},
-  {name:'OpenAI',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg',category:'productivity',badge:'native',desc:'Power Intelligence Hub summaries, call analysis and AI suggestions.',color:'#10a37f',initials:'AI'},
-  {name:'Notion',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png',category:'productivity',badge:'soon',desc:"Push meeting notes and action items to your team's Notion workspace.",color:'#191919',initials:'N'},
-  {name:'Microsoft 365',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg',category:'productivity',badge:'soon',desc:'Sync with Outlook, Teams and OneDrive across your whole organisation.',color:'#00a4ef',initials:'M'},
-  {name:'Gmail',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg',category:'communication',badge:'native',desc:'Log emails against companies and contacts with one click.',color:'#ea4335',initials:'Gm'},
-  {name:'Slack',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg',category:'communication',badge:'soon',desc:'Get deal updates, visit check-ins and alerts straight in Slack.',color:'#4a154b',initials:'Sl'},
-  {name:'WhatsApp Business',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg',category:'communication',badge:'soon',desc:'Send automated follow-ups and reminders via WhatsApp Business API.',color:'#25d366',initials:'WA'},
-  {name:'Microsoft Teams',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/c/c9/Microsoft_Office_Teams_%282018%E2%80%93present%29.svg',category:'communication',badge:'soon',desc:'Post SafiTrack notifications and updates into Teams channels.',color:'#5059c9',initials:'MT'},
-  {name:'Twilio',logoUrl:'https://logo.clearbit.com/twilio.com',category:'communication',badge:'api',desc:'Log calls, send SMS and track call outcomes inside SafiTrack.',color:'#f22f46',initials:'Tw'},
-  {name:'Mailchimp',logoUrl:'https://logo.clearbit.com/mailchimp.com',category:'communication',badge:'soon',desc:'Sync contact lists and track email campaign engagement.',color:'#FFE01B',initials:'Mc',textColor:'#241c15'},
-  {name:'Stripe',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg',category:'payments',badge:'api',desc:'See payment status and revenue alongside your CRM contacts.',color:'#635bff',initials:'St'},
-  {name:'PayPal',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg',category:'payments',badge:'soon',desc:'View PayPal transactions linked to contacts and deals.',color:'#003087',initials:'PP'},
-  {name:'M-Pesa',logoUrl:'https://logo.clearbit.com/safaricom.com',category:'payments',badge:'soon',desc:'Track M-Pesa collections and reconcile with field-sales records.',color:'#4caf50',initials:'MP'},
-  {name:'Xero',logoUrl:'https://logo.clearbit.com/xero.com',category:'payments',badge:'soon',desc:'Sync invoices, quotes and payments with your accounting data.',color:'#13b5ea',initials:'Xe'},
-  {name:'QuickBooks',logoUrl:'https://logo.clearbit.com/quickbooks.com',category:'payments',badge:'soon',desc:'Sync invoices and financial data with your field-sales records.',color:'#2ca01c',initials:'QB'},
-  {name:'HubSpot',logoUrl:'https://logo.clearbit.com/hubspot.com',category:'crm',badge:'soon',desc:'Bi-directional contact and deal sync between HubSpot and SafiTrack.',color:'#ff7a59',initials:'HS'},
-  {name:'Salesforce',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/f/f9/Salesforce.com_logo.svg',category:'crm',badge:'soon',desc:'Keep Salesforce and SafiTrack in sync for enterprise field teams.',color:'#00a1e0',initials:'SF'},
-  {name:'Pipedrive',logoUrl:'https://logo.clearbit.com/pipedrive.com',category:'crm',badge:'soon',desc:'Import and sync pipelines, contacts and activities from Pipedrive.',color:'#1f1f1f',initials:'PD'},
-  {name:'WooCommerce',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/2/2a/WooCommerce_logo.svg',category:'crm',badge:'api',desc:'Pull live order data into customer timelines and opportunity boards.',color:'#7f54b3',initials:'Woo'},
-  {name:'Google Maps',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/a/aa/Google_Maps_icon_%282020%29.svg',category:'analytics',badge:'native',desc:'Optimise route plans and visualise territories on interactive maps.',color:'#34a853',initials:'GM'},
-  {name:'Google Analytics',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/8/89/Logo_Google_Analytics.svg',category:'analytics',badge:'soon',desc:'Track campaign-level attribution and connect website conversions to field sales.',color:'#f57c00',initials:'GA'},
-  {name:'Looker Studio',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/c/c9/Looker_Logo.png',category:'analytics',badge:'soon',desc:'Build live dashboards powered by your SafiTrack field data.',color:'#4285f4',initials:'LS'},
-  {name:'Metabase',logoUrl:'https://logo.clearbit.com/metabase.com',category:'analytics',badge:'soon',desc:'Run deeper analytics and share reports with your operations team.',color:'#509ee3',initials:'MB'},
-  {name:'Zapier',logoUrl:'https://upload.wikimedia.org/wikipedia/commons/f/fd/Zapier_logo.svg',category:'automation',badge:'native',desc:'Build no-code automations between SafiTrack and 7,000+ apps.',color:'#ff4a00',initials:'Z'},
-  {name:'Make',logoUrl:'https://logo.clearbit.com/make.com',category:'automation',badge:'soon',desc:'Design powerful multi-step workflows with a visual drag-and-drop builder.',color:'#6d00cc',initials:'Mk'}
-];
 
-function badgeLabel(b){return b==='native'?'Native':b==='api'?'API':'Coming soon';}
-function badgeClass(b){return b==='native'?'native':b==='api'?'api':'soon';}
-function btnLabel(b){return b==='native'?'View setup guide':b==='api'?'View API docs':'Request access';}
-function btnClass(b){return b==='native'?'int-connect native-btn':'int-connect';}
+  <style>
+    .page-hero {
+      padding: 112px 0 0;
+      text-align: center;
+      background: #fafafa;
+      border-bottom: 1px solid #e6e9ef
+    }
 
-function makeFallback(int,cls){
-  var c=int.color||'#0b1220',t=int.textColor||'#fff';
-  return '<div class="'+cls+'" style="background:'+c+';color:'+t+'">'+int.initials+'</div>';
-}
-function imgTag(int,w,h,cls){
-  var fb=makeFallback(int,cls).replace(/"/g,"'");
-  return '<img src="'+int.logoUrl+'" alt="'+int.name+' logo" style="width:'+w+'px;height:'+h+'px;object-fit:contain;display:block" onerror="this.outerHTML=\''+fb+'\'">';
-}
+    .page-hero h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      color: #0b1220;
+      margin-bottom: 14px
+    }
 
-var grid=document.getElementById('intGrid');
-var countEl=document.getElementById('visibleCount');
-var noResults=document.getElementById('noResults');
+    .page-hero .sub {
+      font-size: 18px;
+      color: #4b5563;
+      max-width: 540px;
+      margin: 0 auto 28px;
+      line-height: 1.6
+    }
 
-INTEGRATIONS.forEach(function(int,i){
-  var card=document.createElement('div');
-  card.className='integration-card';
-  card.dataset.cat=int.category;
-  card.dataset.name=int.name.toLowerCase();
-  card.dataset.idx=i;
-  card.innerHTML=
-    '<div class="int-logo-wrap">'+imgTag(int,32,32,'int-logo-fallback')+'</div>'+
-    '<div class="int-meta">'+
-      '<div class="int-name">'+int.name+'</div>'+
-      '<span class="int-badge '+badgeClass(int.badge)+'">'+badgeLabel(int.badge)+'</span>'+
-    '</div>'+
-    '<p class="int-desc">'+int.desc+'</p>'+
-    '<button class="'+btnClass(int.badge)+'" data-idx="'+i+'">'+btnLabel(int.badge)+'</button>';
-  card.addEventListener('click',function(){openModal(i);});
-  grid.appendChild(card);
-});
+    .search-wrap {
+      display: flex;
+      justify-content: center
+    }
 
-function updateCount(){
-  var v=grid.querySelectorAll('.integration-card:not(.hidden)').length;
-  countEl.textContent=v;
-  noResults.classList.toggle('visible',v===0);
-}
-updateCount();
+    .search-wrap .search-box {
+      position: relative;
+      width: 100%;
+      max-width: 380px
+    }
 
-var activecat='all',searchq='';
-function applyFilters(){
-  grid.querySelectorAll('.integration-card').forEach(function(card){
-    var idx=parseInt(card.dataset.idx);
-    var catOk=activecat==='all'||card.dataset.cat===activecat;
-    var nameOk=!searchq||card.dataset.name.includes(searchq)||INTEGRATIONS[idx].desc.toLowerCase().includes(searchq)||INTEGRATIONS[idx].category.includes(searchq);
-    card.classList.toggle('hidden',!(catOk&&nameOk));
-  });
-  updateCount();
-}
+    .search-wrap .search-box svg {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      pointer-events: none
+    }
 
-document.getElementById('filterTabs').addEventListener('click',function(e){
-  var tab=e.target.closest('.filter-tab');
-  if(!tab)return;
-  document.querySelectorAll('.filter-tab').forEach(function(t){t.classList.remove('active');});
-  tab.classList.add('active');
-  activecat=tab.dataset.cat;
-  applyFilters();
-});
-document.getElementById('searchInput').addEventListener('input',function(e){
-  searchq=e.target.value.trim().toLowerCase();
-  applyFilters();
-});
+    .search-wrap input {
+      width: 100%;
+      border: 1.5px solid #e6e9ef;
+      border-radius: 10px;
+      padding: 11px 16px 11px 40px;
+      font-size: 15px;
+      font-family: inherit;
+      color: #0b1220;
+      background: #fff;
+      transition: border-color .15s;
+      box-sizing: border-box
+    }
 
-var overlay=document.getElementById('modalOverlay');
-var modalLogoWrap=document.getElementById('modalLogoWrap');
-var modalTitle=document.getElementById('modalTitle');
-var modalDesc=document.getElementById('modalDesc');
-var modalForm=document.getElementById('modalForm');
-var modalSuccess=document.getElementById('modalSuccess');
-var modalEmail=document.getElementById('modalEmail');
-var notifyBtn=document.getElementById('modalNotifyBtn');
+    .search-wrap input:focus {
+      outline: none;
+      border-color: #3b7bfc
+    }
 
-function openModal(idx){
-  var int=INTEGRATIONS[idx];
-  modalLogoWrap.innerHTML=imgTag(int,44,44,'modal-logo-fallback');
-  modalTitle.textContent=int.name;
-  modalDesc.textContent="We're actively building the "+int.name+" integration. Drop your email and we'll notify you the moment it goes live.";
-  modalForm.style.display='flex';
-  modalSuccess.style.display='none';
-  modalEmail.value='';
-  modalEmail.style.borderColor='';
-  overlay.classList.add('open');
-  document.body.style.overflow='hidden';
-  setTimeout(function(){modalEmail.focus();},220);
-}
-function closeModal(){
-  overlay.classList.remove('open');
-  document.body.style.overflow='';
-}
-document.getElementById('modalClose').addEventListener('click',closeModal);
-overlay.addEventListener('click',function(e){if(e.target===overlay)closeModal();});
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeModal();});
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 28px 0
+    }
 
-notifyBtn.addEventListener('click',function(){
-  var val=modalEmail.value.trim();
-  if(!val||!val.includes('@')){modalEmail.focus();modalEmail.style.borderColor='#f43f5e';return;}
-  modalEmail.style.borderColor='';
-  notifyBtn.textContent='...';
-  notifyBtn.disabled=true;
-  setTimeout(function(){
-    modalForm.style.display='none';
-    modalSuccess.style.display='flex';
-    notifyBtn.textContent='Notify me';
-    notifyBtn.disabled=false;
-  },600);
-});
+    .filter-tab {
+      padding: 7px 18px;
+      border-radius: 50px;
+      border: 1.5px solid #e6e9ef;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      background: #fff;
+      color: #4b5563;
+      transition: all .15s;
+      font-family: inherit;
+      line-height: 1
+    }
 
-(function(){
-  var mb=document.querySelector('.mobile-menu-btn'),
-      mo=document.querySelector('.mobile-nav-overlay'),
-      mc=document.querySelector('.mobile-close-btn');
-  if(mb&&mo){
-    mb.addEventListener('click',function(){mo.classList.add('active');});
-    if(mc)mc.addEventListener('click',function(){mo.classList.remove('active');});
-    mo.addEventListener('click',function(e){if(e.target===mo)mo.classList.remove('active');});
-  }
-  window.addEventListener('scroll',function(){
-    var nb=document.getElementById('navbar');
-    if(nb)nb.classList.toggle('scrolled',window.scrollY>20);
-  });
-})();
-</script>
+    .filter-tab.active,
+    .filter-tab:hover {
+      background: #0b1220;
+      color: #fff;
+      border-color: #0b1220
+    }
+
+    .stats-bar {
+      display: flex;
+      align-items: center;
+      padding: 0 0 20px;
+      border-bottom: 1px solid #f0f2f5;
+      margin-bottom: 40px
+    }
+
+    .stats-bar .count {
+      font-size: 14px;
+      color: #6b7280;
+      font-weight: 500
+    }
+
+    .stats-bar .count span {
+      color: #0b1220;
+      font-weight: 700
+    }
+
+    .integrations-section {
+      background: #fff;
+      padding: 64px 0 80px
+    }
+
+    .integrations-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+      gap: 20px;
+      margin-bottom: 64px
+    }
+
+    .integration-card {
+      border: 1.5px solid #e6e9ef;
+      border-radius: 14px;
+      padding: 24px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: box-shadow .15s, transform .15s, border-color .15s;
+      cursor: pointer
+    }
+
+    .integration-card:hover {
+      box-shadow: 0 8px 32px rgba(0, 0, 0, .08);
+      transform: translateY(-2px);
+      border-color: #d0d7e4
+    }
+
+    .integration-card.hidden {
+      display: none
+    }
+
+    .int-logo-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: 12px;
+      border: 1px solid #f0f2f5;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      flex-shrink: 0
+    }
+
+    .int-logo-fallback {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+      flex-shrink: 0
+    }
+
+    .int-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 5px
+    }
+
+    .int-name {
+      font-weight: 700;
+      font-size: 15px;
+      color: #0b1220;
+      line-height: 1.2
+    }
+
+    .int-badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 50px;
+      letter-spacing: .2px;
+      width: fit-content
+    }
+
+    .int-badge.native {
+      background: #dcfce7;
+      color: #15803d
+    }
+
+    .int-badge.api {
+      background: #dbeafe;
+      color: #1d4ed8
+    }
+
+    .int-badge.soon {
+      background: #f3f4f6;
+      color: #6b7280
+    }
+
+    .int-desc {
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.55;
+      flex: 1
+    }
+
+    .int-connect {
+      margin-top: auto;
+      padding: 9px 0;
+      border-radius: 8px;
+      border: 1.5px solid #e6e9ef;
+      background: #fff;
+      color: #374151;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all .15s;
+      text-align: center;
+      width: 100%
+    }
+
+    .int-connect:hover {
+      background: #0b1220;
+      color: #fff;
+      border-color: #0b1220
+    }
+
+    .int-connect.native-btn {
+      background: #f0f7ff;
+      color: #1d4ed8;
+      border-color: #bfdbfe
+    }
+
+    .int-connect.native-btn:hover {
+      background: #1d4ed8;
+      color: #fff;
+      border-color: #1d4ed8
+    }
+
+    .no-results {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 0;
+      gap: 14px;
+      text-align: center
+    }
+
+    .no-results svg {
+      color: #d1d5db
+    }
+
+    .no-results p {
+      font-size: 16px;
+      color: #6b7280
+    }
+
+    .no-results.visible {
+      display: flex
+    }
+
+    .cta-band {
+      background: #0b1220;
+      border-radius: 16px;
+      padding: 56px 48px;
+      text-align: center
+    }
+
+    .cta-band h2 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 10px
+    }
+
+    .cta-band p {
+      color: #9ca3af;
+      font-size: 16px;
+      margin-bottom: 28px;
+      line-height: 1.6
+    }
+
+    .cta-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap
+    }
+
+    .btn-ghost-white {
+      padding: 11px 24px;
+      border-radius: 8px;
+      border: 2px solid rgba(255, 255, 255, .25);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: background .15s;
+      background: transparent
+    }
+
+    .btn-ghost-white:hover {
+      background: rgba(255, 255, 255, .1)
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 18, 32, .5);
+      backdrop-filter: blur(4px);
+      z-index: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 36px;
+      max-width: 420px;
+      width: 100%;
+      position: relative;
+      transform: translateY(14px);
+      transition: transform .22s;
+      text-align: center
+    }
+
+    .modal-overlay.open .modal-box {
+      transform: translateY(0)
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      color: #9ca3af;
+      border-radius: 7px;
+      line-height: 1;
+      display: flex;
+      align-items: center
+    }
+
+    .modal-close:hover {
+      color: #0b1220;
+      background: #f3f4f6
+    }
+
+    .modal-logo-wrap {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      border: 1.5px solid #f0f2f5;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      margin: 0 auto 20px
+    }
+
+    .modal-logo-fallback {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      font-weight: 800;
+      color: #fff
+    }
+
+    .modal-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 50px;
+      background: #fef9ec;
+      color: #b45309;
+      margin-bottom: 14px
+    }
+
+    .modal-title {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #0b1220;
+      margin-bottom: 8px
+    }
+
+    .modal-desc {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 24px
+    }
+
+    .modal-notify-form {
+      display: flex;
+      gap: 8px;
+      max-width: 310px;
+      margin: 0 auto 12px
+    }
+
+    .modal-notify-form input {
+      flex: 1;
+      border: 1.5px solid #e6e9ef;
+      border-radius: 9px;
+      padding: 10px 13px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #0b1220;
+      min-width: 0;
+      transition: border-color .15s
+    }
+
+    .modal-notify-form input:focus {
+      outline: none;
+      border-color: #3b7bfc
+    }
+
+    .modal-notify-form button {
+      padding: 10px 16px;
+      border-radius: 9px;
+      border: none;
+      background: #0b1220;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s
+    }
+
+    .modal-notify-form button:hover {
+      background: #1a2a44
+    }
+
+    .modal-success {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #15803d;
+      margin-bottom: 12px
+    }
+
+    .modal-privacy {
+      font-size: 12px;
+      color: #9ca3af
+    }
+
+    @media(max-width:560px) {
+      .modal-box {
+        padding: 32px 20px
+      }
+
+      .cta-band {
+        padding: 40px 20px
+      }
+    }
+  </style>
+
+  <section class="page-hero">
+    <div class="container">
+      <h1>Connect your favourite tools</h1>
+      <p class="sub">SafiTrack integrates with the apps your team already uses &#8212; no developer required.</p>
+      <div class="search-wrap">
+        <div class="search-box">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <path stroke-linecap="round" d="M21 21l-4.35-4.35" />
+          </svg>
+          <input type="search" id="searchInput" placeholder="Search integrations&#8230;" autocomplete="off">
+        </div>
+      </div>
+      <div class="filter-tabs" id="filterTabs">
+        <button class="filter-tab active" data-cat="all">All</button>
+        <button class="filter-tab" data-cat="productivity">Productivity</button>
+        <button class="filter-tab" data-cat="communication">Communication</button>
+        <button class="filter-tab" data-cat="payments">Payments</button>
+        <button class="filter-tab" data-cat="crm">CRM</button>
+        <button class="filter-tab" data-cat="analytics">Analytics</button>
+        <button class="filter-tab" data-cat="automation">Automation</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="integrations-section">
+    <div class="container">
+      <div class="stats-bar">
+        <p class="count">Showing <span id="visibleCount">26</span> integrations</p>
+      </div>
+      <div class="integrations-grid" id="intGrid"></div>
+      <div class="no-results" id="noResults">
+        <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+          <circle cx="11" cy="11" r="8" />
+          <path stroke-linecap="round" d="M21 21l-4.35-4.35" />
+        </svg>
+        <p>No integrations match your search.</p>
+      </div>
+      <div class="cta-band">
+        <h2>Don&#8217;t see your tool?</h2>
+        <p>Request an integration or connect anything with our REST API and webhooks.</p>
+        <div class="cta-actions">
+          <a href="apireference.html" class="btn-hero-primary" style="background:#fff;color:#0b1220">View API docs</a>
+          <a href="mailto:hello@safitrack.com" class="btn-ghost-white">Request integration</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose" aria-label="Close">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <div class="modal-logo-wrap" id="modalLogoWrap"></div>
+      <div class="modal-badge">
+        <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Coming soon
+      </div>
+      <h2 class="modal-title" id="modalTitle">Integration</h2>
+      <p class="modal-desc" id="modalDesc">We&#8217;re actively building this integration. Be the first to know when it
+        launches.</p>
+      <div class="modal-notify-form" id="modalForm">
+        <input type="email" id="modalEmail" placeholder="your@email.com" autocomplete="email">
+        <button type="button" id="modalNotifyBtn">Notify me</button>
+      </div>
+      <div class="modal-success" id="modalSuccess">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        You&#8217;re on the list!
+      </div>
+      <p class="modal-privacy">We&#8217;ll only use your email to notify you about this integration.</p>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="footer-logo-wrapper">
+            <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
+          </div>
+          <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp;
+            sales CRM built for modern teams.</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-column">
+            <h4 class="footer-heading">Product</h4>
+            <ul>
+              <li><a href="features/mainfeatures.html">Features</a></li>
+              <li><a href="pricing.html">Pricing</a></li>
+              <li><a href="integrations.html">Integrations</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Company</h4>
+            <ul>
+              <li><a href="blog.html">Blog</a></li>
+              <li><a href="careers.html">Careers</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Resources</h4>
+            <ul>
+              <li><a href="documentation.html">Documentation</a></li>
+              <li><a href="helpcenter.html">Help Center</a></li>
+              <li><a href="apireference.html">API Reference</a></li>
+              <li><a href="status.html">Status</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Legal</h4>
+            <ul>
+              <li><a href="legal/privacy.html">Privacy Policy</a></li>
+              <li><a href="legal/terms.html">Terms of Service</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+        <div class="footer-social">
+          <a href="#">Twitter</a>
+          <a href="#">LinkedIn</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script>
+    var INTEGRATIONS = [
+      { name: 'Google Sheets', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/3/30/Google_Sheets_logo_%282014-2020%29.svg', category: 'productivity', badge: 'native', desc: 'Sync contacts, visits and pipeline data to any spreadsheet automatically.', color: '#0f9d58', initials: 'GS' },
+      { name: 'Google Calendar', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Google_Calendar_icon_%282020%29.svg', category: 'productivity', badge: 'native', desc: 'Create route-plan events and reminders directly from SafiTrack.', color: '#4285f4', initials: 'GC' },
+      { name: 'OpenAI', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/4d/OpenAI_Logo.svg', category: 'productivity', badge: 'native', desc: 'Power Intelligence Hub summaries, call analysis and AI suggestions.', color: '#10a37f', initials: 'AI' },
+      { name: 'Notion', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/45/Notion_app_logo.png', category: 'productivity', badge: 'soon', desc: "Push meeting notes and action items to your team's Notion workspace.", color: '#191919', initials: 'N' },
+      { name: 'Microsoft 365', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg', category: 'productivity', badge: 'soon', desc: 'Sync with Outlook, Teams and OneDrive across your whole organisation.', color: '#00a4ef', initials: 'M' },
+      { name: 'Gmail', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/7e/Gmail_icon_%282020%29.svg', category: 'communication', badge: 'native', desc: 'Log emails against companies and contacts with one click.', color: '#ea4335', initials: 'Gm' },
+      { name: 'Slack', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/d/d5/Slack_icon_2019.svg', category: 'communication', badge: 'soon', desc: 'Get deal updates, visit check-ins and alerts straight in Slack.', color: '#4a154b', initials: 'Sl' },
+      { name: 'WhatsApp Business', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg', category: 'communication', badge: 'soon', desc: 'Send automated follow-ups and reminders via WhatsApp Business API.', color: '#25d366', initials: 'WA' },
+      { name: 'Microsoft Teams', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c9/Microsoft_Office_Teams_%282018%E2%80%93present%29.svg', category: 'communication', badge: 'soon', desc: 'Post SafiTrack notifications and updates into Teams channels.', color: '#5059c9', initials: 'MT' },
+      { name: 'Twilio', logoUrl: 'https://logo.clearbit.com/twilio.com', category: 'communication', badge: 'api', desc: 'Log calls, send SMS and track call outcomes inside SafiTrack.', color: '#f22f46', initials: 'Tw' },
+      { name: 'Mailchimp', logoUrl: 'https://logo.clearbit.com/mailchimp.com', category: 'communication', badge: 'soon', desc: 'Sync contact lists and track email campaign engagement.', color: '#FFE01B', initials: 'Mc', textColor: '#241c15' },
+      { name: 'Stripe', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/b/ba/Stripe_Logo%2C_revised_2016.svg', category: 'payments', badge: 'api', desc: 'See payment status and revenue alongside your CRM contacts.', color: '#635bff', initials: 'St' },
+      { name: 'PayPal', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg', category: 'payments', badge: 'soon', desc: 'View PayPal transactions linked to contacts and deals.', color: '#003087', initials: 'PP' },
+      { name: 'M-Pesa', logoUrl: 'https://logo.clearbit.com/safaricom.com', category: 'payments', badge: 'soon', desc: 'Track M-Pesa collections and reconcile with field-sales records.', color: '#4caf50', initials: 'MP' },
+      { name: 'Xero', logoUrl: 'https://logo.clearbit.com/xero.com', category: 'payments', badge: 'soon', desc: 'Sync invoices, quotes and payments with your accounting data.', color: '#13b5ea', initials: 'Xe' },
+      { name: 'QuickBooks', logoUrl: 'https://logo.clearbit.com/quickbooks.com', category: 'payments', badge: 'soon', desc: 'Sync invoices and financial data with your field-sales records.', color: '#2ca01c', initials: 'QB' },
+      { name: 'HubSpot', logoUrl: 'https://logo.clearbit.com/hubspot.com', category: 'crm', badge: 'soon', desc: 'Bi-directional contact and deal sync between HubSpot and SafiTrack.', color: '#ff7a59', initials: 'HS' },
+      { name: 'Salesforce', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/f/f9/Salesforce.com_logo.svg', category: 'crm', badge: 'soon', desc: 'Keep Salesforce and SafiTrack in sync for enterprise field teams.', color: '#00a1e0', initials: 'SF' },
+      { name: 'Pipedrive', logoUrl: 'https://logo.clearbit.com/pipedrive.com', category: 'crm', badge: 'soon', desc: 'Import and sync pipelines, contacts and activities from Pipedrive.', color: '#1f1f1f', initials: 'PD' },
+      { name: 'WooCommerce', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/2/2a/WooCommerce_logo.svg', category: 'crm', badge: 'api', desc: 'Pull live order data into customer timelines and opportunity boards.', color: '#7f54b3', initials: 'Woo' },
+      { name: 'Google Maps', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/a/aa/Google_Maps_icon_%282020%29.svg', category: 'analytics', badge: 'native', desc: 'Optimise route plans and visualise territories on interactive maps.', color: '#34a853', initials: 'GM' },
+      { name: 'Google Analytics', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/8/89/Logo_Google_Analytics.svg', category: 'analytics', badge: 'soon', desc: 'Track campaign-level attribution and connect website conversions to field sales.', color: '#f57c00', initials: 'GA' },
+      { name: 'Looker Studio', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/c/c9/Looker_Logo.png', category: 'analytics', badge: 'soon', desc: 'Build live dashboards powered by your SafiTrack field data.', color: '#4285f4', initials: 'LS' },
+      { name: 'Metabase', logoUrl: 'https://logo.clearbit.com/metabase.com', category: 'analytics', badge: 'soon', desc: 'Run deeper analytics and share reports with your operations team.', color: '#509ee3', initials: 'MB' },
+      { name: 'Zapier', logoUrl: 'https://upload.wikimedia.org/wikipedia/commons/f/fd/Zapier_logo.svg', category: 'automation', badge: 'native', desc: 'Build no-code automations between SafiTrack and 7,000+ apps.', color: '#ff4a00', initials: 'Z' },
+      { name: 'Make', logoUrl: 'https://logo.clearbit.com/make.com', category: 'automation', badge: 'soon', desc: 'Design powerful multi-step workflows with a visual drag-and-drop builder.', color: '#6d00cc', initials: 'Mk' }
+    ];
+
+    function badgeLabel(b) { return b === 'native' ? 'Native' : b === 'api' ? 'API' : 'Coming soon'; }
+    function badgeClass(b) { return b === 'native' ? 'native' : b === 'api' ? 'api' : 'soon'; }
+    function btnLabel(b) { return b === 'native' ? 'View setup guide' : b === 'api' ? 'View API docs' : 'Request access'; }
+    function btnClass(b) { return b === 'native' ? 'int-connect native-btn' : 'int-connect'; }
+
+    function makeFallback(int, cls) {
+      var c = int.color || '#0b1220', t = int.textColor || '#fff';
+      return '<div class="' + cls + '" style="background:' + c + ';color:' + t + '">' + int.initials + '</div>';
+    }
+    function imgTag(int, w, h, cls) {
+      var fb = makeFallback(int, cls).replace(/"/g, "'");
+      return '<img src="' + int.logoUrl + '" alt="' + int.name + ' logo" style="width:' + w + 'px;height:' + h + 'px;object-fit:contain;display:block" onerror="this.outerHTML=\'' + fb + '\'">';
+    }
+
+    var grid = document.getElementById('intGrid');
+    var countEl = document.getElementById('visibleCount');
+    var noResults = document.getElementById('noResults');
+
+    INTEGRATIONS.forEach(function (int, i) {
+      var card = document.createElement('div');
+      card.className = 'integration-card';
+      card.dataset.cat = int.category;
+      card.dataset.name = int.name.toLowerCase();
+      card.dataset.idx = i;
+      card.innerHTML =
+        '<div class="int-logo-wrap">' + imgTag(int, 32, 32, 'int-logo-fallback') + '</div>' +
+        '<div class="int-meta">' +
+        '<div class="int-name">' + int.name + '</div>' +
+        '<span class="int-badge ' + badgeClass(int.badge) + '">' + badgeLabel(int.badge) + '</span>' +
+        '</div>' +
+        '<p class="int-desc">' + int.desc + '</p>' +
+        '<button class="' + btnClass(int.badge) + '" data-idx="' + i + '">' + btnLabel(int.badge) + '</button>';
+      card.addEventListener('click', function () { openModal(i); });
+      grid.appendChild(card);
+    });
+
+    function updateCount() {
+      var v = grid.querySelectorAll('.integration-card:not(.hidden)').length;
+      countEl.textContent = v;
+      noResults.classList.toggle('visible', v === 0);
+    }
+    updateCount();
+
+    var activecat = 'all', searchq = '';
+    function applyFilters() {
+      grid.querySelectorAll('.integration-card').forEach(function (card) {
+        var idx = parseInt(card.dataset.idx);
+        var catOk = activecat === 'all' || card.dataset.cat === activecat;
+        var nameOk = !searchq || card.dataset.name.includes(searchq) || INTEGRATIONS[idx].desc.toLowerCase().includes(searchq) || INTEGRATIONS[idx].category.includes(searchq);
+        card.classList.toggle('hidden', !(catOk && nameOk));
+      });
+      updateCount();
+    }
+
+    document.getElementById('filterTabs').addEventListener('click', function (e) {
+      var tab = e.target.closest('.filter-tab');
+      if (!tab) return;
+      document.querySelectorAll('.filter-tab').forEach(function (t) { t.classList.remove('active'); });
+      tab.classList.add('active');
+      activecat = tab.dataset.cat;
+      applyFilters();
+    });
+    document.getElementById('searchInput').addEventListener('input', function (e) {
+      searchq = e.target.value.trim().toLowerCase();
+      applyFilters();
+    });
+
+    var overlay = document.getElementById('modalOverlay');
+    var modalLogoWrap = document.getElementById('modalLogoWrap');
+    var modalTitle = document.getElementById('modalTitle');
+    var modalDesc = document.getElementById('modalDesc');
+    var modalForm = document.getElementById('modalForm');
+    var modalSuccess = document.getElementById('modalSuccess');
+    var modalEmail = document.getElementById('modalEmail');
+    var notifyBtn = document.getElementById('modalNotifyBtn');
+
+    function openModal(idx) {
+      var int = INTEGRATIONS[idx];
+      modalLogoWrap.innerHTML = imgTag(int, 44, 44, 'modal-logo-fallback');
+      modalTitle.textContent = int.name;
+      modalDesc.textContent = "We're actively building the " + int.name + " integration. Drop your email and we'll notify you the moment it goes live.";
+      modalForm.style.display = 'flex';
+      modalSuccess.style.display = 'none';
+      modalEmail.value = '';
+      modalEmail.style.borderColor = '';
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      setTimeout(function () { modalEmail.focus(); }, 220);
+    }
+    function closeModal() {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+
+    notifyBtn.addEventListener('click', function () {
+      var val = modalEmail.value.trim();
+      if (!val || !val.includes('@')) { modalEmail.focus(); modalEmail.style.borderColor = '#f43f5e'; return; }
+      modalEmail.style.borderColor = '';
+      notifyBtn.textContent = '...';
+      notifyBtn.disabled = true;
+      setTimeout(function () {
+        modalForm.style.display = 'none';
+        modalSuccess.style.display = 'flex';
+        notifyBtn.textContent = 'Notify me';
+        notifyBtn.disabled = false;
+      }, 600);
+    });
+
+    (function () {
+      var mb = document.querySelector('.mobile-menu-btn'),
+        mo = document.querySelector('.mobile-nav-overlay'),
+        mc = document.querySelector('.mobile-close-btn');
+      if (mb && mo) {
+        mb.addEventListener('click', function () { mo.classList.add('active'); });
+        if (mc) mc.addEventListener('click', function () { mo.classList.remove('active'); });
+        mo.addEventListener('click', function (e) { if (e.target === mo) mo.classList.remove('active'); });
+      }
+      window.addEventListener('scroll', function () {
+        var nb = document.getElementById('navbar');
+        if (nb) nb.classList.toggle('scrolled', window.scrollY > 20);
+      });
+    })();
+  </script>
 </body>
+
 </html>

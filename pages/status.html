@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>System Status - SafiTrack</title>
-  <meta name="description" content="Live uptime and incident history for SafiTrack CRM services. Real-time status monitor for API, web app, and data infrastructure.">
+  <meta name="description"
+    content="Live uptime and incident history for SafiTrack CRM services. Real-time status monitor for API, web app, and data infrastructure.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://safitrack.netlify.app/pages/status.html">
   <meta property="og:title" content="System Status — SafiTrack">
-  <meta property="og:description" content="Live uptime and incident history for SafiTrack CRM services. Real-time status monitor for API, web app, and data infrastructure.">
+  <meta property="og:description"
+    content="Live uptime and incident history for SafiTrack CRM services. Real-time status monitor for API, web app, and data infrastructure.">
   <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://safitrack.netlify.app/pages/status.html">
   <meta property="twitter:title" content="System Status — SafiTrack">
-  <meta property="twitter:description" content="Live uptime and incident history for SafiTrack CRM services. Real-time status monitor for API, web app, and data infrastructure.">
+  <meta property="twitter:description"
+    content="Live uptime and incident history for SafiTrack CRM services. Real-time status monitor for API, web app, and data infrastructure.">
   <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
   <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -39,526 +43,1217 @@
       position: relative;
       overflow: hidden;
     }
+
     .status-hero.all-good::before {
       content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
       background: linear-gradient(90deg, #2ea84f, #56d364);
     }
+
     .status-hero.degraded::before {
       content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
       background: linear-gradient(90deg, #d29922, #e3b341);
     }
+
     .status-hero.outage::before {
       content: '';
-      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
       background: linear-gradient(90deg, #da3633, #f85149);
     }
 
     /* ── ANIMATED ICON ── */
     .hero-icon {
-      width: 72px; height: 72px;
+      width: 72px;
+      height: 72px;
       margin: 0 auto 24px;
       border-radius: 50%;
-      background: rgba(46,168,79,0.08);
-      border: 1.5px solid rgba(46,168,79,0.3);
-      display: flex; align-items: center; justify-content: center;
+      background: rgba(46, 168, 79, 0.08);
+      border: 1.5px solid rgba(46, 168, 79, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
       animation: icon-pulse 2.6s ease-in-out infinite;
     }
+
     @keyframes icon-pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(46,168,79,0.25); }
-      50%       { box-shadow: 0 0 0 14px rgba(46,168,79,0); }
+
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(46, 168, 79, 0.25);
+      }
+
+      50% {
+        box-shadow: 0 0 0 14px rgba(46, 168, 79, 0);
+      }
     }
+
     .check-mark {
-      fill: none; stroke: #2ea84f;
-      stroke-width: 3; stroke-linecap: round; stroke-linejoin: round;
+      fill: none;
+      stroke: #2ea84f;
+      stroke-width: 3;
+      stroke-linecap: round;
+      stroke-linejoin: round;
     }
+
     .hero-title {
-      font-size: 26px; font-weight: 800; color: #0b1220;
-      letter-spacing: -0.02em; margin-bottom: 8px;
+      font-size: 26px;
+      font-weight: 800;
+      color: #0b1220;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
     }
-    .hero-subtitle { font-size: 14px; color: #6b7280; }
-    .hero-subtitle #live-time { font-family: monospace; font-size: 13px; color: #4b5563; }
+
+    .hero-subtitle {
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    .hero-subtitle #live-time {
+      font-family: monospace;
+      font-size: 13px;
+      color: #4b5563;
+    }
+
     .uptime-pill {
-      display: inline-flex; align-items: center; gap: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       margin-top: 22px;
-      background: #fff; border: 1px solid #e6e9ef;
-      border-radius: 99px; padding: 8px 20px;
-      font-size: 13px; font-weight: 600; color: #4b5563;
+      background: #fff;
+      border: 1px solid #e6e9ef;
+      border-radius: 99px;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4b5563;
     }
-    .uptime-pill strong { color: #2ea84f; font-size: 15px; }
+
+    .uptime-pill strong {
+      color: #2ea84f;
+      font-size: 15px;
+    }
 
     /* ── UPTIME STRIP ── */
     .uptime-strip {
-      background: #fafafa; border: 1px solid #e6e9ef;
-      border-radius: 12px; padding: 20px 24px;
+      background: #fafafa;
+      border: 1px solid #e6e9ef;
+      border-radius: 12px;
+      padding: 20px 24px;
       margin-bottom: 24px;
     }
+
     .strip-label {
-      font-size: 11px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.1em; color: #6b7280; margin-bottom: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #6b7280;
+      margin-bottom: 12px;
     }
-    .bar-row { display: flex; gap: 3px; align-items: center; }
+
+    .bar-row {
+      display: flex;
+      gap: 3px;
+      align-items: center;
+    }
+
     .bar-seg {
-      flex: 1; height: 28px; border-radius: 4px;
-      background: rgba(46,168,79,0.1);
-      border: 1px solid rgba(46,168,79,0.22);
-      transition: opacity .15s; cursor: default;
+      flex: 1;
+      height: 28px;
+      border-radius: 4px;
+      background: rgba(46, 168, 79, 0.1);
+      border: 1px solid rgba(46, 168, 79, 0.22);
+      transition: opacity .15s;
+      cursor: default;
     }
-    .bar-seg:hover { opacity: 0.65; }
+
+    .bar-seg:hover {
+      opacity: 0.65;
+    }
+
     .bar-seg.today {
-      background: rgba(46,168,79,0.2);
+      background: rgba(46, 168, 79, 0.2);
       border-color: #2ea84f;
     }
+
     .bar-meta {
-      display: flex; justify-content: space-between;
-      font-size: 11px; color: #6b7280; margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: #6b7280;
+      margin-top: 8px;
     }
 
     /* ── METRICS GRID ── */
     .metrics-row {
-      display: grid; grid-template-columns: repeat(3,1fr);
-      gap: 12px; margin-bottom: 32px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 32px;
     }
+
     .metric-card {
-      background: #fafafa; border: 1px solid #e6e9ef;
-      border-radius: 12px; padding: 20px;
+      background: #fafafa;
+      border: 1px solid #e6e9ef;
+      border-radius: 12px;
+      padding: 20px;
       text-align: center;
     }
+
     .metric-value {
-      font-size: 26px; font-weight: 800; letter-spacing: -0.02em;
-      line-height: 1.1; margin-bottom: 4px; color: #0b1220;
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 4px;
+      color: #0b1220;
     }
-    .metric-label { font-size: 12px; color: #6b7280; font-weight: 500; }
+
+    .metric-label {
+      font-size: 12px;
+      color: #6b7280;
+      font-weight: 500;
+    }
 
     /* ── SECTION HEADER ── */
     .section-head {
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       margin-bottom: 10px;
     }
+
     .section-title {
-      font-size: 11px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: 0.1em; color: #6b7280;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #6b7280;
     }
+
     .all-operational {
-      font-size: 12px; font-weight: 600; color: #2ea84f;
-      display: flex; align-items: center; gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #2ea84f;
+      display: flex;
+      align-items: center;
+      gap: 5px;
     }
+
     .all-operational::before {
-      content: ''; width: 6px; height: 6px; border-radius: 50%;
-      background: #2ea84f; display: inline-block;
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #2ea84f;
+      display: inline-block;
     }
 
     /* ── SERVICE GROUP ── */
     .service-group {
-      background: #fff; border: 1px solid #e6e9ef;
-      border-radius: 12px; overflow: hidden;
+      background: #fff;
+      border: 1px solid #e6e9ef;
+      border-radius: 12px;
+      overflow: hidden;
       margin-bottom: 12px;
     }
+
     .group-title-row {
       padding: 12px 20px;
       background: #fafafa;
       border-bottom: 1px solid #e6e9ef;
-      font-size: 13px; font-weight: 700; color: #4b5563;
-      display: flex; align-items: center; gap: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #4b5563;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
+
     .service-row {
-      display: flex; align-items: center; justify-content: space-between;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
       padding: 14px 20px;
       border-bottom: 1px solid #f0f2f5;
       transition: background .12s;
     }
-    .service-row:last-child { border-bottom: none; }
-    .service-row:hover { background: #fafafa; }
-    .svc-left { display: flex; align-items: center; gap: 12px; }
+
+    .service-row:last-child {
+      border-bottom: none;
+    }
+
+    .service-row:hover {
+      background: #fafafa;
+    }
+
+    .svc-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
     .svc-indicator {
-      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
     }
-    .svc-indicator.operational { background: #2ea84f; box-shadow: 0 0 5px rgba(46,168,79,0.45); }
-    .svc-indicator.degraded    { background: #d29922; box-shadow: 0 0 5px rgba(210,153,34,0.45); }
-    .svc-indicator.outage      { background: #da3633; box-shadow: 0 0 5px rgba(218,54,51,0.45); animation: blink 1.2s ease-in-out infinite; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    .svc-name { font-size: 14px; font-weight: 600; color: #0b1220; }
-    .svc-desc { font-size: 12px; color: #6b7280; margin-top: 1px; }
-    .svc-right { display: flex; align-items: center; gap: 14px; }
+
+    .svc-indicator.operational {
+      background: #2ea84f;
+      box-shadow: 0 0 5px rgba(46, 168, 79, 0.45);
+    }
+
+    .svc-indicator.degraded {
+      background: #d29922;
+      box-shadow: 0 0 5px rgba(210, 153, 34, 0.45);
+    }
+
+    .svc-indicator.outage {
+      background: #da3633;
+      box-shadow: 0 0 5px rgba(218, 54, 51, 0.45);
+      animation: blink 1.2s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: 0.3
+      }
+    }
+
+    .svc-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #0b1220;
+    }
+
+    .svc-desc {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 1px;
+    }
+
+    .svc-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
     .svc-latency {
-      font-family: monospace; font-size: 11px; color: #6b7280;
-      background: #f4f6f8; border: 1px solid #e6e9ef;
-      padding: 3px 9px; border-radius: 6px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #6b7280;
+      background: #f4f6f8;
+      border: 1px solid #e6e9ef;
+      padding: 3px 9px;
+      border-radius: 6px;
     }
+
     .status-badge {
-      font-size: 11px; font-weight: 700; padding: 4px 12px;
-      border-radius: 99px; text-transform: uppercase; letter-spacing: 0.05em;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
-    .badge-operational { background: rgba(46,168,79,0.08); color: #2ea84f; border: 1px solid rgba(46,168,79,0.2); }
-    .badge-degraded    { background: rgba(210,153,34,0.08); color: #d29922; border: 1px solid rgba(210,153,34,0.2); }
-    .badge-outage      { background: rgba(218,54,51,0.08); color: #da3633; border: 1px solid rgba(218,54,51,0.2); }
+
+    .badge-operational {
+      background: rgba(46, 168, 79, 0.08);
+      color: #2ea84f;
+      border: 1px solid rgba(46, 168, 79, 0.2);
+    }
+
+    .badge-degraded {
+      background: rgba(210, 153, 34, 0.08);
+      color: #d29922;
+      border: 1px solid rgba(210, 153, 34, 0.2);
+    }
+
+    .badge-outage {
+      background: rgba(218, 54, 51, 0.08);
+      color: #da3633;
+      border: 1px solid rgba(218, 54, 51, 0.2);
+    }
 
     /* ── LAST CHECKED ── */
     .last-checked {
-      text-align: center; font-size: 12px; color: #6b7280;
-      margin-top: 28px; display: flex; align-items: center; justify-content: center; gap: 6px;
+      text-align: center;
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
+
     .live-dot {
-      width: 6px; height: 6px; border-radius: 50%;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
       background: #2ea84f;
       animation: pulse-dot 2s ease-in-out infinite;
     }
+
     @keyframes pulse-dot {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.7); }
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+
+      50% {
+        opacity: 0.4;
+        transform: scale(0.7);
+      }
     }
 
     /* ── SUBSCRIBE ── */
     .subscribe-bar {
-      background: #fafafa; border: 1px solid #e6e9ef;
-      border-radius: 12px; padding: 24px 28px;
-      display: flex; align-items: center; justify-content: space-between;
-      gap: 20px; flex-wrap: wrap; margin-top: 28px;
+      background: #fafafa;
+      border: 1px solid #e6e9ef;
+      border-radius: 12px;
+      padding: 24px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 28px;
     }
-    .sub-text h3 { font-size: 15px; font-weight: 700; color: #0b1220; margin-bottom: 3px; }
-    .sub-text p  { font-size: 13px; color: #6b7280; }
-    .sub-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .sub-text h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0b1220;
+      margin-bottom: 3px;
+    }
+
+    .sub-text p {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .sub-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
     .sub-btn {
-      padding: 9px 18px; border-radius: 8px;
-      font-size: 13px; font-weight: 600; cursor: pointer;
-      border: 1px solid #e6e9ef; background: #fff;
-      color: #4b5563; font-family: inherit;
-      display: flex; align-items: center; gap: 7px;
-      transition: all .15s; text-decoration: none;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #e6e9ef;
+      background: #fff;
+      color: #4b5563;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      transition: all .15s;
+      text-decoration: none;
     }
-    .sub-btn:hover { background: #f4f6f8; border-color: #c0c8d4; color: #0b1220; }
+
+    .sub-btn:hover {
+      background: #f4f6f8;
+      border-color: #c0c8d4;
+      color: #0b1220;
+    }
 
     /* ── FADE IN ── */
-    .fade { opacity: 0; transform: translateY(8px); animation: fadeIn .4s ease forwards; }
-    .fade:nth-child(1) { animation-delay: .05s; }
-    .fade:nth-child(2) { animation-delay: .12s; }
-    .fade:nth-child(3) { animation-delay: .18s; }
-    .fade:nth-child(4) { animation-delay: .24s; }
-    .fade:nth-child(5) { animation-delay: .30s; }
-    .fade:nth-child(6) { animation-delay: .36s; }
-    .fade:nth-child(7) { animation-delay: .42s; }
-    @keyframes fadeIn { to { opacity: 1; transform: none; } }
+    .fade {
+      opacity: 0;
+      transform: translateY(8px);
+      animation: fadeIn .4s ease forwards;
+    }
+
+    .fade:nth-child(1) {
+      animation-delay: .05s;
+    }
+
+    .fade:nth-child(2) {
+      animation-delay: .12s;
+    }
+
+    .fade:nth-child(3) {
+      animation-delay: .18s;
+    }
+
+    .fade:nth-child(4) {
+      animation-delay: .24s;
+    }
+
+    .fade:nth-child(5) {
+      animation-delay: .30s;
+    }
+
+    .fade:nth-child(6) {
+      animation-delay: .36s;
+    }
+
+    .fade:nth-child(7) {
+      animation-delay: .42s;
+    }
+
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+        transform: none;
+      }
+    }
 
     @media(max-width:600px) {
-      .metrics-row { grid-template-columns: 1fr 1fr; }
-      .svc-latency { display: none; }
-      .subscribe-bar { flex-direction: column; align-items: flex-start; }
-      .hero-title { font-size: 22px; }
+      .metrics-row {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .svc-latency {
+        display: none;
+      }
+
+      .subscribe-bar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .hero-title {
+        font-size: 22px;
+      }
     }
   </style>
 </head>
+
 <body>
 
-<!-- ── NAVBAR ── -->
-<nav class="navbar" id="navbar">
-  <div class="container">
-    <div class="nav-content">
-      <div class="nav-left">
-        <a href="../index.html" class="logo">
-          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
-        </a>
-        <div class="nav-links">
-          <a href="features/mainfeatures.html" class="nav-link">Features</a>
-          <a href="pricing.html" class="nav-link">Pricing</a>
+  <!-- ── NAVBAR ── -->
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <div class="nav-content">
+        <div class="nav-left">
+          <a href="../index.html" class="logo">
+            <img src="../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
+          </a>
+          <div class="nav-links">
+            <div class="nav-item nav-features">
+              <a href="#" class="nav-link-toggle">Features
+                <span class="nav-caret" aria-hidden="true">
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </a>
+              <div class="mega-menu" aria-hidden="true">
+                <div class="mega-content-grid">
+                  <div class="mega-category">
+                    <div class="mega-category-header">Platform</div>
+                    <div class="mega-items-grid">
+                      <a href="features/safi-ai-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Safi AI</div>
+                          <div class="mega-desc">AI insights native to your CRM</div>
+                        </div>
+                      </a>
+                      <a href="features/opportunities-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Pipelines</div>
+                          <div class="mega-desc">Visual deal tracking & management</div>
+                        </div>
+                      </a>
+                      <a href="features/companies-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+                            <path d="M9 22v-4h6v4" />
+                            <path d="M8 6h.01" />
+                            <path d="M16 6h.01" />
+                            <path d="M8 10h.01" />
+                            <path d="M16 10h.01" />
+                            <path d="M8 14h.01" />
+                            <path d="M16 14h.01" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Companies</div>
+                          <div class="mega-desc">Complete organization context</div>
+                        </div>
+                      </a>
+                      <a href="features/people-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">People</div>
+                          <div class="mega-desc">Unified contact management</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Operations</div>
+                    <div class="mega-items-grid">
+                      <a href="features/sales-visits-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Sales visits</div>
+                          <div class="mega-desc">Field activity & visit logging</div>
+                        </div>
+                      </a>
+                      <a href="features/route-plans-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="6" cy="19" r="3" />
+                            <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
+                            <circle cx="18" cy="5" r="3" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Route plans</div>
+                          <div class="mega-desc">Optimized field routing</div>
+                        </div>
+                      </a>
+                      <a href="features/technician-visits-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                              d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Service visits</div>
+                          <div class="mega-desc">Post-sales technician tracking</div>
+                        </div>
+                      </a>
+                      <a href="features/tasks-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 11 12 14 22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Tasks</div>
+                          <div class="mega-desc">Operational to-do management</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Insights & Ecosystem</div>
+                    <div class="mega-items-grid">
+                      <a href="features/call-logs-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Call Intelligence</div>
+                          <div class="mega-desc">Record & analyze meetings</div>
+                        </div>
+                      </a>
+                      <a href="features/notes-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Notes</div>
+                          <div class="mega-desc">Native meeting summaries</div>
+                        </div>
+                      </a>
+                      <a href="features/reminders-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Reminders</div>
+                          <div class="mega-desc">Smart follow-up alerts</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="mega-sidebar">
+                  <div class="mega-sidebar-header">Get Started</div>
+                  <ul class="mega-sidebar-list">
+                    <li><a href="/crm/"><span>Open CRM</span></a></li>
+                    <li><a href="pricing.html"><span>View Pricing</span></a></li>
+                    <li><a href="../index.html#pricing"><span>Request Demo</span></a></li>
+                  </ul>
+                  <div class="mega-sidebar-footer">
+                    <p>Trusted by 2,000+ teams</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="nav-item nav-resources">
+              <a href="#" class="nav-link-toggle">Resources
+                <span class="nav-caret" aria-hidden="true">
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </a>
+              <div class="mega-menu" aria-hidden="true">
+                <div class="mega-content-grid">
+                  <div class="mega-category">
+                    <div class="mega-category-header">Insights</div>
+                    <div class="mega-items-grid">
+                      <a href="integrations.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Integrations</div>
+                          <div class="mega-desc">Connect your stack</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Support</div>
+                    <div class="mega-items-grid">
+                      <a href="documentation.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Documentation</div>
+                          <div class="mega-desc">Guides and tutorials</div>
+                        </div>
+                      </a>
+                      <a href="helpcenter.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Help Center</div>
+                          <div class="mega-desc">Get support</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Developers</div>
+                    <div class="mega-items-grid">
+                      <a href="apireference.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 18 22 12 16 6" />
+                            <polyline points="8 6 2 12 8 18" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">API Reference</div>
+                          <div class="mega-desc">Build with SafiTrack</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="mega-sidebar">
+                  <div class="mega-sidebar-header">More</div>
+                  <ul class="mega-sidebar-list">
+                    <li><a href="blog.html"><span>Blog</span></a></li>
+                    <li><a href="careers.html"><span>Careers</span></a></li>
+                    <li><a href="status.html"><span>Status</span></a></li>
+                  </ul>
+                  <div class="mega-sidebar-footer">
+                    <p>Always growing</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <a href="pricing.html">Pricing</a>
+          </div>
         </div>
+        <div class="nav-actions">
+          <a href="/crm/" class="nav-link-sign-in">Sign in</a>
+          <a href="pricing.html" class="btn-hero-primary">Start for free</a>
+        </div>
+        <button class="mobile-menu-btn" aria-label="Toggle Menu">
+          <span></span><span></span>
+        </button>
       </div>
-      <div class="nav-actions">
-        <a href="/crm/" class="nav-link-sign-in">Sign in</a>
-        <a href="pricing.html" class="btn-hero-primary">Start for free</a>
-      </div>
-      <button class="mobile-menu-btn" aria-label="Toggle Menu">
-        <span></span><span></span>
-      </button>
     </div>
-  </div>
-</nav>
-<div class="mobile-nav-overlay">
-  <button class="mobile-close-btn" aria-label="Close">
-    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-    </svg>
-  </button>
-  <div class="mobile-nav-content">
-    <a href="features/mainfeatures.html" class="mobile-link">Features</a>
-    <a href="pricing.html" class="mobile-link">Pricing</a>
-    <hr class="mobile-divider">
-    <a href="/crm/" class="mobile-link">Sign in</a>
-    <a href="pricing.html" class="btn-primary btn-block" style="text-align:center;margin-top:8px">Start for free</a>
-  </div>
-</div>
-
-<!-- ── CONTENT ── -->
-<div class="status-page">
-
-  <!-- HERO -->
-  <div class="status-hero all-good fade" id="hero-card">
-    <div class="hero-icon" id="hero-icon">
-      <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-        <polyline class="check-mark" points="6,16 13,23 26,9"/>
+  </nav>
+  <div class="mobile-nav-overlay">
+    <button class="mobile-close-btn" aria-label="Close">
+      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
-    </div>
-    <div class="hero-title" id="hero-title">All Systems Operational</div>
-    <div class="hero-subtitle">Last checked <span id="live-time">—</span></div>
-    <div class="uptime-pill">
-      <strong>100%</strong> uptime over the last 90 days
-    </div>
-  </div>
-
-  <!-- 90-DAY BAR -->
-  <div class="uptime-strip fade">
-    <div class="strip-label">90-day uptime history</div>
-    <div class="bar-row" id="uptime-bars"></div>
-    <div class="bar-meta">
-      <span id="bar-start-label">90 days ago</span>
-      <span style="color:#2ea84f;font-weight:700;font-size:11px">100% uptime</span>
-      <span>Today</span>
+    </button>
+    <div class="mobile-nav-content">
+      <a href="features/mainfeatures.html" class="mobile-link">Features</a>
+      <a href="pricing.html" class="mobile-link">Pricing</a>
+      <hr class="mobile-divider">
+      <a href="/crm/" class="mobile-link">Open App</a>
+      <button class="btn-primary btn-block get-started-btn">Get Started</button>
     </div>
   </div>
 
-  <!-- METRICS -->
-  <div class="metrics-row fade">
-    <div class="metric-card">
-      <div class="metric-value" style="color:#2ea84f">100%</div>
-      <div class="metric-label">Uptime — 90 days</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-value" id="avg-latency">48ms</div>
-      <div class="metric-label">Avg API latency</div>
-    </div>
-    <div class="metric-card">
-      <div class="metric-value">0</div>
-      <div class="metric-label">Active incidents</div>
-    </div>
-  </div>
+  <!-- ── CONTENT ── -->
+  <div class="status-page">
 
-  <!-- CORE PLATFORM -->
-  <div class="section-head fade">
-    <span class="section-title">Core Platform</span>
-    <span class="all-operational">All operational</span>
-  </div>
-  <div class="service-group fade">
-    <div class="group-title-row">⚡ Application</div>
-    <div class="service-row">
-      <div class="svc-left"><div class="svc-indicator operational"></div><div><div class="svc-name">CRM Web App</div><div class="svc-desc">Dashboard, companies, contacts, reporting</div></div></div>
-      <div class="svc-right"><div class="svc-latency" id="lat-webapp">—</div><div class="status-badge badge-operational">Operational</div></div>
-    </div>
-    <div class="service-row">
-      <div class="svc-left"><div class="svc-indicator operational"></div><div><div class="svc-name">Field PWA</div><div class="svc-desc">Mobile progressive web app for field reps</div></div></div>
-      <div class="svc-right"><div class="svc-latency" id="lat-pwa">—</div><div class="status-badge badge-operational">Operational</div></div>
-    </div>
-    <div class="service-row">
-      <div class="svc-left"><div class="svc-indicator operational"></div><div><div class="svc-name">Authentication</div><div class="svc-desc">Login, sessions, team management</div></div></div>
-      <div class="svc-right"><div class="svc-latency" id="lat-auth">—</div><div class="status-badge badge-operational">Operational</div></div>
-    </div>
-    <div class="service-row">
-      <div class="svc-left"><div class="svc-indicator operational"></div><div><div class="svc-name">Real-time Sync</div><div class="svc-desc">Offline visit queue &amp; live data sync</div></div></div>
-      <div class="svc-right"><div class="svc-latency" id="lat-sync">—</div><div class="status-badge badge-operational">Operational</div></div>
-    </div>
-  </div>
-
-  <!-- API & INFRASTRUCTURE -->
-  <div class="section-head fade" style="margin-top:24px">
-    <span class="section-title">API &amp; Infrastructure</span>
-    <span class="all-operational">All operational</span>
-  </div>
-  <div class="service-group fade">
-    <div class="group-title-row">🔌 API Services</div>
-    <div class="service-row">
-      <div class="svc-left"><div class="svc-indicator operational"></div><div><div class="svc-name">REST API</div><div class="svc-desc">v1 endpoints — companies, visits, territories</div></div></div>
-      <div class="svc-right"><div class="svc-latency" id="lat-api">—</div><div class="status-badge badge-operational">Operational</div></div>
-    </div>
-    <div class="service-row">
-      <div class="svc-left"><div class="svc-indicator operational"></div><div><div class="svc-name">Webhooks</div><div class="svc-desc">Event delivery to registered endpoints</div></div></div>
-      <div class="svc-right"><div class="svc-latency" id="lat-webhooks">—</div><div class="status-badge badge-operational">Operational</div></div>
-    </div>
-    <div class="service-row">
-      <div class="svc-left"><div class="svc-indicator operational"></div><div><div class="svc-name">Geolocation Engine</div><div class="svc-desc">GPS verification &amp; geofence enforcement</div></div></div>
-      <div class="svc-right"><div class="svc-latency" id="lat-geo">—</div><div class="status-badge badge-operational">Operational</div></div>
-    </div>
-    <div class="service-row">
-      <div class="svc-left"><div class="svc-indicator operational"></div><div><div class="svc-name">Reporting Pipeline</div><div class="svc-desc">Analytics aggregation &amp; scheduled reports</div></div></div>
-      <div class="svc-right"><div class="svc-latency" id="lat-reports">—</div><div class="status-badge badge-operational">Operational</div></div>
-    </div>
-  </div>
-
-  <!-- THIRD-PARTY -->
-  <div class="service-group fade" style="margin-top:12px">
-    <div class="group-title-row">🔗 Third-Party Services</div>
-    <div class="service-row">
-      <div class="svc-left"><div class="svc-indicator operational"></div><div><div class="svc-name">Supabase</div><div class="svc-desc">Database, auth &amp; real-time subscriptions</div></div></div>
-      <div class="svc-right"><div class="svc-latency" id="lat-notif">—</div><div class="status-badge badge-operational">Operational</div></div>
-    </div>
-    <div class="service-row">
-      <div class="svc-left"><div class="svc-indicator operational"></div><div><div class="svc-name">OpenStreetMap</div><div class="svc-desc">Map tiles &amp; geocoding for field visit tracking</div></div></div>
-      <div class="svc-right"><div class="svc-latency" id="lat-integrations">—</div><div class="status-badge badge-operational">Operational</div></div>
-    </div>
-    <div class="service-row">
-      <div class="svc-left"><div class="svc-indicator operational"></div><div><div class="svc-name">OpenAI</div><div class="svc-desc">AI-powered features &amp; smart suggestions</div></div></div>
-      <div class="svc-right"><div class="svc-latency" id="lat-cdn">—</div><div class="status-badge badge-operational">Operational</div></div>
-    </div>
-  </div>
-
-  <!-- LAST CHECKED -->
-  <div class="last-checked fade">
-    <span class="live-dot"></span>
-    Auto-refreshes every 60 seconds &nbsp;·&nbsp; Last checked
-    <span id="last-check-time" style="font-family:monospace;font-size:11px;color:#4b5563">—</span>
-  </div>
-
-  <!-- SUBSCRIBE -->
-  <div class="subscribe-bar fade">
-    <div class="sub-text">
-      <h3>Get notified of incidents</h3>
-      <p>Receive instant alerts when a service is impacted.</p>
-    </div>
-    <div class="sub-actions">
-      <button class="sub-btn" onclick="alert('Email subscription coming soon.')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M2 7l10 7 10-7"/></svg>
-        Email alerts
-      </button>
-      <button class="sub-btn" style="background:#0b1220;color:#fff;border-color:#0b1220" onclick="alert('RSS feed: https://status.safitrack.io/feed.xml')">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11a9 9 0 0 1 9 9"/><path d="M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1"/></svg>
-        Subscribe to RSS
-      </button>
-    </div>
-  </div>
-
-</div><!-- /status-page -->
-
-<!-- ── FOOTER ── -->
-<footer class="footer">
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-brand">
-        <div class="footer-logo-wrapper">
-          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
-        </div>
-        <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp; sales CRM built for modern teams.</p>
+    <!-- HERO -->
+    <div class="status-hero all-good fade" id="hero-card">
+      <div class="hero-icon" id="hero-icon">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+          <polyline class="check-mark" points="6,16 13,23 26,9" />
+        </svg>
       </div>
-      <div class="footer-links">
-        <div class="footer-column">
-          <h4 class="footer-heading">Product</h4>
-          <ul>
-            <li><a href="features/mainfeatures.html">Features</a></li>
-            <li><a href="pricing.html">Pricing</a></li>
-            <li><a href="integrations.html">Integrations</a></li>
-          </ul>
+      <div class="hero-title" id="hero-title">All Systems Operational</div>
+      <div class="hero-subtitle">Last checked <span id="live-time">—</span></div>
+      <div class="uptime-pill">
+        <strong>100%</strong> uptime over the last 90 days
+      </div>
+    </div>
+
+    <!-- 90-DAY BAR -->
+    <div class="uptime-strip fade">
+      <div class="strip-label">90-day uptime history</div>
+      <div class="bar-row" id="uptime-bars"></div>
+      <div class="bar-meta">
+        <span id="bar-start-label">90 days ago</span>
+        <span style="color:#2ea84f;font-weight:700;font-size:11px">100% uptime</span>
+        <span>Today</span>
+      </div>
+    </div>
+
+    <!-- METRICS -->
+    <div class="metrics-row fade">
+      <div class="metric-card">
+        <div class="metric-value" style="color:#2ea84f">100%</div>
+        <div class="metric-label">Uptime — 90 days</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value" id="avg-latency">48ms</div>
+        <div class="metric-label">Avg API latency</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-value">0</div>
+        <div class="metric-label">Active incidents</div>
+      </div>
+    </div>
+
+    <!-- CORE PLATFORM -->
+    <div class="section-head fade">
+      <span class="section-title">Core Platform</span>
+      <span class="all-operational">All operational</span>
+    </div>
+    <div class="service-group fade">
+      <div class="group-title-row">⚡ Application</div>
+      <div class="service-row">
+        <div class="svc-left">
+          <div class="svc-indicator operational"></div>
+          <div>
+            <div class="svc-name">CRM Web App</div>
+            <div class="svc-desc">Dashboard, companies, contacts, reporting</div>
+          </div>
         </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Company</h4>
-          <ul>
-            <li><a href="blog.html">Blog</a></li>
-            <li><a href="careers.html">Careers</a></li>
-          </ul>
+        <div class="svc-right">
+          <div class="svc-latency" id="lat-webapp">—</div>
+          <div class="status-badge badge-operational">Operational</div>
         </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Resources</h4>
-          <ul>
-            <li><a href="documentation.html">Documentation</a></li>
-            <li><a href="helpcenter.html">Help Center</a></li>
-            <li><a href="apireference.html">API Reference</a></li>
-            <li><a href="status.html">Status</a></li>
-          </ul>
+      </div>
+      <div class="service-row">
+        <div class="svc-left">
+          <div class="svc-indicator operational"></div>
+          <div>
+            <div class="svc-name">Field PWA</div>
+            <div class="svc-desc">Mobile progressive web app for field reps</div>
+          </div>
         </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Legal</h4>
-          <ul>
-            <li><a href="legal/privacy.html">Privacy Policy</a></li>
-            <li><a href="legal/terms.html">Terms of Service</a></li>
-          </ul>
+        <div class="svc-right">
+          <div class="svc-latency" id="lat-pwa">—</div>
+          <div class="status-badge badge-operational">Operational</div>
+        </div>
+      </div>
+      <div class="service-row">
+        <div class="svc-left">
+          <div class="svc-indicator operational"></div>
+          <div>
+            <div class="svc-name">Authentication</div>
+            <div class="svc-desc">Login, sessions, team management</div>
+          </div>
+        </div>
+        <div class="svc-right">
+          <div class="svc-latency" id="lat-auth">—</div>
+          <div class="status-badge badge-operational">Operational</div>
+        </div>
+      </div>
+      <div class="service-row">
+        <div class="svc-left">
+          <div class="svc-indicator operational"></div>
+          <div>
+            <div class="svc-name">Real-time Sync</div>
+            <div class="svc-desc">Offline visit queue &amp; live data sync</div>
+          </div>
+        </div>
+        <div class="svc-right">
+          <div class="svc-latency" id="lat-sync">—</div>
+          <div class="status-badge badge-operational">Operational</div>
         </div>
       </div>
     </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-      <div class="footer-social">
-        <a href="#">Twitter</a>
-        <a href="#">LinkedIn</a>
-        <a href="#">GitHub</a>
+
+    <!-- API & INFRASTRUCTURE -->
+    <div class="section-head fade" style="margin-top:24px">
+      <span class="section-title">API &amp; Infrastructure</span>
+      <span class="all-operational">All operational</span>
+    </div>
+    <div class="service-group fade">
+      <div class="group-title-row">🔌 API Services</div>
+      <div class="service-row">
+        <div class="svc-left">
+          <div class="svc-indicator operational"></div>
+          <div>
+            <div class="svc-name">REST API</div>
+            <div class="svc-desc">v1 endpoints — companies, visits, territories</div>
+          </div>
+        </div>
+        <div class="svc-right">
+          <div class="svc-latency" id="lat-api">—</div>
+          <div class="status-badge badge-operational">Operational</div>
+        </div>
+      </div>
+      <div class="service-row">
+        <div class="svc-left">
+          <div class="svc-indicator operational"></div>
+          <div>
+            <div class="svc-name">Webhooks</div>
+            <div class="svc-desc">Event delivery to registered endpoints</div>
+          </div>
+        </div>
+        <div class="svc-right">
+          <div class="svc-latency" id="lat-webhooks">—</div>
+          <div class="status-badge badge-operational">Operational</div>
+        </div>
+      </div>
+      <div class="service-row">
+        <div class="svc-left">
+          <div class="svc-indicator operational"></div>
+          <div>
+            <div class="svc-name">Geolocation Engine</div>
+            <div class="svc-desc">GPS verification &amp; geofence enforcement</div>
+          </div>
+        </div>
+        <div class="svc-right">
+          <div class="svc-latency" id="lat-geo">—</div>
+          <div class="status-badge badge-operational">Operational</div>
+        </div>
+      </div>
+      <div class="service-row">
+        <div class="svc-left">
+          <div class="svc-indicator operational"></div>
+          <div>
+            <div class="svc-name">Reporting Pipeline</div>
+            <div class="svc-desc">Analytics aggregation &amp; scheduled reports</div>
+          </div>
+        </div>
+        <div class="svc-right">
+          <div class="svc-latency" id="lat-reports">—</div>
+          <div class="status-badge badge-operational">Operational</div>
+        </div>
       </div>
     </div>
-  </div>
-</footer>
 
-<script>
-(function(){
-  // ── MOBILE NAV ──
-  var mb=document.querySelector('.mobile-menu-btn'),
-      mo=document.querySelector('.mobile-nav-overlay'),
-      mc=document.querySelector('.mobile-close-btn');
-  if(mb&&mo){
-    mb.addEventListener('click',function(){mo.classList.add('active');});
-    if(mc)mc.addEventListener('click',function(){mo.classList.remove('active');});
-    mo.addEventListener('click',function(e){if(e.target===mo)mo.classList.remove('active');});
-  }
-  window.addEventListener('scroll',function(){
-    var nb=document.getElementById('navbar');
-    if(nb)nb.classList.toggle('scrolled',window.scrollY>20);
-  });
+    <!-- THIRD-PARTY -->
+    <div class="service-group fade" style="margin-top:12px">
+      <div class="group-title-row">🔗 Third-Party Services</div>
+      <div class="service-row">
+        <div class="svc-left">
+          <div class="svc-indicator operational"></div>
+          <div>
+            <div class="svc-name">Supabase</div>
+            <div class="svc-desc">Database, auth &amp; real-time subscriptions</div>
+          </div>
+        </div>
+        <div class="svc-right">
+          <div class="svc-latency" id="lat-notif">—</div>
+          <div class="status-badge badge-operational">Operational</div>
+        </div>
+      </div>
+      <div class="service-row">
+        <div class="svc-left">
+          <div class="svc-indicator operational"></div>
+          <div>
+            <div class="svc-name">OpenStreetMap</div>
+            <div class="svc-desc">Map tiles &amp; geocoding for field visit tracking</div>
+          </div>
+        </div>
+        <div class="svc-right">
+          <div class="svc-latency" id="lat-integrations">—</div>
+          <div class="status-badge badge-operational">Operational</div>
+        </div>
+      </div>
+      <div class="service-row">
+        <div class="svc-left">
+          <div class="svc-indicator operational"></div>
+          <div>
+            <div class="svc-name">OpenAI</div>
+            <div class="svc-desc">AI-powered features &amp; smart suggestions</div>
+          </div>
+        </div>
+        <div class="svc-right">
+          <div class="svc-latency" id="lat-cdn">—</div>
+          <div class="status-badge badge-operational">Operational</div>
+        </div>
+      </div>
+    </div>
 
-  // ── HELPERS ──
-  function pad(n){ return String(n).padStart(2,'0'); }
-  function formatTime(d){
-    var h=d.getHours(),m=d.getMinutes(),s=d.getSeconds();
-    return pad(h%12||12)+':'+pad(m)+':'+pad(s)+' '+(h>=12?'PM':'AM');
-  }
-  var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  function formatDateTime(d){
-    return MONTHS[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear()+' at '+formatTime(d);
-  }
+    <!-- LAST CHECKED -->
+    <div class="last-checked fade">
+      <span class="live-dot"></span>
+      Auto-refreshes every 60 seconds &nbsp;·&nbsp; Last checked
+      <span id="last-check-time" style="font-family:monospace;font-size:11px;color:#4b5563">—</span>
+    </div>
 
-  // ── LIVE CLOCK ──
-  function updateClock(){
-    var now=new Date();
-    document.getElementById('live-time').textContent=formatDateTime(now);
-    document.getElementById('last-check-time').textContent=formatTime(now);
-  }
-  updateClock();
-  setInterval(updateClock,1000);
+    <!-- SUBSCRIBE -->
+    <div class="subscribe-bar fade">
+      <div class="sub-text">
+        <h3>Get notified of incidents</h3>
+        <p>Receive instant alerts when a service is impacted.</p>
+      </div>
+      <div class="sub-actions">
+        <button class="sub-btn" onclick="alert('Email subscription coming soon.')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="4" width="20" height="16" rx="2" />
+            <path d="M2 7l10 7 10-7" />
+          </svg>
+          Email alerts
+        </button>
+        <button class="sub-btn" style="background:#0b1220;color:#fff;border-color:#0b1220"
+          onclick="alert('RSS feed: https://status.safitrack.io/feed.xml')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 11a9 9 0 0 1 9 9" />
+            <path d="M4 4a16 16 0 0 1 16 16" />
+            <circle cx="5" cy="19" r="1" />
+          </svg>
+          Subscribe to RSS
+        </button>
+      </div>
+    </div>
 
-  // ── SIMULATED LATENCY ──
-  var latCfg={
-    'lat-webapp':      {base:42, v:12},
-    'lat-pwa':         {base:38, v:10},
-    'lat-auth':        {base:31, v:8},
-    'lat-sync':        {base:55, v:15},
-    'lat-api':         {base:48, v:12},
-    'lat-webhooks':    {base:62, v:18},
-    'lat-geo':         {base:29, v:7},
-    'lat-reports':     {base:110,v:30},
-    'lat-notif':       {base:75, v:20},
-    'lat-integrations':{base:88, v:25},
-    'lat-cdn':         {base:18, v:5}
-  };
-  function updateLatencies(){
-    var total=0,count=0;
-    for(var id in latCfg){
-      var cfg=latCfg[id];
-      var val=Math.round(cfg.base+(Math.random()*cfg.v*2)-cfg.v);
-      var el=document.getElementById(id);
-      if(el)el.textContent=val+'ms';
-      total+=val; count++;
-    }
-    var avgEl=document.getElementById('avg-latency');
-    if(avgEl)avgEl.textContent=Math.round(total/count)+'ms';
-  }
-  updateLatencies();
-  setInterval(updateLatencies,60000);
+  </div><!-- /status-page -->
 
-  // ── 90-DAY UPTIME BARS ──
-  var container=document.getElementById('uptime-bars');
-  for(var i=0;i<90;i++){
-    var seg=document.createElement('div');
-    seg.className='bar-seg'+(i===89?' today':'');
-    var d=new Date(); d.setDate(d.getDate()-(89-i));
-    seg.title=MONTHS[d.getMonth()]+' '+d.getDate()+' — Operational';
-    container.appendChild(seg);
-  }
-  var startDate=new Date(); startDate.setDate(startDate.getDate()-89);
-  document.getElementById('bar-start-label').textContent=
-    MONTHS[startDate.getMonth()]+' '+startDate.getDate();
-})();
-</script>
+  <!-- ── FOOTER ── -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="footer-logo-wrapper">
+            <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
+          </div>
+          <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp;
+            sales CRM built for modern teams.</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-column">
+            <h4 class="footer-heading">Product</h4>
+            <ul>
+              <li><a href="features/mainfeatures.html">Features</a></li>
+              <li><a href="pricing.html">Pricing</a></li>
+              <li><a href="integrations.html">Integrations</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Company</h4>
+            <ul>
+              <li><a href="blog.html">Blog</a></li>
+              <li><a href="careers.html">Careers</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Resources</h4>
+            <ul>
+              <li><a href="documentation.html">Documentation</a></li>
+              <li><a href="helpcenter.html">Help Center</a></li>
+              <li><a href="apireference.html">API Reference</a></li>
+              <li><a href="status.html">Status</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Legal</h4>
+            <ul>
+              <li><a href="legal/privacy.html">Privacy Policy</a></li>
+              <li><a href="legal/terms.html">Terms of Service</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+        <div class="footer-social">
+          <a href="#">Twitter</a>
+          <a href="#">LinkedIn</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      // ── MOBILE NAV ──
+      var mb = document.querySelector('.mobile-menu-btn'),
+        mo = document.querySelector('.mobile-nav-overlay'),
+        mc = document.querySelector('.mobile-close-btn');
+      if (mb && mo) {
+        mb.addEventListener('click', function () { mo.classList.add('active'); });
+        if (mc) mc.addEventListener('click', function () { mo.classList.remove('active'); });
+        mo.addEventListener('click', function (e) { if (e.target === mo) mo.classList.remove('active'); });
+      }
+      window.addEventListener('scroll', function () {
+        var nb = document.getElementById('navbar');
+        if (nb) nb.classList.toggle('scrolled', window.scrollY > 20);
+      });
+
+      // ── HELPERS ──
+      function pad(n) { return String(n).padStart(2, '0'); }
+      function formatTime(d) {
+        var h = d.getHours(), m = d.getMinutes(), s = d.getSeconds();
+        return pad(h % 12 || 12) + ':' + pad(m) + ':' + pad(s) + ' ' + (h >= 12 ? 'PM' : 'AM');
+      }
+      var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      function formatDateTime(d) {
+        return MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear() + ' at ' + formatTime(d);
+      }
+
+      // ── LIVE CLOCK ──
+      function updateClock() {
+        var now = new Date();
+        document.getElementById('live-time').textContent = formatDateTime(now);
+        document.getElementById('last-check-time').textContent = formatTime(now);
+      }
+      updateClock();
+      setInterval(updateClock, 1000);
+
+      // ── SIMULATED LATENCY ──
+      var latCfg = {
+        'lat-webapp': { base: 42, v: 12 },
+        'lat-pwa': { base: 38, v: 10 },
+        'lat-auth': { base: 31, v: 8 },
+        'lat-sync': { base: 55, v: 15 },
+        'lat-api': { base: 48, v: 12 },
+        'lat-webhooks': { base: 62, v: 18 },
+        'lat-geo': { base: 29, v: 7 },
+        'lat-reports': { base: 110, v: 30 },
+        'lat-notif': { base: 75, v: 20 },
+        'lat-integrations': { base: 88, v: 25 },
+        'lat-cdn': { base: 18, v: 5 }
+      };
+      function updateLatencies() {
+        var total = 0, count = 0;
+        for (var id in latCfg) {
+          var cfg = latCfg[id];
+          var val = Math.round(cfg.base + (Math.random() * cfg.v * 2) - cfg.v);
+          var el = document.getElementById(id);
+          if (el) el.textContent = val + 'ms';
+          total += val; count++;
+        }
+        var avgEl = document.getElementById('avg-latency');
+        if (avgEl) avgEl.textContent = Math.round(total / count) + 'ms';
+      }
+      updateLatencies();
+      setInterval(updateLatencies, 60000);
+
+      // ── 90-DAY UPTIME BARS ──
+      var container = document.getElementById('uptime-bars');
+      for (var i = 0; i < 90; i++) {
+        var seg = document.createElement('div');
+        seg.className = 'bar-seg' + (i === 89 ? ' today' : '');
+        var d = new Date(); d.setDate(d.getDate() - (89 - i));
+        seg.title = MONTHS[d.getMonth()] + ' ' + d.getDate() + ' — Operational';
+        container.appendChild(seg);
+      }
+      var startDate = new Date(); startDate.setDate(startDate.getDate() - 89);
+      document.getElementById('bar-start-label').textContent =
+        MONTHS[startDate.getMonth()] + ' ' + startDate.getDate();
+    })();
+  </script>
 </body>
+
 </html>

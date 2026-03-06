@@ -1,322 +1,656 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Companies - SafiTrack CRM</title>
-    <meta name="description" content="Track every company in your portfolio with SafiTrack. Account management, stakeholder mapping, and complete activity timelines for your entire book of business.">
+    <meta name="description"
+        content="Track every company in your portfolio with SafiTrack. Account management, stakeholder mapping, and complete activity timelines for your entire book of business.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://safitrack.netlify.app/pages/features/companies-feature.html">
     <meta property="og:title" content="Companies — SafiTrack CRM">
-    <meta property="og:description" content="Track every company in your portfolio with SafiTrack. Account management, stakeholder mapping, and complete activity timelines for your entire book of business.">
+    <meta property="og:description"
+        content="Track every company in your portfolio with SafiTrack. Account management, stakeholder mapping, and complete activity timelines for your entire book of business.">
     <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://safitrack.netlify.app/pages/features/companies-feature.html">
     <meta property="twitter:title" content="Companies — SafiTrack CRM">
-    <meta property="twitter:description" content="Track every company in your portfolio with SafiTrack. Account management, stakeholder mapping, and complete activity timelines for your entire book of business.">
+    <meta property="twitter:description"
+        content="Track every company in your portfolio with SafiTrack. Account management, stakeholder mapping, and complete activity timelines for your entire book of business.">
     <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
     <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="../../landing.css">
     <link rel="stylesheet" href="feature-page.css">
-    <style>:root{--accent:#0ea5e9;}</style>
+    <style>
+        :root {
+            --accent: #0ea5e9;
+        }
+    </style>
 </head>
+
 <body>
 
-<nav class="navbar" id="navbar">
-    <div class="container">
-        <div class="nav-content">
-            <div class="nav-left">
-                <a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack"></a>
-                <div class="nav-links">
-                    <div class="nav-item nav-features">
-                        <a href="#" class="nav-link-toggle">Features
-                            <span class="nav-caret" aria-hidden="true">
-                                <svg viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            </span>
-                        </a>
-                        <div class="mega-menu" aria-hidden="true">
-                            <div class="mega-left">
-                                <a href="safi-ai-feature.html" class="mega-feature large">
-                                    <span class="icon-box">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><rect x="8" y="8" width="8" height="8" rx="1"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M12 2v2"/><path d="M12 20v2"/></svg>
-                                    </span>
-                                    <div class="mega-text"><h4>Safi AI</h4><p>AI insights native to your CRM</p></div>
-                                </a>
-                                <a href="sales-visits-feature.html" class="mega-feature large">
-                                    <span class="icon-box">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-7.5 7-11a7 7 0 10-14 0c0 3.5 7 11 7 11z"/><circle cx="12" cy="10" r="2"/></svg>
-                                    </span>
-                                    <div class="mega-text"><h4>Sales visits</h4><p>Manage field visits and visit logs</p></div>
-                                </a>
-                                <a href="opportunities-feature.html" class="mega-feature large">
-                                    <span class="icon-box">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                                    </span>
-                                    <div class="mega-text"><h4>Opportunities &amp; Pipelines</h4><p>Track deals and pipelines</p></div>
-                                </a>
-                                <a href="route-plans-feature.html" class="mega-feature large">
-                                    <span class="icon-box">
-                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-                                    </span>
-                                    <div class="mega-text"><h4>Route plans</h4><p>Optimise routing for field visits</p></div>
-                                </a>
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="nav-left">
+                    <a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png"
+                            alt="SafiTrack"></a>
+                    <div class="nav-links">
+                        <div class="nav-item nav-features">
+                            <a href="mainfeatures.html" class="nav-link-toggle">Features
+                                <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg></span>
+                            </a>
+                            <div class="mega-menu" aria-hidden="true">
+                                <div class="mega-left">
+                                    <a href="safi-ai-feature.html" class="mega-feature large"><span
+                                            class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                                                aria-hidden="true">
+                                                <rect x="4" y="4" width="16" height="16" rx="3" />
+                                                <rect x="8" y="8" width="8" height="8" rx="1" />
+                                                <path d="M2 12h2" />
+                                                <path d="M20 12h2" />
+                                                <path d="M12 2v2" />
+                                                <path d="M12 20v2" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>Safi AI</h4>
+                                            <p>AI insights native to your CRM</p>
+                                        </div>
+                                    </a>
+                                    <a href="sales-visits-feature.html" class="mega-feature large"><span
+                                            class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                                                aria-hidden="true">
+                                                <path d="M12 21s7-7.5 7-11a7 7 0 10-14 0c0 3.5 7 11 7 11z" />
+                                                <circle cx="12" cy="10" r="2" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>Sales visits</h4>
+                                            <p>Manage field visits and visit logs</p>
+                                        </div>
+                                    </a>
+                                    <a href="opportunities-feature.html" class="mega-feature large"><span
+                                            class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                                                aria-hidden="true">
+                                                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                                <path d="M2 17l10 5 10-5" />
+                                                <path d="M2 12l10 5 10-5" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>Opportunities &amp; Pipelines</h4>
+                                            <p>Track deals and pipelines</p>
+                                        </div>
+                                    </a>
+                                    <a href="route-plans-feature.html" class="mega-feature large"><span
+                                            class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                                                aria-hidden="true">
+                                                <path d="M22 2L11 13" />
+                                                <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>Route plans</h4>
+                                            <p>Optimise routing for field visits</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="mega-right">
+                                    <ul class="mega-list">
+                                        <li><a href="companies-feature.html">Companies</a></li>
+                                        <li><a href="people-feature.html">People</a></li>
+                                        <li><a href="call-logs-feature.html">Call Intelligence</a></li>
+                                        <li><a href="notes-feature.html">Notes</a></li>
+                                        <li><a href="reminders-feature.html">Reminders</a></li>
+                                        <li><a href="tasks-feature.html">Tasks</a></li>
+                                        <li><a href="technician-visits-feature.html">Technician visits</a></li>
+                                    </ul>
+                                </div>
                             </div>
-                            <div class="mega-right">
-                                <ul class="mega-list">
-                                    <li><a href="companies-feature.html">Companies</a></li>
-                                    <li><a href="people-feature.html">People</a></li>
-                                    <li><a href="call-logs-feature.html">Call Intelligence</a></li>
-                                    <li><a href="notes-feature.html">Notes</a></li>
-                                    <li><a href="reminders-feature.html">Reminders</a></li>
-                                    <li><a href="tasks-feature.html">Tasks</a></li>
-                                    <li><a href="technician-visits-feature.html">Technician visits</a></li>
-                                </ul>
+                        </div>
+                        <div class="nav-item nav-resources">
+                            <a href="../documentation.html" class="nav-link-toggle">Resources
+                                <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg></span>
+                            </a>
+                            <div class="mega-menu" aria-hidden="true">
+                                <div class="mega-left">
+                                    <a href="../documentation.html" class="mega-feature"><span class="icon-box"><svg
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                                <polyline points="14 2 14 8 20 8" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>Documentation</h4>
+                                            <p>Guides and tutorials</p>
+                                        </div>
+                                    </a>
+                                    <a href="../apireference.html" class="mega-feature"><span class="icon-box"><svg
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="16 18 22 12 16 6" />
+                                                <polyline points="8 6 2 12 8 18" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>API Reference</h4>
+                                            <p>Build on SafiTrack</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="mega-right">
+                                    <ul class="mega-list">
+                                        <li><a href="../helpcenter.html">Help Center</a></li>
+                                        <li><a href="../blog.html">Blog</a></li>
+                                        <li><a href="../careers.html">Careers</a></li>
+                                        <li><a href="../status.html">Status</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="../pricing.html">Pricing</a>
+                    </div>
+                </div>
+                <div class="nav-actions"><a href="/crm/" class="nav-link-sign-in">Sign in</a><a
+                        href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a></div>
+                <button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay"><button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg></button>
+        <div class="mobile-nav-content"><a href="mainfeatures.html" class="mobile-link">Features</a><a
+                href="../pricing.html" class="mobile-link">Pricing</a>
+            <hr class="mobile-divider"><a href="/crm/" class="mobile-link">Open App</a><a
+                href="../pricing.html#pricing-grid" class="btn-hero-primary"
+                style="margin-top: 1rem; text-align: center;">Get Started</a>
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <header class="fp-hero">
+        <div class="fp-container">
+            <h1>Your complete<br><span>account directory</span></h1>
+            <p class="fp-subtitle">Every company your team sells to, services, or prospects — organized in one
+                intelligent directory. See org charts, deal history, linked contacts, and total revenue at a glance.</p>
+
+            <div class="fp-mockup">
+                <div class="fp-mockup-window">
+                    <div class="fp-mockup-bar">
+                        <div class="fp-mockup-dot"></div>
+                        <div class="fp-mockup-dot"></div>
+                        <div class="fp-mockup-dot"></div>
+                    </div>
+                    <div class="fp-mockup-body" style="padding:24px;min-height:400px;">
+                        <!-- Company list table -->
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+                            <div style="font-size:18px;font-weight:700;color:#0b1220;">Companies <span
+                                    style="font-size:13px;font-weight:500;color:#6b7280;margin-left:8px;">248
+                                    accounts</span></div>
+                            <div style="display:flex;gap:8px;">
+                                <div
+                                    style="padding:6px 14px;background:#f3f4f6;border-radius:8px;font-size:12px;color:#374151;border:1px solid #e6e9ef;">
+                                    All Industries</div>
+                                <div
+                                    style="padding:6px 14px;background:#0ea5e9;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">
+                                    + Add Company</div>
+                            </div>
+                        </div>
+                        <table class="ui-table" style="font-size:13px;">
+                            <thead>
+                                <tr>
+                                    <th>Company</th>
+                                    <th>Industry</th>
+                                    <th>Contacts</th>
+                                    <th>Open Deals</th>
+                                    <th>Revenue</th>
+                                    <th>Last Activity</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="font-weight:600;display:flex;align-items:center;gap:10px;">
+                                        <div
+                                            style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;">
+                                            A</div>
+                                        Acme Corporation
+                                    </td>
+                                    <td><span class="ui-tag"
+                                            style="background:rgba(14,165,233,.1);color:#0ea5e9;">Technology</span></td>
+                                    <td>12</td>
+                                    <td>3</td>
+                                    <td style="font-weight:600;color:#10b981;">$284,500</td>
+                                    <td>Today</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight:600;display:flex;align-items:center;gap:10px;">
+                                        <div
+                                            style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;">
+                                            G</div>
+                                        Globex Industries
+                                    </td>
+                                    <td><span class="ui-tag"
+                                            style="background:rgba(245,158,11,.1);color:#f59e0b;">Manufacturing</span>
+                                    </td>
+                                    <td>8</td>
+                                    <td>1</td>
+                                    <td style="font-weight:600;color:#10b981;">$156,000</td>
+                                    <td>2 days ago</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight:600;display:flex;align-items:center;gap:10px;">
+                                        <div
+                                            style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;">
+                                            W</div>
+                                        Wayne Enterprises
+                                    </td>
+                                    <td><span class="ui-tag"
+                                            style="background:rgba(139,92,246,.1);color:#8b5cf6;">Conglomerate</span>
+                                    </td>
+                                    <td>24</td>
+                                    <td>5</td>
+                                    <td style="font-weight:600;color:#10b981;">$892,000</td>
+                                    <td>Yesterday</td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight:600;display:flex;align-items:center;gap:10px;">
+                                        <div
+                                            style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#f43f5e,#e11d48);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;">
+                                            S</div>
+                                        Stark Industries
+                                    </td>
+                                    <td><span class="ui-tag"
+                                            style="background:rgba(244,63,94,.1);color:#f43f5e;">Defense</span></td>
+                                    <td>6</td>
+                                    <td>2</td>
+                                    <td style="font-weight:600;color:#10b981;">$1,240,000</td>
+                                    <td>3 days ago</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Section 1: Account Overview -->
+    <section class="fp-section">
+        <div class="fp-container">
+            <div class="fp-split">
+                <div>
+                    <p class="fp-section-label">Account Intelligence</p>
+                    <h2 class="fp-section-title">Everything about an account, in one place</h2>
+                    <p class="fp-section-desc">Open any company and see the full picture: linked contacts, open deals,
+                        visit history, notes, and total revenue. No more toggling between tabs to build context.</p>
+                    <ul class="fp-checklist">
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Full contact directory per company</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Deal history with win/loss tracking</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Aggregated revenue metrics</li>
+                    </ul>
+                </div>
+                <div class="fp-visual">
+                    <div class="fp-visual-inner">
+                        <svg width="100%" height="240" viewBox="0 0 460 240" fill="none" style="display:block;">
+                            <!-- Company node -->
+                            <rect x="160" y="10" width="140" height="56" rx="14" fill="#0ea5e9" fill-opacity="0.08"
+                                stroke="#0ea5e9" stroke-opacity="0.3" />
+                            <text x="230" y="33" text-anchor="middle" font-size="14" font-weight="700" fill="#0b1220"
+                                font-family="Manrope,sans-serif">Acme Corp</text>
+                            <text x="230" y="52" text-anchor="middle" font-size="11" fill="#0ea5e9"
+                                font-family="Manrope,sans-serif">$284,500 revenue</text>
+                            <!-- Lines down -->
+                            <line x1="180" y1="66" x2="80" y2="110" stroke="#e6e9ef" stroke-width="1.5" />
+                            <line x1="230" y1="66" x2="230" y2="110" stroke="#e6e9ef" stroke-width="1.5" />
+                            <line x1="280" y1="66" x2="380" y2="110" stroke="#e6e9ef" stroke-width="1.5" />
+                            <!-- Contacts -->
+                            <rect x="20" y="110" width="120" height="44" rx="10" fill="#fff" stroke="#e6e9ef" />
+                            <text x="80" y="128" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220"
+                                font-family="Manrope,sans-serif">12 Contacts</text>
+                            <text x="80" y="144" text-anchor="middle" font-size="10" fill="#6b7280"
+                                font-family="Manrope,sans-serif">3 Decision Makers</text>
+                            <!-- Deals -->
+                            <rect x="170" y="110" width="120" height="44" rx="10" fill="#fff" stroke="#e6e9ef" />
+                            <text x="230" y="128" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220"
+                                font-family="Manrope,sans-serif">3 Open Deals</text>
+                            <text x="230" y="144" text-anchor="middle" font-size="10" fill="#10b981"
+                                font-family="Manrope,sans-serif">$184K pipeline</text>
+                            <!-- Activities -->
+                            <rect x="320" y="110" width="120" height="44" rx="10" fill="#fff" stroke="#e6e9ef" />
+                            <text x="380" y="128" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220"
+                                font-family="Manrope,sans-serif">47 Activities</text>
+                            <text x="380" y="144" text-anchor="middle" font-size="10" fill="#6b7280"
+                                font-family="Manrope,sans-serif">Last: Today</text>
+                            <!-- Bottom: recent activity -->
+                            <line x1="80" y1="154" x2="80" y2="185" stroke="#e6e9ef" stroke-width="1"
+                                stroke-dasharray="3 3" />
+                            <line x1="230" y1="154" x2="230" y2="185" stroke="#e6e9ef" stroke-width="1"
+                                stroke-dasharray="3 3" />
+                            <line x1="380" y1="154" x2="380" y2="185" stroke="#e6e9ef" stroke-width="1"
+                                stroke-dasharray="3 3" />
+                            <rect x="20" y="185" width="420" height="40" rx="10" fill="#f9fafb" stroke="#e6e9ef" />
+                            <text x="230" y="210" text-anchor="middle" font-size="11" fill="#374151"
+                                font-family="Manrope,sans-serif">📊 Revenue trend: +24% this quarter — 3 active
+                                proposals pending</text>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: Industry segmentation -->
+    <section class="fp-section">
+        <div class="fp-container">
+            <div class="fp-split reversed">
+                <div>
+                    <p class="fp-section-label">Organization</p>
+                    <h2 class="fp-section-title">Segment by industry, size, or anything</h2>
+                    <p class="fp-section-desc">Tag and categorize companies by industry, employee count, annual revenue,
+                        or any custom field. Build targeted account lists for focused outreach campaigns.</p>
+                    <ul class="fp-checklist">
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Custom tags and categories</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Territory assignment for team accounts</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Saved filters and smart lists</li>
+                    </ul>
+                </div>
+                <div class="fp-visual">
+                    <div class="fp-visual-inner" style="padding:28px;">
+                        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
+                            <div
+                                style="padding:8px 16px;background:#0ea5e9;color:#fff;border-radius:10px;font-size:13px;font-weight:600;">
+                                Technology (84)</div>
+                            <div
+                                style="padding:8px 16px;background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.2);border-radius:10px;font-size:13px;font-weight:600;">
+                                Manufacturing (52)</div>
+                            <div
+                                style="padding:8px 16px;background:rgba(139,92,246,.1);color:#8b5cf6;border:1px solid rgba(139,92,246,.2);border-radius:10px;font-size:13px;font-weight:600;">
+                                Healthcare (38)</div>
+                            <div
+                                style="padding:8px 16px;background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.2);border-radius:10px;font-size:13px;font-weight:600;">
+                                Finance (31)</div>
+                            <div
+                                style="padding:8px 16px;background:rgba(244,63,94,.1);color:#f43f5e;border:1px solid rgba(244,63,94,.2);border-radius:10px;font-size:13px;font-weight:600;">
+                                Retail (27)</div>
+                        </div>
+                        <!-- Bar chart -->
+                        <div style="display:flex;align-items:flex-end;gap:16px;height:120px;padding-top:12px;">
+                            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                                <div
+                                    style="width:100%;height:100px;background:linear-gradient(to top,#0ea5e9,rgba(14,165,233,.4));border-radius:8px 8px 0 0;">
+                                </div>
+                                <span style="font-size:10px;color:#6b7280;">Tech</span>
+                            </div>
+                            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                                <div
+                                    style="width:100%;height:62px;background:linear-gradient(to top,#f59e0b,rgba(245,158,11,.4));border-radius:8px 8px 0 0;">
+                                </div>
+                                <span style="font-size:10px;color:#6b7280;">Mfg</span>
+                            </div>
+                            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                                <div
+                                    style="width:100%;height:46px;background:linear-gradient(to top,#8b5cf6,rgba(139,92,246,.4));border-radius:8px 8px 0 0;">
+                                </div>
+                                <span style="font-size:10px;color:#6b7280;">Health</span>
+                            </div>
+                            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                                <div
+                                    style="width:100%;height:38px;background:linear-gradient(to top,#10b981,rgba(16,185,129,.4));border-radius:8px 8px 0 0;">
+                                </div>
+                                <span style="font-size:10px;color:#6b7280;">Finance</span>
+                            </div>
+                            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                                <div
+                                    style="width:100%;height:32px;background:linear-gradient(to top,#f43f5e,rgba(244,63,94,.4));border-radius:8px 8px 0 0;">
+                                </div>
+                                <span style="font-size:10px;color:#6b7280;">Retail</span>
                             </div>
                         </div>
                     </div>
-                    <a href="../../index.html#product">Product</a>
-                    <a href="../pricing.html">Pricing</a>
                 </div>
             </div>
-            <div class="nav-actions">
-                <a href="/crm/" class="nav-link-sign-in">Sign in</a>
-                <a href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a>
-            </div>
-            <button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button>
         </div>
-    </div>
-</nav>
-<div class="mobile-nav-overlay">
-    <button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-    <div class="mobile-nav-content">
-        <a href="mainfeatures.html" class="mobile-link">Features</a>
-        <a href="../../index.html#product" class="mobile-link">Product</a>
-        <a href="../pricing.html" class="mobile-link">Pricing</a>
-        <hr class="mobile-divider">
-        <a href="/crm/" class="mobile-link">Open App</a>
-    </div>
-</div>
+    </section>
 
-<!-- Hero -->
-<header class="fp-hero">
-    <div class="fp-container">
-        <h1>Your complete<br><span>account directory</span></h1>
-        <p class="fp-subtitle">Every company your team sells to, services, or prospects — organized in one intelligent directory. See org charts, deal history, linked contacts, and total revenue at a glance.</p>
+    <!-- Feature grid -->
+    <section class="fp-grid-section" style="background:#f9fafb;">
+        <div class="fp-container">
+            <div class="fp-grid-header">
+                <p class="fp-section-label">Capabilities</p>
+                <h2 class="fp-section-title">Everything you need to manage accounts</h2>
+            </div>
+            <div class="fp-grid">
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                        </svg></div>
+                    <h4>Linked Contacts</h4>
+                    <p>See every person associated with an account and their role in the buying process.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide lucide-banknote-arrow-up-icon lucide-banknote-arrow-up">
+                            <path d="M12 18H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5" />
+                            <path d="M18 12h.01" />
+                            <path d="M19 22v-6" />
+                            <path d="m22 19-3-3-3 3" />
+                            <path d="M6 12h.01" />
+                            <circle cx="12" cy="12" r="2" />
+                        </svg></div>
+                    <h4>Revenue Tracking</h4>
+                    <p>Total closed revenue, open pipeline, and historical deal data per company.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" />
+                            <path d="M3 9h18M9 3v18" />
+                        </svg></div>
+                    <h4>Custom Fields</h4>
+                    <p>Add industry, employee count, fiscal year, or any data point relevant to your sales process.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide lucide-locate-fixed-icon lucide-locate-fixed">
+                            <line x1="2" x2="5" y1="12" y2="12" />
+                            <line x1="19" x2="22" y1="12" y2="12" />
+                            <line x1="12" x2="12" y1="2" y2="5" />
+                            <line x1="12" x2="12" y1="19" y2="22" />
+                            <circle cx="12" cy="12" r="7" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg></div>
+                    <h4>Location Mapping</h4>
+                    <p>Store addresses and see all nearby accounts on a map for field planning.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide lucide-activity-icon lucide-activity">
+                            <path
+                                d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" />
+                        </svg></div>
+                    <h4>Activity Feed</h4>
+                    <p>Chronological history of every interaction across all contacts at the account.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-icon lucide-file">
+                            <path
+                                d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" />
+                            <path d="M14 2v5a1 1 0 0 0 1 1h5" />
+                        </svg></div>
+                    <h4>Document Attachments</h4>
+                    <p>Attach contracts, proposals, and files directly to company records for easy access.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <div class="fp-mockup">
-            <div class="fp-mockup-window">
-                <div class="fp-mockup-bar"><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div><div class="fp-mockup-dot"></div></div>
-                <div class="fp-mockup-body" style="padding:24px;min-height:400px;">
-                    <!-- Company list table -->
-                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-                        <div style="font-size:18px;font-weight:700;color:#0b1220;">Companies <span style="font-size:13px;font-weight:500;color:#6b7280;margin-left:8px;">248 accounts</span></div>
-                        <div style="display:flex;gap:8px;">
-                            <div style="padding:6px 14px;background:#f3f4f6;border-radius:8px;font-size:12px;color:#374151;border:1px solid #e6e9ef;">All Industries</div>
-                            <div style="padding:6px 14px;background:#0ea5e9;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">+ Add Company</div>
-                        </div>
+    <!-- CTA -->
+    <section class="fp-cta">
+        <div class="fp-container">
+            <h2>Organize your entire book of business</h2>
+            <p>Get a clear, connected view of every account your team touches.</p>
+            <a href="../pricing.html#pricing-grid" class="fp-cta-btn">Start free trial <svg width="16" height="16"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12l5-5-5-5" />
+                </svg></a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo-wrapper"><a href="../../index.html"><img
+                                src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a>
                     </div>
-                    <table class="ui-table" style="font-size:13px;">
-                        <thead><tr><th>Company</th><th>Industry</th><th>Contacts</th><th>Open Deals</th><th>Revenue</th><th>Last Activity</th></tr></thead>
-                        <tbody>
-                            <tr>
-                                <td style="font-weight:600;display:flex;align-items:center;gap:10px;">
-                                    <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#3b82f6,#1d4ed8);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;">A</div>
-                                    Acme Corporation
-                                </td>
-                                <td><span class="ui-tag" style="background:rgba(14,165,233,.1);color:#0ea5e9;">Technology</span></td>
-                                <td>12</td>
-                                <td>3</td>
-                                <td style="font-weight:600;color:#10b981;">$284,500</td>
-                                <td>Today</td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight:600;display:flex;align-items:center;gap:10px;">
-                                    <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;">G</div>
-                                    Globex Industries
-                                </td>
-                                <td><span class="ui-tag" style="background:rgba(245,158,11,.1);color:#f59e0b;">Manufacturing</span></td>
-                                <td>8</td>
-                                <td>1</td>
-                                <td style="font-weight:600;color:#10b981;">$156,000</td>
-                                <td>2 days ago</td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight:600;display:flex;align-items:center;gap:10px;">
-                                    <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;">W</div>
-                                    Wayne Enterprises
-                                </td>
-                                <td><span class="ui-tag" style="background:rgba(139,92,246,.1);color:#8b5cf6;">Conglomerate</span></td>
-                                <td>24</td>
-                                <td>5</td>
-                                <td style="font-weight:600;color:#10b981;">$892,000</td>
-                                <td>Yesterday</td>
-                            </tr>
-                            <tr>
-                                <td style="font-weight:600;display:flex;align-items:center;gap:10px;">
-                                    <div style="width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#f43f5e,#e11d48);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;">S</div>
-                                    Stark Industries
-                                </td>
-                                <td><span class="ui-tag" style="background:rgba(244,63,94,.1);color:#f43f5e;">Defense</span></td>
-                                <td>6</td>
-                                <td>2</td>
-                                <td style="font-weight:600;color:#10b981;">$1,240,000</td>
-                                <td>3 days ago</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
-            </div>
-        </div>
-    </div>
-</header>
-
-<!-- Section 1: Account Overview -->
-<section class="fp-section">
-    <div class="fp-container">
-        <div class="fp-split">
-            <div>
-                <p class="fp-section-label">Account Intelligence</p>
-                <h2 class="fp-section-title">Everything about an account, in one place</h2>
-                <p class="fp-section-desc">Open any company and see the full picture: linked contacts, open deals, visit history, notes, and total revenue. No more toggling between tabs to build context.</p>
-                <ul class="fp-checklist">
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Full contact directory per company</li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Deal history with win/loss tracking</li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Aggregated revenue metrics</li>
-                </ul>
-            </div>
-            <div class="fp-visual">
-                <div class="fp-visual-inner">
-                    <svg width="100%" height="240" viewBox="0 0 460 240" fill="none" style="display:block;">
-                        <!-- Company node -->
-                        <rect x="160" y="10" width="140" height="56" rx="14" fill="#0ea5e9" fill-opacity="0.08" stroke="#0ea5e9" stroke-opacity="0.3"/>
-                        <text x="230" y="33" text-anchor="middle" font-size="14" font-weight="700" fill="#0b1220" font-family="Manrope,sans-serif">Acme Corp</text>
-                        <text x="230" y="52" text-anchor="middle" font-size="11" fill="#0ea5e9" font-family="Manrope,sans-serif">$284,500 revenue</text>
-                        <!-- Lines down -->
-                        <line x1="180" y1="66" x2="80" y2="110" stroke="#e6e9ef" stroke-width="1.5"/>
-                        <line x1="230" y1="66" x2="230" y2="110" stroke="#e6e9ef" stroke-width="1.5"/>
-                        <line x1="280" y1="66" x2="380" y2="110" stroke="#e6e9ef" stroke-width="1.5"/>
-                        <!-- Contacts -->
-                        <rect x="20" y="110" width="120" height="44" rx="10" fill="#fff" stroke="#e6e9ef"/>
-                        <text x="80" y="128" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">12 Contacts</text>
-                        <text x="80" y="144" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Manrope,sans-serif">3 Decision Makers</text>
-                        <!-- Deals -->
-                        <rect x="170" y="110" width="120" height="44" rx="10" fill="#fff" stroke="#e6e9ef"/>
-                        <text x="230" y="128" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">3 Open Deals</text>
-                        <text x="230" y="144" text-anchor="middle" font-size="10" fill="#10b981" font-family="Manrope,sans-serif">$184K pipeline</text>
-                        <!-- Activities -->
-                        <rect x="320" y="110" width="120" height="44" rx="10" fill="#fff" stroke="#e6e9ef"/>
-                        <text x="380" y="128" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220" font-family="Manrope,sans-serif">47 Activities</text>
-                        <text x="380" y="144" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Manrope,sans-serif">Last: Today</text>
-                        <!-- Bottom: recent activity -->
-                        <line x1="80" y1="154" x2="80" y2="185" stroke="#e6e9ef" stroke-width="1" stroke-dasharray="3 3"/>
-                        <line x1="230" y1="154" x2="230" y2="185" stroke="#e6e9ef" stroke-width="1" stroke-dasharray="3 3"/>
-                        <line x1="380" y1="154" x2="380" y2="185" stroke="#e6e9ef" stroke-width="1" stroke-dasharray="3 3"/>
-                        <rect x="20" y="185" width="420" height="40" rx="10" fill="#f9fafb" stroke="#e6e9ef"/>
-                        <text x="230" y="210" text-anchor="middle" font-size="11" fill="#374151" font-family="Manrope,sans-serif">📊 Revenue trend: +24% this quarter — 3 active proposals pending</text>
-                    </svg>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Section 2: Industry segmentation -->
-<section class="fp-section">
-    <div class="fp-container">
-        <div class="fp-split reversed">
-            <div>
-                <p class="fp-section-label">Organization</p>
-                <h2 class="fp-section-title">Segment by industry, size, or anything</h2>
-                <p class="fp-section-desc">Tag and categorize companies by industry, employee count, annual revenue, or any custom field. Build targeted account lists for focused outreach campaigns.</p>
-                <ul class="fp-checklist">
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Custom tags and categories</li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Territory assignment for team accounts</li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Saved filters and smart lists</li>
-                </ul>
-            </div>
-            <div class="fp-visual">
-                <div class="fp-visual-inner" style="padding:28px;">
-                    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
-                        <div style="padding:8px 16px;background:#0ea5e9;color:#fff;border-radius:10px;font-size:13px;font-weight:600;">Technology (84)</div>
-                        <div style="padding:8px 16px;background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.2);border-radius:10px;font-size:13px;font-weight:600;">Manufacturing (52)</div>
-                        <div style="padding:8px 16px;background:rgba(139,92,246,.1);color:#8b5cf6;border:1px solid rgba(139,92,246,.2);border-radius:10px;font-size:13px;font-weight:600;">Healthcare (38)</div>
-                        <div style="padding:8px 16px;background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.2);border-radius:10px;font-size:13px;font-weight:600;">Finance (31)</div>
-                        <div style="padding:8px 16px;background:rgba(244,63,94,.1);color:#f43f5e;border:1px solid rgba(244,63,94,.2);border-radius:10px;font-size:13px;font-weight:600;">Retail (27)</div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Product</h4>
+                        <ul>
+                            <li><a href="mainfeatures.html">Features</a></li>
+                            <li><a href="../pricing.html">Pricing</a></li>
+                            <li><a href="../integrations.html">Integrations</a></li>
+                        </ul>
                     </div>
-                    <!-- Bar chart -->
-                    <div style="display:flex;align-items:flex-end;gap:16px;height:120px;padding-top:12px;">
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
-                            <div style="width:100%;height:100px;background:linear-gradient(to top,#0ea5e9,rgba(14,165,233,.4));border-radius:8px 8px 0 0;"></div>
-                            <span style="font-size:10px;color:#6b7280;">Tech</span>
-                        </div>
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
-                            <div style="width:100%;height:62px;background:linear-gradient(to top,#f59e0b,rgba(245,158,11,.4));border-radius:8px 8px 0 0;"></div>
-                            <span style="font-size:10px;color:#6b7280;">Mfg</span>
-                        </div>
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
-                            <div style="width:100%;height:46px;background:linear-gradient(to top,#8b5cf6,rgba(139,92,246,.4));border-radius:8px 8px 0 0;"></div>
-                            <span style="font-size:10px;color:#6b7280;">Health</span>
-                        </div>
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
-                            <div style="width:100%;height:38px;background:linear-gradient(to top,#10b981,rgba(16,185,129,.4));border-radius:8px 8px 0 0;"></div>
-                            <span style="font-size:10px;color:#6b7280;">Finance</span>
-                        </div>
-                        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
-                            <div style="width:100%;height:32px;background:linear-gradient(to top,#f43f5e,rgba(244,63,94,.4));border-radius:8px 8px 0 0;"></div>
-                            <span style="font-size:10px;color:#6b7280;">Retail</span>
-                        </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Company</h4>
+                        <ul>
+                            <li><a href="../blog.html">Blog</a></li>
+                            <li><a href="../careers.html">Careers</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Resources</h4>
+                        <ul>
+                            <li><a href="../documentation.html">Documentation</a></li>
+                            <li><a href="../helpcenter.html">Help Center</a></li>
+                            <li><a href="../apireference.html">API Reference</a></li>
+                            <li><a href="../status.html">Status</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Legal</h4>
+                        <ul>
+                            <li><a href="../legal/privacy.html">Privacy Policy</a></li>
+                            <li><a href="../legal/terms.html">Terms of Service</a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</section>
-
-<!-- Feature grid -->
-<section class="fp-grid-section" style="background:#f9fafb;">
-    <div class="fp-container">
-        <div class="fp-grid-header">
-            <p class="fp-section-label">Capabilities</p>
-            <h2 class="fp-section-title">Everything you need to manage accounts</h2>
-        </div>
-        <div class="fp-grid">
-            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg></div><h4>Linked Contacts</h4><p>See every person associated with an account and their role in the buying process.</p></div>
-            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-banknote-arrow-up-icon lucide-banknote-arrow-up"><path d="M12 18H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5"/><path d="M18 12h.01"/><path d="M19 22v-6"/><path d="m22 19-3-3-3 3"/><path d="M6 12h.01"/><circle cx="12" cy="12" r="2"/></svg></div><h4>Revenue Tracking</h4><p>Total closed revenue, open pipeline, and historical deal data per company.</p></div>
-            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg></div><h4>Custom Fields</h4><p>Add industry, employee count, fiscal year, or any data point relevant to your sales process.</p></div>
-            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-locate-fixed-icon lucide-locate-fixed"><line x1="2" x2="5" y1="12" y2="12"/><line x1="19" x2="22" y1="12" y2="12"/><line x1="12" x2="12" y1="2" y2="5"/><line x1="12" x2="12" y1="19" y2="22"/><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="3"/></svg></div><h4>Location Mapping</h4><p>Store addresses and see all nearby accounts on a map for field planning.</p></div>
-            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-activity-icon lucide-activity"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg></div><h4>Activity Feed</h4><p>Chronological history of every interaction across all contacts at the account.</p></div>
-            <div class="fp-card fp-animate"><div class="fp-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-file-icon lucide-file"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/></svg></div><h4>Document Attachments</h4><p>Attach contracts, proposals, and files directly to company records for easy access.</p></div>
-        </div>
-    </div>
-</section>
-
-<!-- CTA -->
-<section class="fp-cta">
-    <div class="fp-container">
-        <h2>Organize your entire book of business</h2>
-        <p>Get a clear, connected view of every account your team touches.</p>
-        <a href="../pricing.html#pricing-grid" class="fp-cta-btn">Start free trial <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></a>
-    </div>
-</section>
-
-<footer class="footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-brand"><div class="footer-logo-wrapper"><a href="../../index.html"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a></div></div>
-            <div class="footer-links">
-                <div class="footer-column"><h4 class="footer-heading">Product</h4><ul><li><a href="mainfeatures.html">Features</a></li><li><a href="../pricing.html">Pricing</a></li><li><a href="../integrations.html">Integrations</a></li></ul></div>
-                <div class="footer-column"><h4 class="footer-heading">Company</h4><ul><li><a href="../blog.html">Blog</a></li><li><a href="../careers.html">Careers</a></li></ul></div>
-                <div class="footer-column"><h4 class="footer-heading">Resources</h4><ul><li><a href="../documentation.html">Documentation</a></li><li><a href="../helpcenter.html">Help Center</a></li><li><a href="../apireference.html">API Reference</a></li><li><a href="../status.html">Status</a></li></ul></div>
-                <div class="footer-column"><h4 class="footer-heading">Legal</h4><ul><li><a href="../legal/privacy.html">Privacy Policy</a></li><li><a href="../legal/terms.html">Terms of Service</a></li></ul></div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+                <div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div>
             </div>
         </div>
-        <div class="footer-bottom"><p>&copy; 2026 SafiTrack. All rights reserved.</p><div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div></div>
-    </div>
-</footer>
-<script src="feature-page.js"></script>
-<script src="../../landing.js"></script>
+    </footer>
+    <script src="feature-page.js"></script>
+    <script src="../../landing.js"></script>
 </body>
+
 </html>

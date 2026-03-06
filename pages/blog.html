@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Blog — SafiTrack</title>
-  <meta name="description" content="Insights, tips, and updates from the SafiTrack team. CRM best practices, sales strategy, and product news for field sales teams.">
+  <meta name="description"
+    content="Insights, tips, and updates from the SafiTrack team. CRM best practices, sales strategy, and product news for field sales teams.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://safitrack.netlify.app/pages/blog.html">
   <meta property="og:title" content="Blog — SafiTrack">
-  <meta property="og:description" content="Insights, tips, and updates from the SafiTrack team. CRM best practices, sales strategy, and product news for field sales teams.">
+  <meta property="og:description"
+    content="Insights, tips, and updates from the SafiTrack team. CRM best practices, sales strategy, and product news for field sales teams.">
   <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://safitrack.netlify.app/pages/blog.html">
   <meta property="twitter:title" content="Blog — SafiTrack">
-  <meta property="twitter:description" content="Insights, tips, and updates from the SafiTrack team. CRM best practices, sales strategy, and product news for field sales teams.">
+  <meta property="twitter:description"
+    content="Insights, tips, and updates from the SafiTrack team. CRM best practices, sales strategy, and product news for field sales teams.">
   <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
   <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,562 +25,1413 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../landing.css">
 </head>
+
 <body>
-<nav class="navbar" id="navbar">
-  <div class="container">
-    <div class="nav-content">
-      <div class="nav-left">
-        <a href="../index.html" class="logo">
-          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
-        </a>
-        <div class="nav-links">
-          <a href="features/mainfeatures.html" class="nav-link">Features</a>
-          <a href="pricing.html" class="nav-link">Pricing</a>
-          <a href="blog.html" class="nav-link" style="color:#3b7bfc;font-weight:600">Blog</a>
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <div class="nav-content">
+        <div class="nav-left">
+          <a href="../index.html" class="logo">
+            <img src="../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
+          </a>
+          <div class="nav-links">
+            <div class="nav-item nav-features">
+              <a href="#" class="nav-link-toggle">Features
+                <span class="nav-caret" aria-hidden="true">
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </a>
+              <div class="mega-menu" aria-hidden="true">
+                <div class="mega-content-grid">
+                  <div class="mega-category">
+                    <div class="mega-category-header">Platform</div>
+                    <div class="mega-items-grid">
+                      <a href="features/safi-ai-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Safi AI</div>
+                          <div class="mega-desc">AI insights native to your CRM</div>
+                        </div>
+                      </a>
+                      <a href="features/opportunities-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Pipelines</div>
+                          <div class="mega-desc">Visual deal tracking & management</div>
+                        </div>
+                      </a>
+                      <a href="features/companies-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+                            <path d="M9 22v-4h6v4" />
+                            <path d="M8 6h.01" />
+                            <path d="M16 6h.01" />
+                            <path d="M8 10h.01" />
+                            <path d="M16 10h.01" />
+                            <path d="M8 14h.01" />
+                            <path d="M16 14h.01" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Companies</div>
+                          <div class="mega-desc">Complete organization context</div>
+                        </div>
+                      </a>
+                      <a href="features/people-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">People</div>
+                          <div class="mega-desc">Unified contact management</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Operations</div>
+                    <div class="mega-items-grid">
+                      <a href="features/sales-visits-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Sales visits</div>
+                          <div class="mega-desc">Field activity & visit logging</div>
+                        </div>
+                      </a>
+                      <a href="features/route-plans-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="6" cy="19" r="3" />
+                            <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
+                            <circle cx="18" cy="5" r="3" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Route plans</div>
+                          <div class="mega-desc">Optimized field routing</div>
+                        </div>
+                      </a>
+                      <a href="features/technician-visits-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                              d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Service visits</div>
+                          <div class="mega-desc">Post-sales technician tracking</div>
+                        </div>
+                      </a>
+                      <a href="features/tasks-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 11 12 14 22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Tasks</div>
+                          <div class="mega-desc">Operational to-do management</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Insights & Ecosystem</div>
+                    <div class="mega-items-grid">
+                      <a href="features/call-logs-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Call Intelligence</div>
+                          <div class="mega-desc">Record & analyze meetings</div>
+                        </div>
+                      </a>
+                      <a href="features/notes-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Notes</div>
+                          <div class="mega-desc">Native meeting summaries</div>
+                        </div>
+                      </a>
+                      <a href="features/reminders-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Reminders</div>
+                          <div class="mega-desc">Smart follow-up alerts</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="mega-sidebar">
+                  <div class="mega-sidebar-header">Get Started</div>
+                  <ul class="mega-sidebar-list">
+                    <li><a href="/crm/"><span>Open CRM</span></a></li>
+                    <li><a href="pricing.html"><span>View Pricing</span></a></li>
+                    <li><a href="../index.html#pricing"><span>Request Demo</span></a></li>
+                  </ul>
+                  <div class="mega-sidebar-footer">
+                    <p>Trusted by 2,000+ teams</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="nav-item nav-resources">
+              <a href="#" class="nav-link-toggle">Resources
+                <span class="nav-caret" aria-hidden="true">
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </a>
+              <div class="mega-menu" aria-hidden="true">
+                <div class="mega-content-grid">
+                  <div class="mega-category">
+                    <div class="mega-category-header">Insights</div>
+                    <div class="mega-items-grid">
+                      <a href="integrations.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Integrations</div>
+                          <div class="mega-desc">Connect your stack</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Support</div>
+                    <div class="mega-items-grid">
+                      <a href="documentation.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Documentation</div>
+                          <div class="mega-desc">Guides and tutorials</div>
+                        </div>
+                      </a>
+                      <a href="helpcenter.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Help Center</div>
+                          <div class="mega-desc">Get support</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Developers</div>
+                    <div class="mega-items-grid">
+                      <a href="apireference.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 18 22 12 16 6" />
+                            <polyline points="8 6 2 12 8 18" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">API Reference</div>
+                          <div class="mega-desc">Build with SafiTrack</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="mega-sidebar">
+                  <div class="mega-sidebar-header">More</div>
+                  <ul class="mega-sidebar-list">
+                    <li><a href="blog.html"><span>Blog</span></a></li>
+                    <li><a href="careers.html"><span>Careers</span></a></li>
+                    <li><a href="status.html"><span>Status</span></a></li>
+                  </ul>
+                  <div class="mega-sidebar-footer">
+                    <p>Always growing</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <a href="pricing.html">Pricing</a>
+          </div>
         </div>
-      </div>
-      <div class="nav-actions">
-        <a href="/crm/" class="nav-link-sign-in">Sign in</a>
-        <a href="pricing.html" class="btn-hero-primary">Start for free</a>
-      </div>
-      <button class="mobile-menu-btn" aria-label="Toggle Menu">
-        <span></span><span></span>
-      </button>
-    </div>
-  </div>
-</nav>
-<div class="mobile-nav-overlay">
-  <button class="mobile-close-btn" aria-label="Close">
-    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-    </svg>
-  </button>
-  <div class="mobile-nav-content">
-    <a href="features/mainfeatures.html" class="mobile-link">Features</a>
-    <a href="pricing.html" class="mobile-link">Pricing</a>
-    <a href="blog.html" class="mobile-link">Blog</a>
-    <hr class="mobile-divider">
-    <a href="/crm/" class="mobile-link">Sign in</a>
-    <a href="pricing.html" class="btn-primary btn-block" style="text-align:center;margin-top:8px">Start for free</a>
-  </div>
-</div>
-
-<style>
-/* ── Hero ──────────────────────────────────── */
-.page-hero{padding:112px 0 0;text-align:center;background:#fafafa;border-bottom:1px solid #e6e9ef}
-.page-hero h1{font-size:clamp(2rem,4vw,3rem);font-weight:800;color:#0b1220;margin-bottom:14px;line-height:1.2}
-.page-hero .sub{font-size:18px;color:#4b5563;max-width:520px;margin:0 auto 28px;line-height:1.6}
-/* ── Search ────────────────────────────────── */
-.search-wrap{display:flex;justify-content:center}
-.search-wrap .search-box{position:relative;width:100%;max-width:360px}
-.search-wrap .search-box svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#9ca3af;pointer-events:none}
-.search-wrap input{width:100%;border:1.5px solid #e6e9ef;border-radius:10px;padding:11px 16px 11px 40px;font-size:15px;font-family:inherit;color:#0b1220;background:#fff;transition:border-color .15s;box-sizing:border-box}
-.search-wrap input:focus{outline:none;border-color:#3b7bfc}
-/* ── Filter tabs ───────────────────────────── */
-.blog-filters{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;padding:24px 0}
-.blog-filter{padding:7px 18px;border-radius:50px;border:1.5px solid #e6e9ef;font-size:14px;font-weight:500;cursor:pointer;background:#fff;color:#4b5563;transition:all .15s;font-family:inherit;line-height:1}
-.blog-filter.active,.blog-filter:hover{background:#0b1220;color:#fff;border-color:#0b1220}
-/* ── Blog section ──────────────────────────── */
-.blog-section{padding:64px 0 80px;background:#fff}
-/* ── Stats bar ─────────────────────────────── */
-.stats-bar{display:flex;align-items:center;justify-content:space-between;padding:0 0 20px;border-bottom:1px solid #f0f2f5;margin-bottom:40px}
-.stats-bar .count{font-size:14px;color:#6b7280;font-weight:500}
-.stats-bar .count span{color:#0b1220;font-weight:700}
-/* ── Featured post ─────────────────────────── */
-.featured-post{display:grid;grid-template-columns:1fr 1fr;gap:0;align-items:stretch;border:1.5px solid #e6e9ef;border-radius:16px;overflow:hidden;margin-bottom:48px;cursor:pointer;transition:box-shadow .15s,transform .15s}
-.featured-post:hover{box-shadow:0 12px 40px rgba(0,0,0,.09);transform:translateY(-2px)}
-.featured-img{min-height:280px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.featured-img svg{opacity:.18;position:absolute;inset:0;width:100%;height:100%}
-.featured-img .feat-icon{position:relative;z-index:1;width:56px;height:56px;border-radius:14px;background:rgba(255,255,255,.15);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center}
-.featured-body{padding:40px 40px 40px 40px}
-/* ── Category badges ───────────────────────── */
-.cat-badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 10px;border-radius:50px;margin-bottom:12px}
-.cat-product{background:#dbeafe;color:#1d4ed8}
-.cat-sales{background:#dcfce7;color:#15803d}
-.cat-engineering{background:#ede9fe;color:#6d28d9}
-.cat-fieldops{background:#ffedd5;color:#c2410c}
-.cat-design{background:#fce7f3;color:#be185d}
-.cat-guide{background:#f0fdf4;color:#166534}
-/* ── Featured body ─────────────────────────── */
-.featured-body h2{font-size:1.55rem;font-weight:800;color:#0b1220;margin-bottom:12px;line-height:1.3}
-.featured-body .excerpt{color:#4b5563;font-size:15px;line-height:1.7;margin-bottom:20px}
-.post-meta{display:flex;align-items:center;gap:10px;font-size:13px;color:#9ca3af}
-.author-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0}
-.featured-body .read-link{display:inline-flex;align-items:center;gap:6px;margin-top:18px;font-weight:600;font-size:14px;color:#0b1220;text-decoration:none;border-bottom:2px solid #0b1220;padding-bottom:1px;transition:opacity .15s}
-.featured-body .read-link:hover{opacity:.65}
-/* ── Posts grid ────────────────────────────── */
-.posts-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:24px}
-.post-card{border:1.5px solid #e6e9ef;border-radius:14px;overflow:hidden;background:#fff;transition:box-shadow .15s,transform .15s;cursor:pointer;display:flex;flex-direction:column}
-.post-card:hover{box-shadow:0 8px 30px rgba(0,0,0,.08);transform:translateY(-2px)}
-.post-card.hidden{display:none}
-.post-card-img{height:168px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;flex-shrink:0}
-.post-card-img svg.bg-pattern{opacity:.15;position:absolute;inset:0;width:100%;height:100%}
-.post-card-img .card-icon{position:relative;z-index:1;width:48px;height:48px;border-radius:12px;background:rgba(255,255,255,.2);backdrop-filter:blur(4px);border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center}
-.post-card-body{padding:22px;flex:1;display:flex;flex-direction:column;gap:8px}
-.post-card-body h3{font-size:15.5px;font-weight:700;color:#0b1220;line-height:1.4;margin:0}
-.post-card-body .excerpt{font-size:13.5px;color:#6b7280;line-height:1.6;flex:1}
-.post-card-footer{display:flex;align-items:center;gap:8px;padding-top:4px}
-/* ── No results ────────────────────────────── */
-.no-results{display:none;flex-direction:column;align-items:center;justify-content:center;padding:80px 0;gap:14px;text-align:center}
-.no-results svg{color:#d1d5db}
-.no-results p{font-size:16px;color:#6b7280}
-.no-results.visible{display:flex}
-/* ── Newsletter ────────────────────────────── */
-.newsletter-band{background:#fafafa;border:1.5px solid #e6e9ef;border-radius:16px;padding:56px 48px;text-align:center;margin-top:56px}
-.newsletter-band h2{font-size:1.8rem;font-weight:800;color:#0b1220;margin-bottom:10px}
-.newsletter-band p{color:#4b5563;font-size:16px;margin-bottom:28px;line-height:1.6}
-.newsletter-form{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;max-width:480px;margin:0 auto}
-.newsletter-form input{flex:1;min-width:200px;border:1.5px solid #e6e9ef;border-radius:9px;padding:11px 16px;font-size:15px;font-family:inherit;color:#0b1220;transition:border-color .15s}
-.newsletter-form input:focus{outline:none;border-color:#3b7bfc}
-.nl-success{display:none;align-items:center;gap:8px;justify-content:center;font-size:15px;font-weight:600;color:#15803d;margin-top:4px}
-/* ── Modal ─────────────────────────────────── */
-.modal-overlay{position:fixed;inset:0;background:rgba(11,18,32,.5);backdrop-filter:blur(4px);z-index:900;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;pointer-events:none;transition:opacity .2s}
-.modal-overlay.open{opacity:1;pointer-events:all}
-.modal-box{background:#fff;border-radius:20px;padding:40px 36px;max-width:440px;width:100%;position:relative;transform:translateY(14px);transition:transform .22s;text-align:center}
-.modal-overlay.open .modal-box{transform:translateY(0)}
-.modal-close{position:absolute;top:16px;right:16px;background:none;border:none;cursor:pointer;padding:6px;color:#9ca3af;border-radius:7px;line-height:1;display:flex;align-items:center}
-.modal-close:hover{color:#0b1220;background:#f3f4f6}
-.modal-cover{width:100%;height:100px;border-radius:12px;margin-bottom:20px;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden}
-.modal-cover svg.bg-pattern{opacity:.15;position:absolute;inset:0;width:100%;height:100%}
-.modal-cover .modal-icon{position:relative;z-index:1;width:44px;height:44px;border-radius:11px;background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.3);display:flex;align-items:center;justify-content:center}
-.modal-badge{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:4px 12px;border-radius:50px;background:#fef9ec;color:#b45309;margin-bottom:14px}
-.modal-title{font-size:1.2rem;font-weight:800;color:#0b1220;margin-bottom:8px;line-height:1.35}
-.modal-desc{font-size:14px;color:#6b7280;line-height:1.6;margin-bottom:22px}
-.modal-notify-form{display:flex;gap:8px;max-width:310px;margin:0 auto 12px}
-.modal-notify-form input{flex:1;border:1.5px solid #e6e9ef;border-radius:9px;padding:10px 13px;font-size:14px;font-family:inherit;color:#0b1220;min-width:0;transition:border-color .15s}
-.modal-notify-form input:focus{outline:none;border-color:#3b7bfc}
-.modal-notify-form button{padding:10px 16px;border-radius:9px;border:none;background:#0b1220;color:#fff;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .15s}
-.modal-notify-form button:hover{background:#1a2a44}
-.modal-success{display:none;align-items:center;gap:8px;justify-content:center;font-size:14px;font-weight:600;color:#15803d;margin-bottom:12px}
-.modal-privacy{font-size:12px;color:#9ca3af}
-@media(max-width:768px){.featured-post{grid-template-columns:1fr}.featured-img{min-height:200px}.featured-body{padding:28px}}
-@media(max-width:560px){.modal-box{padding:32px 20px}.newsletter-band{padding:40px 20px}}
-</style>
-
-<section class="page-hero">
-  <div class="container">
-    <h1>Insights for the modern<br>sales organisation.</h1>
-    <p class="sub">Product updates, best practices and field-sales strategy from the SafiTrack team.</p>
-    <div class="search-wrap">
-      <div class="search-box">
-        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-          <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
-        </svg>
-        <input type="search" id="searchInput" placeholder="Search articles&#8230;" autocomplete="off">
-      </div>
-    </div>
-    <div class="blog-filters" id="blogFilters">
-      <button class="blog-filter active" data-cat="all">All</button>
-      <button class="blog-filter" data-cat="product">Product</button>
-      <button class="blog-filter" data-cat="sales">Sales</button>
-      <button class="blog-filter" data-cat="fieldops">Field Ops</button>
-      <button class="blog-filter" data-cat="engineering">Engineering</button>
-      <button class="blog-filter" data-cat="guide">Guides</button>
-    </div>
-  </div>
-</section>
-
-<section class="blog-section">
-  <div class="container">
-    <div class="stats-bar">
-      <p class="count">Showing <span id="visibleCount">10</span> articles</p>
-    </div>
-
-    <!-- Featured post -->
-    <div class="featured-post" id="featuredPost" data-idx="0">
-      <div class="featured-img" style="background:linear-gradient(135deg,#0b1220 0%,#1a3a5c 100%)">
-        <svg class="bg-pattern" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
-          <circle cx="160" cy="40" r="80" stroke="white" stroke-width="1"/>
-          <circle cx="40" cy="160" r="60" stroke="white" stroke-width="1"/>
-          <circle cx="100" cy="100" r="120" stroke="white" stroke-width=".5"/>
-        </svg>
-        <div class="feat-icon">
-          <svg width="26" height="26" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
-          </svg>
+        <div class="nav-actions">
+          <a href="/crm/" class="nav-link-sign-in">Sign in</a>
+          <a href="pricing.html" class="btn-hero-primary">Start for free</a>
         </div>
-      </div>
-      <div class="featured-body">
-        <span class="cat-badge cat-product">Product</span>
-        <h2>Introducing Intelligence Hub: AI-powered field sales insights</h2>
-        <p class="excerpt">We&#8217;re rolling out Intelligence Hub &#8212; a new layer of AI that surfaces missed opportunities, summarises visit notes and gives every rep their own sales coach.</p>
-        <div class="post-meta">
-          <div class="author-avatar" style="background:#3b7bfc">KA</div>
-          <span>Kofi A. &nbsp;&#183;&nbsp; Jan 28, 2026 &nbsp;&#183;&nbsp; 6 min read</span>
-        </div>
-        <a class="read-link" href="#">Read article
-          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
-        </a>
+        <button class="mobile-menu-btn" aria-label="Toggle Menu">
+          <span></span><span></span>
+        </button>
       </div>
     </div>
-
-    <!-- Posts grid -->
-    <div class="posts-grid" id="postsGrid"></div>
-    <div class="no-results" id="noResults">
-      <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-        <circle cx="11" cy="11" r="8"/><path stroke-linecap="round" d="M21 21l-4.35-4.35"/>
-      </svg>
-      <p>No articles match your search.</p>
-    </div>
-
-    <!-- Newsletter -->
-    <div class="newsletter-band">
-      <h2>Stay in the loop</h2>
-      <p>Get product updates and field-sales tips delivered to your inbox. No spam, ever.</p>
-      <div class="newsletter-form" id="nlForm">
-        <input type="email" id="nlEmail" placeholder="you@company.com" autocomplete="email">
-        <button class="btn-hero-primary" type="button" id="nlBtn">Subscribe</button>
-      </div>
-      <div class="nl-success" id="nlSuccess">
-        <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-        You&#8217;re subscribed!
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Article Coming Soon Modal -->
-<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <div class="modal-box">
-    <button class="modal-close" id="modalClose" aria-label="Close">
-      <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+  </nav>
+  <div class="mobile-nav-overlay">
+    <button class="mobile-close-btn" aria-label="Close">
+      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
     </button>
-    <div class="modal-cover" id="modalCover"></div>
-    <div class="modal-badge">
-      <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-      </svg>
-      Article coming soon
-    </div>
-    <h2 class="modal-title" id="modalTitle">Article</h2>
-    <p class="modal-desc" id="modalDesc">This article is being written. Enter your email and we&#8217;ll notify you when it publishes.</p>
-    <div class="modal-notify-form" id="modalForm">
-      <input type="email" id="modalEmail" placeholder="your@email.com" autocomplete="email">
-      <button type="button" id="modalNotifyBtn">Notify me</button>
-    </div>
-    <div class="modal-success" id="modalSuccess">
-      <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
-      </svg>
-      You&#8217;re on the list!
-    </div>
-    <p class="modal-privacy">We&#8217;ll only email you when this article goes live.</p>
-  </div>
-</div>
-
-<footer class="footer">
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-brand">
-        <div class="footer-logo-wrapper">
-          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
-        </div>
-        <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp; sales CRM built for modern teams.</p>
-      </div>
-      <div class="footer-links">
-        <div class="footer-column">
-          <h4 class="footer-heading">Product</h4>
-          <ul>
-            <li><a href="features/mainfeatures.html">Features</a></li>
-            <li><a href="pricing.html">Pricing</a></li>
-            <li><a href="integrations.html">Integrations</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Company</h4>
-          <ul>
-            <li><a href="blog.html">Blog</a></li>
-            <li><a href="careers.html">Careers</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Resources</h4>
-          <ul>
-            <li><a href="documentation.html">Documentation</a></li>
-            <li><a href="helpcenter.html">Help Center</a></li>
-            <li><a href="apireference.html">API Reference</a></li>
-            <li><a href="status.html">Status</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Legal</h4>
-          <ul>
-            <li><a href="legal/privacy.html">Privacy Policy</a></li>
-            <li><a href="legal/terms.html">Terms of Service</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-      <div class="footer-social">
-        <a href="#">Twitter</a>
-        <a href="#">LinkedIn</a>
-        <a href="#">GitHub</a>
-      </div>
+    <div class="mobile-nav-content">
+      <a href="features/mainfeatures.html" class="mobile-link">Features</a>
+      <a href="pricing.html" class="mobile-link">Pricing</a>
+      <hr class="mobile-divider">
+      <a href="/crm/" class="mobile-link">Open App</a>
+      <button class="btn-primary btn-block get-started-btn">Get Started</button>
     </div>
   </div>
-</footer>
-<script>
-// ─── Blog post data ───────────────────────────────────────────────────────────
-var POSTS = [
-  {
-    title: '10 ways to shorten your field-sales cycle in 2026',
-    excerpt: 'From smarter route planning to AI follow-up reminders, here are the tactics top-performing reps are using right now.',
-    cat: 'sales', catLabel: 'Sales', catClass: 'cat-sales',
-    author: 'Amara S.', authorInitials: 'AS', authorColor: '#15803d',
-    date: 'Jan 14, 2026', read: '8 min read',
-    grad: 'linear-gradient(135deg,#14532d 0%,#166534 100%)',
-    icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>'
-  },
-  {
-    title: 'Scaling SafiTrack to handle 1M+ daily location updates',
-    excerpt: 'A behind-the-scenes look at the infrastructure changes we made to support high-frequency GPS telemetry at scale.',
-    cat: 'engineering', catLabel: 'Engineering', catClass: 'cat-engineering',
-    author: 'Liam O.', authorInitials: 'LO', authorColor: '#6d28d9',
-    date: 'Dec 20, 2025', read: '11 min read',
-    grad: 'linear-gradient(135deg,#3b0764 0%,#5b21b6 100%)',
-    icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>'
-  },
-  {
-    title: 'Why we rebuilt the mobile experience from scratch',
-    excerpt: 'Field reps need speed. We redesigned the mobile CRM with offline-first architecture and a one-thumb workflow in mind.',
-    cat: 'product', catLabel: 'Product', catClass: 'cat-product',
-    author: 'Zara M.', authorInitials: 'ZM', authorColor: '#1d4ed8',
-    date: 'Nov 5, 2025', read: '5 min read',
-    grad: 'linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%)',
-    icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>'
-  },
-  {
-    title: 'How to build a territory plan that actually works',
-    excerpt: 'Most territory plans look great in a spreadsheet and fall apart in the field. Here\'s how to build one that survives first contact with reality.',
-    cat: 'fieldops', catLabel: 'Field Ops', catClass: 'cat-fieldops',
-    author: 'David N.', authorInitials: 'DN', authorColor: '#c2410c',
-    date: 'Oct 22, 2025', read: '7 min read',
-    grad: 'linear-gradient(135deg,#7c2d12 0%,#c2410c 100%)',
-    icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6-10l6 3m0 7l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 10m0 7V10"/></svg>'
-  },
-  {
-    title: 'The complete guide to CRM adoption for field teams',
-    excerpt: 'Adoption is the hardest part of any CRM rollout. These six principles helped our customers achieve 90%+ active usage within 30 days.',
-    cat: 'guide', catLabel: 'Guide', catClass: 'cat-guide',
-    author: 'Faith K.', authorInitials: 'FK', authorColor: '#166534',
-    date: 'Sep 30, 2025', read: '12 min read',
-    grad: 'linear-gradient(135deg,#052e16 0%,#166534 100%)',
-    icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>'
-  },
-  {
-    title: 'Visit frequency: the metric that predicts churn before it happens',
-    excerpt: 'Our analysis of 120K+ customer visits revealed a clear signal: a drop in visit frequency precedes churn by an average of 47 days.',
-    cat: 'sales', catLabel: 'Sales', catClass: 'cat-sales',
-    author: 'Amara S.', authorInitials: 'AS', authorColor: '#15803d',
-    date: 'Aug 18, 2025', read: '6 min read',
-    grad: 'linear-gradient(135deg,#064e3b 0%,#059669 100%)',
-    icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>'
-  },
-  {
-    title: 'Route optimisation 101: saving 2 hours per rep per day',
-    excerpt: 'Manual route planning wastes time your reps should be spending with customers. Here\'s how smart routing cuts drive time by up to 35%.',
-    cat: 'fieldops', catLabel: 'Field Ops', catClass: 'cat-fieldops',
-    author: 'David N.', authorInitials: 'DN', authorColor: '#c2410c',
-    date: 'Jul 9, 2025', read: '9 min read',
-    grad: 'linear-gradient(135deg,#431407 0%,#ea580c 100%)',
-    icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>'
-  },
-  {
-    title: 'How we cut our CI build time from 18 minutes to 4',
-    excerpt: 'A practical walkthrough of the caching strategies, test parallelisation, and Docker layer tricks that transformed our developer experience.',
-    cat: 'engineering', catLabel: 'Engineering', catClass: 'cat-engineering',
-    author: 'Liam O.', authorInitials: 'LO', authorColor: '#6d28d9',
-    date: 'Jun 3, 2025', read: '10 min read',
-    grad: 'linear-gradient(135deg,#2e1065 0%,#7c3aed 100%)',
-    icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>'
-  },
-  {
-    title: 'SafiTrack changelog: Q1 2026 product updates',
-    excerpt: 'Bulk actions, custom pipeline stages, a redesigned dashboard, and a wave of smaller improvements shipped this quarter.',
-    cat: 'product', catLabel: 'Product', catClass: 'cat-product',
-    author: 'Zara M.', authorInitials: 'ZM', authorColor: '#1d4ed8',
-    date: 'Mar 1, 2026', read: '4 min read',
-    grad: 'linear-gradient(135deg,#172554 0%,#3b7bfc 100%)',
-    icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>'
-  }
-];
 
-// ─── Render grid cards ────────────────────────────────────────────────────────
-var grid = document.getElementById('postsGrid');
-var countEl = document.getElementById('visibleCount');
-var noResults = document.getElementById('noResults');
+  <style>
+    /* ── Hero ──────────────────────────────────── */
+    .page-hero {
+      padding: 112px 0 0;
+      text-align: center;
+      background: #fafafa;
+      border-bottom: 1px solid #e6e9ef
+    }
 
-function bgPattern(){
-  return '<svg class="bg-pattern" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><circle cx="160" cy="40" r="80" stroke="white" stroke-width="1"/><circle cx="40" cy="160" r="60" stroke="white" stroke-width="1"/></svg>';
-}
+    .page-hero h1 {
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800;
+      color: #0b1220;
+      margin-bottom: 14px;
+      line-height: 1.2
+    }
 
-POSTS.forEach(function(p, i){
-  var card = document.createElement('div');
-  card.className = 'post-card';
-  card.dataset.cat = p.cat;
-  card.dataset.search = (p.title + ' ' + p.excerpt + ' ' + p.catLabel).toLowerCase();
-  card.dataset.idx = i;
-  card.innerHTML =
-    '<div class="post-card-img" style="background:'+p.grad+'">'+
-      bgPattern()+
-      '<div class="card-icon">'+p.icon+'</div>'+
-    '</div>'+
-    '<div class="post-card-body">'+
-      '<span class="cat-badge '+p.catClass+'">'+p.catLabel+'</span>'+
-      '<h3>'+p.title+'</h3>'+
-      '<p class="excerpt">'+p.excerpt+'</p>'+
-      '<div class="post-card-footer post-meta">'+
-        '<div class="author-avatar" style="background:'+p.authorColor+'">'+p.authorInitials+'</div>'+
-        '<span>'+p.author+' &nbsp;&#183;&nbsp; '+p.date+' &nbsp;&#183;&nbsp; '+p.read+'</span>'+
-      '</div>'+
-    '</div>';
-  card.addEventListener('click', function(){ openModal(i); });
-  grid.appendChild(card);
-});
+    .page-hero .sub {
+      font-size: 18px;
+      color: #4b5563;
+      max-width: 520px;
+      margin: 0 auto 28px;
+      line-height: 1.6
+    }
 
-// Wire featured post
-document.getElementById('featuredPost').addEventListener('click', openFeatured);
-document.querySelector('.read-link').addEventListener('click', function(e){ e.preventDefault(); openFeatured(); });
-function openFeatured(){
-  openModalRaw(
-    'Introducing Intelligence Hub: AI-powered field sales insights',
-    'linear-gradient(135deg,#0b1220 0%,#1a3a5c 100%)',
-    '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>'
-  );
-}
+    /* ── Search ────────────────────────────────── */
+    .search-wrap {
+      display: flex;
+      justify-content: center
+    }
 
-function updateCount(){
-  var fp = document.getElementById('featuredPost');
-  var fpHidden = fp && fp.classList.contains('fp-hidden');
-  var gridVis = grid.querySelectorAll('.post-card:not(.hidden)').length;
-  var total = gridVis + (fpHidden ? 0 : 1);
-  countEl.textContent = total;
-  noResults.classList.toggle('visible', total === 0);
-}
-updateCount();
+    .search-wrap .search-box {
+      position: relative;
+      width: 100%;
+      max-width: 360px
+    }
 
-// ─── Filter + search ──────────────────────────────────────────────────────────
-var activecat = 'all', searchq = '';
+    .search-wrap .search-box svg {
+      position: absolute;
+      left: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9ca3af;
+      pointer-events: none
+    }
 
-function applyFilters(){
-  var fp = document.getElementById('featuredPost');
-  var featCat = 'product';
-  var featSearch = 'intelligence hub ai product'.toLowerCase();
-  var fpCatOk = activecat === 'all' || activecat === featCat;
-  var fpSearchOk = !searchq || featSearch.includes(searchq);
-  if(fp){ fp.classList.toggle('fp-hidden', !(fpCatOk && fpSearchOk)); fp.style.display = (fpCatOk && fpSearchOk) ? '' : 'none'; }
+    .search-wrap input {
+      width: 100%;
+      border: 1.5px solid #e6e9ef;
+      border-radius: 10px;
+      padding: 11px 16px 11px 40px;
+      font-size: 15px;
+      font-family: inherit;
+      color: #0b1220;
+      background: #fff;
+      transition: border-color .15s;
+      box-sizing: border-box
+    }
 
-  grid.querySelectorAll('.post-card').forEach(function(card){
-    var catOk = activecat === 'all' || card.dataset.cat === activecat;
-    var nameOk = !searchq || card.dataset.search.includes(searchq);
-    card.classList.toggle('hidden', !(catOk && nameOk));
-  });
-  updateCount();
-}
+    .search-wrap input:focus {
+      outline: none;
+      border-color: #3b7bfc
+    }
 
-document.getElementById('blogFilters').addEventListener('click', function(e){
-  var btn = e.target.closest('.blog-filter');
-  if(!btn) return;
-  document.querySelectorAll('.blog-filter').forEach(function(b){ b.classList.remove('active'); });
-  btn.classList.add('active');
-  activecat = btn.dataset.cat;
-  applyFilters();
-});
-document.getElementById('searchInput').addEventListener('input', function(e){
-  searchq = e.target.value.trim().toLowerCase();
-  applyFilters();
-});
+    /* ── Filter tabs ───────────────────────────── */
+    .blog-filters {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding: 24px 0
+    }
 
-// ─── Modal ────────────────────────────────────────────────────────────────────
-var overlay = document.getElementById('modalOverlay');
-var modalCover = document.getElementById('modalCover');
-var modalTitle = document.getElementById('modalTitle');
-var modalDesc = document.getElementById('modalDesc');
-var modalForm = document.getElementById('modalForm');
-var modalSuccess = document.getElementById('modalSuccess');
-var modalEmail = document.getElementById('modalEmail');
-var notifyBtn = document.getElementById('modalNotifyBtn');
+    .blog-filter {
+      padding: 7px 18px;
+      border-radius: 50px;
+      border: 1.5px solid #e6e9ef;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      background: #fff;
+      color: #4b5563;
+      transition: all .15s;
+      font-family: inherit;
+      line-height: 1
+    }
 
-function openModal(idx){
-  var p = POSTS[idx];
-  openModalRaw(p.title, p.grad, p.icon);
-}
-function openModalRaw(title, grad, iconHtml){
-  modalCover.style.background = grad;
-  modalCover.innerHTML =
-    '<svg class="bg-pattern" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><circle cx="160" cy="40" r="80" stroke="white" stroke-width="1"/><circle cx="40" cy="160" r="60" stroke="white" stroke-width="1"/></svg>'+
-    '<div class="modal-icon">'+iconHtml+'</div>';
-  modalTitle.textContent = title;
-  modalForm.style.display = 'flex';
-  modalSuccess.style.display = 'none';
-  modalEmail.value = '';
-  modalEmail.style.borderColor = '';
-  overlay.classList.add('open');
-  document.body.style.overflow = 'hidden';
-  setTimeout(function(){ modalEmail.focus(); }, 220);
-}
-function closeModal(){
-  overlay.classList.remove('open');
-  document.body.style.overflow = '';
-}
-document.getElementById('modalClose').addEventListener('click', closeModal);
-overlay.addEventListener('click', function(e){ if(e.target === overlay) closeModal(); });
-document.addEventListener('keydown', function(e){ if(e.key === 'Escape') closeModal(); });
+    .blog-filter.active,
+    .blog-filter:hover {
+      background: #0b1220;
+      color: #fff;
+      border-color: #0b1220
+    }
 
-notifyBtn.addEventListener('click', function(){
-  var val = modalEmail.value.trim();
-  if(!val || !val.includes('@')){ modalEmail.focus(); modalEmail.style.borderColor = '#f43f5e'; return; }
-  modalEmail.style.borderColor = '';
-  notifyBtn.textContent = '...';
-  notifyBtn.disabled = true;
-  setTimeout(function(){
-    modalForm.style.display = 'none';
-    modalSuccess.style.display = 'flex';
-    notifyBtn.textContent = 'Notify me';
-    notifyBtn.disabled = false;
-  }, 600);
-});
+    /* ── Blog section ──────────────────────────── */
+    .blog-section {
+      padding: 64px 0 80px;
+      background: #fff
+    }
 
-// ─── Newsletter ───────────────────────────────────────────────────────────────
-var nlBtn = document.getElementById('nlBtn');
-var nlEmail = document.getElementById('nlEmail');
-var nlForm = document.getElementById('nlForm');
-var nlSuccessEl = document.getElementById('nlSuccess');
+    /* ── Stats bar ─────────────────────────────── */
+    .stats-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 0 20px;
+      border-bottom: 1px solid #f0f2f5;
+      margin-bottom: 40px
+    }
 
-nlBtn.addEventListener('click', function(){
-  var val = nlEmail.value.trim();
-  if(!val || !val.includes('@')){ nlEmail.focus(); nlEmail.style.borderColor = '#f43f5e'; return; }
-  nlEmail.style.borderColor = '';
-  nlBtn.textContent = '...';
-  nlBtn.disabled = true;
-  setTimeout(function(){
-    nlForm.style.display = 'none';
-    nlSuccessEl.style.display = 'flex';
-    nlBtn.textContent = 'Subscribe';
-    nlBtn.disabled = false;
-  }, 600);
-});
-nlEmail.addEventListener('keydown', function(e){ if(e.key === 'Enter') nlBtn.click(); });
+    .stats-bar .count {
+      font-size: 14px;
+      color: #6b7280;
+      font-weight: 500
+    }
 
-// ─── Navbar ───────────────────────────────────────────────────────────────────
-(function(){
-  var mb = document.querySelector('.mobile-menu-btn'),
-      mo = document.querySelector('.mobile-nav-overlay'),
-      mc = document.querySelector('.mobile-close-btn');
-  if(mb && mo){
-    mb.addEventListener('click', function(){ mo.classList.add('active'); });
-    if(mc) mc.addEventListener('click', function(){ mo.classList.remove('active'); });
-    mo.addEventListener('click', function(e){ if(e.target===mo) mo.classList.remove('active'); });
-  }
-  window.addEventListener('scroll', function(){
-    var nb = document.getElementById('navbar');
-    if(nb) nb.classList.toggle('scrolled', window.scrollY > 20);
-  });
-})();
-</script>
+    .stats-bar .count span {
+      color: #0b1220;
+      font-weight: 700
+    }
+
+    /* ── Featured post ─────────────────────────── */
+    .featured-post {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      align-items: stretch;
+      border: 1.5px solid #e6e9ef;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 48px;
+      cursor: pointer;
+      transition: box-shadow .15s, transform .15s
+    }
+
+    .featured-post:hover {
+      box-shadow: 0 12px 40px rgba(0, 0, 0, .09);
+      transform: translateY(-2px)
+    }
+
+    .featured-img {
+      min-height: 280px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden
+    }
+
+    .featured-img svg {
+      opacity: .18;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%
+    }
+
+    .featured-img .feat-icon {
+      position: relative;
+      z-index: 1;
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, .15);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .featured-body {
+      padding: 40px 40px 40px 40px
+    }
+
+    /* ── Category badges ───────────────────────── */
+    .cat-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 50px;
+      margin-bottom: 12px
+    }
+
+    .cat-product {
+      background: #dbeafe;
+      color: #1d4ed8
+    }
+
+    .cat-sales {
+      background: #dcfce7;
+      color: #15803d
+    }
+
+    .cat-engineering {
+      background: #ede9fe;
+      color: #6d28d9
+    }
+
+    .cat-fieldops {
+      background: #ffedd5;
+      color: #c2410c
+    }
+
+    .cat-design {
+      background: #fce7f3;
+      color: #be185d
+    }
+
+    .cat-guide {
+      background: #f0fdf4;
+      color: #166534
+    }
+
+    /* ── Featured body ─────────────────────────── */
+    .featured-body h2 {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: #0b1220;
+      margin-bottom: 12px;
+      line-height: 1.3
+    }
+
+    .featured-body .excerpt {
+      color: #4b5563;
+      font-size: 15px;
+      line-height: 1.7;
+      margin-bottom: 20px
+    }
+
+    .post-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      color: #9ca3af
+    }
+
+    .author-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: #fff;
+      flex-shrink: 0
+    }
+
+    .featured-body .read-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 18px;
+      font-weight: 600;
+      font-size: 14px;
+      color: #0b1220;
+      text-decoration: none;
+      border-bottom: 2px solid #0b1220;
+      padding-bottom: 1px;
+      transition: opacity .15s
+    }
+
+    .featured-body .read-link:hover {
+      opacity: .65
+    }
+
+    /* ── Posts grid ────────────────────────────── */
+    .posts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px
+    }
+
+    .post-card {
+      border: 1.5px solid #e6e9ef;
+      border-radius: 14px;
+      overflow: hidden;
+      background: #fff;
+      transition: box-shadow .15s, transform .15s;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column
+    }
+
+    .post-card:hover {
+      box-shadow: 0 8px 30px rgba(0, 0, 0, .08);
+      transform: translateY(-2px)
+    }
+
+    .post-card.hidden {
+      display: none
+    }
+
+    .post-card-img {
+      height: 168px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0
+    }
+
+    .post-card-img svg.bg-pattern {
+      opacity: .15;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%
+    }
+
+    .post-card-img .card-icon {
+      position: relative;
+      z-index: 1;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .2);
+      backdrop-filter: blur(4px);
+      border: 1.5px solid rgba(255, 255, 255, .3);
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .post-card-body {
+      padding: 22px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 8px
+    }
+
+    .post-card-body h3 {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: #0b1220;
+      line-height: 1.4;
+      margin: 0
+    }
+
+    .post-card-body .excerpt {
+      font-size: 13.5px;
+      color: #6b7280;
+      line-height: 1.6;
+      flex: 1
+    }
+
+    .post-card-footer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 4px
+    }
+
+    /* ── No results ────────────────────────────── */
+    .no-results {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 0;
+      gap: 14px;
+      text-align: center
+    }
+
+    .no-results svg {
+      color: #d1d5db
+    }
+
+    .no-results p {
+      font-size: 16px;
+      color: #6b7280
+    }
+
+    .no-results.visible {
+      display: flex
+    }
+
+    /* ── Newsletter ────────────────────────────── */
+    .newsletter-band {
+      background: #fafafa;
+      border: 1.5px solid #e6e9ef;
+      border-radius: 16px;
+      padding: 56px 48px;
+      text-align: center;
+      margin-top: 56px
+    }
+
+    .newsletter-band h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #0b1220;
+      margin-bottom: 10px
+    }
+
+    .newsletter-band p {
+      color: #4b5563;
+      font-size: 16px;
+      margin-bottom: 28px;
+      line-height: 1.6
+    }
+
+    .newsletter-form {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+      max-width: 480px;
+      margin: 0 auto
+    }
+
+    .newsletter-form input {
+      flex: 1;
+      min-width: 200px;
+      border: 1.5px solid #e6e9ef;
+      border-radius: 9px;
+      padding: 11px 16px;
+      font-size: 15px;
+      font-family: inherit;
+      color: #0b1220;
+      transition: border-color .15s
+    }
+
+    .newsletter-form input:focus {
+      outline: none;
+      border-color: #3b7bfc
+    }
+
+    .nl-success {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      font-size: 15px;
+      font-weight: 600;
+      color: #15803d;
+      margin-top: 4px
+    }
+
+    /* ── Modal ─────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(11, 18, 32, .5);
+      backdrop-filter: blur(4px);
+      z-index: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: all
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 20px;
+      padding: 40px 36px;
+      max-width: 440px;
+      width: 100%;
+      position: relative;
+      transform: translateY(14px);
+      transition: transform .22s;
+      text-align: center
+    }
+
+    .modal-overlay.open .modal-box {
+      transform: translateY(0)
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      color: #9ca3af;
+      border-radius: 7px;
+      line-height: 1;
+      display: flex;
+      align-items: center
+    }
+
+    .modal-close:hover {
+      color: #0b1220;
+      background: #f3f4f6
+    }
+
+    .modal-cover {
+      width: 100%;
+      height: 100px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden
+    }
+
+    .modal-cover svg.bg-pattern {
+      opacity: .15;
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%
+    }
+
+    .modal-cover .modal-icon {
+      position: relative;
+      z-index: 1;
+      width: 44px;
+      height: 44px;
+      border-radius: 11px;
+      background: rgba(255, 255, 255, .2);
+      border: 1.5px solid rgba(255, 255, 255, .3);
+      display: flex;
+      align-items: center;
+      justify-content: center
+    }
+
+    .modal-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 50px;
+      background: #fef9ec;
+      color: #b45309;
+      margin-bottom: 14px
+    }
+
+    .modal-title {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #0b1220;
+      margin-bottom: 8px;
+      line-height: 1.35
+    }
+
+    .modal-desc {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 22px
+    }
+
+    .modal-notify-form {
+      display: flex;
+      gap: 8px;
+      max-width: 310px;
+      margin: 0 auto 12px
+    }
+
+    .modal-notify-form input {
+      flex: 1;
+      border: 1.5px solid #e6e9ef;
+      border-radius: 9px;
+      padding: 10px 13px;
+      font-size: 14px;
+      font-family: inherit;
+      color: #0b1220;
+      min-width: 0;
+      transition: border-color .15s
+    }
+
+    .modal-notify-form input:focus {
+      outline: none;
+      border-color: #3b7bfc
+    }
+
+    .modal-notify-form button {
+      padding: 10px 16px;
+      border-radius: 9px;
+      border: none;
+      background: #0b1220;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background .15s
+    }
+
+    .modal-notify-form button:hover {
+      background: #1a2a44
+    }
+
+    .modal-success {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+      color: #15803d;
+      margin-bottom: 12px
+    }
+
+    .modal-privacy {
+      font-size: 12px;
+      color: #9ca3af
+    }
+
+    @media(max-width:768px) {
+      .featured-post {
+        grid-template-columns: 1fr
+      }
+
+      .featured-img {
+        min-height: 200px
+      }
+
+      .featured-body {
+        padding: 28px
+      }
+    }
+
+    @media(max-width:560px) {
+      .modal-box {
+        padding: 32px 20px
+      }
+
+      .newsletter-band {
+        padding: 40px 20px
+      }
+    }
+  </style>
+
+  <section class="page-hero">
+    <div class="container">
+      <h1>Insights for the modern<br>sales organisation.</h1>
+      <p class="sub">Product updates, best practices and field-sales strategy from the SafiTrack team.</p>
+      <div class="search-wrap">
+        <div class="search-box">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <circle cx="11" cy="11" r="8" />
+            <path stroke-linecap="round" d="M21 21l-4.35-4.35" />
+          </svg>
+          <input type="search" id="searchInput" placeholder="Search articles&#8230;" autocomplete="off">
+        </div>
+      </div>
+      <div class="blog-filters" id="blogFilters">
+        <button class="blog-filter active" data-cat="all">All</button>
+        <button class="blog-filter" data-cat="product">Product</button>
+        <button class="blog-filter" data-cat="sales">Sales</button>
+        <button class="blog-filter" data-cat="fieldops">Field Ops</button>
+        <button class="blog-filter" data-cat="engineering">Engineering</button>
+        <button class="blog-filter" data-cat="guide">Guides</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="blog-section">
+    <div class="container">
+      <div class="stats-bar">
+        <p class="count">Showing <span id="visibleCount">10</span> articles</p>
+      </div>
+
+      <!-- Featured post -->
+      <div class="featured-post" id="featuredPost" data-idx="0">
+        <div class="featured-img" style="background:linear-gradient(135deg,#0b1220 0%,#1a3a5c 100%)">
+          <svg class="bg-pattern" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg"
+            preserveAspectRatio="xMidYMid slice">
+            <circle cx="160" cy="40" r="80" stroke="white" stroke-width="1" />
+            <circle cx="40" cy="160" r="60" stroke="white" stroke-width="1" />
+            <circle cx="100" cy="100" r="120" stroke="white" stroke-width=".5" />
+          </svg>
+          <div class="feat-icon">
+            <svg width="26" height="26" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+            </svg>
+          </div>
+        </div>
+        <div class="featured-body">
+          <span class="cat-badge cat-product">Product</span>
+          <h2>Introducing Intelligence Hub: AI-powered field sales insights</h2>
+          <p class="excerpt">We&#8217;re rolling out Intelligence Hub &#8212; a new layer of AI that surfaces missed
+            opportunities, summarises visit notes and gives every rep their own sales coach.</p>
+          <div class="post-meta">
+            <div class="author-avatar" style="background:#3b7bfc">KA</div>
+            <span>Kofi A. &nbsp;&#183;&nbsp; Jan 28, 2026 &nbsp;&#183;&nbsp; 6 min read</span>
+          </div>
+          <a class="read-link" href="#">Read article
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- Posts grid -->
+      <div class="posts-grid" id="postsGrid"></div>
+      <div class="no-results" id="noResults">
+        <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+          <circle cx="11" cy="11" r="8" />
+          <path stroke-linecap="round" d="M21 21l-4.35-4.35" />
+        </svg>
+        <p>No articles match your search.</p>
+      </div>
+
+      <!-- Newsletter -->
+      <div class="newsletter-band">
+        <h2>Stay in the loop</h2>
+        <p>Get product updates and field-sales tips delivered to your inbox. No spam, ever.</p>
+        <div class="newsletter-form" id="nlForm">
+          <input type="email" id="nlEmail" placeholder="you@company.com" autocomplete="email">
+          <button class="btn-hero-primary" type="button" id="nlBtn">Subscribe</button>
+        </div>
+        <div class="nl-success" id="nlSuccess">
+          <svg width="17" height="17" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          You&#8217;re subscribed!
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Article Coming Soon Modal -->
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal-box">
+      <button class="modal-close" id="modalClose" aria-label="Close">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+      <div class="modal-cover" id="modalCover"></div>
+      <div class="modal-badge">
+        <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Article coming soon
+      </div>
+      <h2 class="modal-title" id="modalTitle">Article</h2>
+      <p class="modal-desc" id="modalDesc">This article is being written. Enter your email and we&#8217;ll notify you
+        when it publishes.</p>
+      <div class="modal-notify-form" id="modalForm">
+        <input type="email" id="modalEmail" placeholder="your@email.com" autocomplete="email">
+        <button type="button" id="modalNotifyBtn">Notify me</button>
+      </div>
+      <div class="modal-success" id="modalSuccess">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+        </svg>
+        You&#8217;re on the list!
+      </div>
+      <p class="modal-privacy">We&#8217;ll only email you when this article goes live.</p>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="footer-logo-wrapper">
+            <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
+          </div>
+          <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp;
+            sales CRM built for modern teams.</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-column">
+            <h4 class="footer-heading">Product</h4>
+            <ul>
+              <li><a href="features/mainfeatures.html">Features</a></li>
+              <li><a href="pricing.html">Pricing</a></li>
+              <li><a href="integrations.html">Integrations</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Company</h4>
+            <ul>
+              <li><a href="blog.html">Blog</a></li>
+              <li><a href="careers.html">Careers</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Resources</h4>
+            <ul>
+              <li><a href="documentation.html">Documentation</a></li>
+              <li><a href="helpcenter.html">Help Center</a></li>
+              <li><a href="apireference.html">API Reference</a></li>
+              <li><a href="status.html">Status</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Legal</h4>
+            <ul>
+              <li><a href="legal/privacy.html">Privacy Policy</a></li>
+              <li><a href="legal/terms.html">Terms of Service</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+        <div class="footer-social">
+          <a href="#">Twitter</a>
+          <a href="#">LinkedIn</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script>
+    // ─── Blog post data ───────────────────────────────────────────────────────────
+    var POSTS = [
+      {
+        title: '10 ways to shorten your field-sales cycle in 2026',
+        excerpt: 'From smarter route planning to AI follow-up reminders, here are the tactics top-performing reps are using right now.',
+        cat: 'sales', catLabel: 'Sales', catClass: 'cat-sales',
+        author: 'Amara S.', authorInitials: 'AS', authorColor: '#15803d',
+        date: 'Jan 14, 2026', read: '8 min read',
+        grad: 'linear-gradient(135deg,#14532d 0%,#166534 100%)',
+        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>'
+      },
+      {
+        title: 'Scaling SafiTrack to handle 1M+ daily location updates',
+        excerpt: 'A behind-the-scenes look at the infrastructure changes we made to support high-frequency GPS telemetry at scale.',
+        cat: 'engineering', catLabel: 'Engineering', catClass: 'cat-engineering',
+        author: 'Liam O.', authorInitials: 'LO', authorColor: '#6d28d9',
+        date: 'Dec 20, 2025', read: '11 min read',
+        grad: 'linear-gradient(135deg,#3b0764 0%,#5b21b6 100%)',
+        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>'
+      },
+      {
+        title: 'Why we rebuilt the mobile experience from scratch',
+        excerpt: 'Field reps need speed. We redesigned the mobile CRM with offline-first architecture and a one-thumb workflow in mind.',
+        cat: 'product', catLabel: 'Product', catClass: 'cat-product',
+        author: 'Zara M.', authorInitials: 'ZM', authorColor: '#1d4ed8',
+        date: 'Nov 5, 2025', read: '5 min read',
+        grad: 'linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%)',
+        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>'
+      },
+      {
+        title: 'How to build a territory plan that actually works',
+        excerpt: 'Most territory plans look great in a spreadsheet and fall apart in the field. Here\'s how to build one that survives first contact with reality.',
+        cat: 'fieldops', catLabel: 'Field Ops', catClass: 'cat-fieldops',
+        author: 'David N.', authorInitials: 'DN', authorColor: '#c2410c',
+        date: 'Oct 22, 2025', read: '7 min read',
+        grad: 'linear-gradient(135deg,#7c2d12 0%,#c2410c 100%)',
+        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6-10l6 3m0 7l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 10m0 7V10"/></svg>'
+      },
+      {
+        title: 'The complete guide to CRM adoption for field teams',
+        excerpt: 'Adoption is the hardest part of any CRM rollout. These six principles helped our customers achieve 90%+ active usage within 30 days.',
+        cat: 'guide', catLabel: 'Guide', catClass: 'cat-guide',
+        author: 'Faith K.', authorInitials: 'FK', authorColor: '#166534',
+        date: 'Sep 30, 2025', read: '12 min read',
+        grad: 'linear-gradient(135deg,#052e16 0%,#166534 100%)',
+        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>'
+      },
+      {
+        title: 'Visit frequency: the metric that predicts churn before it happens',
+        excerpt: 'Our analysis of 120K+ customer visits revealed a clear signal: a drop in visit frequency precedes churn by an average of 47 days.',
+        cat: 'sales', catLabel: 'Sales', catClass: 'cat-sales',
+        author: 'Amara S.', authorInitials: 'AS', authorColor: '#15803d',
+        date: 'Aug 18, 2025', read: '6 min read',
+        grad: 'linear-gradient(135deg,#064e3b 0%,#059669 100%)',
+        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>'
+      },
+      {
+        title: 'Route optimisation 101: saving 2 hours per rep per day',
+        excerpt: 'Manual route planning wastes time your reps should be spending with customers. Here\'s how smart routing cuts drive time by up to 35%.',
+        cat: 'fieldops', catLabel: 'Field Ops', catClass: 'cat-fieldops',
+        author: 'David N.', authorInitials: 'DN', authorColor: '#c2410c',
+        date: 'Jul 9, 2025', read: '9 min read',
+        grad: 'linear-gradient(135deg,#431407 0%,#ea580c 100%)',
+        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>'
+      },
+      {
+        title: 'How we cut our CI build time from 18 minutes to 4',
+        excerpt: 'A practical walkthrough of the caching strategies, test parallelisation, and Docker layer tricks that transformed our developer experience.',
+        cat: 'engineering', catLabel: 'Engineering', catClass: 'cat-engineering',
+        author: 'Liam O.', authorInitials: 'LO', authorColor: '#6d28d9',
+        date: 'Jun 3, 2025', read: '10 min read',
+        grad: 'linear-gradient(135deg,#2e1065 0%,#7c3aed 100%)',
+        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>'
+      },
+      {
+        title: 'SafiTrack changelog: Q1 2026 product updates',
+        excerpt: 'Bulk actions, custom pipeline stages, a redesigned dashboard, and a wave of smaller improvements shipped this quarter.',
+        cat: 'product', catLabel: 'Product', catClass: 'cat-product',
+        author: 'Zara M.', authorInitials: 'ZM', authorColor: '#1d4ed8',
+        date: 'Mar 1, 2026', read: '4 min read',
+        grad: 'linear-gradient(135deg,#172554 0%,#3b7bfc 100%)',
+        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>'
+      }
+    ];
+
+    // ─── Render grid cards ────────────────────────────────────────────────────────
+    var grid = document.getElementById('postsGrid');
+    var countEl = document.getElementById('visibleCount');
+    var noResults = document.getElementById('noResults');
+
+    function bgPattern() {
+      return '<svg class="bg-pattern" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><circle cx="160" cy="40" r="80" stroke="white" stroke-width="1"/><circle cx="40" cy="160" r="60" stroke="white" stroke-width="1"/></svg>';
+    }
+
+    POSTS.forEach(function (p, i) {
+      var card = document.createElement('div');
+      card.className = 'post-card';
+      card.dataset.cat = p.cat;
+      card.dataset.search = (p.title + ' ' + p.excerpt + ' ' + p.catLabel).toLowerCase();
+      card.dataset.idx = i;
+      card.innerHTML =
+        '<div class="post-card-img" style="background:' + p.grad + '">' +
+        bgPattern() +
+        '<div class="card-icon">' + p.icon + '</div>' +
+        '</div>' +
+        '<div class="post-card-body">' +
+        '<span class="cat-badge ' + p.catClass + '">' + p.catLabel + '</span>' +
+        '<h3>' + p.title + '</h3>' +
+        '<p class="excerpt">' + p.excerpt + '</p>' +
+        '<div class="post-card-footer post-meta">' +
+        '<div class="author-avatar" style="background:' + p.authorColor + '">' + p.authorInitials + '</div>' +
+        '<span>' + p.author + ' &nbsp;&#183;&nbsp; ' + p.date + ' &nbsp;&#183;&nbsp; ' + p.read + '</span>' +
+        '</div>' +
+        '</div>';
+      card.addEventListener('click', function () { openModal(i); });
+      grid.appendChild(card);
+    });
+
+    // Wire featured post
+    document.getElementById('featuredPost').addEventListener('click', openFeatured);
+    document.querySelector('.read-link').addEventListener('click', function (e) { e.preventDefault(); openFeatured(); });
+    function openFeatured() {
+      openModalRaw(
+        'Introducing Intelligence Hub: AI-powered field sales insights',
+        'linear-gradient(135deg,#0b1220 0%,#1a3a5c 100%)',
+        '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>'
+      );
+    }
+
+    function updateCount() {
+      var fp = document.getElementById('featuredPost');
+      var fpHidden = fp && fp.classList.contains('fp-hidden');
+      var gridVis = grid.querySelectorAll('.post-card:not(.hidden)').length;
+      var total = gridVis + (fpHidden ? 0 : 1);
+      countEl.textContent = total;
+      noResults.classList.toggle('visible', total === 0);
+    }
+    updateCount();
+
+    // ─── Filter + search ──────────────────────────────────────────────────────────
+    var activecat = 'all', searchq = '';
+
+    function applyFilters() {
+      var fp = document.getElementById('featuredPost');
+      var featCat = 'product';
+      var featSearch = 'intelligence hub ai product'.toLowerCase();
+      var fpCatOk = activecat === 'all' || activecat === featCat;
+      var fpSearchOk = !searchq || featSearch.includes(searchq);
+      if (fp) { fp.classList.toggle('fp-hidden', !(fpCatOk && fpSearchOk)); fp.style.display = (fpCatOk && fpSearchOk) ? '' : 'none'; }
+
+      grid.querySelectorAll('.post-card').forEach(function (card) {
+        var catOk = activecat === 'all' || card.dataset.cat === activecat;
+        var nameOk = !searchq || card.dataset.search.includes(searchq);
+        card.classList.toggle('hidden', !(catOk && nameOk));
+      });
+      updateCount();
+    }
+
+    document.getElementById('blogFilters').addEventListener('click', function (e) {
+      var btn = e.target.closest('.blog-filter');
+      if (!btn) return;
+      document.querySelectorAll('.blog-filter').forEach(function (b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      activecat = btn.dataset.cat;
+      applyFilters();
+    });
+    document.getElementById('searchInput').addEventListener('input', function (e) {
+      searchq = e.target.value.trim().toLowerCase();
+      applyFilters();
+    });
+
+    // ─── Modal ────────────────────────────────────────────────────────────────────
+    var overlay = document.getElementById('modalOverlay');
+    var modalCover = document.getElementById('modalCover');
+    var modalTitle = document.getElementById('modalTitle');
+    var modalDesc = document.getElementById('modalDesc');
+    var modalForm = document.getElementById('modalForm');
+    var modalSuccess = document.getElementById('modalSuccess');
+    var modalEmail = document.getElementById('modalEmail');
+    var notifyBtn = document.getElementById('modalNotifyBtn');
+
+    function openModal(idx) {
+      var p = POSTS[idx];
+      openModalRaw(p.title, p.grad, p.icon);
+    }
+    function openModalRaw(title, grad, iconHtml) {
+      modalCover.style.background = grad;
+      modalCover.innerHTML =
+        '<svg class="bg-pattern" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><circle cx="160" cy="40" r="80" stroke="white" stroke-width="1"/><circle cx="40" cy="160" r="60" stroke="white" stroke-width="1"/></svg>' +
+        '<div class="modal-icon">' + iconHtml + '</div>';
+      modalTitle.textContent = title;
+      modalForm.style.display = 'flex';
+      modalSuccess.style.display = 'none';
+      modalEmail.value = '';
+      modalEmail.style.borderColor = '';
+      overlay.classList.add('open');
+      document.body.style.overflow = 'hidden';
+      setTimeout(function () { modalEmail.focus(); }, 220);
+    }
+    function closeModal() {
+      overlay.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+
+    notifyBtn.addEventListener('click', function () {
+      var val = modalEmail.value.trim();
+      if (!val || !val.includes('@')) { modalEmail.focus(); modalEmail.style.borderColor = '#f43f5e'; return; }
+      modalEmail.style.borderColor = '';
+      notifyBtn.textContent = '...';
+      notifyBtn.disabled = true;
+      setTimeout(function () {
+        modalForm.style.display = 'none';
+        modalSuccess.style.display = 'flex';
+        notifyBtn.textContent = 'Notify me';
+        notifyBtn.disabled = false;
+      }, 600);
+    });
+
+    // ─── Newsletter ───────────────────────────────────────────────────────────────
+    var nlBtn = document.getElementById('nlBtn');
+    var nlEmail = document.getElementById('nlEmail');
+    var nlForm = document.getElementById('nlForm');
+    var nlSuccessEl = document.getElementById('nlSuccess');
+
+    nlBtn.addEventListener('click', function () {
+      var val = nlEmail.value.trim();
+      if (!val || !val.includes('@')) { nlEmail.focus(); nlEmail.style.borderColor = '#f43f5e'; return; }
+      nlEmail.style.borderColor = '';
+      nlBtn.textContent = '...';
+      nlBtn.disabled = true;
+      setTimeout(function () {
+        nlForm.style.display = 'none';
+        nlSuccessEl.style.display = 'flex';
+        nlBtn.textContent = 'Subscribe';
+        nlBtn.disabled = false;
+      }, 600);
+    });
+    nlEmail.addEventListener('keydown', function (e) { if (e.key === 'Enter') nlBtn.click(); });
+
+    // ─── Navbar ───────────────────────────────────────────────────────────────────
+    (function () {
+      var mb = document.querySelector('.mobile-menu-btn'),
+        mo = document.querySelector('.mobile-nav-overlay'),
+        mc = document.querySelector('.mobile-close-btn');
+      if (mb && mo) {
+        mb.addEventListener('click', function () { mo.classList.add('active'); });
+        if (mc) mc.addEventListener('click', function () { mo.classList.remove('active'); });
+        mo.addEventListener('click', function (e) { if (e.target === mo) mo.classList.remove('active'); });
+      }
+      window.addEventListener('scroll', function () {
+        var nb = document.getElementById('navbar');
+        if (nb) nb.classList.toggle('scrolled', window.scrollY > 20);
+      });
+    })();
+  </script>
 </body>
+
 </html>

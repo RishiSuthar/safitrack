@@ -1,287 +1,903 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Features - SafiTrack CRM</title>
-    <meta name="description" content="Explore all SafiTrack CRM features. Pipeline management, field visits, route planning, AI-powered insights, and more — built for modern sales teams.">
+    <meta name="description"
+        content="Explore all SafiTrack CRM features. Pipeline management, field visits, route planning, AI-powered insights, and more — built for modern sales teams.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://safitrack.netlify.app/pages/features/mainfeatures.html">
     <meta property="og:title" content="Features — SafiTrack CRM">
-    <meta property="og:description" content="Explore all SafiTrack CRM features. Pipeline management, field visits, route planning, AI-powered insights, and more — built for modern sales teams.">
+    <meta property="og:description"
+        content="Explore all SafiTrack CRM features. Pipeline management, field visits, route planning, AI-powered insights, and more — built for modern sales teams.">
     <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://safitrack.netlify.app/pages/features/mainfeatures.html">
     <meta property="twitter:title" content="Features — SafiTrack CRM">
-    <meta property="twitter:description" content="Explore all SafiTrack CRM features. Pipeline management, field visits, route planning, AI-powered insights, and more — built for modern sales teams.">
+    <meta property="twitter:description"
+        content="Explore all SafiTrack CRM features. Pipeline management, field visits, route planning, AI-powered insights, and more — built for modern sales teams.">
     <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
     <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="../../landing.css">
     <link rel="stylesheet" href="feature-page.css">
     <style>
-        :root { --accent: #0b1220; }
+        :root {
+            --accent: #0b1220;
+        }
 
-        .hub-hero { padding: 160px 0 80px; text-align: center; position: relative; }
-        .hub-hero::before { content:''; position: absolute; top: 0; left: 50%; transform: translateX(-50%); width: 1000px; height: 600px; background: radial-gradient(ellipse at center, rgba(59,130,246,0.06) 0%, transparent 70%); pointer-events: none; }
-        .hub-hero h1 { font-size: clamp(42px,5.5vw,72px); font-weight: 800; letter-spacing: -2px; line-height: 1.06; color: #0b1220; margin-bottom: 24px; position: relative; }
-        .hub-hero p { font-size: 20px; color: #4b5563; max-width: 640px; margin: 0 auto; line-height: 1.65; position: relative; }
+        .hub-hero {
+            padding: 160px 0 80px;
+            text-align: center;
+            position: relative;
+        }
 
-        .suite-divider { border-top: 1px solid #e6e9ef; padding-top: 80px; margin-top: 100px; margin-bottom: 48px; }
-        .suite-tag { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; }
-        .suite-heading { font-size: 36px; font-weight: 800; color: #0b1220; letter-spacing: -0.5px; margin-bottom: 12px; }
-        .suite-desc { font-size: 17px; color: #6b7280; max-width: 480px; }
+        .hub-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1000px;
+            height: 600px;
+            background: radial-gradient(ellipse at center, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
+            pointer-events: none;
+        }
 
-        .feature-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 20px; margin-top: 40px; }
-        .feature-card { background: #fff; border: 1px solid #e6e9ef; border-radius: 16px; padding: 36px 32px; text-decoration: none; color: inherit; transition: all 0.25s cubic-bezier(.25,.8,.25,1); display: flex; flex-direction: column; }
-        .feature-card:hover { border-color: rgba(59,130,246,.3); box-shadow: 0 8px 32px rgba(0,0,0,.06); transform: translateY(-3px); }
-        .feature-card .fc-icon { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
-        .feature-card h3 { font-size: 19px; font-weight: 700; margin-bottom: 10px; color: #0b1220; }
-        .feature-card p { font-size: 14.5px; color: #6b7280; line-height: 1.6; flex-grow: 1; }
-        .feature-card .fc-arrow { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; margin-top: 20px; color: #0b1220; opacity: 0; transform: translateX(-4px); transition: all .25s; }
-        .feature-card:hover .fc-arrow { opacity: 1; transform: translateX(0); }
+        .hub-hero h1 {
+            font-size: clamp(42px, 5.5vw, 72px);
+            font-weight: 800;
+            letter-spacing: -2px;
+            line-height: 1.06;
+            color: #0b1220;
+            margin-bottom: 24px;
+            position: relative;
+        }
 
-        .feature-card.hero-card { grid-column: span 2; flex-direction: row; gap: 48px; padding: 40px; }
-        .hero-card .hc-text { flex: 1; display: flex; flex-direction: column; justify-content: center; }
-        .hero-card .hc-visual { flex: 0 0 320px; background: #f9fafb; border: 1px solid #e6e9ef; border-radius: 14px; overflow: hidden; display: flex; align-items: center; justify-content: center; padding: 24px; }
+        .hub-hero p {
+            font-size: 20px;
+            color: #4b5563;
+            max-width: 640px;
+            margin: 0 auto;
+            line-height: 1.65;
+            position: relative;
+        }
 
-        .prod-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; margin-top: 40px; }
-        .prod-card { background: #fff; border: 1px solid #e6e9ef; border-radius: 14px; padding: 28px 24px; text-decoration: none; color: inherit; transition: all .25s cubic-bezier(.25,.8,.25,1); }
-        .prod-card:hover { border-color: rgba(59,130,246,.3); box-shadow: 0 8px 24px rgba(0,0,0,.05); transform: translateY(-2px); }
-        .prod-card .pc-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
-        .prod-card h3 { font-size: 15px; font-weight: 700; color: #0b1220; margin-bottom: 6px; }
-        .prod-card p { font-size: 13px; color: #6b7280; line-height: 1.5; }
+        .suite-divider {
+            border-top: 1px solid #e6e9ef;
+            padding-top: 80px;
+            margin-top: 100px;
+            margin-bottom: 48px;
+        }
 
-        .hub-cta { padding: 120px 0; text-align: center; position: relative; margin-top: 60px; border-top: 1px solid #e6e9ef; }
-        .hub-cta::before { content:''; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 800px; height: 400px; background: radial-gradient(ellipse,rgba(59,130,246,.08) 0%,transparent 70%); pointer-events: none; }
-        .hub-cta h2 { font-size: clamp(32px,4vw,52px); font-weight: 800; letter-spacing: -1px; margin-bottom: 16px; color: #0b1220; position: relative; }
-        .hub-cta p { font-size: 18px; color: #6b7280; margin-bottom: 36px; position: relative; }
+        .suite-tag {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
 
-        @media(max-width:1024px){ .feature-grid{ grid-template-columns: repeat(2,1fr); } .feature-card.hero-card{ grid-column: span 2; } .prod-grid{ grid-template-columns: repeat(2,1fr); } }
-        @media(max-width:768px){ .feature-grid{ grid-template-columns: 1fr; } .feature-card.hero-card{ grid-column: span 1; flex-direction: column; } .hero-card .hc-visual{ flex: 0 0 180px; } .prod-grid{ grid-template-columns: 1fr 1fr; } .hub-hero h1{ font-size: 36px; letter-spacing: -1px; } }
-        @media(max-width:480px){ .prod-grid{ grid-template-columns: 1fr; } }
+        .suite-heading {
+            font-size: 36px;
+            font-weight: 800;
+            color: #0b1220;
+            letter-spacing: -0.5px;
+            margin-bottom: 12px;
+        }
+
+        .suite-desc {
+            font-size: 17px;
+            color: #6b7280;
+            max-width: 480px;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .feature-card {
+            background: #fff;
+            border: 1px solid #e6e9ef;
+            border-radius: 16px;
+            padding: 36px 32px;
+            text-decoration: none;
+            color: inherit;
+            transition: all 0.25s cubic-bezier(.25, .8, .25, 1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .feature-card:hover {
+            border-color: rgba(59, 130, 246, .3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, .06);
+            transform: translateY(-3px);
+        }
+
+        .feature-card .fc-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .feature-card h3 {
+            font-size: 19px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #0b1220;
+        }
+
+        .feature-card p {
+            font-size: 14.5px;
+            color: #6b7280;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .feature-card .fc-arrow {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-top: 20px;
+            color: #0b1220;
+            opacity: 0;
+            transform: translateX(-4px);
+            transition: all .25s;
+        }
+
+        .feature-card:hover .fc-arrow {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .feature-card.hero-card {
+            grid-column: span 2;
+            flex-direction: row;
+            gap: 48px;
+            padding: 40px;
+        }
+
+        .hero-card .hc-text {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .hero-card .hc-visual {
+            flex: 0 0 320px;
+            background: #f9fafb;
+            border: 1px solid #e6e9ef;
+            border-radius: 14px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .prod-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-top: 40px;
+        }
+
+        .prod-card {
+            background: #fff;
+            border: 1px solid #e6e9ef;
+            border-radius: 14px;
+            padding: 28px 24px;
+            text-decoration: none;
+            color: inherit;
+            transition: all .25s cubic-bezier(.25, .8, .25, 1);
+        }
+
+        .prod-card:hover {
+            border-color: rgba(59, 130, 246, .3);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, .05);
+            transform: translateY(-2px);
+        }
+
+        .prod-card .pc-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .prod-card h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0b1220;
+            margin-bottom: 6px;
+        }
+
+        .prod-card p {
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        .hub-cta {
+            padding: 120px 0;
+            text-align: center;
+            position: relative;
+            margin-top: 60px;
+            border-top: 1px solid #e6e9ef;
+        }
+
+        .hub-cta::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 800px;
+            height: 400px;
+            background: radial-gradient(ellipse, rgba(59, 130, 246, .08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .hub-cta h2 {
+            font-size: clamp(32px, 4vw, 52px);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            color: #0b1220;
+            position: relative;
+        }
+
+        .hub-cta p {
+            font-size: 18px;
+            color: #6b7280;
+            margin-bottom: 36px;
+            position: relative;
+        }
+
+        @media(max-width:1024px) {
+            .feature-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .feature-card.hero-card {
+                grid-column: span 2;
+            }
+
+            .prod-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media(max-width:768px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .feature-card.hero-card {
+                grid-column: span 1;
+                flex-direction: column;
+            }
+
+            .hero-card .hc-visual {
+                flex: 0 0 180px;
+            }
+
+            .prod-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .hub-hero h1 {
+                font-size: 36px;
+                letter-spacing: -1px;
+            }
+        }
+
+        @media(max-width:480px) {
+            .prod-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
+
 <body>
 
-<nav class="navbar" id="navbar">
-    <div class="container">
-        <div class="nav-content">
-            <div class="nav-left">
-                <a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack"></a>
-                <div class="nav-links">
-                    <div class="nav-item nav-features">
-                        <a href="#" class="nav-link-toggle">Features
-                            <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                        </a>
-                        <div class="mega-menu" aria-hidden="true">
-                            <div class="mega-left">
-                                <a href="safi-ai-feature.html" class="mega-feature large"><span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><rect x="8" y="8" width="8" height="8" rx="1"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M12 2v2"/><path d="M12 20v2"/></svg></span><div class="mega-text"><h4>Safi AI</h4><p>AI insights native to your CRM</p></div></a>
-                                <a href="sales-visits-feature.html" class="mega-feature large"><span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-7.5 7-11a7 7 0 10-14 0c0 3.5 7 11 7 11z"/><circle cx="12" cy="10" r="2"/></svg></span><div class="mega-text"><h4>Sales visits</h4><p>Manage field visits and visit logs</p></div></a>
-                                <a href="opportunities-feature.html" class="mega-feature large"><span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span><div class="mega-text"><h4>Opportunities &amp; Pipelines</h4><p>Track deals and pipelines</p></div></a>
-                                <a href="route-plans-feature.html" class="mega-feature large"><span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></span><div class="mega-text"><h4>Route plans</h4><p>Optimise routing for field visits</p></div></a>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="nav-left">
+                    <a href="../../index.html" class="logo">
+                        <img src="../../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
+                    </a>
+                    <div class="nav-links">
+                        <div class="nav-item nav-features">
+                            <a href="#" class="nav-link-toggle">Features
+                                <span class="nav-caret" aria-hidden="true">
+                                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </span>
+                            </a>
+                            <div class="mega-menu" aria-hidden="true">
+                                <div class="mega-content-grid">
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Platform</div>
+                                        <div class="mega-items-grid">
+                                            <a href="safi-ai-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path
+                                                            d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Safi AI</div>
+                                                    <div class="mega-desc">AI insights native to your CRM</div>
+                                                </div>
+                                            </a>
+                                            <a href="opportunities-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                                        <path d="M2 17l10 5 10-5" />
+                                                        <path d="M2 12l10 5 10-5" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Pipelines</div>
+                                                    <div class="mega-desc">Visual deal tracking & management</div>
+                                                </div>
+                                            </a>
+                                            <a href="companies-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+                                                        <path d="M9 22v-4h6v4" />
+                                                        <path d="M8 6h.01" />
+                                                        <path d="M16 6h.01" />
+                                                        <path d="M8 10h.01" />
+                                                        <path d="M16 10h.01" />
+                                                        <path d="M8 14h.01" />
+                                                        <path d="M16 14h.01" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Companies</div>
+                                                    <div class="mega-desc">Complete organization context</div>
+                                                </div>
+                                            </a>
+                                            <a href="people-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                                        <circle cx="9" cy="7" r="4" />
+                                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">People</div>
+                                                    <div class="mega-desc">Unified contact management</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Operations</div>
+                                        <div class="mega-items-grid">
+                                            <a href="sales-visits-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                                        <circle cx="12" cy="10" r="3" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Sales visits</div>
+                                                    <div class="mega-desc">Field activity & visit logging</div>
+                                                </div>
+                                            </a>
+                                            <a href="route-plans-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <circle cx="6" cy="19" r="3" />
+                                                        <path
+                                                            d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
+                                                        <circle cx="18" cy="5" r="3" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Route plans</div>
+                                                    <div class="mega-desc">Optimized field routing</div>
+                                                </div>
+                                            </a>
+                                            <a href="technician-visits-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path
+                                                            d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Service visits</div>
+                                                    <div class="mega-desc">Post-sales technician tracking</div>
+                                                </div>
+                                            </a>
+                                            <a href="tasks-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="9 11 12 14 22 4" />
+                                                        <path
+                                                            d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Tasks</div>
+                                                    <div class="mega-desc">Operational to-do management</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Insights & Ecosystem</div>
+                                        <div class="mega-items-grid">
+                                            <a href="call-logs-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path
+                                                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Call Intelligence</div>
+                                                    <div class="mega-desc">Record & analyze meetings</div>
+                                                </div>
+                                            </a>
+                                            <a href="notes-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                                                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Notes</div>
+                                                    <div class="mega-desc">Native meeting summaries</div>
+                                                </div>
+                                            </a>
+                                            <a href="reminders-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                                                        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Reminders</div>
+                                                    <div class="mega-desc">Smart follow-up alerts</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mega-sidebar">
+                                    <div class="mega-sidebar-header">Get Started</div>
+                                    <ul class="mega-sidebar-list">
+                                        <li><a href="/crm/"><span>Open CRM</span></a></li>
+                                        <li><a href="../pricing.html"><span>View Pricing</span></a></li>
+                                        <li><a href="../../index.html#pricing"><span>Request Demo</span></a></li>
+                                    </ul>
+                                    <div class="mega-sidebar-footer">
+                                        <p>Trusted by 2,000+ teams</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div class="mega-right">
-                                <ul class="mega-list">
-                                    <li><a href="companies-feature.html">Companies</a></li>
-                                    <li><a href="people-feature.html">People</a></li>
-                                    <li><a href="call-logs-feature.html">Call Intelligence</a></li>
-                                    <li><a href="notes-feature.html">Notes</a></li>
-                                    <li><a href="reminders-feature.html">Reminders</a></li>
-                                    <li><a href="tasks-feature.html">Tasks</a></li>
-                                    <li><a href="technician-visits-feature.html">Technician visits</a></li>
-                                </ul>
+                        </div>
+                        <a href="../../index.html#product">Product</a>
+                        <a href="../pricing.html">Pricing</a>
+                    </div>
+                </div>
+                <div class="nav-actions">
+                    <a href="/crm/" class="nav-link-sign-in">Sign in</a>
+                    <a href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a>
+                </div>
+                <button class="mobile-menu-btn" aria-label="Toggle Menu">
+                    <span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay">
+        <button class="mobile-close-btn" aria-label="Close">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <div class="mobile-nav-content">
+            <a href="mainfeatures.html" class="mobile-link">Features</a>
+            <a href="../pricing.html" class="mobile-link">Pricing</a>
+            <hr class="mobile-divider">
+            <a href="/crm/" class="mobile-link">Open App</a>
+            <button class="btn-primary btn-block get-started-btn">Get Started</button>
+        </div>
+    </div>
+
+    <header class="hub-hero">
+        <div class="container">
+            <h1>Everything your sales<br>team actually needs</h1>
+            <p>SafiTrack is the all-in-one CRM built for field sales. From pipeline management to route optimization,
+                every feature is designed to help you close more deals, faster.</p>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <!-- ══ FIELD INTELLIGENCE ══ -->
+        <div class="suite-divider" style="margin-top:0;border-top:none;padding-top:0;">
+            <p class="suite-tag" style="color:#10b981;">Field Intelligence</p>
+            <h2 class="suite-heading">Own the territory</h2>
+            <p class="suite-desc">Real-time visibility into what's happening in the field — verified visits, optimized
+                routes, and complete service documentation.</p>
+        </div>
+
+        <div class="feature-grid">
+            <a href="sales-visits-feature.html" class="feature-card hero-card">
+                <div class="hc-text">
+                    <div class="fc-icon" style="background:rgba(16,185,129,.1);"><svg width="24" height="24" fill="none"
+                            stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                        </svg></div>
+                    <h3>Sales Visits</h3>
+                    <p>Geofenced check-ins, photo capture, and AI-powered summaries. Every field visit is verified,
+                        documented, and searchable.</p>
+                    <span class="fc-arrow">Learn more <svg width="14" height="14" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M5 12l5-5-5-5" />
+                        </svg></span>
+                </div>
+                <div class="hc-visual">
+                    <div style="width:100%">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+                            <div
+                                style="width:36px;height:36px;border-radius:50%;background:#10b981;display:flex;align-items:center;justify-content:center">
+                                <svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2">
+                                    <polyline points="16 3 6 13 1 8" />
+                                </svg></div>
+                            <div>
+                                <div style="font-size:13px;font-weight:700;color:#0b1220">Check-in Verified</div>
+                                <div style="font-size:11px;color:#6b7280">Acme Corp — 10:42 AM</div>
+                            </div>
+                        </div>
+                        <div style="background:#f3f4f6;border-radius:10px;padding:12px;margin-bottom:10px">
+                            <div style="font-size:11px;color:#6b7280;margin-bottom:4px">AI Summary</div>
+                            <div style="font-size:12px;color:#374151;line-height:1.5">Discussed Q3 renewal terms.
+                                Decision maker requesting updated proposal by Friday.</div>
+                        </div>
+                        <div style="display:flex;gap:6px"><span
+                                style="padding:3px 10px;background:rgba(16,185,129,.1);color:#10b981;border-radius:100px;font-size:11px;font-weight:600">On-site</span><span
+                                style="padding:3px 10px;background:rgba(59,130,246,.1);color:#3b82f6;border-radius:100px;font-size:11px;font-weight:600">2
+                                Photos</span></div>
+                    </div>
+                </div>
+            </a>
+            <a href="route-plans-feature.html" class="feature-card">
+                <div class="fc-icon" style="background:rgba(245,158,11,.1)"><svg width="24" height="24" fill="none"
+                        stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6" />
+                    </svg></div>
+                <h3>Route Plans</h3>
+                <p>Optimized visit routes that save hours of windshield time. Drag, reorder, and share schedules with
+                    your team.</p>
+                <span class="fc-arrow">Learn more <svg width="14" height="14" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M5 12l5-5-5-5" />
+                    </svg></span>
+            </a>
+            <a href="technician-visits-feature.html" class="feature-card">
+                <div class="fc-icon" style="background:rgba(236,72,153,.1)"><svg width="24" height="24" fill="none"
+                        stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path
+                            d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                    </svg></div>
+                <h3>Technician Visits</h3>
+                <p>On-site service reports with checklists, digital signatures, and instant PDF generation.</p>
+                <span class="fc-arrow">Learn more <svg width="14" height="14" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M5 12l5-5-5-5" />
+                    </svg></span>
+            </a>
+        </div>
+
+        <!-- ══ PIPELINE & RELATIONSHIPS ══ -->
+        <div class="suite-divider">
+            <p class="suite-tag" style="color:#3b82f6;">Pipeline & Relationships</p>
+            <h2 class="suite-heading">Forecast with confidence</h2>
+            <p class="suite-desc">A connected view of your accounts, contacts, and revenue pipeline.</p>
+        </div>
+
+        <div class="feature-grid">
+            <a href="opportunities-feature.html" class="feature-card hero-card">
+                <div class="hc-text">
+                    <div class="fc-icon" style="background:rgba(16,185,129,.1)"><svg width="24" height="24" fill="none"
+                            stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="12" y1="1" x2="12" y2="23" />
+                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                        </svg></div>
+                    <h3>Opportunities & Pipeline</h3>
+                    <p>Visual Kanban boards, weighted forecasting, and deal analytics that show exactly where your
+                        revenue stands.</p>
+                    <span class="fc-arrow">Learn more <svg width="14" height="14" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M5 12l5-5-5-5" />
+                        </svg></span>
+                </div>
+                <div class="hc-visual">
+                    <div style="display:flex;gap:12px;width:100%">
+                        <div style="flex:1;background:#fff;border:1px solid #e6e9ef;border-radius:10px;padding:12px">
+                            <div
+                                style="font-size:10px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:8px">
+                                Qualified</div>
+                            <div
+                                style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:8px;padding:10px;margin-bottom:6px">
+                                <div style="font-size:12px;font-weight:600">Acme Corp</div>
+                                <div style="font-size:11px;color:#10b981">$45,000</div>
+                            </div>
+                            <div style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:8px;padding:10px">
+                                <div style="font-size:12px;font-weight:600">Globex Inc</div>
+                                <div style="font-size:11px;color:#10b981">$28,000</div>
+                            </div>
+                        </div>
+                        <div style="flex:1;background:#fff;border:1px solid #e6e9ef;border-radius:10px;padding:12px">
+                            <div
+                                style="font-size:10px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:8px">
+                                Proposal</div>
+                            <div style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:8px;padding:10px">
+                                <div style="font-size:12px;font-weight:600">Wayne Ent.</div>
+                                <div style="font-size:11px;color:#10b981">$120,000</div>
                             </div>
                         </div>
                     </div>
-                    <a href="../../index.html#product">Product</a>
-                    <a href="../pricing.html">Pricing</a>
                 </div>
-            </div>
-            <div class="nav-actions">
-                <a href="/crm/" class="nav-link-sign-in">Sign in</a>
-                <a href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a>
-            </div>
-            <button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button>
+            </a>
+            <a href="companies-feature.html" class="feature-card">
+                <div class="fc-icon" style="background:rgba(59,130,246,.1)"><svg width="24" height="24" fill="none"
+                        stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 21h18M5 21V7l8-4v18M13 21V3l8 4v14" />
+                        <path d="M9 9h1M9 13h1M17 9h1M17 13h1" />
+                    </svg></div>
+                <h3>Companies</h3>
+                <p>A unified account directory with relationship mapping, activity history, and enriched company data.
+                </p>
+                <span class="fc-arrow">Learn more <svg width="14" height="14" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M5 12l5-5-5-5" />
+                    </svg></span>
+            </a>
+            <a href="people-feature.html" class="feature-card">
+                <div class="fc-icon" style="background:rgba(59,130,246,.1)"><svg width="24" height="24" fill="none"
+                        stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                        <circle cx="9" cy="7" r="4" />
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                    </svg></div>
+                <h3>People & Contacts</h3>
+                <p>Every relationship in one place. Track interactions, map stakeholders, and never lose context.</p>
+                <span class="fc-arrow">Learn more <svg width="14" height="14" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M5 12l5-5-5-5" />
+                    </svg></span>
+            </a>
         </div>
-    </div>
-</nav>
 
-<div class="mobile-nav-overlay">
-    <button class="mobile-close-btn" aria-label="Close Menu"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-    <div class="mobile-nav-content">
-        <a href="safi-ai-feature.html" class="mobile-link">Safi AI</a>
-        <a href="sales-visits-feature.html" class="mobile-link">Sales visits</a>
-        <a href="opportunities-feature.html" class="mobile-link">Opportunities &amp; Pipelines</a>
-        <a href="route-plans-feature.html" class="mobile-link">Route plans</a>
-        <hr class="mobile-divider">
-        <a href="/crm/" class="mobile-link">Open App</a>
-    </div>
-</div>
+        <!-- ══ PRODUCTIVITY ══ -->
+        <div class="suite-divider">
+            <p class="suite-tag" style="color:#8b5cf6;">Productivity</p>
+            <h2 class="suite-heading">Move faster, forget nothing</h2>
+            <p class="suite-desc">Everyday tools that keep your team organized, on schedule, and always following up.
+            </p>
+        </div>
 
-<header class="hub-hero">
-    <div class="container">
-        <h1>Everything your sales<br>team actually needs</h1>
-        <p>SafiTrack is the all-in-one CRM built for field sales. From pipeline management to route optimization, every feature is designed to help you close more deals, faster.</p>
-    </div>
-</header>
+        <div class="prod-grid">
+            <a href="tasks-feature.html" class="prod-card">
+                <div class="pc-icon" style="background:rgba(139,92,246,.1)"><svg xmlns="http://www.w3.org/2000/svg"
+                        width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-circle-check-icon lucide-circle-check">
+                        <circle cx="12" cy="12" r="10" />
+                        <path d="m9 12 2 2 4-4" />
+                    </svg></div>
+                <h3>Tasks</h3>
+                <p>Assign, prioritize, and track work across your team with due dates and status tracking.</p>
+            </a>
+            <a href="notes-feature.html" class="prod-card">
+                <div class="pc-icon" style="background:rgba(245,158,11,.1)"><svg xmlns="http://www.w3.org/2000/svg"
+                        width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round"
+                        class="lucide lucide-notebook-pen-icon lucide-notebook-pen">
+                        <path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4" />
+                        <path d="M2 6h4" />
+                        <path d="M2 10h4" />
+                        <path d="M2 14h4" />
+                        <path d="M2 18h4" />
+                        <path
+                            d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z" />
+                    </svg></div>
+                <h3>Notes</h3>
+                <p>Rich meeting notes linked to contacts, companies, and deals. Never lose context.</p>
+            </a>
+            <a href="call-logs-feature.html" class="prod-card">
+                <div class="pc-icon" style="background:rgba(59,130,246,.1)"><svg xmlns="http://www.w3.org/2000/svg"
+                        width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone-icon lucide-phone">
+                        <path
+                            d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" />
+                    </svg></div>
+                <h3>Call Log</h3>
+                <p>Log every conversation with outcomes, duration, and follow-up actions.</p>
+            </a>
+            <a href="reminders-feature.html" class="prod-card">
+                <div class="pc-icon" style="background:rgba(244,63,94,.1)"><svg xmlns="http://www.w3.org/2000/svg"
+                        width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-icon lucide-bell">
+                        <path d="M10.268 21a2 2 0 0 0 3.464 0" />
+                        <path
+                            d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326" />
+                    </svg></div>
+                <h3>Reminders</h3>
+                <p>Smart alerts and scheduled follow-ups so nothing falls through the cracks.</p>
+            </a>
+        </div>
 
-<main class="container">
+        <!-- ══ INTELLIGENCE ══ -->
+        <div class="suite-divider">
+            <p class="suite-tag" style="color:#7c3aed;">Intelligence</p>
+            <h2 class="suite-heading">Let AI do the heavy lifting</h2>
+            <p class="suite-desc">Safi AI is built into every corner of SafiTrack — summarizing visits, scoring deals,
+                and surfacing what matters.</p>
+        </div>
 
-    <!-- ══ FIELD INTELLIGENCE ══ -->
-    <div class="suite-divider" style="margin-top:0;border-top:none;padding-top:0;">
-        <p class="suite-tag" style="color:#10b981;">Field Intelligence</p>
-        <h2 class="suite-heading">Own the territory</h2>
-        <p class="suite-desc">Real-time visibility into what's happening in the field — verified visits, optimized routes, and complete service documentation.</p>
-    </div>
+        <div class="feature-grid" style="margin-bottom:0;">
+            <a href="safi-ai-feature.html" class="feature-card hero-card" style="grid-column:span 3;">
+                <div class="hc-text">
+                    <div class="fc-icon" style="background:rgba(124,58,237,.1)"><svg xmlns="http://www.w3.org/2000/svg"
+                            width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide lucide-brain-icon lucide-brain">
+                            <path d="M12 18V5" />
+                            <path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4" />
+                            <path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5" />
+                            <path d="M17.997 5.125a4 4 0 0 1 2.526 5.77" />
+                            <path d="M18 18a4 4 0 0 0 2-7.464" />
+                            <path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517" />
+                            <path d="M6 18a4 4 0 0 1-2-7.464" />
+                            <path d="M6.003 5.125a4 4 0 0 0-2.526 5.77" />
+                        </svg></div>
+                    <h3>Safi AI</h3>
+                    <p>Your intelligent CRM copilot. Safi AI summarizes meetings, drafts follow-ups, scores deals, and
+                        proactively surfaces the insights your team needs to close faster.</p>
+                    <span class="fc-arrow">Explore Safi AI <svg width="14" height="14" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M5 12l5-5-5-5" />
+                        </svg></span>
+                </div>
+                <div class="hc-visual" style="flex:0 0 340px">
+                    <div style="width:100%">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px">
+                            <div
+                                style="width:28px;height:28px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center">
+                            </div>
+                            <div style="font-size:13px;font-weight:700;color:#0b1220">Safi AI</div>
+                        </div>
+                        <div
+                            style="background:#f3f4f6;border-radius:12px;padding:14px;font-size:13px;color:#374151;line-height:1.6">
+                            Based on your last 3 visits, Acme Corp engagement is <strong>trending up</strong>. I'd
+                            recommend sending the proposal this week — their budget cycle closes March 15.</div>
+                        <div style="margin-top:12px;display:flex;gap:8px"><span
+                                style="padding:4px 12px;background:rgba(124,58,237,.1);color:#7c3aed;border-radius:100px;font-size:11px;font-weight:600">Draft
+                                Proposal</span><span
+                                style="padding:4px 12px;background:rgba(124,58,237,.1);color:#7c3aed;border-radius:100px;font-size:11px;font-weight:600">View
+                                Timeline</span></div>
+                    </div>
+                </div>
+            </a>
+        </div>
 
-    <div class="feature-grid">
-        <a href="sales-visits-feature.html" class="feature-card hero-card">
-            <div class="hc-text">
-                <div class="fc-icon" style="background:rgba(16,185,129,.1);"><svg width="24" height="24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
-                <h3>Sales Visits</h3>
-                <p>Geofenced check-ins, photo capture, and AI-powered summaries. Every field visit is verified, documented, and searchable.</p>
-                <span class="fc-arrow">Learn more <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></span>
-            </div>
-            <div class="hc-visual">
-                <div style="width:100%">
-                    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><div style="width:36px;height:36px;border-radius:50%;background:#10b981;display:flex;align-items:center;justify-content:center"><svg width="16" height="16" fill="none" stroke="#fff" stroke-width="2"><polyline points="16 3 6 13 1 8"/></svg></div><div><div style="font-size:13px;font-weight:700;color:#0b1220">Check-in Verified</div><div style="font-size:11px;color:#6b7280">Acme Corp — 10:42 AM</div></div></div>
-                    <div style="background:#f3f4f6;border-radius:10px;padding:12px;margin-bottom:10px"><div style="font-size:11px;color:#6b7280;margin-bottom:4px">AI Summary</div><div style="font-size:12px;color:#374151;line-height:1.5">Discussed Q3 renewal terms. Decision maker requesting updated proposal by Friday.</div></div>
-                    <div style="display:flex;gap:6px"><span style="padding:3px 10px;background:rgba(16,185,129,.1);color:#10b981;border-radius:100px;font-size:11px;font-weight:600">On-site</span><span style="padding:3px 10px;background:rgba(59,130,246,.1);color:#3b82f6;border-radius:100px;font-size:11px;font-weight:600">2 Photos</span></div>
+    </main>
+
+    <section class="hub-cta">
+        <div class="container">
+            <h2>Ready to close more deals?</h2>
+            <p>Join thousands of sales teams using SafiTrack to win in the field.</p>
+            <a href="../pricing.html#pricing-grid" class="fp-cta-btn">Start your free trial <svg width="16" height="16"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12l5-5-5-5" />
+                </svg></a>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo-wrapper"><a href="../../index.html"><img
+                                src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Product</h4>
+                        <ul>
+                            <li><a href="mainfeatures.html">Features</a></li>
+                            <li><a href="../pricing.html">Pricing</a></li>
+                            <li><a href="../integrations.html">Integrations</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Company</h4>
+                        <ul>
+                            <li><a href="../blog.html">Blog</a></li>
+                            <li><a href="../careers.html">Careers</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Resources</h4>
+                        <ul>
+                            <li><a href="../documentation.html">Documentation</a></li>
+                            <li><a href="../helpcenter.html">Help Center</a></li>
+                            <li><a href="../apireference.html">API Reference</a></li>
+                            <li><a href="../status.html">Status</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Legal</h4>
+                        <ul>
+                            <li><a href="../legal/privacy.html">Privacy Policy</a></li>
+                            <li><a href="../legal/terms.html">Terms of Service</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </a>
-        <a href="route-plans-feature.html" class="feature-card">
-            <div class="fc-icon" style="background:rgba(245,158,11,.1)"><svg width="24" height="24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/></svg></div>
-            <h3>Route Plans</h3>
-            <p>Optimized visit routes that save hours of windshield time. Drag, reorder, and share schedules with your team.</p>
-            <span class="fc-arrow">Learn more <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></span>
-        </a>
-        <a href="technician-visits-feature.html" class="feature-card">
-            <div class="fc-icon" style="background:rgba(236,72,153,.1)"><svg width="24" height="24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
-            <h3>Technician Visits</h3>
-            <p>On-site service reports with checklists, digital signatures, and instant PDF generation.</p>
-            <span class="fc-arrow">Learn more <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></span>
-        </a>
-    </div>
-
-    <!-- ══ PIPELINE & RELATIONSHIPS ══ -->
-    <div class="suite-divider">
-        <p class="suite-tag" style="color:#3b82f6;">Pipeline & Relationships</p>
-        <h2 class="suite-heading">Forecast with confidence</h2>
-        <p class="suite-desc">A connected view of your accounts, contacts, and revenue pipeline.</p>
-    </div>
-
-    <div class="feature-grid">
-        <a href="opportunities-feature.html" class="feature-card hero-card">
-            <div class="hc-text">
-                <div class="fc-icon" style="background:rgba(16,185,129,.1)"><svg width="24" height="24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
-                <h3>Opportunities & Pipeline</h3>
-                <p>Visual Kanban boards, weighted forecasting, and deal analytics that show exactly where your revenue stands.</p>
-                <span class="fc-arrow">Learn more <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></span>
-            </div>
-            <div class="hc-visual">
-                <div style="display:flex;gap:12px;width:100%">
-                    <div style="flex:1;background:#fff;border:1px solid #e6e9ef;border-radius:10px;padding:12px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:8px">Qualified</div><div style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:8px;padding:10px;margin-bottom:6px"><div style="font-size:12px;font-weight:600">Acme Corp</div><div style="font-size:11px;color:#10b981">$45,000</div></div><div style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:8px;padding:10px"><div style="font-size:12px;font-weight:600">Globex Inc</div><div style="font-size:11px;color:#10b981">$28,000</div></div></div>
-                    <div style="flex:1;background:#fff;border:1px solid #e6e9ef;border-radius:10px;padding:12px"><div style="font-size:10px;font-weight:700;text-transform:uppercase;color:#6b7280;margin-bottom:8px">Proposal</div><div style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:8px;padding:10px"><div style="font-size:12px;font-weight:600">Wayne Ent.</div><div style="font-size:11px;color:#10b981">$120,000</div></div></div>
-                </div>
-            </div>
-        </a>
-        <a href="companies-feature.html" class="feature-card">
-            <div class="fc-icon" style="background:rgba(59,130,246,.1)"><svg width="24" height="24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M5 21V7l8-4v18M13 21V3l8 4v14"/><path d="M9 9h1M9 13h1M17 9h1M17 13h1"/></svg></div>
-            <h3>Companies</h3>
-            <p>A unified account directory with relationship mapping, activity history, and enriched company data.</p>
-            <span class="fc-arrow">Learn more <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></span>
-        </a>
-        <a href="people-feature.html" class="feature-card">
-            <div class="fc-icon" style="background:rgba(59,130,246,.1)"><svg width="24" height="24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
-            <h3>People & Contacts</h3>
-            <p>Every relationship in one place. Track interactions, map stakeholders, and never lose context.</p>
-            <span class="fc-arrow">Learn more <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></span>
-        </a>
-    </div>
-
-    <!-- ══ PRODUCTIVITY ══ -->
-    <div class="suite-divider">
-        <p class="suite-tag" style="color:#8b5cf6;">Productivity</p>
-        <h2 class="suite-heading">Move faster, forget nothing</h2>
-        <p class="suite-desc">Everyday tools that keep your team organized, on schedule, and always following up.</p>
-    </div>
-
-    <div class="prod-grid">
-        <a href="tasks-feature.html" class="prod-card">
-            <div class="pc-icon" style="background:rgba(139,92,246,.1)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-check-icon lucide-circle-check"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg></div>
-            <h3>Tasks</h3>
-            <p>Assign, prioritize, and track work across your team with due dates and status tracking.</p>
-        </a>
-        <a href="notes-feature.html" class="prod-card">
-            <div class="pc-icon" style="background:rgba(245,158,11,.1)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-notebook-pen-icon lucide-notebook-pen"><path d="M13.4 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7.4"/><path d="M2 6h4"/><path d="M2 10h4"/><path d="M2 14h4"/><path d="M2 18h4"/><path d="M21.378 5.626a1 1 0 1 0-3.004-3.004l-5.01 5.012a2 2 0 0 0-.506.854l-.837 2.87a.5.5 0 0 0 .62.62l2.87-.837a2 2 0 0 0 .854-.506z"/></svg></div>
-            <h3>Notes</h3>
-            <p>Rich meeting notes linked to contacts, companies, and deals. Never lose context.</p>
-        </a>
-        <a href="call-logs-feature.html" class="prod-card">
-            <div class="pc-icon" style="background:rgba(59,130,246,.1)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone-icon lucide-phone"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg></div>
-            <h3>Call Log</h3>
-            <p>Log every conversation with outcomes, duration, and follow-up actions.</p>
-        </a>
-        <a href="reminders-feature.html" class="prod-card">
-            <div class="pc-icon" style="background:rgba(244,63,94,.1)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bell-icon lucide-bell"><path d="M10.268 21a2 2 0 0 0 3.464 0"/><path d="M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326"/></svg></div>
-            <h3>Reminders</h3>
-            <p>Smart alerts and scheduled follow-ups so nothing falls through the cracks.</p>
-        </a>
-    </div>
-
-    <!-- ══ INTELLIGENCE ══ -->
-    <div class="suite-divider">
-        <p class="suite-tag" style="color:#7c3aed;">Intelligence</p>
-        <h2 class="suite-heading">Let AI do the heavy lifting</h2>
-        <p class="suite-desc">Safi AI is built into every corner of SafiTrack — summarizing visits, scoring deals, and surfacing what matters.</p>
-    </div>
-
-    <div class="feature-grid" style="margin-bottom:0;">
-        <a href="safi-ai-feature.html" class="feature-card hero-card" style="grid-column:span 3;">
-            <div class="hc-text">
-                <div class="fc-icon" style="background:rgba(124,58,237,.1)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-brain-icon lucide-brain"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/><path d="M17.997 5.125a4 4 0 0 1 2.526 5.77"/><path d="M18 18a4 4 0 0 0 2-7.464"/><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/><path d="M6 18a4 4 0 0 1-2-7.464"/><path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"/></svg></div>
-                <h3>Safi AI</h3>
-                <p>Your intelligent CRM copilot. Safi AI summarizes meetings, drafts follow-ups, scores deals, and proactively surfaces the insights your team needs to close faster.</p>
-                <span class="fc-arrow">Explore Safi AI <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></span>
-            </div>
-            <div class="hc-visual" style="flex:0 0 340px">
-                <div style="width:100%">
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px"><div style="width:28px;height:28px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center"></div><div style="font-size:13px;font-weight:700;color:#0b1220">Safi AI</div></div>
-                    <div style="background:#f3f4f6;border-radius:12px;padding:14px;font-size:13px;color:#374151;line-height:1.6">Based on your last 3 visits, Acme Corp engagement is <strong>trending up</strong>. I'd recommend sending the proposal this week — their budget cycle closes March 15.</div>
-                    <div style="margin-top:12px;display:flex;gap:8px"><span style="padding:4px 12px;background:rgba(124,58,237,.1);color:#7c3aed;border-radius:100px;font-size:11px;font-weight:600">Draft Proposal</span><span style="padding:4px 12px;background:rgba(124,58,237,.1);color:#7c3aed;border-radius:100px;font-size:11px;font-weight:600">View Timeline</span></div>
-                </div>
-            </div>
-        </a>
-    </div>
-
-</main>
-
-<section class="hub-cta">
-    <div class="container">
-        <h2>Ready to close more deals?</h2>
-        <p>Join thousands of sales teams using SafiTrack to win in the field.</p>
-        <a href="../pricing.html#pricing-grid" class="fp-cta-btn">Start your free trial <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></a>
-    </div>
-</section>
-
-<footer class="footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-brand"><div class="footer-logo-wrapper"><a href="../../index.html"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a></div></div>
-            <div class="footer-links">
-                <div class="footer-column"><h4 class="footer-heading">Product</h4><ul><li><a href="mainfeatures.html">Features</a></li><li><a href="../pricing.html">Pricing</a></li><li><a href="../integrations.html">Integrations</a></li></ul></div>
-                <div class="footer-column"><h4 class="footer-heading">Company</h4><ul><li><a href="../blog.html">Blog</a></li><li><a href="../careers.html">Careers</a></li></ul></div>
-                <div class="footer-column"><h4 class="footer-heading">Resources</h4><ul><li><a href="../documentation.html">Documentation</a></li><li><a href="../helpcenter.html">Help Center</a></li><li><a href="../apireference.html">API Reference</a></li><li><a href="../status.html">Status</a></li></ul></div>
-                <div class="footer-column"><h4 class="footer-heading">Legal</h4><ul><li><a href="../legal/privacy.html">Privacy Policy</a></li><li><a href="../legal/terms.html">Terms of Service</a></li></ul></div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+                <div class="footer-social"><a href="#" aria-label="Twitter">Twitter</a><a href="#"
+                        aria-label="LinkedIn">LinkedIn</a><a href="#" aria-label="GitHub">GitHub</a></div>
             </div>
         </div>
-        <div class="footer-bottom"><p>&copy; 2026 SafiTrack. All rights reserved.</p><div class="footer-social"><a href="#" aria-label="Twitter">Twitter</a><a href="#" aria-label="LinkedIn">LinkedIn</a><a href="#" aria-label="GitHub">GitHub</a></div></div>
-    </div>
-</footer>
-<script src="../../landing.js"></script>
+    </footer>
+    <script src="../../landing.js"></script>
 </body>
+
 </html>

@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>API Reference - SafiTrack</title>
-  <meta name="description" content="Full REST API reference for SafiTrack CRM. Endpoints, authentication, request and response examples for contacts, deals, visits, routes, and more.">
+  <meta name="description"
+    content="Full REST API reference for SafiTrack CRM. Endpoints, authentication, request and response examples for contacts, deals, visits, routes, and more.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://safitrack.netlify.app/pages/apireference.html">
   <meta property="og:title" content="API Reference — SafiTrack">
-  <meta property="og:description" content="Full REST API reference for SafiTrack CRM. Endpoints, authentication, request and response examples for contacts, deals, visits, routes, and more.">
+  <meta property="og:description"
+    content="Full REST API reference for SafiTrack CRM. Endpoints, authentication, request and response examples for contacts, deals, visits, routes, and more.">
   <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://safitrack.netlify.app/pages/apireference.html">
   <meta property="twitter:title" content="API Reference — SafiTrack">
-  <meta property="twitter:description" content="Full REST API reference for SafiTrack CRM. Endpoints, authentication, request and response examples for contacts, deals, visits, routes, and more.">
+  <meta property="twitter:description"
+    content="Full REST API reference for SafiTrack CRM. Endpoints, authentication, request and response examples for contacts, deals, visits, routes, and more.">
   <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
   <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,365 +25,1414 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../landing.css">
 </head>
+
 <body>
-<nav class="navbar" id="navbar">
-  <div class="container">
-    <div class="nav-content">
-      <div class="nav-left">
-        <a href="../index.html" class="logo">
-          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
-        </a>
-        <div class="nav-links">
-          <a href="features/mainfeatures.html" class="nav-link">Features</a>
-          <a href="pricing.html" class="nav-link">Pricing</a>
-          <a href="apireference.html" class="nav-link" style="color:#0b1220;font-weight:700">API</a>
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <div class="nav-content">
+        <div class="nav-left">
+          <a href="../index.html" class="logo">
+            <img src="../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
+          </a>
+          <div class="nav-links">
+            <div class="nav-item nav-features">
+              <a href="#" class="nav-link-toggle">Features
+                <span class="nav-caret" aria-hidden="true">
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </a>
+              <div class="mega-menu" aria-hidden="true">
+                <div class="mega-content-grid">
+                  <div class="mega-category">
+                    <div class="mega-category-header">Platform</div>
+                    <div class="mega-items-grid">
+                      <a href="features/safi-ai-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Safi AI</div>
+                          <div class="mega-desc">AI insights native to your CRM</div>
+                        </div>
+                      </a>
+                      <a href="features/opportunities-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Pipelines</div>
+                          <div class="mega-desc">Visual deal tracking & management</div>
+                        </div>
+                      </a>
+                      <a href="features/companies-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+                            <path d="M9 22v-4h6v4" />
+                            <path d="M8 6h.01" />
+                            <path d="M16 6h.01" />
+                            <path d="M8 10h.01" />
+                            <path d="M16 10h.01" />
+                            <path d="M8 14h.01" />
+                            <path d="M16 14h.01" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Companies</div>
+                          <div class="mega-desc">Complete organization context</div>
+                        </div>
+                      </a>
+                      <a href="features/people-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">People</div>
+                          <div class="mega-desc">Unified contact management</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Operations</div>
+                    <div class="mega-items-grid">
+                      <a href="features/sales-visits-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Sales visits</div>
+                          <div class="mega-desc">Field activity & visit logging</div>
+                        </div>
+                      </a>
+                      <a href="features/route-plans-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="6" cy="19" r="3" />
+                            <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
+                            <circle cx="18" cy="5" r="3" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Route plans</div>
+                          <div class="mega-desc">Optimized field routing</div>
+                        </div>
+                      </a>
+                      <a href="features/technician-visits-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                              d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Service visits</div>
+                          <div class="mega-desc">Post-sales technician tracking</div>
+                        </div>
+                      </a>
+                      <a href="features/tasks-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 11 12 14 22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Tasks</div>
+                          <div class="mega-desc">Operational to-do management</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Insights & Ecosystem</div>
+                    <div class="mega-items-grid">
+                      <a href="features/call-logs-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Call Intelligence</div>
+                          <div class="mega-desc">Record & analyze meetings</div>
+                        </div>
+                      </a>
+                      <a href="features/notes-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Notes</div>
+                          <div class="mega-desc">Native meeting summaries</div>
+                        </div>
+                      </a>
+                      <a href="features/reminders-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Reminders</div>
+                          <div class="mega-desc">Smart follow-up alerts</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="mega-sidebar">
+                  <div class="mega-sidebar-header">Get Started</div>
+                  <ul class="mega-sidebar-list">
+                    <li><a href="/crm/"><span>Open CRM</span></a></li>
+                    <li><a href="pricing.html"><span>View Pricing</span></a></li>
+                    <li><a href="../index.html#pricing"><span>Request Demo</span></a></li>
+                  </ul>
+                  <div class="mega-sidebar-footer">
+                    <p>Trusted by 2,000+ teams</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="nav-item nav-resources">
+              <a href="#" class="nav-link-toggle">Resources
+                <span class="nav-caret" aria-hidden="true">
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </a>
+              <div class="mega-menu" aria-hidden="true">
+                <div class="mega-content-grid">
+                  <div class="mega-category">
+                    <div class="mega-category-header">Insights</div>
+                    <div class="mega-items-grid">
+                      <a href="integrations.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Integrations</div>
+                          <div class="mega-desc">Connect your stack</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Support</div>
+                    <div class="mega-items-grid">
+                      <a href="documentation.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Documentation</div>
+                          <div class="mega-desc">Guides and tutorials</div>
+                        </div>
+                      </a>
+                      <a href="helpcenter.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Help Center</div>
+                          <div class="mega-desc">Get support</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Developers</div>
+                    <div class="mega-items-grid">
+                      <a href="apireference.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 18 22 12 16 6" />
+                            <polyline points="8 6 2 12 8 18" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">API Reference</div>
+                          <div class="mega-desc">Build with SafiTrack</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="mega-sidebar">
+                  <div class="mega-sidebar-header">More</div>
+                  <ul class="mega-sidebar-list">
+                    <li><a href="blog.html"><span>Blog</span></a></li>
+                    <li><a href="careers.html"><span>Careers</span></a></li>
+                    <li><a href="status.html"><span>Status</span></a></li>
+                  </ul>
+                  <div class="mega-sidebar-footer">
+                    <p>Always growing</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <a href="pricing.html">Pricing</a>
+          </div>
         </div>
+        <div class="nav-actions">
+          <a href="/crm/" class="nav-link-sign-in">Sign in</a>
+          <a href="pricing.html" class="btn-hero-primary">Start for free</a>
+        </div>
+        <button class="mobile-menu-btn" aria-label="Toggle Menu">
+          <span></span><span></span>
+        </button>
       </div>
-      <div class="nav-actions">
-        <a href="/crm/" class="nav-link-sign-in">Sign in</a>
-        <a href="pricing.html" class="btn-hero-primary">Start for free</a>
-      </div>
-      <button class="mobile-menu-btn" aria-label="Toggle Menu">
-        <span></span><span></span>
-      </button>
+    </div>
+  </nav>
+  <div class="mobile-nav-overlay">
+    <button class="mobile-close-btn" aria-label="Close">
+      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    <div class="mobile-nav-content">
+      <a href="features/mainfeatures.html" class="mobile-link">Features</a>
+      <a href="pricing.html" class="mobile-link">Pricing</a>
+      <hr class="mobile-divider">
+      <a href="/crm/" class="mobile-link">Open App</a>
+      <button class="btn-primary btn-block get-started-btn">Get Started</button>
     </div>
   </div>
-</nav>
-<div class="mobile-nav-overlay">
-  <button class="mobile-close-btn" aria-label="Close">
-    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-    </svg>
-  </button>
-  <div class="mobile-nav-content">
-    <a href="features/mainfeatures.html" class="mobile-link">Features</a>
-    <a href="pricing.html" class="mobile-link">Pricing</a>
-    <a href="apireference.html" class="mobile-link" style="color:#0b1220;font-weight:700">API</a>
-    <hr class="mobile-divider">
-    <a href="/crm/" class="mobile-link">Sign in</a>
-    <a href="pricing.html" class="btn-primary btn-block" style="text-align:center;margin-top:8px">Start for free</a>
-  </div>
-</div>
 
-<style>
-*{box-sizing:border-box}
-/* layout */
-.api-layout{display:grid;grid-template-columns:252px 1fr 196px;gap:0;min-height:calc(100vh - 64px);margin-top:64px}
-/* sidebar */
-.api-sidebar{border-right:1px solid #e6e9ef;padding:24px 0 48px;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto;background:#fafafa}
-.sidebar-search{margin:0 16px 20px;position:relative}
-.sidebar-search input{width:100%;padding:8px 12px 8px 34px;border:1.5px solid #e4e4e7;border-radius:8px;font-size:13px;color:#0b1220;background:#fff;outline:none;transition:border .15s}
-.sidebar-search input:focus{border-color:#0b1220}
-.sidebar-search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none}
-.sidebar-section{padding:0 16px;margin-bottom:18px}
-.sidebar-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9ca3af;padding:0 8px;margin-bottom:6px;display:block}
-.sidebar-link{display:flex;align-items:center;gap:6px;padding:6px 8px;font-size:13.5px;color:#4b5563;border-radius:6px;text-decoration:none;transition:all .12s;line-height:1.3}
-.sidebar-link:hover{background:#ebebeb;color:#0b1220}
-.sidebar-link.active{background:#0b1220;color:#fff;font-weight:600}
-.sidebar-method{font-size:10px;font-weight:800;padding:1px 6px;border-radius:4px;margin-left:auto;flex-shrink:0}
-.sm-get{background:#f0fdf4;color:#15803d}
-.sm-post{background:#0b1220;color:#fff}
-.sm-patch{background:#fef9c3;color:#854d0e}
-.sm-del{background:#fef2f2;color:#b91c1c}
-.sidebar-link.active .sidebar-method{opacity:.75}
-.sidebar-divider{border:none;border-top:1px solid #e6e9ef;margin:10px 16px}
-/* main */
-.api-main{padding:40px 48px;min-width:0}
-.api-breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:#9ca3af;margin-bottom:20px}
-.api-breadcrumb a{color:#6b7280;text-decoration:none}
-.api-breadcrumb a:hover{color:#0b1220}
-.api-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:8px}
-.api-main h1{font-size:1.9rem;font-weight:800;color:#0b1220;line-height:1.2;margin:0}
-.api-version{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#6b7280;background:#f4f4f5;border:1px solid #e4e4e7;border-radius:50px;padding:4px 12px;white-space:nowrap;margin-top:4px}
-.api-lead{font-size:16px;color:#4b5563;margin:16px 0 28px;line-height:1.75;padding-bottom:28px;border-bottom:1px solid #e6e9ef}
-.api-main h2{font-size:1.1rem;font-weight:700;color:#0b1220;margin:44px 0 4px;padding-top:4px;display:flex;align-items:center;gap:10px}
-.api-main h2 .resource-badge{font-size:11px;font-weight:700;padding:2px 10px;border-radius:50px;background:#f4f4f5;color:#6b7280;font-family:monospace}
-.api-main h3{font-size:.95rem;font-weight:700;color:#0b1220;margin:24px 0 8px}
-.api-main p{color:#4b5563;line-height:1.8;margin-bottom:12px;font-size:14.5px}
-.api-main ul,.api-main ol{color:#4b5563;line-height:1.9;padding-left:20px;font-size:14.5px;margin-bottom:12px}
-.api-main a{color:#0b1220;font-weight:600;text-underline-offset:2px}
-/* base url bar */
-.base-url-bar{display:flex;align-items:center;gap:12px;background:#f4f4f5;border:1px solid #e4e4e7;border-radius:10px;padding:12px 18px;margin:20px 0 28px;font-family:'SFMono-Regular',Consolas,monospace;font-size:13.5px}
-.base-url-bar .bu-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#9ca3af;flex-shrink:0}
-.base-url-bar .bu-url{color:#0b1220;font-weight:600;word-break:break-all}
-/* callouts */
-.callout{border-radius:10px;padding:14px 18px;margin:18px 0;font-size:14px;line-height:1.7;display:flex;gap:12px}
-.callout-info{background:#f8fafc;border:1px solid #e2e8f0}
-.callout-warn{background:#fffbeb;border:1px solid #fde68a}
-.callout svg{flex-shrink:0;margin-top:2px}
-.callout-body{flex:1}
-.callout-body strong{display:block;font-size:12px;font-weight:700;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;color:#374151}
-.callout-body p{margin:0;color:#4b5563;font-size:13.5px}
-/* method badges */
-.method-badge{font-size:11px;font-weight:800;padding:3px 10px;border-radius:5px;letter-spacing:.02em;flex-shrink:0;min-width:58px;text-align:center;font-family:'SFMono-Regular',Consolas,monospace}
-.mb-get{background:#f0fdf4;color:#15803d}
-.mb-post{background:#0b1220;color:#fff}
-.mb-patch{background:#fef9c3;color:#854d0e}
-.mb-del{background:#fef2f2;color:#b91c1c}
-/* endpoint blocks */
-.endpoint-block{border:1.5px solid #e6e9ef;border-radius:12px;overflow:hidden;margin-bottom:10px}
-.endpoint-header{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;background:#fff;transition:background .12s;user-select:none}
-.endpoint-header:hover{background:#fafafa}
-.endpoint-block.open .endpoint-header{background:#fafafa;border-bottom:1px solid #e6e9ef}
-.endpoint-path{font-family:'SFMono-Regular',Consolas,monospace;font-size:13.5px;color:#0b1220;font-weight:600}
-.endpoint-desc{font-size:13px;color:#6b7280;margin-left:auto}
-.ep-chevron{width:18px;height:18px;color:#9ca3af;flex-shrink:0;transition:transform .2s;margin-left:8px}
-.endpoint-block.open .ep-chevron{transform:rotate(180deg);color:#0b1220}
-.endpoint-body{display:none;padding:20px 22px}
-.endpoint-block.open .endpoint-body{display:block}
-/* code */
-code{background:#f4f4f5;border:1px solid #e4e4e7;border-radius:4px;padding:2px 6px;font-size:12.5px;font-family:'SFMono-Regular',Consolas,monospace;color:#0b1220}
-.code-block{background:#0b1220;border-radius:10px;margin:12px 0 20px;overflow:hidden}
-.code-block-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #1e293b}
-.code-lang{font-size:12px;font-weight:600;color:#9ca3af;font-family:monospace}
-.copy-btn{font-size:12px;font-weight:600;color:#9ca3af;background:none;border:none;cursor:pointer;padding:2px 8px;border-radius:4px;transition:all .15s;display:flex;align-items:center;gap:5px}
-.copy-btn:hover{background:#1e293b;color:#e2e8f0}
-.copy-btn.copied{color:#4ade80}
-.code-block pre{margin:0;padding:18px 20px;overflow-x:auto}
-.code-block pre code{background:none;border:none;padding:0;color:#e2e8f0;font-size:13px;line-height:1.7;font-family:'SFMono-Regular',Consolas,monospace}
-/* tables */
-.param-table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0 18px}
-.param-table th{text-align:left;padding:9px 12px;font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;background:#fafafa;border-bottom:2px solid #e6e9ef}
-.param-table td{padding:10px 12px;border-bottom:1px solid #e6e9ef;color:#374151;vertical-align:top;line-height:1.5}
-.param-table td code{font-size:12px}
-.param-table tr:last-child td{border-bottom:none}
-.param-req{font-size:10.5px;font-weight:700;color:#ef4444;background:#fef2f2;border-radius:4px;padding:1px 6px;vertical-align:middle;margin-left:4px}
-.param-opt{font-size:10.5px;font-weight:700;color:#9ca3af;background:#f4f4f5;border-radius:4px;padding:1px 6px;vertical-align:middle;margin-left:4px}
-/* response status pills */
-.resp-tabs{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
-.resp-tab{font-size:12px;font-weight:700;padding:4px 12px;border-radius:50px;cursor:pointer;border:1.5px solid #e4e4e7;background:#fff;color:#6b7280;transition:all .12s}
-.resp-tab.active-200{background:#f0fdf4;border-color:#bbf7d0;color:#15803d}
-.resp-tab.active-400{background:#fef9c3;border-color:#fde047;color:#854d0e}
-.resp-tab.active-401{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
-.resp-tab.active-404{background:#fef2f2;border-color:#fecaca;color:#b91c1c}
-/* errors table */
-.errors-table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0 24px}
-.errors-table th{text-align:left;padding:9px 12px;font-size:11.5px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;background:#fafafa;border-bottom:2px solid #e6e9ef}
-.errors-table td{padding:10px 12px;border-bottom:1px solid #e6e9ef;color:#374151;vertical-align:top}
-.errors-table tr:last-child td{border-bottom:none}
-.status-pill{font-size:12px;font-weight:700;padding:2px 9px;border-radius:50px;font-family:monospace}
-.s-2xx{background:#f0fdf4;color:#15803d}
-.s-4xx{background:#fef2f2;color:#b91c1c}
-.s-5xx{background:#fef9c3;color:#854d0e}
-/* section anchor */
-.section-anchor{display:block;height:1px;margin:0;padding:0;border:none}
-/* toc */
-.api-toc{position:sticky;top:80px;padding:24px 16px 24px 20px;font-size:13px}
-.toc-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin-bottom:12px;display:block}
-.toc-link{display:block;padding:4px 0 4px 12px;color:#6b7280;text-decoration:none;border-left:2px solid #e6e9ef;margin-bottom:2px;transition:all .12s;line-height:1.4;font-size:12.5px}
-.toc-link:hover,.toc-link.active{color:#0b1220;border-left-color:#0b1220;font-weight:600}
-/* page nav */
-.page-nav{display:flex;justify-content:space-between;gap:16px;margin-top:56px;padding-top:28px;border-top:1px solid #e6e9ef}
-.page-nav-btn{flex:1;padding:14px 18px;border:1.5px solid #e4e4e7;border-radius:10px;text-decoration:none;transition:border-color .15s,box-shadow .15s;max-width:260px}
-.page-nav-btn:hover{border-color:#0b1220;box-shadow:0 2px 8px rgba(0,0,0,.07)}
-.page-nav-label{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9ca3af;margin-bottom:4px}
-.page-nav-title{font-size:14px;font-weight:700;color:#0b1220}
-@media(max-width:1100px){.api-layout{grid-template-columns:240px 1fr}.api-toc{display:none}.api-main{padding:36px 36px}}
-@media(max-width:720px){.api-layout{grid-template-columns:1fr}.api-sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid #e6e9ef;padding:16px 0}.api-main{padding:28px 20px}}
-</style>
+  <style>
+    * {
+      box-sizing: border-box
+    }
 
-<div class="api-layout">
+    /* layout */
+    .api-layout {
+      display: grid;
+      grid-template-columns: 252px 1fr 196px;
+      gap: 0;
+      min-height: calc(100vh - 64px);
+      margin-top: 64px
+    }
 
-<!-- ═══════════ SIDEBAR ═══════════ -->
-<aside class="api-sidebar">
-  <div class="sidebar-search">
-    <svg width="15" height="15" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-    <input type="text" id="sidebarSearch" placeholder="Search endpoints…" autocomplete="off">
-  </div>
+    /* sidebar */
+    .api-sidebar {
+      border-right: 1px solid #e6e9ef;
+      padding: 24px 0 48px;
+      position: sticky;
+      top: 64px;
+      height: calc(100vh - 64px);
+      overflow-y: auto;
+      background: #fafafa
+    }
 
-  <div class="sidebar-section">
-    <span class="sidebar-label">Overview</span>
-    <a href="#intro" class="sidebar-link active">Introduction</a>
-    <a href="#auth" class="sidebar-link">Authentication</a>
-    <a href="#rate-limits" class="sidebar-link">Rate Limits</a>
-    <a href="#pagination" class="sidebar-link">Pagination</a>
-    <a href="#errors" class="sidebar-link">Errors</a>
-  </div>
+    .sidebar-search {
+      margin: 0 16px 20px;
+      position: relative
+    }
 
-  <hr class="sidebar-divider">
+    .sidebar-search input {
+      width: 100%;
+      padding: 8px 12px 8px 34px;
+      border: 1.5px solid #e4e4e7;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #0b1220;
+      background: #fff;
+      outline: none;
+      transition: border .15s
+    }
 
-  <div class="sidebar-section">
-    <span class="sidebar-label">Resources</span>
-    <a href="#companies" class="sidebar-link">
-      Companies
-      <span class="sidebar-method sm-get">5</span>
-    </a>
-    <a href="#contacts" class="sidebar-link">
-      Contacts
-      <span class="sidebar-method sm-get">4</span>
-    </a>
-    <a href="#visits" class="sidebar-link">
-      Visits
-      <span class="sidebar-method sm-get">3</span>
-    </a>
-    <a href="#route-plans" class="sidebar-link">
-      Route Plans
-      <span class="sidebar-method sm-get">4</span>
-    </a>
-    <a href="#opportunities" class="sidebar-link">
-      Opportunities
-      <span class="sidebar-method sm-get">3</span>
-    </a>
-    <a href="#webhooks" class="sidebar-link">
-      Webhooks
-      <span class="sidebar-method sm-del">3</span>
-    </a>
-  </div>
-</aside>
+    .sidebar-search input:focus {
+      border-color: #0b1220
+    }
 
-<!-- ═══════════ MAIN ═══════════ -->
-<main class="api-main">
+    .sidebar-search svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none
+    }
 
-  <!-- breadcrumb -->
-  <div class="api-breadcrumb">
-    <a href="../index.html">SafiTrack</a>
-    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
-    <span>API Reference</span>
-  </div>
+    .sidebar-section {
+      padding: 0 16px;
+      margin-bottom: 18px
+    }
 
-  <!-- title -->
-  <div class="api-title-row">
-    <h1>API Reference</h1>
-    <span class="api-version">v1 &nbsp;·&nbsp; REST / JSON</span>
-  </div>
-  <p class="api-lead">The SafiTrack REST API gives you programmatic access to companies, contacts, visits, route plans, opportunities, and webhooks. All requests and responses use JSON. The API follows RESTful conventions and returns standard HTTP status codes.</p>
+    .sidebar-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      padding: 0 8px;
+      margin-bottom: 6px;
+      display: block
+    }
 
-  <!-- ── Introduction ── -->
-  <a class="section-anchor" id="intro"></a>
-  <h2>Introduction</h2>
-  <p>All API calls are made to the base URL below. Every authenticated endpoint requires two headers: your user JWT and the public anon key.</p>
-  <div class="base-url-bar">
-    <span class="bu-label">Base URL</span>
-    <span class="bu-url">https://ndrkncirkekpqjjkasiy.supabase.co/rest/v1</span>
-  </div>
-  <p>Requests without valid credentials return <code>401 Unauthorized</code>. If your token has expired, exchange it using the <code>/auth/v1/token?grant_type=refresh_token</code> endpoint before retrying.</p>
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      font-size: 13.5px;
+      color: #4b5563;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all .12s;
+      line-height: 1.3
+    }
 
-  <!-- ── Authentication ── -->
-  <a class="section-anchor" id="auth"></a>
-  <h2>Authentication</h2>
-  <p>SafiTrack uses JWT bearer tokens issued on sign-in. Pass both the <code>Authorization</code> and <code>apikey</code> headers on every request.</p>
-  <div class="code-block">
-    <div class="code-block-header">
-      <span class="code-lang">curl</span>
-      <button class="copy-btn" data-code="curl-auth">
-        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-        Copy
-      </button>
-    </div>
-    <pre><code id="curl-auth">curl https://ndrkncirkekpqjjkasiy.supabase.co/rest/v1/companies \
+    .sidebar-link:hover {
+      background: #ebebeb;
+      color: #0b1220
+    }
+
+    .sidebar-link.active {
+      background: #0b1220;
+      color: #fff;
+      font-weight: 600
+    }
+
+    .sidebar-method {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 4px;
+      margin-left: auto;
+      flex-shrink: 0
+    }
+
+    .sm-get {
+      background: #f0fdf4;
+      color: #15803d
+    }
+
+    .sm-post {
+      background: #0b1220;
+      color: #fff
+    }
+
+    .sm-patch {
+      background: #fef9c3;
+      color: #854d0e
+    }
+
+    .sm-del {
+      background: #fef2f2;
+      color: #b91c1c
+    }
+
+    .sidebar-link.active .sidebar-method {
+      opacity: .75
+    }
+
+    .sidebar-divider {
+      border: none;
+      border-top: 1px solid #e6e9ef;
+      margin: 10px 16px
+    }
+
+    /* main */
+    .api-main {
+      padding: 40px 48px;
+      min-width: 0
+    }
+
+    .api-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 20px
+    }
+
+    .api-breadcrumb a {
+      color: #6b7280;
+      text-decoration: none
+    }
+
+    .api-breadcrumb a:hover {
+      color: #0b1220
+    }
+
+    .api-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 8px
+    }
+
+    .api-main h1 {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: #0b1220;
+      line-height: 1.2;
+      margin: 0
+    }
+
+    .api-version {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      border-radius: 50px;
+      padding: 4px 12px;
+      white-space: nowrap;
+      margin-top: 4px
+    }
+
+    .api-lead {
+      font-size: 16px;
+      color: #4b5563;
+      margin: 16px 0 28px;
+      line-height: 1.75;
+      padding-bottom: 28px;
+      border-bottom: 1px solid #e6e9ef
+    }
+
+    .api-main h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #0b1220;
+      margin: 44px 0 4px;
+      padding-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .api-main h2 .resource-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 50px;
+      background: #f4f4f5;
+      color: #6b7280;
+      font-family: monospace
+    }
+
+    .api-main h3 {
+      font-size: .95rem;
+      font-weight: 700;
+      color: #0b1220;
+      margin: 24px 0 8px
+    }
+
+    .api-main p {
+      color: #4b5563;
+      line-height: 1.8;
+      margin-bottom: 12px;
+      font-size: 14.5px
+    }
+
+    .api-main ul,
+    .api-main ol {
+      color: #4b5563;
+      line-height: 1.9;
+      padding-left: 20px;
+      font-size: 14.5px;
+      margin-bottom: 12px
+    }
+
+    .api-main a {
+      color: #0b1220;
+      font-weight: 600;
+      text-underline-offset: 2px
+    }
+
+    /* base url bar */
+    .base-url-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      border-radius: 10px;
+      padding: 12px 18px;
+      margin: 20px 0 28px;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 13.5px
+    }
+
+    .base-url-bar .bu-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: #9ca3af;
+      flex-shrink: 0
+    }
+
+    .base-url-bar .bu-url {
+      color: #0b1220;
+      font-weight: 600;
+      word-break: break-all
+    }
+
+    /* callouts */
+    .callout {
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 18px 0;
+      font-size: 14px;
+      line-height: 1.7;
+      display: flex;
+      gap: 12px
+    }
+
+    .callout-info {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0
+    }
+
+    .callout-warn {
+      background: #fffbeb;
+      border: 1px solid #fde68a
+    }
+
+    .callout svg {
+      flex-shrink: 0;
+      margin-top: 2px
+    }
+
+    .callout-body {
+      flex: 1
+    }
+
+    .callout-body strong {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: #374151
+    }
+
+    .callout-body p {
+      margin: 0;
+      color: #4b5563;
+      font-size: 13.5px
+    }
+
+    /* method badges */
+    .method-badge {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 5px;
+      letter-spacing: .02em;
+      flex-shrink: 0;
+      min-width: 58px;
+      text-align: center;
+      font-family: 'SFMono-Regular', Consolas, monospace
+    }
+
+    .mb-get {
+      background: #f0fdf4;
+      color: #15803d
+    }
+
+    .mb-post {
+      background: #0b1220;
+      color: #fff
+    }
+
+    .mb-patch {
+      background: #fef9c3;
+      color: #854d0e
+    }
+
+    .mb-del {
+      background: #fef2f2;
+      color: #b91c1c
+    }
+
+    /* endpoint blocks */
+    .endpoint-block {
+      border: 1.5px solid #e6e9ef;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 10px
+    }
+
+    .endpoint-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      cursor: pointer;
+      background: #fff;
+      transition: background .12s;
+      user-select: none
+    }
+
+    .endpoint-header:hover {
+      background: #fafafa
+    }
+
+    .endpoint-block.open .endpoint-header {
+      background: #fafafa;
+      border-bottom: 1px solid #e6e9ef
+    }
+
+    .endpoint-path {
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      font-size: 13.5px;
+      color: #0b1220;
+      font-weight: 600
+    }
+
+    .endpoint-desc {
+      font-size: 13px;
+      color: #6b7280;
+      margin-left: auto
+    }
+
+    .ep-chevron {
+      width: 18px;
+      height: 18px;
+      color: #9ca3af;
+      flex-shrink: 0;
+      transition: transform .2s;
+      margin-left: 8px
+    }
+
+    .endpoint-block.open .ep-chevron {
+      transform: rotate(180deg);
+      color: #0b1220
+    }
+
+    .endpoint-body {
+      display: none;
+      padding: 20px 22px
+    }
+
+    .endpoint-block.open .endpoint-body {
+      display: block
+    }
+
+    /* code */
+    code {
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 12.5px;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      color: #0b1220
+    }
+
+    .code-block {
+      background: #0b1220;
+      border-radius: 10px;
+      margin: 12px 0 20px;
+      overflow: hidden
+    }
+
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-bottom: 1px solid #1e293b
+    }
+
+    .code-lang {
+      font-size: 12px;
+      font-weight: 600;
+      color: #9ca3af;
+      font-family: monospace
+    }
+
+    .copy-btn {
+      font-size: 12px;
+      font-weight: 600;
+      color: #9ca3af;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 8px;
+      border-radius: 4px;
+      transition: all .15s;
+      display: flex;
+      align-items: center;
+      gap: 5px
+    }
+
+    .copy-btn:hover {
+      background: #1e293b;
+      color: #e2e8f0
+    }
+
+    .copy-btn.copied {
+      color: #4ade80
+    }
+
+    .code-block pre {
+      margin: 0;
+      padding: 18px 20px;
+      overflow-x: auto
+    }
+
+    .code-block pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: #e2e8f0;
+      font-size: 13px;
+      line-height: 1.7;
+      font-family: 'SFMono-Regular', Consolas, monospace
+    }
+
+    /* tables */
+    .param-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin: 10px 0 18px
+    }
+
+    .param-table th {
+      text-align: left;
+      padding: 9px 12px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      background: #fafafa;
+      border-bottom: 2px solid #e6e9ef
+    }
+
+    .param-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e6e9ef;
+      color: #374151;
+      vertical-align: top;
+      line-height: 1.5
+    }
+
+    .param-table td code {
+      font-size: 12px
+    }
+
+    .param-table tr:last-child td {
+      border-bottom: none
+    }
+
+    .param-req {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #ef4444;
+      background: #fef2f2;
+      border-radius: 4px;
+      padding: 1px 6px;
+      vertical-align: middle;
+      margin-left: 4px
+    }
+
+    .param-opt {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #9ca3af;
+      background: #f4f4f5;
+      border-radius: 4px;
+      padding: 1px 6px;
+      vertical-align: middle;
+      margin-left: 4px
+    }
+
+    /* response status pills */
+    .resp-tabs {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 10px;
+      flex-wrap: wrap
+    }
+
+    .resp-tab {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 50px;
+      cursor: pointer;
+      border: 1.5px solid #e4e4e7;
+      background: #fff;
+      color: #6b7280;
+      transition: all .12s
+    }
+
+    .resp-tab.active-200 {
+      background: #f0fdf4;
+      border-color: #bbf7d0;
+      color: #15803d
+    }
+
+    .resp-tab.active-400 {
+      background: #fef9c3;
+      border-color: #fde047;
+      color: #854d0e
+    }
+
+    .resp-tab.active-401 {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #b91c1c
+    }
+
+    .resp-tab.active-404 {
+      background: #fef2f2;
+      border-color: #fecaca;
+      color: #b91c1c
+    }
+
+    /* errors table */
+    .errors-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+      margin: 10px 0 24px
+    }
+
+    .errors-table th {
+      text-align: left;
+      padding: 9px 12px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      background: #fafafa;
+      border-bottom: 2px solid #e6e9ef
+    }
+
+    .errors-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e6e9ef;
+      color: #374151;
+      vertical-align: top
+    }
+
+    .errors-table tr:last-child td {
+      border-bottom: none
+    }
+
+    .status-pill {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 9px;
+      border-radius: 50px;
+      font-family: monospace
+    }
+
+    .s-2xx {
+      background: #f0fdf4;
+      color: #15803d
+    }
+
+    .s-4xx {
+      background: #fef2f2;
+      color: #b91c1c
+    }
+
+    .s-5xx {
+      background: #fef9c3;
+      color: #854d0e
+    }
+
+    /* section anchor */
+    .section-anchor {
+      display: block;
+      height: 1px;
+      margin: 0;
+      padding: 0;
+      border: none
+    }
+
+    /* toc */
+    .api-toc {
+      position: sticky;
+      top: 80px;
+      padding: 24px 16px 24px 20px;
+      font-size: 13px
+    }
+
+    .toc-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 12px;
+      display: block
+    }
+
+    .toc-link {
+      display: block;
+      padding: 4px 0 4px 12px;
+      color: #6b7280;
+      text-decoration: none;
+      border-left: 2px solid #e6e9ef;
+      margin-bottom: 2px;
+      transition: all .12s;
+      line-height: 1.4;
+      font-size: 12.5px
+    }
+
+    .toc-link:hover,
+    .toc-link.active {
+      color: #0b1220;
+      border-left-color: #0b1220;
+      font-weight: 600
+    }
+
+    /* page nav */
+    .page-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 56px;
+      padding-top: 28px;
+      border-top: 1px solid #e6e9ef
+    }
+
+    .page-nav-btn {
+      flex: 1;
+      padding: 14px 18px;
+      border: 1.5px solid #e4e4e7;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: border-color .15s, box-shadow .15s;
+      max-width: 260px
+    }
+
+    .page-nav-btn:hover {
+      border-color: #0b1220;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .07)
+    }
+
+    .page-nav-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 4px
+    }
+
+    .page-nav-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0b1220
+    }
+
+    @media(max-width:1100px) {
+      .api-layout {
+        grid-template-columns: 240px 1fr
+      }
+
+      .api-toc {
+        display: none
+      }
+
+      .api-main {
+        padding: 36px 36px
+      }
+    }
+
+    @media(max-width:720px) {
+      .api-layout {
+        grid-template-columns: 1fr
+      }
+
+      .api-sidebar {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #e6e9ef;
+        padding: 16px 0
+      }
+
+      .api-main {
+        padding: 28px 20px
+      }
+    }
+  </style>
+
+  <div class="api-layout">
+
+    <!-- ═══════════ SIDEBAR ═══════════ -->
+    <aside class="api-sidebar">
+      <div class="sidebar-search">
+        <svg width="15" height="15" fill="none" stroke="#9ca3af" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" />
+          <path d="M21 21l-4.35-4.35" />
+        </svg>
+        <input type="text" id="sidebarSearch" placeholder="Search endpoints…" autocomplete="off">
+      </div>
+
+      <div class="sidebar-section">
+        <span class="sidebar-label">Overview</span>
+        <a href="#intro" class="sidebar-link active">Introduction</a>
+        <a href="#auth" class="sidebar-link">Authentication</a>
+        <a href="#rate-limits" class="sidebar-link">Rate Limits</a>
+        <a href="#pagination" class="sidebar-link">Pagination</a>
+        <a href="#errors" class="sidebar-link">Errors</a>
+      </div>
+
+      <hr class="sidebar-divider">
+
+      <div class="sidebar-section">
+        <span class="sidebar-label">Resources</span>
+        <a href="#companies" class="sidebar-link">
+          Companies
+          <span class="sidebar-method sm-get">5</span>
+        </a>
+        <a href="#contacts" class="sidebar-link">
+          Contacts
+          <span class="sidebar-method sm-get">4</span>
+        </a>
+        <a href="#visits" class="sidebar-link">
+          Visits
+          <span class="sidebar-method sm-get">3</span>
+        </a>
+        <a href="#route-plans" class="sidebar-link">
+          Route Plans
+          <span class="sidebar-method sm-get">4</span>
+        </a>
+        <a href="#opportunities" class="sidebar-link">
+          Opportunities
+          <span class="sidebar-method sm-get">3</span>
+        </a>
+        <a href="#webhooks" class="sidebar-link">
+          Webhooks
+          <span class="sidebar-method sm-del">3</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- ═══════════ MAIN ═══════════ -->
+    <main class="api-main">
+
+      <!-- breadcrumb -->
+      <div class="api-breadcrumb">
+        <a href="../index.html">SafiTrack</a>
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+        <span>API Reference</span>
+      </div>
+
+      <!-- title -->
+      <div class="api-title-row">
+        <h1>API Reference</h1>
+        <span class="api-version">v1 &nbsp;·&nbsp; REST / JSON</span>
+      </div>
+      <p class="api-lead">The SafiTrack REST API gives you programmatic access to companies, contacts, visits, route
+        plans, opportunities, and webhooks. All requests and responses use JSON. The API follows RESTful conventions and
+        returns standard HTTP status codes.</p>
+
+      <!-- ── Introduction ── -->
+      <a class="section-anchor" id="intro"></a>
+      <h2>Introduction</h2>
+      <p>All API calls are made to the base URL below. Every authenticated endpoint requires two headers: your user JWT
+        and the public anon key.</p>
+      <div class="base-url-bar">
+        <span class="bu-label">Base URL</span>
+        <span class="bu-url">https://ndrkncirkekpqjjkasiy.supabase.co/rest/v1</span>
+      </div>
+      <p>Requests without valid credentials return <code>401 Unauthorized</code>. If your token has expired, exchange it
+        using the <code>/auth/v1/token?grant_type=refresh_token</code> endpoint before retrying.</p>
+
+      <!-- ── Authentication ── -->
+      <a class="section-anchor" id="auth"></a>
+      <h2>Authentication</h2>
+      <p>SafiTrack uses JWT bearer tokens issued on sign-in. Pass both the <code>Authorization</code> and
+        <code>apikey</code> headers on every request.</p>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">curl</span>
+          <button class="copy-btn" data-code="curl-auth">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" />
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+            </svg>
+            Copy
+          </button>
+        </div>
+        <pre><code id="curl-auth">curl https://ndrkncirkekpqjjkasiy.supabase.co/rest/v1/companies \
   -H "Authorization: Bearer &lt;USER_JWT&gt;" \
   -H "apikey: &lt;ANON_KEY&gt;" \
   -H "Content-Type: application/json"</code></pre>
-  </div>
-  <div class="callout callout-warn">
-    <svg width="18" height="18" fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-    <div class="callout-body">
-      <strong>Token expiry</strong>
-      <p>JWTs expire after 1 hour. Refresh tokens using <code>POST /auth/v1/token?grant_type=refresh_token</code> with <code>{"refresh_token":"&lt;TOKEN&gt;"}</code> in the body. Store and rotate refresh tokens securely.</p>
-    </div>
-  </div>
+      </div>
+      <div class="callout callout-warn">
+        <svg width="18" height="18" fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+        <div class="callout-body">
+          <strong>Token expiry</strong>
+          <p>JWTs expire after 1 hour. Refresh tokens using <code>POST /auth/v1/token?grant_type=refresh_token</code>
+            with <code>{"refresh_token":"&lt;TOKEN&gt;"}</code> in the body. Store and rotate refresh tokens securely.
+          </p>
+        </div>
+      </div>
 
-  <!-- ── Rate Limits ── -->
-  <a class="section-anchor" id="rate-limits"></a>
-  <h2>Rate Limits</h2>
-  <p>The API allows up to <strong>1,000 requests per minute</strong> per access token. When the limit is exceeded the server responds with <code>429 Too Many Requests</code> and includes a <code>Retry-After</code> header indicating how many seconds to wait before retrying.</p>
-  <div class="code-block">
-    <div class="code-block-header"><span class="code-lang">http</span></div>
-    <pre><code>HTTP/1.1 429 Too Many Requests
+      <!-- ── Rate Limits ── -->
+      <a class="section-anchor" id="rate-limits"></a>
+      <h2>Rate Limits</h2>
+      <p>The API allows up to <strong>1,000 requests per minute</strong> per access token. When the limit is exceeded
+        the server responds with <code>429 Too Many Requests</code> and includes a <code>Retry-After</code> header
+        indicating how many seconds to wait before retrying.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-lang">http</span></div>
+        <pre><code>HTTP/1.1 429 Too Many Requests
 Retry-After: 30
 Content-Type: application/json
 
 {"error":"rate_limited","message":"Quota exceeded. Retry after 30 s."}</code></pre>
-  </div>
+      </div>
 
-  <!-- ── Pagination ── -->
-  <a class="section-anchor" id="pagination"></a>
-  <h2>Pagination</h2>
-  <p>List endpoints support offset-based pagination via query parameters and return a <code>Content-Range</code> header indicating the total record count.</p>
-  <table class="param-table">
-    <thead><tr><th>Parameter</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
-    <tbody>
-      <tr><td><code>limit</code></td><td>integer</td><td>20</td><td>Max records to return (1–100)</td></tr>
-      <tr><td><code>offset</code></td><td>integer</td><td>0</td><td>Number of records to skip</td></tr>
-      <tr><td><code>order</code></td><td>string</td><td>created_at.desc</td><td>Field and direction, e.g. <code>name.asc</code></td></tr>
-    </tbody>
-  </table>
-  <div class="code-block">
-    <div class="code-block-header"><span class="code-lang">http</span></div>
-    <pre><code>GET /companies?limit=25&amp;offset=50&amp;order=name.asc HTTP/1.1
+      <!-- ── Pagination ── -->
+      <a class="section-anchor" id="pagination"></a>
+      <h2>Pagination</h2>
+      <p>List endpoints support offset-based pagination via query parameters and return a <code>Content-Range</code>
+        header indicating the total record count.</p>
+      <table class="param-table">
+        <thead>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>limit</code></td>
+            <td>integer</td>
+            <td>20</td>
+            <td>Max records to return (1–100)</td>
+          </tr>
+          <tr>
+            <td><code>offset</code></td>
+            <td>integer</td>
+            <td>0</td>
+            <td>Number of records to skip</td>
+          </tr>
+          <tr>
+            <td><code>order</code></td>
+            <td>string</td>
+            <td>created_at.desc</td>
+            <td>Field and direction, e.g. <code>name.asc</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-lang">http</span></div>
+        <pre><code>GET /companies?limit=25&amp;offset=50&amp;order=name.asc HTTP/1.1
 
 200 OK
 Content-Range: 50-74/312</code></pre>
-  </div>
+      </div>
 
-  <!-- ── Errors ── -->
-  <a class="section-anchor" id="errors"></a>
-  <h2>Errors</h2>
-  <p>All errors return a consistent JSON body with <code>error</code>, <code>message</code>, and <code>status</code> fields.</p>
-  <div class="code-block">
-    <div class="code-block-header">
-      <span class="code-lang">json</span>
-      <button class="copy-btn" data-code="err-shape">
-        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-        Copy
-      </button>
-    </div>
-    <pre><code id="err-shape">{
+      <!-- ── Errors ── -->
+      <a class="section-anchor" id="errors"></a>
+      <h2>Errors</h2>
+      <p>All errors return a consistent JSON body with <code>error</code>, <code>message</code>, and <code>status</code>
+        fields.</p>
+      <div class="code-block">
+        <div class="code-block-header">
+          <span class="code-lang">json</span>
+          <button class="copy-btn" data-code="err-shape">
+            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" />
+              <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+            </svg>
+            Copy
+          </button>
+        </div>
+        <pre><code id="err-shape">{
   "error": "not_found",
   "message": "No company found with id c_abc123",
   "status": 404
 }</code></pre>
-  </div>
-  <table class="errors-table">
-    <thead><tr><th>Status</th><th>Code</th><th>Description</th></tr></thead>
-    <tbody>
-      <tr><td><span class="status-pill s-4xx">400</span></td><td><code>validation_error</code></td><td>Request body is missing required fields or has invalid values</td></tr>
-      <tr><td><span class="status-pill s-4xx">401</span></td><td><code>unauthorized</code></td><td>Missing or expired JWT / apikey</td></tr>
-      <tr><td><span class="status-pill s-4xx">403</span></td><td><code>forbidden</code></td><td>Token valid but lacks permission for this resource</td></tr>
-      <tr><td><span class="status-pill s-4xx">404</span></td><td><code>not_found</code></td><td>Resource with the given ID does not exist</td></tr>
-      <tr><td><span class="status-pill s-4xx">409</span></td><td><code>conflict</code></td><td>Duplicate unique field (e.g. company name)</td></tr>
-      <tr><td><span class="status-pill s-4xx">429</span></td><td><code>rate_limited</code></td><td>Request quota exceeded</td></tr>
-      <tr><td><span class="status-pill s-5xx">500</span></td><td><code>server_error</code></td><td>Unexpected server-side failure</td></tr>
-    </tbody>
-  </table>
-
-  <!-- ══════════════════════════════════════════ -->
-  <!-- ── COMPANIES ── -->
-  <!-- ══════════════════════════════════════════ -->
-  <a class="section-anchor" id="companies"></a>
-  <h2>Companies <span class="resource-badge">/companies</span></h2>
-  <p>Represents a business entity your team sells to or services. Every contact, visit, and opportunity is linked to a company.</p>
-
-  <!-- GET /companies -->
-  <div class="endpoint-block" id="ep-get-companies">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-get-companies')">
-      <span class="method-badge mb-get">GET</span>
-      <span class="endpoint-path">/companies</span>
-      <span class="endpoint-desc">List companies</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <h3>Query parameters</h3>
-      <table class="param-table">
-        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+      </div>
+      <table class="errors-table">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Code</th>
+            <th>Description</th>
+          </tr>
+        </thead>
         <tbody>
-          <tr><td><code>limit</code> <span class="param-opt">optional</span></td><td>integer</td><td>Max records (default 20, max 100)</td></tr>
-          <tr><td><code>offset</code> <span class="param-opt">optional</span></td><td>integer</td><td>Records to skip (default 0)</td></tr>
-          <tr><td><code>name</code> <span class="param-opt">optional</span></td><td>string</td><td>Filter by company name (case-insensitive, partial match)</td></tr>
-          <tr><td><code>owner_id</code> <span class="param-opt">optional</span></td><td>uuid</td><td>Filter by assigned owner user id</td></tr>
-          <tr><td><code>industry</code> <span class="param-opt">optional</span></td><td>string</td><td>Filter by industry tag</td></tr>
+          <tr>
+            <td><span class="status-pill s-4xx">400</span></td>
+            <td><code>validation_error</code></td>
+            <td>Request body is missing required fields or has invalid values</td>
+          </tr>
+          <tr>
+            <td><span class="status-pill s-4xx">401</span></td>
+            <td><code>unauthorized</code></td>
+            <td>Missing or expired JWT / apikey</td>
+          </tr>
+          <tr>
+            <td><span class="status-pill s-4xx">403</span></td>
+            <td><code>forbidden</code></td>
+            <td>Token valid but lacks permission for this resource</td>
+          </tr>
+          <tr>
+            <td><span class="status-pill s-4xx">404</span></td>
+            <td><code>not_found</code></td>
+            <td>Resource with the given ID does not exist</td>
+          </tr>
+          <tr>
+            <td><span class="status-pill s-4xx">409</span></td>
+            <td><code>conflict</code></td>
+            <td>Duplicate unique field (e.g. company name)</td>
+          </tr>
+          <tr>
+            <td><span class="status-pill s-4xx">429</span></td>
+            <td><code>rate_limited</code></td>
+            <td>Request quota exceeded</td>
+          </tr>
+          <tr>
+            <td><span class="status-pill s-5xx">500</span></td>
+            <td><code>server_error</code></td>
+            <td>Unexpected server-side failure</td>
+          </tr>
         </tbody>
       </table>
-      <h3>Response</h3>
-      <div class="code-block">
-        <div class="code-block-header">
-          <span class="code-lang">json — 200 OK</span>
-          <button class="copy-btn" data-code="resp-get-companies">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-            Copy
-          </button>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- ── COMPANIES ── -->
+      <!-- ══════════════════════════════════════════ -->
+      <a class="section-anchor" id="companies"></a>
+      <h2>Companies <span class="resource-badge">/companies</span></h2>
+      <p>Represents a business entity your team sells to or services. Every contact, visit, and opportunity is linked to
+        a company.</p>
+
+      <!-- GET /companies -->
+      <div class="endpoint-block" id="ep-get-companies">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-get-companies')">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/companies</span>
+          <span class="endpoint-desc">List companies</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
         </div>
-        <pre><code id="resp-get-companies">[
+        <div class="endpoint-body">
+          <h3>Query parameters</h3>
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>limit</code> <span class="param-opt">optional</span></td>
+                <td>integer</td>
+                <td>Max records (default 20, max 100)</td>
+              </tr>
+              <tr>
+                <td><code>offset</code> <span class="param-opt">optional</span></td>
+                <td>integer</td>
+                <td>Records to skip (default 0)</td>
+              </tr>
+              <tr>
+                <td><code>name</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>Filter by company name (case-insensitive, partial match)</td>
+              </tr>
+              <tr>
+                <td><code>owner_id</code> <span class="param-opt">optional</span></td>
+                <td>uuid</td>
+                <td>Filter by assigned owner user id</td>
+              </tr>
+              <tr>
+                <td><code>industry</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>Filter by industry tag</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>Response</h3>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">json — 200 OK</span>
+              <button class="copy-btn" data-code="resp-get-companies">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                </svg>
+                Copy
+              </button>
+            </div>
+            <pre><code id="resp-get-companies">[
   {
     "id": "c_01HZ3BXQK5VMA",
     "name": "Acme Corp",
@@ -393,42 +1446,81 @@ Content-Range: 50-74/312</code></pre>
     "updated_at": "2025-06-01T14:05:33Z"
   }
 ]</code></pre>
-      </div>
-    </div>
-  </div>
-
-  <!-- POST /companies -->
-  <div class="endpoint-block" id="ep-post-companies">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-post-companies')">
-      <span class="method-badge mb-post">POST</span>
-      <span class="endpoint-path">/companies</span>
-      <span class="endpoint-desc">Create a company</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <h3>Body parameters</h3>
-      <table class="param-table">
-        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><code>name</code> <span class="param-req">required</span></td><td>string</td><td>Company display name (max 200 chars)</td></tr>
-          <tr><td><code>industry</code> <span class="param-opt">optional</span></td><td>string</td><td>Industry tag, e.g. <code>retail</code>, <code>fmcg</code>, <code>pharma</code></td></tr>
-          <tr><td><code>phone</code> <span class="param-opt">optional</span></td><td>string</td><td>E.164-formatted phone number</td></tr>
-          <tr><td><code>email</code> <span class="param-opt">optional</span></td><td>string</td><td>Primary contact email</td></tr>
-          <tr><td><code>website</code> <span class="param-opt">optional</span></td><td>string</td><td>Full URL including scheme</td></tr>
-          <tr><td><code>address</code> <span class="param-opt">optional</span></td><td>string</td><td>Street / area address</td></tr>
-          <tr><td><code>owner_id</code> <span class="param-opt">optional</span></td><td>uuid</td><td>Assigned team member. Defaults to calling user.</td></tr>
-        </tbody>
-      </table>
-      <h3>Example request</h3>
-      <div class="code-block">
-        <div class="code-block-header">
-          <span class="code-lang">curl</span>
-          <button class="copy-btn" data-code="req-post-companies">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-            Copy
-          </button>
+          </div>
         </div>
-        <pre><code id="req-post-companies">curl -X POST https://ndrkncirkekpqjjkasiy.supabase.co/rest/v1/companies \
+      </div>
+
+      <!-- POST /companies -->
+      <div class="endpoint-block" id="ep-post-companies">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-post-companies')">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/companies</span>
+          <span class="endpoint-desc">Create a company</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <h3>Body parameters</h3>
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>name</code> <span class="param-req">required</span></td>
+                <td>string</td>
+                <td>Company display name (max 200 chars)</td>
+              </tr>
+              <tr>
+                <td><code>industry</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>Industry tag, e.g. <code>retail</code>, <code>fmcg</code>, <code>pharma</code></td>
+              </tr>
+              <tr>
+                <td><code>phone</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>E.164-formatted phone number</td>
+              </tr>
+              <tr>
+                <td><code>email</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>Primary contact email</td>
+              </tr>
+              <tr>
+                <td><code>website</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>Full URL including scheme</td>
+              </tr>
+              <tr>
+                <td><code>address</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>Street / area address</td>
+              </tr>
+              <tr>
+                <td><code>owner_id</code> <span class="param-opt">optional</span></td>
+                <td>uuid</td>
+                <td>Assigned team member. Defaults to calling user.</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>Example request</h3>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">curl</span>
+              <button class="copy-btn" data-code="req-post-companies">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                </svg>
+                Copy
+              </button>
+            </div>
+            <pre><code id="req-post-companies">curl -X POST https://ndrkncirkekpqjjkasiy.supabase.co/rest/v1/companies \
   -H "Authorization: Bearer &lt;USER_JWT&gt;" \
   -H "apikey: &lt;ANON_KEY&gt;" \
   -H "Content-Type: application/json" \
@@ -438,11 +1530,11 @@ Content-Range: 50-74/312</code></pre>
     "phone": "+254712345678",
     "email": "info@acme.co.ke"
   }'</code></pre>
-      </div>
-      <h3>Response</h3>
-      <div class="code-block">
-        <div class="code-block-header"><span class="code-lang">json — 201 Created</span></div>
-        <pre><code>{
+          </div>
+          <h3>Response</h3>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">json — 201 Created</span></div>
+            <pre><code>{
   "id": "c_01HZ3BXQK5VMA",
   "name": "Acme Corp",
   "industry": "retail",
@@ -452,107 +1544,156 @@ Content-Range: 50-74/312</code></pre>
   "created_at": "2025-06-12T09:00:00Z",
   "updated_at": "2025-06-12T09:00:00Z"
 }</code></pre>
-      </div>
-    </div>
-  </div>
-
-  <!-- GET /companies/{id} -->
-  <div class="endpoint-block" id="ep-get-company-id">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-get-company-id')">
-      <span class="method-badge mb-get">GET</span>
-      <span class="endpoint-path">/companies/{id}</span>
-      <span class="endpoint-desc">Retrieve a company</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <h3>Path parameters</h3>
-      <table class="param-table">
-        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><code>id</code> <span class="param-req">required</span></td><td>string</td><td>Company ID returned from list or create</td></tr>
-        </tbody>
-      </table>
-      <p>Returns the full company object or <code>404</code> if it does not exist or the calling user lacks access.</p>
-    </div>
-  </div>
-
-  <!-- PATCH /companies/{id} -->
-  <div class="endpoint-block" id="ep-patch-company">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-patch-company')">
-      <span class="method-badge mb-patch">PATCH</span>
-      <span class="endpoint-path">/companies/{id}</span>
-      <span class="endpoint-desc">Update a company</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <p>Send only the fields you want to change. All fields are optional. Returns the updated company object.</p>
-      <div class="code-block">
-        <div class="code-block-header">
-          <span class="code-lang">curl</span>
-          <button class="copy-btn" data-code="req-patch-company">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-            Copy
-          </button>
+          </div>
         </div>
-        <pre><code id="req-patch-company">curl -X PATCH https://...supabase.co/rest/v1/companies/c_01HZ3BXQK5VMA \
+      </div>
+
+      <!-- GET /companies/{id} -->
+      <div class="endpoint-block" id="ep-get-company-id">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-get-company-id')">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/companies/{id}</span>
+          <span class="endpoint-desc">Retrieve a company</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <h3>Path parameters</h3>
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>id</code> <span class="param-req">required</span></td>
+                <td>string</td>
+                <td>Company ID returned from list or create</td>
+              </tr>
+            </tbody>
+          </table>
+          <p>Returns the full company object or <code>404</code> if it does not exist or the calling user lacks access.
+          </p>
+        </div>
+      </div>
+
+      <!-- PATCH /companies/{id} -->
+      <div class="endpoint-block" id="ep-patch-company">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-patch-company')">
+          <span class="method-badge mb-patch">PATCH</span>
+          <span class="endpoint-path">/companies/{id}</span>
+          <span class="endpoint-desc">Update a company</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <p>Send only the fields you want to change. All fields are optional. Returns the updated company object.</p>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">curl</span>
+              <button class="copy-btn" data-code="req-patch-company">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                </svg>
+                Copy
+              </button>
+            </div>
+            <pre><code id="req-patch-company">curl -X PATCH https://...supabase.co/rest/v1/companies/c_01HZ3BXQK5VMA \
   -H "Authorization: Bearer &lt;USER_JWT&gt;" \
   -H "apikey: &lt;ANON_KEY&gt;" \
   -H "Content-Type: application/json" \
   -d '{"phone":"+254799000111","industry":"fmcg"}'</code></pre>
-      </div>
-    </div>
-  </div>
-
-  <!-- DELETE /companies/{id} -->
-  <div class="endpoint-block" id="ep-del-company">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-del-company')">
-      <span class="method-badge mb-del">DELETE</span>
-      <span class="endpoint-path">/companies/{id}</span>
-      <span class="endpoint-desc">Delete a company</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <p>Permanently deletes the company and cascades to its associated contacts, visits, and opportunities. Returns <code>204 No Content</code> on success.</p>
-      <div class="callout callout-warn">
-        <svg width="18" height="18" fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        <div class="callout-body">
-          <strong>Irreversible</strong>
-          <p>Deletion cannot be undone. All linked contacts, visits, and opportunities are permanently removed.</p>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- ── CONTACTS ── -->
-  <!-- ══════════════════════════════════════════ -->
-  <a class="section-anchor" id="contacts"></a>
-  <h2>Contacts <span class="resource-badge">/contacts</span></h2>
-  <p>Individual people at a company. Contacts can be linked to visits, opportunities, and reminders.</p>
+      <!-- DELETE /companies/{id} -->
+      <div class="endpoint-block" id="ep-del-company">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-del-company')">
+          <span class="method-badge mb-del">DELETE</span>
+          <span class="endpoint-path">/companies/{id}</span>
+          <span class="endpoint-desc">Delete a company</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <p>Permanently deletes the company and cascades to its associated contacts, visits, and opportunities. Returns
+            <code>204 No Content</code> on success.</p>
+          <div class="callout callout-warn">
+            <svg width="18" height="18" fill="none" stroke="#d97706" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+              <line x1="12" y1="9" x2="12" y2="13" />
+              <line x1="12" y1="17" x2="12.01" y2="17" />
+            </svg>
+            <div class="callout-body">
+              <strong>Irreversible</strong>
+              <p>Deletion cannot be undone. All linked contacts, visits, and opportunities are permanently removed.</p>
+            </div>
+          </div>
+        </div>
+      </div>
 
-  <!-- GET /contacts -->
-  <div class="endpoint-block" id="ep-get-contacts">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-get-contacts')">
-      <span class="method-badge mb-get">GET</span>
-      <span class="endpoint-path">/contacts</span>
-      <span class="endpoint-desc">List contacts</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <h3>Query parameters</h3>
-      <table class="param-table">
-        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><code>company_id</code> <span class="param-opt">optional</span></td><td>uuid</td><td>Return only contacts for this company</td></tr>
-          <tr><td><code>search</code> <span class="param-opt">optional</span></td><td>string</td><td>Full-text search on name, email, phone</td></tr>
-          <tr><td><code>limit</code> <span class="param-opt">optional</span></td><td>integer</td><td>Max records (default 20)</td></tr>
-          <tr><td><code>offset</code> <span class="param-opt">optional</span></td><td>integer</td><td>Records to skip (default 0)</td></tr>
-        </tbody>
-      </table>
-      <h3>Response</h3>
-      <div class="code-block">
-        <div class="code-block-header"><span class="code-lang">json — 200 OK</span></div>
-        <pre><code>[
+      <!-- ══════════════════════════════════════════ -->
+      <!-- ── CONTACTS ── -->
+      <!-- ══════════════════════════════════════════ -->
+      <a class="section-anchor" id="contacts"></a>
+      <h2>Contacts <span class="resource-badge">/contacts</span></h2>
+      <p>Individual people at a company. Contacts can be linked to visits, opportunities, and reminders.</p>
+
+      <!-- GET /contacts -->
+      <div class="endpoint-block" id="ep-get-contacts">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-get-contacts')">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/contacts</span>
+          <span class="endpoint-desc">List contacts</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <h3>Query parameters</h3>
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>company_id</code> <span class="param-opt">optional</span></td>
+                <td>uuid</td>
+                <td>Return only contacts for this company</td>
+              </tr>
+              <tr>
+                <td><code>search</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>Full-text search on name, email, phone</td>
+              </tr>
+              <tr>
+                <td><code>limit</code> <span class="param-opt">optional</span></td>
+                <td>integer</td>
+                <td>Max records (default 20)</td>
+              </tr>
+              <tr>
+                <td><code>offset</code> <span class="param-opt">optional</span></td>
+                <td>integer</td>
+                <td>Records to skip (default 0)</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>Response</h3>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">json — 200 OK</span></div>
+            <pre><code>[
   {
     "id": "ct_01HZ4DKQP8WN",
     "company_id": "c_01HZ3BXQK5VMA",
@@ -564,91 +1705,155 @@ Content-Range: 50-74/312</code></pre>
     "created_at": "2025-04-02T11:30:00Z"
   }
 ]</code></pre>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <!-- POST /contacts -->
-  <div class="endpoint-block" id="ep-post-contact">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-post-contact')">
-      <span class="method-badge mb-post">POST</span>
-      <span class="endpoint-path">/contacts</span>
-      <span class="endpoint-desc">Create a contact</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <h3>Body parameters</h3>
-      <table class="param-table">
-        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><code>company_id</code> <span class="param-req">required</span></td><td>uuid</td><td>Company this contact belongs to</td></tr>
-          <tr><td><code>first_name</code> <span class="param-req">required</span></td><td>string</td><td>First name</td></tr>
-          <tr><td><code>last_name</code> <span class="param-opt">optional</span></td><td>string</td><td>Last name</td></tr>
-          <tr><td><code>email</code> <span class="param-opt">optional</span></td><td>string</td><td>Email address</td></tr>
-          <tr><td><code>phone</code> <span class="param-opt">optional</span></td><td>string</td><td>E.164-formatted phone</td></tr>
-          <tr><td><code>title</code> <span class="param-opt">optional</span></td><td>string</td><td>Job title</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
+      <!-- POST /contacts -->
+      <div class="endpoint-block" id="ep-post-contact">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-post-contact')">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/contacts</span>
+          <span class="endpoint-desc">Create a contact</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <h3>Body parameters</h3>
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>company_id</code> <span class="param-req">required</span></td>
+                <td>uuid</td>
+                <td>Company this contact belongs to</td>
+              </tr>
+              <tr>
+                <td><code>first_name</code> <span class="param-req">required</span></td>
+                <td>string</td>
+                <td>First name</td>
+              </tr>
+              <tr>
+                <td><code>last_name</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>Last name</td>
+              </tr>
+              <tr>
+                <td><code>email</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>Email address</td>
+              </tr>
+              <tr>
+                <td><code>phone</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>E.164-formatted phone</td>
+              </tr>
+              <tr>
+                <td><code>title</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>Job title</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-  <!-- GET /contacts/{id} -->
-  <div class="endpoint-block" id="ep-get-contact-id">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-get-contact-id')">
-      <span class="method-badge mb-get">GET</span>
-      <span class="endpoint-path">/contacts/{id}</span>
-      <span class="endpoint-desc">Retrieve a contact</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <p>Returns the full contact object including their linked company details.</p>
-    </div>
-  </div>
+      <!-- GET /contacts/{id} -->
+      <div class="endpoint-block" id="ep-get-contact-id">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-get-contact-id')">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/contacts/{id}</span>
+          <span class="endpoint-desc">Retrieve a contact</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <p>Returns the full contact object including their linked company details.</p>
+        </div>
+      </div>
 
-  <!-- PATCH /contacts/{id} -->
-  <div class="endpoint-block" id="ep-patch-contact">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-patch-contact')">
-      <span class="method-badge mb-patch">PATCH</span>
-      <span class="endpoint-path">/contacts/{id}</span>
-      <span class="endpoint-desc">Update a contact</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <p>Update any subset of contact fields. Returns the updated contact object.</p>
-    </div>
-  </div>
+      <!-- PATCH /contacts/{id} -->
+      <div class="endpoint-block" id="ep-patch-contact">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-patch-contact')">
+          <span class="method-badge mb-patch">PATCH</span>
+          <span class="endpoint-path">/contacts/{id}</span>
+          <span class="endpoint-desc">Update a contact</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <p>Update any subset of contact fields. Returns the updated contact object.</p>
+        </div>
+      </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- ── VISITS ── -->
-  <!-- ══════════════════════════════════════════ -->
-  <a class="section-anchor" id="visits"></a>
-  <h2>Visits <span class="resource-badge">/sales_visits</span></h2>
-  <p>Sales and field visits recorded by reps. Each visit captures GPS coordinates, outcome, duration, and notes.</p>
+      <!-- ══════════════════════════════════════════ -->
+      <!-- ── VISITS ── -->
+      <!-- ══════════════════════════════════════════ -->
+      <a class="section-anchor" id="visits"></a>
+      <h2>Visits <span class="resource-badge">/sales_visits</span></h2>
+      <p>Sales and field visits recorded by reps. Each visit captures GPS coordinates, outcome, duration, and notes.</p>
 
-  <!-- GET /sales_visits -->
-  <div class="endpoint-block" id="ep-get-visits">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-get-visits')">
-      <span class="method-badge mb-get">GET</span>
-      <span class="endpoint-path">/sales_visits</span>
-      <span class="endpoint-desc">List visits</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <h3>Query parameters</h3>
-      <table class="param-table">
-        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><code>company_id</code> <span class="param-opt">optional</span></td><td>uuid</td><td>Filter by company</td></tr>
-          <tr><td><code>rep_id</code> <span class="param-opt">optional</span></td><td>uuid</td><td>Filter by sales rep</td></tr>
-          <tr><td><code>outcome</code> <span class="param-opt">optional</span></td><td>string</td><td>One of <code>sale</code>, <code>follow_up</code>, <code>no_contact</code></td></tr>
-          <tr><td><code>from</code> <span class="param-opt">optional</span></td><td>ISO 8601</td><td>Filter visits on or after this datetime</td></tr>
-          <tr><td><code>to</code> <span class="param-opt">optional</span></td><td>ISO 8601</td><td>Filter visits before this datetime</td></tr>
-        </tbody>
-      </table>
-      <h3>Response</h3>
-      <div class="code-block">
-        <div class="code-block-header"><span class="code-lang">json — 200 OK</span></div>
-        <pre><code>[
+      <!-- GET /sales_visits -->
+      <div class="endpoint-block" id="ep-get-visits">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-get-visits')">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/sales_visits</span>
+          <span class="endpoint-desc">List visits</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <h3>Query parameters</h3>
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>company_id</code> <span class="param-opt">optional</span></td>
+                <td>uuid</td>
+                <td>Filter by company</td>
+              </tr>
+              <tr>
+                <td><code>rep_id</code> <span class="param-opt">optional</span></td>
+                <td>uuid</td>
+                <td>Filter by sales rep</td>
+              </tr>
+              <tr>
+                <td><code>outcome</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>One of <code>sale</code>, <code>follow_up</code>, <code>no_contact</code></td>
+              </tr>
+              <tr>
+                <td><code>from</code> <span class="param-opt">optional</span></td>
+                <td>ISO 8601</td>
+                <td>Filter visits on or after this datetime</td>
+              </tr>
+              <tr>
+                <td><code>to</code> <span class="param-opt">optional</span></td>
+                <td>ISO 8601</td>
+                <td>Filter visits before this datetime</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>Response</h3>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">json — 200 OK</span></div>
+            <pre><code>[
   {
     "id": "v_01HZ8MNZR4KL",
     "company_id": "c_01HZ3BXQK5VMA",
@@ -662,104 +1867,190 @@ Content-Range: 50-74/312</code></pre>
     "created_at": "2025-06-10T10:15:00Z"
   }
 ]</code></pre>
-      </div>
-    </div>
-  </div>
-
-  <!-- POST /sales_visits -->
-  <div class="endpoint-block" id="ep-post-visit">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-post-visit')">
-      <span class="method-badge mb-post">POST</span>
-      <span class="endpoint-path">/sales_visits</span>
-      <span class="endpoint-desc">Log a visit</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <h3>Body parameters</h3>
-      <table class="param-table">
-        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><code>company_id</code> <span class="param-req">required</span></td><td>uuid</td><td>Company being visited</td></tr>
-          <tr><td><code>visited_at</code> <span class="param-req">required</span></td><td>ISO 8601</td><td>Visit start timestamp</td></tr>
-          <tr><td><code>outcome</code> <span class="param-req">required</span></td><td>string</td><td><code>sale</code> · <code>follow_up</code> · <code>no_contact</code></td></tr>
-          <tr><td><code>latitude</code> <span class="param-opt">optional</span></td><td>float</td><td>GPS latitude</td></tr>
-          <tr><td><code>longitude</code> <span class="param-opt">optional</span></td><td>float</td><td>GPS longitude</td></tr>
-          <tr><td><code>duration_mins</code> <span class="param-opt">optional</span></td><td>integer</td><td>Visit length in minutes</td></tr>
-          <tr><td><code>notes</code> <span class="param-opt">optional</span></td><td>string</td><td>Free-text visit notes</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- PATCH /sales_visits/{id} -->
-  <div class="endpoint-block" id="ep-patch-visit">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-patch-visit')">
-      <span class="method-badge mb-patch">PATCH</span>
-      <span class="endpoint-path">/sales_visits/{id}</span>
-      <span class="endpoint-desc">Update a visit</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <p>Update outcome, notes, or duration of an existing visit. Location fields cannot be changed after creation.</p>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════ -->
-  <!-- ── ROUTE PLANS ── -->
-  <!-- ══════════════════════════════════════════ -->
-  <a class="section-anchor" id="route-plans"></a>
-  <h2>Route Plans <span class="resource-badge">/route_plans</span></h2>
-  <p>Ordered collections of stops for a rep's field day. Optionally auto-optimised for shortest-path traversal.</p>
-
-  <!-- GET /route_plans -->
-  <div class="endpoint-block" id="ep-get-routes">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-get-routes')">
-      <span class="method-badge mb-get">GET</span>
-      <span class="endpoint-path">/route_plans</span>
-      <span class="endpoint-desc">List route plans</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <h3>Query parameters</h3>
-      <table class="param-table">
-        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><code>rep_id</code> <span class="param-opt">optional</span></td><td>uuid</td><td>Filter by assigned rep</td></tr>
-          <tr><td><code>date</code> <span class="param-opt">optional</span></td><td>date (YYYY-MM-DD)</td><td>Plans scheduled for this date</td></tr>
-          <tr><td><code>status</code> <span class="param-opt">optional</span></td><td>string</td><td><code>planned</code> · <code>active</code> · <code>completed</code></td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- POST /route_plans -->
-  <div class="endpoint-block" id="ep-post-route">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-post-route')">
-      <span class="method-badge mb-post">POST</span>
-      <span class="endpoint-path">/route_plans</span>
-      <span class="endpoint-desc">Create a route plan</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <h3>Body parameters</h3>
-      <table class="param-table">
-        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><code>rep_id</code> <span class="param-req">required</span></td><td>uuid</td><td>Rep this plan is assigned to</td></tr>
-          <tr><td><code>date</code> <span class="param-req">required</span></td><td>date</td><td>Scheduled date (YYYY-MM-DD)</td></tr>
-          <tr><td><code>stops</code> <span class="param-req">required</span></td><td>array&lt;uuid&gt;</td><td>Ordered array of company IDs</td></tr>
-          <tr><td><code>optimise</code> <span class="param-opt">optional</span></td><td>boolean</td><td>Reorder stops for minimum travel distance (default false)</td></tr>
-        </tbody>
-      </table>
-      <div class="code-block">
-        <div class="code-block-header">
-          <span class="code-lang">curl</span>
-          <button class="copy-btn" data-code="req-post-route">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-            Copy
-          </button>
+          </div>
         </div>
-        <pre><code id="req-post-route">curl -X POST https://...supabase.co/rest/v1/route_plans \
+      </div>
+
+      <!-- POST /sales_visits -->
+      <div class="endpoint-block" id="ep-post-visit">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-post-visit')">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/sales_visits</span>
+          <span class="endpoint-desc">Log a visit</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <h3>Body parameters</h3>
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>company_id</code> <span class="param-req">required</span></td>
+                <td>uuid</td>
+                <td>Company being visited</td>
+              </tr>
+              <tr>
+                <td><code>visited_at</code> <span class="param-req">required</span></td>
+                <td>ISO 8601</td>
+                <td>Visit start timestamp</td>
+              </tr>
+              <tr>
+                <td><code>outcome</code> <span class="param-req">required</span></td>
+                <td>string</td>
+                <td><code>sale</code> · <code>follow_up</code> · <code>no_contact</code></td>
+              </tr>
+              <tr>
+                <td><code>latitude</code> <span class="param-opt">optional</span></td>
+                <td>float</td>
+                <td>GPS latitude</td>
+              </tr>
+              <tr>
+                <td><code>longitude</code> <span class="param-opt">optional</span></td>
+                <td>float</td>
+                <td>GPS longitude</td>
+              </tr>
+              <tr>
+                <td><code>duration_mins</code> <span class="param-opt">optional</span></td>
+                <td>integer</td>
+                <td>Visit length in minutes</td>
+              </tr>
+              <tr>
+                <td><code>notes</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>Free-text visit notes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PATCH /sales_visits/{id} -->
+      <div class="endpoint-block" id="ep-patch-visit">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-patch-visit')">
+          <span class="method-badge mb-patch">PATCH</span>
+          <span class="endpoint-path">/sales_visits/{id}</span>
+          <span class="endpoint-desc">Update a visit</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <p>Update outcome, notes, or duration of an existing visit. Location fields cannot be changed after creation.
+          </p>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- ── ROUTE PLANS ── -->
+      <!-- ══════════════════════════════════════════ -->
+      <a class="section-anchor" id="route-plans"></a>
+      <h2>Route Plans <span class="resource-badge">/route_plans</span></h2>
+      <p>Ordered collections of stops for a rep's field day. Optionally auto-optimised for shortest-path traversal.</p>
+
+      <!-- GET /route_plans -->
+      <div class="endpoint-block" id="ep-get-routes">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-get-routes')">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/route_plans</span>
+          <span class="endpoint-desc">List route plans</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <h3>Query parameters</h3>
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>rep_id</code> <span class="param-opt">optional</span></td>
+                <td>uuid</td>
+                <td>Filter by assigned rep</td>
+              </tr>
+              <tr>
+                <td><code>date</code> <span class="param-opt">optional</span></td>
+                <td>date (YYYY-MM-DD)</td>
+                <td>Plans scheduled for this date</td>
+              </tr>
+              <tr>
+                <td><code>status</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td><code>planned</code> · <code>active</code> · <code>completed</code></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- POST /route_plans -->
+      <div class="endpoint-block" id="ep-post-route">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-post-route')">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/route_plans</span>
+          <span class="endpoint-desc">Create a route plan</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <h3>Body parameters</h3>
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>rep_id</code> <span class="param-req">required</span></td>
+                <td>uuid</td>
+                <td>Rep this plan is assigned to</td>
+              </tr>
+              <tr>
+                <td><code>date</code> <span class="param-req">required</span></td>
+                <td>date</td>
+                <td>Scheduled date (YYYY-MM-DD)</td>
+              </tr>
+              <tr>
+                <td><code>stops</code> <span class="param-req">required</span></td>
+                <td>array&lt;uuid&gt;</td>
+                <td>Ordered array of company IDs</td>
+              </tr>
+              <tr>
+                <td><code>optimise</code> <span class="param-opt">optional</span></td>
+                <td>boolean</td>
+                <td>Reorder stops for minimum travel distance (default false)</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">curl</span>
+              <button class="copy-btn" data-code="req-post-route">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                </svg>
+                Copy
+              </button>
+            </div>
+            <pre><code id="req-post-route">curl -X POST https://...supabase.co/rest/v1/route_plans \
   -H "Authorization: Bearer &lt;USER_JWT&gt;" \
   -H "apikey: &lt;ANON_KEY&gt;" \
   -H "Content-Type: application/json" \
@@ -769,65 +2060,91 @@ Content-Range: 50-74/312</code></pre>
     "stops": ["c_01HZ3...", "c_02KL9...", "c_03MN0..."],
     "optimise": true
   }'</code></pre>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <!-- GET /route_plans/{id} -->
-  <div class="endpoint-block" id="ep-get-route-id">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-get-route-id')">
-      <span class="method-badge mb-get">GET</span>
-      <span class="endpoint-path">/route_plans/{id}</span>
-      <span class="endpoint-desc">Retrieve a route plan</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <p>Returns the route plan with its ordered <code>stops</code> array, each resolved to the full company object with name and coordinates.</p>
-    </div>
-  </div>
+      <!-- GET /route_plans/{id} -->
+      <div class="endpoint-block" id="ep-get-route-id">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-get-route-id')">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/route_plans/{id}</span>
+          <span class="endpoint-desc">Retrieve a route plan</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <p>Returns the route plan with its ordered <code>stops</code> array, each resolved to the full company object
+            with name and coordinates.</p>
+        </div>
+      </div>
 
-  <!-- PATCH /route_plans/{id} -->
-  <div class="endpoint-block" id="ep-patch-route">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-patch-route')">
-      <span class="method-badge mb-patch">PATCH</span>
-      <span class="endpoint-path">/route_plans/{id}</span>
-      <span class="endpoint-desc">Update a route plan</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <p>Modify stops or status of a route plan. To mark a plan complete, set <code>"status":"completed"</code>.</p>
-    </div>
-  </div>
+      <!-- PATCH /route_plans/{id} -->
+      <div class="endpoint-block" id="ep-patch-route">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-patch-route')">
+          <span class="method-badge mb-patch">PATCH</span>
+          <span class="endpoint-path">/route_plans/{id}</span>
+          <span class="endpoint-desc">Update a route plan</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <p>Modify stops or status of a route plan. To mark a plan complete, set <code>"status":"completed"</code>.</p>
+        </div>
+      </div>
 
-  <!-- ══════════════════════════════════════════ -->
-  <!-- ── OPPORTUNITIES ── -->
-  <!-- ══════════════════════════════════════════ -->
-  <a class="section-anchor" id="opportunities"></a>
-  <h2>Opportunities <span class="resource-badge">/opportunities</span></h2>
-  <p>Sales pipeline deals. Track value, stage progress, expected close date, and win probability.</p>
+      <!-- ══════════════════════════════════════════ -->
+      <!-- ── OPPORTUNITIES ── -->
+      <!-- ══════════════════════════════════════════ -->
+      <a class="section-anchor" id="opportunities"></a>
+      <h2>Opportunities <span class="resource-badge">/opportunities</span></h2>
+      <p>Sales pipeline deals. Track value, stage progress, expected close date, and win probability.</p>
 
-  <!-- GET /opportunities -->
-  <div class="endpoint-block" id="ep-get-opps">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-get-opps')">
-      <span class="method-badge mb-get">GET</span>
-      <span class="endpoint-path">/opportunities</span>
-      <span class="endpoint-desc">List opportunities</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <h3>Query parameters</h3>
-      <table class="param-table">
-        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><code>company_id</code> <span class="param-opt">optional</span></td><td>uuid</td><td>Filter by company</td></tr>
-          <tr><td><code>stage</code> <span class="param-opt">optional</span></td><td>string</td><td><code>lead</code> · <code>qualified</code> · <code>proposal</code> · <code>negotiation</code> · <code>won</code> · <code>lost</code></td></tr>
-          <tr><td><code>owner_id</code> <span class="param-opt">optional</span></td><td>uuid</td><td>Filter by owner</td></tr>
-        </tbody>
-      </table>
-      <h3>Response</h3>
-      <div class="code-block">
-        <div class="code-block-header"><span class="code-lang">json — 200 OK</span></div>
-        <pre><code>[
+      <!-- GET /opportunities -->
+      <div class="endpoint-block" id="ep-get-opps">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-get-opps')">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/opportunities</span>
+          <span class="endpoint-desc">List opportunities</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <h3>Query parameters</h3>
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>company_id</code> <span class="param-opt">optional</span></td>
+                <td>uuid</td>
+                <td>Filter by company</td>
+              </tr>
+              <tr>
+                <td><code>stage</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td><code>lead</code> · <code>qualified</code> · <code>proposal</code> · <code>negotiation</code> ·
+                  <code>won</code> · <code>lost</code></td>
+              </tr>
+              <tr>
+                <td><code>owner_id</code> <span class="param-opt">optional</span></td>
+                <td>uuid</td>
+                <td>Filter by owner</td>
+              </tr>
+            </tbody>
+          </table>
+          <h3>Response</h3>
+          <div class="code-block">
+            <div class="code-block-header"><span class="code-lang">json — 200 OK</span></div>
+            <pre><code>[
   {
     "id": "opp_01HZ9KLWQ2TR",
     "company_id": "c_01HZ3BXQK5VMA",
@@ -841,109 +2158,201 @@ Content-Range: 50-74/312</code></pre>
     "created_at": "2025-06-05T08:00:00Z"
   }
 ]</code></pre>
-      </div>
-    </div>
-  </div>
-
-  <!-- POST /opportunities -->
-  <div class="endpoint-block" id="ep-post-opp">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-post-opp')">
-      <span class="method-badge mb-post">POST</span>
-      <span class="endpoint-path">/opportunities</span>
-      <span class="endpoint-desc">Create an opportunity</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <h3>Body parameters</h3>
-      <table class="param-table">
-        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><code>company_id</code> <span class="param-req">required</span></td><td>uuid</td><td>Associated company</td></tr>
-          <tr><td><code>title</code> <span class="param-req">required</span></td><td>string</td><td>Deal name</td></tr>
-          <tr><td><code>value</code> <span class="param-opt">optional</span></td><td>number</td><td>Monetary value</td></tr>
-          <tr><td><code>currency</code> <span class="param-opt">optional</span></td><td>string</td><td>ISO 4217 currency code (default <code>KES</code>)</td></tr>
-          <tr><td><code>stage</code> <span class="param-opt">optional</span></td><td>string</td><td>Pipeline stage (default <code>lead</code>)</td></tr>
-          <tr><td><code>probability</code> <span class="param-opt">optional</span></td><td>integer</td><td>Win probability 0–100</td></tr>
-          <tr><td><code>close_date</code> <span class="param-opt">optional</span></td><td>date</td><td>Expected close date (YYYY-MM-DD)</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- PATCH /opportunities/{id} -->
-  <div class="endpoint-block" id="ep-patch-opp">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-patch-opp')">
-      <span class="method-badge mb-patch">PATCH</span>
-      <span class="endpoint-path">/opportunities/{id}</span>
-      <span class="endpoint-desc">Update an opportunity</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <p>Move an opportunity through stages or update its value. To close a deal: set <code>"stage":"won"</code> or <code>"stage":"lost"</code>.</p>
-    </div>
-  </div>
-
-  <!-- ══════════════════════════════════════════ -->
-  <!-- ── WEBHOOKS ── -->
-  <!-- ══════════════════════════════════════════ -->
-  <a class="section-anchor" id="webhooks"></a>
-  <h2>Webhooks <span class="resource-badge">/webhooks</span></h2>
-  <p>Register HTTPS endpoints to receive real-time event notifications. SafiTrack signs every delivery with an HMAC-SHA256 signature so you can verify authenticity.</p>
-
-  <h3>Events</h3>
-  <table class="param-table">
-    <thead><tr><th>Event</th><th>Triggered when</th></tr></thead>
-    <tbody>
-      <tr><td><code>company.created</code></td><td>A new company is added</td></tr>
-      <tr><td><code>company.updated</code></td><td>A company record is changed</td></tr>
-      <tr><td><code>contact.created</code></td><td>A new contact is added</td></tr>
-      <tr><td><code>visit.completed</code></td><td>A visit is logged with an outcome</td></tr>
-      <tr><td><code>opportunity.stage_changed</code></td><td>A deal moves to a new stage</td></tr>
-      <tr><td><code>opportunity.won</code></td><td>A deal is marked won</td></tr>
-      <tr><td><code>route_plan.started</code></td><td>A rep begins their route plan</td></tr>
-    </tbody>
-  </table>
-
-  <!-- GET /webhooks -->
-  <div class="endpoint-block" id="ep-get-webhooks">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-get-webhooks')">
-      <span class="method-badge mb-get">GET</span>
-      <span class="endpoint-path">/webhooks</span>
-      <span class="endpoint-desc">List webhook subscriptions</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <p>Returns all registered webhooks for the authenticated workspace. The <code>secret</code> field is never returned after creation.</p>
-    </div>
-  </div>
-
-  <!-- POST /webhooks -->
-  <div class="endpoint-block" id="ep-post-webhook">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-post-webhook')">
-      <span class="method-badge mb-post">POST</span>
-      <span class="endpoint-path">/webhooks</span>
-      <span class="endpoint-desc">Register a webhook</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <h3>Body parameters</h3>
-      <table class="param-table">
-        <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td><code>url</code> <span class="param-req">required</span></td><td>string</td><td>HTTPS endpoint to receive events</td></tr>
-          <tr><td><code>events</code> <span class="param-req">required</span></td><td>array&lt;string&gt;</td><td>List of event names to subscribe to</td></tr>
-          <tr><td><code>description</code> <span class="param-opt">optional</span></td><td>string</td><td>Internal label for this subscription</td></tr>
-        </tbody>
-      </table>
-      <div class="code-block">
-        <div class="code-block-header">
-          <span class="code-lang">curl</span>
-          <button class="copy-btn" data-code="req-post-webhook">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-            Copy
-          </button>
+          </div>
         </div>
-        <pre><code id="req-post-webhook">curl -X POST https://...supabase.co/rest/v1/webhooks \
+      </div>
+
+      <!-- POST /opportunities -->
+      <div class="endpoint-block" id="ep-post-opp">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-post-opp')">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/opportunities</span>
+          <span class="endpoint-desc">Create an opportunity</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <h3>Body parameters</h3>
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>company_id</code> <span class="param-req">required</span></td>
+                <td>uuid</td>
+                <td>Associated company</td>
+              </tr>
+              <tr>
+                <td><code>title</code> <span class="param-req">required</span></td>
+                <td>string</td>
+                <td>Deal name</td>
+              </tr>
+              <tr>
+                <td><code>value</code> <span class="param-opt">optional</span></td>
+                <td>number</td>
+                <td>Monetary value</td>
+              </tr>
+              <tr>
+                <td><code>currency</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>ISO 4217 currency code (default <code>KES</code>)</td>
+              </tr>
+              <tr>
+                <td><code>stage</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>Pipeline stage (default <code>lead</code>)</td>
+              </tr>
+              <tr>
+                <td><code>probability</code> <span class="param-opt">optional</span></td>
+                <td>integer</td>
+                <td>Win probability 0–100</td>
+              </tr>
+              <tr>
+                <td><code>close_date</code> <span class="param-opt">optional</span></td>
+                <td>date</td>
+                <td>Expected close date (YYYY-MM-DD)</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- PATCH /opportunities/{id} -->
+      <div class="endpoint-block" id="ep-patch-opp">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-patch-opp')">
+          <span class="method-badge mb-patch">PATCH</span>
+          <span class="endpoint-path">/opportunities/{id}</span>
+          <span class="endpoint-desc">Update an opportunity</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <p>Move an opportunity through stages or update its value. To close a deal: set <code>"stage":"won"</code> or
+            <code>"stage":"lost"</code>.</p>
+        </div>
+      </div>
+
+      <!-- ══════════════════════════════════════════ -->
+      <!-- ── WEBHOOKS ── -->
+      <!-- ══════════════════════════════════════════ -->
+      <a class="section-anchor" id="webhooks"></a>
+      <h2>Webhooks <span class="resource-badge">/webhooks</span></h2>
+      <p>Register HTTPS endpoints to receive real-time event notifications. SafiTrack signs every delivery with an
+        HMAC-SHA256 signature so you can verify authenticity.</p>
+
+      <h3>Events</h3>
+      <table class="param-table">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Triggered when</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>company.created</code></td>
+            <td>A new company is added</td>
+          </tr>
+          <tr>
+            <td><code>company.updated</code></td>
+            <td>A company record is changed</td>
+          </tr>
+          <tr>
+            <td><code>contact.created</code></td>
+            <td>A new contact is added</td>
+          </tr>
+          <tr>
+            <td><code>visit.completed</code></td>
+            <td>A visit is logged with an outcome</td>
+          </tr>
+          <tr>
+            <td><code>opportunity.stage_changed</code></td>
+            <td>A deal moves to a new stage</td>
+          </tr>
+          <tr>
+            <td><code>opportunity.won</code></td>
+            <td>A deal is marked won</td>
+          </tr>
+          <tr>
+            <td><code>route_plan.started</code></td>
+            <td>A rep begins their route plan</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- GET /webhooks -->
+      <div class="endpoint-block" id="ep-get-webhooks">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-get-webhooks')">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/webhooks</span>
+          <span class="endpoint-desc">List webhook subscriptions</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <p>Returns all registered webhooks for the authenticated workspace. The <code>secret</code> field is never
+            returned after creation.</p>
+        </div>
+      </div>
+
+      <!-- POST /webhooks -->
+      <div class="endpoint-block" id="ep-post-webhook">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-post-webhook')">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/webhooks</span>
+          <span class="endpoint-desc">Register a webhook</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <h3>Body parameters</h3>
+          <table class="param-table">
+            <thead>
+              <tr>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>url</code> <span class="param-req">required</span></td>
+                <td>string</td>
+                <td>HTTPS endpoint to receive events</td>
+              </tr>
+              <tr>
+                <td><code>events</code> <span class="param-req">required</span></td>
+                <td>array&lt;string&gt;</td>
+                <td>List of event names to subscribe to</td>
+              </tr>
+              <tr>
+                <td><code>description</code> <span class="param-opt">optional</span></td>
+                <td>string</td>
+                <td>Internal label for this subscription</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">curl</span>
+              <button class="copy-btn" data-code="req-post-webhook">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                </svg>
+                Copy
+              </button>
+            </div>
+            <pre><code id="req-post-webhook">curl -X POST https://...supabase.co/rest/v1/webhooks \
   -H "Authorization: Bearer &lt;USER_JWT&gt;" \
   -H "apikey: &lt;ANON_KEY&gt;" \
   -H "Content-Type: application/json" \
@@ -952,19 +2361,23 @@ Content-Range: 50-74/312</code></pre>
     "events": ["visit.completed", "opportunity.won"],
     "description": "CRM sync pipeline"
   }'</code></pre>
-      </div>
-      <p>The response returns a one-time <code>secret</code>. Store it immediately — it will not be shown again.</p>
-      <h3>Verifying signatures</h3>
-      <p>Each webhook delivery includes an <code>X-SafiTrack-Signature</code> header. Verify it with HMAC-SHA256:</p>
-      <div class="code-block">
-        <div class="code-block-header">
-          <span class="code-lang">node.js</span>
-          <button class="copy-btn" data-code="webhook-verify">
-            <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-            Copy
-          </button>
-        </div>
-        <pre><code id="webhook-verify">const crypto = require('crypto');
+          </div>
+          <p>The response returns a one-time <code>secret</code>. Store it immediately — it will not be shown again.</p>
+          <h3>Verifying signatures</h3>
+          <p>Each webhook delivery includes an <code>X-SafiTrack-Signature</code> header. Verify it with HMAC-SHA256:
+          </p>
+          <div class="code-block">
+            <div class="code-block-header">
+              <span class="code-lang">node.js</span>
+              <button class="copy-btn" data-code="webhook-verify">
+                <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                  <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                </svg>
+                Copy
+              </button>
+            </div>
+            <pre><code id="webhook-verify">const crypto = require('crypto');
 
 function verifySignature(rawBody, signature, secret) {
   const expected = crypto
@@ -987,206 +2400,213 @@ app.post('/hooks/safitrack', express.raw({ type: '*/*' }), (req, res) =&gt; {
   console.log('Event:', event.type, event.data);
   res.sendStatus(200);
 });</code></pre>
-      </div>
-    </div>
-  </div>
-
-  <!-- DELETE /webhooks/{id} -->
-  <div class="endpoint-block" id="ep-del-webhook">
-    <div class="endpoint-header" onclick="toggleEndpoint('ep-del-webhook')">
-      <span class="method-badge mb-del">DELETE</span>
-      <span class="endpoint-path">/webhooks/{id}</span>
-      <span class="endpoint-desc">Delete a webhook</span>
-      <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-    </div>
-    <div class="endpoint-body">
-      <p>Unregisters the webhook. No further events will be delivered to that URL. Returns <code>204 No Content</code>.</p>
-    </div>
-  </div>
-
-  <!-- page nav -->
-  <div class="page-nav">
-    <a href="documentation.html" class="page-nav-btn">
-      <div class="page-nav-label">← Previous</div>
-      <div class="page-nav-title">Documentation</div>
-    </a>
-    <a href="helpcenter.html" class="page-nav-btn" style="text-align:right;margin-left:auto">
-      <div class="page-nav-label">Next →</div>
-      <div class="page-nav-title">Help Center</div>
-    </a>
-  </div>
-
-</main>
-
-<!-- ═══════════ TOC ═══════════ -->
-<nav class="api-toc">
-  <span class="toc-label">On this page</span>
-  <a href="#intro" class="toc-link active">Introduction</a>
-  <a href="#auth" class="toc-link">Authentication</a>
-  <a href="#rate-limits" class="toc-link">Rate Limits</a>
-  <a href="#pagination" class="toc-link">Pagination</a>
-  <a href="#errors" class="toc-link">Errors</a>
-  <a href="#companies" class="toc-link">Companies</a>
-  <a href="#contacts" class="toc-link">Contacts</a>
-  <a href="#visits" class="toc-link">Visits</a>
-  <a href="#route-plans" class="toc-link">Route Plans</a>
-  <a href="#opportunities" class="toc-link">Opportunities</a>
-  <a href="#webhooks" class="toc-link">Webhooks</a>
-</nav>
-
-</div>
-
-<footer class="footer">
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-brand">
-        <div class="footer-logo-wrapper">
-          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
-        </div>
-        <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp; sales CRM built for modern teams.</p>
-      </div>
-      <div class="footer-links">
-        <div class="footer-column">
-          <h4 class="footer-heading">Product</h4>
-          <ul>
-            <li><a href="features/mainfeatures.html">Features</a></li>
-            <li><a href="pricing.html">Pricing</a></li>
-            <li><a href="integrations.html">Integrations</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Company</h4>
-          <ul>
-            <li><a href="blog.html">Blog</a></li>
-            <li><a href="careers.html">Careers</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Resources</h4>
-          <ul>
-            <li><a href="documentation.html">Documentation</a></li>
-            <li><a href="helpcenter.html">Help Center</a></li>
-            <li><a href="apireference.html">API Reference</a></li>
-            <li><a href="status.html">Status</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Legal</h4>
-          <ul>
-            <li><a href="legal/privacy.html">Privacy Policy</a></li>
-            <li><a href="legal/terms.html">Terms of Service</a></li>
-          </ul>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-      <div class="footer-social">
-        <a href="#">Twitter</a>
-        <a href="#">LinkedIn</a>
-        <a href="#">GitHub</a>
+
+      <!-- DELETE /webhooks/{id} -->
+      <div class="endpoint-block" id="ep-del-webhook">
+        <div class="endpoint-header" onclick="toggleEndpoint('ep-del-webhook')">
+          <span class="method-badge mb-del">DELETE</span>
+          <span class="endpoint-path">/webhooks/{id}</span>
+          <span class="endpoint-desc">Delete a webhook</span>
+          <svg class="ep-chevron" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </div>
+        <div class="endpoint-body">
+          <p>Unregisters the webhook. No further events will be delivered to that URL. Returns
+            <code>204 No Content</code>.</p>
+        </div>
+      </div>
+
+      <!-- page nav -->
+      <div class="page-nav">
+        <a href="documentation.html" class="page-nav-btn">
+          <div class="page-nav-label">← Previous</div>
+          <div class="page-nav-title">Documentation</div>
+        </a>
+        <a href="helpcenter.html" class="page-nav-btn" style="text-align:right;margin-left:auto">
+          <div class="page-nav-label">Next →</div>
+          <div class="page-nav-title">Help Center</div>
+        </a>
+      </div>
+
+    </main>
+
+    <!-- ═══════════ TOC ═══════════ -->
+    <nav class="api-toc">
+      <span class="toc-label">On this page</span>
+      <a href="#intro" class="toc-link active">Introduction</a>
+      <a href="#auth" class="toc-link">Authentication</a>
+      <a href="#rate-limits" class="toc-link">Rate Limits</a>
+      <a href="#pagination" class="toc-link">Pagination</a>
+      <a href="#errors" class="toc-link">Errors</a>
+      <a href="#companies" class="toc-link">Companies</a>
+      <a href="#contacts" class="toc-link">Contacts</a>
+      <a href="#visits" class="toc-link">Visits</a>
+      <a href="#route-plans" class="toc-link">Route Plans</a>
+      <a href="#opportunities" class="toc-link">Opportunities</a>
+      <a href="#webhooks" class="toc-link">Webhooks</a>
+    </nav>
+
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="footer-logo-wrapper">
+            <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
+          </div>
+          <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp;
+            sales CRM built for modern teams.</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-column">
+            <h4 class="footer-heading">Product</h4>
+            <ul>
+              <li><a href="features/mainfeatures.html">Features</a></li>
+              <li><a href="pricing.html">Pricing</a></li>
+              <li><a href="integrations.html">Integrations</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Company</h4>
+            <ul>
+              <li><a href="blog.html">Blog</a></li>
+              <li><a href="careers.html">Careers</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Resources</h4>
+            <ul>
+              <li><a href="documentation.html">Documentation</a></li>
+              <li><a href="helpcenter.html">Help Center</a></li>
+              <li><a href="apireference.html">API Reference</a></li>
+              <li><a href="status.html">Status</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Legal</h4>
+            <ul>
+              <li><a href="legal/privacy.html">Privacy Policy</a></li>
+              <li><a href="legal/terms.html">Terms of Service</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+        <div class="footer-social">
+          <a href="#">Twitter</a>
+          <a href="#">LinkedIn</a>
+          <a href="#">GitHub</a>
+        </div>
       </div>
     </div>
-  </div>
-</footer>
-<script>
-(function(){
-  /* ── mobile nav ── */
-  var mb=document.querySelector('.mobile-menu-btn'),
-      mo=document.querySelector('.mobile-nav-overlay'),
-      mc=document.querySelector('.mobile-close-btn');
-  if(mb&&mo){
-    mb.addEventListener('click',function(){mo.classList.add('active');});
-    if(mc)mc.addEventListener('click',function(){mo.classList.remove('active');});
-    mo.addEventListener('click',function(e){if(e.target===mo)mo.classList.remove('active');});
-  }
-  /* ── navbar scroll ── */
-  window.addEventListener('scroll',function(){
-    var nb=document.getElementById('navbar');
-    if(nb)nb.classList.toggle('scrolled',window.scrollY>20);
-  });
-
-  /* ── endpoint accordion ── */
-  window.toggleEndpoint=function(id){
-    var el=document.getElementById(id);
-    if(el)el.classList.toggle('open');
-  };
-
-  /* ── copy buttons ── */
-  document.querySelectorAll('.copy-btn').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var codeId=btn.getAttribute('data-code');
-      var codeEl=document.getElementById(codeId);
-      var text=codeEl?codeEl.textContent:'';
-      if(!text){
-        // fallback: copy nearest pre code
-        var block=btn.closest('.code-block');
-        if(block){var c=block.querySelector('pre code');if(c)text=c.textContent;}
+  </footer>
+  <script>
+    (function () {
+      /* ── mobile nav ── */
+      var mb = document.querySelector('.mobile-menu-btn'),
+        mo = document.querySelector('.mobile-nav-overlay'),
+        mc = document.querySelector('.mobile-close-btn');
+      if (mb && mo) {
+        mb.addEventListener('click', function () { mo.classList.add('active'); });
+        if (mc) mc.addEventListener('click', function () { mo.classList.remove('active'); });
+        mo.addEventListener('click', function (e) { if (e.target === mo) mo.classList.remove('active'); });
       }
-      navigator.clipboard.writeText(text).then(function(){
-        var orig=btn.innerHTML;
-        btn.innerHTML='<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Copied';
-        btn.classList.add('copied');
-        setTimeout(function(){btn.innerHTML=orig;btn.classList.remove('copied');},2000);
+      /* ── navbar scroll ── */
+      window.addEventListener('scroll', function () {
+        var nb = document.getElementById('navbar');
+        if (nb) nb.classList.toggle('scrolled', window.scrollY > 20);
       });
-    });
-  });
 
-  /* ── sidebar search filter ── */
-  var searchEl=document.getElementById('sidebarSearch');
-  if(searchEl){
-    searchEl.addEventListener('input',function(){
-      var q=this.value.toLowerCase().trim();
-      document.querySelectorAll('.api-sidebar .sidebar-link').forEach(function(link){
-        if(!q){link.style.display='';return;}
-        var txt=link.textContent.toLowerCase();
-        link.style.display=txt.includes(q)?'':'none';
+      /* ── endpoint accordion ── */
+      window.toggleEndpoint = function (id) {
+        var el = document.getElementById(id);
+        if (el) el.classList.toggle('open');
+      };
+
+      /* ── copy buttons ── */
+      document.querySelectorAll('.copy-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var codeId = btn.getAttribute('data-code');
+          var codeEl = document.getElementById(codeId);
+          var text = codeEl ? codeEl.textContent : '';
+          if (!text) {
+            // fallback: copy nearest pre code
+            var block = btn.closest('.code-block');
+            if (block) { var c = block.querySelector('pre code'); if (c) text = c.textContent; }
+          }
+          navigator.clipboard.writeText(text).then(function () {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Copied';
+            btn.classList.add('copied');
+            setTimeout(function () { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+          });
+        });
       });
-      document.querySelectorAll('.api-sidebar .sidebar-label').forEach(function(lbl){
-        if(!q){lbl.style.display='';return;}
-        // hide label if all its sibling links are hidden
-        var section=lbl.closest('.sidebar-section');
-        if(!section){return;}
-        var visible=Array.from(section.querySelectorAll('.sidebar-link')).some(function(l){return l.style.display!=='none';});
-        lbl.style.display=visible?'':'none';
+
+      /* ── sidebar search filter ── */
+      var searchEl = document.getElementById('sidebarSearch');
+      if (searchEl) {
+        searchEl.addEventListener('input', function () {
+          var q = this.value.toLowerCase().trim();
+          document.querySelectorAll('.api-sidebar .sidebar-link').forEach(function (link) {
+            if (!q) { link.style.display = ''; return; }
+            var txt = link.textContent.toLowerCase();
+            link.style.display = txt.includes(q) ? '' : 'none';
+          });
+          document.querySelectorAll('.api-sidebar .sidebar-label').forEach(function (lbl) {
+            if (!q) { lbl.style.display = ''; return; }
+            // hide label if all its sibling links are hidden
+            var section = lbl.closest('.sidebar-section');
+            if (!section) { return; }
+            var visible = Array.from(section.querySelectorAll('.sidebar-link')).some(function (l) { return l.style.display !== 'none'; });
+            lbl.style.display = visible ? '' : 'none';
+          });
+        });
+      }
+
+      /* ── scroll spy ── */
+      var sections = Array.from(document.querySelectorAll('.section-anchor')).map(function (a) { return a.id; });
+      var sidebarLinks = {};
+      var tocLinks = {};
+      document.querySelectorAll('.api-sidebar .sidebar-link').forEach(function (l) {
+        var href = l.getAttribute('href');
+        if (href && href.startsWith('#')) sidebarLinks[href.slice(1)] = l;
       });
-    });
-  }
-
-  /* ── scroll spy ── */
-  var sections=Array.from(document.querySelectorAll('.section-anchor')).map(function(a){return a.id;});
-  var sidebarLinks={};
-  var tocLinks={};
-  document.querySelectorAll('.api-sidebar .sidebar-link').forEach(function(l){
-    var href=l.getAttribute('href');
-    if(href&&href.startsWith('#'))sidebarLinks[href.slice(1)]=l;
-  });
-  document.querySelectorAll('.api-toc .toc-link').forEach(function(l){
-    var href=l.getAttribute('href');
-    if(href&&href.startsWith('#'))tocLinks[href.slice(1)]=l;
-  });
-
-  function setActive(id){
-    Object.values(sidebarLinks).forEach(function(l){l.classList.remove('active');});
-    Object.values(tocLinks).forEach(function(l){l.classList.remove('active');});
-    if(sidebarLinks[id])sidebarLinks[id].classList.add('active');
-    if(tocLinks[id])tocLinks[id].classList.add('active');
-  }
-
-  var ticking=false;
-  window.addEventListener('scroll',function(){
-    if(!ticking){requestAnimationFrame(function(){
-      var scrollPos=window.scrollY+100;
-      var current=sections[0]||'intro';
-      sections.forEach(function(id){
-        var el=document.getElementById(id);
-        if(el&&el.getBoundingClientRect().top+window.scrollY<=scrollPos)current=id;
+      document.querySelectorAll('.api-toc .toc-link').forEach(function (l) {
+        var href = l.getAttribute('href');
+        if (href && href.startsWith('#')) tocLinks[href.slice(1)] = l;
       });
-      setActive(current);
-      ticking=false;
-    });ticking=true;}
-  });
-})();
-</script>
+
+      function setActive(id) {
+        Object.values(sidebarLinks).forEach(function (l) { l.classList.remove('active'); });
+        Object.values(tocLinks).forEach(function (l) { l.classList.remove('active'); });
+        if (sidebarLinks[id]) sidebarLinks[id].classList.add('active');
+        if (tocLinks[id]) tocLinks[id].classList.add('active');
+      }
+
+      var ticking = false;
+      window.addEventListener('scroll', function () {
+        if (!ticking) {
+          requestAnimationFrame(function () {
+            var scrollPos = window.scrollY + 100;
+            var current = sections[0] || 'intro';
+            sections.forEach(function (id) {
+              var el = document.getElementById(id);
+              if (el && el.getBoundingClientRect().top + window.scrollY <= scrollPos) current = id;
+            });
+            setActive(current);
+            ticking = false;
+          }); ticking = true;
+        }
+      });
+    })();
+  </script>
 </body>
+
 </html>

@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Careers - SafiTrack</title>
-  <meta name="description" content="Join the SafiTrack team. We're building the modern CRM for field sales teams. Explore open roles in engineering, design, sales, and more.">
+  <meta name="description"
+    content="Join the SafiTrack team. We're building the modern CRM for field sales teams. Explore open roles in engineering, design, sales, and more.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://safitrack.netlify.app/pages/careers.html">
   <meta property="og:title" content="Careers — SafiTrack">
-  <meta property="og:description" content="Join the SafiTrack team. We're building the modern CRM for field sales teams. Explore open roles in engineering, design, sales, and more.">
+  <meta property="og:description"
+    content="Join the SafiTrack team. We're building the modern CRM for field sales teams. Explore open roles in engineering, design, sales, and more.">
   <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://safitrack.netlify.app/pages/careers.html">
   <meta property="twitter:title" content="Careers — SafiTrack">
-  <meta property="twitter:description" content="Join the SafiTrack team. We're building the modern CRM for field sales teams. Explore open roles in engineering, design, sales, and more.">
+  <meta property="twitter:description"
+    content="Join the SafiTrack team. We're building the modern CRM for field sales teams. Explore open roles in engineering, design, sales, and more.">
   <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
   <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,449 +25,1318 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../landing.css">
 </head>
+
 <body>
-<nav class="navbar" id="navbar">
-  <div class="container">
-    <div class="nav-content">
-      <div class="nav-left">
-        <a href="../index.html" class="logo">
-          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
-        </a>
-        <div class="nav-links">
-          <a href="features/mainfeatures.html" class="nav-link">Features</a>
-          <a href="pricing.html" class="nav-link">Pricing</a>
-          <a href="careers.html" class="nav-link" style="color:#0b1220;font-weight:700">Careers</a>
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <div class="nav-content">
+        <div class="nav-left">
+          <a href="../index.html" class="logo">
+            <img src="../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
+          </a>
+          <div class="nav-links">
+            <div class="nav-item nav-features">
+              <a href="#" class="nav-link-toggle">Features
+                <span class="nav-caret" aria-hidden="true">
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </a>
+              <div class="mega-menu" aria-hidden="true">
+                <div class="mega-content-grid">
+                  <div class="mega-category">
+                    <div class="mega-category-header">Platform</div>
+                    <div class="mega-items-grid">
+                      <a href="features/safi-ai-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Safi AI</div>
+                          <div class="mega-desc">AI insights native to your CRM</div>
+                        </div>
+                      </a>
+                      <a href="features/opportunities-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Pipelines</div>
+                          <div class="mega-desc">Visual deal tracking & management</div>
+                        </div>
+                      </a>
+                      <a href="features/companies-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+                            <path d="M9 22v-4h6v4" />
+                            <path d="M8 6h.01" />
+                            <path d="M16 6h.01" />
+                            <path d="M8 10h.01" />
+                            <path d="M16 10h.01" />
+                            <path d="M8 14h.01" />
+                            <path d="M16 14h.01" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Companies</div>
+                          <div class="mega-desc">Complete organization context</div>
+                        </div>
+                      </a>
+                      <a href="features/people-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">People</div>
+                          <div class="mega-desc">Unified contact management</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Operations</div>
+                    <div class="mega-items-grid">
+                      <a href="features/sales-visits-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Sales visits</div>
+                          <div class="mega-desc">Field activity & visit logging</div>
+                        </div>
+                      </a>
+                      <a href="features/route-plans-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="6" cy="19" r="3" />
+                            <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
+                            <circle cx="18" cy="5" r="3" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Route plans</div>
+                          <div class="mega-desc">Optimized field routing</div>
+                        </div>
+                      </a>
+                      <a href="features/technician-visits-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                              d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Service visits</div>
+                          <div class="mega-desc">Post-sales technician tracking</div>
+                        </div>
+                      </a>
+                      <a href="features/tasks-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 11 12 14 22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Tasks</div>
+                          <div class="mega-desc">Operational to-do management</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Insights & Ecosystem</div>
+                    <div class="mega-items-grid">
+                      <a href="features/call-logs-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Call Intelligence</div>
+                          <div class="mega-desc">Record & analyze meetings</div>
+                        </div>
+                      </a>
+                      <a href="features/notes-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Notes</div>
+                          <div class="mega-desc">Native meeting summaries</div>
+                        </div>
+                      </a>
+                      <a href="features/reminders-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Reminders</div>
+                          <div class="mega-desc">Smart follow-up alerts</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="mega-sidebar">
+                  <div class="mega-sidebar-header">Get Started</div>
+                  <ul class="mega-sidebar-list">
+                    <li><a href="/crm/"><span>Open CRM</span></a></li>
+                    <li><a href="pricing.html"><span>View Pricing</span></a></li>
+                    <li><a href="../index.html#pricing"><span>Request Demo</span></a></li>
+                  </ul>
+                  <div class="mega-sidebar-footer">
+                    <p>Trusted by 2,000+ teams</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="nav-item nav-resources">
+              <a href="#" class="nav-link-toggle">Resources
+                <span class="nav-caret" aria-hidden="true">
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </a>
+              <div class="mega-menu" aria-hidden="true">
+                <div class="mega-content-grid">
+                  <div class="mega-category">
+                    <div class="mega-category-header">Insights</div>
+                    <div class="mega-items-grid">
+                      <a href="integrations.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Integrations</div>
+                          <div class="mega-desc">Connect your stack</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Support</div>
+                    <div class="mega-items-grid">
+                      <a href="documentation.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Documentation</div>
+                          <div class="mega-desc">Guides and tutorials</div>
+                        </div>
+                      </a>
+                      <a href="helpcenter.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Help Center</div>
+                          <div class="mega-desc">Get support</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Developers</div>
+                    <div class="mega-items-grid">
+                      <a href="apireference.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 18 22 12 16 6" />
+                            <polyline points="8 6 2 12 8 18" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">API Reference</div>
+                          <div class="mega-desc">Build with SafiTrack</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="mega-sidebar">
+                  <div class="mega-sidebar-header">More</div>
+                  <ul class="mega-sidebar-list">
+                    <li><a href="blog.html"><span>Blog</span></a></li>
+                    <li><a href="careers.html"><span>Careers</span></a></li>
+                    <li><a href="status.html"><span>Status</span></a></li>
+                  </ul>
+                  <div class="mega-sidebar-footer">
+                    <p>Always growing</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <a href="pricing.html">Pricing</a>
+          </div>
         </div>
+        <div class="nav-actions">
+          <a href="/crm/" class="nav-link-sign-in">Sign in</a>
+          <a href="pricing.html" class="btn-hero-primary">Start for free</a>
+        </div>
+        <button class="mobile-menu-btn" aria-label="Toggle Menu">
+          <span></span><span></span>
+        </button>
       </div>
-      <div class="nav-actions">
-        <a href="/crm/" class="nav-link-sign-in">Sign in</a>
-        <a href="pricing.html" class="btn-hero-primary">Start for free</a>
-      </div>
-      <button class="mobile-menu-btn" aria-label="Toggle Menu">
-        <span></span><span></span>
-      </button>
+    </div>
+  </nav>
+  <div class="mobile-nav-overlay">
+    <button class="mobile-close-btn" aria-label="Close">
+      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    <div class="mobile-nav-content">
+      <a href="features/mainfeatures.html" class="mobile-link">Features</a>
+      <a href="pricing.html" class="mobile-link">Pricing</a>
+      <hr class="mobile-divider">
+      <a href="/crm/" class="mobile-link">Open App</a>
+      <button class="btn-primary btn-block get-started-btn">Get Started</button>
     </div>
   </div>
-</nav>
-<div class="mobile-nav-overlay">
-  <button class="mobile-close-btn" aria-label="Close">
-    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-    </svg>
-  </button>
-  <div class="mobile-nav-content">
-    <a href="features/mainfeatures.html" class="mobile-link">Features</a>
-    <a href="pricing.html" class="mobile-link">Pricing</a>
-    <a href="careers.html" class="mobile-link" style="color:#0b1220;font-weight:700">Careers</a>
-    <hr class="mobile-divider">
-    <a href="/crm/" class="mobile-link">Sign in</a>
-    <a href="pricing.html" class="btn-primary btn-block" style="text-align:center;margin-top:8px">Start for free</a>
-  </div>
-</div>
 
-<style>
-/* hero */
-.page-hero{padding:120px 0 72px;text-align:center;background:#fff;border-bottom:1px solid #e6e9ef}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;background:#f4f4f5;border:1px solid #e4e4e7;border-radius:50px;padding:6px 16px;font-size:13px;font-weight:600;color:#374151;margin-bottom:24px}
-.hero-dot{width:6px;height:6px;border-radius:50%;background:#374151;animation:pulse-dot 1.8s ease-in-out infinite}
-@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
-.page-hero h1{font-size:clamp(2.2rem,5vw,3.4rem);font-weight:800;color:#0b1220;margin-bottom:16px;line-height:1.15}
-.page-hero h1 span{color:#0b1220}
-.page-hero>div>p{font-size:18px;color:#6b7280;max-width:560px;margin:0 auto;line-height:1.7}
-.hero-actions{margin-top:32px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.hero-stats{margin-top:52px;display:flex;gap:48px;justify-content:center;flex-wrap:wrap;padding-top:40px;border-top:1px solid #e6e9ef}
-.hero-stat .num{font-size:30px;font-weight:800;color:#0b1220}
-.hero-stat .lbl{font-size:13px;color:#6b7280;margin-top:2px}
-/* sections */
-.section-label{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#6b7280;margin-bottom:12px;text-align:center}
-.section-title{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;color:#0b1220;text-align:center;margin-bottom:12px}
-.section-sub{text-align:center;color:#6b7280;font-size:16px;margin-bottom:48px;line-height:1.6}
-/* values */
-.values-section{padding:80px 0;background:#fff}
-.values-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
-.value-card{border:1px solid #e6e9ef;border-radius:16px;padding:36px 28px;background:#fff;transition:box-shadow .2s}
-.value-card:hover{box-shadow:0 6px 24px rgba(0,0,0,.07)}
-.val-icon{width:48px;height:48px;border-radius:12px;background:#f4f4f5;display:flex;align-items:center;justify-content:center;margin-bottom:20px}
-.val-icon svg{stroke:#374151}
-.value-card h3{font-size:17px;font-weight:700;color:#0b1220;margin-bottom:8px}
-.value-card p{font-size:14px;color:#6b7280;line-height:1.7}
-/* jobs */
-.jobs-section{padding:80px 0;background:#fafafa;border-top:1px solid #e6e9ef}
-.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
-.filter-btn{padding:8px 18px;border-radius:50px;border:1.5px solid #e4e4e7;background:#fff;font-size:13px;font-weight:600;color:#6b7280;cursor:pointer;transition:all .15s;white-space:nowrap;line-height:1}
-.filter-btn:hover{border-color:#0b1220;color:#0b1220}
-.filter-btn.active{background:#0b1220;border-color:#0b1220;color:#fff}
-.jobs-stats{font-size:14px;color:#6b7280;margin-bottom:20px}
-.jobs-stats strong{color:#0b1220}
-.job-card{display:flex;align-items:center;justify-content:space-between;gap:20px;border:1px solid #e6e9ef;border-radius:12px;padding:20px 24px;background:#fff;margin-bottom:8px;text-align:left;transition:box-shadow .2s}
-.job-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.07)}
-.job-left{display:flex;align-items:center;gap:14px;flex:1;min-width:0;text-align:left}
-.job-dept-icon{width:38px;height:38px;border-radius:9px;background:#f4f4f5;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.job-dept-icon svg{stroke:#374151}
-.job-info{flex:1;min-width:0;text-align:left}
-.job-info h3{font-size:15px;font-weight:700;color:#0b1220;margin-bottom:6px}
-.job-tags{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.job-tag{font-size:12px;font-weight:600;padding:3px 10px;border-radius:50px;background:#f4f4f5;color:#4b5563;white-space:nowrap}
-.job-tag.new-tag{background:#f0fdf4;color:#15803d}
-.btn-apply{padding:9px 20px;background:#0b1220;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;white-space:nowrap;flex-shrink:0}
-.btn-apply:hover{background:#1f2937}
-.no-roles{text-align:center;padding:64px 24px;color:#6b7280;display:none}
-.no-roles.visible{display:block}
-/* perks */
-.perks-section{padding:80px 0;background:#fff;border-top:1px solid #e6e9ef}
-.perks-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:28px;margin-top:48px}
-.perk-item{display:flex;align-items:flex-start;gap:16px}
-.perk-icon-wrap{width:42px;height:42px;border-radius:10px;background:#f4f4f5;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.perk-icon-wrap svg{stroke:#374151}
-.perk-item p{font-size:14px;color:#6b7280;line-height:1.6}
-.perk-item strong{display:block;font-size:15px;font-weight:700;color:#0b1220;margin-bottom:4px}
-/* cta */
-.cta-band{background:#0b1220;padding:80px 0;text-align:center}
-.cta-band h2{font-size:clamp(1.6rem,3vw,2.2rem);font-weight:800;color:#fff;margin-bottom:12px}
-.cta-band p{color:#9ca3af;font-size:16px;margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.6}
-/* modal */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:9999;opacity:0;pointer-events:none;transition:opacity .22s}
-.modal-overlay.open{opacity:1;pointer-events:auto}
-.modal-box{background:#fff;border-radius:16px;padding:40px 36px;max-width:480px;width:90%;text-align:center;transform:translateY(24px);transition:transform .25s;box-shadow:0 24px 80px rgba(0,0,0,.2)}
-.modal-overlay.open .modal-box{transform:translateY(0)}
-.modal-role-icon{width:56px;height:56px;border-radius:14px;background:#f4f4f5;display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
-.modal-role-icon svg{stroke:#374151}
-.modal-dept-label{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#6b7280;margin-bottom:8px}
-.modal-box h3{font-size:21px;font-weight:800;color:#0b1220;margin-bottom:8px}
-.modal-box p{font-size:14px;color:#6b7280;margin-bottom:24px;line-height:1.6}
-.modal-notify{display:flex;gap:8px;max-width:340px;margin:0 auto 12px}
-.modal-notify input{flex:1;padding:10px 14px;border:1.5px solid #e4e4e7;border-radius:8px;font-size:14px;outline:none;transition:border .15s}
-.modal-notify input:focus{border-color:#0b1220}
-.modal-notify button{padding:10px 18px;background:#0b1220;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap}
-.modal-notify button:hover{background:#1f2937}
-.modal-form-hint{font-size:12px;color:#9ca3af;margin-bottom:0}
-.modal-success{display:none;align-items:center;justify-content:center;gap:8px;color:#15803d;font-size:14px;font-weight:600;margin-top:4px}
-.modal-success svg{flex-shrink:0}
-.modal-close{margin-top:20px;background:none;border:none;color:#9ca3af;font-size:13px;cursor:pointer;text-decoration:underline}
-@media(max-width:640px){.job-card{flex-direction:column;align-items:flex-start;gap:14px}.job-left{width:100%}.btn-apply{width:100%;text-align:center}.modal-notify{flex-direction:column}.hero-stats{gap:28px}}
-</style>
-
-<section class="page-hero">
-  <div class="container">
-    <div class="hero-badge"><span class="hero-dot"></span> We're hiring across 4 departments</div>
-    <h1>Help us build the future<br>of <span>field operations.</span></h1>
-    <p>A small, ambitious team building tools that tens of thousands of field reps rely on daily. Remote-first, high-craft, real impact.</p>
-    <div class="hero-actions">
-      <a href="#open-roles" class="btn-hero-primary">See open roles</a>
-      <a href="mailto:careers@safitrack.com" class="btn-hero-secondary">Get in touch</a>
-    </div>
-
-  </div>
-</section>
-
-<section class="values-section">
-  <div class="container">
-    <div class="section-label">Our values</div>
-    <h2 class="section-title">How we work</h2>
-    <p class="section-sub">Three principles that guide every decision, hire, and product choice we make.</p>
-    <div class="values-grid">
-      <div class="value-card">
-        <div class="val-icon">
-          <svg width="22" height="22" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
-        </div>
-        <h3>Remote First</h3>
-        <p>Our team spans four continents. Every process is designed to work asynchronously by default — no HQ advantage.</p>
-      </div>
-      <div class="value-card">
-        <div class="val-icon">
-          <svg width="22" height="22" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-        </div>
-        <h3>High Craft</h3>
-        <p>We sweat the details. Whether it's a hover state or a backend schema, quality is non-negotiable at every layer.</p>
-      </div>
-      <div class="value-card">
-        <div class="val-icon">
-          <svg width="22" height="22" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        </div>
-        <h3>Real Impact</h3>
-        <p>Every feature ships to real field reps in the real world. You'll see your work in production minutes after deploy.</p>
-      </div>
-      <div class="value-card">
-        <div class="val-icon">
-          <svg width="22" height="22" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-        <h3>Small & Mighty</h3>
-        <p>We stay lean intentionally. A small, focused team moves faster and builds things that matter — not things that look good in a deck.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="jobs-section" id="open-roles">
-  <div class="container">
-    <div class="section-label">Open positions</div>
-    <h2 class="section-title">Join the team</h2>
-    <p class="section-sub">All roles are fully remote. We hire based on impact, not location.</p>
-
-    <div class="filter-bar" id="jobFilters">
-      <button class="filter-btn active" data-dept="all">All departments</button>
-      <button class="filter-btn" data-dept="engineering">Engineering</button>
-      <button class="filter-btn" data-dept="design">Design</button>
-      <button class="filter-btn" data-dept="growth">Growth</button>
-      <button class="filter-btn" data-dept="success">Customer Success</button>
-      <button class="filter-btn" data-dept="operations">Operations</button>
-    </div>
-    <div class="jobs-stats" id="jobsStats"></div>
-    <div id="jobsList"></div>
-    <div class="no-roles" id="noRoles">
-      <svg width="40" height="40" fill="none" stroke="#d1d5db" stroke-width="1.5" viewBox="0 0 24 24" style="margin:0 auto 12px;display:block"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-      <p>No open roles in this department right now — check back soon.</p>
-    </div>
-  </div>
-</section>
-
-<section class="perks-section">
-  <div class="container">
-    <div class="section-label">Benefits</div>
-    <h2 class="section-title">What we offer</h2>
-    <p class="section-sub">We look after the people who look after our customers.</p>
-    <div class="perks-grid">
-      <div class="perk-item">
-        <div class="perk-icon-wrap">
-          <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        </div>
-        <div><strong>Competitive pay</strong><p>Benchmarked against top-tier tech companies. Equity offered at every level.</p></div>
-      </div>
-      <div class="perk-item">
-        <div class="perk-icon-wrap">
-          <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-        </div>
-        <div><strong>Unlimited PTO</strong><p>We trust you to take the time you need. Rest is part of doing great work.</p></div>
-      </div>
-      <div class="perk-item">
-        <div class="perk-icon-wrap">
-          <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        </div>
-        <div><strong>Home office budget</strong><p>$1,500 to build the workspace setup that works best for you.</p></div>
-      </div>
-      <div class="perk-item">
-        <div class="perk-icon-wrap">
-          <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-        </div>
-        <div><strong>Learning budget</strong><p>$500/year for courses, books, or conferences — whatever sharpens your edge.</p></div>
-      </div>
-      <div class="perk-item">
-        <div class="perk-icon-wrap">
-          <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-        </div>
-        <div><strong>Health coverage</strong><p>Full medical, dental, and vision for you and your dependants, wherever you are.</p></div>
-      </div>
-      <div class="perk-item">
-        <div class="perk-icon-wrap">
-          <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.63 3.44 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.18 6.18l.9-.9a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-        </div>
-        <div><strong>Company retreats</strong><p>Two off-site trips per year to meet the whole team in person and build what's next.</p></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="cta-band">
-  <div class="container">
-    <h2>Don't see your role?</h2>
-    <p>We're always on the lookout for exceptional people. Send us a note — the right role might be just around the corner.</p>
-    <a href="mailto:careers@safitrack.com" class="btn-hero-primary">Reach out</a>
-  </div>
-</section>
-
-<div class="modal-overlay" id="applyModal">
-  <div class="modal-box">
-    <div class="modal-role-icon" id="modalIcon"></div>
-    <div class="modal-dept-label" id="modalDept"></div>
-    <h3 id="modalTitle"></h3>
-    <p>Our applications portal is launching soon. Drop your email and we'll reach out the moment it's live — you'll be first in line.</p>
-    <div class="modal-notify">
-      <input type="email" id="applyEmail" placeholder="you@company.com">
-      <button onclick="submitApply()">Notify me</button>
-    </div>
-    <div class="modal-form-hint">We'll only use this to let you know when applications open.</div>
-    <div class="modal-success" id="applySuccess">
-      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-      Got it! We'll be in touch soon.
-    </div>
-    <button class="modal-close" onclick="closeModal()">Maybe later</button>
-  </div>
-</div>
-
-<footer class="footer">
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-brand">
-        <div class="footer-logo-wrapper">
-          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
-        </div>
-        <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp; sales CRM built for modern teams.</p>
-      </div>
-      <div class="footer-links">
-        <div class="footer-column">
-          <h4 class="footer-heading">Product</h4>
-          <ul>
-            <li><a href="features/mainfeatures.html">Features</a></li>
-            <li><a href="pricing.html">Pricing</a></li>
-            <li><a href="integrations.html">Integrations</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Company</h4>
-          <ul>
-            <li><a href="blog.html">Blog</a></li>
-            <li><a href="careers.html">Careers</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Resources</h4>
-          <ul>
-            <li><a href="documentation.html">Documentation</a></li>
-            <li><a href="helpcenter.html">Help Center</a></li>
-            <li><a href="apireference.html">API Reference</a></li>
-            <li><a href="status.html">Status</a></li>
-          </ul>
-        </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Legal</h4>
-          <ul>
-            <li><a href="legal/privacy.html">Privacy Policy</a></li>
-            <li><a href="legal/terms.html">Terms of Service</a></li>
-          </ul>
-        </div>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-      <div class="footer-social">
-        <a href="#">Twitter</a>
-        <a href="#">LinkedIn</a>
-        <a href="#">GitHub</a>
-      </div>
-    </div>
-  </div>
-</footer>
-<script>
-(function(){
-  // mobile nav
-  var mb=document.querySelector('.mobile-menu-btn'),
-      mo=document.querySelector('.mobile-nav-overlay'),
-      mc=document.querySelector('.mobile-close-btn');
-  if(mb&&mo){
-    mb.addEventListener('click',function(){mo.classList.add('active');});
-    if(mc)mc.addEventListener('click',function(){mo.classList.remove('active');});
-    mo.addEventListener('click',function(e){if(e.target===mo)mo.classList.remove('active');});
-  }
-  window.addEventListener('scroll',function(){
-    var nb=document.getElementById('navbar');
-    if(nb)nb.classList.toggle('scrolled',window.scrollY>20);
-  });
-
-  // jobs data
-  var JOBS=[
-    {title:'Senior Frontend Engineer',dept:'engineering',deptLabel:'Engineering',tags:['Remote','Full-time'],isNew:true,
-     icon:'<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>'},
-    {title:'Backend Platform Lead',dept:'engineering',deptLabel:'Engineering',tags:['Remote','Full-time'],isNew:false,
-     icon:'<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>'},
-    {title:'Mobile Engineer (iOS & Android)',dept:'engineering',deptLabel:'Engineering',tags:['Remote','Full-time'],isNew:true,
-     icon:'<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>'},
-    {title:'Product Designer',dept:'design',deptLabel:'Design',tags:['Remote','Full-time'],isNew:false,
-     icon:'<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>'},
-    {title:'Motion & Brand Designer',dept:'design',deptLabel:'Design',tags:['Remote','Contract'],isNew:false,
-     icon:'<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>'},
-    {title:'Head of Growth',dept:'growth',deptLabel:'Growth',tags:['Remote','Full-time'],isNew:true,
-     icon:'<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>'},
-    {title:'Content & SEO Lead',dept:'growth',deptLabel:'Growth',tags:['Remote','Full-time'],isNew:false,
-     icon:'<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>'},
-    {title:'Customer Success Manager',dept:'success',deptLabel:'Customer Success',tags:['Remote','Full-time'],isNew:false,
-     icon:'<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'},
-    {title:'RevOps Analyst',dept:'operations',deptLabel:'Operations',tags:['Remote','Full-time'],isNew:true,
-     icon:'<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>'}
-  ];
-
-  var activeDept='all';
-
-  function renderJobs(){
-    var list=document.getElementById('jobsList');
-    var stats=document.getElementById('jobsStats');
-    var noRoles=document.getElementById('noRoles');
-    if(!list)return;
-    var filtered=activeDept==='all'?JOBS:JOBS.filter(function(j){return j.dept===activeDept;});
-    if(filtered.length===0){
-      list.innerHTML='';
-      noRoles.classList.add('visible');
-      stats.innerHTML='';
-      return;
+  <style>
+    /* hero */
+    .page-hero {
+      padding: 120px 0 72px;
+      text-align: center;
+      background: #fff;
+      border-bottom: 1px solid #e6e9ef
     }
-    noRoles.classList.remove('visible');
-    stats.innerHTML='Showing <strong>'+filtered.length+'</strong> open role'+(filtered.length===1?'':'s')+(activeDept!=='all'?' in <strong>'+filtered[0].deptLabel+'</strong>':'');
-    list.innerHTML=filtered.map(function(j,i){
-      var tags=j.tags.map(function(t){return '<span class="job-tag">'+t+'</span>';}).join('');
-      var newBadge=j.isNew?'<span class="job-tag new-tag">New</span>':'';
-      return '<div class="job-card">'+
-        '<div class="job-left">'+
-          '<div class="job-dept-icon">'+j.icon+'</div>'+
-          '<div class="job-info">'+
-            '<h3>'+j.title+'</h3>'+
-            '<div class="job-tags"><span class="job-tag">'+j.deptLabel+'</span>'+tags+newBadge+'</div>'+
-          '</div>'+
-        '</div>'+
-        '<button class="btn-apply" onclick="openModal('+i+')">Apply now</button>'+
-      '</div>';
-    }).join('');
-  }
 
-  // filter buttons
-  document.getElementById('jobFilters').addEventListener('click',function(e){
-    var btn=e.target.closest('.filter-btn');
-    if(!btn)return;
-    document.querySelectorAll('.filter-btn').forEach(function(b){b.classList.remove('active');});
-    btn.classList.add('active');
-    activeDept=btn.dataset.dept;
-    renderJobs();
-  });
-
-  renderJobs();
-
-  // modal
-  var _modalJobs=[];
-  window.openModal=function(idx){
-    var filtered=activeDept==='all'?JOBS:JOBS.filter(function(j){return j.dept===activeDept;});
-    var job=filtered[idx];
-    if(!job)return;
-    document.getElementById('modalIcon').innerHTML=job.icon;
-    document.getElementById('modalDept').textContent=job.deptLabel;
-    document.getElementById('modalTitle').textContent=job.title;
-    document.getElementById('applyEmail').value='';
-    document.getElementById('applySuccess').style.display='none';
-    document.getElementById('applySuccess').style.justifyContent='center';
-    document.getElementById('applyModal').classList.add('open');
-  };
-  window.closeModal=function(){
-    document.getElementById('applyModal').classList.remove('open');
-  };
-  document.getElementById('applyModal').addEventListener('click',function(e){
-    if(e.target===this)closeModal();
-  });
-  window.submitApply=function(){
-    var input=document.getElementById('applyEmail');
-    if(!input.value||!input.value.includes('@')){
-      input.style.borderColor='#ef4444';
-      setTimeout(function(){input.style.borderColor='';},1200);
-      return;
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      border-radius: 50px;
+      padding: 6px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 24px
     }
-    var s=document.getElementById('applySuccess');
-    s.style.display='flex';
-    input.parentElement.style.display='none';
-    document.querySelector('.modal-form-hint').style.display='none';
-  };
-  document.getElementById('applyEmail').addEventListener('keydown',function(e){
-    if(e.key==='Enter')window.submitApply();
-  });
-  document.addEventListener('keydown',function(e){
-    if(e.key==='Escape')closeModal();
-  });
-})();
-</script>
+
+    .hero-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #374151;
+      animation: pulse-dot 1.8s ease-in-out infinite
+    }
+
+    @keyframes pulse-dot {
+
+      0%,
+      100% {
+        opacity: 1;
+        transform: scale(1)
+      }
+
+      50% {
+        opacity: .4;
+        transform: scale(.75)
+      }
+    }
+
+    .page-hero h1 {
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      color: #0b1220;
+      margin-bottom: 16px;
+      line-height: 1.15
+    }
+
+    .page-hero h1 span {
+      color: #0b1220
+    }
+
+    .page-hero>div>p {
+      font-size: 18px;
+      color: #6b7280;
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.7
+    }
+
+    .hero-actions {
+      margin-top: 32px;
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap
+    }
+
+    .hero-stats {
+      margin-top: 52px;
+      display: flex;
+      gap: 48px;
+      justify-content: center;
+      flex-wrap: wrap;
+      padding-top: 40px;
+      border-top: 1px solid #e6e9ef
+    }
+
+    .hero-stat .num {
+      font-size: 30px;
+      font-weight: 800;
+      color: #0b1220
+    }
+
+    .hero-stat .lbl {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 2px
+    }
+
+    /* sections */
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 12px;
+      text-align: center
+    }
+
+    .section-title {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 800;
+      color: #0b1220;
+      text-align: center;
+      margin-bottom: 12px
+    }
+
+    .section-sub {
+      text-align: center;
+      color: #6b7280;
+      font-size: 16px;
+      margin-bottom: 48px;
+      line-height: 1.6
+    }
+
+    /* values */
+    .values-section {
+      padding: 80px 0;
+      background: #fff
+    }
+
+    .values-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px
+    }
+
+    .value-card {
+      border: 1px solid #e6e9ef;
+      border-radius: 16px;
+      padding: 36px 28px;
+      background: #fff;
+      transition: box-shadow .2s
+    }
+
+    .value-card:hover {
+      box-shadow: 0 6px 24px rgba(0, 0, 0, .07)
+    }
+
+    .val-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: #f4f4f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 20px
+    }
+
+    .val-icon svg {
+      stroke: #374151
+    }
+
+    .value-card h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: #0b1220;
+      margin-bottom: 8px
+    }
+
+    .value-card p {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.7
+    }
+
+    /* jobs */
+    .jobs-section {
+      padding: 80px 0;
+      background: #fafafa;
+      border-top: 1px solid #e6e9ef
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px
+    }
+
+    .filter-btn {
+      padding: 8px 18px;
+      border-radius: 50px;
+      border: 1.5px solid #e4e4e7;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all .15s;
+      white-space: nowrap;
+      line-height: 1
+    }
+
+    .filter-btn:hover {
+      border-color: #0b1220;
+      color: #0b1220
+    }
+
+    .filter-btn.active {
+      background: #0b1220;
+      border-color: #0b1220;
+      color: #fff
+    }
+
+    .jobs-stats {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 20px
+    }
+
+    .jobs-stats strong {
+      color: #0b1220
+    }
+
+    .job-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      border: 1px solid #e6e9ef;
+      border-radius: 12px;
+      padding: 20px 24px;
+      background: #fff;
+      margin-bottom: 8px;
+      text-align: left;
+      transition: box-shadow .2s
+    }
+
+    .job-card:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, .07)
+    }
+
+    .job-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex: 1;
+      min-width: 0;
+      text-align: left
+    }
+
+    .job-dept-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      background: #f4f4f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0
+    }
+
+    .job-dept-icon svg {
+      stroke: #374151
+    }
+
+    .job-info {
+      flex: 1;
+      min-width: 0;
+      text-align: left
+    }
+
+    .job-info h3 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #0b1220;
+      margin-bottom: 6px
+    }
+
+    .job-tags {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center
+    }
+
+    .job-tag {
+      font-size: 12px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 50px;
+      background: #f4f4f5;
+      color: #4b5563;
+      white-space: nowrap
+    }
+
+    .job-tag.new-tag {
+      background: #f0fdf4;
+      color: #15803d
+    }
+
+    .btn-apply {
+      padding: 9px 20px;
+      background: #0b1220;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s;
+      white-space: nowrap;
+      flex-shrink: 0
+    }
+
+    .btn-apply:hover {
+      background: #1f2937
+    }
+
+    .no-roles {
+      text-align: center;
+      padding: 64px 24px;
+      color: #6b7280;
+      display: none
+    }
+
+    .no-roles.visible {
+      display: block
+    }
+
+    /* perks */
+    .perks-section {
+      padding: 80px 0;
+      background: #fff;
+      border-top: 1px solid #e6e9ef
+    }
+
+    .perks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 28px;
+      margin-top: 48px
+    }
+
+    .perk-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px
+    }
+
+    .perk-icon-wrap {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: #f4f4f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0
+    }
+
+    .perk-icon-wrap svg {
+      stroke: #374151
+    }
+
+    .perk-item p {
+      font-size: 14px;
+      color: #6b7280;
+      line-height: 1.6
+    }
+
+    .perk-item strong {
+      display: block;
+      font-size: 15px;
+      font-weight: 700;
+      color: #0b1220;
+      margin-bottom: 4px
+    }
+
+    /* cta */
+    .cta-band {
+      background: #0b1220;
+      padding: 80px 0;
+      text-align: center
+    }
+
+    .cta-band h2 {
+      font-size: clamp(1.6rem, 3vw, 2.2rem);
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 12px
+    }
+
+    .cta-band p {
+      color: #9ca3af;
+      font-size: 16px;
+      margin-bottom: 32px;
+      max-width: 480px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.6
+    }
+
+    /* modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, .5);
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .22s
+    }
+
+    .modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 40px 36px;
+      max-width: 480px;
+      width: 90%;
+      text-align: center;
+      transform: translateY(24px);
+      transition: transform .25s;
+      box-shadow: 0 24px 80px rgba(0, 0, 0, .2)
+    }
+
+    .modal-overlay.open .modal-box {
+      transform: translateY(0)
+    }
+
+    .modal-role-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      background: #f4f4f5;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px
+    }
+
+    .modal-role-icon svg {
+      stroke: #374151
+    }
+
+    .modal-dept-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #6b7280;
+      margin-bottom: 8px
+    }
+
+    .modal-box h3 {
+      font-size: 21px;
+      font-weight: 800;
+      color: #0b1220;
+      margin-bottom: 8px
+    }
+
+    .modal-box p {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 24px;
+      line-height: 1.6
+    }
+
+    .modal-notify {
+      display: flex;
+      gap: 8px;
+      max-width: 340px;
+      margin: 0 auto 12px
+    }
+
+    .modal-notify input {
+      flex: 1;
+      padding: 10px 14px;
+      border: 1.5px solid #e4e4e7;
+      border-radius: 8px;
+      font-size: 14px;
+      outline: none;
+      transition: border .15s
+    }
+
+    .modal-notify input:focus {
+      border-color: #0b1220
+    }
+
+    .modal-notify button {
+      padding: 10px 18px;
+      background: #0b1220;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap
+    }
+
+    .modal-notify button:hover {
+      background: #1f2937
+    }
+
+    .modal-form-hint {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 0
+    }
+
+    .modal-success {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #15803d;
+      font-size: 14px;
+      font-weight: 600;
+      margin-top: 4px
+    }
+
+    .modal-success svg {
+      flex-shrink: 0
+    }
+
+    .modal-close {
+      margin-top: 20px;
+      background: none;
+      border: none;
+      color: #9ca3af;
+      font-size: 13px;
+      cursor: pointer;
+      text-decoration: underline
+    }
+
+    @media(max-width:640px) {
+      .job-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 14px
+      }
+
+      .job-left {
+        width: 100%
+      }
+
+      .btn-apply {
+        width: 100%;
+        text-align: center
+      }
+
+      .modal-notify {
+        flex-direction: column
+      }
+
+      .hero-stats {
+        gap: 28px
+      }
+    }
+  </style>
+
+  <section class="page-hero">
+    <div class="container">
+      <div class="hero-badge"><span class="hero-dot"></span> We're hiring across 4 departments</div>
+      <h1>Help us build the future<br>of <span>field operations.</span></h1>
+      <p>A small, ambitious team building tools that tens of thousands of field reps rely on daily. Remote-first,
+        high-craft, real impact.</p>
+      <div class="hero-actions">
+        <a href="#open-roles" class="btn-hero-primary">See open roles</a>
+        <a href="mailto:careers@safitrack.com" class="btn-hero-secondary">Get in touch</a>
+      </div>
+
+    </div>
+  </section>
+
+  <section class="values-section">
+    <div class="container">
+      <div class="section-label">Our values</div>
+      <h2 class="section-title">How we work</h2>
+      <p class="section-sub">Three principles that guide every decision, hire, and product choice we make.</p>
+      <div class="values-grid">
+        <div class="value-card">
+          <div class="val-icon">
+            <svg width="22" height="22" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="2" y1="12" x2="22" y2="12" />
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            </svg>
+          </div>
+          <h3>Remote First</h3>
+          <p>Our team spans four continents. Every process is designed to work asynchronously by default — no HQ
+            advantage.</p>
+        </div>
+        <div class="value-card">
+          <div class="val-icon">
+            <svg width="22" height="22" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" viewBox="0 0 24 24">
+              <polygon
+                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+          </div>
+          <h3>High Craft</h3>
+          <p>We sweat the details. Whether it's a hover state or a backend schema, quality is non-negotiable at every
+            layer.</p>
+        </div>
+        <div class="value-card">
+          <div class="val-icon">
+            <svg width="22" height="22" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" viewBox="0 0 24 24">
+              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+            </svg>
+          </div>
+          <h3>Real Impact</h3>
+          <p>Every feature ships to real field reps in the real world. You'll see your work in production minutes after
+            deploy.</p>
+        </div>
+        <div class="value-card">
+          <div class="val-icon">
+            <svg width="22" height="22" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </div>
+          <h3>Small & Mighty</h3>
+          <p>We stay lean intentionally. A small, focused team moves faster and builds things that matter — not things
+            that look good in a deck.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="jobs-section" id="open-roles">
+    <div class="container">
+      <div class="section-label">Open positions</div>
+      <h2 class="section-title">Join the team</h2>
+      <p class="section-sub">All roles are fully remote. We hire based on impact, not location.</p>
+
+      <div class="filter-bar" id="jobFilters">
+        <button class="filter-btn active" data-dept="all">All departments</button>
+        <button class="filter-btn" data-dept="engineering">Engineering</button>
+        <button class="filter-btn" data-dept="design">Design</button>
+        <button class="filter-btn" data-dept="growth">Growth</button>
+        <button class="filter-btn" data-dept="success">Customer Success</button>
+        <button class="filter-btn" data-dept="operations">Operations</button>
+      </div>
+      <div class="jobs-stats" id="jobsStats"></div>
+      <div id="jobsList"></div>
+      <div class="no-roles" id="noRoles">
+        <svg width="40" height="40" fill="none" stroke="#d1d5db" stroke-width="1.5" viewBox="0 0 24 24"
+          style="margin:0 auto 12px;display:block">
+          <rect x="2" y="7" width="20" height="14" rx="2" />
+          <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+        </svg>
+        <p>No open roles in this department right now — check back soon.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="perks-section">
+    <div class="container">
+      <div class="section-label">Benefits</div>
+      <h2 class="section-title">What we offer</h2>
+      <p class="section-sub">We look after the people who look after our customers.</p>
+      <div class="perks-grid">
+        <div class="perk-item">
+          <div class="perk-icon-wrap">
+            <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" viewBox="0 0 24 24">
+              <line x1="12" y1="1" x2="12" y2="23" />
+              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+          </div>
+          <div><strong>Competitive pay</strong>
+            <p>Benchmarked against top-tier tech companies. Equity offered at every level.</p>
+          </div>
+        </div>
+        <div class="perk-item">
+          <div class="perk-icon-wrap">
+            <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="5" />
+              <line x1="12" y1="1" x2="12" y2="3" />
+              <line x1="12" y1="21" x2="12" y2="23" />
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
+              <line x1="1" y1="12" x2="3" y2="12" />
+              <line x1="21" y1="12" x2="23" y2="12" />
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
+            </svg>
+          </div>
+          <div><strong>Unlimited PTO</strong>
+            <p>We trust you to take the time you need. Rest is part of doing great work.</p>
+          </div>
+        </div>
+        <div class="perk-item">
+          <div class="perk-icon-wrap">
+            <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" viewBox="0 0 24 24">
+              <rect x="2" y="3" width="20" height="14" rx="2" />
+              <line x1="8" y1="21" x2="16" y2="21" />
+              <line x1="12" y1="17" x2="12" y2="21" />
+            </svg>
+          </div>
+          <div><strong>Home office budget</strong>
+            <p>$1,500 to build the workspace setup that works best for you.</p>
+          </div>
+        </div>
+        <div class="perk-item">
+          <div class="perk-icon-wrap">
+            <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" viewBox="0 0 24 24">
+              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+            </svg>
+          </div>
+          <div><strong>Learning budget</strong>
+            <p>$500/year for courses, books, or conferences — whatever sharpens your edge.</p>
+          </div>
+        </div>
+        <div class="perk-item">
+          <div class="perk-icon-wrap">
+            <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" viewBox="0 0 24 24">
+              <path
+                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </div>
+          <div><strong>Health coverage</strong>
+            <p>Full medical, dental, and vision for you and your dependants, wherever you are.</p>
+          </div>
+        </div>
+        <div class="perk-item">
+          <div class="perk-icon-wrap">
+            <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" viewBox="0 0 24 24">
+              <path
+                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.63 3.44 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.18 6.18l.9-.9a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+            </svg>
+          </div>
+          <div><strong>Company retreats</strong>
+            <p>Two off-site trips per year to meet the whole team in person and build what's next.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-band">
+    <div class="container">
+      <h2>Don't see your role?</h2>
+      <p>We're always on the lookout for exceptional people. Send us a note — the right role might be just around the
+        corner.</p>
+      <a href="mailto:careers@safitrack.com" class="btn-hero-primary">Reach out</a>
+    </div>
+  </section>
+
+  <div class="modal-overlay" id="applyModal">
+    <div class="modal-box">
+      <div class="modal-role-icon" id="modalIcon"></div>
+      <div class="modal-dept-label" id="modalDept"></div>
+      <h3 id="modalTitle"></h3>
+      <p>Our applications portal is launching soon. Drop your email and we'll reach out the moment it's live — you'll be
+        first in line.</p>
+      <div class="modal-notify">
+        <input type="email" id="applyEmail" placeholder="you@company.com">
+        <button onclick="submitApply()">Notify me</button>
+      </div>
+      <div class="modal-form-hint">We'll only use this to let you know when applications open.</div>
+      <div class="modal-success" id="applySuccess">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+          stroke-linejoin="round" viewBox="0 0 24 24">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        Got it! We'll be in touch soon.
+      </div>
+      <button class="modal-close" onclick="closeModal()">Maybe later</button>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="footer-logo-wrapper">
+            <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
+          </div>
+          <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp;
+            sales CRM built for modern teams.</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-column">
+            <h4 class="footer-heading">Product</h4>
+            <ul>
+              <li><a href="features/mainfeatures.html">Features</a></li>
+              <li><a href="pricing.html">Pricing</a></li>
+              <li><a href="integrations.html">Integrations</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Company</h4>
+            <ul>
+              <li><a href="blog.html">Blog</a></li>
+              <li><a href="careers.html">Careers</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Resources</h4>
+            <ul>
+              <li><a href="documentation.html">Documentation</a></li>
+              <li><a href="helpcenter.html">Help Center</a></li>
+              <li><a href="apireference.html">API Reference</a></li>
+              <li><a href="status.html">Status</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Legal</h4>
+            <ul>
+              <li><a href="legal/privacy.html">Privacy Policy</a></li>
+              <li><a href="legal/terms.html">Terms of Service</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+        <div class="footer-social">
+          <a href="#">Twitter</a>
+          <a href="#">LinkedIn</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script>
+    (function () {
+      // mobile nav
+      var mb = document.querySelector('.mobile-menu-btn'),
+        mo = document.querySelector('.mobile-nav-overlay'),
+        mc = document.querySelector('.mobile-close-btn');
+      if (mb && mo) {
+        mb.addEventListener('click', function () { mo.classList.add('active'); });
+        if (mc) mc.addEventListener('click', function () { mo.classList.remove('active'); });
+        mo.addEventListener('click', function (e) { if (e.target === mo) mo.classList.remove('active'); });
+      }
+      window.addEventListener('scroll', function () {
+        var nb = document.getElementById('navbar');
+        if (nb) nb.classList.toggle('scrolled', window.scrollY > 20);
+      });
+
+      // jobs data
+      var JOBS = [
+        {
+          title: 'Senior Frontend Engineer', dept: 'engineering', deptLabel: 'Engineering', tags: ['Remote', 'Full-time'], isNew: true,
+          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>'
+        },
+        {
+          title: 'Backend Platform Lead', dept: 'engineering', deptLabel: 'Engineering', tags: ['Remote', 'Full-time'], isNew: false,
+          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>'
+        },
+        {
+          title: 'Mobile Engineer (iOS & Android)', dept: 'engineering', deptLabel: 'Engineering', tags: ['Remote', 'Full-time'], isNew: true,
+          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>'
+        },
+        {
+          title: 'Product Designer', dept: 'design', deptLabel: 'Design', tags: ['Remote', 'Full-time'], isNew: false,
+          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>'
+        },
+        {
+          title: 'Motion & Brand Designer', dept: 'design', deptLabel: 'Design', tags: ['Remote', 'Contract'], isNew: false,
+          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>'
+        },
+        {
+          title: 'Head of Growth', dept: 'growth', deptLabel: 'Growth', tags: ['Remote', 'Full-time'], isNew: true,
+          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>'
+        },
+        {
+          title: 'Content & SEO Lead', dept: 'growth', deptLabel: 'Growth', tags: ['Remote', 'Full-time'], isNew: false,
+          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>'
+        },
+        {
+          title: 'Customer Success Manager', dept: 'success', deptLabel: 'Customer Success', tags: ['Remote', 'Full-time'], isNew: false,
+          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
+        },
+        {
+          title: 'RevOps Analyst', dept: 'operations', deptLabel: 'Operations', tags: ['Remote', 'Full-time'], isNew: true,
+          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>'
+        }
+      ];
+
+      var activeDept = 'all';
+
+      function renderJobs() {
+        var list = document.getElementById('jobsList');
+        var stats = document.getElementById('jobsStats');
+        var noRoles = document.getElementById('noRoles');
+        if (!list) return;
+        var filtered = activeDept === 'all' ? JOBS : JOBS.filter(function (j) { return j.dept === activeDept; });
+        if (filtered.length === 0) {
+          list.innerHTML = '';
+          noRoles.classList.add('visible');
+          stats.innerHTML = '';
+          return;
+        }
+        noRoles.classList.remove('visible');
+        stats.innerHTML = 'Showing <strong>' + filtered.length + '</strong> open role' + (filtered.length === 1 ? '' : 's') + (activeDept !== 'all' ? ' in <strong>' + filtered[0].deptLabel + '</strong>' : '');
+        list.innerHTML = filtered.map(function (j, i) {
+          var tags = j.tags.map(function (t) { return '<span class="job-tag">' + t + '</span>'; }).join('');
+          var newBadge = j.isNew ? '<span class="job-tag new-tag">New</span>' : '';
+          return '<div class="job-card">' +
+            '<div class="job-left">' +
+            '<div class="job-dept-icon">' + j.icon + '</div>' +
+            '<div class="job-info">' +
+            '<h3>' + j.title + '</h3>' +
+            '<div class="job-tags"><span class="job-tag">' + j.deptLabel + '</span>' + tags + newBadge + '</div>' +
+            '</div>' +
+            '</div>' +
+            '<button class="btn-apply" onclick="openModal(' + i + ')">Apply now</button>' +
+            '</div>';
+        }).join('');
+      }
+
+      // filter buttons
+      document.getElementById('jobFilters').addEventListener('click', function (e) {
+        var btn = e.target.closest('.filter-btn');
+        if (!btn) return;
+        document.querySelectorAll('.filter-btn').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        activeDept = btn.dataset.dept;
+        renderJobs();
+      });
+
+      renderJobs();
+
+      // modal
+      var _modalJobs = [];
+      window.openModal = function (idx) {
+        var filtered = activeDept === 'all' ? JOBS : JOBS.filter(function (j) { return j.dept === activeDept; });
+        var job = filtered[idx];
+        if (!job) return;
+        document.getElementById('modalIcon').innerHTML = job.icon;
+        document.getElementById('modalDept').textContent = job.deptLabel;
+        document.getElementById('modalTitle').textContent = job.title;
+        document.getElementById('applyEmail').value = '';
+        document.getElementById('applySuccess').style.display = 'none';
+        document.getElementById('applySuccess').style.justifyContent = 'center';
+        document.getElementById('applyModal').classList.add('open');
+      };
+      window.closeModal = function () {
+        document.getElementById('applyModal').classList.remove('open');
+      };
+      document.getElementById('applyModal').addEventListener('click', function (e) {
+        if (e.target === this) closeModal();
+      });
+      window.submitApply = function () {
+        var input = document.getElementById('applyEmail');
+        if (!input.value || !input.value.includes('@')) {
+          input.style.borderColor = '#ef4444';
+          setTimeout(function () { input.style.borderColor = ''; }, 1200);
+          return;
+        }
+        var s = document.getElementById('applySuccess');
+        s.style.display = 'flex';
+        input.parentElement.style.display = 'none';
+        document.querySelector('.modal-form-hint').style.display = 'none';
+      };
+      document.getElementById('applyEmail').addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') window.submitApply();
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeModal();
+      });
+    })();
+  </script>
 </body>
+
 </html>

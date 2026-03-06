@@ -1,376 +1,769 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>People & Contacts - SafiTrack CRM</title>    <meta name="description" content="Manage your contacts with SafiTrack. Full relationship history, communication timeline, and deal associations — all in one place.">
+    <title>People & Contacts - SafiTrack CRM</title>
+    <meta name="description"
+        content="Manage your contacts with SafiTrack. Full relationship history, communication timeline, and deal associations — all in one place.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://safitrack.netlify.app/pages/features/people-feature.html">
     <meta property="og:title" content="People & Contacts — SafiTrack CRM">
-    <meta property="og:description" content="Manage your contacts with SafiTrack. Full relationship history, communication timeline, and deal associations — all in one place.">
+    <meta property="og:description"
+        content="Manage your contacts with SafiTrack. Full relationship history, communication timeline, and deal associations — all in one place.">
     <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://safitrack.netlify.app/pages/features/people-feature.html">
     <meta property="twitter:title" content="People & Contacts — SafiTrack CRM">
-    <meta property="twitter:description" content="Manage your contacts with SafiTrack. Full relationship history, communication timeline, and deal associations — all in one place.">
-    <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">    <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
+    <meta property="twitter:description"
+        content="Manage your contacts with SafiTrack. Full relationship history, communication timeline, and deal associations — all in one place.">
+    <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
+    <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="../../landing.css">
     <link rel="stylesheet" href="feature-page.css">
-    <style>:root{--accent:#3b82f6;}</style>
+    <style>
+        :root {
+            --accent: #3b82f6;
+        }
+    </style>
 </head>
+
 <body>
 
-<!-- Nav -->
-<nav class="navbar" id="navbar">
-    <div class="container">
-        <div class="nav-content">
-            <div class="nav-left">
-                <a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack"></a>
-                <div class="nav-links">
-                    <div class="nav-item nav-features">
-                        <a href="#" class="nav-link-toggle">Features
-                            <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                        </a>
-                        <div class="mega-menu" aria-hidden="true">
-                            <div class="mega-left">
-                                <a href="safi-ai-feature.html" class="mega-feature large"><span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><rect x="8" y="8" width="8" height="8" rx="1"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="M12 2v2"/><path d="M12 20v2"/></svg></span><div class="mega-text"><h4>Safi AI</h4><p>AI insights native to your CRM</p></div></a>
-                                <a href="sales-visits-feature.html" class="mega-feature large"><span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s7-7.5 7-11a7 7 0 10-14 0c0 3.5 7 11 7 11z"/><circle cx="12" cy="10" r="2"/></svg></span><div class="mega-text"><h4>Sales visits</h4><p>Manage field visits and visit logs</p></div></a>
-                                <a href="opportunities-feature.html" class="mega-feature large"><span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></span><div class="mega-text"><h4>Opportunities &amp; Pipelines</h4><p>Track deals and pipelines</p></div></a>
-                                <a href="route-plans-feature.html" class="mega-feature large"><span class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></span><div class="mega-text"><h4>Route plans</h4><p>Optimise routing for field visits</p></div></a>
+    <!-- Nav -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="nav-left">
+                    <a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png"
+                            alt="SafiTrack"></a>
+                    <div class="nav-links">
+                        <div class="nav-item nav-features">
+                            <a href="mainfeatures.html" class="nav-link-toggle">Features
+                                <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg></span>
+                            </a>
+                            <div class="mega-menu" aria-hidden="true">
+                                <div class="mega-left">
+                                    <a href="safi-ai-feature.html" class="mega-feature large"><span
+                                            class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                                                aria-hidden="true">
+                                                <rect x="4" y="4" width="16" height="16" rx="3" />
+                                                <rect x="8" y="8" width="8" height="8" rx="1" />
+                                                <path d="M2 12h2" />
+                                                <path d="M20 12h2" />
+                                                <path d="M12 2v2" />
+                                                <path d="M12 20v2" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>Safi AI</h4>
+                                            <p>AI insights native to your CRM</p>
+                                        </div>
+                                    </a>
+                                    <a href="sales-visits-feature.html" class="mega-feature large"><span
+                                            class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                                                aria-hidden="true">
+                                                <path d="M12 21s7-7.5 7-11a7 7 0 10-14 0c0 3.5 7 11 7 11z" />
+                                                <circle cx="12" cy="10" r="2" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>Sales visits</h4>
+                                            <p>Manage field visits and visit logs</p>
+                                        </div>
+                                    </a>
+                                    <a href="opportunities-feature.html" class="mega-feature large"><span
+                                            class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                                                aria-hidden="true">
+                                                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                                <path d="M2 17l10 5 10-5" />
+                                                <path d="M2 12l10 5 10-5" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>Opportunities &amp; Pipelines</h4>
+                                            <p>Track deals and pipelines</p>
+                                        </div>
+                                    </a>
+                                    <a href="route-plans-feature.html" class="mega-feature large"><span
+                                            class="icon-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"
+                                                aria-hidden="true">
+                                                <path d="M22 2L11 13" />
+                                                <path d="M22 2l-7 20-4-9-9-4 20-7z" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>Route plans</h4>
+                                            <p>Optimise routing for field visits</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="mega-right">
+                                    <ul class="mega-list">
+                                        <li><a href="companies-feature.html">Companies</a></li>
+                                        <li><a href="people-feature.html">People</a></li>
+                                        <li><a href="call-logs-feature.html">Call Intelligence</a></li>
+                                        <li><a href="notes-feature.html">Notes</a></li>
+                                        <li><a href="reminders-feature.html">Reminders</a></li>
+                                        <li><a href="tasks-feature.html">Tasks</a></li>
+                                        <li><a href="technician-visits-feature.html">Technician visits</a></li>
+                                    </ul>
+                                </div>
                             </div>
-                            <div class="mega-right">
-                                <ul class="mega-list">
-                                    <li><a href="companies-feature.html">Companies</a></li>
-                                    <li><a href="people-feature.html">People</a></li>
-                                    <li><a href="call-logs-feature.html">Call Intelligence</a></li>
-                                    <li><a href="notes-feature.html">Notes</a></li>
-                                    <li><a href="reminders-feature.html">Reminders</a></li>
-                                    <li><a href="tasks-feature.html">Tasks</a></li>
-                                    <li><a href="technician-visits-feature.html">Technician visits</a></li>
-                                </ul>
+                        </div>
+                        <div class="nav-item nav-resources">
+                            <a href="../documentation.html" class="nav-link-toggle">Resources
+                                <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg></span>
+                            </a>
+                            <div class="mega-menu" aria-hidden="true">
+                                <div class="mega-left">
+                                    <a href="../documentation.html" class="mega-feature"><span class="icon-box"><svg
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                                <polyline points="14 2 14 8 20 8" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>Documentation</h4>
+                                            <p>Guides and tutorials</p>
+                                        </div>
+                                    </a>
+                                    <a href="../apireference.html" class="mega-feature"><span class="icon-box"><svg
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <polyline points="16 18 22 12 16 6" />
+                                                <polyline points="8 6 2 12 8 18" />
+                                            </svg></span>
+                                        <div class="mega-text">
+                                            <h4>API Reference</h4>
+                                            <p>Build on SafiTrack</p>
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="mega-right">
+                                    <ul class="mega-list">
+                                        <li><a href="../helpcenter.html">Help Center</a></li>
+                                        <li><a href="../blog.html">Blog</a></li>
+                                        <li><a href="../careers.html">Careers</a></li>
+                                        <li><a href="../status.html">Status</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="../pricing.html">Pricing</a>
+                    </div>
+                </div>
+                <div class="nav-actions"><a href="/crm/" class="nav-link-sign-in">Sign in</a><a
+                        href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a></div>
+                <button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay"><button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg></button>
+        <div class="mobile-nav-content"><a href="mainfeatures.html" class="mobile-link">Features</a><a
+                href="../pricing.html" class="mobile-link">Pricing</a>
+            <hr class="mobile-divider"><a href="/crm/" class="mobile-link">Open App</a><a
+                href="../pricing.html#pricing-grid" class="btn-hero-primary"
+                style="margin-top: 1rem; text-align: center;">Get Started</a>
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <header class="fp-hero">
+        <div class="fp-container">
+            <h1>Every relationship,<br><span>one source of truth</span></h1>
+            <p class="fp-subtitle">Your contacts are more than rows in a spreadsheet. SafiTrack gives you a living,
+                breathing view of every person in your network — with full interaction history, smart segmentation, and
+                zero data entry.</p>
+
+            <!-- Hero mockup — contact profile -->
+            <div class="fp-mockup">
+                <div class="fp-mockup-window">
+                    <div class="fp-mockup-bar">
+                        <div class="fp-mockup-dot"></div>
+                        <div class="fp-mockup-dot"></div>
+                        <div class="fp-mockup-dot"></div>
+                    </div>
+                    <div class="fp-mockup-body" style="display:flex;min-height:440px;">
+                        <!-- Sidebar -->
+                        <div style="width:260px;border-right:1px solid #e6e9ef;padding:28px 24px;background:#f9fafb;">
+                            <div
+                                style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;margin:0 auto 16px;">
+                                EP</div>
+                            <div
+                                style="text-align:center;font-size:17px;font-weight:700;color:#0b1220;margin-bottom:4px;">
+                                Eleanor Pena</div>
+                            <div style="text-align:center;font-size:13px;color:#6b7280;margin-bottom:24px;">VP of
+                                Procurement · Acme Corp</div>
+                            <div
+                                style="font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:#9ca3af;margin-bottom:10px;">
+                                Contact Details</div>
+                            <div
+                                style="font-size:13px;color:#374151;margin-bottom:6px;display:flex;align-items:center;gap:8px;">
+                                <svg width="14" height="14" fill="none" stroke="#6b7280" stroke-width="2">
+                                    <rect x="2" y="4" width="20" height="16" rx="2" />
+                                    <path d="M22 7l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+                                </svg> eleanor@acme.com</div>
+                            <div
+                                style="font-size:13px;color:#374151;margin-bottom:6px;display:flex;align-items:center;gap:8px;">
+                                <svg width="14" height="14" fill="none" stroke="#6b7280" stroke-width="2">
+                                    <path
+                                        d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.11 2 2 0 0 1 4.11 2h3" />
+                                </svg> +1 (555) 012-3456</div>
+                            <div style="font-size:13px;color:#374151;display:flex;align-items:center;gap:8px;"><svg
+                                    width="14" height="14" fill="none" stroke="#6b7280" stroke-width="2">
+                                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                    <circle cx="12" cy="10" r="3" />
+                                </svg> San Francisco, CA</div>
+                            <div style="margin-top:24px;display:flex;gap:8px;">
+                                <span
+                                    style="padding:4px 12px;background:rgba(59,130,246,.1);color:#3b82f6;border-radius:100px;font-size:11px;font-weight:600;">Decision
+                                    Maker</span>
+                                <span
+                                    style="padding:4px 12px;background:rgba(16,185,129,.1);color:#10b981;border-radius:100px;font-size:11px;font-weight:600;">Champion</span>
+                            </div>
+                        </div>
+                        <!-- Main area -->
+                        <div style="flex:1;padding:28px 32px;overflow:hidden;">
+                            <div
+                                style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+                                <div style="font-size:16px;font-weight:700;color:#0b1220;">Activity Timeline</div>
+                                <div style="display:flex;gap:8px;">
+                                    <span
+                                        style="padding:5px 14px;background:#3b82f6;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">+
+                                        Log Activity</span>
+                                </div>
+                            </div>
+                            <!-- Timeline items -->
+                            <div style="position:relative;padding-left:28px;">
+                                <div style="position:absolute;top:8px;bottom:0;left:8px;width:2px;background:#e6e9ef;">
+                                </div>
+                                <!-- Item 1 -->
+                                <div style="position:relative;margin-bottom:28px;">
+                                    <div
+                                        style="position:absolute;left:-28px;top:2px;width:18px;height:18px;border-radius:50%;background:#3b82f6;border:3px solid #fff;box-shadow:0 0 0 2px #e6e9ef;">
+                                    </div>
+                                    <div style="font-size:13px;font-weight:600;color:#0b1220;margin-bottom:2px;">Email
+                                        Sent: Q3 Proposal Review</div>
+                                    <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Sent the latest Q3
+                                        breakdown as requested. She confirmed receipt and will review with her team.
+                                    </div>
+                                    <div style="font-size:11px;color:#9ca3af;">Today · 10:42 AM</div>
+                                </div>
+                                <!-- Item 2 -->
+                                <div style="position:relative;margin-bottom:28px;">
+                                    <div
+                                        style="position:absolute;left:-28px;top:2px;width:18px;height:18px;border-radius:50%;background:#10b981;border:3px solid #fff;box-shadow:0 0 0 2px #e6e9ef;">
+                                    </div>
+                                    <div style="font-size:13px;font-weight:600;color:#0b1220;margin-bottom:2px;">Sales
+                                        Visit — Acme HQ</div>
+                                    <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Discussed budget
+                                        constraints for upcoming project. Eleanor is pushing for Q3 approval.</div>
+                                    <div style="font-size:11px;color:#9ca3af;">Yesterday · 2:15 PM</div>
+                                </div>
+                                <!-- Item 3 -->
+                                <div style="position:relative;margin-bottom:28px;">
+                                    <div
+                                        style="position:absolute;left:-28px;top:2px;width:18px;height:18px;border-radius:50%;background:#f59e0b;border:3px solid #fff;box-shadow:0 0 0 2px #e6e9ef;">
+                                    </div>
+                                    <div style="font-size:13px;font-weight:600;color:#0b1220;margin-bottom:2px;">Note
+                                        Added</div>
+                                    <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Eleanor mentioned they
+                                        are evaluating two competitor solutions. Need to prep a comparison deck.</div>
+                                    <div style="font-size:11px;color:#9ca3af;">Feb 27 · 11:30 AM</div>
+                                </div>
+                                <!-- Item 4 -->
+                                <div style="position:relative;">
+                                    <div
+                                        style="position:absolute;left:-28px;top:2px;width:18px;height:18px;border-radius:50%;background:#8b5cf6;border:3px solid #fff;box-shadow:0 0 0 2px #e6e9ef;">
+                                    </div>
+                                    <div style="font-size:13px;font-weight:600;color:#0b1220;margin-bottom:2px;">Call
+                                        Logged — 18 min</div>
+                                    <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Initial discovery call.
+                                        Identified procurement timeline and decision process.</div>
+                                    <div style="font-size:11px;color:#9ca3af;">Feb 22 · 3:45 PM</div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <a href="../../index.html#product">Product</a>
-                    <a href="../pricing.html">Pricing</a>
                 </div>
             </div>
-            <div class="nav-actions">
-                <a href="/crm/" class="nav-link-sign-in">Sign in</a>
-                <a href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a>
-            </div>
-            <button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button>
         </div>
-    </div>
-</nav>
-<div class="mobile-nav-overlay">
-    <button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
-    <div class="mobile-nav-content">
-        <a href="mainfeatures.html" class="mobile-link">Features</a>
-        <a href="../../index.html#product" class="mobile-link">Product</a>
-        <a href="../pricing.html" class="mobile-link">Pricing</a>
-        <hr class="mobile-divider">
-        <a href="/crm/" class="mobile-link">Open App</a>
-    </div>
-</div>
+    </header>
 
-<!-- Hero -->
-<header class="fp-hero">
-    <div class="fp-container">
-        <h1>Every relationship,<br><span>one source of truth</span></h1>
-        <p class="fp-subtitle">Your contacts are more than rows in a spreadsheet. SafiTrack gives you a living, breathing view of every person in your network — with full interaction history, smart segmentation, and zero data entry.</p>
-
-        <!-- Hero mockup — contact profile -->
-        <div class="fp-mockup">
-            <div class="fp-mockup-window">
-                <div class="fp-mockup-bar">
-                    <div class="fp-mockup-dot"></div>
-                    <div class="fp-mockup-dot"></div>
-                    <div class="fp-mockup-dot"></div>
+    <!-- Section 1: 360° View -->
+    <section class="fp-section">
+        <div class="fp-container">
+            <div class="fp-split">
+                <div>
+                    <p class="fp-section-label">Complete Context</p>
+                    <h2 class="fp-section-title">360° relationship view</h2>
+                    <p class="fp-section-desc">Every email, call, visit, and note is automatically aggregated into one
+                        unified timeline. Stop hunting across inboxes and calendars for context before your next
+                        meeting.</p>
+                    <ul class="fp-checklist">
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Unified interaction history across all touchpoints</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Automatic activity logging — no manual entry</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Linked notes, deals, and companies</li>
+                    </ul>
                 </div>
-                <div class="fp-mockup-body" style="display:flex;min-height:440px;">
-                    <!-- Sidebar -->
-                    <div style="width:260px;border-right:1px solid #e6e9ef;padding:28px 24px;background:#f9fafb;">
-                        <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#3b82f6,#8b5cf6);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:800;color:#fff;margin:0 auto 16px;">EP</div>
-                        <div style="text-align:center;font-size:17px;font-weight:700;color:#0b1220;margin-bottom:4px;">Eleanor Pena</div>
-                        <div style="text-align:center;font-size:13px;color:#6b7280;margin-bottom:24px;">VP of Procurement · Acme Corp</div>
-                        <div style="font-size:11px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;color:#9ca3af;margin-bottom:10px;">Contact Details</div>
-                        <div style="font-size:13px;color:#374151;margin-bottom:6px;display:flex;align-items:center;gap:8px;"><svg width="14" height="14" fill="none" stroke="#6b7280" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> eleanor@acme.com</div>
-                        <div style="font-size:13px;color:#374151;margin-bottom:6px;display:flex;align-items:center;gap:8px;"><svg width="14" height="14" fill="none" stroke="#6b7280" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.11 2 2 0 0 1 4.11 2h3"/></svg> +1 (555) 012-3456</div>
-                        <div style="font-size:13px;color:#374151;display:flex;align-items:center;gap:8px;"><svg width="14" height="14" fill="none" stroke="#6b7280" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> San Francisco, CA</div>
-                        <div style="margin-top:24px;display:flex;gap:8px;">
-                            <span style="padding:4px 12px;background:rgba(59,130,246,.1);color:#3b82f6;border-radius:100px;font-size:11px;font-weight:600;">Decision Maker</span>
-                            <span style="padding:4px 12px;background:rgba(16,185,129,.1);color:#10b981;border-radius:100px;font-size:11px;font-weight:600;">Champion</span>
-                        </div>
+                <div class="fp-visual">
+                    <div class="fp-visual-inner">
+                        <!-- Diagram: data flowing into contact profile -->
+                        <svg width="100%" height="220" viewBox="0 0 460 220" fill="none" style="display:block;">
+                            <!-- Center profile -->
+                            <rect x="170" y="70" width="120" height="80" rx="16" fill="#3b82f6" fill-opacity="0.08"
+                                stroke="#3b82f6" stroke-opacity="0.3" />
+                            <text x="230" y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#0b1220"
+                                font-family="Manrope,sans-serif">Contact</text>
+                            <text x="230" y="118" text-anchor="middle" font-size="11" fill="#6b7280"
+                                font-family="Manrope,sans-serif">Eleanor Pena</text>
+                            <text x="230" y="138" text-anchor="middle" font-size="10" fill="#3b82f6"
+                                font-family="Manrope,sans-serif">360° View</text>
+                            <!-- Left nodes -->
+                            <rect x="10" y="20" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef" />
+                            <text x="60" y="45" text-anchor="middle" font-size="11" fill="#374151"
+                                font-family="Manrope,sans-serif">📧 Emails</text>
+                            <line x1="110" y1="40" x2="170" y2="90" stroke="#3b82f6" stroke-opacity="0.3"
+                                stroke-dasharray="4 4" />
+                            <rect x="10" y="90" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef" />
+                            <text x="60" y="115" text-anchor="middle" font-size="11" fill="#374151"
+                                font-family="Manrope,sans-serif">📞 Calls</text>
+                            <line x1="110" y1="110" x2="170" y2="110" stroke="#3b82f6" stroke-opacity="0.3"
+                                stroke-dasharray="4 4" />
+                            <rect x="10" y="160" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef" />
+                            <text x="60" y="185" text-anchor="middle" font-size="11" fill="#374151"
+                                font-family="Manrope,sans-serif">📋 Notes</text>
+                            <line x1="110" y1="180" x2="170" y2="130" stroke="#3b82f6" stroke-opacity="0.3"
+                                stroke-dasharray="4 4" />
+                            <!-- Right nodes -->
+                            <rect x="350" y="20" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef" />
+                            <text x="400" y="45" text-anchor="middle" font-size="11" fill="#374151"
+                                font-family="Manrope,sans-serif">📍 Visits</text>
+                            <line x1="350" y1="40" x2="290" y2="90" stroke="#3b82f6" stroke-opacity="0.3"
+                                stroke-dasharray="4 4" />
+                            <rect x="350" y="90" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef" />
+                            <text x="400" y="115" text-anchor="middle" font-size="11" fill="#374151"
+                                font-family="Manrope,sans-serif">💰 Deals</text>
+                            <line x1="350" y1="110" x2="290" y2="110" stroke="#3b82f6" stroke-opacity="0.3"
+                                stroke-dasharray="4 4" />
+                            <rect x="350" y="160" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef" />
+                            <text x="400" y="185" text-anchor="middle" font-size="11" fill="#374151"
+                                font-family="Manrope,sans-serif">✅ Tasks</text>
+                            <line x1="350" y1="180" x2="290" y2="130" stroke="#3b82f6" stroke-opacity="0.3"
+                                stroke-dasharray="4 4" />
+                        </svg>
                     </div>
-                    <!-- Main area -->
-                    <div style="flex:1;padding:28px 32px;overflow:hidden;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
-                            <div style="font-size:16px;font-weight:700;color:#0b1220;">Activity Timeline</div>
-                            <div style="display:flex;gap:8px;">
-                                <span style="padding:5px 14px;background:#3b82f6;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">+ Log Activity</span>
-                            </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section 2: Smart Segmentation -->
+    <section class="fp-section">
+        <div class="fp-container">
+            <div class="fp-split reversed">
+                <div>
+                    <p class="fp-section-label">Segmentation</p>
+                    <h2 class="fp-section-title">Filter, segment, and act</h2>
+                    <p class="fp-section-desc">Create dynamic lists from any combination of fields. Find every CEO in
+                        California, every contact you haven't spoken to in 30 days, or every champion at enterprise
+                        accounts — in seconds.</p>
+                    <ul class="fp-checklist">
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Dynamic filters across all contact fields</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Save and share custom views with your team</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Sort by "last contacted" to spot relationship decay</li>
+                    </ul>
+                </div>
+                <div class="fp-visual">
+                    <div class="fp-visual-inner" style="padding:24px;">
+                        <!-- Filter UI mockup -->
+                        <div style="margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+                            <div
+                                style="padding:6px 14px;background:#3b82f6;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">
+                                Title = VP</div>
+                            <div
+                                style="padding:6px 14px;background:rgba(59,130,246,.1);color:#3b82f6;border:1px solid rgba(59,130,246,.2);border-radius:8px;font-size:12px;font-weight:600;">
+                                State = California</div>
+                            <div
+                                style="padding:6px 14px;background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.2);border-radius:8px;font-size:12px;font-weight:600;">
+                                Last Contact &lt; 30d</div>
                         </div>
-                        <!-- Timeline items -->
-                        <div style="position:relative;padding-left:28px;">
-                            <div style="position:absolute;top:8px;bottom:0;left:8px;width:2px;background:#e6e9ef;"></div>
-                            <!-- Item 1 -->
-                            <div style="position:relative;margin-bottom:28px;">
-                                <div style="position:absolute;left:-28px;top:2px;width:18px;height:18px;border-radius:50%;background:#3b82f6;border:3px solid #fff;box-shadow:0 0 0 2px #e6e9ef;"></div>
-                                <div style="font-size:13px;font-weight:600;color:#0b1220;margin-bottom:2px;">Email Sent: Q3 Proposal Review</div>
-                                <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Sent the latest Q3 breakdown as requested. She confirmed receipt and will review with her team.</div>
-                                <div style="font-size:11px;color:#9ca3af;">Today · 10:42 AM</div>
-                            </div>
-                            <!-- Item 2 -->
-                            <div style="position:relative;margin-bottom:28px;">
-                                <div style="position:absolute;left:-28px;top:2px;width:18px;height:18px;border-radius:50%;background:#10b981;border:3px solid #fff;box-shadow:0 0 0 2px #e6e9ef;"></div>
-                                <div style="font-size:13px;font-weight:600;color:#0b1220;margin-bottom:2px;">Sales Visit — Acme HQ</div>
-                                <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Discussed budget constraints for upcoming project. Eleanor is pushing for Q3 approval.</div>
-                                <div style="font-size:11px;color:#9ca3af;">Yesterday · 2:15 PM</div>
-                            </div>
-                            <!-- Item 3 -->
-                            <div style="position:relative;margin-bottom:28px;">
-                                <div style="position:absolute;left:-28px;top:2px;width:18px;height:18px;border-radius:50%;background:#f59e0b;border:3px solid #fff;box-shadow:0 0 0 2px #e6e9ef;"></div>
-                                <div style="font-size:13px;font-weight:600;color:#0b1220;margin-bottom:2px;">Note Added</div>
-                                <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Eleanor mentioned they are evaluating two competitor solutions. Need to prep a comparison deck.</div>
-                                <div style="font-size:11px;color:#9ca3af;">Feb 27 · 11:30 AM</div>
-                            </div>
-                            <!-- Item 4 -->
-                            <div style="position:relative;">
-                                <div style="position:absolute;left:-28px;top:2px;width:18px;height:18px;border-radius:50%;background:#8b5cf6;border:3px solid #fff;box-shadow:0 0 0 2px #e6e9ef;"></div>
-                                <div style="font-size:13px;font-weight:600;color:#0b1220;margin-bottom:2px;">Call Logged — 18 min</div>
-                                <div style="font-size:12px;color:#6b7280;margin-bottom:4px;">Initial discovery call. Identified procurement timeline and decision process.</div>
-                                <div style="font-size:11px;color:#9ca3af;">Feb 22 · 3:45 PM</div>
-                            </div>
-                        </div>
+                        <div style="font-size:11px;color:#6b7280;margin-bottom:12px;">42 contacts match</div>
+                        <!-- Mini contact list -->
+                        <table class="ui-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Company</th>
+                                    <th>Title</th>
+                                    <th>Last Contact</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="display:flex;align-items:center;gap:8px;"><span class="ui-avatar"
+                                            style="background:#3b82f6;width:26px;height:26px;font-size:10px;">EP</span>
+                                        Eleanor Pena</td>
+                                    <td>Acme Corp</td>
+                                    <td>VP Procurement</td>
+                                    <td>Today</td>
+                                </tr>
+                                <tr>
+                                    <td style="display:flex;align-items:center;gap:8px;"><span class="ui-avatar"
+                                            style="background:#8b5cf6;width:26px;height:26px;font-size:10px;">RG</span>
+                                        Robert Garcia</td>
+                                    <td>Globex Inc</td>
+                                    <td>VP Sales</td>
+                                    <td>2 days ago</td>
+                                </tr>
+                                <tr>
+                                    <td style="display:flex;align-items:center;gap:8px;"><span class="ui-avatar"
+                                            style="background:#f59e0b;width:26px;height:26px;font-size:10px;">JS</span>
+                                        Jane Smith</td>
+                                    <td>Wayne Ent</td>
+                                    <td>VP Operations</td>
+                                    <td>5 days ago</td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</header>
+    </section>
 
-<!-- Section 1: 360° View -->
-<section class="fp-section">
-    <div class="fp-container">
-        <div class="fp-split">
-            <div>
-                <p class="fp-section-label">Complete Context</p>
-                <h2 class="fp-section-title">360° relationship view</h2>
-                <p class="fp-section-desc">Every email, call, visit, and note is automatically aggregated into one unified timeline. Stop hunting across inboxes and calendars for context before your next meeting.</p>
-                <ul class="fp-checklist">
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Unified interaction history across all touchpoints</li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Automatic activity logging — no manual entry</li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Linked notes, deals, and companies</li>
-                </ul>
-            </div>
-            <div class="fp-visual">
-                <div class="fp-visual-inner">
-                    <!-- Diagram: data flowing into contact profile -->
-                    <svg width="100%" height="220" viewBox="0 0 460 220" fill="none" style="display:block;">
-                        <!-- Center profile -->
-                        <rect x="170" y="70" width="120" height="80" rx="16" fill="#3b82f6" fill-opacity="0.08" stroke="#3b82f6" stroke-opacity="0.3"/>
-                        <text x="230" y="100" text-anchor="middle" font-size="13" font-weight="700" fill="#0b1220" font-family="Manrope,sans-serif">Contact</text>
-                        <text x="230" y="118" text-anchor="middle" font-size="11" fill="#6b7280" font-family="Manrope,sans-serif">Eleanor Pena</text>
-                        <text x="230" y="138" text-anchor="middle" font-size="10" fill="#3b82f6" font-family="Manrope,sans-serif">360° View</text>
-                        <!-- Left nodes -->
-                        <rect x="10" y="20" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef"/>
-                        <text x="60" y="45" text-anchor="middle" font-size="11" fill="#374151" font-family="Manrope,sans-serif">📧 Emails</text>
-                        <line x1="110" y1="40" x2="170" y2="90" stroke="#3b82f6" stroke-opacity="0.3" stroke-dasharray="4 4"/>
-                        <rect x="10" y="90" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef"/>
-                        <text x="60" y="115" text-anchor="middle" font-size="11" fill="#374151" font-family="Manrope,sans-serif">📞 Calls</text>
-                        <line x1="110" y1="110" x2="170" y2="110" stroke="#3b82f6" stroke-opacity="0.3" stroke-dasharray="4 4"/>
-                        <rect x="10" y="160" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef"/>
-                        <text x="60" y="185" text-anchor="middle" font-size="11" fill="#374151" font-family="Manrope,sans-serif">📋 Notes</text>
-                        <line x1="110" y1="180" x2="170" y2="130" stroke="#3b82f6" stroke-opacity="0.3" stroke-dasharray="4 4"/>
-                        <!-- Right nodes -->
-                        <rect x="350" y="20" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef"/>
-                        <text x="400" y="45" text-anchor="middle" font-size="11" fill="#374151" font-family="Manrope,sans-serif">📍 Visits</text>
-                        <line x1="350" y1="40" x2="290" y2="90" stroke="#3b82f6" stroke-opacity="0.3" stroke-dasharray="4 4"/>
-                        <rect x="350" y="90" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef"/>
-                        <text x="400" y="115" text-anchor="middle" font-size="11" fill="#374151" font-family="Manrope,sans-serif">💰 Deals</text>
-                        <line x1="350" y1="110" x2="290" y2="110" stroke="#3b82f6" stroke-opacity="0.3" stroke-dasharray="4 4"/>
-                        <rect x="350" y="160" width="100" height="40" rx="10" fill="#fff" stroke="#e6e9ef"/>
-                        <text x="400" y="185" text-anchor="middle" font-size="11" fill="#374151" font-family="Manrope,sans-serif">✅ Tasks</text>
-                        <line x1="350" y1="180" x2="290" y2="130" stroke="#3b82f6" stroke-opacity="0.3" stroke-dasharray="4 4"/>
-                    </svg>
+    <!-- Section 3: Stakeholder Mapping -->
+    <section class="fp-section">
+        <div class="fp-container">
+            <div class="fp-split">
+                <div>
+                    <p class="fp-section-label">Stakeholder Intelligence</p>
+                    <h2 class="fp-section-title">Map the buying committee</h2>
+                    <p class="fp-section-desc">Tag contacts by their role in the deal — champion, decision maker,
+                        blocker, influencer. Visualize the org chart and understand exactly who you need to win over.
+                    </p>
+                    <ul class="fp-checklist">
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Role-based contact tagging</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Company-to-contact relationship mapping</li>
+                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
+                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
+                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
+                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
+                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
+                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
+                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
+                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
+                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
+                                <circle cx="12" cy="12" r="1" />
+                            </svg> Visual org chart inside every deal</li>
+                    </ul>
                 </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Section 2: Smart Segmentation -->
-<section class="fp-section">
-    <div class="fp-container">
-        <div class="fp-split reversed">
-            <div>
-                <p class="fp-section-label">Segmentation</p>
-                <h2 class="fp-section-title">Filter, segment, and act</h2>
-                <p class="fp-section-desc">Create dynamic lists from any combination of fields. Find every CEO in California, every contact you haven't spoken to in 30 days, or every champion at enterprise accounts — in seconds.</p>
-                <ul class="fp-checklist">
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Dynamic filters across all contact fields</li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Save and share custom views with your team</li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Sort by "last contacted" to spot relationship decay</li>
-                </ul>
-            </div>
-            <div class="fp-visual">
-                <div class="fp-visual-inner" style="padding:24px;">
-                    <!-- Filter UI mockup -->
-                    <div style="margin-bottom:16px;display:flex;align-items:center;gap:8px;">
-                        <div style="padding:6px 14px;background:#3b82f6;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">Title = VP</div>
-                        <div style="padding:6px 14px;background:rgba(59,130,246,.1);color:#3b82f6;border:1px solid rgba(59,130,246,.2);border-radius:8px;font-size:12px;font-weight:600;">State = California</div>
-                        <div style="padding:6px 14px;background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.2);border-radius:8px;font-size:12px;font-weight:600;">Last Contact &lt; 30d</div>
+                <div class="fp-visual">
+                    <div class="fp-visual-inner"
+                        style="display:flex;flex-direction:column;align-items:center;gap:16px;">
+                        <!-- Org chart diagram -->
+                        <svg width="100%" height="200" viewBox="0 0 400 200" fill="none" style="display:block;">
+                            <!-- CEO -->
+                            <rect x="140" y="10" width="120" height="48" rx="12" fill="#fff" stroke="#e6e9ef" />
+                            <text x="200" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#0b1220"
+                                font-family="Manrope,sans-serif">Sarah Chen</text>
+                            <text x="200" y="46" text-anchor="middle" font-size="10" fill="#6b7280"
+                                font-family="Manrope,sans-serif">CEO · Decision Maker</text>
+                            <circle cx="254" cy="18" r="6" fill="#f43f5e" fill-opacity="0.15" stroke="#f43f5e"
+                                stroke-opacity="0.4" />
+                            <text x="254" y="21" text-anchor="middle" font-size="7" fill="#f43f5e"
+                                font-family="Manrope,sans-serif">DM</text>
+                            <!-- Lines -->
+                            <line x1="170" y1="58" x2="100" y2="90" stroke="#e6e9ef" stroke-width="1.5" />
+                            <line x1="230" y1="58" x2="300" y2="90" stroke="#e6e9ef" stroke-width="1.5" />
+                            <!-- VP Procurement -->
+                            <rect x="30" y="90" width="140" height="48" rx="12" fill="#3b82f6" fill-opacity="0.06"
+                                stroke="#3b82f6" stroke-opacity="0.25" />
+                            <text x="100" y="110" text-anchor="middle" font-size="12" font-weight="700" fill="#0b1220"
+                                font-family="Manrope,sans-serif">Eleanor Pena</text>
+                            <text x="100" y="126" text-anchor="middle" font-size="10" fill="#6b7280"
+                                font-family="Manrope,sans-serif">VP Procurement · Champion</text>
+                            <circle cx="164" cy="98" r="6" fill="#10b981" fill-opacity="0.15" stroke="#10b981"
+                                stroke-opacity="0.4" />
+                            <text x="164" y="101" text-anchor="middle" font-size="6" fill="#10b981"
+                                font-family="Manrope,sans-serif">★</text>
+                            <!-- CFO -->
+                            <rect x="230" y="90" width="140" height="48" rx="12" fill="#fff" stroke="#e6e9ef" />
+                            <text x="300" y="110" text-anchor="middle" font-size="12" font-weight="700" fill="#0b1220"
+                                font-family="Manrope,sans-serif">Mike Torres</text>
+                            <text x="300" y="126" text-anchor="middle" font-size="10" fill="#6b7280"
+                                font-family="Manrope,sans-serif">CFO · Influencer</text>
+                            <!-- Line to Technical -->
+                            <line x1="100" y1="138" x2="100" y2="160" stroke="#e6e9ef" stroke-width="1.5" />
+                            <rect x="30" y="158" width="140" height="36" rx="10" fill="#fff" stroke="#e6e9ef" />
+                            <text x="100" y="180" text-anchor="middle" font-size="11" fill="#374151"
+                                font-family="Manrope,sans-serif">David Park · Technical Lead</text>
+                        </svg>
                     </div>
-                    <div style="font-size:11px;color:#6b7280;margin-bottom:12px;">42 contacts match</div>
-                    <!-- Mini contact list -->
-                    <table class="ui-table">
-                        <thead><tr><th>Name</th><th>Company</th><th>Title</th><th>Last Contact</th></tr></thead>
-                        <tbody>
-                            <tr>
-                                <td style="display:flex;align-items:center;gap:8px;"><span class="ui-avatar" style="background:#3b82f6;width:26px;height:26px;font-size:10px;">EP</span> Eleanor Pena</td>
-                                <td>Acme Corp</td>
-                                <td>VP Procurement</td>
-                                <td>Today</td>
-                            </tr>
-                            <tr>
-                                <td style="display:flex;align-items:center;gap:8px;"><span class="ui-avatar" style="background:#8b5cf6;width:26px;height:26px;font-size:10px;">RG</span> Robert Garcia</td>
-                                <td>Globex Inc</td>
-                                <td>VP Sales</td>
-                                <td>2 days ago</td>
-                            </tr>
-                            <tr>
-                                <td style="display:flex;align-items:center;gap:8px;"><span class="ui-avatar" style="background:#f59e0b;width:26px;height:26px;font-size:10px;">JS</span> Jane Smith</td>
-                                <td>Wayne Ent</td>
-                                <td>VP Operations</td>
-                                <td>5 days ago</td>
-                            </tr>
-                        </tbody>
-                    </table>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Section 3: Stakeholder Mapping -->
-<section class="fp-section">
-    <div class="fp-container">
-        <div class="fp-split">
-            <div>
-                <p class="fp-section-label">Stakeholder Intelligence</p>
-                <h2 class="fp-section-title">Map the buying committee</h2>
-                <p class="fp-section-desc">Tag contacts by their role in the deal — champion, decision maker, blocker, influencer. Visualize the org chart and understand exactly who you need to win over.</p>
-                <ul class="fp-checklist">
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Role-based contact tagging</li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Company-to-contact relationship mapping</li>
-                    <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed"><path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0"/><path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7"/><path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8"/><path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69"/><path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0"/><path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7"/><path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8"/><path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69"/><circle cx="12" cy="12" r="1"/></svg> Visual org chart inside every deal</li>
-                </ul>
+    <!-- Feature grid -->
+    <section class="fp-grid-section" style="background:#f9fafb;">
+        <div class="fp-container">
+            <div class="fp-grid-header">
+                <p class="fp-section-label">Capabilities</p>
+                <h2 class="fp-section-title">Built for relationship-driven sales</h2>
             </div>
-            <div class="fp-visual">
-                <div class="fp-visual-inner" style="display:flex;flex-direction:column;align-items:center;gap:16px;">
-                    <!-- Org chart diagram -->
-                    <svg width="100%" height="200" viewBox="0 0 400 200" fill="none" style="display:block;">
-                        <!-- CEO -->
-                        <rect x="140" y="10" width="120" height="48" rx="12" fill="#fff" stroke="#e6e9ef"/>
-                        <text x="200" y="30" text-anchor="middle" font-size="12" font-weight="700" fill="#0b1220" font-family="Manrope,sans-serif">Sarah Chen</text>
-                        <text x="200" y="46" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Manrope,sans-serif">CEO · Decision Maker</text>
-                        <circle cx="254" cy="18" r="6" fill="#f43f5e" fill-opacity="0.15" stroke="#f43f5e" stroke-opacity="0.4"/>
-                        <text x="254" y="21" text-anchor="middle" font-size="7" fill="#f43f5e" font-family="Manrope,sans-serif">DM</text>
-                        <!-- Lines -->
-                        <line x1="170" y1="58" x2="100" y2="90" stroke="#e6e9ef" stroke-width="1.5"/>
-                        <line x1="230" y1="58" x2="300" y2="90" stroke="#e6e9ef" stroke-width="1.5"/>
-                        <!-- VP Procurement -->
-                        <rect x="30" y="90" width="140" height="48" rx="12" fill="#3b82f6" fill-opacity="0.06" stroke="#3b82f6" stroke-opacity="0.25"/>
-                        <text x="100" y="110" text-anchor="middle" font-size="12" font-weight="700" fill="#0b1220" font-family="Manrope,sans-serif">Eleanor Pena</text>
-                        <text x="100" y="126" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Manrope,sans-serif">VP Procurement · Champion</text>
-                        <circle cx="164" cy="98" r="6" fill="#10b981" fill-opacity="0.15" stroke="#10b981" stroke-opacity="0.4"/>
-                        <text x="164" y="101" text-anchor="middle" font-size="6" fill="#10b981" font-family="Manrope,sans-serif">★</text>
-                        <!-- CFO -->
-                        <rect x="230" y="90" width="140" height="48" rx="12" fill="#fff" stroke="#e6e9ef"/>
-                        <text x="300" y="110" text-anchor="middle" font-size="12" font-weight="700" fill="#0b1220" font-family="Manrope,sans-serif">Mike Torres</text>
-                        <text x="300" y="126" text-anchor="middle" font-size="10" fill="#6b7280" font-family="Manrope,sans-serif">CFO · Influencer</text>
-                        <!-- Line to Technical -->
-                        <line x1="100" y1="138" x2="100" y2="160" stroke="#e6e9ef" stroke-width="1.5"/>
-                        <rect x="30" y="158" width="140" height="36" rx="10" fill="#fff" stroke="#e6e9ef"/>
-                        <text x="100" y="180" text-anchor="middle" font-size="11" fill="#374151" font-family="Manrope,sans-serif">David Park · Technical Lead</text>
-                    </svg>
+            <div class="fp-grid">
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg></div>
+                    <h4>Rich Profiles</h4>
+                    <p>Store phone, email, social links, custom fields, and notes on every contact. All the context you
+                        need in one place.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round"
+                            class="lucide lucide-clock-icon lucide-clock">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M12 6v6l4 2" />
+                        </svg></div>
+                    <h4>Last-Contacted Tracking</h4>
+                    <p>Sort your contacts by recency. Spot relationships that are going cold and reconnect before it's
+                        too late.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                            <rect x="8" y="2" width="8" height="4" rx="1" />
+                        </svg></div>
+                    <h4>Bulk Actions</h4>
+                    <p>Select multiple contacts to assign, export, or tag in bulk. Handle your database at scale without
+                        the tedium.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
+                            <line x1="4" y1="22" x2="4" y2="15" />
+                        </svg></div>
+                    <h4>Custom Fields</h4>
+                    <p>Add any field you need — industry, budget size, lead source. Your contacts, your data model.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                        </svg></div>
+                    <h4>Engagement Scoring</h4>
+                    <p>See at a glance which contacts are hot, warm, or cold based on recent interaction frequency.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                            <polyline points="17 8 12 3 7 8" />
+                            <line x1="12" y1="3" x2="12" y2="15" />
+                        </svg></div>
+                    <h4>CSV Import & Export</h4>
+                    <p>Bring your existing contacts in with smart field mapping, or export any list for use elsewhere.
+                    </p>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+    </section>
 
-<!-- Feature grid -->
-<section class="fp-grid-section" style="background:#f9fafb;">
-    <div class="fp-container">
-        <div class="fp-grid-header">
-            <p class="fp-section-label">Capabilities</p>
-            <h2 class="fp-section-title">Built for relationship-driven sales</h2>
+    <!-- CTA -->
+    <section class="fp-cta">
+        <div class="fp-container">
+            <h2>Know every relationship that matters</h2>
+            <p>Start managing your contacts the way they deserve — with full context and zero friction.</p>
+            <a href="../pricing.html#pricing-grid" class="fp-cta-btn">Start free trial <svg width="16" height="16"
+                    fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12l5-5-5-5" />
+                </svg></a>
         </div>
-        <div class="fp-grid">
-            <div class="fp-card fp-animate">
-                <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
-                <h4>Rich Profiles</h4>
-                <p>Store phone, email, social links, custom fields, and notes on every contact. All the context you need in one place.</p>
-            </div>
-            <div class="fp-card fp-animate">
-                <div class="fp-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clock-icon lucide-clock"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></div>
-                <h4>Last-Contacted Tracking</h4>
-                <p>Sort your contacts by recency. Spot relationships that are going cold and reconnect before it's too late.</p>
-            </div>
-            <div class="fp-card fp-animate">
-                <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg></div>
-                <h4>Bulk Actions</h4>
-                <p>Select multiple contacts to assign, export, or tag in bulk. Handle your database at scale without the tedium.</p>
-            </div>
-            <div class="fp-card fp-animate">
-                <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg></div>
-                <h4>Custom Fields</h4>
-                <p>Add any field you need — industry, budget size, lead source. Your contacts, your data model.</p>
-            </div>
-            <div class="fp-card fp-animate">
-                <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
-                <h4>Engagement Scoring</h4>
-                <p>See at a glance which contacts are hot, warm, or cold based on recent interaction frequency.</p>
-            </div>
-            <div class="fp-card fp-animate">
-                <div class="fp-card-icon"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
-                <h4>CSV Import & Export</h4>
-                <p>Bring your existing contacts in with smart field mapping, or export any list for use elsewhere.</p>
-            </div>
-        </div>
-    </div>
-</section>
+    </section>
 
-<!-- CTA -->
-<section class="fp-cta">
-    <div class="fp-container">
-        <h2>Know every relationship that matters</h2>
-        <p>Start managing your contacts the way they deserve — with full context and zero friction.</p>
-        <a href="../pricing.html#pricing-grid" class="fp-cta-btn">Start free trial <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5-5-5-5"/></svg></a>
-    </div>
-</section>
-
-<!-- Footer -->
-<footer class="footer">
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-brand"><div class="footer-logo-wrapper"><a href="../../index.html"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a></div></div>
-            <div class="footer-links">
-                <div class="footer-column"><h4 class="footer-heading">Product</h4><ul><li><a href="mainfeatures.html">Features</a></li><li><a href="../pricing.html">Pricing</a></li><li><a href="../integrations.html">Integrations</a></li></ul></div>
-                <div class="footer-column"><h4 class="footer-heading">Company</h4><ul><li><a href="../blog.html">Blog</a></li><li><a href="../careers.html">Careers</a></li></ul></div>
-                <div class="footer-column"><h4 class="footer-heading">Resources</h4><ul><li><a href="../documentation.html">Documentation</a></li><li><a href="../helpcenter.html">Help Center</a></li><li><a href="../apireference.html">API Reference</a></li><li><a href="../status.html">Status</a></li></ul></div>
-                <div class="footer-column"><h4 class="footer-heading">Legal</h4><ul><li><a href="../legal/privacy.html">Privacy Policy</a></li><li><a href="../legal/terms.html">Terms of Service</a></li></ul></div>
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo-wrapper"><a href="../../index.html"><img
+                                src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Product</h4>
+                        <ul>
+                            <li><a href="mainfeatures.html">Features</a></li>
+                            <li><a href="../pricing.html">Pricing</a></li>
+                            <li><a href="../integrations.html">Integrations</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Company</h4>
+                        <ul>
+                            <li><a href="../blog.html">Blog</a></li>
+                            <li><a href="../careers.html">Careers</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Resources</h4>
+                        <ul>
+                            <li><a href="../documentation.html">Documentation</a></li>
+                            <li><a href="../helpcenter.html">Help Center</a></li>
+                            <li><a href="../apireference.html">API Reference</a></li>
+                            <li><a href="../status.html">Status</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Legal</h4>
+                        <ul>
+                            <li><a href="../legal/privacy.html">Privacy Policy</a></li>
+                            <li><a href="../legal/terms.html">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+                <div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div>
             </div>
         </div>
-        <div class="footer-bottom"><p>&copy; 2026 SafiTrack. All rights reserved.</p><div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div></div>
-    </div>
-</footer>
-<script src="feature-page.js"></script>
-<script src="../../landing.js"></script>
+    </footer>
+    <script src="feature-page.js"></script>
+    <script src="../../landing.js"></script>
 </body>
+
 </html>

@@ -1,19 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Documentation — SafiTrack</title>
-  <meta name="description" content="Complete documentation for SafiTrack CRM. Quickstart guides, API references, integration tutorials, and developer resources.">
+  <meta name="description"
+    content="Complete documentation for SafiTrack CRM. Quickstart guides, API references, integration tutorials, and developer resources.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://safitrack.netlify.app/pages/documentation.html">
   <meta property="og:title" content="Documentation — SafiTrack">
-  <meta property="og:description" content="Complete documentation for SafiTrack CRM. Quickstart guides, API references, integration tutorials, and developer resources.">
+  <meta property="og:description"
+    content="Complete documentation for SafiTrack CRM. Quickstart guides, API references, integration tutorials, and developer resources.">
   <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:url" content="https://safitrack.netlify.app/pages/documentation.html">
   <meta property="twitter:title" content="Documentation — SafiTrack">
-  <meta property="twitter:description" content="Complete documentation for SafiTrack CRM. Quickstart guides, API references, integration tutorials, and developer resources.">
+  <meta property="twitter:description"
+    content="Complete documentation for SafiTrack CRM. Quickstart guides, API references, integration tutorials, and developer resources.">
   <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
   <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -21,282 +25,1225 @@
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../landing.css">
 </head>
+
 <body>
-<nav class="navbar" id="navbar">
-  <div class="container">
-    <div class="nav-content">
-      <div class="nav-left">
-        <a href="../index.html" class="logo">
-          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
+  <!-- Navigation -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <div class="nav-content">
+        <div class="nav-left">
+          <a href="../index.html" class="logo">
+            <img src="../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
+          </a>
+          <div class="nav-links">
+            <div class="nav-item nav-features">
+              <a href="#" class="nav-link-toggle">Features
+                <span class="nav-caret" aria-hidden="true">
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </a>
+              <div class="mega-menu" aria-hidden="true">
+                <div class="mega-content-grid">
+                  <div class="mega-category">
+                    <div class="mega-category-header">Platform</div>
+                    <div class="mega-items-grid">
+                      <a href="features/safi-ai-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Safi AI</div>
+                          <div class="mega-desc">AI insights native to your CRM</div>
+                        </div>
+                      </a>
+                      <a href="features/opportunities-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Pipelines</div>
+                          <div class="mega-desc">Visual deal tracking & management</div>
+                        </div>
+                      </a>
+                      <a href="features/companies-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+                            <path d="M9 22v-4h6v4" />
+                            <path d="M8 6h.01" />
+                            <path d="M16 6h.01" />
+                            <path d="M8 10h.01" />
+                            <path d="M16 10h.01" />
+                            <path d="M8 14h.01" />
+                            <path d="M16 14h.01" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Companies</div>
+                          <div class="mega-desc">Complete organization context</div>
+                        </div>
+                      </a>
+                      <a href="features/people-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">People</div>
+                          <div class="mega-desc">Unified contact management</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Operations</div>
+                    <div class="mega-items-grid">
+                      <a href="features/sales-visits-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                            <circle cx="12" cy="10" r="3" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Sales visits</div>
+                          <div class="mega-desc">Field activity & visit logging</div>
+                        </div>
+                      </a>
+                      <a href="features/route-plans-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="6" cy="19" r="3" />
+                            <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
+                            <circle cx="18" cy="5" r="3" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Route plans</div>
+                          <div class="mega-desc">Optimized field routing</div>
+                        </div>
+                      </a>
+                      <a href="features/technician-visits-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                              d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Service visits</div>
+                          <div class="mega-desc">Post-sales technician tracking</div>
+                        </div>
+                      </a>
+                      <a href="features/tasks-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 11 12 14 22 4" />
+                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Tasks</div>
+                          <div class="mega-desc">Operational to-do management</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Insights & Ecosystem</div>
+                    <div class="mega-items-grid">
+                      <a href="features/call-logs-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path
+                              d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Call Intelligence</div>
+                          <div class="mega-desc">Record & analyze meetings</div>
+                        </div>
+                      </a>
+                      <a href="features/notes-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Notes</div>
+                          <div class="mega-desc">Native meeting summaries</div>
+                        </div>
+                      </a>
+                      <a href="features/reminders-feature.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Reminders</div>
+                          <div class="mega-desc">Smart follow-up alerts</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="mega-sidebar">
+                  <div class="mega-sidebar-header">Get Started</div>
+                  <ul class="mega-sidebar-list">
+                    <li><a href="/crm/"><span>Open CRM</span></a></li>
+                    <li><a href="pricing.html"><span>View Pricing</span></a></li>
+                    <li><a href="../index.html#pricing"><span>Request Demo</span></a></li>
+                  </ul>
+                  <div class="mega-sidebar-footer">
+                    <p>Trusted by 2,000+ teams</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="nav-item nav-resources">
+              <a href="#" class="nav-link-toggle">Resources
+                <span class="nav-caret" aria-hidden="true">
+                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
+                      stroke-linejoin="round" />
+                  </svg>
+                </span>
+              </a>
+              <div class="mega-menu" aria-hidden="true">
+                <div class="mega-content-grid">
+                  <div class="mega-category">
+                    <div class="mega-category-header">Insights</div>
+                    <div class="mega-items-grid">
+                      <a href="integrations.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                            <path d="M2 17l10 5 10-5" />
+                            <path d="M2 12l10 5 10-5" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Integrations</div>
+                          <div class="mega-desc">Connect your stack</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Support</div>
+                    <div class="mega-items-grid">
+                      <a href="documentation.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Documentation</div>
+                          <div class="mega-desc">Guides and tutorials</div>
+                        </div>
+                      </a>
+                      <a href="helpcenter.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10" />
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">Help Center</div>
+                          <div class="mega-desc">Get support</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                  <div class="mega-category">
+                    <div class="mega-category-header">Developers</div>
+                    <div class="mega-items-grid">
+                      <a href="apireference.html" class="mega-item">
+                        <div class="mega-icon">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="16 18 22 12 16 6" />
+                            <polyline points="8 6 2 12 8 18" />
+                          </svg>
+                        </div>
+                        <div class="mega-info">
+                          <div class="mega-label">API Reference</div>
+                          <div class="mega-desc">Build with SafiTrack</div>
+                        </div>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <div class="mega-sidebar">
+                  <div class="mega-sidebar-header">More</div>
+                  <ul class="mega-sidebar-list">
+                    <li><a href="blog.html"><span>Blog</span></a></li>
+                    <li><a href="careers.html"><span>Careers</span></a></li>
+                    <li><a href="status.html"><span>Status</span></a></li>
+                  </ul>
+                  <div class="mega-sidebar-footer">
+                    <p>Always growing</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <a href="pricing.html">Pricing</a>
+          </div>
+        </div>
+        <div class="nav-actions">
+          <a href="/crm/" class="nav-link-sign-in">Sign in</a>
+          <a href="pricing.html" class="btn-hero-primary">Start for free</a>
+        </div>
+        <button class="mobile-menu-btn" aria-label="Toggle Menu">
+          <span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+  <div class="mobile-nav-overlay">
+    <button class="mobile-close-btn" aria-label="Close">
+      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    <div class="mobile-nav-content">
+      <a href="features/mainfeatures.html" class="mobile-link">Features</a>
+      <a href="pricing.html" class="mobile-link">Pricing</a>
+      <hr class="mobile-divider">
+      <a href="/crm/" class="mobile-link">Open App</a>
+      <button class="btn-primary btn-block get-started-btn">Get Started</button>
+    </div>
+  </div>
+
+  <style>
+    * {
+      box-sizing: border-box
+    }
+
+    /* layout */
+    .docs-layout {
+      display: grid;
+      grid-template-columns: 256px 1fr 200px;
+      gap: 0;
+      min-height: calc(100vh - 64px);
+      margin-top: 64px
+    }
+
+    /* sidebar */
+    .docs-sidebar {
+      border-right: 1px solid #e6e9ef;
+      padding: 24px 0 48px;
+      position: sticky;
+      top: 64px;
+      height: calc(100vh - 64px);
+      overflow-y: auto;
+      background: #fafafa
+    }
+
+    .sidebar-search {
+      margin: 0 16px 20px;
+      position: relative
+    }
+
+    .sidebar-search input {
+      width: 100%;
+      padding: 8px 12px 8px 34px;
+      border: 1.5px solid #e4e4e7;
+      border-radius: 8px;
+      font-size: 13px;
+      color: #0b1220;
+      background: #fff;
+      outline: none;
+      transition: border .15s
+    }
+
+    .sidebar-search input:focus {
+      border-color: #0b1220
+    }
+
+    .sidebar-search svg {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      pointer-events: none
+    }
+
+    .sidebar-section {
+      padding: 0 16px;
+      margin-bottom: 20px
+    }
+
+    .sidebar-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      padding: 0 8px;
+      margin-bottom: 6px;
+      display: block
+    }
+
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 8px;
+      font-size: 13.5px;
+      color: #4b5563;
+      border-radius: 6px;
+      text-decoration: none;
+      transition: all .12s;
+      line-height: 1.4
+    }
+
+    .sidebar-link:hover {
+      background: #ebebeb;
+      color: #0b1220
+    }
+
+    .sidebar-link.active {
+      background: #0b1220;
+      color: #fff;
+      font-weight: 600
+    }
+
+    .sidebar-link.active svg {
+      stroke: #fff
+    }
+
+    .sidebar-link svg {
+      flex-shrink: 0;
+      opacity: .7
+    }
+
+    .sidebar-link.active .sidebar-link-badge {
+      background: rgba(255, 255, 255, .2);
+      color: #fff
+    }
+
+    .sidebar-link-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 50px;
+      background: #f4f4f5;
+      color: #6b7280;
+      margin-left: auto
+    }
+
+    .sidebar-divider {
+      border: none;
+      border-top: 1px solid #e6e9ef;
+      margin: 12px 16px
+    }
+
+    /* main */
+    .docs-main {
+      padding: 40px 48px;
+      min-width: 0;
+      max-width: 800px
+    }
+
+    .docs-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: #9ca3af;
+      margin-bottom: 20px
+    }
+
+    .docs-breadcrumb a {
+      color: #6b7280;
+      text-decoration: none
+    }
+
+    .docs-breadcrumb a:hover {
+      color: #0b1220
+    }
+
+    .docs-breadcrumb svg {
+      opacity: .5
+    }
+
+    .docs-title-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 8px
+    }
+
+    .docs-main h1 {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: #0b1220;
+      line-height: 1.2;
+      margin: 0
+    }
+
+    .docs-version {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      border-radius: 50px;
+      padding: 4px 12px;
+      white-space: nowrap;
+      margin-top: 4px
+    }
+
+    .docs-lead {
+      font-size: 16px;
+      color: #4b5563;
+      margin: 16px 0 32px;
+      line-height: 1.75;
+      padding-bottom: 28px;
+      border-bottom: 1px solid #e6e9ef
+    }
+
+    .docs-main h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #0b1220;
+      margin: 40px 0 10px;
+      padding-top: 4px
+    }
+
+    .docs-main h3 {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #0b1220;
+      margin: 28px 0 8px
+    }
+
+    .docs-main p {
+      color: #4b5563;
+      line-height: 1.8;
+      margin-bottom: 14px;
+      font-size: 14.5px
+    }
+
+    .docs-main ul,
+    .docs-main ol {
+      color: #4b5563;
+      line-height: 1.9;
+      padding-left: 20px;
+      font-size: 14.5px;
+      margin-bottom: 14px
+    }
+
+    .docs-main a {
+      color: #0b1220;
+      font-weight: 600;
+      text-underline-offset: 2px
+    }
+
+    /* callouts */
+    .callout {
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin: 20px 0;
+      font-size: 14px;
+      line-height: 1.7;
+      display: flex;
+      gap: 12px
+    }
+
+    .callout-info {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0
+    }
+
+    .callout-warn {
+      background: #fffbeb;
+      border: 1px solid #fde68a
+    }
+
+    .callout-tip {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0
+    }
+
+    .callout svg {
+      flex-shrink: 0;
+      margin-top: 1px
+    }
+
+    .callout-body {
+      flex: 1
+    }
+
+    .callout-body strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+      color: #374151
+    }
+
+    .callout-body p {
+      margin: 0;
+      color: #4b5563
+    }
+
+    /* code */
+    inline-code,
+    code {
+      background: #f4f4f5;
+      border: 1px solid #e4e4e7;
+      border-radius: 4px;
+      padding: 2px 6px;
+      font-size: 13px;
+      font-family: 'SFMono-Regular', Consolas, monospace;
+      color: #0b1220
+    }
+
+    .code-block {
+      background: #0b1220;
+      border-radius: 10px;
+      margin: 16px 0 24px;
+      overflow: hidden
+    }
+
+    .code-block-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px;
+      border-bottom: 1px solid #1e293b
+    }
+
+    .code-lang {
+      font-size: 12px;
+      font-weight: 600;
+      color: #9ca3af;
+      font-family: monospace
+    }
+
+    .copy-btn {
+      font-size: 12px;
+      font-weight: 600;
+      color: #9ca3af;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px 8px;
+      border-radius: 4px;
+      transition: all .15s;
+      display: flex;
+      align-items: center;
+      gap: 5px
+    }
+
+    .copy-btn:hover {
+      background: #1e293b;
+      color: #e2e8f0
+    }
+
+    .copy-btn.copied {
+      color: #4ade80
+    }
+
+    .code-block pre {
+      margin: 0;
+      padding: 18px 20px;
+      overflow-x: auto
+    }
+
+    .code-block pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: #e2e8f0;
+      font-size: 13px;
+      line-height: 1.7;
+      font-family: 'SFMono-Regular', Consolas, monospace
+    }
+
+    /* tables */
+    .docs-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      margin: 16px 0 24px
+    }
+
+    .docs-table th {
+      text-align: left;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      background: #fafafa;
+      border-bottom: 2px solid #e6e9ef
+    }
+
+    .docs-table td {
+      padding: 11px 14px;
+      border-bottom: 1px solid #e6e9ef;
+      color: #374151;
+      vertical-align: top
+    }
+
+    .docs-table td code {
+      font-size: 12px
+    }
+
+    .docs-table tr:last-child td {
+      border-bottom: none
+    }
+
+    .param-required {
+      font-size: 11px;
+      font-weight: 700;
+      color: #ef4444;
+      background: #fef2f2;
+      border-radius: 4px;
+      padding: 1px 6px;
+      vertical-align: middle;
+      margin-left: 4px
+    }
+
+    .param-optional {
+      font-size: 11px;
+      font-weight: 700;
+      color: #9ca3af;
+      background: #f4f4f5;
+      border-radius: 4px;
+      padding: 1px 6px;
+      vertical-align: middle;
+      margin-left: 4px
+    }
+
+    /* changelog */
+    .changelog-entry {
+      border: 1px solid #e6e9ef;
+      border-radius: 10px;
+      padding: 18px 22px;
+      margin-bottom: 12px
+    }
+
+    .changelog-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px
+    }
+
+    .changelog-version {
+      font-size: 13px;
+      font-weight: 700;
+      background: #0b1220;
+      color: #fff;
+      padding: 3px 10px;
+      border-radius: 50px
+    }
+
+    .changelog-date {
+      font-size: 13px;
+      color: #9ca3af
+    }
+
+    .changelog-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 50px;
+      background: #f4f4f5;
+      color: #6b7280
+    }
+
+    .changelog-entry ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.9
+    }
+
+    /* section divider */
+    .section-anchor {
+      display: block;
+      height: 1px;
+      margin: 0;
+      padding: 0;
+      border: none
+    }
+
+    /* on this page */
+    .docs-toc {
+      position: sticky;
+      top: 80px;
+      padding: 24px 16px 24px 20px;
+      font-size: 13px
+    }
+
+    .toc-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 12px;
+      display: block
+    }
+
+    .toc-link {
+      display: block;
+      padding: 4px 0 4px 12px;
+      color: #6b7280;
+      text-decoration: none;
+      border-left: 2px solid #e6e9ef;
+      margin-bottom: 2px;
+      transition: all .12s;
+      line-height: 1.4
+    }
+
+    .toc-link:hover,
+    .toc-link.active {
+      color: #0b1220;
+      border-left-color: #0b1220;
+      font-weight: 600
+    }
+
+    /* page nav */
+    .page-nav {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 56px;
+      padding-top: 28px;
+      border-top: 1px solid #e6e9ef
+    }
+
+    .page-nav-btn {
+      flex: 1;
+      padding: 14px 18px;
+      border: 1.5px solid #e4e4e7;
+      border-radius: 10px;
+      text-decoration: none;
+      transition: border-color .15s, box-shadow .15s;
+      max-width: 260px
+    }
+
+    .page-nav-btn:hover {
+      border-color: #0b1220;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .07)
+    }
+
+    .page-nav-btn.next {
+      text-align: right;
+      margin-left: auto
+    }
+
+    .page-nav-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: #9ca3af;
+      margin-bottom: 4px
+    }
+
+    .page-nav-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0b1220
+    }
+
+    /* feedback */
+    .feedback-bar {
+      margin-top: 40px;
+      padding: 20px 24px;
+      background: #fafafa;
+      border: 1px solid #e6e9ef;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap
+    }
+
+    .feedback-bar p {
+      font-size: 14px;
+      color: #4b5563;
+      margin: 0
+    }
+
+    .feedback-buttons {
+      display: flex;
+      gap: 8px
+    }
+
+    .feedback-btn {
+      padding: 7px 16px;
+      border: 1.5px solid #e4e4e7;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 13px;
+      font-weight: 600;
+      color: #4b5563;
+      cursor: pointer;
+      transition: all .15s;
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .feedback-btn:hover {
+      border-color: #0b1220;
+      color: #0b1220
+    }
+
+    .feedback-btn.voted {
+      background: #0b1220;
+      border-color: #0b1220;
+      color: #fff
+    }
+
+    @media(max-width:1100px) {
+      .docs-layout {
+        grid-template-columns: 240px 1fr
+      }
+
+      .docs-toc {
+        display: none
+      }
+
+      .docs-main {
+        padding: 36px 36px
+      }
+    }
+
+    @media(max-width:720px) {
+      .docs-layout {
+        grid-template-columns: 1fr
+      }
+
+      .docs-sidebar {
+        position: static;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid #e6e9ef;
+        padding: 16px 0
+      }
+
+      .docs-main {
+        padding: 28px 20px
+      }
+
+      .page-nav {
+        flex-direction: column
+      }
+
+      .page-nav-btn.next {
+        text-align: left;
+        margin-left: 0
+      }
+    }
+  </style>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar">
+      <div class="sidebar-search">
+        <svg width="14" height="14" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" viewBox="0 0 24 24">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input type="text" placeholder="Search docs..." id="sidebarSearch" autocomplete="off">
+      </div>
+      <div class="sidebar-section">
+        <span class="sidebar-label">Getting Started</span>
+        <a href="#overview" class="sidebar-link active" data-section="overview">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
+          </svg>
+          Overview
         </a>
-        <div class="nav-links">
-          <a href="features/mainfeatures.html" class="nav-link">Features</a>
-          <a href="pricing.html" class="nav-link">Pricing</a>
-          <a href="documentation.html" class="nav-link" style="color:#0b1220;font-weight:700">Docs</a>
+        <a href="#quickstart" class="sidebar-link" data-section="quickstart">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+          </svg>
+          Quick Start
+        </a>
+        <a href="#auth" class="sidebar-link" data-section="auth">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <rect x="3" y="11" width="18" height="11" rx="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+          Authentication
+        </a>
+      </div>
+      <hr class="sidebar-divider">
+      <div class="sidebar-section">
+        <span class="sidebar-label">Features</span>
+        <a href="#contacts" class="sidebar-link" data-section="contacts">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+          Contacts &amp; Companies
+        </a>
+        <a href="#visits" class="sidebar-link" data-section="visits">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+            <circle cx="12" cy="10" r="3" />
+          </svg>
+          Sales Visits
+        </a>
+        <a href="#routes" class="sidebar-link" data-section="routes">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg>
+          Route Plans
+        </a>
+        <a href="#opportunities" class="sidebar-link" data-section="opportunities">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <line x1="18" y1="20" x2="18" y2="10" />
+            <line x1="12" y1="20" x2="12" y2="4" />
+            <line x1="6" y1="20" x2="6" y2="14" />
+          </svg>
+          Opportunities
+        </a>
+        <a href="#reminders" class="sidebar-link" data-section="reminders">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+            <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+          </svg>
+          Reminders &amp; Tasks
+        </a>
+      </div>
+      <hr class="sidebar-divider">
+      <div class="sidebar-section">
+        <span class="sidebar-label">API</span>
+        <a href="apireference.html" class="sidebar-link">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <polyline points="16 18 22 12 16 6" />
+            <polyline points="8 6 2 12 8 18" />
+          </svg>
+          REST API Reference
+          <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+            style="opacity:.4;margin-left:auto">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+            <polyline points="15 3 21 3 21 9" />
+            <line x1="10" y1="14" x2="21" y2="3" />
+          </svg>
+        </a>
+        <a href="#webhooks" class="sidebar-link" data-section="webhooks">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M18 20V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14" />
+            <path d="M2 20h20" />
+            <path d="M14 12v.01" />
+          </svg>
+          Webhooks
+        </a>
+        <a href="#sdks" class="sidebar-link" data-section="sdks">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <path
+              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+          </svg>
+          SDKs
+          <span class="sidebar-link-badge">JS · PY</span>
+        </a>
+      </div>
+      <hr class="sidebar-divider">
+      <div class="sidebar-section">
+        <span class="sidebar-label">More</span>
+        <a href="#changelog" class="sidebar-link" data-section="changelog">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+          Changelog
+        </a>
+        <a href="helpcenter.html" class="sidebar-link">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" />
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+            <line x1="12" y1="17" x2="12.01" y2="17" />
+          </svg>
+          Help Center
+        </a>
+      </div>
+    </aside>
+
+    <main class="docs-main">
+      <div class="docs-breadcrumb">
+        <a href="../index.html">Home</a>
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+        <span>Documentation</span>
+        <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+        <span>Overview</span>
+      </div>
+
+      <div class="docs-title-row">
+        <h1 id="overview">SafiTrack Documentation</h1>
+        <span class="docs-version">v1.4.0 &nbsp;&middot;&nbsp; Mar 2026</span>
+      </div>
+      <p class="docs-lead">Everything you need to integrate SafiTrack into your workflow — from quick-start guides to
+        full API references and SDK examples. If you get stuck, the <a href="helpcenter.html">Help Center</a> and <a
+          href="apireference.html">API Reference</a> have you covered.</p>
+
+      <!-- Quick Start -->
+      <a class="section-anchor" id="quickstart"></a>
+      <h2>Quick Start</h2>
+      <p>Get your team set up in under 10 minutes. You'll need an active SafiTrack account — <a href="/crm/">sign up
+          here</a> if you don't have one yet.</p>
+      <ol>
+        <li><strong>Create your workspace</strong> — sign in at <code>/crm/</code> and complete the onboarding flow. It
+          takes about 2 minutes.</li>
+        <li><strong>Import contacts</strong> — upload a CSV (max 50,000 rows) or connect a Google Sheet from
+          <em>Settings → Integrations</em>.</li>
+        <li><strong>Add companies and assign reps</strong> — companies can be created manually or synced via the REST
+          API.</li>
+        <li><strong>Log your first visit</strong> — open the mobile app, tap <em>New Visit</em>, pick a company, and tap
+          Save. GPS coordinates are captured automatically.</li>
+        <li><strong>Create a route plan</strong> — from the web dashboard go to <em>Route Plans → New</em>, select up to
+          25 stops, and tap Optimise.</li>
+      </ol>
+
+      <div class="callout callout-tip">
+        <svg width="16" height="16" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" viewBox="0 0 24 24">
+          <polyline points="20 6 9 17 4 12" />
+        </svg>
+        <div class="callout-body"><strong>Tip</strong>
+          <p>Use the Chrome extension to import contacts directly from LinkedIn or your CRM while browsing. Install it
+            from <em>Settings → Extensions</em>.</p>
         </div>
       </div>
-      <div class="nav-actions">
-        <a href="/crm/" class="nav-link-sign-in">Sign in</a>
-        <a href="pricing.html" class="btn-hero-primary">Start for free</a>
-      </div>
-      <button class="mobile-menu-btn" aria-label="Toggle Menu">
-        <span></span><span></span>
-      </button>
-    </div>
-  </div>
-</nav>
-<div class="mobile-nav-overlay">
-  <button class="mobile-close-btn" aria-label="Close">
-    <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-    </svg>
-  </button>
-  <div class="mobile-nav-content">
-    <a href="features/mainfeatures.html" class="mobile-link">Features</a>
-    <a href="pricing.html" class="mobile-link">Pricing</a>
-    <a href="documentation.html" class="mobile-link" style="color:#0b1220;font-weight:700">Docs</a>
-    <hr class="mobile-divider">
-    <a href="/crm/" class="mobile-link">Sign in</a>
-    <a href="pricing.html" class="btn-primary btn-block" style="text-align:center;margin-top:8px">Start for free</a>
-  </div>
-</div>
 
-<style>
-*{box-sizing:border-box}
-/* layout */
-.docs-layout{display:grid;grid-template-columns:256px 1fr 200px;gap:0;min-height:calc(100vh - 64px);margin-top:64px}
-/* sidebar */
-.docs-sidebar{border-right:1px solid #e6e9ef;padding:24px 0 48px;position:sticky;top:64px;height:calc(100vh - 64px);overflow-y:auto;background:#fafafa}
-.sidebar-search{margin:0 16px 20px;position:relative}
-.sidebar-search input{width:100%;padding:8px 12px 8px 34px;border:1.5px solid #e4e4e7;border-radius:8px;font-size:13px;color:#0b1220;background:#fff;outline:none;transition:border .15s}
-.sidebar-search input:focus{border-color:#0b1220}
-.sidebar-search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none}
-.sidebar-section{padding:0 16px;margin-bottom:20px}
-.sidebar-label{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9ca3af;padding:0 8px;margin-bottom:6px;display:block}
-.sidebar-link{display:flex;align-items:center;gap:6px;padding:6px 8px;font-size:13.5px;color:#4b5563;border-radius:6px;text-decoration:none;transition:all .12s;line-height:1.4}
-.sidebar-link:hover{background:#ebebeb;color:#0b1220}
-.sidebar-link.active{background:#0b1220;color:#fff;font-weight:600}
-.sidebar-link.active svg{stroke:#fff}
-.sidebar-link svg{flex-shrink:0;opacity:.7}
-.sidebar-link.active .sidebar-link-badge{background:rgba(255,255,255,.2);color:#fff}
-.sidebar-link-badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:50px;background:#f4f4f5;color:#6b7280;margin-left:auto}
-.sidebar-divider{border:none;border-top:1px solid #e6e9ef;margin:12px 16px}
-/* main */
-.docs-main{padding:40px 48px;min-width:0;max-width:800px}
-.docs-breadcrumb{display:flex;align-items:center;gap:6px;font-size:13px;color:#9ca3af;margin-bottom:20px}
-.docs-breadcrumb a{color:#6b7280;text-decoration:none}
-.docs-breadcrumb a:hover{color:#0b1220}
-.docs-breadcrumb svg{opacity:.5}
-.docs-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:8px}
-.docs-main h1{font-size:1.9rem;font-weight:800;color:#0b1220;line-height:1.2;margin:0}
-.docs-version{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#6b7280;background:#f4f4f5;border:1px solid #e4e4e7;border-radius:50px;padding:4px 12px;white-space:nowrap;margin-top:4px}
-.docs-lead{font-size:16px;color:#4b5563;margin:16px 0 32px;line-height:1.75;padding-bottom:28px;border-bottom:1px solid #e6e9ef}
-.docs-main h2{font-size:1.15rem;font-weight:700;color:#0b1220;margin:40px 0 10px;padding-top:4px}
-.docs-main h3{font-size:1rem;font-weight:700;color:#0b1220;margin:28px 0 8px}
-.docs-main p{color:#4b5563;line-height:1.8;margin-bottom:14px;font-size:14.5px}
-.docs-main ul,.docs-main ol{color:#4b5563;line-height:1.9;padding-left:20px;font-size:14.5px;margin-bottom:14px}
-.docs-main a{color:#0b1220;font-weight:600;text-underline-offset:2px}
-/* callouts */
-.callout{border-radius:10px;padding:14px 18px;margin:20px 0;font-size:14px;line-height:1.7;display:flex;gap:12px}
-.callout-info{background:#f8fafc;border:1px solid #e2e8f0}
-.callout-warn{background:#fffbeb;border:1px solid #fde68a}
-.callout-tip{background:#f0fdf4;border:1px solid #bbf7d0}
-.callout svg{flex-shrink:0;margin-top:1px}
-.callout-body{flex:1}
-.callout-body strong{display:block;font-size:13px;font-weight:700;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em;color:#374151}
-.callout-body p{margin:0;color:#4b5563}
-/* code */
-inline-code,code{background:#f4f4f5;border:1px solid #e4e4e7;border-radius:4px;padding:2px 6px;font-size:13px;font-family:'SFMono-Regular',Consolas,monospace;color:#0b1220}
-.code-block{background:#0b1220;border-radius:10px;margin:16px 0 24px;overflow:hidden}
-.code-block-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #1e293b}
-.code-lang{font-size:12px;font-weight:600;color:#9ca3af;font-family:monospace}
-.copy-btn{font-size:12px;font-weight:600;color:#9ca3af;background:none;border:none;cursor:pointer;padding:2px 8px;border-radius:4px;transition:all .15s;display:flex;align-items:center;gap:5px}
-.copy-btn:hover{background:#1e293b;color:#e2e8f0}
-.copy-btn.copied{color:#4ade80}
-.code-block pre{margin:0;padding:18px 20px;overflow-x:auto}
-.code-block pre code{background:none;border:none;padding:0;color:#e2e8f0;font-size:13px;line-height:1.7;font-family:'SFMono-Regular',Consolas,monospace}
-/* tables */
-.docs-table{width:100%;border-collapse:collapse;font-size:14px;margin:16px 0 24px}
-.docs-table th{text-align:left;padding:10px 14px;font-size:12px;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:.05em;background:#fafafa;border-bottom:2px solid #e6e9ef}
-.docs-table td{padding:11px 14px;border-bottom:1px solid #e6e9ef;color:#374151;vertical-align:top}
-.docs-table td code{font-size:12px}
-.docs-table tr:last-child td{border-bottom:none}
-.param-required{font-size:11px;font-weight:700;color:#ef4444;background:#fef2f2;border-radius:4px;padding:1px 6px;vertical-align:middle;margin-left:4px}
-.param-optional{font-size:11px;font-weight:700;color:#9ca3af;background:#f4f4f5;border-radius:4px;padding:1px 6px;vertical-align:middle;margin-left:4px}
-/* changelog */
-.changelog-entry{border:1px solid #e6e9ef;border-radius:10px;padding:18px 22px;margin-bottom:12px}
-.changelog-header{display:flex;align-items:center;gap:12px;margin-bottom:10px}
-.changelog-version{font-size:13px;font-weight:700;background:#0b1220;color:#fff;padding:3px 10px;border-radius:50px}
-.changelog-date{font-size:13px;color:#9ca3af}
-.changelog-badge{font-size:11px;font-weight:700;padding:2px 8px;border-radius:50px;background:#f4f4f5;color:#6b7280}
-.changelog-entry ul{margin:0;padding-left:18px;color:#4b5563;font-size:14px;line-height:1.9}
-/* section divider */
-.section-anchor{display:block;height:1px;margin:0;padding:0;border:none}
-/* on this page */
-.docs-toc{position:sticky;top:80px;padding:24px 16px 24px 20px;font-size:13px}
-.toc-label{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#9ca3af;margin-bottom:12px;display:block}
-.toc-link{display:block;padding:4px 0 4px 12px;color:#6b7280;text-decoration:none;border-left:2px solid #e6e9ef;margin-bottom:2px;transition:all .12s;line-height:1.4}
-.toc-link:hover,.toc-link.active{color:#0b1220;border-left-color:#0b1220;font-weight:600}
-/* page nav */
-.page-nav{display:flex;justify-content:space-between;gap:16px;margin-top:56px;padding-top:28px;border-top:1px solid #e6e9ef}
-.page-nav-btn{flex:1;padding:14px 18px;border:1.5px solid #e4e4e7;border-radius:10px;text-decoration:none;transition:border-color .15s,box-shadow .15s;max-width:260px}
-.page-nav-btn:hover{border-color:#0b1220;box-shadow:0 2px 8px rgba(0,0,0,.07)}
-.page-nav-btn.next{text-align:right;margin-left:auto}
-.page-nav-label{font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9ca3af;margin-bottom:4px}
-.page-nav-title{font-size:14px;font-weight:700;color:#0b1220}
-/* feedback */
-.feedback-bar{margin-top:40px;padding:20px 24px;background:#fafafa;border:1px solid #e6e9ef;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
-.feedback-bar p{font-size:14px;color:#4b5563;margin:0}
-.feedback-buttons{display:flex;gap:8px}
-.feedback-btn{padding:7px 16px;border:1.5px solid #e4e4e7;border-radius:8px;background:#fff;font-size:13px;font-weight:600;color:#4b5563;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:6px}
-.feedback-btn:hover{border-color:#0b1220;color:#0b1220}
-.feedback-btn.voted{background:#0b1220;border-color:#0b1220;color:#fff}
-@media(max-width:1100px){.docs-layout{grid-template-columns:240px 1fr}.docs-toc{display:none}.docs-main{padding:36px 36px}}
-@media(max-width:720px){.docs-layout{grid-template-columns:1fr}.docs-sidebar{position:static;height:auto;border-right:none;border-bottom:1px solid #e6e9ef;padding:16px 0}.docs-main{padding:28px 20px}.page-nav{flex-direction:column}.page-nav-btn.next{text-align:left;margin-left:0}}
-</style>
+      <!-- Auth -->
+      <a class="section-anchor" id="auth"></a>
+      <h2>Authentication</h2>
+      <p>SafiTrack uses Supabase Auth under the hood. All API calls require a short-lived JWT Bearer token obtained
+        after sign-in. Tokens expire after <strong>1 hour</strong> — use the refresh token to get a new one without
+        re-authenticating.</p>
 
-<div class="docs-layout">
-  <aside class="docs-sidebar">
-    <div class="sidebar-search">
-      <svg width="14" height="14" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" placeholder="Search docs..." id="sidebarSearch" autocomplete="off">
-    </div>
-    <div class="sidebar-section">
-      <span class="sidebar-label">Getting Started</span>
-      <a href="#overview" class="sidebar-link active" data-section="overview">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        Overview
-      </a>
-      <a href="#quickstart" class="sidebar-link" data-section="quickstart">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-        Quick Start
-      </a>
-      <a href="#auth" class="sidebar-link" data-section="auth">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        Authentication
-      </a>
-    </div>
-    <hr class="sidebar-divider">
-    <div class="sidebar-section">
-      <span class="sidebar-label">Features</span>
-      <a href="#contacts" class="sidebar-link" data-section="contacts">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Contacts &amp; Companies
-      </a>
-      <a href="#visits" class="sidebar-link" data-section="visits">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        Sales Visits
-      </a>
-      <a href="#routes" class="sidebar-link" data-section="routes">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-        Route Plans
-      </a>
-      <a href="#opportunities" class="sidebar-link" data-section="opportunities">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-        Opportunities
-      </a>
-      <a href="#reminders" class="sidebar-link" data-section="reminders">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        Reminders &amp; Tasks
-      </a>
-    </div>
-    <hr class="sidebar-divider">
-    <div class="sidebar-section">
-      <span class="sidebar-label">API</span>
-      <a href="apireference.html" class="sidebar-link">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-        REST API Reference
-        <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="opacity:.4;margin-left:auto"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-      </a>
-      <a href="#webhooks" class="sidebar-link" data-section="webhooks">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 20V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14"/><path d="M2 20h20"/><path d="M14 12v.01"/></svg>
-        Webhooks
-      </a>
-      <a href="#sdks" class="sidebar-link" data-section="sdks">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-        SDKs
-        <span class="sidebar-link-badge">JS · PY</span>
-      </a>
-    </div>
-    <hr class="sidebar-divider">
-    <div class="sidebar-section">
-      <span class="sidebar-label">More</span>
-      <a href="#changelog" class="sidebar-link" data-section="changelog">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        Changelog
-      </a>
-      <a href="helpcenter.html" class="sidebar-link">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-        Help Center
-      </a>
-    </div>
-  </aside>
-
-  <main class="docs-main">
-    <div class="docs-breadcrumb">
-      <a href="../index.html">Home</a>
-      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-      <span>Documentation</span>
-      <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
-      <span>Overview</span>
-    </div>
-
-    <div class="docs-title-row">
-      <h1 id="overview">SafiTrack Documentation</h1>
-      <span class="docs-version">v1.4.0 &nbsp;&middot;&nbsp; Mar 2026</span>
-    </div>
-    <p class="docs-lead">Everything you need to integrate SafiTrack into your workflow — from quick-start guides to full API references and SDK examples. If you get stuck, the <a href="helpcenter.html">Help Center</a> and <a href="apireference.html">API Reference</a> have you covered.</p>
-
-    <!-- Quick Start -->
-    <a class="section-anchor" id="quickstart"></a>
-    <h2>Quick Start</h2>
-    <p>Get your team set up in under 10 minutes. You'll need an active SafiTrack account — <a href="/crm/">sign up here</a> if you don't have one yet.</p>
-    <ol>
-      <li><strong>Create your workspace</strong> — sign in at <code>/crm/</code> and complete the onboarding flow. It takes about 2 minutes.</li>
-      <li><strong>Import contacts</strong> — upload a CSV (max 50,000 rows) or connect a Google Sheet from <em>Settings → Integrations</em>.</li>
-      <li><strong>Add companies and assign reps</strong> — companies can be created manually or synced via the REST API.</li>
-      <li><strong>Log your first visit</strong> — open the mobile app, tap <em>New Visit</em>, pick a company, and tap Save. GPS coordinates are captured automatically.</li>
-      <li><strong>Create a route plan</strong> — from the web dashboard go to <em>Route Plans → New</em>, select up to 25 stops, and tap Optimise.</li>
-    </ol>
-
-    <div class="callout callout-tip">
-      <svg width="16" height="16" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-      <div class="callout-body"><strong>Tip</strong><p>Use the Chrome extension to import contacts directly from LinkedIn or your CRM while browsing. Install it from <em>Settings → Extensions</em>.</p></div>
-    </div>
-
-    <!-- Auth -->
-    <a class="section-anchor" id="auth"></a>
-    <h2>Authentication</h2>
-    <p>SafiTrack uses Supabase Auth under the hood. All API calls require a short-lived JWT Bearer token obtained after sign-in. Tokens expire after <strong>1 hour</strong> — use the refresh token to get a new one without re-authenticating.</p>
-
-    <h3>Obtain a token</h3>
-    <div class="code-block">
-      <div class="code-block-header"><span class="code-lang">bash</span><button class="copy-btn" data-code="curl -X POST https://ndrkncirkekpqjjkasiy.supabase.co/auth/v1/token?grant_type=password -H \"apikey: YOUR_ANON_KEY\" -H \"Content-Type: application/json\" -d '{\"email\":\"you@company.com\",\"password\":\"yourpassword\"}'"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
-      <pre><code>curl -X POST "https://ndrkncirkekpqjjkasiy.supabase.co/auth/v1/token?grant_type=password" \
+      <h3>Obtain a token</h3>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-lang">bash</span><button class="copy-btn"
+            data-code="curl -X POST https://ndrkncirkekpqjjkasiy.supabase.co/auth/v1/token?grant_type=password -H \"
+            apikey: YOUR_ANON_KEY\" -H \"Content-Type: application/json\"
+            -d '{\"email\":\"you@company.com\",\"password\":\"yourpassword\"}'"><svg width=" 13" height="13" fill="none"
+            stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <rect x="9" y="9" width="13" height="13" rx="2" />
+            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>Copy
+          </button></div>
+        <pre><code>curl -X POST "https://ndrkncirkekpqjjkasiy.supabase.co/auth/v1/token?grant_type=password" \
   -H "apikey: YOUR_ANON_KEY" \
   -H "Content-Type: application/json" \
   -d '{"email":"you@company.com","password":"yourpassword"}'</code></pre>
-    </div>
+      </div>
 
-    <p>The response includes <code>access_token</code>, <code>refresh_token</code>, and <code>expires_in</code>. Pass the access token in every subsequent request:</p>
-    <div class="code-block">
-      <div class="code-block-header"><span class="code-lang">bash</span><button class="copy-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
-      <pre><code>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</code></pre>
-    </div>
+      <p>The response includes <code>access_token</code>, <code>refresh_token</code>, and <code>expires_in</code>. Pass
+        the access token in every subsequent request:</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-lang">bash</span><button class="copy-btn"><svg width="13"
+              height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>Copy</button></div>
+        <pre><code>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</code></pre>
+      </div>
 
-    <div class="callout callout-warn">
-      <svg width="16" height="16" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-      <div class="callout-body"><strong>Security note</strong><p>Never commit your <code>ANON_KEY</code> or <code>access_token</code> to version control. Store secrets in environment variables or a secrets manager.</p></div>
-    </div>
+      <div class="callout callout-warn">
+        <svg width="16" height="16" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" viewBox="0 0 24 24">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+          <line x1="12" y1="9" x2="12" y2="13" />
+          <line x1="12" y1="17" x2="12.01" y2="17" />
+        </svg>
+        <div class="callout-body"><strong>Security note</strong>
+          <p>Never commit your <code>ANON_KEY</code> or <code>access_token</code> to version control. Store secrets in
+            environment variables or a secrets manager.</p>
+        </div>
+      </div>
 
-    <!-- Contacts -->
-    <a class="section-anchor" id="contacts"></a>
-    <h2>Contacts &amp; Companies</h2>
-    <p>Every person and business in your pipeline lives in SafiTrack's contact graph. The <code>contacts</code> table stores individuals; <code>companies</code> stores organisations. A contact can belong to multiple companies via the <code>contact_companies</code> join table.</p>
-    <h3>Fetch companies</h3>
-    <div class="code-block">
-      <div class="code-block-header"><span class="code-lang">javascript</span><button class="copy-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
-      <pre><code>const { data, error } = await supabase
+      <!-- Contacts -->
+      <a class="section-anchor" id="contacts"></a>
+      <h2>Contacts &amp; Companies</h2>
+      <p>Every person and business in your pipeline lives in SafiTrack's contact graph. The <code>contacts</code> table
+        stores individuals; <code>companies</code> stores organisations. A contact can belong to multiple companies via
+        the <code>contact_companies</code> join table.</p>
+      <h3>Fetch companies</h3>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-lang">javascript</span><button class="copy-btn"><svg width="13"
+              height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>Copy</button></div>
+        <pre><code>const { data, error } = await supabase
   .from('companies')
   .select('id, name, industry, owner_id, created_at')
   .order('created_at', { ascending: false })
@@ -304,12 +1251,16 @@ inline-code,code{background:#f4f4f5;border:1px solid #e4e4e7;border-radius:4px;p
 
 if (error) throw error;
 console.log(data); // [{ id: 'co_...', name: 'Acme Ltd', ... }]</code></pre>
-    </div>
+      </div>
 
-    <h3>Create a contact</h3>
-    <div class="code-block">
-      <div class="code-block-header"><span class="code-lang">javascript</span><button class="copy-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
-      <pre><code>const { data, error } = await supabase
+      <h3>Create a contact</h3>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-lang">javascript</span><button class="copy-btn"><svg width="13"
+              height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>Copy</button></div>
+        <pre><code>const { data, error } = await supabase
   .from('contacts')
   .insert({
     first_name: 'Jane',
@@ -321,54 +1272,144 @@ console.log(data); // [{ id: 'co_...', name: 'Acme Ltd', ... }]</code></pre>
   })
   .select()
   .single();</code></pre>
-    </div>
+      </div>
 
-    <h3>Bulk import via CSV</h3>
-    <p>Navigate to <em>Contacts → Import</em> in the dashboard and upload a <code>.csv</code> file. Supported columns:</p>
-    <table class="docs-table">
-      <thead><tr><th>Column</th><th>Type</th><th>Notes</th></tr></thead>
-      <tbody>
-        <tr><td><code>first_name</code> <span class="param-required">required</span></td><td>string</td><td>Max 100 chars</td></tr>
-        <tr><td><code>last_name</code></td><td>string</td><td>Max 100 chars</td></tr>
-        <tr><td><code>email</code> <span class="param-required">required</span></td><td>string</td><td>Must be valid email format</td></tr>
-        <tr><td><code>phone</code></td><td>string</td><td>E.164 format recommended</td></tr>
-        <tr><td><code>company_name</code></td><td>string</td><td>Auto-matched or created if new</td></tr>
-        <tr><td><code>tags</code></td><td>string</td><td>Comma-separated, e.g. <code>vip,renewal</code></td></tr>
-      </tbody>
-    </table>
+      <h3>Bulk import via CSV</h3>
+      <p>Navigate to <em>Contacts → Import</em> in the dashboard and upload a <code>.csv</code> file. Supported columns:
+      </p>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th>Column</th>
+            <th>Type</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>first_name</code> <span class="param-required">required</span></td>
+            <td>string</td>
+            <td>Max 100 chars</td>
+          </tr>
+          <tr>
+            <td><code>last_name</code></td>
+            <td>string</td>
+            <td>Max 100 chars</td>
+          </tr>
+          <tr>
+            <td><code>email</code> <span class="param-required">required</span></td>
+            <td>string</td>
+            <td>Must be valid email format</td>
+          </tr>
+          <tr>
+            <td><code>phone</code></td>
+            <td>string</td>
+            <td>E.164 format recommended</td>
+          </tr>
+          <tr>
+            <td><code>company_name</code></td>
+            <td>string</td>
+            <td>Auto-matched or created if new</td>
+          </tr>
+          <tr>
+            <td><code>tags</code></td>
+            <td>string</td>
+            <td>Comma-separated, e.g. <code>vip,renewal</code></td>
+          </tr>
+        </tbody>
+      </table>
 
-    <!-- Visits -->
-    <a class="section-anchor" id="visits"></a>
-    <h2>Sales Visits</h2>
-    <p>Visit records are the core data unit in SafiTrack. Each visit captures GPS coordinates, duration, structured outcome, free-text notes, and optional photo attachments. Visits power AI summaries in the Intelligence Hub and the weekly performance digest emails.</p>
-    <h3>Visit object</h3>
-    <table class="docs-table">
-      <thead><tr><th>Field</th><th>Type</th><th>Description</th></tr></thead>
-      <tbody>
-        <tr><td><code>id</code></td><td>string</td><td>UUID, auto-generated</td></tr>
-        <tr><td><code>rep_id</code></td><td>string</td><td>ID of the rep who made the visit</td></tr>
-        <tr><td><code>company_id</code></td><td>string</td><td>Company visited</td></tr>
-        <tr><td><code>contact_id</code></td><td>string</td><td>Primary contact met (optional)</td></tr>
-        <tr><td><code>lat</code> / <code>lng</code></td><td>float</td><td>GPS coordinates at check-in</td></tr>
-        <tr><td><code>duration_mins</code></td><td>integer</td><td>Duration in minutes</td></tr>
-        <tr><td><code>outcome</code></td><td>enum</td><td><code>demo_booked</code> · <code>follow_up</code> · <code>no_contact</code> · <code>closed_won</code></td></tr>
-        <tr><td><code>notes</code></td><td>string</td><td>Free-text, max 5,000 chars</td></tr>
-        <tr><td><code>visited_at</code></td><td>timestamp</td><td>ISO 8601, defaults to now</td></tr>
-      </tbody>
-    </table>
+      <!-- Visits -->
+      <a class="section-anchor" id="visits"></a>
+      <h2>Sales Visits</h2>
+      <p>Visit records are the core data unit in SafiTrack. Each visit captures GPS coordinates, duration, structured
+        outcome, free-text notes, and optional photo attachments. Visits power AI summaries in the Intelligence Hub and
+        the weekly performance digest emails.</p>
+      <h3>Visit object</h3>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>id</code></td>
+            <td>string</td>
+            <td>UUID, auto-generated</td>
+          </tr>
+          <tr>
+            <td><code>rep_id</code></td>
+            <td>string</td>
+            <td>ID of the rep who made the visit</td>
+          </tr>
+          <tr>
+            <td><code>company_id</code></td>
+            <td>string</td>
+            <td>Company visited</td>
+          </tr>
+          <tr>
+            <td><code>contact_id</code></td>
+            <td>string</td>
+            <td>Primary contact met (optional)</td>
+          </tr>
+          <tr>
+            <td><code>lat</code> / <code>lng</code></td>
+            <td>float</td>
+            <td>GPS coordinates at check-in</td>
+          </tr>
+          <tr>
+            <td><code>duration_mins</code></td>
+            <td>integer</td>
+            <td>Duration in minutes</td>
+          </tr>
+          <tr>
+            <td><code>outcome</code></td>
+            <td>enum</td>
+            <td><code>demo_booked</code> · <code>follow_up</code> · <code>no_contact</code> · <code>closed_won</code>
+            </td>
+          </tr>
+          <tr>
+            <td><code>notes</code></td>
+            <td>string</td>
+            <td>Free-text, max 5,000 chars</td>
+          </tr>
+          <tr>
+            <td><code>visited_at</code></td>
+            <td>timestamp</td>
+            <td>ISO 8601, defaults to now</td>
+          </tr>
+        </tbody>
+      </table>
 
-    <div class="callout callout-info">
-      <svg width="16" height="16" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      <div class="callout-body"><strong>Note</strong><p>GPS coordinates are captured automatically when using the mobile app. When creating visits via the API, you may pass <code>lat</code>/<code>lng</code> manually or omit them.</p></div>
-    </div>
+      <div class="callout callout-info">
+        <svg width="16" height="16" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+        <div class="callout-body"><strong>Note</strong>
+          <p>GPS coordinates are captured automatically when using the mobile app. When creating visits via the API, you
+            may pass <code>lat</code>/<code>lng</code> manually or omit them.</p>
+        </div>
+      </div>
 
-    <!-- Routes -->
-    <a class="section-anchor" id="routes"></a>
-    <h2>Route Plans</h2>
-    <p>A route plan is an ordered list of stops (companies or GPS waypoints) that SafiTrack's optimisation engine sequences for minimum travel time. Route plans can be created in the dashboard or via the API and are pushed to the mobile app automatically.</p>
-    <div class="code-block">
-      <div class="code-block-header"><span class="code-lang">javascript</span><button class="copy-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
-      <pre><code>// Create and optimise a route plan
+      <!-- Routes -->
+      <a class="section-anchor" id="routes"></a>
+      <h2>Route Plans</h2>
+      <p>A route plan is an ordered list of stops (companies or GPS waypoints) that SafiTrack's optimisation engine
+        sequences for minimum travel time. Route plans can be created in the dashboard or via the API and are pushed to
+        the mobile app automatically.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-lang">javascript</span><button class="copy-btn"><svg width="13"
+              height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>Copy</button></div>
+        <pre><code>// Create and optimise a route plan
 const { data } = await supabase
   .from('route_plans')
   .insert({
@@ -384,21 +1425,30 @@ const { data } = await supabase
   })
   .select()
   .single();</code></pre>
-    </div>
+      </div>
 
-    <!-- Opportunities -->
-    <a class="section-anchor" id="opportunities"></a>
-    <h2>Opportunities</h2>
-    <p>Opportunities track deals through a configurable Kanban pipeline. Each opportunity belongs to one company and one owner, and moves through stages you define in <em>Settings → Pipeline</em>.</p>
-    <p>Opportunity fields include <code>title</code>, <code>value</code> (currency amount), <code>stage</code>, <code>close_date</code>, <code>probability</code> (0–100), and <code>notes</code>. The Intelligence Hub surfaces stalled opportunities automatically when a deal hasn't moved stages in 14+ days.</p>
+      <!-- Opportunities -->
+      <a class="section-anchor" id="opportunities"></a>
+      <h2>Opportunities</h2>
+      <p>Opportunities track deals through a configurable Kanban pipeline. Each opportunity belongs to one company and
+        one owner, and moves through stages you define in <em>Settings → Pipeline</em>.</p>
+      <p>Opportunity fields include <code>title</code>, <code>value</code> (currency amount), <code>stage</code>,
+        <code>close_date</code>, <code>probability</code> (0–100), and <code>notes</code>. The Intelligence Hub surfaces
+        stalled opportunities automatically when a deal hasn't moved stages in 14+ days.</p>
 
-    <!-- Reminders -->
-    <a class="section-anchor" id="reminders"></a>
-    <h2>Reminders &amp; Tasks</h2>
-    <p>Reminders are time-based notifications attached to contacts, companies, or opportunities. Tasks are checklist items within a visit or deal. Both are synced to the mobile app and can optionally fire email or push notifications.</p>
-    <div class="code-block">
-      <div class="code-block-header"><span class="code-lang">javascript</span><button class="copy-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
-      <pre><code>// Create a follow-up reminder
+      <!-- Reminders -->
+      <a class="section-anchor" id="reminders"></a>
+      <h2>Reminders &amp; Tasks</h2>
+      <p>Reminders are time-based notifications attached to contacts, companies, or opportunities. Tasks are checklist
+        items within a visit or deal. Both are synced to the mobile app and can optionally fire email or push
+        notifications.</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-lang">javascript</span><button class="copy-btn"><svg width="13"
+              height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>Copy</button></div>
+        <pre><code>// Create a follow-up reminder
 const { data } = await supabase
   .from('reminders')
   .insert({
@@ -411,27 +1461,53 @@ const { data } = await supabase
   })
   .select()
   .single();</code></pre>
-    </div>
+      </div>
 
-    <!-- Webhooks -->
-    <a class="section-anchor" id="webhooks"></a>
-    <h2>Webhooks</h2>
-    <p>Subscribe to real-time events using webhook endpoints. SafiTrack sends a signed <code>POST</code> request to your URL whenever a trigger fires. Each request includes an <code>X-SafiTrack-Signature</code> header — a HMAC-SHA256 of the raw body using your webhook secret.</p>
-    <h3>Available events</h3>
-    <table class="docs-table">
-      <thead><tr><th>Event</th><th>Fires when</th></tr></thead>
-      <tbody>
-        <tr><td><code>visit.completed</code></td><td>A rep saves a completed visit</td></tr>
-        <tr><td><code>opportunity.stage_changed</code></td><td>An opportunity moves to a new pipeline stage</td></tr>
-        <tr><td><code>contact.created</code></td><td>A new contact is added (any source)</td></tr>
-        <tr><td><code>route_plan.started</code></td><td>A rep begins navigating a route plan</td></tr>
-        <tr><td><code>reminder.due</code></td><td>A reminder's <code>due_at</code> timestamp is reached</td></tr>
-      </tbody>
-    </table>
-    <h3>Example payload</h3>
-    <div class="code-block">
-      <div class="code-block-header"><span class="code-lang">json</span><button class="copy-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
-      <pre><code>{
+      <!-- Webhooks -->
+      <a class="section-anchor" id="webhooks"></a>
+      <h2>Webhooks</h2>
+      <p>Subscribe to real-time events using webhook endpoints. SafiTrack sends a signed <code>POST</code> request to
+        your URL whenever a trigger fires. Each request includes an <code>X-SafiTrack-Signature</code> header — a
+        HMAC-SHA256 of the raw body using your webhook secret.</p>
+      <h3>Available events</h3>
+      <table class="docs-table">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Fires when</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>visit.completed</code></td>
+            <td>A rep saves a completed visit</td>
+          </tr>
+          <tr>
+            <td><code>opportunity.stage_changed</code></td>
+            <td>An opportunity moves to a new pipeline stage</td>
+          </tr>
+          <tr>
+            <td><code>contact.created</code></td>
+            <td>A new contact is added (any source)</td>
+          </tr>
+          <tr>
+            <td><code>route_plan.started</code></td>
+            <td>A rep begins navigating a route plan</td>
+          </tr>
+          <tr>
+            <td><code>reminder.due</code></td>
+            <td>A reminder's <code>due_at</code> timestamp is reached</td>
+          </tr>
+        </tbody>
+      </table>
+      <h3>Example payload</h3>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-lang">json</span><button class="copy-btn"><svg width="13"
+              height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>Copy</button></div>
+        <pre><code>{
   "event":     "visit.completed",
   "timestamp": "2026-03-01T09:41:22Z",
   "version":   "1",
@@ -445,11 +1521,15 @@ const { data } = await supabase
     "duration_mins": 28
   }
 }</code></pre>
-    </div>
-    <h3>Verify the signature</h3>
-    <div class="code-block">
-      <div class="code-block-header"><span class="code-lang">javascript</span><button class="copy-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
-      <pre><code>import crypto from 'crypto';
+      </div>
+      <h3>Verify the signature</h3>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-lang">javascript</span><button class="copy-btn"><svg width="13"
+              height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>Copy</button></div>
+        <pre><code>import crypto from 'crypto';
 
 function verifyWebhook(rawBody, signature, secret) {
   const expected = crypto
@@ -461,23 +1541,31 @@ function verifyWebhook(rawBody, signature, secret) {
     Buffer.from(expected)
   );
 }</code></pre>
-    </div>
+      </div>
 
-    <!-- SDKs -->
-    <a class="section-anchor" id="sdks"></a>
-    <h2>SDKs</h2>
-    <p>SafiTrack exposes its data via the Supabase JS and Python clients. Install them with your package manager:</p>
-    <div class="code-block">
-      <div class="code-block-header"><span class="code-lang">bash</span><button class="copy-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
-      <pre><code># JavaScript / TypeScript
+      <!-- SDKs -->
+      <a class="section-anchor" id="sdks"></a>
+      <h2>SDKs</h2>
+      <p>SafiTrack exposes its data via the Supabase JS and Python clients. Install them with your package manager:</p>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-lang">bash</span><button class="copy-btn"><svg width="13"
+              height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>Copy</button></div>
+        <pre><code># JavaScript / TypeScript
 npm install @supabase/supabase-js
 
 # Python
 pip install supabase</code></pre>
-    </div>
-    <div class="code-block">
-      <div class="code-block-header"><span class="code-lang">python</span><button class="copy-btn"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Copy</button></div>
-      <pre><code>from supabase import create_client
+      </div>
+      <div class="code-block">
+        <div class="code-block-header"><span class="code-lang">python</span><button class="copy-btn"><svg width="13"
+              height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <rect x="9" y="9" width="13" height="13" rx="2" />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>Copy</button></div>
+        <pre><code>from supabase import create_client
 
 url  = "https://ndrkncirkekpqjjkasiy.supabase.co"
 key  = "YOUR_ANON_KEY"
@@ -493,226 +1581,234 @@ response = (
     .execute()
 )
 print(response.data)</code></pre>
-    </div>
-
-    <!-- Changelog -->
-    <a class="section-anchor" id="changelog"></a>
-    <h2>Changelog</h2>
-    <div class="changelog-entry">
-      <div class="changelog-header">
-        <span class="changelog-version">v1.4.0</span>
-        <span class="changelog-date">March 2026</span>
-        <span class="changelog-badge">Latest</span>
       </div>
-      <ul>
-        <li>Intelligence Hub: AI visit summaries and rep coaching suggestions</li>
-        <li>Bulk contact import — up to 50,000 rows, with duplicate detection</li>
-        <li>Webhook delivery retries with exponential back-off (up to 5 attempts)</li>
-        <li>Python SDK now officially supported</li>
-      </ul>
-    </div>
-    <div class="changelog-entry">
-      <div class="changelog-header">
-        <span class="changelog-version">v1.3.0</span>
-        <span class="changelog-date">October 2025</span>
-      </div>
-      <ul>
-        <li>Route plan optimisation engine (TSP-based, up to 25 stops)</li>
-        <li>Territory management UI with polygon drawing on maps</li>
-        <li>Google Calendar two-way sync for reminders and tasks</li>
-        <li>Custom pipeline stages in <em>Settings → Pipeline</em></li>
-      </ul>
-    </div>
-    <div class="changelog-entry">
-      <div class="changelog-header">
-        <span class="changelog-version">v1.2.0</span>
-        <span class="changelog-date">August 2025</span>
-      </div>
-      <ul>
-        <li>Opportunities Kanban board with drag-and-drop stage changes</li>
-        <li>Custom fields on contacts and companies (text, number, date, select)</li>
-        <li>CSV export for all entities including visits and call logs</li>
-        <li>Role-based access control — Manager, Rep, Read-only</li>
-      </ul>
-    </div>
-    <div class="changelog-entry">
-      <div class="changelog-header">
-        <span class="changelog-version">v1.0.0</span>
-        <span class="changelog-date">May 2025</span>
-      </div>
-      <ul>
-        <li>Initial public launch</li>
-        <li>Core CRM: contacts, companies, visits, reminders, call logs</li>
-        <li>iOS and Android mobile apps</li>
-        <li>REST API and Supabase JS SDK support</li>
-      </ul>
-    </div>
 
-    <div class="feedback-bar">
-      <p>Was this page helpful?</p>
-      <div class="feedback-buttons">
-        <button class="feedback-btn" id="fbYes" onclick="vote('yes')">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
-          Yes
-        </button>
-        <button class="feedback-btn" id="fbNo" onclick="vote('no')">
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
-          No
-        </button>
-      </div>
-    </div>
-
-    <div class="page-nav">
-      <div></div>
-      <a href="apireference.html" class="page-nav-btn next">
-        <div class="page-nav-label">Next</div>
-        <div class="page-nav-title">API Reference &rarr;</div>
-      </a>
-    </div>
-  </main>
-
-  <nav class="docs-toc">
-    <span class="toc-label">On this page</span>
-    <a href="#overview" class="toc-link active">Overview</a>
-    <a href="#quickstart" class="toc-link">Quick Start</a>
-    <a href="#auth" class="toc-link">Authentication</a>
-    <a href="#contacts" class="toc-link">Contacts &amp; Companies</a>
-    <a href="#visits" class="toc-link">Sales Visits</a>
-    <a href="#routes" class="toc-link">Route Plans</a>
-    <a href="#opportunities" class="toc-link">Opportunities</a>
-    <a href="#reminders" class="toc-link">Reminders &amp; Tasks</a>
-    <a href="#webhooks" class="toc-link">Webhooks</a>
-    <a href="#sdks" class="toc-link">SDKs</a>
-    <a href="#changelog" class="toc-link">Changelog</a>
-  </nav>
-</div>
-
-<footer class="footer">
-  <div class="container">
-    <div class="footer-content">
-      <div class="footer-brand">
-        <div class="footer-logo-wrapper">
-          <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
+      <!-- Changelog -->
+      <a class="section-anchor" id="changelog"></a>
+      <h2>Changelog</h2>
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v1.4.0</span>
+          <span class="changelog-date">March 2026</span>
+          <span class="changelog-badge">Latest</span>
         </div>
-        <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp; sales CRM built for modern teams.</p>
+        <ul>
+          <li>Intelligence Hub: AI visit summaries and rep coaching suggestions</li>
+          <li>Bulk contact import — up to 50,000 rows, with duplicate detection</li>
+          <li>Webhook delivery retries with exponential back-off (up to 5 attempts)</li>
+          <li>Python SDK now officially supported</li>
+        </ul>
       </div>
-      <div class="footer-links">
-        <div class="footer-column">
-          <h4 class="footer-heading">Product</h4>
-          <ul>
-            <li><a href="features/mainfeatures.html">Features</a></li>
-            <li><a href="pricing.html">Pricing</a></li>
-            <li><a href="integrations.html">Integrations</a></li>
-          </ul>
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v1.3.0</span>
+          <span class="changelog-date">October 2025</span>
         </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Company</h4>
-          <ul>
-            <li><a href="blog.html">Blog</a></li>
-            <li><a href="careers.html">Careers</a></li>
-          </ul>
+        <ul>
+          <li>Route plan optimisation engine (TSP-based, up to 25 stops)</li>
+          <li>Territory management UI with polygon drawing on maps</li>
+          <li>Google Calendar two-way sync for reminders and tasks</li>
+          <li>Custom pipeline stages in <em>Settings → Pipeline</em></li>
+        </ul>
+      </div>
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v1.2.0</span>
+          <span class="changelog-date">August 2025</span>
         </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Resources</h4>
-          <ul>
-            <li><a href="documentation.html">Documentation</a></li>
-            <li><a href="helpcenter.html">Help Center</a></li>
-            <li><a href="apireference.html">API Reference</a></li>
-            <li><a href="status.html">Status</a></li>
-          </ul>
+        <ul>
+          <li>Opportunities Kanban board with drag-and-drop stage changes</li>
+          <li>Custom fields on contacts and companies (text, number, date, select)</li>
+          <li>CSV export for all entities including visits and call logs</li>
+          <li>Role-based access control — Manager, Rep, Read-only</li>
+        </ul>
+      </div>
+      <div class="changelog-entry">
+        <div class="changelog-header">
+          <span class="changelog-version">v1.0.0</span>
+          <span class="changelog-date">May 2025</span>
         </div>
-        <div class="footer-column">
-          <h4 class="footer-heading">Legal</h4>
-          <ul>
-            <li><a href="legal/privacy.html">Privacy Policy</a></li>
-            <li><a href="legal/terms.html">Terms of Service</a></li>
-          </ul>
+        <ul>
+          <li>Initial public launch</li>
+          <li>Core CRM: contacts, companies, visits, reminders, call logs</li>
+          <li>iOS and Android mobile apps</li>
+          <li>REST API and Supabase JS SDK support</li>
+        </ul>
+      </div>
+
+      <div class="feedback-bar">
+        <p>Was this page helpful?</p>
+        <div class="feedback-buttons">
+          <button class="feedback-btn" id="fbYes" onclick="vote('yes')">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z" />
+              <path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3" />
+            </svg>
+            Yes
+          </button>
+          <button class="feedback-btn" id="fbNo" onclick="vote('no')">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z" />
+              <path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17" />
+            </svg>
+            No
+          </button>
         </div>
       </div>
-    </div>
-    <div class="footer-bottom">
-      <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-      <div class="footer-social">
-        <a href="#">Twitter</a>
-        <a href="#">LinkedIn</a>
-        <a href="#">GitHub</a>
+
+      <div class="page-nav">
+        <div></div>
+        <a href="apireference.html" class="page-nav-btn next">
+          <div class="page-nav-label">Next</div>
+          <div class="page-nav-title">API Reference &rarr;</div>
+        </a>
       </div>
-    </div>
+    </main>
+
+    <nav class="docs-toc">
+      <span class="toc-label">On this page</span>
+      <a href="#overview" class="toc-link active">Overview</a>
+      <a href="#quickstart" class="toc-link">Quick Start</a>
+      <a href="#auth" class="toc-link">Authentication</a>
+      <a href="#contacts" class="toc-link">Contacts &amp; Companies</a>
+      <a href="#visits" class="toc-link">Sales Visits</a>
+      <a href="#routes" class="toc-link">Route Plans</a>
+      <a href="#opportunities" class="toc-link">Opportunities</a>
+      <a href="#reminders" class="toc-link">Reminders &amp; Tasks</a>
+      <a href="#webhooks" class="toc-link">Webhooks</a>
+      <a href="#sdks" class="toc-link">SDKs</a>
+      <a href="#changelog" class="toc-link">Changelog</a>
+    </nav>
   </div>
-</footer>
-<script>
-(function(){
-  // mobile nav
-  var mb=document.querySelector('.mobile-menu-btn'),
-      mo=document.querySelector('.mobile-nav-overlay'),
-      mc=document.querySelector('.mobile-close-btn');
-  if(mb&&mo){
-    mb.addEventListener('click',function(){mo.classList.add('active');});
-    if(mc)mc.addEventListener('click',function(){mo.classList.remove('active');});
-    mo.addEventListener('click',function(e){if(e.target===mo)mo.classList.remove('active');});
-  }
-  window.addEventListener('scroll',function(){
-    var nb=document.getElementById('navbar');
-    if(nb)nb.classList.toggle('scrolled',window.scrollY>20);
-  });
 
-  // copy buttons
-  document.querySelectorAll('.copy-btn').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var block=btn.closest('.code-block');
-      var text=block?block.querySelector('pre code').textContent:btn.dataset.code||'';
-      navigator.clipboard.writeText(text).then(function(){
-        var orig=btn.innerHTML;
-        btn.innerHTML='<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Copied';
-        btn.classList.add('copied');
-        setTimeout(function(){btn.innerHTML=orig;btn.classList.remove('copied');},2000);
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-brand">
+          <div class="footer-logo-wrapper">
+            <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
+          </div>
+          <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp;
+            sales CRM built for modern teams.</p>
+        </div>
+        <div class="footer-links">
+          <div class="footer-column">
+            <h4 class="footer-heading">Product</h4>
+            <ul>
+              <li><a href="features/mainfeatures.html">Features</a></li>
+              <li><a href="pricing.html">Pricing</a></li>
+              <li><a href="integrations.html">Integrations</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Company</h4>
+            <ul>
+              <li><a href="blog.html">Blog</a></li>
+              <li><a href="careers.html">Careers</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Resources</h4>
+            <ul>
+              <li><a href="documentation.html">Documentation</a></li>
+              <li><a href="helpcenter.html">Help Center</a></li>
+              <li><a href="apireference.html">API Reference</a></li>
+              <li><a href="status.html">Status</a></li>
+            </ul>
+          </div>
+          <div class="footer-column">
+            <h4 class="footer-heading">Legal</h4>
+            <ul>
+              <li><a href="legal/privacy.html">Privacy Policy</a></li>
+              <li><a href="legal/terms.html">Terms of Service</a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+        <div class="footer-social">
+          <a href="#">Twitter</a>
+          <a href="#">LinkedIn</a>
+          <a href="#">GitHub</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+  <script>
+    (function () {
+      // mobile nav
+      var mb = document.querySelector('.mobile-menu-btn'),
+        mo = document.querySelector('.mobile-nav-overlay'),
+        mc = document.querySelector('.mobile-close-btn');
+      if (mb && mo) {
+        mb.addEventListener('click', function () { mo.classList.add('active'); });
+        if (mc) mc.addEventListener('click', function () { mo.classList.remove('active'); });
+        mo.addEventListener('click', function (e) { if (e.target === mo) mo.classList.remove('active'); });
+      }
+      window.addEventListener('scroll', function () {
+        var nb = document.getElementById('navbar');
+        if (nb) nb.classList.toggle('scrolled', window.scrollY > 20);
       });
-    });
-  });
 
-  // sidebar search
-  var search=document.getElementById('sidebarSearch');
-  if(search){
-    search.addEventListener('input',function(){
-      var q=this.value.toLowerCase();
-      document.querySelectorAll('.sidebar-link').forEach(function(l){
-        var match=l.textContent.toLowerCase().includes(q)||!q;
-        l.style.display=match?'':'none';
+      // copy buttons
+      document.querySelectorAll('.copy-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var block = btn.closest('.code-block');
+          var text = block ? block.querySelector('pre code').textContent : btn.dataset.code || '';
+          navigator.clipboard.writeText(text).then(function () {
+            var orig = btn.innerHTML;
+            btn.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>Copied';
+            btn.classList.add('copied');
+            setTimeout(function () { btn.innerHTML = orig; btn.classList.remove('copied'); }, 2000);
+          });
+        });
       });
-    });
-  }
 
-  // scroll spy — sidebar + toc
-  var sections=['overview','quickstart','auth','contacts','visits','routes','opportunities','reminders','webhooks','sdks','changelog'];
-  function getActive(){
-    var scrollY=window.scrollY+100;
-    var active='overview';
-    sections.forEach(function(id){
-      var el=document.getElementById(id)||document.querySelector('[id="'+id+'"]');
-      if(!el){var a=document.querySelector('a.section-anchor[id="'+id+'"]');el=a;}
-      if(el&&el.getBoundingClientRect().top+window.scrollY-110<=scrollY)active=id;
-    });
-    return active;
-  }
-  function updateActive(){
-    var id=getActive();
-    document.querySelectorAll('.sidebar-link[data-section]').forEach(function(l){
-      l.classList.toggle('active',l.dataset.section===id);
-    });
-    document.querySelectorAll('.toc-link').forEach(function(l){
-      l.classList.toggle('active',l.getAttribute('href')==='#'+id);
-    });
-  }
-  window.addEventListener('scroll',updateActive,{passive:true});
-  updateActive();
+      // sidebar search
+      var search = document.getElementById('sidebarSearch');
+      if (search) {
+        search.addEventListener('input', function () {
+          var q = this.value.toLowerCase();
+          document.querySelectorAll('.sidebar-link').forEach(function (l) {
+            var match = l.textContent.toLowerCase().includes(q) || !q;
+            l.style.display = match ? '' : 'none';
+          });
+        });
+      }
 
-  // feedback
-  window.vote=function(v){
-    document.getElementById('fbYes').classList.toggle('voted',v==='yes');
-    document.getElementById('fbNo').classList.toggle('voted',v==='no');
-    document.querySelector('.feedback-bar p').textContent='Thanks for the feedback!';
-  };
-})();
-</script>
+      // scroll spy — sidebar + toc
+      var sections = ['overview', 'quickstart', 'auth', 'contacts', 'visits', 'routes', 'opportunities', 'reminders', 'webhooks', 'sdks', 'changelog'];
+      function getActive() {
+        var scrollY = window.scrollY + 100;
+        var active = 'overview';
+        sections.forEach(function (id) {
+          var el = document.getElementById(id) || document.querySelector('[id="' + id + '"]');
+          if (!el) { var a = document.querySelector('a.section-anchor[id="' + id + '"]'); el = a; }
+          if (el && el.getBoundingClientRect().top + window.scrollY - 110 <= scrollY) active = id;
+        });
+        return active;
+      }
+      function updateActive() {
+        var id = getActive();
+        document.querySelectorAll('.sidebar-link[data-section]').forEach(function (l) {
+          l.classList.toggle('active', l.dataset.section === id);
+        });
+        document.querySelectorAll('.toc-link').forEach(function (l) {
+          l.classList.toggle('active', l.getAttribute('href') === '#' + id);
+        });
+      }
+      window.addEventListener('scroll', updateActive, { passive: true });
+      updateActive();
+
+      // feedback
+      window.vote = function (v) {
+        document.getElementById('fbYes').classList.toggle('voted', v === 'yes');
+        document.getElementById('fbNo').classList.toggle('voted', v === 'no');
+        document.querySelector('.feedback-bar p').textContent = 'Thanks for the feedback!';
+      };
+    })();
+  </script>
 </body>
+
 </html>
