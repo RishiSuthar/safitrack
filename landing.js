@@ -3,6 +3,11 @@
 // ===================================
 
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize Lucide icons
+    if (window.lucide && typeof lucide.createIcons === 'function') {
+        lucide.createIcons();
+    }
+
     initNavbar();
     initSmoothScroll();
     initScrollAnimations();
@@ -130,7 +135,7 @@ function initCustomSelects() {
             const isOpen = wrapper.classList.toggle('open');
             selectedBtn.setAttribute('aria-expanded', String(isOpen));
             // close other selects
-            document.querySelectorAll('.custom-select.open').forEach(cs => { if (cs !== wrapper) { cs.classList.remove('open'); cs.querySelector('.custom-select__selected')?.setAttribute('aria-expanded','false'); } });
+            document.querySelectorAll('.custom-select.open').forEach(cs => { if (cs !== wrapper) { cs.classList.remove('open'); cs.querySelector('.custom-select__selected')?.setAttribute('aria-expanded', 'false'); } });
         });
 
         // keyboard accessibility
@@ -138,7 +143,7 @@ function initCustomSelects() {
             if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
                 e.preventDefault();
                 wrapper.classList.add('open');
-                selectedBtn.setAttribute('aria-expanded','true');
+                selectedBtn.setAttribute('aria-expanded', 'true');
                 const first = optionsList.querySelector('.custom-select__option:not(.disabled)');
                 first?.focus();
             }
@@ -553,12 +558,12 @@ function initRoleTabs() {
             setTimeout(() => { el.textContent = labels[0]; el.disabled = false; }, 1400);
         });
     }
-    wireBtn('rs-mgr-btn',    ['Open Dashboard →', 'Opening…']);
-    wireBtn('rs-mgr-export', ['Export Report',     'Exporting…']);
-    wireBtn('rs-sales-btn',  ['+ Add Deal',        'Adding…']);
-    wireBtn('rs-sales-ai',   ['✨ AI Score All',   'Scoring…']);
-    wireBtn('rs-tech-route', ['📍 Plan My Route',  'Planning…']);
-    wireBtn('rs-tech-log',   ['Log a Visit',        'Logging…']);
+    wireBtn('rs-mgr-btn', ['Open Dashboard →', 'Opening…']);
+    wireBtn('rs-mgr-export', ['Export Report', 'Exporting…']);
+    wireBtn('rs-sales-btn', ['+ Add Deal', 'Adding…']);
+    wireBtn('rs-sales-ai', ['✨ AI Score All', 'Scoring…']);
+    wireBtn('rs-tech-route', ['📍 Plan My Route', 'Planning…']);
+    wireBtn('rs-tech-log', ['Log a Visit', 'Logging…']);
 
     // Kick off auto-cycle
     const firstBtn = [...buttons].find(b => b.classList.contains('active'));
@@ -1199,12 +1204,12 @@ function initShowcase() {
     let startTime = null;
 
     const screenshots = {
-        ai:            'assets/safitrackscreenshots/ai.webm',
+        ai: 'assets/safitrackscreenshots/ai.webm',
         opportunities: 'assets/safitrackscreenshots/op.webm',
-        visits:        'assets/safitrackscreenshots/visits.webm',
-        routes:        'assets/safitrackscreenshots/routeplan.webm',
-        companies:     'assets/safitrackscreenshots/companies.webm',
-        people:        'assets/safitrackscreenshots/people.webm'
+        visits: 'assets/safitrackscreenshots/visits.webm',
+        routes: 'assets/safitrackscreenshots/routeplan.webm',
+        companies: 'assets/safitrackscreenshots/companies.webm',
+        people: 'assets/safitrackscreenshots/people.webm'
     };
 
     function switchTab(index) {
@@ -1347,44 +1352,44 @@ function animateValue(obj, start, end, duration, suffix = '') {
 // TRANSFORMATION ANIMATION  — 3-phase narrative
 // ===================================
 function initTransformationAnimation() {
-    const stage      = document.getElementById('tf-stage');
+    const stage = document.getElementById('tf-stage');
     const colHeaders = document.getElementById('tf-col-headers');
     const chaosLayer = document.getElementById('tf-chaos-layer');
-    const aiBadge    = document.getElementById('tf-ai-badge');
+    const aiBadge = document.getElementById('tf-ai-badge');
 
     if (!stage) return;
 
     // Cards in extract order (phase 2 pop-in sequence)
     const EXTRACT_ORDER = [
-        { id: 'tf-c1', col: 0, prog: 35  },
-        { id: 'tf-c4', col: 0, prog: 20  },
-        { id: 'tf-c2', col: 1, prog: 65  },
-        { id: 'tf-c5', col: 1, prog: 50  },
-        { id: 'tf-c6', col: 2, prog: 80  },
+        { id: 'tf-c1', col: 0, prog: 35 },
+        { id: 'tf-c4', col: 0, prog: 20 },
+        { id: 'tf-c2', col: 1, prog: 65 },
+        { id: 'tf-c5', col: 1, prog: 50 },
+        { id: 'tf-c6', col: 2, prog: 80 },
         { id: 'tf-c3', col: 3, prog: 100 },
     ];
 
     // Cards in organise order (phase 3 column-fly sequence)
     const ORG_ORDER = [
-        { id: 'tf-c1', col: 0, prog: 35  },
-        { id: 'tf-c4', col: 0, prog: 20  },
-        { id: 'tf-c2', col: 1, prog: 65  },
-        { id: 'tf-c5', col: 1, prog: 50  },
-        { id: 'tf-c6', col: 2, prog: 80  },
+        { id: 'tf-c1', col: 0, prog: 35 },
+        { id: 'tf-c4', col: 0, prog: 20 },
+        { id: 'tf-c2', col: 1, prog: 65 },
+        { id: 'tf-c5', col: 1, prog: 50 },
+        { id: 'tf-c6', col: 2, prog: 80 },
         { id: 'tf-c3', col: 3, prog: 100 },
     ];
 
-    const PHASE1_HOLD     = 1800;   // ms hold chaos before extracting
+    const PHASE1_HOLD = 1800;   // ms hold chaos before extracting
     const EXTRACT_STAGGER = 210;    // ms between card pop-ins
-    const EXTRACT_ANIM    = 480;    // ms each pop-in animation runs
-    const SETTLE_HOLD     = 550;    // ms cards sit scattered before organising
-    const ORG_STAGGER     = 265;    // ms between cards flying to columns
-    const WON_DRAMA       = 90;     // extra delay before Won card organises
-    const LAND_OFFSET     = 320;    // ms after flight starts = card "arrives"
-    const AI_DELAY        = 380;    // ms after last land before badge appears
-    const ORG_HOLD        = 2700;   // ms hold organised before reset
+    const EXTRACT_ANIM = 480;    // ms each pop-in animation runs
+    const SETTLE_HOLD = 550;    // ms cards sit scattered before organising
+    const ORG_STAGGER = 265;    // ms between cards flying to columns
+    const WON_DRAMA = 90;     // extra delay before Won card organises
+    const LAND_OFFSET = 320;    // ms after flight starts = card "arrives"
+    const AI_DELAY = 380;    // ms after last land before badge appears
+    const ORG_HOLD = 2700;   // ms hold organised before reset
 
-    let timers  = [];
+    let timers = [];
     let started = false;
 
     function schedule(fn, delay) {
@@ -1398,9 +1403,9 @@ function initTransformationAnimation() {
         timers = [];
     }
 
-    function getCard(id)     { return document.getElementById(id); }
+    function getCard(id) { return document.getElementById(id); }
     function getCountEl(col) { return document.getElementById('tf-count-' + col); }
-    function getColHdr(col)  { return colHeaders ? colHeaders.querySelector('[data-col="' + col + '"]') : null; }
+    function getColHdr(col) { return colHeaders ? colHeaders.querySelector('[data-col="' + col + '"]') : null; }
 
     // ── STEPPER HELPERS ──────────────────────────────────────────
     function setStep(n) {
@@ -1408,7 +1413,7 @@ function initTransformationAnimation() {
             const el = document.getElementById('tf-step-' + i);
             if (!el) continue;
             el.classList.remove('is-active', 'is-done');
-            if (i < n)  el.classList.add('is-done');
+            if (i < n) el.classList.add('is-done');
             if (i === n) el.classList.add('is-active');
         }
     }
@@ -1478,7 +1483,7 @@ function initTransformationAnimation() {
         });
 
         if (colHeaders) colHeaders.classList.remove('is-visible');
-        if (aiBadge)    aiBadge.classList.remove('is-visible');
+        if (aiBadge) aiBadge.classList.remove('is-visible');
 
         [0, 1, 2, 3].forEach(col => {
             const el = getCountEl(col);
@@ -1530,9 +1535,9 @@ function initTransformationAnimation() {
             fillConn(2);
 
             ORG_ORDER.forEach((cfg, i) => {
-                const isWon      = cfg.col === 3;
+                const isWon = cfg.col === 3;
                 const extraDelay = (i === ORG_ORDER.length - 1 && isWon) ? WON_DRAMA : 0;
-                const flightT    = i * ORG_STAGGER + extraDelay;
+                const flightT = i * ORG_STAGGER + extraDelay;
 
                 schedule(() => {
                     const card = getCard(cfg.id);
@@ -1547,7 +1552,7 @@ function initTransformationAnimation() {
 
         // Last card lands at:
         const lastOrgFlight = (ORG_ORDER.length - 1) * ORG_STAGGER + WON_DRAMA;
-        const lastLandT     = orgStartT + lastOrgFlight + LAND_OFFSET;
+        const lastLandT = orgStartT + lastOrgFlight + LAND_OFFSET;
 
         // AI badge pop-in
         schedule(() => {
