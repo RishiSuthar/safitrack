@@ -88,10 +88,10 @@
   --z-dropdown: 1000;
   --z-sticky: 200;
   --z-fixed: 300;
-  --z-modal-backdrop: 400;
-  --z-modal: 500;
-  --z-toast: 600;
-  --z-loading: 700;
+  --z-modal-backdrop: 1000;
+  --z-modal: 1100;
+  --z-toast: 1200;
+  --z-loading: 1300;
   --z-header: 800;
 }
 
@@ -2980,6 +2980,10 @@ body {
   left: 0;
   right: 0;
   z-index: var(--z-header);
+}
+
+body.modal-active .app-header {
+  display: none !important;
 }
 
 .header-left {

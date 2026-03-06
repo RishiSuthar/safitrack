@@ -4540,6 +4540,7 @@ function openCompanyModal(company = null) {
 
   // Show modal
   modal.style.display = 'flex';
+  document.body.classList.add('modal-active');
 
   // Initialize event listeners
   initCompanyModalListeners(company);
@@ -5332,6 +5333,7 @@ function openPersonModal(person = null) {
 
   // Show modal
   modal.style.display = 'flex';
+  document.body.classList.add('modal-active');
 
   // Initialize event listeners
   initPersonModalListeners(person);
@@ -7908,6 +7910,7 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
 
   // Show modal
   modal.style.display = 'flex';
+  document.body.classList.add('modal-active');
 
   // Initialize event listeners
   initOpportunityModalListeners(opportunity);
@@ -14119,6 +14122,7 @@ function openTaskModal(task = null, salesReps = [], initialStatus = 'pending') {
 
   // Show modal
   modal.style.display = 'flex';
+  document.body.classList.add('modal-active');
 
   // Initialize event listeners
   initTaskModalListeners(task);
@@ -14609,6 +14613,7 @@ function openReminderModal(reminder = null, salesReps = []) {
 
   // Show modal
   modal.style.display = 'flex';
+  document.body.classList.add('modal-active');
 
   // Initialize event listeners
   initReminderModalListeners(reminder);
@@ -15238,12 +15243,20 @@ async function runCompaniesImportFromCsv() {
 
 window.closeModal = function (modalId) {
   const modal = document.getElementById(modalId);
-  if (modal) modal.style.display = 'none';
+  if (modal) {
+    modal.style.display = 'none';
+  }
   // For dynamically created modals
   if (!modal) {
     document.querySelectorAll('.modal').forEach(m => {
       if (m.id === modalId) m.remove();
     });
+  }
+
+  // Remove active class if no other modals are visible
+  const visibleModals = Array.from(document.querySelectorAll('.modal')).filter(m => m.style.display !== 'none');
+  if (visibleModals.length === 0) {
+    document.body.classList.remove('modal-active');
   }
 };
 
