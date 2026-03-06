@@ -317,6 +317,117 @@ ul {
     background: rgba(11, 18, 32, 0.08);
 }
 
+/* Mega-dropdown (desktop) for Features / Platform */
+.nav-item {
+    position: relative;
+}
+
+.nav-link-toggle {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    padding: 6px 2px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.mega-menu {
+    position: absolute;
+    /* sit slightly closer under the navbar (final small nudge) */
+    top: 48px;
+    left: 0;
+    width: 820px;
+    display: flex;
+    gap: 20px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+    padding: 20px;
+    border-radius: 12px;
+    opacity: 0;
+    visibility: hidden;
+    /* no extra downward offset so menu appears tight under navbar */
+    transform: translateY(0);
+    transition: opacity var(--transition-fast), transform var(--transition-fast), visibility var(--transition-fast);
+    z-index: 200;
+}
+
+.nav-features:hover .mega-menu,
+.nav-features:focus-within .mega-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.nav-caret { display: inline-flex; align-items: center; color: var(--text-secondary); }
+.nav-caret svg { display: block; width: 10px; height: 6px; }
+.nav-link-toggle:hover .nav-caret { color: var(--text-primary); }
+
+.mega-left {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    flex: 1 1 60%;
+}
+
+.mega-right {
+    flex: 0 0 32%;
+}
+
+.mega-feature {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    color: var(--text-primary);
+}
+
+.mega-feature h4 {
+    font-size: 15px;
+    margin-bottom: 6px;
+}
+
+.mega-feature p {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+/* Icon box to the left of feature text (app-like icon) */
+.icon-box {
+    width: 52px;
+    height: 52px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
+    flex: 0 0 52px;
+}
+.icon-box i,
+.icon-box svg {
+    width: 28px;
+    height: 28px;
+    color: var(--text-secondary);
+}
+.mega-feature:hover .icon-box {
+    background: var(--bg-elevated);
+    border-color: var(--border-glass);
+}
+
+.mega-text h4 { margin: 0 0 4px 0; }
+.mega-text p { margin: 0; }
+
+.mega-list li { margin-bottom: 10px; }
+.mega-list a { color: var(--text-secondary); font-weight: 500; }
+
+/* Hide mega-menu on smaller screens */
+@media (max-width: 900px) {
+    .mega-menu { display: none; }
+}
+
 .btn-hero-primary {
     display: inline-flex;
     align-items: center;
