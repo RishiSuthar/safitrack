@@ -2,6 +2,18 @@
 <html lang="en" data-theme="dark">
 
 <head>
+  <!-- early theme setter to prevent loader flash of wrong background -->
+  <script>
+    (function(){
+      try {
+        let t = localStorage.getItem('safitrack_theme') || 'light';
+        if (t === 'system') {
+          t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch(e){}
+    })();
+  </script>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>CRM - SafiTrack</title>
@@ -40,15 +52,10 @@
 <body>
 
   <div id="loading-screen" class="loading-overlay active">
-    <div class="loading-content">
-      <div class="loading-logo">
-        <img src="../assets/icons/whiteblue.png" alt="SafiTrack" width="64">
-      </div>
+    <!-- simplified layout: spinner on left, text on right -->
+    <div class="loading-content simple">
       <div class="loading-spinner"></div>
-      <p class="loading-text">Preparing your workspace...</p>
-      <div class="loading-progress">
-        <div class="loading-progress-bar"></div>
-      </div>
+      <p class="loading-text">Loading</p>
     </div>
   </div>
 

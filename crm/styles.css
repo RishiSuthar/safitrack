@@ -1101,9 +1101,11 @@ body {
   overflow: hidden;
 }
 
-[data-theme="dark"] .loading-overlay {
+/* dark theme no longer needs a separate color; the variable --bg-primary
+   is already dark when theme is set to dark, so the base rule handles both modes. */
+/*[data-theme="dark"] .loading-overlay {
   background: #0f1117;
-}
+}*/
 
 @keyframes gradient-shift {
   0% {
@@ -1164,6 +1166,7 @@ body {
 }
 
 .loading-content {
+  /* default card-style layout for older versions; kept for backwards compatibility */
   text-align: center;
   padding: 2rem 1.75rem;
   position: relative;
@@ -1179,6 +1182,19 @@ body {
   background: var(--bg-secondary);
   border-color: var(--border-color);
   box-shadow: var(--shadow-lg);
+}
+
+/* --- simple inline loading layout used by crm loading screen --- */
+.loading-content.simple {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  width: auto;
+  padding: 0.5rem 1rem;
 }
 
 @keyframes content-appear {
@@ -1218,6 +1234,23 @@ body {
   animation: loading-spin 0.9s linear infinite;
 }
 
+/* inline adjustments when inside simple container */
+.loading-content.simple .loading-spinner {
+  margin: 0; /* no automatic centering */
+  width: 24px;
+  height: 24px;
+  border-width: 2px;
+  /* reapply animation in case cascade dropped it */
+  animation: loading-spin 0.9s linear infinite;
+  animation-play-state: running;
+}
+
+/* hide legacy extras when using simple layout */
+.loading-content.simple .loading-logo,
+.loading-content.simple .loading-progress {
+  display: none;
+}
+
 .loading-spinner::before,
 .loading-spinner::after {
   content: none;
@@ -1248,6 +1281,13 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* smaller font when inside simple layout */
+.loading-content.simple .loading-text {
+  font-size: 0.8rem;
+  margin-bottom: 0;
+}
 }
 
 .loading-progress {
