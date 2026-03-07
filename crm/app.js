@@ -12845,7 +12845,8 @@ async function renderMyRoutesView() {
       .from('routes')
       .select('*')
       .eq('assigned_to', currentUser.id)
-      .eq('is_active', true)
+      // Note: we no longer filter by is_active. Sales reps should still see completed
+      // routes in their list so they can run them again if needed.
       .order('created_at', { ascending: false });
 
     if (routesError) throw routesError;
@@ -12932,14 +12933,17 @@ async function renderMyRoutesView() {
             };
           });
 
+        const completedBadge = route.is_active ? '' : '<span class="badge badge-secondary" style="margin-left:8px;">Completed</span>';
+        const startBtnText = route.is_active ? 'Start Route' : 'Run Again';
+
         html += `
           <div class="card">
             <div class="card-header">
-              <h3 class="card-title">${route.name}</h3>
+              <h3 class="card-title">${route.name}${completedBadge}</h3>
               <button class="btn btn-primary start-route-btn"
                       data-id="${route.id}">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-navigation2-icon lucide-navigation-2"><polygon points="12 2 19 21 12 17 5 21 12 2"/></svg>
-                Start Route
+                ${startBtnText}
               </button>
             </div>
 
@@ -13378,15 +13382,15 @@ async function startRouteNavigation(routeId) {
 
 async function completeRoute(routeId) {
   try {
-    // Mark route as completed
-    const { error } = await supabaseClient
-      .from('routes')
-      .update({ is_active: false })
-      .eq('id', routeId);
-
-    if (error) throw error;
-
-    showToast('Route completed successfully', 'success');
+    // We intentionally do *not* deactivate the route. Sales reps may want to
+    // run the same route again, so keep it listed. The previous behaviour
+    // flipped `is_active` to false which hid the route from the "My Routes"
+    // view. That update has been removed per the new requirements.
+    // If you have a column such as `last_completed_at` you could update it
+    // here for auditing, e.g.:
+    // await supabaseClient.from('routes').update({ last_completed_at: new Date().toISOString() }).eq('id', routeId);
+    
+    showToast('Route completed successfully. It will remain available so you can run it again.', 'success');
     loadView('my-routes');
   } catch (error) {
     console.error('Error completing route:', error);
