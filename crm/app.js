@@ -11,6 +11,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
 let isManager = false;
+let isSalesRep = false; // sales reps have restricted permissions for companies
 let currentView = 'log-visit';
 let visitTags = [];
 let chartInstances = {};
@@ -1551,6 +1552,7 @@ async function initApp() {
   if (completePane) completePane.style.display = 'none';
   isManager = profile.role === 'manager';
   isTechnician = profile.role === 'technician';
+  isSalesRep = profile.role === 'sales_rep';
   currentUserProfile = profile;
 
   // Load organization for this user (used in invite flow, member list, etc.)
@@ -4196,10 +4198,11 @@ async function renderCompaniesView() {
 
   // Function to render the companies table
   function renderCompaniesTable(companiesToRender, paginationInfo) {
+    const allowEditDelete = !isSalesRep;
     const columns = [
       { key: 'rank', label: '#', width: '50px', readOnly: true, sortable: false, render: (val, row) => (paginationInfo.currentPage - 1) * paginationInfo.recordsPerPage + companiesToRender.indexOf(row) + 1 },
       {
-        key: 'name', label: 'Company Name', width: '300px', icon: 'building', sortable: true, render: (val, row) => {
+        key: 'name', label: 'Company Name', width: '300px', icon: 'building', sortable: true, readOnly: isSalesRep, render: (val, row) => {
           const domain = (row && row.domain) ? row.domain : '';
           const logoUrl = getCompanyLogoUrl(domain);
           const initials = getInitials(row.name || '');
@@ -4215,7 +4218,7 @@ async function renderCompaniesView() {
         }
       },
       { key: 'industry', label: 'Industry', width: '150px', readOnly: true, icon: 'briefcase', sortable: false, render: (val, row) => val || row.company_categories?.map(c => c.categories.name).join(', ') || 'N/A' },
-      { key: 'address', label: 'Location', width: '190px', icon: 'map-pin' },
+      { key: 'address', label: 'Location', width: '190px', icon: 'map-pin', readOnly: isSalesRep },
       {
         key: 'company_type',
         label: 'Type',
@@ -4223,16 +4226,18 @@ async function renderCompaniesView() {
         icon: 'tag',
         sortable: true,
         type: 'select',
+        readOnly: isSalesRep,
         options: ['Competitor', 'Customer', 'Distributor', 'Investor', 'Partner', 'Reseller', 'Supplier', 'Vendor', 'Other']
       },
       {
-        key: 'actions', label: 'Actions', width: '120px', readOnly: true, sortable: false, render: (val, row) => `
-        <div class="table-actions">
-          <button class="action-btn view-company" data-id="${row.id}" title="View company"><i data-lucide="eye"></i></button>
-          <button class="action-btn edit-company" data-id="${row.id}" title="Edit company"><i data-lucide="square-pen"></i></button>
-          <button class="action-btn delete-company" data-id="${row.id}" title="Delete company"><i data-lucide="trash-2"></i></button>
-        </div>
-      `}
+        key: 'actions', label: 'Actions', width: '120px', readOnly: true, sortable: false, render: (val, row) => {
+          let buttons = `<button class="action-btn view-company" data-id="${row.id}" title="View company"><i data-lucide="eye"></i></button>`;
+          if (allowEditDelete) {
+            buttons += `<button class="action-btn edit-company" data-id="${row.id}" title="Edit company"><i data-lucide="square-pen"></i></button>`;
+            buttons += `<button class="action-btn delete-company" data-id="${row.id}" title="Delete company"><i data-lucide="trash-2"></i></button>`;
+          }
+          return `<div class="table-actions">${buttons}</div>`;
+        }}
     ];
 
     let html = `
@@ -4249,9 +4254,11 @@ async function renderCompaniesView() {
         
         <div class="u-flex-1"></div>
 
+        ${isSalesRep ? '' : `
         <button class="toolbar-btn" id="companies-import-export-btn">
           <i data-lucide="file-up"></i> Import / Export
         </button>
+    `}
 
         <button class="toolbar-btn toolbar-btn-primary" id="add-company-btn">
           <i data-lucide="plus" class="u-icon-16"></i> New Company
@@ -4303,9 +4310,11 @@ async function renderCompaniesView() {
   // Separate function to initialize event listeners
   function initializeCompaniesEventListeners() {
 
-    document.getElementById('companies-import-export-btn')?.addEventListener('click', () => {
-      openCompaniesImportExportModal();
-    });
+    if (!isSalesRep) {
+      document.getElementById('companies-import-export-btn')?.addEventListener('click', () => {
+        openCompaniesImportExportModal();
+      });
+    }
 
     const searchInput = document.getElementById('companies-search');
     if (searchInput) {
@@ -4372,34 +4381,35 @@ async function renderCompaniesView() {
       });
     });
 
-    document.querySelectorAll('.edit-company').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const companyId = btn.dataset.id;
-        const company = window.allCompaniesData.find(c => c.id === companyId);
-        if (company) {
-          openCompanyModal(company);
-        }
+    if (!isSalesRep) {
+      document.querySelectorAll('.edit-company').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const companyId = btn.dataset.id;
+          const company = window.allCompaniesData.find(c => c.id === companyId);
+          if (company) {
+            openCompanyModal(company);
+          }
+        });
       });
-    });
 
-    document.querySelectorAll('.delete-company').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const companyId = btn.dataset.id;
-        const company = window.allCompaniesData.find(c => c.id === companyId);
+      document.querySelectorAll('.delete-company').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const companyId = btn.dataset.id;
+          const company = window.allCompaniesData.find(c => c.id === companyId);
 
-        const confirmed = await showConfirmDialog(
-          'Delete Company',
-          `Are you sure you want to delete ${company.name}?`
-        );
+          const confirmed = await showConfirmDialog(
+            'Delete Company',
+            `Are you sure you want to delete ${company.name}?`
+          );
 
-        if (!confirmed) return;
+          if (!confirmed) return;
 
-        const { error } = await supabaseClient
-          .from('companies')
-          .delete()
-          .eq('id', companyId);
+          const { error } = await supabaseClient
+            .from('companies')
+            .delete()
+            .eq('id', companyId);
 
         if (error) {
           showToast('Error deleting company: ' + error.message, 'error');
@@ -4436,6 +4446,7 @@ async function renderCompaniesView() {
         }
       });
     });
+    } // end if (!isSalesRep)
 
     // Clear search event
     const clearSearchBtn = document.getElementById('clear-companies-search');
@@ -4566,8 +4577,9 @@ function openCompanyModal(company = null) {
   companyCategories = [];
 
   // Set modal title and show manual coordinates section
+  const salesRepViewOnly = company && isSalesRep;
   if (company) {
-    modalTitle.innerHTML = 'Edit Company';
+    modalTitle.innerHTML = salesRepViewOnly ? 'View Company' : 'Edit Company';
     if (addMoreWrapper) addMoreWrapper.style.display = 'none';
 
     // Fill form with company data
@@ -4596,15 +4608,27 @@ function openCompanyModal(company = null) {
   document.body.classList.add('modal-active');
 
   // Initialize event listeners
-  initCompanyModalListeners(company);
+  initCompanyModalListeners(company, salesRepViewOnly);
 }
 
 
-function initCompanyModalListeners(company) {
+function initCompanyModalListeners(company, viewOnly = false) {
   const categoriesInput = document.getElementById('categories-input');
   const saveBtn = document.getElementById('save-company-btn');
   const companyNameInput = document.getElementById('company-name-input');
   const duplicateWarning = document.getElementById('company-duplicate-warning');
+
+  // disable editing if viewOnly (sales rep opening existing company)
+  if (viewOnly) {
+    // hide save button and disable all inputs/selects/textareas
+    if (saveBtn) saveBtn.style.display = 'none';
+    const inputs = document.querySelectorAll('#company-modal input, #company-modal select, #company-modal textarea, #company-modal button');
+    inputs.forEach(el => {
+      // keep close/cancel buttons enabled
+      if (el.id === 'cancel-company-btn' || el.classList.contains('modal-close')) return;
+      el.disabled = true;
+    });
+  }
 
   function updateCompanyDuplicateState() {
     if (company) {
@@ -4736,6 +4760,10 @@ function initCompanyModalListeners(company) {
   // Save company
   // In initCompanyModalListeners function, update the save button handler:
   saveBtn.onclick = async () => {
+    if (company && isSalesRep) {
+      showToast('Sales representatives are not allowed to edit companies', 'error');
+      return;
+    }
     const name = document.getElementById('company-name-input').value.trim();
     const companyType = document.getElementById('company-type').value.trim();
     const description = document.getElementById('company-description').value.trim();
@@ -14716,6 +14744,10 @@ function initReminderModalListeners(reminder) {
 const COMPANY_IMPORT_TYPES = ['Competitor', 'Customer', 'Distributor', 'Investor', 'Partner', 'Reseller', 'Supplier', 'Vendor', 'Other'];
 
 window.openCompaniesImportExportModal = function () {
+  if (isSalesRep) {
+    showToast('Sales representatives are not permitted to import or export companies', 'error');
+    return;
+  }
   let modal = document.getElementById('companies-transfer-modal');
 
   if (!modal) {
