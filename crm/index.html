@@ -193,6 +193,10 @@
                 </div>
               </div>
 
+              <button type="submit" class="btn btn-primary btn-lg btn-block btn-glow">
+                Sign In
+              </button>
+
               <button type="button" class="btn btn-secondary btn-lg btn-block" style="margin-bottom: 12px; gap: 8px;"
                 onclick="handleGoogleAuth()">
                 <svg viewBox="0 0 24 24" width="20" height="20" xmlns="http://www.w3.org/2000/svg">
@@ -213,9 +217,6 @@
                 Continue with Google
               </button>
 
-              <button type="submit" class="btn btn-primary btn-lg btn-block btn-glow">
-                Sign In
-              </button>
             </form>
 
             <div class="auth-switch-row">
@@ -933,6 +934,11 @@
         </div>
       </nav>
     </aside>
+
+    <div id="page-label" class="page-label" aria-hidden="true" style="display:none;">
+      <span class="page-label-icon" id="page-label-icon"></span>
+      <span class="page-label-text" id="page-label-text"></span>
+    </div>
 
     <main class="main-content" id="view-container">
 

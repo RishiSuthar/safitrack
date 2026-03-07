@@ -126,6 +126,9 @@ const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
 const sidebarClose = document.getElementById('sidebar-close');
 const userMenu = document.getElementById('user-menu');
 const userAvatarBtn = document.getElementById('user-avatar-btn');
+const pageLabel = document.getElementById('page-label');
+const pageLabelIcon = document.getElementById('page-label-icon');
+const pageLabelText = document.getElementById('page-label-text');
 // const themeToggle = document.getElementById('theme-toggle');
 const commandPaletteBtn = document.getElementById('command-palette-btn');
 const commandPalette = document.getElementById('command-palette');
@@ -1834,6 +1837,52 @@ function updateActiveNav(viewName) {
   document.querySelectorAll('[data-view]').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
   });
+  // Update small page label (icon + text) shown to the right of the sidebar
+  try {
+    const navBtn = document.querySelector(`[data-view="${viewName}"]`);
+    if (navBtn && pageLabel && pageLabelIcon && pageLabelText) {
+      // Prefer explicit icon mapping for reliability (lucide or named icons)
+      const VIEW_ICON_OVERRIDES = {
+        'opportunity-pipeline': 'circle-dollar-sign',
+        'people': 'users',
+        'companies': 'building'
+      };
+      pageLabelIcon.innerHTML = '';
+      if (VIEW_ICON_OVERRIDES[viewName]) {
+        pageLabelIcon.innerHTML = `<i data-lucide="${VIEW_ICON_OVERRIDES[viewName]}"></i>`;
+        try { if (window.lucide) lucide.createIcons(); } catch (e) {}
+      } else {
+        // Fallback: clone any existing SVG/icon inside the nav button into the label
+        const iconNode = navBtn.querySelector('svg, .icon-bg, i')?.cloneNode(true);
+        if (iconNode) pageLabelIcon.appendChild(iconNode);
+      }
+      // Prefer any span that contains visible text (skip icon wrappers)
+      const spanEls = navBtn.querySelectorAll('span');
+      let textNode = '';
+      spanEls.forEach(s => {
+        const t = (s.textContent || '').trim();
+        if (t) textNode = t;
+      });
+      // Some views may render dynamic content and confuse scraping; use explicit overrides
+      const VIEW_LABEL_OVERRIDES = {
+        'opportunity-pipeline': 'Opportunities',
+        'people': 'People',
+        'companies': 'Companies'
+      };
+      if (VIEW_LABEL_OVERRIDES[viewName]) textNode = VIEW_LABEL_OVERRIDES[viewName];
+      // Fallback to button's data-view (nicely formatted)
+      if (!textNode) {
+        const dv = navBtn.getAttribute('data-view') || '';
+        textNode = dv.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      }
+      pageLabelText.textContent = textNode;
+      pageLabel.style.display = 'flex';
+    } else if (pageLabel) {
+      pageLabel.style.display = 'none';
+    }
+  } catch (e) {
+    // Fail silently if DOM shape is unexpected
+  }
 }
 
 // ======================
@@ -1842,6 +1891,14 @@ function updateActiveNav(viewName) {
 async function loadView(viewName) {
   currentView = viewName;
   updateActiveNav(viewName);
+
+  try {
+    const mainContent = document.querySelector('.main-content');
+    const fullBleedViews = ['companies', 'people'];
+    if (mainContent) {
+      mainContent.classList.toggle('full-bleed', fullBleedViews.includes(viewName));
+    }
+  } catch (e) {}
 
   // Prevent technicians from accessing certain views
   const blockedForTechnician = ['sales-funnel', 'opportunity-pipeline', 'call-logs', 'companies', 'people'];
@@ -4179,16 +4236,7 @@ async function renderCompaniesView() {
     ];
 
     let html = `
-      <div class="view-header-minimal">
-        <div class="view-breadcrumb">
-          <span>Companies</span>
-        </div>
-        <div class="view-actions">
-          <button class="toolbar-btn" id="companies-import-export-btn">
-            <i data-lucide="file-up"></i> Import / Export
-          </button>
-        </div>
-      </div>
+
 
       <div class="view-toolbar">
         <div class="search-container u-flex-1 u-maxw-320">
@@ -4200,6 +4248,11 @@ async function renderCompaniesView() {
         </div>
         
         <div class="u-flex-1"></div>
+
+        <button class="toolbar-btn" id="companies-import-export-btn">
+          <i data-lucide="file-up"></i> Import / Export
+        </button>
+
         <button class="toolbar-btn toolbar-btn-primary" id="add-company-btn">
           <i data-lucide="plus" class="u-icon-16"></i> New Company
         </button>
@@ -4985,16 +5038,6 @@ async function renderPeopleView() {
     ];
 
     let html = `
-      <div class="view-header-minimal">
-        <div class="view-breadcrumb">
-          <span>People</span>
-        </div>
-        <div class="view-actions">
-          <button class="toolbar-btn" onclick="showToast('Import/Export coming soon', 'info')">
-            <i data-lucide="file-up"></i> Import / Export
-          </button>
-        </div>
-      </div>
 
       <div class="view-toolbar">
         <div class="search-container u-flex-1 u-maxw-320">
@@ -5819,10 +5862,6 @@ async function renderLogVisitView() {
     .order('name', { ascending: true });
 
   viewContainer.innerHTML = `
-    <div class="page-header">
-      <h1 class="page-title">Log Visit</h1>
-    </div>
-
     <div class="log-visit-shell">
       <div class="log-visit-flow">
         <section class="log-visit-step" data-step="1">
@@ -6521,9 +6560,6 @@ async function renderMyActivityView() {
 
 
   let html = `
-    <div class="page-header">
-      <h1 class="page-title">My Activity</h1>
-    </div>
   `;
 
   if (visits.length === 0) {
@@ -7034,10 +7070,6 @@ async function renderOpportunityPipelineView() {
   };
 
   let html = `
-    <div class="page-header deals-page-header">
-      <h1 class="page-title">Opportunities</h1>
-    </div>
-
     <div class="pipeline-summary">
       <div class="pipeline-summary-card">
         <div class="pipeline-summary-title">Pipeline</div>
@@ -10614,9 +10646,7 @@ async function renderUserManagementView() {
   }
 
   let html = `
-    <div class="page-header">
-      <h1 class="page-title">User Management</h1>
-    </div>
+
   `;
 
   const canManageUsers = isManager;
@@ -10796,7 +10826,6 @@ async function renderRoutePlanningView() {
 
   let html = `
     <div class="page-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-      <h1 class="page-title">Route Planning</h1>
       <button class="btn btn-primary ai-safi-plan-btn" id="open-ai-safi-plan">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/></svg>
         A.I SAFI PLAN
@@ -12794,9 +12823,7 @@ async function renderMyRoutesView() {
     if (routesError) throw routesError;
 
     let html = `
-      <div class="page-header">
-        <h1 class="page-title">My Routes</h1>
-      </div>
+
     `;
 
     let routeIds = [];
@@ -13395,11 +13422,6 @@ async function renderTasksView() {
   window.salesRepsData = salesReps;
 
   let html = `
-    <div class="page-header">
-      <div class="header-left">
-          <h1 class="page-title">Tasks</h1>
-      </div>
-    </div>
 
     <div class="tasks-kanban-header">
       <div class="tasks-search-bar">
@@ -14359,7 +14381,6 @@ async function renderRemindersView() {
     <div class="remx-page">
       <div class="remx-header">
         <div>
-          <h1 class="page-title">Reminders</h1>
         </div>
         <button class="btn btn-primary" id="add-reminder-btn"><i data-lucide="plus"></i> New Reminder</button>
       </div>
@@ -17861,10 +17882,6 @@ async function renderTechniciansDashboardView() {
 
 
   let html = `
-    <div class="page-header">
-      <h1 class="page-title">Technicians Dashboard</h1>
-    </div>
-
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-value">${totalVisits}</div>
@@ -21280,7 +21297,6 @@ async function renderCallLogsView() {
         <div class="page-header">
             <div class="page-header-row">
                 <div>
-                    <h1 class="page-title">Call Logs</h1>
                 </div>
                 <div class="call-logs-filters">
                     ${isManager ? `

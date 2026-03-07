@@ -270,6 +270,11 @@
     padding: 0;
 }
 
+/* Allow forcing full-bleed layout via a class when the header element is removed */
+.main-content.full-bleed {
+    padding: 0 !important;
+}
+
 .spreadsheet-table th {
     position: sticky;
     top: 0;
@@ -519,4 +524,20 @@
         position: static;
         box-shadow: none;
     }
+}
+
+/* Ensure spreadsheet borders remain visible even if view header elements are removed */
+.spreadsheet-container {
+    border-top: 1px solid var(--spreadsheet-border) !important;
+}
+
+.spreadsheet-table th,
+.spreadsheet-table td {
+    border-bottom: 1px solid var(--spreadsheet-border) !important;
+    border-right: 1px solid var(--spreadsheet-border) !important;
+}
+
+.spreadsheet-table th:last-child,
+.spreadsheet-table td:last-child {
+    box-shadow: -8px 0 12px -10px rgba(15, 23, 42, 0.25) !important;
 }
