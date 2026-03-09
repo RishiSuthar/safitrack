@@ -17409,7 +17409,8 @@ button svg {
 
 /* Make links inside modal detail values wrap nicely and look compact */
 #company-view-modal .detail-value a,
-#person-view-modal .detail-value a {
+#person-view-modal .detail-value a,
+#opportunity-view-modal .detail-value a {
   display: inline-block;
   padding: 0.28rem 0.6rem;
   margin: 0;
@@ -23680,5 +23681,221 @@ button svg {
     width: 52px;
     height: 52px;
     font-size: 1.1rem;
+  }
+}
+
+/* ==========================================================================
+   OPPORTUNITY VIEW MODAL (Compact Dashboard Redesign)
+   ========================================================================== */
+
+#opportunity-view-modal .record-modal-panel {
+  width: min(840px, 94vw);
+  height: auto;
+  min-height: 540px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#opportunity-view-modal .record-hero {
+  padding: 14px 24px;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+#opportunity-view-modal .record-hero-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  font-size: 1.1rem;
+}
+
+#opportunity-view-modal .record-body {
+  padding: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--bg-secondary);
+}
+
+/* Highlights Row */
+.ov-highlights {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.ov-highlight-card {
+  background: var(--bg-secondary);
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ov-highlight-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+}
+
+.ov-highlight-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Two-Column Content Grid */
+.ov-content-grid {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  flex: 1;
+  min-height: 0;
+}
+
+.ov-main-col {
+  padding: 20px 24px;
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.ov-side-col {
+  padding: 20px 24px;
+  background: rgba(0, 0, 0, 0.02);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+[data-theme="dark"] .ov-side-col {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.ov-section-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.ov-section-title i,
+.ov-section-title svg {
+  color: var(--color-primary);
+  opacity: 0.8;
+}
+
+.ov-next-step-box {
+  background: color-mix(in srgb, var(--color-primary) 5%, var(--bg-primary));
+  border: 1px solid color-mix(in srgb, var(--color-primary) 15%, var(--border-color));
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.ov-next-step-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.ov-next-step-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--color-primary);
+  letter-spacing: 0.03em;
+}
+
+.ov-next-step-date {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.ov-next-step-content {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+
+.ov-notes-container {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  white-space: pre-wrap;
+  padding: 12px;
+  background: var(--bg-primary);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.ov-competitors-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ov-comp-tag {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ov-meta-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+  padding: 6px 0;
+  border-bottom: 1px dotted var(--border-color);
+}
+
+.ov-meta-item:last-child {
+  border-bottom: none;
+}
+
+.ov-meta-label {
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.ov-meta-value {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .ov-highlights {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ov-content-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ov-main-col {
+    border-right: none;
+  }
+
+  #opportunity-view-modal .record-modal-panel {
+    height: 94vh;
   }
 }

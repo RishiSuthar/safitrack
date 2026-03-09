@@ -4,14 +4,14 @@
 <head>
   <!-- early theme setter to prevent loader flash of wrong background -->
   <script>
-    (function(){
+    (function () {
       try {
         let t = localStorage.getItem('safitrack_theme') || 'light';
         if (t === 'system') {
           t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         }
         document.documentElement.setAttribute('data-theme', t);
-      } catch(e){}
+      } catch (e) { }
     })();
   </script>
   <meta charset="UTF-8" />
@@ -1523,6 +1523,121 @@
       </div>
     </div>
   </div>
+  <!-- Opportunity View Modal - Premium Redesign -->
+  <div id="opportunity-view-modal" class="modal record-view-modal" style="display:none;">
+    <div class="modal-backdrop" onclick="closeModal('opportunity-view-modal')"></div>
+    <div class="record-modal-panel">
+      <!-- Compact Hero -->
+      <div class="record-hero" id="opportunity-view-hero">
+        <div class="record-hero-avatar" id="opportunity-view-avatar"></div>
+        <div class="record-hero-info">
+          <div class="record-hero-name-row">
+            <h2 class="record-hero-name" id="opportunity-view-title">Opportunity Name</h2>
+            <span class="record-hero-type-badge" id="opportunity-view-stage-badge">Stage</span>
+          </div>
+          <div class="record-hero-meta-row" style="margin-top: 2px;">
+            <span id="opportunity-view-company"
+              style="font-weight: 600; font-size: 0.85rem; color: var(--text-muted);">Company Name</span>
+          </div>
+        </div>
+        <div class="record-hero-actions">
+          <button class="modal-close" id="opportunity-view-edit-btn" title="Edit opportunity">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-square-pen">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+          </button>
+          <button class="modal-close" onclick="closeModal('opportunity-view-modal')" title="Close">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-x-icon lucide-x">
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="record-body">
+        <!-- Highlights Row -->
+        <div class="ov-highlights">
+          <div class="ov-highlight-card">
+            <div class="ov-highlight-label">Value</div>
+            <div class="ov-highlight-value" id="opportunity-view-value">—</div>
+          </div>
+          <div class="ov-highlight-card">
+            <div class="ov-highlight-label">Probability</div>
+            <div class="ov-highlight-value" id="opportunity-view-probability">—</div>
+          </div>
+          <div class="ov-highlight-card">
+            <div class="ov-highlight-label">Date Created</div>
+            <div class="ov-highlight-value" id="opportunity-view-created">—</div>
+          </div>
+          <div class="ov-highlight-card">
+            <div class="ov-highlight-label">Owner</div>
+            <div class="ov-highlight-value" id="opportunity-view-owner">—</div>
+          </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="ov-content-grid">
+          <!-- Left Column: Primary Data -->
+          <div class="ov-main-col">
+            <div class="ov-section">
+              <div class="ov-section-title">
+                <i data-lucide="calendar-clock" style="width:16px;"></i>
+                Next Step
+              </div>
+              <div class="ov-next-step-box">
+                <div class="ov-next-step-header">
+                  <span class="ov-next-step-label">ACTION ITEM</span>
+                  <span class="ov-next-step-date" id="opportunity-view-next-step-date">—</span>
+                </div>
+                <div class="ov-next-step-content" id="opportunity-view-next-step">—</div>
+              </div>
+            </div>
+
+            <div class="ov-section">
+              <div class="ov-section-title">
+                <i data-lucide="file-text" style="width:16px;"></i>
+                Internal Notes
+              </div>
+              <div class="ov-notes-container" id="opportunity-view-notes"></div>
+            </div>
+          </div>
+
+          <!-- Right Column: Secondary Data -->
+          <div class="ov-side-col">
+            <div class="ov-section">
+              <div class="ov-section-title">
+                <i data-lucide="shield" style="width:16px;"></i>
+                Competitors
+              </div>
+              <div class="ov-competitors-list" id="opportunity-view-competitors"></div>
+            </div>
+
+            <div class="ov-section">
+              <div class="ov-section-title">
+                <i data-lucide="info" style="width:16px;"></i>
+                Record Info
+              </div>
+              <div class="ov-meta-item">
+                <span class="ov-meta-label">Org ID</span>
+                <span class="ov-meta-value" id="opportunity-view-org-id">—</span>
+              </div>
+              <div class="ov-meta-item">
+                <span class="ov-meta-label">Last Modified</span>
+                <span class="ov-meta-value" id="opportunity-view-updated">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <div id="task-modal" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>

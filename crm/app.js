@@ -1852,7 +1852,7 @@ function updateActiveNav(viewName) {
       pageLabelIcon.innerHTML = '';
       if (VIEW_ICON_OVERRIDES[viewName]) {
         pageLabelIcon.innerHTML = `<i data-lucide="${VIEW_ICON_OVERRIDES[viewName]}"></i>`;
-        try { if (window.lucide) lucide.createIcons(); } catch (e) {}
+        try { if (window.lucide) lucide.createIcons(); } catch (e) { }
       } else {
         // Fallback: clone any existing SVG/icon inside the nav button into the label
         const iconNode = navBtn.querySelector('svg, .icon-bg, i')?.cloneNode(true);
@@ -1900,7 +1900,7 @@ async function loadView(viewName) {
     if (mainContent) {
       mainContent.classList.toggle('full-bleed', fullBleedViews.includes(viewName));
     }
-  } catch (e) {}
+  } catch (e) { }
 
   // Prevent technicians from accessing certain views
   const blockedForTechnician = ['sales-funnel', 'opportunity-pipeline', 'call-logs', 'companies', 'people'];
@@ -4237,7 +4237,8 @@ async function renderCompaniesView() {
             buttons += `<button class="action-btn delete-company" data-id="${row.id}" title="Delete company"><i data-lucide="trash-2"></i></button>`;
           }
           return `<div class="table-actions">${buttons}</div>`;
-        }}
+        }
+      }
     ];
 
     let html = `
@@ -4411,41 +4412,41 @@ async function renderCompaniesView() {
             .delete()
             .eq('id', companyId);
 
-        if (error) {
-          showToast('Error deleting company: ' + error.message, 'error');
-          return;
-        }
+          if (error) {
+            showToast('Error deleting company: ' + error.message, 'error');
+            return;
+          }
 
-        // Remove from local data and refresh
-        window.allCompaniesData = window.allCompaniesData.filter(c => c.id !== companyId);
+          // Remove from local data and refresh
+          window.allCompaniesData = window.allCompaniesData.filter(c => c.id !== companyId);
 
-        showToast('Company deleted successfully', 'success');
+          showToast('Company deleted successfully', 'success');
 
-        // Re-render with current page
-        const result = searchAndPaginate(
-          window.allCompaniesData,
-          searchQuery,
-          currentPage,
-          recordsPerPage,
-          (item, query) => filterAndSearchCompany(item, query)
-        );
-
-        // Adjust current page if necessary
-        if (result.data.length === 0 && result.currentPage > 1) {
-          currentPage--;
-          const adjustedResult = searchAndPaginate(
+          // Re-render with current page
+          const result = searchAndPaginate(
             window.allCompaniesData,
             searchQuery,
             currentPage,
             recordsPerPage,
             (item, query) => filterAndSearchCompany(item, query)
           );
-          renderCompaniesTable(adjustedResult.data, adjustedResult);
-        } else {
-          renderCompaniesTable(result.data, result);
-        }
+
+          // Adjust current page if necessary
+          if (result.data.length === 0 && result.currentPage > 1) {
+            currentPage--;
+            const adjustedResult = searchAndPaginate(
+              window.allCompaniesData,
+              searchQuery,
+              currentPage,
+              recordsPerPage,
+              (item, query) => filterAndSearchCompany(item, query)
+            );
+            renderCompaniesTable(adjustedResult.data, adjustedResult);
+          } else {
+            renderCompaniesTable(result.data, result);
+          }
+        });
       });
-    });
     } // end if (!isSalesRep)
 
     // Clear search event
@@ -7512,8 +7513,7 @@ function initOpportunityEventListeners(opportunities) {
       const opportunityId = btn.dataset.id;
       const opportunity = opportunities.find(opp => opp.id === opportunityId);
       if (opportunity) {
-        const isOwnOpportunity = !isManager || opportunity.user_id === currentUser.id;
-        openOpportunityModal(opportunity, !isOwnOpportunity); // read-only if not own opportunity
+        openOpportunityViewModal(opportunity);
       }
     });
   });
@@ -7524,8 +7524,7 @@ function initOpportunityEventListeners(opportunities) {
       const opportunityId = card.dataset.id;
       const opportunity = opportunities.find(opp => opp.id === opportunityId);
       if (opportunity) {
-        const isOwnOpportunity = !isManager || opportunity.user_id === currentUser.id;
-        openOpportunityModal(opportunity, !isOwnOpportunity); // read-only if not own opportunity
+        openOpportunityViewModal(opportunity);
       }
     });
   });
@@ -7850,7 +7849,7 @@ function initPipelineFilters(opportunities) {
   applyPipelineControls();
 }
 
-function openOpportunityModal(opportunity = null, readOnly = false) {
+function openOpportunityModal(opportunity = null) {
   const modal = document.getElementById('opportunity-modal');
   const modalTitle = document.getElementById('opportunity-modal-title');
   const saveBtn = document.getElementById('save-opportunity-btn');
@@ -7883,9 +7882,7 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
 
   // Set modal title
   if (opportunity) {
-    modalTitle.innerHTML = readOnly
-      ? `${opportunity.name}`
-      : `Edit Opportunity`;
+    modalTitle.innerHTML = `Edit Opportunity`;
 
     // Fill form with opportunity data
     document.getElementById('opportunity-name').value = opportunity.name || '';
@@ -7911,62 +7908,14 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
       const competitors = JSON.parse(opportunity.competitors);
       competitors.forEach(comp => addCompetitor(comp));
     }
-
-    // Set read-only mode if needed
-    if (readOnly) {
-      document.querySelectorAll('#opportunity-modal input, #opportunity-modal select, #opportunity-modal textarea').forEach(el => {
-        el.disabled = true;
-      });
-      saveBtn.style.display = 'none';
-      // Render a read-only notes display with clickable mentions
-      const notesTextarea = document.getElementById('opportunity-notes');
-      let notesDisplay = document.getElementById('opportunity-notes-display');
-      if (!notesDisplay) {
-        notesDisplay = document.createElement('div');
-        notesDisplay.id = 'opportunity-notes-display';
-        notesDisplay.className = 'opportunity-notes-display';
-        notesTextarea.parentNode.appendChild(notesDisplay);
-      }
-
-      // Build processed notes HTML (convert mentions to clickable spans)
-      let displayHtml = escapeHtml(opportunity.notes || '');
-      if (opportunity.mentioned_people && Array.isArray(opportunity.mentioned_people)) {
-        opportunity.mentioned_people.forEach(person => {
-          if (!person || !person.name) return;
-          const safeName = escapeRegExp(person.name.trim());
-          const pattern = new RegExp(`@${safeName}\\b`, 'gi');
-          displayHtml = displayHtml.replace(pattern, ` <span class="mentioned-person" data-person-id="${person.id}">@${person.name}</span>`);
-        });
-      } else {
-        displayHtml = displayHtml.replace(/@([A-Za-z0-9_\-]+)\b/g, '<span class="mentioned-person" data-person-name="$1">@$1</span>');
-      }
-
-      notesDisplay.innerHTML = displayHtml || '<div class="text-muted">No notes</div>';
-      notesTextarea.style.display = 'none';
-      // Attach click handlers to mentions inside modal
-      notesDisplay.querySelectorAll('.mentioned-person').forEach(el => {
-        el.addEventListener('click', (e) => {
-          e.stopPropagation();
-          const pid = el.dataset.personId;
-          const pname = el.dataset.personName || el.textContent.replace(/^@/, '').trim();
-          if (pid) return openPersonViewModal(pid);
-          const person = allPeople.find(p => String(p.name).trim().toLowerCase() === String(pname).toLowerCase());
-          if (person) openPersonViewModal(person);
-        });
-      });
-    } else {
-      document.querySelectorAll('#opportunity-modal input, #opportunity-modal select, #opportunity-modal textarea').forEach(el => {
-        el.disabled = false;
-      });
-      saveBtn.style.display = 'block';
-    }
   } else {
     modalTitle.innerHTML = 'New Opportunity';
-    document.querySelectorAll('#opportunity-modal input, #opportunity-modal select, #opportunity-modal textarea').forEach(el => {
-      el.disabled = false;
-    });
-    saveBtn.style.display = 'block';
   }
+
+  document.querySelectorAll('#opportunity-modal input, #opportunity-modal select, #opportunity-modal textarea').forEach(el => {
+    el.disabled = false;
+  });
+  saveBtn.style.display = 'block';
 
   // Show modal
   modal.style.display = 'flex';
@@ -7974,6 +7923,137 @@ function openOpportunityModal(opportunity = null, readOnly = false) {
 
   // Initialize event listeners
   initOpportunityModalListeners(opportunity);
+}
+
+function openOpportunityViewModal(opportunity) {
+  const modal = document.getElementById('opportunity-view-modal');
+  if (!modal) return;
+
+  // Hero info
+  const titleEl = document.getElementById('opportunity-view-title');
+  const stageEl = document.getElementById('opportunity-view-stage-badge');
+  const companyEl = document.getElementById('opportunity-view-company');
+  const avatarEl = document.getElementById('opportunity-view-avatar');
+
+  if (titleEl) titleEl.textContent = opportunity.name || 'Untitled Opportunity';
+
+  // Stage badge
+  if (stageEl) {
+    const pipelineStages = [
+      { id: 'prospecting', title: 'Lead', color: '#3b82f6' },
+      { id: 'qualification', title: 'In Progress', color: '#ec4899' },
+      { id: 'closed-won', title: 'Won 🎉', color: '#10b981' },
+      { id: 'closed-lost', title: 'Lost', color: '#ef4444' }
+    ];
+    const stageInfo = pipelineStages.find(s => s.id === opportunity.mappedStage) || pipelineStages[0];
+    stageEl.textContent = stageInfo.title;
+    stageEl.style.background = `color-mix(in srgb, ${stageInfo.color} 12%, transparent)`;
+    stageEl.style.color = stageInfo.color;
+  }
+
+  if (companyEl) companyEl.textContent = opportunity.company_name || 'No Company';
+
+  // Avatar (Company initials or Logo)
+  if (avatarEl) {
+    const initials = getInitials(opportunity.company_name || 'U');
+    avatarEl.textContent = initials;
+    avatarEl.className = 'record-hero-avatar'; // Reset
+
+    // Check if we have a company logo
+    const companyObj = findCompanyForOpportunity(opportunity);
+    const resolvedLogoUrl = (companyObj && companyObj.logo_url) || getCompanyLogoUrl(opportunity.company_name || '');
+
+    avatarEl.innerHTML = `<span style="position:relative;z-index:1">${initials}</span>${resolvedLogoUrl ? `<img src="${resolvedLogoUrl}" alt="${escapeHtml(opportunity.company_name || '')}" onload="this.style.display='block';this.previousElementSibling.style.display='none'" onerror="this.style.display='none'" />` : ''}`;
+
+    if (!resolvedLogoUrl) {
+      avatarEl.style.background = 'linear-gradient(135deg, var(--color-primary), var(--color-primary-light))';
+    }
+  }
+
+  // Details
+  const valueEl = document.getElementById('opportunity-view-value');
+  const probEl = document.getElementById('opportunity-view-probability');
+  const createdEl = document.getElementById('opportunity-view-created');
+  const ownerEl = document.getElementById('opportunity-view-owner');
+
+  if (valueEl) valueEl.textContent = `Ksh ${parseFloat(opportunity.value || 0).toLocaleString()}`;
+  if (probEl) probEl.innerHTML = `<span style="color:${getProbabilityColor(opportunity.probability || 0)}; font-weight:700;">${opportunity.probability || 0}%</span>`;
+  if (createdEl) createdEl.textContent = formatDate(opportunity.created_at);
+  if (ownerEl) {
+    const ownerName = opportunity.profiles ? `${opportunity.profiles.first_name} ${opportunity.profiles.last_name}` : 'Unknown';
+    ownerEl.textContent = ownerName;
+  }
+
+  // Timeline
+  const nextStepEl = document.getElementById('opportunity-view-next-step');
+  const dueDateEl = document.getElementById('opportunity-view-next-step-date');
+
+  if (nextStepEl) nextStepEl.textContent = opportunity.next_step || 'No next step scheduled';
+  if (dueDateEl) dueDateEl.textContent = (opportunity.next_step_date && opportunity.next_step_date !== 'None') ? formatDate(opportunity.next_step_date) : 'No due date';
+
+  // Notes
+  const notesEl = document.getElementById('opportunity-view-notes');
+  if (notesEl) {
+    let notesHtml = escapeHtml(opportunity.notes || '');
+    // Process mentions
+    if (opportunity.mentioned_people && Array.isArray(opportunity.mentioned_people)) {
+      opportunity.mentioned_people.forEach(person => {
+        if (!person || !person.name) return;
+        const safeName = escapeRegExp(person.name.trim());
+        const pattern = new RegExp(`@${safeName}\\b`, 'gi');
+        notesHtml = notesHtml.replace(pattern, `<span class="mentioned-person" data-person-id="${person.id}">@${person.name}</span>`);
+      });
+    } else {
+      notesHtml = notesHtml.replace(/@([A-Za-z0-9_\-]+)\b/g, '<span class="mentioned-person" data-person-name="$1">@$1</span>');
+    }
+    notesEl.innerHTML = notesHtml || '<div class="text-muted" style="font-size:0.85rem; opacity:0.6;">No internal notes added to this deal.</div>';
+
+    // Attach click handlers to mentions
+    notesEl.querySelectorAll('.mentioned-person').forEach(el => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const pid = el.dataset.personId;
+        const pname = el.dataset.personName || el.textContent.replace(/^@/, '').trim();
+        if (pid) return openPersonViewModal(pid);
+        const p = allPeople.find(p => String(p.name).trim().toLowerCase() === String(pname).toLowerCase());
+        if (p) openPersonViewModal(p);
+      });
+    });
+  }
+
+  // Competitors
+  const competitorsEl = document.getElementById('opportunity-view-competitors');
+  if (competitorsEl) {
+    const competitors = opportunity.competitors ? (typeof opportunity.competitors === 'string' ? JSON.parse(opportunity.competitors) : opportunity.competitors) : [];
+    if (competitors.length > 0) {
+      competitorsEl.innerHTML = competitors.map(c => `<span class="ov-comp-tag">${escapeHtml(c)}</span>`).join('');
+    } else {
+      competitorsEl.innerHTML = '<span class="text-muted" style="font-size:0.8rem;">No competitors identified</span>';
+    }
+  }
+
+  // Metadata
+  const orgIdEl = document.getElementById('opportunity-view-org-id');
+  const updatedEl = document.getElementById('opportunity-view-updated');
+  if (orgIdEl) orgIdEl.textContent = opportunity.organization_id || '—';
+  if (updatedEl) updatedEl.textContent = opportunity.updated_at ? formatDate(opportunity.updated_at) : formatDate(opportunity.created_at);
+
+  // Edit Action
+  const editBtn = document.getElementById('opportunity-view-edit-btn');
+  if (editBtn) {
+    const canEdit = !isManager || opportunity.user_id === currentUser.id;
+    editBtn.style.display = canEdit ? 'flex' : 'none';
+    editBtn.onclick = () => {
+      closeModal('opportunity-view-modal');
+      openOpportunityModal(opportunity);
+    };
+  }
+
+  // Show modal
+  modal.style.display = 'flex';
+  document.body.classList.add('modal-active');
+
+  if (window.lucide) lucide.createIcons();
 }
 
 
@@ -13389,7 +13469,7 @@ async function completeRoute(routeId) {
     // If you have a column such as `last_completed_at` you could update it
     // here for auditing, e.g.:
     // await supabaseClient.from('routes').update({ last_completed_at: new Date().toISOString() }).eq('id', routeId);
-    
+
     showToast('Route completed successfully. It will remain available so you can run it again.', 'success');
     loadView('my-routes');
   } catch (error) {
