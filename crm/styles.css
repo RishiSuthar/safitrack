@@ -1236,7 +1236,8 @@ body {
 
 /* inline adjustments when inside simple container */
 .loading-content.simple .loading-spinner {
-  margin: 0; /* no automatic centering */
+  margin: 0;
+  /* no automatic centering */
   width: 24px;
   height: 24px;
   border-width: 2px;
@@ -9917,7 +9918,7 @@ select {
 
 .pipeline-stages {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.875rem;
   padding-bottom: 1rem;
   align-items: start;
@@ -10533,7 +10534,7 @@ select {
 /* Responsive adjustments for pipeline */
 @media (max-width: 1400px) {
   .pipeline-stages {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
@@ -10552,7 +10553,7 @@ select {
   }
 
   .pipeline-stages {
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 0.8rem;
   }
 
