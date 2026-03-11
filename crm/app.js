@@ -2077,10 +2077,10 @@ async function renderSettingsView() {
           <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Members
         </button>
-        <button class="sv-nav-item" data-section="billing">
+        ${isManager ? `<button class="sv-nav-item" data-section="billing">
           <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/></svg>
           Billing
-        </button>
+        </button>` : ''}
 
         <div class="sv-nav-divider"></div>
 
@@ -2403,13 +2403,13 @@ async function renderSettingsView() {
               <div class="sv-stat-tile-label">Your role</div>
               <div class="sv-stat-tile-value"><span class="sv-role-chip" data-role="${roleEsc.toLowerCase()}">${roleEsc}</span></div>
             </div>
-            <div class="sv-stat-tile">
+            ${isManager ? `<div class="sv-stat-tile">
               <div class="sv-stat-tile-label">Current plan</div>
               <div class="sv-stat-tile-value" style="gap:8px;">
                 <span class="sv-plan-chip" data-plan="${currentPlan.toLowerCase()}">${currentPlan}</span>
                 ${currentPlan === 'Free' ? `<a href="https://safitrack.netlify.app/pages/pricing" target="_blank" class="sv-stat-upgrade-link">Upgrade <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;"><path d="M13 7l5 5-5 5M6 12h12"/></svg></a>` : ''}
               </div>
-            </div>
+            </div>` : ''}
             <div class="sv-stat-tile">
               <div class="sv-stat-tile-label">Seats used</div>
               <div class="sv-stat-tile-value--mono" id="sv-seat-count">— / ${currentOrganization?.max_members ?? 2}</div>
@@ -2453,7 +2453,7 @@ async function renderSettingsView() {
         </section>
 
         <!-- ═══════════════════ BILLING ═══════════════════ -->
-        <section class="sv-section" data-section="billing" style="display:none;">
+        <section class="sv-section" data-section="billing" data-manager-only="true" style="display:none;">
           <div class="sv-page-header">
             <div>
               <h2 class="sv-page-title">Billing</h2>
@@ -2695,7 +2695,7 @@ async function renderSettingsView() {
         padding: 7px 10px;
         border: none;
         background: transparent;
-        border-radius: 6px;
+        border-radius: var(--btn-radius);
         font-size: 0.9rem;
         font-weight: 500;
         color: var(--text-secondary);
@@ -2850,8 +2850,9 @@ async function renderSettingsView() {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 7px 14px;
-        border-radius: 6px;
+        height: var(--control-height-md);
+        padding: 0 14px;
+        border-radius: var(--btn-radius);
         border: none;
         background: var(--color-primary);
         color: #fff;
@@ -2867,9 +2868,11 @@ async function renderSettingsView() {
       .sv-ghost-btn {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 6px;
-        padding: 6px 11px;
-        border-radius: 6px;
+        height: var(--control-height-md);
+        padding: 0 11px;
+        border-radius: var(--btn-radius);
         border: 1px solid var(--border-color);
         background: transparent;
         color: var(--text-secondary);
@@ -2887,9 +2890,11 @@ async function renderSettingsView() {
       .sv-danger-btn {
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 6px;
-        padding: 6px 12px;
-        border-radius: 6px;
+        height: var(--control-height-md);
+        padding: 0 12px;
+        border-radius: var(--btn-radius);
         border: 1px solid rgba(220,38,38,0.3);
         background: rgba(220,38,38,0.05);
         color: #dc2626;
@@ -3616,6 +3621,14 @@ async function renderSettingsView() {
   }
   document.querySelectorAll('.sv-nav-item').forEach(btn => btn.addEventListener('click', () => setActiveSection(btn.dataset.section)));
 
+  // Hide manager-only sections from non-managers (billing section)
+  if (!isManager) {
+    document.querySelectorAll('[data-manager-only="true"]').forEach(el => {
+      el.style.display = 'none';
+      el.dataset.hidden = 'true';
+    });
+  }
+
   /* ─────────────── AUTO-SAVE ─────────────── */
   let saveTimeout;
   const showSaveStatus = (id) => {
@@ -3700,9 +3713,52 @@ async function renderSettingsView() {
   });
 
   /* ─────────────── DELETE ACCOUNT ─────────────── */
-  document.getElementById('delete-account-btn')?.addEventListener('click', () => {
-    if (confirm('Delete your account and all owned data? This cannot be undone.'))
-      showToast('Account deletion requested. Contact support to complete the process.', 'warning');
+  document.getElementById('delete-account-btn')?.addEventListener('click', async () => {
+    // Step 1: require typed confirmation
+    const typed = prompt('To permanently delete your account, type DELETE in all caps:');
+    if (typed !== 'DELETE') {
+      if (typed !== null) showToast('Confirmation did not match. Account not deleted.', 'error');
+      return;
+    }
+
+    // Step 2: if manager, ensure at least one other manager exists
+    if (isManager) {
+      try {
+        const { data: otherManagers, error: mgErr } = await supabaseClient
+          .from('profiles')
+          .select('id')
+          .eq('org_id', currentOrganization?.id)
+          .eq('role', 'manager')
+          .neq('id', currentUser.id)
+          .limit(1);
+        if (mgErr) throw mgErr;
+        if (!otherManagers || otherManagers.length === 0) {
+          showToast('You are the only manager. Promote another member to manager before deleting your account.', 'error');
+          return;
+        }
+      } catch (e) {
+        console.error('Manager check error:', e);
+        showToast('Could not verify manager status. Please try again.', 'error');
+        return;
+      }
+    }
+
+    // Step 3: delete profile row (cascades app data) then sign out
+    try {
+      showToast('Deleting your account…', 'info');
+      const { error: delErr } = await supabaseClient
+        .from('profiles')
+        .delete()
+        .eq('id', currentUser.id);
+      if (delErr) throw delErr;
+      showToast('Account deleted. Goodbye!', 'success');
+      setTimeout(async () => {
+        await supabaseClient.auth.signOut();
+      }, 1200);
+    } catch (e) {
+      console.error('Account deletion error:', e);
+      showToast('Failed to delete account: ' + (e.message || 'Unknown error'), 'error');
+    }
   });
 
   /* ─────────────── EXPORT ─────────────── */
@@ -10359,8 +10415,13 @@ function openPhotoModal(photoUrl) {
     modal.innerHTML = `
       <div class="photo-modal-backdrop" onclick="closePhotoModal()"></div>
       <div class="photo-modal-content">
-        <button class="photo-modal-close" onclick="closePhotoModal()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        <button class="modal-close photo-modal-close" onclick="closePhotoModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-x-icon lucide-x">
+            <path d="M18 6 6 18" />
+            <path d="m6 6 12 12" />
+          </svg>
         </button>
         <img class="photo-modal-image" src="" alt="Visit photo">
       </div>
@@ -13894,8 +13955,13 @@ function showTaskDetail(task, salesReps) {
   content.innerHTML = `
     <div class="task-detail-header">
       <div class="task-detail-title">${task.title}</div>
-      <button class="task-detail-close" onclick="document.getElementById('task-detail-modal').classList.remove('active')">
-        <i class="fas fa-times"></i>
+      <button class="modal-close" onclick="document.getElementById('task-detail-modal').classList.remove('active')">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+          stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+          class="lucide lucide-x-icon lucide-x">
+          <path d="M18 6 6 18" />
+          <path d="m6 6 12 12" />
+        </svg>
       </button>
     </div>
     <div class="task-detail-body">

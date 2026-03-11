@@ -90,7 +90,7 @@
   --z-fixed: 300;
   --z-modal-backdrop: 1000;
   --z-modal: 1100;
-  --z-toast: 1200;
+  --z-toast: 100000;
   --z-loading: 1300;
   --z-header: 800;
 }
@@ -12152,9 +12152,9 @@ body.is-dragging * {
   z-index: 99998 !important;
 }
 
-/* Ensure toast is below confirm dialog */
+/* Ensure toast is visible above everything */
 #toast-container {
-  z-index: 600;
+  z-index: var(--z-toast) !important;
 }
 
 /* Ensure command palette is below confirm dialog */
@@ -16009,7 +16009,7 @@ button svg {
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 10050;
   padding: 1rem;
 }
 
