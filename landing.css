@@ -4966,6 +4966,7 @@ section+section {
 
 .hero-description {
     font-size: 28px;
+    font-weight: 500;
     line-height: 1.4;
     max-width: 800px;
 }
