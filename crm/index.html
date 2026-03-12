@@ -951,6 +951,138 @@
 
     </main>
 
+    <!-- Redesigned Notes Section (Hidden by default) -->
+    <div id="notes-view-container" class="notes-view-root" style="display:none;">
+      <!-- Sub-sidebar for categories and tags -->
+      <aside class="notes-sub-sidebar">
+        <div class="nss-header">
+          <h2 class="nss-title">Notes</h2>
+          <button id="add-note-action-btn" class="nss-add-btn" title="New Note">
+            <i data-lucide="plus"></i>
+          </button>
+        </div>
+        <div class="nss-content">
+          <div class="nss-section">
+            <button class="nss-item active" data-category="all">
+              <i data-lucide="layout-grid"></i>
+              <span>All Notes</span>
+              <span class="nss-count" id="count-all">0</span>
+            </button>
+            <button class="nss-item" data-category="pinned">
+              <i data-lucide="pin"></i>
+              <span>Pinned</span>
+              <span class="nss-count" id="count-pinned">0</span>
+            </button>
+            <button class="nss-item" data-category="shared">
+              <i data-lucide="share-2"></i>
+              <span>Shared</span>
+              <span class="nss-count" id="count-shared">0</span>
+            </button>
+            <button class="nss-item" data-category="archive">
+              <i data-lucide="archive"></i>
+              <span>Archive</span>
+            </button>
+          </div>
+          <div class="nss-divider"></div>
+          <div class="nss-section">
+            <h3 class="nss-section-label">Tags</h3>
+            <div id="notes-tags-list" class="nss-tags">
+              <!-- Tags will be dynamically populated -->
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Board for Note Grid -->
+      <section class="notes-board">
+        <header class="nb-header">
+          <div class="nb-search-wrap">
+            <i data-lucide="search"></i>
+            <input type="text" id="nb-search-input" class="nb-search-input" placeholder="Search notes, contacts...">
+          </div>
+          <div class="nb-actions">
+            <div class="nb-view-toggle">
+              <button class="nb-toggle-btn active" data-layout="grid" title="Grid View">
+                <i data-lucide="layout-grid"></i>
+              </button>
+              <button class="nb-toggle-btn" data-layout="list" title="List View">
+                <i data-lucide="list"></i>
+              </button>
+            </div>
+          </div>
+        </header>
+        <div id="notes-grid" class="notes-grid">
+          <!-- Note cards will be dynamically populated -->
+        </div>
+      </section>
+
+      <!-- Slide-over Editor -->
+      <div id="note-slide-over" class="note-slide-over">
+        <div class="nso-backdrop"></div>
+        <div class="nso-content">
+          <header class="nso-header">
+            <div class="nso-header-left">
+              <button class="nso-close-btn" id="nso-close-btn">
+                <i data-lucide="chevron-right"></i>
+              </button>
+              <div class="nso-status" id="nso-save-status">Saved</div>
+            </div>
+            <div class="nso-header-right">
+              <button class="nso-action-btn" id="nso-pin-btn" title="Pin Note">
+                <i data-lucide="pin"></i>
+              </button>
+              <button class="nso-action-btn" id="nso-share-btn" title="Share Note">
+                <i data-lucide="share"></i>
+              </button>
+              <button class="nso-action-btn danger" id="nso-delete-btn" title="Delete Note">
+                <i data-lucide="trash-2"></i>
+              </button>
+            </div>
+          </header>
+          <div class="nso-body">
+            <input type="text" id="nso-title-input" class="nso-title-input" placeholder="Note Title...">
+            <div class="nso-meta">
+              <div class="nso-meta-item">
+                <i data-lucide="calendar"></i>
+                <span id="nso-date">Oct 28, 2023</span>
+              </div>
+              <div class="nso-meta-item" id="nso-mentions-indicator">
+                <!-- Mentions summary icons -->
+              </div>
+            </div>
+            <div class="nso-editor-toolbar">
+              <div class="nso-toolbar-group">
+                <button class="nso-tool-btn" data-command="bold"><i data-lucide="bold"></i></button>
+                <button class="nso-tool-btn" data-command="italic"><i data-lucide="italic"></i></button>
+                <button class="nso-tool-btn" data-command="underline"><i data-lucide="underline"></i></button>
+                <button class="nso-tool-btn" data-command="strikeThrough"><i data-lucide="strikethrough"></i></button>
+              </div>
+              <div class="nso-toolbar-divider"></div>
+              <div class="nso-toolbar-group">
+                <button class="nso-tool-btn" data-command="insertUnorderedList"><i data-lucide="list"></i></button>
+                <button class="nso-tool-btn" data-command="insertOrderedList"><i data-lucide="list-ordered"></i></button>
+              </div>
+              <div class="nso-toolbar-divider"></div>
+              <div class="nso-toolbar-group">
+                <button class="nso-tool-btn" id="nso-mention-btn" title="Mention (@)"><i data-lucide="at-sign"></i></button>
+                <button class="nso-tool-btn" id="nso-tag-btn" title="Tag (#)"><i data-lucide="hash"></i></button>
+              </div>
+              <div class="nso-toolbar-divider"></div>
+              <div class="nso-toolbar-group">
+                <button class="nso-tool-btn" id="nso-color-btn" title="Text Color">
+                  <i data-lucide="palette"></i>
+                  <input type="color" id="nso-color-picker" style="opacity: 0; position: absolute; inset: 0; cursor: pointer;">
+                </button>
+                <button class="nso-tool-btn" data-command="undo" title="Undo"><i data-lucide="undo"></i></button>
+                <button class="nso-tool-btn" data-command="redo" title="Redo"><i data-lucide="redo"></i></button>
+              </div>
+            </div>
+            <div id="nso-editor-content" class="nso-editor-content" contenteditable="true" placeholder="Start typing..."></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <nav class="bottom-nav">
       <button data-view="log-visit" class="bottom-nav-item active">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"

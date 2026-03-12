@@ -1896,9 +1896,19 @@ async function loadView(viewName) {
 
   try {
     const mainContent = document.querySelector('.main-content');
-    const fullBleedViews = ['companies', 'people'];
+    const notesView = document.getElementById('notes-view-container');
+    const isNotes = viewName === 'notes';
+    
     if (mainContent) {
+      const fullBleedViews = ['companies', 'people'];
       mainContent.classList.toggle('full-bleed', fullBleedViews.includes(viewName));
+      mainContent.style.display = isNotes ? 'none' : '';
+    }
+    
+    if (notesView) {
+      notesView.style.display = isNotes ? 'flex' : 'none';
+      // If entering notes view, ensure the main viewContainer is empty to prevent ghosting
+      if (isNotes && viewContainer) viewContainer.innerHTML = '';
     }
   } catch (e) { }
 
@@ -19596,11 +19606,24 @@ function hideCompressionProgress() {
 }
 
 // ======================
-// NOTES VIEW
+// REDESIGNED NOTES VIEW (v2)
 // ======================
 
+let currentNotesFilter = 'all';
+let currentNotesSearch = '';
+let activeNoteId = null;
+let noteAutoSaveTimeout = null;
+
 async function renderNotesView() {
-  // Fetch user's notes
+  const container = document.getElementById('notes-view-container');
+  const viewContainer = document.getElementById('view-container');
+  if (!container || !viewContainer) return;
+
+  // Show the new container, hide the old one
+  container.style.display = 'flex';
+  viewContainer.style.display = 'none';
+
+  // Fetch data
   const { data: notes, error } = await supabaseClient
     .from('notes')
     .select('*')
@@ -19609,1277 +19632,544 @@ async function renderNotesView() {
     .order('updated_at', { ascending: false });
 
   if (error) {
-    viewContainer.innerHTML = renderError(error.message);
+    showToast('Error loading notes: ' + error.message, 'error');
     return;
   }
 
-  // Fetch companies and people for tagging
-  const [companiesResult, peopleResult] = await Promise.all([
-    supabaseClient.from('companies').select('id, name').order('name'),
-    supabaseClient.from('people').select('id, name, company_id').order('name')
-  ]);
+  window.allNotesData = notes || [];
+  
+  if (window.lucide) {
+    setTimeout(() => lucide.createIcons(), 0);
+  }
 
-  const companies = companiesResult.data || [];
-  const people = (peopleResult.data || []).map((person) => {
-    const company = companies.find((item) => String(item.id) === String(person.company_id)) || null;
-    return {
-      ...person,
-      company,
-      companies: company
+  // Initial render
+  updateNotesSidebar();
+  renderNotesGrid();
+  attachNotesViewEvents();
+}
+
+function updateNotesSidebar() {
+  const allCount = window.allNotesData.length;
+  const pinnedCount = window.allNotesData.filter(n => n.is_pinned).length;
+  
+  const allEl = document.getElementById('count-all');
+  const pinnedEl = document.getElementById('count-pinned');
+  
+  if (allEl) allEl.textContent = allCount;
+  if (pinnedEl) pinnedEl.textContent = pinnedCount;
+
+  renderNotesTags();
+}
+
+function renderNotesTags() {
+  const tagsList = document.getElementById('notes-tags-list');
+  if (!tagsList) return;
+
+  const tags = new Set();
+  window.allNotesData.forEach(note => {
+    const matches = (note.content || '').match(/#(\w+)/g);
+    if (matches) {
+      matches.forEach(tag => tags.add(tag));
+    }
+  });
+
+  if (tags.size === 0) {
+    tagsList.innerHTML = '<div class="text-xs text-muted italic p-2">No tags yet</div>';
+    return;
+  }
+
+  tagsList.innerHTML = Array.from(tags).map(tag => `
+    <span class="nss-tag-item">${tag}</span>
+  `).join('');
+
+  tagsList.querySelectorAll('.nss-tag-item').forEach(el => {
+    el.addEventListener('click', () => {
+      currentNotesSearch = el.textContent;
+      const searchBox = document.getElementById('nb-search-input');
+      if (searchBox) searchBox.value = currentNotesSearch;
+      renderNotesGrid();
+    });
+  });
+}
+
+function renderNotesGrid() {
+  const grid = document.getElementById('notes-grid');
+  if (!grid) return;
+
+  let filtered = [...window.allNotesData];
+
+  if (currentNotesFilter === 'pinned') {
+    filtered = filtered.filter(n => n.is_pinned);
+  }
+
+  if (currentNotesSearch) {
+    const query = currentNotesSearch.toLowerCase();
+    filtered = filtered.filter(n => 
+      (n.title || '').toLowerCase().includes(query) || 
+      (n.content || '').toLowerCase().includes(query)
+    );
+  }
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="empty-state-full grid-center" style="grid-column: 1/-1; padding: 4rem; text-align: center;">
+        <i data-lucide="sticky-note" style="width: 48px; height: 48px; opacity: 0.2; margin: 0 auto 1rem;"></i>
+        <h3 class="text-muted">No notes found</h3>
+        <p class="text-sm text-muted">Try a different filter or create a new note.</p>
+      </div>
+    `;
+    if (window.lucide) lucide.createIcons();
+    return;
+  }
+
+  grid.innerHTML = filtered.map(note => {
+    const title = note.title || 'Untitled Note';
+    // Clean content: remove HTML, decode &nbsp; and other entities for preview
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = (note.content || '').replace(/<[^>]*>/g, ' ');
+    const cleanContent = tempDiv.textContent || tempDiv.innerText || '';
+    const finalContent = cleanContent.trim().substring(0, 150);
+    const date = formatDate(note.updated_at);
+
+    return `
+      <article class="note-card ${note.is_pinned ? 'pinned' : ''}" data-id="${note.id}">
+        <div class="nc-header">
+          <h4 class="nc-title">${escapeHtml(title)}</h4>
+          ${note.is_pinned ? '<i data-lucide="pin" class="nc-pin-icon"></i>' : ''}
+        </div>
+        <div class="nc-content">${escapeHtml(finalContent)}${finalContent.length >= 150 ? '...' : ''}</div>
+        <div class="nc-footer">
+          <div class="nc-mentions"></div>
+          <span class="nc-date">${date}</span>
+        </div>
+      </article>
+    `;
+  }).join('');
+
+  if (window.lucide) lucide.createIcons();
+
+  grid.querySelectorAll('.note-card').forEach(card => {
+    card.addEventListener('click', () => openNoteSlideOver(card.dataset.id));
+  });
+}
+
+function attachNotesViewEvents() {
+  document.querySelectorAll('.nss-item').forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll('.nss-item').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentNotesFilter = btn.dataset.category;
+      renderNotesGrid();
     };
   });
 
-  // Check if user has no notes
-  if (notes.length === 0) {
-    // Instead of showing empty state, directly open a new note editor
-    let html = `
-      <div class="notes-container">
-        <!-- Left Sidebar -->
-        <div class="notes-sidebar">
-          <div class="notes-sidebar-header">
-            <div class="search-container">
-              <i class="fas fa-search"></i>
-              <input type="text" id="notes-search" placeholder="Search notes...">
-            </div>
-            <button class="btn btn-primary btn-sm" id="add-note-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-            </button>
-          </div>
-          
-          <div class="notes-list" id="notes-list">
-            <div class="empty-state">
-              <i class="fas fa-sticky-note empty-state-icon"></i>
-              <h3 class="empty-state-title">No notes yet</h3>
-              <p class="empty-state-description">Creating your first note...</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Right Content Area -->
-        <div class="notes-content">
-          <div class="note-editor" id="note-editor">
-            <!-- Note editor will be initialized here -->
-          </div>
-        </div>
-      </div>
-    `;
-
-    viewContainer.innerHTML = html;
-
-    // Initialize notes functionality
-    initNotesView(notes, companies, people);
-
-    // Automatically create a new note
-    setTimeout(() => {
-      createNewNote();
-    }, 100);
-
-    return;
-  }
-
-  // Original code for when notes exist
-  let html = `
-    <div class="notes-container">
-      <!-- Left Sidebar -->
-      <div class="notes-sidebar">
-        <div class="notes-sidebar-header">
-          <div class="search-container">
-            <i class="fas fa-search"></i>
-            <input type="text" id="notes-search" placeholder="Search notes...">
-          </div>
-          <button class="btn btn-primary btn-sm" id="add-note-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-          </button>
-        </div>
-        
-        <div class="notes-list" id="notes-list">
-  `;
-
-  notes.forEach(note => {
-    const preview = note.content.replace(/<[^>]*>/g, '').substring(0, 100);
-    html += `
-      <div class="note-item ${note.id === (window.selectedNoteId || '') ? 'active' : ''}" data-id="${note.id}">
-        <div class="note-item-header">
-          <h4 class="note-item-title">${note.title}</h4>
-          ${note.is_pinned ? '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2954be" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pin-icon lucide-pin"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>' : ''}
-        </div>
-        <div class="note-item-preview">${preview}${preview.length >= 100 ? '...' : ''}</div>
-        <div class="note-item-date">${formatDate(note.updated_at)}</div>
-      </div>
-    `;
-  });
-
-  html += `
-        </div>
-      </div>
-
-      <!-- Right Content Area -->
-      <div class="notes-content">
-        <div class="note-editor" id="note-editor">
-          <!-- Note content will be loaded here -->
-        </div>
-      </div>
-    </div>
-  `;
-
-  viewContainer.innerHTML = html;
-
-  // Initialize notes functionality
-  initNotesView(notes, companies, people);
-
-  // If there are notes, select the first one
-  if (notes.length > 0) {
-    selectNote(notes[0].id);
-  }
-}
-
-function initNotesView(notes, companies, people) {
-  // Store for global access
-  window.allNotesData = notes;
-  window.companiesData = companies;
-  window.peopleData = people;
-  window.selectedNoteId = null;
-  window.isCreatingNewNote = false;
-
-  // Add note button
-  document.getElementById('add-note-btn').addEventListener('click', () => {
-    createNewNote();
-  });
-
-  // Search functionality
-  const searchInput = document.getElementById('notes-search');
+  const searchInput = document.getElementById('nb-search-input');
   if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase();
-
-      const filteredNotes = notes.filter(note =>
-        note.title.toLowerCase().includes(query) ||
-        note.content.toLowerCase().includes(query)
-      );
-
-      renderNotesList(filteredNotes);
-    });
+    searchInput.oninput = (e) => {
+      currentNotesSearch = e.target.value;
+      renderNotesGrid();
+    };
   }
 
-  // Note item click handlers
-  document.querySelectorAll('.note-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const noteId = item.dataset.id;
-      selectNote(noteId);
-    });
-  });
-
-  // If there are notes, select the first one
-  if (notes.length > 0) {
-    selectNote(notes[0].id);
-  }
-}
-
-
-
-function createNewNote() {
-  // Set flags immediately
-  window.isCreatingNewNote = true;
-  window.selectedNoteId = null;
-
-  // Update active state in sidebar immediately
-  document.querySelectorAll('.note-item').forEach(item => {
-    item.classList.remove('active');
-  });
-
-  // Get the note editor element
-  const noteEditor = document.getElementById('note-editor');
-  if (!noteEditor) return;
-
-  // Create the HTML once and set it directly
-  const editorHTML = `
-    <div class="note-editor-header">
-      <input type="text" id="note-title" class="note-title-input" placeholder="Note Title" value="New Note">
-      <div class="note-editor-actions">
-        <button class="btn btn-sm btn-ghost" id="save-new-note-btn" title="Save Note">
-          <i class="fas fa-save"></i>
-        </button>
-      </div>
-    </div>
-    
-    <div class="note-editor-toolbar">
-      <div class="toolbar-group">
-        <button class="toolbar-btn" data-command="bold" title="Bold">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bold-icon lucide-bold"><path d="M6 12h9a4 4 0 0 1 0 8H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h7a4 4 0 0 1 0 8"/></svg>
-        </button>
-        <button class="toolbar-btn" data-command="italic" title="Italic">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-italic-icon lucide-italic"><line x1="19" x2="10" y1="4" y2="4"/><line x1="14" x2="5" y1="20" y2="20"/><line x1="15" x2="9" y1="4" y2="20"/></svg>
-        </button>
-        <button class="toolbar-btn" data-command="underline" title="Underline">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-underline-icon lucide-underline"><path d="M6 4v6a6 6 0 0 0 12 0V4"/><line x1="4" x2="20" y1="20" y2="20"/></svg>
-        </button>
-      </div>
-      
-      <div class="toolbar-separator"></div>
-      
-      <div class="toolbar-group color-picker-group">
-        <button class="color-option" data-color="#000000" title="Black" style="background-color: #000000;"></button>
-        <button class="color-option" data-color="#ffffff" title="White" style="background-color: #ffffff; border: 1px solid #ddd;"></button>
-        <button class="color-option" data-color="#3b82f6" title="Blue" style="background-color: #3b82f6;"></button>
-        <button class="color-option" data-color="#10b981" title="Green" style="background-color: #10b981;"></button>
-        <button class="color-option" data-color="#f59e0b" title="Yellow" style="background-color: #f59e0b;"></button>
-        <button class="color-option" data-color="#f97316" title="Orange" style="background-color: #f97316;"></button>
-      </div>
-      
-      <div class="toolbar-separator"></div>
-      
-      <div class="toolbar-group">
-        <button class="toolbar-btn" data-command="undo" title="Undo">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-undo-icon lucide-undo"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
-        </button>
-        <button class="toolbar-btn" data-command="redo" title="Redo">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-redo-icon lucide-redo"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
-        </button>
-      </div>
-    </div>
-    
-    <div class="note-editor-content">
-      <div class="note-title-separator"></div>
-      <div id="note-content" class="note-content-editable" contenteditable="true" placeholder="Start typing your note..."></div>
-    </div>
-    
-    <div class="note-editor-footer">
-      <div class="text-muted text-sm">Creating new note</div>
-    </div>
-  `;
-
-  // Set HTML directly - this is much faster than innerHTML
-  noteEditor.innerHTML = editorHTML;
-
-  // Use requestAnimationFrame for smoother initialization
-  requestAnimationFrame(() => {
-    initNewNoteEditor();
-
-    // Focus on the title input immediately
-    const titleInput = document.getElementById('note-title');
-    if (titleInput) {
-      titleInput.focus();
-      // Select all text for easy editing
-      titleInput.select();
-    }
-  });
-}
-
-
-function initNewNoteEditor() {
-  // Cache elements to avoid repeated DOM queries
-  const titleInput = document.getElementById('note-title');
-  const contentDiv = document.getElementById('note-content');
-  const saveBtn = document.getElementById('save-new-note-btn');
-
-  // Auto-save functionality
-  let autoSaveTimeout;
-
-  const autoSave = () => {
-    clearTimeout(autoSaveTimeout);
-    autoSaveTimeout = setTimeout(async () => {
-      await saveNewNote(false);
-    }, 1000); // Save after 1 second of inactivity
-  };
-
-  // Create a single event listener for all toolbar buttons using event delegation
-  const toolbar = document.querySelector('.note-editor-toolbar');
-  if (toolbar) {
-    toolbar.addEventListener('click', (e) => {
-      const btn = e.target.closest('.toolbar-btn');
-      if (btn) {
-        const command = btn.dataset.command;
-        if (command) {
-          // Get current selection
-          const selection = window.getSelection();
-          const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-
-          // Apply the formatting
-          document.execCommand(command, false, null);
-
-          // Clear selection after applying format
-          if (selection.rangeCount > 0) {
-            selection.removeAllRanges();
-          }
-
-          // Move cursor to the end of the formatted text
-          if (range) {
-            const newRange = document.createRange();
-            newRange.setStart(range.endContainer, range.endOffset);
-            newRange.collapse(true);
-            selection.addRange(newRange);
-          }
-
-          if (contentDiv) contentDiv.focus();
-          autoSave();
-        }
-      }
-
-      const colorBtn = e.target.closest('.color-option');
-      if (colorBtn) {
-        const color = colorBtn.dataset.color;
-
-        // Get current selection
-        const selection = window.getSelection();
-        const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-
-        // Apply the color
-        document.execCommand('foreColor', false, color);
-
-        // Clear selection after applying color
-        if (selection.rangeCount > 0) {
-          selection.removeAllRanges();
-        }
-
-        // Move cursor to the end of the colored text
-        if (range) {
-          const newRange = document.createRange();
-          newRange.setStart(range.endContainer, range.endOffset);
-          newRange.collapse(true);
-          selection.addRange(newRange);
-        }
-
-        if (contentDiv) contentDiv.focus();
-        autoSave();
-      }
-    });
+  const addBtn = document.getElementById('add-note-action-btn');
+  if (addBtn) {
+    addBtn.onclick = () => createNewNoteV2();
   }
 
-  // Title change
-  if (titleInput) {
-    titleInput.addEventListener('input', autoSave);
-  }
+  const closeBtn = document.getElementById('nso-close-btn');
+  if (closeBtn) closeBtn.onclick = () => closeNoteSlideOver();
 
-  // Content change
-  if (contentDiv) {
-    contentDiv.addEventListener('input', autoSave);
-  }
+  const backdrop = document.querySelector('.nso-backdrop');
+  if (backdrop) backdrop.onclick = () => closeNoteSlideOver();
 
-  // Tagging functionality - debounce for better performance
-  if (contentDiv) {
-    let taggingTimeout;
-    contentDiv.addEventListener('input', (e) => {
-      clearTimeout(taggingTimeout);
-      taggingTimeout = setTimeout(() => {
-        handleTagging(e);
-      }, 100); // Reduced debounce time for better responsiveness
-    });
-  }
+  const pinBtn = document.getElementById('nso-pin-btn');
+  if (pinBtn) pinBtn.onclick = () => togglePinActiveNote();
 
-  // Save button
-  if (saveBtn) {
-    saveBtn.addEventListener('click', async () => {
-      await saveNewNote(true);
-    });
-  }
-}
-
-async function saveNewNote(showNotification = true) {
-  const titleInput = document.getElementById('note-title');
-  const contentDiv = document.getElementById('note-content');
-
-  if (!titleInput || !contentDiv) return;
-
-  const title = titleInput.value.trim();
-  const content = contentDiv.innerHTML;
-
-  if (!title || !content || content === '<br>') {
-    showToast('Title and content are required', 'error');
-    return;
-  }
-
-  const noteData = {
-    user_id: currentUser.id,
-    title,
-    content,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    organization_id: currentOrganization?.id
-  };
-
-  const { data, error } = await supabaseClient
-    .from('notes')
-    .insert([noteData])
-    .select();
-
-  if (error) {
-    showToast('Error creating note: ' + error.message, 'error');
-    return;
-  }
-
-  if (data && data.length > 0) {
-    // Add to local data
-    window.allNotesData.unshift(data[0]);
-
-    // Re-render notes list
-    renderNotesList(window.allNotesData);
-
-    // Select the newly created note
-    selectNote(data[0].id);
-
-    if (showNotification) {
-      showToast('Note created successfully', 'success');
-    }
-  }
-}
-
-
-
-
-function renderNotesList(notes) {
-  const notesList = document.getElementById('notes-list');
-
-  if (notes.length === 0) {
-    notesList.innerHTML = `
-      <div class="empty-state">
-        <i class="fas fa-sticky-note empty-state-icon"></i>
-        <h3 class="empty-state-title">No notes found</h3>
-        <p class="empty-state-description">Try adjusting your search or create a new note.</p>
-      </div>
-    `;
-    return;
-  }
-
-  notesList.innerHTML = notes.map(note => {
-    const preview = note.content.replace(/<[^>]*>/g, '').substring(0, 100);
-    return `
-      <div class="note-item ${note.id === (window.selectedNoteId || '') ? 'active' : ''}" data-id="${note.id}">
-        <div class="note-item-header">
-          <h4 class="note-item-title">${note.title}</h4>
-          ${note.is_pinned ? '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2954be" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pin-icon lucide-pin"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>' : ''}
-        </div>
-        <div class="note-item-preview">${preview}${preview.length >= 100 ? '...' : ''}</div>
-        <div class="note-item-date">${formatDate(note.updated_at)}</div>
-      </div>
-    `;
-  }).join('');
-
-  // Re-attach click handlers
-  document.querySelectorAll('.note-item').forEach(item => {
-    item.addEventListener('click', () => {
-      const noteId = item.dataset.id;
-      selectNote(noteId);
-    });
-  });
-}
-
-
-
-async function selectNote(noteId) {
-  // Update active state in sidebar
-  document.querySelectorAll('.note-item').forEach(item => {
-    item.classList.toggle('active', item.dataset.id === noteId);
-  });
-
-  // Store selected note ID
-  window.selectedNoteId = noteId;
-  window.isCreatingNewNote = false;
-
-  // Find the note data
-  const note = window.allNotesData.find(n => n.id === noteId);
-
-  if (!note) return;
-
-  // Render note editor
-  const noteEditor = document.getElementById('note-editor');
-  if (!noteEditor) return;
-
-  noteEditor.innerHTML = `
-    <div class="note-editor-header">
-      <input type="text" id="note-title" class="note-title-input" value="${note.title}">
-      <div class="note-editor-actions">
-        <button class="btn btn-sm btn-ghost" id="pin-note-btn" title="${note.is_pinned ? 'Unpin note' : 'Pin note'}">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pin-icon lucide-pin"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
-        </button>
-        <button class="btn btn-sm btn-ghost" id="delete-note-btn" title="Delete note">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-icon lucide-trash"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-        </button>
-      </div>
-    </div>
-    
-    <div class="note-editor-toolbar">
-      <div class="toolbar-group">
-        <button class="toolbar-btn" data-command="bold" title="Bold">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bold-icon lucide-bold"><path d="M6 12h9a4 4 0 0 1 0 8H7a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h7a4 4 0 0 1 0 8"/></svg>
-        </button>
-        <button class="toolbar-btn" data-command="italic" title="Italic">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-italic-icon lucide-italic"><line x1="19" x2="10" y1="4" y2="4"/><line x1="14" x2="5" y1="20" y2="20"/><line x1="15" x2="9" y1="4" y2="20"/></svg>
-        </button>
-        <button class="toolbar-btn" data-command="underline" title="Underline">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-underline-icon lucide-underline"><path d="M6 4v6a6 6 0 0 0 12 0V4"/><line x1="4" x2="20" y1="20" y2="20"/></svg>
-        </button>
-      </div>
-      
-      <div class="toolbar-separator"></div>
-      
-      <div class="toolbar-group color-picker-group">
-        <button class="color-option" data-color="#000000" title="Black" style="background-color: #000000;"></button>
-        <button class="color-option" data-color="#ffffff" title="White" style="background-color: #ffffff; border: 1px solid #ddd;"></button>
-        <button class="color-option" data-color="#3b82f6" title="Blue" style="background-color: #3b82f6;"></button>
-        <button class="color-option" data-color="#10b981" title="Green" style="background-color: #10b981;"></button>
-        <button class="color-option" data-color="#f59e0b" title="Yellow" style="background-color: #f59e0b;"></button>
-        <button class="color-option" data-color="#f97316" title="Orange" style="background-color: #f97316;"></button>
-      </div>
-      
-      <div class="toolbar-separator"></div>
-      
-      <div class="toolbar-group">
-        <button class="toolbar-btn" data-command="undo" title="Undo">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-undo-icon lucide-undo"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
-        </button>
-        <button class="toolbar-btn" data-command="redo" title="Redo">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-redo-icon lucide-redo"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
-        </button>
-      </div>
-    </div>
-    
-    <div class="note-editor-content">
-      <div class="note-title-separator"></div>
-      <div id="note-content" class="note-content-editable" contenteditable="true">${note.content}</div>
-    </div>
-    
-    <div class="note-editor-footer">
-      <div class="text-muted text-sm">Last updated: ${formatDate(note.updated_at)}</div>
-    </div>
-  `;
-
-  // Initialize note editor after a short delay to ensure DOM is ready
-  setTimeout(() => {
-    initNoteEditor(noteId);
-  }, 100);
-}
-
-
-function initNoteEditor(noteId) {
-  const note = window.allNotesData.find(n => n.id === noteId);
-  if (!note) return;
-
-  const titleInput = document.getElementById('note-title');
-  const contentDiv = document.getElementById('note-content');
-  const pinBtn = document.getElementById('pin-note-btn');
-  const deleteBtn = document.getElementById('delete-note-btn');
-
-  // Auto-save functionality
-  let autoSaveTimeout;
-
-  const autoSave = () => {
-    clearTimeout(autoSaveTimeout);
-    autoSaveTimeout = setTimeout(async () => {
-      await saveNote(noteId, false);
-    }, 1000); // Save after 1 second of inactivity
-  };
-
-  // Title change
-  if (titleInput) {
-    titleInput.addEventListener('input', autoSave);
-  }
-
-  // Content change
-  if (contentDiv) {
-    contentDiv.addEventListener('input', autoSave);
-  }
-
-  // Toolbar buttons
-  // Update this part in both initNoteEditor and initNewNoteEditor functions
-
-  // Toolbar buttons
-  document.querySelectorAll('.toolbar-btn[data-command]').forEach(btn => {
-    btn.addEventListener('click', () => {
+  const deleteBtn = document.getElementById('nso-delete-btn');
+  if (deleteBtn) deleteBtn.onclick = () => deleteActiveNote();
+  
+  document.querySelectorAll('.nso-tool-btn[data-command]').forEach(btn => {
+    btn.onclick = () => {
       const command = btn.dataset.command;
-
-      // Get current selection
-      const selection = window.getSelection();
-      const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-
-      // Apply the formatting
       document.execCommand(command, false, null);
-
-      // Clear selection after applying format
-      if (selection.rangeCount > 0) {
-        selection.removeAllRanges();
-      }
-
-      // Move cursor to the end of the formatted text
-      if (range) {
-        const newRange = document.createRange();
-        newRange.setStart(range.endContainer, range.endOffset);
-        newRange.collapse(true);
-        selection.addRange(newRange);
-      }
-
-      if (contentDiv) contentDiv.focus();
-      autoSave();
-    });
+      document.getElementById('nso-editor-content').focus();
+    };
   });
+}
 
-  // Color options
-  document.querySelectorAll('.color-option').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const color = btn.dataset.color;
+async function openNoteSlideOver(noteId) {
+  activeNoteId = noteId;
+  const note = window.allNotesData.find(n => String(n.id) === String(noteId));
+  if (!note) return;
 
-      // Get current selection
-      const selection = window.getSelection();
-      const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
+  const slideOver = document.getElementById('note-slide-over');
+  const titleInput = document.getElementById('nso-title-input');
+  const dateSpan = document.getElementById('nso-date');
+  const editor = document.getElementById('nso-editor-content');
+  const pinBtn = document.getElementById('nso-pin-btn');
 
-      // Apply the color
-      document.execCommand('foreColor', false, color);
-
-      // Clear selection after applying color
-      if (selection.rangeCount > 0) {
-        selection.removeAllRanges();
-      }
-
-      // Move cursor to the end of the colored text
-      if (range) {
-        const newRange = document.createRange();
-        newRange.setStart(range.endContainer, range.endOffset);
-        newRange.collapse(true);
-        selection.addRange(newRange);
-      }
-
-      if (contentDiv) contentDiv.focus();
-      autoSave();
-    });
-  });
-
-  // Tagging functionality
-  if (contentDiv) {
-    contentDiv.addEventListener('input', handleTagging);
-  }
-
-  // Pin button
+  if (titleInput) titleInput.value = note.title || '';
+  if (dateSpan) dateSpan.textContent = formatDate(note.updated_at);
+  if (editor) editor.innerHTML = note.content || '';
   if (pinBtn) {
-    pinBtn.addEventListener('click', async () => {
-      const { error } = await supabaseClient
-        .from('notes')
-        .update({ is_pinned: !note.is_pinned })
-        .eq('id', noteId);
-
-      if (error) {
-        showToast('Error updating note: ' + error.message, 'error');
-        return;
-      }
-
-      note.is_pinned = !note.is_pinned;
-      pinBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pin-icon lucide-pin"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>`;
-      pinBtn.title = note.is_pinned ? 'Unpin note' : 'Pin note';
-
-      // Re-render notes list to update pin status
-      renderNotesList(window.allNotesData);
-
-      showToast(note.is_pinned ? 'Note pinned' : 'Note unpinned', 'success');
-    });
+    pinBtn.classList.toggle('active', !!note.is_pinned);
+    pinBtn.style.color = note.is_pinned ? 'var(--color-warning)' : '';
   }
 
-  // Delete button
-  if (deleteBtn) {
-    deleteBtn.addEventListener('click', async () => {
-      const confirmed = await showConfirmDialog(
-        'Delete Note',
-        'Are you sure you want to delete this note?'
-      );
+  slideOver.classList.add('active');
 
-      if (!confirmed) return;
-
-      const { error } = await supabaseClient
-        .from('notes')
-        .delete()
-        .eq('id', noteId);
-
-      if (error) {
-        showToast('Error deleting note: ' + error.message, 'error');
-        return;
-      }
-
-      // Remove from local data
-      window.allNotesData = window.allNotesData.filter(n => n.id !== noteId);
-
-      // Re-render notes list
-      renderNotesList(window.allNotesData);
-
-      // Clear editor if this was the selected note
-      if (window.selectedNoteId === noteId) {
-        window.selectedNoteId = null;
-        const noteEditor = document.getElementById('note-editor');
-        if (noteEditor) {
-          noteEditor.innerHTML = `
-            <div class="empty-state">
-              <i class="fas fa-sticky-note empty-state-icon"></i>
-              <h3 class="empty-state-title">Select a note to view</h3>
-              <p class="empty-state-description">Choose a note from the sidebar to view or edit it.</p>
-            </div>
-          `;
-        }
-      }
-
-      showToast('Note deleted successfully', 'success');
-    });
+  if (titleInput) {
+    titleInput.oninput = () => {
+      const statusEl = document.getElementById('nso-save-status');
+      if (statusEl) statusEl.textContent = 'Saving...';
+      clearTimeout(noteAutoSaveTimeout);
+      noteAutoSaveTimeout = setTimeout(saveActiveNote, 1000);
+    };
   }
-}
 
-let taggingTimeout;
-let currentMentionType = null;
-let mentionStartPos = 0;
-let mentionRange = null;
-
-
-function handleTagging(e) {
-  try {
-    const contentDiv = e.target;
-    const selection = window.getSelection();
-
-    // Get the current cursor position
-    const range = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-    if (!range) return;
-
-    // Store the current range for later use
-    mentionRange = range.cloneRange();
-
-    // Get the text content up to the cursor
-    const preCaretRange = range.cloneRange();
-    preCaretRange.selectNodeContents(contentDiv);
-    preCaretRange.setEnd(range.endContainer, range.endOffset);
-
-    const text = preCaretRange.toString();
-    const cursorPos = text.length;
-
-    // Check if user is typing a person mention (@)
-    const personMatch = text.match(/@([^\s@]*)$/);
-    if (personMatch) {
-      currentMentionType = 'person';
-      mentionStartPos = cursorPos - personMatch[0].length;
-      const query = personMatch[1];
-
-      clearTimeout(taggingTimeout);
-      taggingTimeout = setTimeout(() => {
-        showPersonSuggestions(query, contentDiv);
-      }, 300);
-      return;
-    }
-
-    // Check if user is typing a company name (no special symbol, just regular text)
-    // Look for the last word that might be a company name
-    const words = text.split(/\s+/);
-    const lastWord = words[words.length - 1] || '';
-
-    // Only show company suggestions if the last word is at least 2 characters and doesn't start with @
-    if (lastWord.length >= 2 && !lastWord.startsWith('@')) {
-      currentMentionType = 'company';
-      mentionStartPos = cursorPos - lastWord.length;
-      const query = lastWord;
-
-      clearTimeout(taggingTimeout);
-      taggingTimeout = setTimeout(() => {
-        showCompanySuggestions(query, contentDiv);
-      }, 300);
-      return;
-    }
-
-    // Hide suggestions if no match
-    hideTaggingSuggestions();
-  } catch (error) {
-    console.error('Error in handleTagging:', error);
+  if (editor) {
+    editor.oninput = (e) => {
+      const statusEl = document.getElementById('nso-save-status');
+      if (statusEl) statusEl.textContent = 'Saving...';
+      clearTimeout(noteAutoSaveTimeout);
+      noteAutoSaveTimeout = setTimeout(saveActiveNote, 1000);
+      handleNoteTagging(e);
+    };
   }
-}
 
-
-
-function showCompanySuggestions(query, contentDiv) {
-  hideTaggingSuggestions();
-
-  if (query.length < 2) return;
-
-  const filteredCompanies = window.companiesData.filter(company =>
-    matchesTokenizedQuery(query, company.name, company.description, company.address)
-  );
-
-  if (filteredCompanies.length === 0) return;
-
-  // Create suggestions popup
-  const suggestions = document.createElement('div');
-  suggestions.className = 'tagging-suggestions';
-  suggestions.id = 'tagging-suggestions';
-
-  suggestions.innerHTML = filteredCompanies.slice(0, 5).map(company => `
-    <div class="suggestion-item company-suggestion" data-id="${company.id}" data-name="${company.name}">
-      <i class="fas fa-building"></i>
-      <span>${company.name}</span>
-    </div>
-  `).join('');
-
-  document.body.appendChild(suggestions);
-
-  // Position suggestions near the cursor
-  const rect = mentionRange.getBoundingClientRect();
-
-  suggestions.style.left = `${rect.left + window.scrollX}px`;
-  suggestions.style.top = `${rect.bottom + window.scrollY + 5}px`;
-
-  // Add event listeners
-  suggestions.querySelectorAll('.company-suggestion').forEach(item => {
-    item.addEventListener('click', () => {
-      const companyId = item.dataset.id;
-      const companyName = item.dataset.name;
-
-      // Get current cursor position and content
-      const selection = window.getSelection();
-      const currentRange = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-
-      if (currentRange) {
-        // Get all content as HTML
-        const contentHTML = contentDiv.innerHTML;
-
-        // Create a temporary div to work with the content
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = contentHTML;
-
-        // Find all text nodes and replace the matching text
-        const walker = document.createTreeWalker(
-          tempDiv,
-          NodeFilter.SHOW_TEXT,
-          null,
-          false
-        );
-
-        let textNode;
-        let totalOffset = 0;
-        let foundMatch = false;
-        let replacementNode = null;
-
-        while (textNode = walker.nextNode()) {
-          const nodeText = textNode.textContent;
-
-          // Check if this text node contains our match
-          const matchStart = Math.max(0, mentionStartPos - totalOffset);
-          const matchEnd = Math.min(nodeText.length, matchStart + query.length);
-
-          if (matchEnd > matchStart && nodeText.substring(matchStart, matchEnd).toLowerCase() === query.toLowerCase()) {
-            // Get text before and after the match
-            const beforeText = nodeText.substring(0, matchStart);
-            const afterText = nodeText.substring(matchEnd);
-
-            // Create the tag element
-            const tagSpan = document.createElement('span');
-            tagSpan.className = 'company-tag';
-            tagSpan.setAttribute('data-id', companyId);
-            tagSpan.contentEditable = false;
-            tagSpan.textContent = companyName;
-
-            // Create a document fragment with the new content
-            const fragment = document.createDocumentFragment();
-
-            if (beforeText) {
-              fragment.appendChild(document.createTextNode(beforeText));
-            }
-
-            fragment.appendChild(tagSpan);
-
-            // Add a space after the tag
-            const spaceNode = document.createTextNode(' ');
-            fragment.appendChild(spaceNode);
-
-            if (afterText) {
-              fragment.appendChild(document.createTextNode(afterText));
-            }
-
-            // Replace the text node with the fragment
-            textNode.parentNode.replaceChild(fragment, textNode);
-
-            // Store reference to the space node for cursor positioning
-            replacementNode = spaceNode;
-
-            foundMatch = true;
-            break;
-          }
-
-          totalOffset += nodeText.length;
-        }
-
-        if (foundMatch) {
-          // Update the content div with the new HTML
-          contentDiv.innerHTML = tempDiv.innerHTML;
-
-          // Restore cursor position after the tag
-          setTimeout(() => {
-            if (replacementNode) {
-              // Find the corresponding node in the updated DOM
-              const tags = contentDiv.querySelectorAll('.company-tag');
-              const targetTag = Array.from(tags).find(tag =>
-                tag.getAttribute('data-id') === companyId &&
-                tag.textContent === companyName
-              );
-
-              if (targetTag && targetTag.nextSibling) {
-                const newRange = document.createRange();
-                newRange.setStart(targetTag.nextSibling, 0);
-                newRange.collapse(true);
-                selection.removeAllRanges();
-                selection.addRange(newRange);
-              } else {
-                // Fallback: place cursor at the end
-                const newRange = document.createRange();
-                newRange.selectNodeContents(contentDiv);
-                newRange.collapse(false);
-                selection.removeAllRanges();
-                selection.addRange(newRange);
-              }
-            }
-
-            contentDiv.focus();
-          }, 0);
-        }
+  // Handle color picker
+  const colorPicker = document.getElementById('nso-color-picker');
+  if (colorPicker) {
+    colorPicker.oninput = (e) => {
+      const color = e.target.value;
+      if (editor) {
+        editor.focus();
+        document.execCommand('foreColor', false, color);
       }
+    };
+  }
 
-      hideTaggingSuggestions();
-    });
+  // Handle toolbar commands
+  document.querySelectorAll('.nso-tool-btn[data-command]').forEach(btn => {
+    btn.onclick = (e) => {
+      e.preventDefault();
+      const command = btn.getAttribute('data-command');
+      if (editor) {
+        editor.focus();
+        document.execCommand(command, false, null);
+      }
+    };
   });
 
-  // Hide suggestions when clicking outside
-  setTimeout(() => {
-    document.addEventListener('click', hideTaggingSuggestions, { once: true });
-  }, 100);
-}
-
-
-
-function showPersonSuggestions(query, contentDiv) {
-  hideTaggingSuggestions();
-
-  if (query.length < 2) return;
-
-  const filteredPeople = window.peopleData.filter(person =>
-    matchesTokenizedQuery(query, person.name, person.email, person.job_title, person.companies?.name)
-  );
-
-  if (filteredPeople.length === 0) return;
-
-  // Create suggestions popup
-  const suggestions = document.createElement('div');
-  suggestions.className = 'tagging-suggestions';
-  suggestions.id = 'tagging-suggestions';
-
-  suggestions.innerHTML = filteredPeople.slice(0, 5).map(person => {
-    const companyName = person.companies ? person.companies.name : '';
-    return `
-      <div class="suggestion-item person-suggestion" data-id="${person.id}" data-name="${person.name}">
-        <i class="fas fa-user"></i>
-        <div>
-          <span>${person.name}</span>
-          ${companyName ? `<small>${companyName}</small>` : ''}
-        </div>
-      </div>
-    `;
-  }).join('');
-
-  document.body.appendChild(suggestions);
-
-  // Position suggestions near the cursor
-  const rect = mentionRange.getBoundingClientRect();
-
-  suggestions.style.left = `${rect.left + window.scrollX}px`;
-  suggestions.style.top = `${rect.bottom + window.scrollY + 5}px`;
-
-  // Add event listeners
-  suggestions.querySelectorAll('.person-suggestion').forEach(item => {
-    item.addEventListener('click', () => {
-      const personId = item.dataset.id;
-      const personName = item.dataset.name;
-
-      // Get current cursor position and content
-      const selection = window.getSelection();
-      const currentRange = selection.rangeCount > 0 ? selection.getRangeAt(0) : null;
-
-      if (currentRange) {
-        // Get all content as HTML
-        const contentHTML = contentDiv.innerHTML;
-
-        // Create a temporary div to work with the content
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = contentHTML;
-
-        // Find all text nodes and replace the matching text
-        const walker = document.createTreeWalker(
-          tempDiv,
-          NodeFilter.SHOW_TEXT,
-          null,
-          false
-        );
-
-        let textNode;
-        let totalOffset = 0;
-        let foundMatch = false;
-        let replacementNode = null;
-
-        while (textNode = walker.nextNode()) {
-          const nodeText = textNode.textContent;
-
-          // Check if this text node contains our match (including @)
-          const matchStart = Math.max(0, mentionStartPos - totalOffset);
-          const matchEnd = Math.min(nodeText.length, matchStart + query.length + 1); // +1 for @
-
-          if (matchEnd > matchStart && nodeText.substring(matchStart, matchEnd).toLowerCase() === '@' + query.toLowerCase()) {
-            // Get text before and after the match
-            const beforeText = nodeText.substring(0, matchStart);
-            const afterText = nodeText.substring(matchEnd);
-
-            // Create the tag element
-            const tagSpan = document.createElement('span');
-            tagSpan.className = 'person-tag';
-            tagSpan.setAttribute('data-id', personId);
-            tagSpan.contentEditable = false;
-            tagSpan.textContent = personName;
-
-            // Create a document fragment with the new content
-            const fragment = document.createDocumentFragment();
-
-            if (beforeText) {
-              fragment.appendChild(document.createTextNode(beforeText));
-            }
-
-            fragment.appendChild(tagSpan);
-
-            // Add a space after the tag
-            const spaceNode = document.createTextNode(' ');
-            fragment.appendChild(spaceNode);
-
-            if (afterText) {
-              fragment.appendChild(document.createTextNode(afterText));
-            }
-
-            // Replace the text node with the fragment
-            textNode.parentNode.replaceChild(fragment, textNode);
-
-            // Store reference to the space node for cursor positioning
-            replacementNode = spaceNode;
-
-            foundMatch = true;
-            break;
-          }
-
-          totalOffset += nodeText.length;
-        }
-
-        if (foundMatch) {
-          // Update the content div with the new HTML
-          contentDiv.innerHTML = tempDiv.innerHTML;
-
-          // Restore cursor position after the tag
-          setTimeout(() => {
-            if (replacementNode) {
-              // Find the corresponding node in the updated DOM
-              const tags = contentDiv.querySelectorAll('.person-tag');
-              const targetTag = Array.from(tags).find(tag =>
-                tag.getAttribute('data-id') === personId &&
-                tag.textContent === personName
-              );
-
-              if (targetTag && targetTag.nextSibling) {
-                const newRange = document.createRange();
-                newRange.setStart(targetTag.nextSibling, 0);
-                newRange.collapse(true);
-                selection.removeAllRanges();
-                selection.addRange(newRange);
-              } else {
-                // Fallback: place cursor at the end
-                const newRange = document.createRange();
-                newRange.selectNodeContents(contentDiv);
-                newRange.collapse(false);
-                selection.removeAllRanges();
-                selection.addRange(newRange);
-              }
-            }
-
-            contentDiv.focus();
-          }, 0);
-        }
+  // Handle clickable tags in editor
+  if (editor) {
+    editor.onclick = (e) => {
+      const tag = e.target.closest('.company-tag');
+      if (tag && tag.dataset.id) {
+        e.preventDefault();
+        e.stopPropagation();
+        openCompanyViewModal(tag.dataset.id);
       }
-
-      hideTaggingSuggestions();
-    });
-  });
-
-  // Hide suggestions when clicking outside
-  setTimeout(() => {
-    document.addEventListener('click', hideTaggingSuggestions, { once: true });
-  }, 100);
-}
-
-
-function hideTaggingSuggestions() {
-  const suggestions = document.getElementById('tagging-suggestions');
-  if (suggestions) {
-    suggestions.remove();
+    };
   }
 }
 
-
-async function saveNote(noteId, showNotification = true) {
-  const titleInput = document.getElementById('note-title');
-  const contentDiv = document.getElementById('note-content');
-
-  if (!titleInput || !contentDiv) return;
-
-  const title = titleInput.value.trim();
-  const content = contentDiv.innerHTML;
-
-  if (!title || !content) {
-    showToast('Title and content are required', 'error');
-    return;
+async function closeNoteSlideOver() {
+  const statusEl = document.getElementById('nso-save-status');
+  const slideOver = document.getElementById('note-slide-over');
+  
+  // Guard: If saving is in progress, finish it first
+  if (statusEl && statusEl.textContent === 'Saving...') {
+    await saveActiveNote();
   }
+
+  // Deletion logic: If it's a "New Note" and content is truly empty, delete it
+  const title = document.getElementById('nso-title-input')?.value.trim();
+  const editor = document.getElementById('nso-editor-content');
+  const content = editor ? editor.innerHTML.replace(/<[^>]*>/g, '').trim() : '';
+
+  if (activeNoteId && title === 'New Note' && !content) {
+    const confirmed = await deleteNoteRecord(activeNoteId);
+    if (confirmed) {
+      showToast('Empty note discarded', 'info');
+    }
+  }
+
+  if (slideOver) slideOver.classList.remove('active');
+  activeNoteId = null;
+  renderNotesGrid();
+}
+
+async function deleteNoteRecord(id) {
+  const { error } = await supabaseClient.from('notes').delete().eq('id', id);
+  if (error) {
+    console.error('Error deleting note:', error);
+    return false;
+  }
+  window.allNotesData = window.allNotesData.filter(n => String(n.id) !== String(id));
+  return true;
+}
+
+async function saveActiveNote() {
+  if (!activeNoteId) return;
+
+  const title = document.getElementById('nso-title-input').value.trim();
+  const content = document.getElementById('nso-editor-content').innerHTML;
+
+  if (!title) return;
 
   const { error } = await supabaseClient
     .from('notes')
-    .update({
-      title,
+    .update({ 
+      title, 
       content,
       updated_at: new Date().toISOString()
     })
-    .eq('id', noteId);
+    .eq('id', activeNoteId);
 
   if (error) {
-    showToast('Error saving note: ' + error.message, 'error');
+    document.getElementById('nso-save-status').textContent = 'Error';
     return;
   }
 
-  // Update local data
-  const note = window.allNotesData.find(n => n.id === noteId);
+  const note = window.allNotesData.find(n => String(n.id) === String(activeNoteId));
   if (note) {
     note.title = title;
     note.content = content;
     note.updated_at = new Date().toISOString();
   }
 
-  // Update the preview in the sidebar without repositioning
-  updateNotePreview(noteId, title, content);
+  document.getElementById('nso-save-status').textContent = 'Saved';
+}
 
-  // Update date in footer
-  const footer = document.querySelector('.note-editor-footer .text-muted');
-  if (footer) {
-    footer.textContent = `Last updated: ${formatDate(note.updated_at)}`;
+async function createNewNoteV2() {
+  const newNoteData = {
+    user_id: currentUser.id,
+    title: 'New Note',
+    content: '',
+    organization_id: currentOrganization?.id,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+
+  const { data, error } = await supabaseClient
+    .from('notes')
+    .insert([newNoteData])
+    .select();
+
+  if (error) {
+    showToast('Failed to create note', 'error');
+    return;
   }
 
-  if (showNotification) {
-    showToast('Note saved', 'success');
+  if (data && data[0]) {
+    window.allNotesData.unshift(data[0]);
+    updateNotesSidebar();
+    renderNotesGrid();
+    openNoteSlideOver(data[0].id);
   }
 }
 
-// New function to update just the preview without repositioning
-function updateNotePreview(noteId, title, content) {
-  const noteItem = document.querySelector(`.note-item[data-id="${noteId}"]`);
-  if (!noteItem) return;
+async function togglePinActiveNote() {
+  if (!activeNoteId) return;
+  const note = window.allNotesData.find(n => String(n.id) === String(activeNoteId));
+  if (!note) return;
 
-  // Update title
-  const titleElement = noteItem.querySelector('.note-item-title');
-  if (titleElement) {
-    titleElement.textContent = title;
+  const newPinned = !note.is_pinned;
+  const { error } = await supabaseClient
+    .from('notes')
+    .update({ is_pinned: newPinned })
+    .eq('id', activeNoteId);
+
+  if (error) {
+    showToast('Failed to pin note', 'error');
+    return;
   }
 
-  // Update preview
-  const previewElement = noteItem.querySelector('.note-item-preview');
-  if (previewElement) {
-    const preview = content.replace(/<[^>]*>/g, '').substring(0, 100);
-    previewElement.textContent = `${preview}${preview.length >= 100 ? '...' : ''}`;
+  note.is_pinned = newPinned;
+  const pinBtn = document.getElementById('nso-pin-btn');
+  if (pinBtn) {
+    pinBtn.classList.toggle('active', newPinned);
+    pinBtn.style.color = newPinned ? 'var(--color-warning)' : '';
   }
-
-  // Update date
-  const dateElement = noteItem.querySelector('.note-item-date');
-  if (dateElement) {
-    dateElement.textContent = formatDate(new Date().toISOString());
-  }
+  
+  updateNotesSidebar();
+  showToast(newPinned ? 'Note pinned' : 'Note unpinned', 'success');
 }
 
+async function deleteActiveNote() {
+  if (!activeNoteId) return;
+  const confirmed = await showConfirmDialog('Delete Note', 'Are you sure you want to delete this note?');
+  if (!confirmed) return;
 
-function openNoteModal(note = null) {
-  const modal = document.createElement('div');
-  modal.className = 'modal';
-  modal.style.display = 'flex';
-  modal.id = 'note-modal';
+  const { error } = await supabaseClient
+    .from('notes')
+    .delete()
+    .eq('id', activeNoteId);
 
-  modal.innerHTML = `
-    <div class="modal-backdrop" onclick="closeModal('note-modal')"></div>
-    <div class="modal-container modal-size-md">
-      <div class="modal-header">
-        <h3>${note ? 'Edit Note' : 'New Note'}</h3>
-        <button class="modal-close" onclick="closeModal('note-modal')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="form-field">
-          <label for="modal-note-title">Title</label>
-          <input type="text" id="modal-note-title" class="form-input" value="${note ? note.title : ''}" placeholder="Enter note title">
-        </div>
-        <div class="form-field">
-          <label for="modal-note-content">Content</label>
-          <div id="modal-note-content" class="note-content-editable" contenteditable="true" placeholder="Start typing your note...">${note ? note.content : ''}</div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('note-modal')">Cancel</button>
-        <button class="btn btn-primary" id="save-modal-note-btn">${note ? 'Update' : 'Create'}</button>
+  if (error) {
+    showToast('Failed to delete note', 'error');
+    return;
+  }
+
+  window.allNotesData = window.allNotesData.filter(n => String(n.id) !== String(activeNoteId));
+  closeNoteSlideOver();
+  updateNotesSidebar();
+  renderNotesGrid();
+  showToast('Note deleted', 'success');
+}
+
+// ======================
+// NOTES TAGGING SYSTEM (v2)
+// ======================
+
+let activeTaggingRange = null;
+let taggingType = null;
+let taggingStartPos = 0;
+let taggingQuery = '';
+
+function handleNoteTagging(e) {
+  const editor = e.target;
+  const selection = window.getSelection();
+  if (selection.rangeCount === 0) return;
+
+  const range = selection.getRangeAt(0);
+  activeTaggingRange = range.cloneRange();
+
+  const preCaretRange = range.cloneRange();
+  preCaretRange.selectNodeContents(editor);
+  preCaretRange.setEnd(range.endContainer, range.endOffset);
+
+  const text = preCaretRange.toString();
+  const cursorPos = text.length;
+
+  // Person mention (@)
+  const personMatch = text.match(/@([^\s@]*)$/);
+  if (personMatch) {
+    taggingType = 'person';
+    taggingQuery = personMatch[1];
+    taggingStartPos = cursorPos - personMatch[0].length;
+    showNotePersonSuggestions(taggingQuery, editor);
+    return;
+  }
+
+  // Company mention (last word if 2+ chars and not @)
+  const words = text.split(/\s+/);
+  const lastWord = words[words.length - 1] || '';
+  if (lastWord.length >= 2 && !lastWord.startsWith('@')) {
+    taggingType = 'company';
+    taggingQuery = lastWord;
+    taggingStartPos = cursorPos - lastWord.length;
+    showNoteCompanySuggestions(taggingQuery, editor);
+    return;
+  }
+
+  hideNoteTaggingSuggestions();
+}
+
+function showNotePersonSuggestions(query, editor) {
+  hideNoteTaggingSuggestions();
+  if (!window.allPeopleData) return;
+
+  const matches = window.allPeopleData.filter(p => 
+    matchesTokenizedQuery(query, p.name, p.email)
+  ).slice(0, 5);
+
+  if (matches.length === 0) return;
+
+  renderNoteSuggestions(matches, 'person', editor);
+}
+
+function showNoteCompanySuggestions(query, editor) {
+  hideNoteTaggingSuggestions();
+  if (!window.allCompaniesData) return;
+
+  const matches = window.allCompaniesData.filter(c => 
+    matchesTokenizedQuery(query, c.name)
+  ).slice(0, 5);
+
+  if (matches.length === 0) return;
+
+  renderNoteSuggestions(matches, 'company', editor);
+}
+
+function renderNoteSuggestions(matches, type, editor) {
+  const suggestions = document.createElement('div');
+  suggestions.className = 'tagging-suggestions';
+  suggestions.id = 'note-tag-suggestions';
+
+  suggestions.innerHTML = matches.map(item => `
+    <div class="suggestion-item" data-id="${item.id}" data-name="${item.name}">
+      <i data-lucide="${type === 'person' ? 'user' : 'building'}"></i>
+      <div>
+        <span>${escapeHtml(item.name)}</span>
+        <small>${escapeHtml(type === 'person' ? item.email : (item.industry || ''))}</small>
       </div>
     </div>
-  `;
+  `).join('');
 
-  document.body.appendChild(modal);
+  document.body.appendChild(suggestions);
+  if (window.lucide) lucide.createIcons({ props: { size: 16 } });
 
-  // Initialize modal editor
-  const contentDiv = document.getElementById('modal-note-content');
+  const rect = activeTaggingRange.getBoundingClientRect();
+  suggestions.style.left = `${rect.left + window.scrollX}px`;
+  suggestions.style.top = `${rect.bottom + window.scrollY + 5}px`;
 
-  // Text selection popup
-  contentDiv.addEventListener('mouseup', handleTextSelection);
-  contentDiv.addEventListener('keyup', handleTextSelection);
-
-  // Tagging functionality
-  contentDiv.addEventListener('input', handleTagging);
-
-  // Save button
-  document.getElementById('save-modal-note-btn').addEventListener('click', async () => {
-    const titleInput = document.getElementById('modal-note-title');
-    const title = titleInput.value.trim();
-    const content = contentDiv.innerHTML;
-
-    if (!title || !content) {
-      showToast('Title and content are required', 'error');
-      return;
-    }
-
-    const noteData = {
-      user_id: currentUser.id,
-      title,
-      content,
-      updated_at: new Date().toISOString(),
-      organization_id: currentOrganization?.id
+  suggestions.querySelectorAll('.suggestion-item').forEach(el => {
+    el.onclick = (e) => {
+      e.stopPropagation();
+      insertNoteTag(el.dataset.id, el.dataset.name, type, editor);
     };
-
-    let result;
-
-    if (note) {
-      // Update existing note
-      result = await supabaseClient
-        .from('notes')
-        .update(noteData)
-        .eq('id', note.id);
-    } else {
-      // Create new note
-      result = await supabaseClient
-        .from('notes')
-        .insert([noteData]);
-    }
-
-    if (result.error) {
-      showToast(`Error ${note ? 'updating' : 'creating'} note: ` + result.error.message, 'error');
-      return;
-    }
-
-    showToast(`Note ${note ? 'updated' : 'created'} successfully`, 'success');
-    closeModal('note-modal');
-    renderNotesView(); // Refresh the notes view
   });
+
+  setTimeout(() => {
+    document.addEventListener('click', hideNoteTaggingSuggestions, { once: true });
+  }, 10);
 }
-// ======================
-// PROFESSIONAL DASHBOARD
-// ======================
+
+function hideNoteTaggingSuggestions() {
+  const el = document.getElementById('note-tag-suggestions');
+  if (el) el.remove();
+}
+
+function insertNoteTag(id, name, type, editor) {
+  if (!activeTaggingRange) return;
+
+  const selection = window.getSelection();
+  selection.removeAllRanges();
+  selection.addRange(activeTaggingRange);
+
+  // Create the tag element
+  const tag = document.createElement('span');
+  tag.className = type === 'person' ? 'person-tag' : 'company-tag';
+  tag.textContent = name;
+  tag.contentEditable = false;
+  tag.dataset.id = id;
+  tag.dataset.type = type;
+
+  // Replacement logic: delete the typed chars then insert node
+  const typedLength = taggingQuery.length + (type === 'person' ? 1 : 0);
+  
+  for (let i = 0; i < typedLength; i++) {
+    document.execCommand('delete', false, null);
+  }
+
+  // Insert the tag
+  const range = selection.getRangeAt(0);
+  const space = document.createTextNode('\u00A0');
+  range.insertNode(space);
+  range.insertNode(tag);
+  
+  // Move cursor after the space
+  const newRange = document.createRange();
+  newRange.setStartAfter(space);
+  newRange.collapse(true);
+  selection.removeAllRanges();
+  selection.addRange(newRange);
+
+  hideNoteTaggingSuggestions();
+  saveActiveNote();
+}
 
 async function renderProfessionalDashboardView() {
   const viewContainer = document.getElementById('view-container');
