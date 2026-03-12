@@ -13400,8 +13400,9 @@ button svg {
 }
 
 .nss-add-btn {
-  width: 32px;
+  width: 120px;
   height: 32px;
+  font-size: 14px;
   border-radius: var(--radius-md);
   background: var(--color-primary);
   color: white;
@@ -13414,8 +13415,12 @@ button svg {
   box-shadow: 0 4px 12px var(--color-primary-bg);
 }
 
+
+.nss-add-btn span {
+  padding-left: 5px;
+}
+
 .nss-add-btn:hover {
-  transform: translateY(-2px);
   background: var(--color-primary-dark);
 }
 
@@ -13529,7 +13534,7 @@ button svg {
   align-items: center;
 }
 
-.nb-search-wrap i, 
+.nb-search-wrap i,
 .nb-search-wrap svg {
   position: absolute;
   left: 1rem;
@@ -13856,12 +13861,20 @@ button svg {
 }
 
 @keyframes slide-up {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* Identified Tags in Editor */
-.person-tag, .company-tag {
+.person-tag,
+.company-tag {
   display: inline-flex;
   align-items: center;
   padding: 1px 6px;
@@ -13883,7 +13896,8 @@ button svg {
 
 .company-tag {
   background: rgba(99, 102, 241, 0.15);
-  color: #818cf8; /* slightly darker indigo */
+  color: #818cf8;
+  /* slightly darker indigo */
   border: 1px solid rgba(99, 102, 241, 0.3);
 }
 
@@ -13893,7 +13907,8 @@ button svg {
   border: 1px solid rgba(99, 102, 241, 0.2);
 }
 
-.person-tag:hover, .company-tag:hover {
+.person-tag:hover,
+.company-tag:hover {
   filter: brightness(1.1);
   transform: translateY(-1px);
 }
@@ -14107,23 +14122,28 @@ button svg {
   .notes-view-root {
     flex-direction: column;
   }
+
   .notes-sub-sidebar {
     width: 100%;
     height: auto;
     border-right: none;
     border-bottom: 1px solid var(--border-color);
   }
+
   .nss-content {
     display: flex;
     overflow-x: auto;
     padding-bottom: 0.5rem;
   }
+
   .nss-section {
     flex-direction: row;
   }
+
   .nss-divider {
     display: none;
   }
+
   .nso-content {
     max-width: 100%;
   }
@@ -21081,7 +21101,7 @@ button svg {
   .note-item-preview {
     font-size: 0.75rem;
     line-clamp: 2;
-  -webkit-line-clamp: 2;
+    -webkit-line-clamp: 2;
   }
 
   .note-item-date {

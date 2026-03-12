@@ -956,9 +956,9 @@
       <!-- Sub-sidebar for categories and tags -->
       <aside class="notes-sub-sidebar">
         <div class="nss-header">
-          <h2 class="nss-title">Notes</h2>
           <button id="add-note-action-btn" class="nss-add-btn" title="New Note">
             <i data-lucide="plus"></i>
+            <span>New Note</span>
           </button>
         </div>
         <div class="nss-content">
@@ -1060,24 +1060,28 @@
               <div class="nso-toolbar-divider"></div>
               <div class="nso-toolbar-group">
                 <button class="nso-tool-btn" data-command="insertUnorderedList"><i data-lucide="list"></i></button>
-                <button class="nso-tool-btn" data-command="insertOrderedList"><i data-lucide="list-ordered"></i></button>
+                <button class="nso-tool-btn" data-command="insertOrderedList"><i
+                    data-lucide="list-ordered"></i></button>
               </div>
               <div class="nso-toolbar-divider"></div>
               <div class="nso-toolbar-group">
-                <button class="nso-tool-btn" id="nso-mention-btn" title="Mention (@)"><i data-lucide="at-sign"></i></button>
+                <button class="nso-tool-btn" id="nso-mention-btn" title="Mention (@)"><i
+                    data-lucide="at-sign"></i></button>
                 <button class="nso-tool-btn" id="nso-tag-btn" title="Tag (#)"><i data-lucide="hash"></i></button>
               </div>
               <div class="nso-toolbar-divider"></div>
               <div class="nso-toolbar-group">
                 <button class="nso-tool-btn" id="nso-color-btn" title="Text Color">
                   <i data-lucide="palette"></i>
-                  <input type="color" id="nso-color-picker" style="opacity: 0; position: absolute; inset: 0; cursor: pointer;">
+                  <input type="color" id="nso-color-picker"
+                    style="opacity: 0; position: absolute; inset: 0; cursor: pointer;">
                 </button>
                 <button class="nso-tool-btn" data-command="undo" title="Undo"><i data-lucide="undo"></i></button>
                 <button class="nso-tool-btn" data-command="redo" title="Redo"><i data-lucide="redo"></i></button>
               </div>
             </div>
-            <div id="nso-editor-content" class="nso-editor-content" contenteditable="true" placeholder="Start typing..."></div>
+            <div id="nso-editor-content" class="nso-editor-content" contenteditable="true"
+              placeholder="Start typing..."></div>
           </div>
         </div>
       </div>
