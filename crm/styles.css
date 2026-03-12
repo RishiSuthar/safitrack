@@ -4562,13 +4562,14 @@ body.modal-active .app-header {
 }
 
 /* ===== SIDEBAR ===== */
+/* sidebar sits beneath modals which share --z-modal, avoid overlap */
 .sidebar {
   position: fixed;
   top: 0;
   left: 0;
   bottom: 0;
   width: var(--sidebar-width);
-  z-index: var(--z-modal);
+  z-index: var(--z-sticky);
   pointer-events: none;
 }
 
