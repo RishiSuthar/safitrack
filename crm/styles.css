@@ -244,23 +244,7 @@
   flex-direction: column;
 }
 
-.settings-nav .nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  text-align: left;
-  padding: 12px 14px;
-  border-radius: 10px;
-  background: transparent;
-  color: var(--text-secondary);
-  font-weight: 700;
-  margin-bottom: 8px;
-  transition: background 180ms var(--motion-ease-standard), transform 160ms var(--motion-ease-standard);
-  border: none;
-  cursor: pointer;
-  position: relative;
-}
+
 
 .settings-nav .nav-item::before {
   content: '';
@@ -4724,16 +4708,16 @@ body.modal-active .app-header {
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   width: 100%;
-  padding: 6px 8px 6px 12px;
+  padding: 5px 6px 5px 10px;
   /* added extra left padding for visual breathing room */
   border: 1px solid transparent;
   background: transparent;
   color: var(--text-primary);
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 500;
-  border-radius: 6px;
+  border-radius: 11px;
   cursor: pointer;
   transition: all var(--transition-base);
   margin-bottom: 0.1rem;
@@ -4748,13 +4732,6 @@ body.modal-active .app-header {
   border-color: transparent;
 }
 
-.nav-item.active svg {
-  /* retain default color inheritance */
-}
-
-.nav-item:active {
-  transform: scale(0.98);
-}
 
 /* ===== SIDEBAR ICONS ===== */
 
@@ -4764,8 +4741,7 @@ body.modal-active .app-header {
   height: 14px;
   color: inherit;
   opacity: .7;
-  transition: color var(--transition-fast), opacity var(--transition-fast);
-  stroke-width: 2;
+  stroke-width: 2.2;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -18189,6 +18165,12 @@ button svg {
   margin-bottom: 0.75rem;
 }
 
+
+.view-toolbar + .spreadsheet-container .spreadsheet-cell {
+  font-weight: 550;
+}
+
+
 .remx-cards {
   display: grid;
   grid-template-columns: 1fr;
@@ -18460,6 +18442,7 @@ button svg {
   .spreadsheet-cell {
     font-size: 0.85rem;
     padding: 8px 10px;
+
   }
 
   .resize-handle {
