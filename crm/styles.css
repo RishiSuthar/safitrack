@@ -10977,11 +10977,22 @@ body.is-dragging * {
 }
 
 #safifind-modal .modal-close {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: transparent;
-  border: 1px solid var(--border-color-light);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+#safifind-modal .modal-close:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+#safifind-modal .modal-close:active {
+  transform: translateY(var(--motion-distance-press));
 }
 
 #safifind-modal .modal-container {
