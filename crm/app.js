@@ -13,6 +13,7 @@ let currentUser = null;
 let isManager = false;
 let isSalesRep = false; // sales reps have restricted permissions for companies
 let currentView = 'log-visit';
+let previousView = null;
 let visitTags = [];
 let chartInstances = {};
 let selectedRepId = null;
@@ -1891,6 +1892,10 @@ function updateActiveNav(viewName) {
 // VIEW ROUTER
 // ======================
 async function loadView(viewName) {
+  // Preserve the previously active view so settings can return the user back.
+  if (viewName === 'settings' && currentView !== 'settings') {
+    previousView = currentView;
+  }
   currentView = viewName;
   updateActiveNav(viewName);
 
@@ -2114,9 +2119,11 @@ async function renderSettingsView() {
               <h2 class="sv-page-title">Profile</h2>
               <p class="sv-page-subtitle">Manage how you appear across your workspace.</p>
             </div>
-            <div id="profile-save-status" class="sv-saved-pill">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-              Saved
+            <div class="sv-page-header-actions">
+              <div id="profile-save-status" class="sv-saved-pill">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                Saved
+              </div>
             </div>
           </div>
 
@@ -2757,6 +2764,29 @@ async function renderSettingsView() {
       .sv-page-header > div:first-child {
         padding-left: 14px;
         border-left: 2.5px solid var(--color-primary);
+      }
+      .sv-page-header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .sv-icon-btn {
+        width: 32px;
+        height: 32px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--btn-radius);
+        border: 1px solid var(--border-color);
+        background: var(--bg-secondary);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: background 0.12s, border-color 0.12s, color 0.12s, transform 0.12s;
+      }
+      .sv-icon-btn:hover {
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        border-color: var(--border-color);
       }
       .sv-page-title {
         font-size: 1.25rem;
@@ -3623,6 +3653,42 @@ async function renderSettingsView() {
     `;
     document.head.appendChild(style);
   }
+
+  // Ensure every settings section has a close button in the header.
+  function attachSettingsCloseButtons() {
+    document.querySelectorAll('.sv-page-header').forEach(header => {
+      if (header.querySelector('.sv-settings-close-btn')) return;
+
+      let actions = header.querySelector('.sv-page-header-actions');
+      if (!actions) {
+        actions = document.createElement('div');
+        actions.className = 'sv-page-header-actions';
+        header.appendChild(actions);
+      }
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'sv-icon-btn sv-settings-close-btn';
+      btn.title = 'Close';
+      btn.setAttribute('aria-label', 'Close settings');
+      btn.innerHTML = `
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:18px;height:18px;">
+          <path d="M18 6 6 18" />
+          <path d="M6 6 18 18" />
+        </svg>
+      `;
+      actions.appendChild(btn);
+    });
+
+    document.querySelectorAll('.sv-settings-close-btn').forEach(btn => {
+      btn.onclick = () => {
+        const target = previousView || localStorage.getItem('lastActiveView') || 'main-dashboard';
+        loadView(target);
+      };
+    });
+  }
+
+  attachSettingsCloseButtons();
 
   /* ─────────────── SECTION NAV ─────────────── */
   function setActiveSection(name) {
