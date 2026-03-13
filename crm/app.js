@@ -2788,6 +2788,11 @@ async function renderSettingsView() {
         color: var(--text-primary);
         border-color: var(--border-color);
       }
+      .sv-icon-btn.sv-settings-close-btn:hover {
+        background-color: #ef4444 !important;
+        border-color: #ef4444 !important;
+        color: #fff !important;
+      }
       .sv-page-title {
         font-size: 1.25rem;
         font-weight: 700;
