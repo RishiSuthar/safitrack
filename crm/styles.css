@@ -23512,6 +23512,17 @@ button svg {
   font-family: inherit;
 }
 
+#company-view-edit-btn {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .record-hero-edit-btn:hover {
   background: var(--color-primary);
   color: #fff;
