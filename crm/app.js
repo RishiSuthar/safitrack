@@ -39,6 +39,119 @@ let safiNudgeReconnectAttempt = 0;
 let safiNudgeStarting = false;
 let _pendingSettingsSection = null;
 
+/* ===== BATCH SELECTION STATE ===== */
+let selectedRecordIds = new Set();
+
+function updateBottomActionBar() {
+  const bar = document.getElementById('bottom-action-bar');
+  const countEl = document.getElementById('bab-selected-count');
+  if (!bar || !countEl) return;
+
+  const count = selectedRecordIds.size;
+  countEl.textContent = count;
+
+  if (count > 0) {
+    bar.classList.add('active');
+  } else {
+    bar.classList.remove('active');
+  }
+}
+
+function clearSelection() {
+  selectedRecordIds.clear();
+  document.querySelectorAll('.selection-checkbox').forEach(cb => cb.checked = false);
+  updateBottomActionBar();
+}
+
+async function handleBatchDelete() {
+  if (selectedRecordIds.size === 0) return;
+
+  const type = currentView === 'companies' ? 'companies' : 'people';
+  const label = selectedRecordIds.size === 1 ? (type === 'companies' ? 'company' : 'person') : (type === 'companies' ? 'companies' : 'people');
+  
+  const confirmed = await showConfirmDialog(
+    `Delete ${selectedRecordIds.size} ${label}`,
+    `Are you sure you want to delete the ${selectedRecordIds.size} selected ${label}? This action cannot be undone.`
+  );
+
+  if (!confirmed) return;
+
+  const btn = document.getElementById('bab-delete-btn');
+  const origHTML = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Deleting...';
+
+  try {
+    const { error } = await supabaseClient
+      .from(type)
+      .delete()
+      .in('id', Array.from(selectedRecordIds));
+
+    if (error) throw error;
+
+    showToast(`Successfully deleted ${selectedRecordIds.size} ${label}`, 'success');
+    selectedRecordIds.clear();
+    updateBottomActionBar();
+
+    // Refresh view
+    if (currentView === 'companies') {
+      renderCompaniesView();
+    } else if (currentView === 'people') {
+      renderPeopleView();
+    }
+  } catch (e) {
+    console.error(e);
+    showToast(`Failed to delete ${label}: ` + e.message, 'error');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = origHTML;
+  }
+}
+
+// Global delegated event listeners for selection
+document.addEventListener('change', (e) => {
+  if (e.target.classList.contains('row-select')) {
+    const id = e.target.dataset.id;
+    if (e.target.checked) {
+      selectedRecordIds.add(id);
+    } else {
+      selectedRecordIds.delete(id);
+    }
+    
+    // Update "Select All" state
+    const selectAll = document.getElementById(currentView + '-select-all');
+    if (selectAll) {
+      const rowSelects = document.querySelectorAll('.row-select');
+      const allChecked = Array.from(rowSelects).every(cb => cb.checked);
+      selectAll.checked = allChecked;
+    }
+    
+    updateBottomActionBar();
+  }
+
+  if (e.target.id === 'companies-select-all' || e.target.id === 'people-select-all') {
+    const isChecked = e.target.checked;
+    const rowSelects = document.querySelectorAll('.row-select');
+    
+    rowSelects.forEach(cb => {
+      const id = cb.dataset.id;
+      cb.checked = isChecked;
+      if (isChecked) {
+        selectedRecordIds.add(id);
+      } else {
+        selectedRecordIds.delete(id);
+      }
+    });
+    
+    updateBottomActionBar();
+  }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('bab-delete-btn')?.addEventListener('click', handleBatchDelete);
+  document.getElementById('bab-clear-btn')?.addEventListener('click', clearSelection);
+});
+
 const SAFI_NUDGE_EVENT = 'safi-nudge';
 const SAFI_NUDGE_CHANNEL = 'safitrack-team-nudges';
 const SAFI_NUDGE_BOT_GIF = 'https://assets-v2.lottiefiles.com/a/b942abb8-d62e-11ee-a179-af4105107ebe/tPZDd31PcO.gif';
@@ -4337,7 +4450,14 @@ async function renderCompaniesView() {
   function renderCompaniesTable(companiesToRender, paginationInfo) {
     const allowEditDelete = !isSalesRep;
     const columns = [
-      { key: 'rank', label: '#', width: '50px', readOnly: true, sortable: false, render: (val, row) => (paginationInfo.currentPage - 1) * paginationInfo.recordsPerPage + companiesToRender.indexOf(row) + 1 },
+      {
+        key: 'selection',
+        label: '<input type="checkbox" class="selection-checkbox" id="companies-select-all">',
+        width: '50px',
+        readOnly: true,
+        sortable: false,
+        render: (val, row) => `<input type="checkbox" class="selection-checkbox row-select" data-id="${row.id}" ${selectedRecordIds.has(row.id) ? 'checked' : ''}>`
+      },
       {
         key: 'name', label: 'Company Name', width: '300px', icon: 'building', sortable: true, readOnly: isSalesRep, render: (val, row) => {
           const domain = (row && row.domain) ? row.domain : '';
@@ -5181,7 +5301,14 @@ async function renderPeopleView() {
   // Function to render the people table
   function renderPeopleTable(peopleToRender, paginationInfo) {
     const columns = [
-      { key: 'rank', label: '#', width: '50px', readOnly: true, sortable: false, render: (val, row) => (paginationInfo.currentPage - 1) * paginationInfo.recordsPerPage + peopleToRender.indexOf(row) + 1 },
+      {
+        key: 'selection',
+        label: '<input type="checkbox" class="selection-checkbox" id="people-select-all">',
+        width: '50px',
+        readOnly: true,
+        sortable: false,
+        render: (val, row) => `<input type="checkbox" class="selection-checkbox row-select" data-id="${row.id}" ${selectedRecordIds.has(row.id) ? 'checked' : ''}>`
+      },
       {
         key: 'name', label: 'Name', width: '210px', icon: 'user', sortable: true, render: (val) => `
         <div style="display: flex; align-items: center; gap: 8px;">

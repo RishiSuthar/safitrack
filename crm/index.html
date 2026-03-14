@@ -3185,6 +3185,25 @@
   <!-- AI chat assistant logic loaded last to ensure supabaseClient and app globals are available -->
   <script src="aichat.js"></script>
   <script src="onboarding.js"></script>
+  <div id="bottom-action-bar" class="bottom-action-bar">
+    <div class="bab-content">
+      <div class="bab-selection-info">
+        <span class="bab-count" id="bab-selected-count">0</span>
+        <span class="bab-text">selected</span>
+      </div>
+      <div class="bab-divider"></div>
+      <div class="bab-actions">
+        <button id="bab-delete-btn" class="bab-btn bab-btn-danger">
+          <i data-lucide="trash-2"></i>
+          <span>Delete</span>
+        </button>
+        <button id="bab-clear-btn" class="bab-btn bab-btn-ghost">
+          <span>Cancel</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </body>
+
 
 </html>
