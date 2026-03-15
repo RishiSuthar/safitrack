@@ -376,19 +376,56 @@
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: #6b7280;
+      font-size: 12px;
+      font-weight: 600;
+      color: #9ca3af;
       margin-bottom: 14px
     }
 
     .hero-label-dot {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
-      background: #9ca3af
+      background: #d1d5db
+    }
+
+    .hero-authors {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px
+    }
+
+    .hero-author-stack {
+      display: flex
+    }
+
+    .hero-author-stack .av {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #374151;
+      border: 2px solid #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      font-weight: 800;
+      color: #fff;
+      margin-left: -8px
+    }
+
+    .hero-author-stack .av:first-child { margin-left: 0 }
+
+    .hero-authors-text {
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.5
+    }
+
+    .hero-authors-text strong {
+      color: #0b1220;
+      font-weight: 700
     }
 
     .hero-title {
@@ -518,28 +555,6 @@
     .blog-section {
       padding: 56px 0 80px;
       background: #fff
-    }
-
-    /* ── Stats bar ─────────────────────────────── */
-    .stats-bar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 0 28px;
-      border-bottom: 1px solid #f0f2f5;
-      margin-bottom: 48px
-    }
-
-    .stats-bar .count {
-      font-size: 13px;
-      color: #9ca3af;
-      font-weight: 500;
-      letter-spacing: .01em
-    }
-
-    .stats-bar .count span {
-      color: #0b1220;
-      font-weight: 700
     }
 
     /* ── Category badges ───────────────────────── */
@@ -1112,6 +1127,55 @@
       border-top: 1px solid #e6e9ef;
       margin: 48px 0
     }
+    .article-content code {
+      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+      font-size: .875em;
+      background: #f3f4f6;
+      border: 1px solid #e6e9ef;
+      border-radius: 5px;
+      padding: 1px 6px;
+      color: #0b1220
+    }
+    .article-content pre {
+      background: #0b1220;
+      border-radius: 10px;
+      padding: 20px 24px;
+      overflow-x: auto;
+      margin: 32px 0
+    }
+    .article-content pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      color: #e5e7eb;
+      font-size: 13.5px;
+      line-height: 1.7
+    }
+
+    /* wide card — first in grid spans full row */
+    .post-card.post-card-wide {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      align-items: stretch
+    }
+    .post-card.post-card-wide .post-card-body {
+      display: flex;
+      flex-direction: column;
+      flex: 1
+    }
+    .post-card.post-card-wide .post-card-top {
+      margin-bottom: 16px
+    }
+    .post-card.post-card-wide h3 {
+      font-size: 18px;
+      letter-spacing: -.02em
+    }
+    .post-card.post-card-wide .excerpt {
+      font-size: 14px
+    }
+    @media(max-width:900px) {
+      .post-card.post-card-wide { flex-direction: column }
+    }
     .article-content .stat-row {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(130px,1fr));
@@ -1162,7 +1226,7 @@
     }
     .article-more-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(3, 1fr);
       gap: 1px;
       background: #e6e9ef;
       border: 1px solid #e6e9ef;
@@ -1259,12 +1323,21 @@
           <div class="hero-left">
             <div class="hero-label">
               <span class="hero-label-dot"></span>
-              From the team
+              <span id="heroPostCount">10 articles</span>
             </div>
             <h1 class="hero-title">Safi<span class="hero-title-pill">Blogs</span></h1>
           </div>
           <div class="hero-right">
-            <p class="hero-sub">Product updates, field-sales tactics, and engineering notes from the people building SafiTrack.</p>
+            <div class="hero-authors">
+              <div class="hero-author-stack">
+                <div class="av" style="background:#374151">SM</div>
+                <div class="av" style="background:#6b7280">RS</div>
+              </div>
+              <div class="hero-authors-text">
+                Written by <strong>Sadie M.</strong> and <strong>Rishi S.</strong><br>
+                from the SafiTrack team
+              </div>
+            </div>
           </div>
         </div>
         <div class="hero-controls">
@@ -1291,10 +1364,6 @@
 
   <section class="blog-section">
     <div class="container">
-      <div class="stats-bar">
-        <p class="count">Showing <span id="visibleCount">10</span> articles</p>
-      </div>
-
       <!-- Featured post -->
       <div class="featured-post" id="featuredPost" data-idx="0">
         <div class="featured-img" style="background:#0b1220">
@@ -1789,16 +1858,12 @@
 
     // ─── Render grid cards ────────────────────────────────────────────────────────
     var grid = document.getElementById('postsGrid');
-    var countEl = document.getElementById('visibleCount');
     var noResults = document.getElementById('noResults');
-
-    function bgPattern() {
-      return '<svg class="bg-pattern" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice"><circle cx="160" cy="40" r="80" stroke="white" stroke-width="1"/><circle cx="40" cy="160" r="60" stroke="white" stroke-width="1"/></svg>';
-    }
+    var heroCount = document.getElementById('heroPostCount');
 
     POSTS.forEach(function (p, i) {
       var card = document.createElement('div');
-      card.className = 'post-card';
+      card.className = 'post-card' + (i === 0 ? ' post-card-wide' : '');
       card.dataset.cat = p.cat;
       card.dataset.search = (p.title + ' ' + p.excerpt + ' ' + p.catLabel).toLowerCase();
       card.dataset.idx = i;
@@ -1812,7 +1877,7 @@
         '<p class="excerpt">' + p.excerpt + '</p>' +
         '<div class="post-card-footer post-meta">' +
         '<div class="author-avatar" style="background:' + p.authorColor + '">' + p.authorInitials + '</div>' +
-        '<span>' + p.author + ' &nbsp;·&nbsp; ' + p.date + '</span>' +
+        '<span>' + p.author + ' &nbsp;·&nbsp; ' + p.date + ' &nbsp;·&nbsp; ' + p.read + '</span>' +
         '</div>' +
         '</div>';
       card.addEventListener('click', function () { openArticle(p, POSTS.concat([FEATURED])); });
@@ -1830,7 +1895,7 @@
       var fpHidden = fp && fp.classList.contains('fp-hidden');
       var gridVis = grid.querySelectorAll('.post-card:not(.hidden)').length;
       var total = gridVis + (fpHidden ? 0 : 1);
-      countEl.textContent = total;
+      if (heroCount) heroCount.textContent = total + ' article' + (total === 1 ? '' : 's');
       noResults.classList.toggle('visible', total === 0);
     }
     updateCount();
@@ -1871,6 +1936,7 @@
     var overlay = document.getElementById('articleOverlay');
     var panel = document.getElementById('articlePanel');
     var progressBar = document.getElementById('articleProgress');
+    var listingScrollY = 0;
 
     // reading progress
     panel.addEventListener('scroll', function() {
@@ -1880,6 +1946,9 @@
     });
 
     function openArticle(post, allPosts) {
+      // save listing scroll position
+      listingScrollY = window.scrollY;
+
       document.getElementById('articleMetaRow').innerHTML =
         '<span class="cat-badge ' + post.catClass + '">' + post.catLabel + '</span>';
       document.getElementById('articleTitle').textContent = post.title;
@@ -1890,7 +1959,7 @@
       var firstPEnd = bodyHTML.indexOf('</p>');
       var lede = '', rest = bodyHTML;
       if (firstPEnd !== -1) {
-        lede = bodyHTML.substring(3, firstPEnd); // strip <p>
+        lede = bodyHTML.substring(3, firstPEnd);
         rest = bodyHTML.substring(firstPEnd + 4);
       }
       document.getElementById('articleLede').innerHTML = lede;
@@ -1903,15 +1972,20 @@
         '<span class="article-byline-meta">' + post.date + ' &nbsp;·&nbsp; ' + post.read + '</span>' +
         '</div>';
 
-      // more posts — pick 2 different ones
+      // more posts — pick 3, prioritise same category first
       var moreGrid = document.getElementById('articleMoreGrid');
       var pool = allPosts.filter(function(p) { return p.title !== post.title; });
-      var picks = pool.sort(function() { return .5 - Math.random(); }).slice(0, 2);
+      var sameCat = pool.filter(function(p) { return p.cat === post.cat; });
+      var other = pool.filter(function(p) { return p.cat !== post.cat; });
+      var picks = sameCat.concat(other.sort(function() { return .5 - Math.random(); })).slice(0, 3);
       moreGrid.innerHTML = picks.map(function(p) {
         return '<div class="article-more-card" data-title="' + p.title.replace(/"/g,'&quot;') + '">' +
           '<span class="cat-badge ' + p.catClass + '">' + p.catLabel + '</span>' +
           '<h4>' + p.title + '</h4>' +
-          '<div class="meta">' + p.author + ' &nbsp;·&nbsp; ' + p.read + '</div>' +
+          '<div class="meta">' +
+          '<div class="author-avatar" style="background:' + p.authorColor + ';width:18px;height:18px;font-size:7px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-weight:800;flex-shrink:0;vertical-align:middle;margin-right:5px">' + p.authorInitials + '</div>' +
+          p.author + ' &nbsp;·&nbsp; ' + p.read +
+          '</div>' +
           '</div>';
       }).join('');
       moreGrid.querySelectorAll('.article-more-card').forEach(function(card) {
@@ -1931,6 +2005,8 @@
     function closeArticle() {
       overlay.classList.remove('open');
       document.body.style.overflow = '';
+      // restore listing scroll position
+      window.scrollTo(0, listingScrollY);
     }
 
     document.getElementById('articleClose').addEventListener('click', closeArticle);
