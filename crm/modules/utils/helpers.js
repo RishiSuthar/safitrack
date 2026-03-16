@@ -226,6 +226,56 @@ function renderTags() {
 
 
 
+// ── Currency helpers ──────────────────────────────────────────────────────────
+
+/** Top currencies shown in the org currency picker. */
+export const CURRENCIES = [
+  { code: 'USD', symbol: '$',    name: 'US Dollar' },
+  { code: 'EUR', symbol: '€',    name: 'Euro' },
+  { code: 'GBP', symbol: '£',    name: 'British Pound' },
+  { code: 'KES', symbol: 'Ksh',  name: 'Kenyan Shilling' },
+  { code: 'NGN', symbol: '₦',    name: 'Nigerian Naira' },
+  { code: 'ZAR', symbol: 'R',    name: 'South African Rand' },
+  { code: 'GHS', symbol: 'GH₵',  name: 'Ghanaian Cedi' },
+  { code: 'UGX', symbol: 'USh',  name: 'Ugandan Shilling' },
+  { code: 'TZS', symbol: 'TSh',  name: 'Tanzanian Shilling' },
+  { code: 'INR', symbol: '₹',    name: 'Indian Rupee' },
+  { code: 'JPY', symbol: '¥',    name: 'Japanese Yen' },
+  { code: 'CNY', symbol: 'CN¥',  name: 'Chinese Yuan' },
+  { code: 'AED', symbol: 'AED',  name: 'UAE Dirham' },
+  { code: 'CAD', symbol: 'CA$',  name: 'Canadian Dollar' },
+  { code: 'AUD', symbol: 'A$',   name: 'Australian Dollar' },
+  { code: 'CHF', symbol: 'CHF',  name: 'Swiss Franc' },
+  { code: 'BRL', symbol: 'R$',   name: 'Brazilian Real' },
+  { code: 'MXN', symbol: 'MX$',  name: 'Mexican Peso' },
+  { code: 'SGD', symbol: 'S$',   name: 'Singapore Dollar' },
+  { code: 'SAR', symbol: 'SAR',  name: 'Saudi Riyal' },
+  { code: 'EGP', symbol: 'E£',   name: 'Egyptian Pound' },
+  { code: 'MAD', symbol: 'MAD',  name: 'Moroccan Dirham' },
+  { code: 'ETB', symbol: 'Br',   name: 'Ethiopian Birr' },
+  { code: 'XOF', symbol: 'CFA',  name: 'West African CFA' },
+  { code: 'ZMW', symbol: 'ZK',   name: 'Zambian Kwacha' },
+];
+
+/**
+ * Returns the currency symbol for the organisation's chosen currency.
+ * Falls back to the currency code if no symbol is defined.
+ */
+export function getCurrencySymbol() {
+  const code = state.orgCurrency || 'USD';
+  const found = CURRENCIES.find(c => c.code === code);
+  return found ? found.symbol : code;
+}
+
+/**
+ * Format a numeric value with the org currency symbol.
+ * e.g. formatCurrency(50000) → "$ 50,000" or "Ksh 50,000"
+ */
+export function formatCurrency(value) {
+  const num = parseFloat(value) || 0;
+  return `${getCurrencySymbol()} ${num.toLocaleString()}`;
+}
+
 // ── Exports ────────────────────────────────────────────────────
 export {
   formatDate,

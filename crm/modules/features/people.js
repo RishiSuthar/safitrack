@@ -3,7 +3,7 @@
 import { state, supabaseClient, crmDebugLog, saveViewState } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
-import { renderSkeletonCards, renderError } from '../utils/helpers.js';
+import { renderSkeletonCards, renderError, getCurrencySymbol } from '../utils/helpers.js';
 import { renderEditableDataTable, normalizeSearchText, normalizeForMatching, findDuplicatePersonContact } from '../ui/spreadsheet.js';
 
 // ======================
@@ -635,7 +635,7 @@ async function openPersonViewModal(personOrId) {
                   <span>${prob}% probability</span>
                 </div>
               </div>
-              <div class="record-opp-card-value">Ksh ${displayValue}</div>
+              <div class="record-opp-card-value">${getCurrencySymbol()} ${displayValue}</div>
               <div class="record-opp-card-action"><button class="btn btn-sm btn-ghost view-opportunity" data-id="${opp.id}">View</button></div>
             </div>
           `;

@@ -49,6 +49,7 @@ export const state = {
   currentUser: null,
   currentUserProfile: null,
   currentOrganization: null,
+  orgCurrency: 'USD',
   isManager: false,
   isSalesRep: false,
   isTechnician: false,

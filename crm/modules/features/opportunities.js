@@ -3,7 +3,7 @@
 import { state, supabaseClient, loadPersistedState as _loadPersistedState, saveViewState } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials, triggerConfetti } from '../ui/toast.js';
-import { renderSkeletonCards, renderError } from '../utils/helpers.js';
+import { renderSkeletonCards, renderError, getCurrencySymbol } from '../utils/helpers.js';
 import { getCompanyLogoUrl, guessDomainAndFavicon } from '../ui/spreadsheet.js';
 
 async function renderOpportunityPipelineView() {
@@ -127,9 +127,9 @@ async function renderOpportunityPipelineView() {
     <div class="pipeline-summary">
       <div class="pipeline-summary-card">
         <div class="pipeline-summary-title">Pipeline</div>
-        <div class="pipeline-summary-value">Ksh ${totalValue.toLocaleString()}</div>
+        <div class="pipeline-summary-value">${getCurrencySymbol()} ${totalValue.toLocaleString()}</div>
         <div class="pipeline-summary-change">
-          <i class="fas fa-briefcase"></i> Active Ksh ${Math.max(activeValue, 0).toLocaleString()}
+          <i class="fas fa-briefcase"></i> Active ${getCurrencySymbol()} ${Math.max(activeValue, 0).toLocaleString()}
         </div>
       </div>
       <div class="pipeline-summary-card">
@@ -141,7 +141,7 @@ async function renderOpportunityPipelineView() {
       </div>
       <div class="pipeline-summary-card">
         <div class="pipeline-summary-title">Weighted Forecast</div>
-        <div class="pipeline-summary-value">Ksh ${Math.round(weightedForecast).toLocaleString()}</div>
+        <div class="pipeline-summary-value">${getCurrencySymbol()} ${Math.round(weightedForecast).toLocaleString()}</div>
         <div class="pipeline-summary-change">
           <i class="fas fa-percent"></i> Avg probability: ${Math.round(avgProbability)}%
         </div>
@@ -150,7 +150,7 @@ async function renderOpportunityPipelineView() {
         <div class="pipeline-summary-title">Win Rate</div>
         <div class="pipeline-summary-value">${winRate}%</div>
         <div class="pipeline-summary-change">
-          <i class="fas fa-trophy"></i> Closed won value: Ksh ${wonValue.toLocaleString()}
+          <i class="fas fa-trophy"></i> Closed won value: ${getCurrencySymbol()} ${wonValue.toLocaleString()}
         </div>
       </div>
     </div>
@@ -215,7 +215,7 @@ async function renderOpportunityPipelineView() {
           <div class="pipeline-stage-title"><span class="pipeline-stage-dot" style="background:${stage.color}"></span>${stage.title}</div>
           <div class="pipeline-stage-count">${stageData.opportunities.length}</div>
         </div>
-        <div class="pipeline-stage-value">Ksh ${stageData.totalValue.toLocaleString()}</div>
+        <div class="pipeline-stage-value">${getCurrencySymbol()} ${stageData.totalValue.toLocaleString()}</div>
         <button class="pipeline-inline-add" data-stage="${stage.id}">+ New</button>
         <div class="opportunity-list" id="opportunities-${stage.id}">
     `;
@@ -310,7 +310,7 @@ async function renderOpportunityPipelineView() {
           <div class="opp-name">${escapeHtml(opp.name)}</div>
 
           <div class="opp-value-row">
-            <span class="opp-value">Ksh ${parseFloat(opp.value || 0).toLocaleString()}</span>
+            <span class="opp-value">${getCurrencySymbol()} ${parseFloat(opp.value || 0).toLocaleString()}</span>
             ${state.isManager && user ? `
               <span class="opp-owner-chip">
                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -687,7 +687,7 @@ function updatePipelineStageCounts() {
 
     const valueElement = stage.querySelector('.pipeline-stage-value');
     if (valueElement) {
-      valueElement.textContent = `Ksh ${totalValue.toLocaleString()}`;
+      valueElement.textContent = `${getCurrencySymbol()} ${totalValue.toLocaleString()}`;
     }
   });
 
@@ -739,17 +739,17 @@ function updatePipelineSummary() {
   // Update DOM elements
   const summaryValues = document.querySelectorAll('.pipeline-summary-value');
   if (summaryValues.length >= 4) {
-    summaryValues[0].textContent = `Ksh ${totalValue.toLocaleString()}`;
+    summaryValues[0].textContent = `${getCurrencySymbol()} ${totalValue.toLocaleString()}`;
     summaryValues[1].textContent = activeCount;
-    summaryValues[2].textContent = `Ksh ${Math.round(weightedForecast).toLocaleString()}`;
+    summaryValues[2].textContent = `${getCurrencySymbol()} ${Math.round(weightedForecast).toLocaleString()}`;
     summaryValues[3].textContent = `${winRate}%`;
 
     const summaryChanges = document.querySelectorAll('.pipeline-summary-change');
     if (summaryChanges.length >= 4) {
-      summaryChanges[0].innerHTML = `<i class="fas fa-briefcase"></i> Active: Ksh ${Math.max(totalValue - wonValue - lostValue, 0).toLocaleString()}`;
+      summaryChanges[0].innerHTML = `<i class="fas fa-briefcase"></i> Active: ${getCurrencySymbol()} ${Math.max(totalValue - wonValue - lostValue, 0).toLocaleString()}`;
       summaryChanges[1].innerHTML = `<i class="fas fa-flag-checkered"></i> Won: ${wonCount}`;
       summaryChanges[2].innerHTML = `<i class="fas fa-percent"></i> Avg probability: ${avgProbability}%`;
-      summaryChanges[3].innerHTML = `<i class="fas fa-trophy"></i> Closed won value: Ksh ${wonValue.toLocaleString()}`;
+      summaryChanges[3].innerHTML = `<i class="fas fa-trophy"></i> Closed won value: ${getCurrencySymbol()} ${wonValue.toLocaleString()}`;
     }
   }
 }
@@ -1001,7 +1001,7 @@ function openOpportunityViewModal(opportunity) {
   const createdEl = document.getElementById('opportunity-view-created');
   const ownerEl = document.getElementById('opportunity-view-owner');
 
-  if (valueEl) valueEl.textContent = `Ksh ${parseFloat(opportunity.value || 0).toLocaleString()}`;
+  if (valueEl) valueEl.textContent = `${getCurrencySymbol()} ${parseFloat(opportunity.value || 0).toLocaleString()}`;
   if (probEl) probEl.innerHTML = `<span style="color:${getProbabilityColor(opportunity.probability || 0)}; font-weight:700;">${opportunity.probability || 0}%</span>`;
   if (createdEl) createdEl.textContent = formatDate(opportunity.created_at);
   if (ownerEl) {

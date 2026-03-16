@@ -3,7 +3,7 @@
 import { state, supabaseClient, crmDebugLog, saveViewState } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
-import { renderSkeletonCards, renderError } from '../utils/helpers.js';
+import { renderSkeletonCards, renderError, getCurrencySymbol } from '../utils/helpers.js';
 
 // ======================
 window.openChangePasswordModal = function () {
@@ -913,7 +913,7 @@ async function openCompanyViewModal(companyOrId) {
               <span>${opp.probability || 0}% probability</span>
             </div>
           </div>
-          <div class="record-opp-card-value">Ksh ${val.toLocaleString()}</div>
+          <div class="record-opp-card-value">${getCurrencySymbol()} ${val.toLocaleString()}</div>
           <div class="record-opp-card-action"><button class="btn btn-sm btn-ghost view-opportunity" data-id="${opp.id}">View</button></div>
         </div>
       `;

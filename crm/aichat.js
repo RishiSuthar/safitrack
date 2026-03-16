@@ -790,7 +790,7 @@ async function generateFollowUpQuestion(missingFields, collected) {
     assigned_to: isManager ? 'who to assign it to' : null,
     name: 'a name for the opportunity',
     company_name: 'which company this deal is with',
-    value: 'the estimated deal value in Ksh',
+    value: `the estimated deal value in ${(typeof orgCurrency !== 'undefined' && orgCurrency) || 'USD'}`,
     stage: 'the current deal stage — lead, in progress, won, or lost',
     probability: 'the estimated win probability as a percentage'
   };

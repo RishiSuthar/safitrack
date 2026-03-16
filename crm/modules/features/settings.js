@@ -3,7 +3,7 @@
 import { state, supabaseClient } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials, triggerConfetti } from '../ui/toast.js';
-import { renderSkeletonCards, formatDate } from '../utils/helpers.js';
+import { renderSkeletonCards, formatDate, CURRENCIES, getCurrencySymbol } from '../utils/helpers.js';
 import { loadView } from '../core/navigation.js';
 
 async function renderSettingsView() {
@@ -401,6 +401,39 @@ async function renderSettingsView() {
               <div class="sv-stat-tile-value--mono" id="sv-seat-count">— / ${state.currentOrganization?.max_members ?? 2}</div>
               <div class="sv-seat-bar-track">
                 <div class="sv-seat-bar-fill" id="sv-seat-bar" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Organization Currency ── -->
+          <div class="sv-field-group" style="margin-top:32px;border-top:1px solid var(--border-color);padding-top:24px;">
+            <div class="sv-field-row ${state.isManager ? '' : 'sv-field-row--block'}">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;display:inline-block;vertical-align:-1px;margin-right:5px;opacity:0.7;"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20M12 2a14.5 14.5 0 0 1 0 20M2 12h20"/></svg>
+                  Organization Currency
+                </div>
+                <div class="sv-field-hint">Displays the currency symbol throughout the CRM. Values are not converted — only the symbol changes.</div>
+              </div>
+              <div class="sv-field-control" style="${state.isManager ? '' : 'justify-content:flex-start;margin-top:10px;'}">
+                ${state.isManager ? `
+                <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                  <div id="sv-currency-preview" style="display:inline-flex;align-items:center;gap:6px;padding:5px 11px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:6px;font-size:0.88rem;white-space:nowrap;">
+                    <span style="font-size:1rem;font-weight:700;color:var(--text-primary);" id="sv-currency-symbol-preview">${getCurrencySymbol()}</span>
+                    <span style="color:var(--text-muted);font-size:0.8rem;font-weight:500;" id="sv-currency-code-preview">${state.orgCurrency || 'USD'}</span>
+                  </div>
+                  <select id="sv-currency-select" class="sv-input" style="width:230px;min-width:0;">
+                    ${CURRENCIES.map(c => `<option value="${c.code}" ${(state.orgCurrency || 'USD') === c.code ? 'selected' : ''}>${c.symbol} — ${c.name} (${c.code})</option>`).join('')}
+                  </select>
+                  <span id="sv-currency-status" style="font-size:0.82rem;color:var(--text-muted);"></span>
+                </div>
+                ` : `
+                <div style="display:inline-flex;align-items:center;gap:6px;padding:5px 11px;background:var(--bg-secondary);border:1px solid var(--border-color);border-radius:6px;font-size:0.88rem;">
+                  <span style="font-size:1rem;font-weight:700;color:var(--text-primary);" id="sv-currency-symbol-preview">${getCurrencySymbol()}</span>
+                  <span style="color:var(--text-muted);font-size:0.8rem;font-weight:500;" id="sv-currency-code-preview">${state.orgCurrency || 'USD'}</span>
+                </div>
+                <span style="color:var(--text-muted);font-size:0.82rem;margin-left:4px;">Only managers can change the currency.</span>
+                `}
               </div>
             </div>
           </div>
@@ -2094,6 +2127,48 @@ async function renderSettingsView() {
     } finally {
       btn.disabled = false;
       btn.textContent = 'Save';
+    }
+  });
+
+  /* ─────────────── CURRENCY AUTO-SAVE ─────────────── */
+  document.getElementById('sv-currency-select')?.addEventListener('change', async () => {
+    if (!state.isManager) return;
+    const select = document.getElementById('sv-currency-select');
+    if (!select || !state.currentOrganization?.id) return;
+    const newCode = select.value;
+    const found = CURRENCIES.find(c => c.code === newCode);
+    const sym = found ? found.symbol : newCode;
+    // Instant preview
+    const symPreview = document.getElementById('sv-currency-symbol-preview');
+    const codePreview = document.getElementById('sv-currency-code-preview');
+    const statusEl = document.getElementById('sv-currency-status');
+    if (symPreview) symPreview.textContent = sym;
+    if (codePreview) codePreview.textContent = newCode;
+    if (statusEl) statusEl.textContent = 'Saving…';
+    select.disabled = true;
+    try {
+      const { data, error } = await supabaseClient
+        .from('organizations')
+        .update({ currency: newCode })
+        .eq('id', state.currentOrganization.id)
+        .select('currency')
+        .single();
+      if (error) throw error;
+      if (!data) throw new Error('Update blocked — check RLS policy.');
+      state.orgCurrency = data.currency;
+      state.currentOrganization.currency = data.currency;
+      if (statusEl) {
+        statusEl.textContent = 'Saved';
+        statusEl.style.color = 'var(--color-success, #22c55e)';
+        setTimeout(() => { if (statusEl) { statusEl.textContent = ''; statusEl.style.color = ''; } }, 2000);
+      }
+      showToast(`Currency updated to ${found ? found.name : newCode} (${sym}).`, 'success');
+    } catch (e) {
+      console.error(e);
+      if (statusEl) { statusEl.textContent = 'Failed to save'; statusEl.style.color = 'var(--color-danger, #ef4444)'; }
+      showToast('Failed to update currency.', 'error');
+    } finally {
+      select.disabled = false;
     }
   });
 

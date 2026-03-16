@@ -81,10 +81,11 @@ async function initApp() {
     try {
       const { data: org } = await supabaseClient
         .from('organizations')
-        .select('id, name, owner_id, max_members')
+        .select('id, name, owner_id, max_members, currency')
         .eq('id', profile.organization_id)
         .single();
       state.currentOrganization = org || null;
+      state.orgCurrency = org?.currency || 'USD';
       const orgNameEl = document.getElementById('ws-btn-org-name');
       const orgAvatarEl = document.getElementById('ws-btn-avatar');
       const headerOrgNameEl = document.getElementById('header-org-name');

@@ -286,6 +286,7 @@ Object.assign(window, {
 const STATE_GLOBALS = [
   'currentUser', 'isManager', 'isSalesRep', 'isTechnician',
   'currentView', 'previousView', 'currentUserProfile', 'currentOrganization',
+  'orgCurrency',
   'allPeople', 'visitTags', 'companyCategories', 'personPhoneNumbers',
   'mentionedPeople', 'selectedRepId', 'managerCallLogViewMode',
 ];
