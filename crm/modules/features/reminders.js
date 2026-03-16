@@ -88,8 +88,9 @@ async function renderRemindersView() {
     const isAssignedToMe = reminder.assigned_to === state.currentUser.id;
     const isCreatedByMe = reminder.created_by === state.currentUser.id;
     const canComplete = isAssignedToMe;
-    const canEdit = (state.isManager && isCreatedByMe) || (!state.isManager && (isAssignedToMe || isCreatedByMe));
-    const canDelete = (state.isManager && isCreatedByMe) || (!state.isManager && isCreatedByMe);
+    // Sales reps cannot edit or delete a reminder they didn't create (e.g. assigned by a manager)
+    const canEdit = isCreatedByMe;
+    const canDelete = isCreatedByMe;
 
     const assignedToText = reminder.assigned_to_profile
       ? `${reminder.assigned_to_profile.first_name} ${reminder.assigned_to_profile.last_name}`
@@ -99,45 +100,37 @@ async function renderRemindersView() {
       ? `${reminder.created_by_profile.first_name} ${reminder.created_by_profile.last_name}`
       : 'Unknown';
 
+    let statusLabel = 'Pending';
+    let statusClass = 'pending';
+    if (reminder.is_completed) { statusLabel = 'Done'; statusClass = 'done'; }
+    else if (isOverdue) { statusLabel = 'Overdue'; statusClass = 'overdue'; }
+    else if (isToday) { statusLabel = 'Due Today'; statusClass = 'today'; }
+    const cardStateClass = reminder.is_completed ? 'is-done is-completed' : isOverdue ? 'is-overdue' : isToday ? 'is-today' : '';
+
     return `
-      <article class="remx-card reminder-card ${reminder.is_completed ? 'is-completed' : ''} ${isOverdue ? 'is-overdue' : ''}"
+      <article class="rem-card reminder-card ${cardStateClass}"
                data-id="${reminder.id}"
                data-completed="${reminder.is_completed}"
                data-reminder-date="${reminder.reminder_date || ''}"
                data-due-ts="${dueTs}"
                data-created-by="${reminder.created_by || ''}">
-        <div class="remx-card-head reminder-header">
-          <h4 class="remx-title reminder-title">${reminder.title}</h4>
-          <span class="remx-state reminder-status ${reminder.is_completed ? 'completed' : 'pending'}">
-            ${reminder.is_completed ? 'Completed' : (isOverdue ? 'Overdue' : (isToday ? 'Today' : 'Pending'))}
-          </span>
-        </div>
-
-        ${reminder.description ? `<p class="remx-desc reminder-description">${reminder.description}</p>` : ''}
-
-        <div class="remx-meta reminder-meta">
-          <span class="remx-chip reminder-meta-item"><i data-lucide="calendar"></i> ${formatReminderDue(reminder.reminder_date)}</span>
-          ${state.isManager ? `<span class="remx-chip reminder-meta-item"><i data-lucide="user"></i> Assigned to: ${assignedToText}</span>` : `<span class="remx-chip reminder-meta-item"><i data-lucide="user"></i> Assigned by: ${assignedByText}</span>`}
-        </div>
-
-        <div class="remx-actions reminder-actions">
-          <div class="remx-due reminder-date"><i data-lucide="bell"></i> ${formatDate(reminder.reminder_date, true)}</div>
-          <div class="reminder-action-buttons">
-            ${canEdit ? `
-              <button class="reminder-action-btn edit-reminder" data-id="${reminder.id}" title="Edit reminder">
-                <i data-lucide="square-pen"></i>
-              </button>
-            ` : ''}
-            ${canComplete && !reminder.is_completed ? `
-              <button class="reminder-action-btn complete-reminder" data-id="${reminder.id}" title="Mark completed">
-                <i data-lucide="check"></i>
-              </button>
-            ` : ''}
-            ${canDelete ? `
-              <button class="reminder-action-btn delete-reminder" data-id="${reminder.id}" title="Delete reminder">
-                <i data-lucide="trash-2"></i>
-              </button>
-            ` : ''}
+        <div class="rem-card-stripe"></div>
+        <div class="rem-card-inner">
+          <div class="rem-card-top">
+            <span class="rem-badge ${statusClass}">${statusLabel}</span>
+            <div class="rem-card-actions">
+              ${canEdit ? `<button class="rem-action-btn edit-reminder" data-id="${reminder.id}" title="Edit"><i data-lucide="pencil"></i></button>` : ''}
+              ${canDelete ? `<button class="rem-action-btn delete-reminder" data-id="${reminder.id}" title="Delete"><i data-lucide="trash-2"></i></button>` : ''}
+            </div>
+          </div>
+          <h4 class="rem-card-title reminder-title">${reminder.title}</h4>
+          ${reminder.description ? `<p class="rem-card-desc reminder-description">${reminder.description}</p>` : ''}
+          <div class="rem-card-foot">
+            <span class="rem-card-meta"><i data-lucide="clock-3" class="rem-meta-icon"></i>${formatReminderDue(reminder.reminder_date)}</span>
+            ${state.isManager
+              ? `<span class="rem-card-meta"><i data-lucide="user" class="rem-meta-icon"></i>${assignedToText}</span>`
+              : `<span class="rem-card-meta"><i data-lucide="users" class="rem-meta-icon"></i>By ${assignedByText}</span>`}
+            ${canComplete && !reminder.is_completed ? `<button class="rem-action-btn complete-reminder is-lg" data-id="${reminder.id}" title="Mark as done"><i data-lucide="check"></i></button>` : ''}
           </div>
         </div>
       </article>
@@ -148,62 +141,93 @@ async function renderRemindersView() {
     const dueText = formatReminderDue(reminder.reminder_date);
     const canComplete = reminder.assigned_to === state.currentUser.id;
     return `
-      <div class="remx-focus-item">
-        <div>
-          <div class="remx-focus-title">${reminder.title}</div>
-          <div class="remx-focus-time">${dueText}</div>
+      <div class="rem-sidebar-item">
+        <div class="rem-sidebar-item-body">
+          <div class="rem-sidebar-item-title">${reminder.title}</div>
+          <div class="rem-sidebar-item-time"><i data-lucide="clock-3" class="rem-meta-icon"></i>${dueText}</div>
         </div>
-        ${canComplete ? `<button class="reminder-action-btn complete-reminder" data-id="${reminder.id}" title="Complete"><i data-lucide="check"></i></button>` : ''}
+        ${canComplete ? `<button class="rem-action-btn complete-reminder is-small" data-id="${reminder.id}" title="Mark as done"><i data-lucide="check"></i></button>` : ''}
       </div>
     `;
   }).join('');
 
   viewContainer.innerHTML = `
-    <div class="remx-page">
-      <div class="remx-header">
-        <div>
-        </div>
+    <div class="rem-page">
+
+      <div class="rem-page-head">
         <button class="btn btn-primary" id="add-reminder-btn"><i data-lucide="plus"></i> New Reminder</button>
       </div>
 
-      <section class="remx-kpis reminder-stats">
-        <div class="reminder-stat-card"><div class="reminder-stat-title">Total</div><div class="reminder-stat-value">${totalReminders}</div><div class="reminder-stat-meta">All reminders</div></div>
-        <div class="reminder-stat-card"><div class="reminder-stat-title">Pending</div><div class="reminder-stat-value">${pendingReminders}</div><div class="reminder-stat-meta">Awaiting action</div></div>
-        <div class="reminder-stat-card"><div class="reminder-stat-title">Due Today</div><div class="reminder-stat-value">${todayReminders}</div><div class="reminder-stat-meta">Must close today</div></div>
-        <div class="reminder-stat-card"><div class="reminder-stat-title">Completed</div><div class="reminder-stat-value">${completedReminders}</div><div class="reminder-stat-meta">Finished items</div></div>
-        <div class="reminder-stat-card ${overdueReminders > 0 ? 'reminder-stat-card-overdue' : ''}"><div class="reminder-stat-title">Overdue</div><div class="reminder-stat-value ${overdueReminders > 0 ? 'task-overdue' : ''}">${overdueReminders}</div><div class="reminder-stat-meta">Past due</div></div>
-      </section>
+      <div class="rem-kpis">
+        <div class="rem-kpi">
+          <div class="rem-kpi-icon"><i data-lucide="layers"></i></div>
+          <div class="rem-kpi-body">
+            <div class="rem-kpi-val">${totalReminders}</div>
+            <div class="rem-kpi-label">Total</div>
+          </div>
+        </div>
+        <div class="rem-kpi">
+          <div class="rem-kpi-icon"><i data-lucide="clock"></i></div>
+          <div class="rem-kpi-body">
+            <div class="rem-kpi-val">${pendingReminders}</div>
+            <div class="rem-kpi-label">Pending</div>
+          </div>
+        </div>
+        <div class="rem-kpi">
+          <div class="rem-kpi-icon"><i data-lucide="sun"></i></div>
+          <div class="rem-kpi-body">
+            <div class="rem-kpi-val">${todayReminders}</div>
+            <div class="rem-kpi-label">Due Today</div>
+          </div>
+        </div>
+        <div class="rem-kpi">
+          <div class="rem-kpi-icon"><i data-lucide="check-circle-2"></i></div>
+          <div class="rem-kpi-body">
+            <div class="rem-kpi-val">${completedReminders}</div>
+            <div class="rem-kpi-label">Completed</div>
+          </div>
+        </div>
+        <div class="rem-kpi ${overdueReminders > 0 ? 'is-danger' : ''}">
+          <div class="rem-kpi-icon"><i data-lucide="alert-triangle"></i></div>
+          <div class="rem-kpi-body">
+            <div class="rem-kpi-val">${overdueReminders}</div>
+            <div class="rem-kpi-label">Overdue</div>
+          </div>
+        </div>
+      </div>
 
-      <div class="remx-layout">
-        <aside class="remx-focus">
-          <div class="remx-focus-card">
-            <div class="remx-focus-head">
-              <h3>Due Now</h3>
-              <span>${dueNow.length}</span>
+      <div class="rem-body">
+        <aside class="rem-sidebar">
+          <div class="rem-sidebar-panel">
+            <div class="rem-sidebar-head">
+              <span class="rem-sidebar-title">Up Next</span>
+              <span class="rem-sidebar-badge">${dueNow.length}</span>
             </div>
-            ${dueNow.length === 0 ? '<p class="remx-focus-empty">No reminders due right now. Great momentum.</p>' : `<div class="remx-focus-list">${dueNowMarkup}</div>`}
+            ${dueNow.length === 0
+              ? '<p class="rem-sidebar-empty">All caught up — nothing is due right now.</p>'
+              : `<div class="rem-sidebar-list">${dueNowMarkup}</div>`}
           </div>
         </aside>
 
-        <section class="remx-main">
-          <div class="remx-toolbar">
-            <div class="reminder-filters">
+        <div class="rem-main">
+          <div class="rem-toolbar">
+            <div class="rem-filters">
               <button class="reminder-filter active" data-filter="all">All</button>
               <button class="reminder-filter" data-filter="pending">Pending</button>
               <button class="reminder-filter" data-filter="today">Today</button>
               <button class="reminder-filter" data-filter="overdue">Overdue</button>
-              <button class="reminder-filter" data-filter="completed">Completed</button>
+              <button class="reminder-filter" data-filter="completed">Done</button>
               ${state.isManager ? '<button class="reminder-filter" data-filter="assigned">Assigned by Me</button>' : ''}
             </div>
-            <div class="search-input-wrapper" style="width: 100%; max-width: 320px;">
-              <i data-lucide="search" class="search-icon"></i>
-              <input type="text" id="reminder-search" class="search-input-padded" placeholder="Search reminders..." style="width: 100%; padding: 10px 14px 10px 36px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-size: 0.875rem; transition: border-color 0.2s; outline: none;">
+            <div class="rem-search-wrap">
+              <i data-lucide="search" class="rem-search-icon"></i>
+              <input type="text" id="reminder-search" class="rem-search-input" placeholder="Search reminders...">
             </div>
           </div>
 
-          <div id="remx-filter-empty" class="remx-filter-empty" style="display:none;">No reminders match the current filter/search.</div>
+          <div id="remx-filter-empty" class="rem-empty-msg" style="display:none;">No reminders match this filter or search.</div>
 
-          <div id="reminders-container" class="remx-cards">
+          <div id="reminders-container" class="rem-list">
             ${totalReminders === 0 ? `
               <div class="empty-state reminder-empty-state">
                 <h3 class="empty-state-title">No reminders yet</h3>
@@ -212,8 +236,9 @@ async function renderRemindersView() {
               </div>
             ` : cardsMarkup}
           </div>
-        </section>
+        </div>
       </div>
+
     </div>
   `;
 

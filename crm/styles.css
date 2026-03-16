@@ -18019,264 +18019,637 @@ button svg {
 }
 
 /* ===== REMINDERS V2 WORKSPACE ===== */
-.remx-page {
+/* ================================================================
+   REMINDERS v2 — Redesigned from scratch
+   Clean timeline layout, status-driven visual language.
+   Uses existing design tokens throughout.
+   ================================================================ */
+
+/* ── Page shell ── */
+.rem-page {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
+  padding-bottom: 2rem;
 }
 
-.remx-header {
+/* ── Page header ── */
+.rem-page-head {
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
+  justify-content: space-between;
   gap: 1rem;
 }
 
-.remx-kpis {
-  margin-bottom: 0;
+.rem-page-head-text {
+  min-width: 0;
 }
 
-.remx-layout {
+.rem-page-title {
+  font-size: 1.375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+  margin: 0;
+}
+
+.rem-page-sub {
+  margin: 0.25rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+
+/* ── KPI strip ── */
+.rem-kpis {
   display: grid;
-  grid-template-columns: 300px minmax(0, 1fr);
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.625rem;
+}
+
+.rem-kpi {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1rem;
+  transition: border-color var(--transition-base);
+}
+
+.rem-kpi:hover {
+  border-color: rgba(var(--color-primary-rgb), 0.35);
+}
+
+.rem-kpi.is-danger {
+  border-color: rgba(200, 58, 58, 0.5);
+  background: linear-gradient(135deg, var(--color-danger-bg) 0%, transparent 70%);
+}
+
+.rem-kpi.is-danger .rem-kpi-icon {
+  color: var(--color-danger);
+  background: var(--color-danger-bg);
+}
+
+.rem-kpi.is-danger .rem-kpi-val {
+  color: var(--color-danger);
+}
+
+.rem-kpi-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.rem-kpi-icon svg,
+.rem-kpi-icon i {
+  width: 16px;
+  height: 16px;
+}
+
+.rem-kpi-body {
+  min-width: 0;
+}
+
+.rem-kpi-val {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-primary);
+  letter-spacing: -0.025em;
+}
+
+.rem-kpi-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+/* ── Body two-column layout ── */
+.rem-body {
+  display: grid;
+  grid-template-columns: 252px minmax(0, 1fr);
   gap: 1rem;
   align-items: start;
 }
 
-.remx-focus {
+/* ── Sidebar ── */
+.rem-sidebar {
+  position: sticky;
+  top: 0.75rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  position: sticky;
-  top: 1rem;
 }
 
-.remx-focus-card {
-  background: var(--bg-primary);
+.rem-sidebar-panel {
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: 0.9rem;
+  overflow: hidden;
 }
 
-.remx-focus-head {
+.rem-sidebar-head {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.65rem;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color-light);
+  background: var(--bg-primary);
 }
 
-.remx-focus-head h3 {
-  font-size: 0.9rem;
-  color: var(--text-primary);
-}
-
-.remx-focus-head span {
+.rem-sidebar-title {
   font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.rem-sidebar-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
   color: var(--text-muted);
   background: var(--bg-tertiary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-full);
-  padding: 0.15rem 0.45rem;
+  min-width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.4rem;
 }
 
-.remx-focus-empty {
-  font-size: 0.82rem;
+.rem-sidebar-empty {
+  padding: 1rem;
+  font-size: 0.8125rem;
   color: var(--text-muted);
+  line-height: 1.55;
 }
 
-.remx-focus-list {
+.rem-sidebar-list {
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
 }
 
-.remx-focus-item {
+.rem-sidebar-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   gap: 0.5rem;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  border-radius: var(--radius-md);
-  padding: 0.5rem 0.6rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid var(--border-color-light);
+  transition: background var(--transition-fast);
 }
 
-.remx-focus-title {
-  font-size: 0.83rem;
+.rem-sidebar-item:last-child {
+  border-bottom: none;
+}
+
+.rem-sidebar-item:hover {
+  background: var(--bg-tertiary);
+}
+
+.rem-sidebar-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.rem-sidebar-item-title {
+  font-size: 0.8rem;
   font-weight: 600;
   color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.remx-focus-time {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.remx-main {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 0.95rem;
-}
-
-.remx-toolbar {
+.rem-sidebar-item-time {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 0.3rem;
+  font-size: 0.72rem;
+  color: var(--color-danger);
+  margin-top: 0.2rem;
+  font-weight: 500;
+}
+
+/* ── Main content ── */
+.rem-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ── Toolbar ── */
+.rem-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 0.75rem;
   flex-wrap: wrap;
-  margin-bottom: 0.8rem;
 }
 
-.remx-search {
+/* Filter pills */
+.rem-filters {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+}
+
+/* Override base .reminder-filter styles inside the new layout */
+.rem-filters .reminder-filter {
+  height: 30px;
+  padding: 0 0.8rem;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 0.79rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.rem-filters .reminder-filter:hover {
+  border-color: rgba(var(--color-primary-rgb), 0.45);
+  color: var(--color-primary);
+}
+
+.rem-filters .reminder-filter.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+/* Search */
+.rem-search-wrap {
   position: relative;
-  width: 280px;
-  max-width: 100%;
+  width: 264px;
+  flex-shrink: 0;
 }
 
-.remx-search i {
+.rem-search-icon {
   position: absolute;
-  left: 0.7rem;
+  left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  width: 15px;
-  height: 15px;
+  width: 13px;
+  height: 13px;
   color: var(--text-muted);
+  pointer-events: none;
 }
 
-.remx-search input {
+.rem-search-input {
   width: 100%;
-  height: 36px;
-  border-radius: var(--radius-md);
+  height: 34px;
+  padding: 0 0.875rem 0 2.2rem;
+  border-radius: var(--radius-full);
   border: 1px solid var(--border-color);
   background: var(--bg-secondary);
   color: var(--text-primary);
-  font-size: 0.84rem;
-  padding: 0 0.7rem 0 2.2rem;
+  font-size: 0.8125rem;
+  font-family: inherit;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.remx-search input:focus {
+.rem-search-input:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px var(--color-primary-bg);
 }
 
-.remx-filter-empty {
-  font-size: 0.84rem;
+.rem-search-input::placeholder {
   color: var(--text-muted);
-  padding: 0.85rem;
-  border: 1px dashed var(--border-color);
-  border-radius: var(--radius-md);
-  margin-bottom: 0.75rem;
 }
 
+/* ── Empty filter hint ── */
+.rem-empty-msg {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  padding: 0.875rem 1rem;
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+}
 
+/* ── Card list ── */
+.rem-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+/* ── Individual reminder card ── */
+.rem-card {
+  display: flex;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+/* Reset base .reminder-card padding/margin that would double up */
+.rem-card.reminder-card {
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.rem-card:hover {
+  border-color: rgba(var(--color-primary-rgb), 0.4);
+  box-shadow: 0 2px 12px rgba(16, 24, 40, 0.07);
+}
+
+/* Colored left status stripe */
+.rem-card-stripe {
+  width: 3px;
+  flex-shrink: 0;
+  background: var(--border-color);
+  transition: background var(--transition-base);
+}
+
+.rem-card.is-overdue .rem-card-stripe {
+  background: var(--color-danger);
+}
+
+.rem-card.is-today .rem-card-stripe {
+  background: var(--color-warning);
+}
+
+.rem-card.is-done .rem-card-stripe {
+  background: var(--color-success);
+}
+
+/* Subtle background tints per status */
+.rem-card.is-overdue {
+  border-color: rgba(200, 58, 58, 0.3);
+  background: linear-gradient(100deg, rgba(200, 58, 58, 0.04) 0%, transparent 55%);
+}
+
+.rem-card.is-today {
+  border-color: rgba(198, 132, 26, 0.3);
+  background: linear-gradient(100deg, rgba(198, 132, 26, 0.04) 0%, transparent 55%);
+}
+
+.rem-card.is-done {
+  border-color: rgba(31, 157, 110, 0.22);
+  background: linear-gradient(100deg, rgba(31, 157, 110, 0.04) 0%, transparent 55%);
+  opacity: 0.72;
+}
+
+/* Card inner layout */
+.rem-card-inner {
+  flex: 1;
+  min-width: 0;
+  padding: 0.8rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* Top row: status badge + action buttons */
+.rem-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.15rem;
+}
+
+/* Status badge */
+.rem-badge {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 0.5rem;
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.rem-badge.pending {
+  background: rgba(var(--color-primary-rgb), 0.1);
+  color: var(--color-primary);
+}
+
+.rem-badge.overdue {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.rem-badge.today {
+  background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.rem-badge.done {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+/* Action buttons — revealed on card hover */
+.rem-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.rem-card:hover .rem-card-actions {
+  opacity: 1;
+}
+
+.rem-action-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+  flex-shrink: 0;
+  padding: 0;
+  font-size: 0;
+  line-height: 0;
+}
+
+.rem-action-btn svg,
+.rem-action-btn i {
+  width: 12px;
+  height: 12px;
+}
+
+.rem-action-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  border-color: var(--border-color);
+}
+
+.rem-action-btn.complete-reminder:hover {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+  border-color: var(--color-success);
+}
+
+.rem-action-btn.delete-reminder:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+  border-color: var(--color-danger);
+}
+
+.rem-action-btn.is-small {
+  width: 22px;
+  height: 22px;
+}
+
+.rem-action-btn.is-small svg,
+.rem-action-btn.is-small i {
+  width: 11px;
+  height: 11px;
+}
+
+.rem-action-btn.is-lg {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-md);
+  margin-left: auto;
+}
+
+.rem-action-btn.is-lg svg,
+.rem-action-btn.is-lg i {
+  width: 15px;
+  height: 15px;
+}
+
+/* Card title */
+.rem-card-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.35;
+  margin: 0;
+}
+
+.rem-card.is-done .rem-card-title {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* Description */
+.rem-card-desc {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Footer meta row */
+.rem-card-foot {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 0.2rem;
+}
+
+.rem-card-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.rem-meta-icon {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  opacity: 0.65;
+}
+
+/* Stray rule preserved from previous block */
 .view-toolbar+.spreadsheet-container .spreadsheet-cell {
   font-weight: 550;
 }
 
-
-.remx-cards {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.75rem;
-}
-
-.remx-cards .reminder-card {
-  margin-bottom: 0;
-  border-radius: 14px;
-  padding: 0.95rem;
-  border-color: var(--border-color);
-}
-
-.remx-cards .reminder-card:hover {
-  border-color: var(--color-primary);
-}
-
-.remx-cards .reminder-card.is-completed {
-  border-color: var(--color-success);
-  background: linear-gradient(0deg, var(--color-success-bg), transparent 55%);
-}
-
-.remx-cards .reminder-card.is-overdue {
-  border-color: var(--color-danger);
-  background: linear-gradient(0deg, var(--color-danger-bg), transparent 65%);
-}
-
-.remx-card-head {
-  margin-bottom: 0.45rem;
-}
-
-.remx-title {
-  font-size: 1rem;
-}
-
-.remx-state {
-  font-size: 0.72rem;
-}
-
-.remx-desc {
-  margin-bottom: 0.55rem;
-}
-
-.remx-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-bottom: 0.7rem;
-}
-
-.remx-chip {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 0.3rem 0.55rem;
-  font-size: 0.79rem;
-}
-
-.remx-chip i,
-.remx-chip svg {
-  width: 14px;
-  height: 14px;
-}
-
-.remx-actions {
-  border-top: 1px dashed var(--border-color);
-  padding-top: 0.65rem;
-}
-
-.remx-due {
-  font-size: 0.76rem;
-}
-
+/* ── Responsive ── */
 @media (max-width: 1080px) {
-  .remx-layout {
+  .rem-body {
     grid-template-columns: 1fr;
   }
 
-  .remx-focus {
+  .rem-sidebar {
     position: static;
     order: 2;
   }
 
-  .remx-main {
+  .rem-main {
     order: 1;
+  }
+
+  .rem-kpis {
+    grid-template-columns: repeat(3, 1fr);
   }
 }
 
-@media (max-width: 768px) {
-  .remx-header {
+@media (max-width: 640px) {
+  .rem-kpis {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .rem-page-head {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .remx-toolbar {
+  .rem-toolbar {
     flex-direction: column;
     align-items: stretch;
   }
 
-  .remx-search {
+  .rem-search-wrap {
     width: 100%;
+  }
+
+  .rem-filters {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 2px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Always show actions on touch devices */
+  .rem-card-actions {
+    opacity: 1;
   }
 }
 
