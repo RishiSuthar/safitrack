@@ -27,7 +27,7 @@ function renderEditableDataTable(data, columns, tableId, supabaseTable) {
     // Selection column: render checkbox directly, no flex wrapper
     if (col.label.trim().startsWith('<input')) {
       return `
-          <th style="width: ${columnWidth}; min-width: ${columnWidth}; max-width: ${columnWidth}; position: relative;" 
+          <th style="width: ${columnWidth}; max-width: ${columnWidth}; position: relative;" 
               data-col-key="_selection"
               class="sortable-header th-selection">
             ${col.label}
@@ -36,11 +36,11 @@ function renderEditableDataTable(data, columns, tableId, supabaseTable) {
         `;
     }
     return `
-          <th style="width: ${columnWidth}; min-width: ${columnWidth}; max-width: ${columnWidth}; position: relative; cursor: ${isSortable ? 'pointer' : 'default'};" 
+          <th style="width: ${columnWidth}; max-width: ${columnWidth}; position: relative; cursor: ${isSortable ? 'pointer' : 'default'};" 
               data-col-key="${col.key}"
               ${isSortable ? `onclick="handleHeaderSort('${col.key}', true)"` : ''}
               class="sortable-header ${isSortable && state.currentSortKey === col.key ? 'active-sort' : ''}">
-            <div style="display: flex; align-items: center; gap: 8px;">
+            <div style="display: flex; align-items: center; gap: 8px; overflow: hidden; min-width: 0;">
               ${col.icon ? `<i data-lucide="${col.icon}" style="width: 14px; height: 14px; opacity: 0.6;"></i>` : ''}
               <span style="flex: 1; overflow: hidden; text-overflow: ellipsis;">${col.label}</span>
               ${sortIcon}
@@ -68,7 +68,7 @@ function renderEditableDataTable(data, columns, tableId, supabaseTable) {
         const cellColKey = col.label && col.label.trim().startsWith('<input') ? '_selection' : col.key;
         const columnWidth = getSavedWidth(cellColKey) || col.width || defaultColumnWidth;
 
-        html += `<td class="spreadsheet-cell-wrapper" style="width: ${columnWidth}; min-width: ${columnWidth}; max-width: ${columnWidth};">
+        html += `<td class="spreadsheet-cell-wrapper" style="width: ${columnWidth}; max-width: ${columnWidth};">
           <div class="spreadsheet-cell"
                data-row-id="${row.id}"
                data-column="${col.key}"
@@ -396,12 +396,15 @@ let currentResizer;
 let currentTh;
 let startX;
 let startWidth;
+let resizeMoved = false;
 
 function initResize(e, resizer) {
+  e.stopPropagation(); // prevent mousedown bubbling to th onclick
   currentResizer = resizer;
   currentTh = resizer.parentElement;
   startX = e.pageX;
   startWidth = currentTh.offsetWidth;
+  resizeMoved = false;
 
   currentResizer.classList.add('resizing');
   document.addEventListener('mousemove', handleResizeMove);
@@ -414,10 +417,11 @@ function initResize(e, resizer) {
 
 function handleResizeMove(e) {
   if (!currentTh) return;
+  resizeMoved = true;
   const diff = e.pageX - startX;
-  const newWidth = Math.max(50, startWidth + diff);
+  const newWidth = Math.max(20, startWidth + diff);
   currentTh.style.width = newWidth + 'px';
-  currentTh.style.minWidth = newWidth + 'px';
+  currentTh.style.minWidth = '0';
   currentTh.style.maxWidth = newWidth + 'px';
 
   const table = currentTh.closest('table');
@@ -426,7 +430,7 @@ function handleResizeMove(e) {
   const columnIndex = currentTh.cellIndex + 1;
   table.querySelectorAll(`tbody tr td:nth-child(${columnIndex})`).forEach(td => {
     td.style.width = newWidth + 'px';
-    td.style.minWidth = newWidth + 'px';
+    td.style.minWidth = '0';
     td.style.maxWidth = newWidth + 'px';
   });
 }
@@ -478,8 +482,17 @@ function stopResize() {
       try { localStorage.setItem(`col_width_${table.id}_${colKey}`, currentTh.offsetWidth + 'px'); } catch (e) {}
     }
   }
+  if (resizeMoved) {
+    // Absorb the click event that fires after mouseup so it does not trigger sort
+    document.addEventListener('click', absorbResizeClick, { capture: true, once: true });
+  }
+  resizeMoved = false;
   currentResizer = null;
   currentTh = null;
+}
+
+function absorbResizeClick(e) {
+  e.stopPropagation();
 }
 
 async function handleCellUpdate(tableName, rowId, key, value) {
