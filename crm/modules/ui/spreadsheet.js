@@ -7,6 +7,9 @@ import { renderError } from '../utils/helpers.js';
 function renderEditableDataTable(data, columns, tableId, supabaseTable) {
   const isMobileView = window.matchMedia('(max-width: 767px)').matches;
   const defaultColumnWidth = isMobileView ? '120px' : '160px';
+  const getSavedWidth = (key) => {
+    try { return localStorage.getItem(`col_width_${tableId}_${key}`) || null; } catch (e) { return null; }
+  };
 
   let html = `
     <div class="spreadsheet-container">
@@ -14,7 +17,8 @@ function renderEditableDataTable(data, columns, tableId, supabaseTable) {
         <thead>
       <tr>
         ${columns.map(col => {
-    const columnWidth = col.width || defaultColumnWidth;
+    const colKey = col.label.trim().startsWith('<input') ? '_selection' : col.key;
+    const columnWidth = getSavedWidth(colKey) || col.width || defaultColumnWidth;
     const isSortable = col.sortable !== false;
     const sortIcon = isSortable
       ? `<i data-lucide="${state.currentSortKey === col.key ? (state.currentSortDir === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}" 
@@ -24,6 +28,7 @@ function renderEditableDataTable(data, columns, tableId, supabaseTable) {
     if (col.label.trim().startsWith('<input')) {
       return `
           <th style="width: ${columnWidth}; min-width: ${columnWidth}; max-width: ${columnWidth}; position: relative;" 
+              data-col-key="_selection"
               class="sortable-header th-selection">
             ${col.label}
             ${isMobileView ? '' : '<div class="resize-handle" onmousedown="initResize(event, this)"></div>'}
@@ -32,6 +37,7 @@ function renderEditableDataTable(data, columns, tableId, supabaseTable) {
     }
     return `
           <th style="width: ${columnWidth}; min-width: ${columnWidth}; max-width: ${columnWidth}; position: relative; cursor: ${isSortable ? 'pointer' : 'default'};" 
+              data-col-key="${col.key}"
               ${isSortable ? `onclick="handleHeaderSort('${col.key}', true)"` : ''}
               class="sortable-header ${isSortable && state.currentSortKey === col.key ? 'active-sort' : ''}">
             <div style="display: flex; align-items: center; gap: 8px;">
@@ -59,7 +65,8 @@ function renderEditableDataTable(data, columns, tableId, supabaseTable) {
         const isReadOnly = col.readOnly ? 'true' : 'false';
         const type = col.type || 'text';
         const options = JSON.stringify(col.options || []);
-        const columnWidth = col.width || defaultColumnWidth;
+        const cellColKey = col.label && col.label.trim().startsWith('<input') ? '_selection' : col.key;
+        const columnWidth = getSavedWidth(cellColKey) || col.width || defaultColumnWidth;
 
         html += `<td class="spreadsheet-cell-wrapper" style="width: ${columnWidth}; min-width: ${columnWidth}; max-width: ${columnWidth};">
           <div class="spreadsheet-cell"
@@ -464,6 +471,13 @@ function stopResize() {
   document.removeEventListener('mouseup', stopResize);
   document.body.style.userSelect = '';
   document.body.style.cursor = '';
+  if (currentTh) {
+    const table = currentTh.closest('table');
+    const colKey = currentTh.dataset.colKey;
+    if (table && table.id && colKey) {
+      try { localStorage.setItem(`col_width_${table.id}_${colKey}`, currentTh.offsetWidth + 'px'); } catch (e) {}
+    }
+  }
   currentResizer = null;
   currentTh = null;
 }
