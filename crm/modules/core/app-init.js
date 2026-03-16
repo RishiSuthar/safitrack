@@ -287,8 +287,18 @@ function updateNavigationForRole() {
   if (state.isManager) {
     managerNavSection.style.display = 'block';
     if (managerBottomNav) managerBottomNav.style.display = 'flex';
+    // Show dashboard at top of nav for managers
+    const dashTopNav = document.getElementById('dashboard-top-nav');
+    if (dashTopNav) dashTopNav.style.display = 'flex';
     // Hide log visit for managers in sidebar
     document.querySelectorAll('.sidebar-nav [data-view="log-visit"]').forEach(el => {
+      el.style.display = 'none';
+    });
+    // Hide my-activity and my-routes for managers
+    document.querySelectorAll('.sidebar-nav [data-view="my-activity"]').forEach(el => {
+      el.style.display = 'none';
+    });
+    document.querySelectorAll('.sidebar-nav [data-view="my-routes"]').forEach(el => {
       el.style.display = 'none';
     });
     // Hide technician views for managers
