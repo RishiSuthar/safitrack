@@ -2993,6 +2993,10 @@ body {
   z-index: var(--z-header);
 }
 
+body.modal-active {
+  overflow: hidden !important;
+}
+
 body.modal-active .app-header {
   display: none !important;
 }
@@ -24456,6 +24460,14 @@ button svg {
   color: var(--text-primary);
 }
 
+/* Selection header th — matches td cell sizing exactly */
+.spreadsheet-table th.th-selection {
+  padding: 0 !important;
+  text-align: center;
+  vertical-align: middle;
+  cursor: default !important;
+}
+
 /* Checkbox Styling in Table */
 .selection-checkbox {
   appearance: none !important;
@@ -24478,6 +24490,20 @@ button svg {
   box-sizing: border-box !important;
 }
 
+.spreadsheet-table th.th-selection {
+  line-height: 0;
+}
+
+.spreadsheet-table th.th-selection .selection-checkbox,
+.spreadsheet-table td .selection-checkbox {
+  width: 24px !important;
+  height: 24px !important;
+  min-width: 24px !important;
+  min-height: 24px !important;
+  max-width: 24px !important;
+  max-height: 24px !important;
+}
+
 .selection-checkbox:hover {
   border-color: var(--color-primary);
   background: var(--bg-tertiary);
@@ -24486,7 +24512,7 @@ button svg {
 .selection-checkbox:checked {
   background: var(--color-primary) !important;
   border-color: var(--color-primary) !important;
-  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
 .selection-checkbox::after {

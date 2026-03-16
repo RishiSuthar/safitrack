@@ -1,6 +1,6 @@
 // modules/ui/spreadsheet.js
 // Universal editable data table, column resize, cell editing, sort.
-import { state, supabaseClient } from '../state.js';
+import { state, supabaseClient, saveViewState } from '../state.js';
 import { showToast } from './toast.js';
 import { renderError } from '../utils/helpers.js';
 
@@ -20,6 +20,16 @@ function renderEditableDataTable(data, columns, tableId, supabaseTable) {
       ? `<i data-lucide="${state.currentSortKey === col.key ? (state.currentSortDir === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}" 
                  style="width: 12px; height: 12px; opacity: ${state.currentSortKey === col.key ? 1 : 0.3};"></i>`
       : '';
+    // Selection column: render checkbox directly, no flex wrapper
+    if (col.label.trim().startsWith('<input')) {
+      return `
+          <th style="width: ${columnWidth}; min-width: ${columnWidth}; max-width: ${columnWidth}; position: relative;" 
+              class="sortable-header th-selection">
+            ${col.label}
+            ${isMobileView ? '' : '<div class="resize-handle" onmousedown="initResize(event, this)"></div>'}
+          </th>
+        `;
+    }
     return `
           <th style="width: ${columnWidth}; min-width: ${columnWidth}; max-width: ${columnWidth}; position: relative; cursor: ${isSortable ? 'pointer' : 'default'};" 
               ${isSortable ? `onclick="handleHeaderSort('${col.key}', true)"` : ''}

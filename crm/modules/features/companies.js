@@ -498,6 +498,10 @@ function openCompanyModal(company = null) {
   modal.style.display = 'flex';
   document.body.classList.add('modal-active');
 
+  // Reset manual coords section visibility
+  const manualCoordsSection = document.getElementById('manual-coords-section');
+  if (manualCoordsSection) manualCoordsSection.classList.add('hidden');
+
   // Initialize event listeners
   initCompanyModalListeners(company, salesRepViewOnly);
 }
@@ -544,10 +548,6 @@ function initCompanyModalListeners(company, viewOnly = false) {
     return Boolean(duplicate);
   }
 
-  // Get buttons after they exist in the DOM
-  const geocodeBtn = document.getElementById('geocode-address-btn');
-  const useCurrentLocationBtn = document.getElementById('use-current-location-btn');
-
   // Categories input
   categoriesInput.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && categoriesInput.value.trim()) {
@@ -563,93 +563,9 @@ function initCompanyModalListeners(company, viewOnly = false) {
 
   updateCompanyDuplicateState();
 
-  // Geocode button (Updated to use OpenStreetMap Nominatim)
-  if (geocodeBtn) {
-    const newGeocodeBtn = geocodeBtn.cloneNode(true);
-    geocodeBtn.parentNode.replaceChild(newGeocodeBtn, geocodeBtn);
-
-    newGeocodeBtn.addEventListener('click', async () => {
-      const addressInput = document.getElementById('company-address');
-      const address = addressInput.value.trim();
-
-      if (!address) {
-        showToast('Please enter an address to geocode', 'error');
-        return;
-      }
-
-      // Set loading state
-      newGeocodeBtn.disabled = true;
-      newGeocodeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Geocoding...';
-
-      try {
-        // CALL THE NEW NOMINATIM FUNCTION
-        const geo = await geocodeAddressWithOSM(address);
-
-        // Update coordinates fields
-        document.getElementById('company-latitude').value = geo.latitude.toFixed(6);
-        document.getElementById('company-longitude').value = geo.longitude.toFixed(6);
-        document.getElementById('company-radius').value = '200';
-
-        // Hide manual coordinate input section
-        const manualCoordsSection = document.getElementById('manual-coords-section');
-        if (manualCoordsSection) {
-          manualCoordsSection.classList.add('hidden');
-        }
-
-        showToast(`Address found: ${geo.displayName}`, 'success');
-
-      } catch (error) {
-        showToast(error.message, 'error');
-      } finally {
-        // Restore button state
-        newGeocodeBtn.disabled = false;
-        newGeocodeBtn.innerHTML = `
-          Search Address
-        `;
-      }
-    });
-  }
-
-  // Use current location button
-  if (useCurrentLocationBtn) {
-    const newUseLocationBtn = useCurrentLocationBtn.cloneNode(true);
-    useCurrentLocationBtn.parentNode.replaceChild(newUseLocationBtn, useCurrentLocationBtn);
-
-    newUseLocationBtn.addEventListener('click', () => {
-      if (navigator.geolocation) {
-        newUseLocationBtn.disabled = true;
-        newUseLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting location...';
-
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
-            document.getElementById('company-latitude').value = latitude.toFixed(6);
-            document.getElementById('company-longitude').value = longitude.toFixed(6);
-            document.getElementById('company-radius').value = '200';
-
-            // Hide manual section
-            document.getElementById('manual-coords-section').classList.add('hidden');
-
-            showToast('Current location set successfully', 'success');
-          },
-          (error) => {
-            showToast('Unable to get location', 'error');
-          },
-          { enableHighAccuracy: true, timeout: 10000 }
-        );
-      } else {
-        showToast('Geolocation not supported', 'error');
-      }
-
-      newUseLocationBtn.disabled = false;
-      newUseLocationBtn.innerHTML = 'Use Current Location';
-    });
-  }
-
   // Nearby search moved to company view modal initialization
 
   // Save company
-  // In initCompanyModalListeners function, update the save button handler:
   saveBtn.onclick = async () => {
     if (company && state.isSalesRep) {
       showToast('Sales representatives are not allowed to edit companies', 'error');
@@ -658,14 +574,12 @@ function initCompanyModalListeners(company, viewOnly = false) {
     const name = document.getElementById('company-name-input').value.trim();
     const companyType = document.getElementById('company-type').value.trim();
     const description = document.getElementById('company-description').value.trim();
-    const address = document.getElementById('company-address').value.trim(); // This is correct
-    const latitude = parseFloat(document.getElementById('company-latitude').value);
-    const longitude = parseFloat(document.getElementById('company-longitude').value);
+    const address = document.getElementById('company-address').value.trim();
     const radius = parseInt(document.getElementById('company-radius').value);
 
-    // Validate
-    if (!name || !companyType || !address || (!latitude && !longitude)) {
-      showToast('Please enter company name, type, address, and coordinates', 'error');
+    // Validate required fields (coordinates handled via auto-geocoding below)
+    if (!name || !companyType || !address) {
+      showToast('Please enter company name, type, and address', 'error');
       return;
     }
 
@@ -674,8 +588,52 @@ function initCompanyModalListeners(company, viewOnly = false) {
       return;
     }
 
+    const manualCoordsSection = document.getElementById('manual-coords-section');
+    const manualCoordsVisible = manualCoordsSection && !manualCoordsSection.classList.contains('hidden');
+    let latitude = parseFloat(document.getElementById('company-latitude').value);
+    let longitude = parseFloat(document.getElementById('company-longitude').value);
+
+    if (manualCoordsVisible) {
+      // User is manually entering coords after geocoding failed
+      if (isNaN(latitude) || isNaN(longitude)) {
+        showToast('Please enter the latitude and longitude manually', 'error');
+        return;
+      }
+    }
+
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+    // Auto-geocode the address if not in manual-entry mode
+    if (!manualCoordsVisible) {
+      const addressChanged = !company || address !== (company.address || '');
+      if (addressChanged) {
+        try {
+          saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finding location...';
+          const geo = await geocodeAddressWithOSM(address);
+          latitude = geo.latitude;
+          longitude = geo.longitude;
+          document.getElementById('company-latitude').value = geo.latitude.toFixed(6);
+          document.getElementById('company-longitude').value = geo.longitude.toFixed(6);
+        } catch (geoError) {
+          if (manualCoordsSection) manualCoordsSection.classList.remove('hidden');
+          // Clear any pre-filled coords so the user starts fresh
+          document.getElementById('company-latitude').value = '';
+          document.getElementById('company-longitude').value = '';
+          latitude = NaN;
+          longitude = NaN;
+          if (isNaN(latitude) || isNaN(longitude)) {
+            showToast('Could not find coordinates for this address. Please enter them manually.', 'error');
+          } else {
+            showToast('Could not find coordinates for the new address. Please verify or update them manually.', 'error');
+          }
+          saveBtn.disabled = false;
+          saveBtn.innerHTML = 'Save Company';
+          return;
+        }
+      }
+      // Address unchanged when editing — keep existing coordinates as-is
+    }
 
     try {
       const domain = document.getElementById('company-domain')?.value.trim();
@@ -684,7 +642,7 @@ function initCompanyModalListeners(company, viewOnly = false) {
         company_type: companyType,
         description: description || null,
         domain: domain || null,
-        address: address, // Make sure this is included
+        address: address,
         latitude,
         longitude,
         radius,

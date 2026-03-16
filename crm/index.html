@@ -1252,39 +1252,22 @@
             </label>
             <input type="text" id="company-address" placeholder="e.g., 123 Main St, Nairobi, Kenya" required>
             <div class="field-helper">
-              <span>Enter the full physical address</span>
+              <span>Coordinates will be detected automatically from this address</span>
             </div>
           </div>
 
-          <div class="form-field">
-            <label>Location Coordinates <span class="required-indicator">*</span></label>
-            <div class="field-group">
-              <input type="number" id="company-latitude" placeholder="Latitude" step="0.000001" required>
-              <input type="number" id="company-longitude" placeholder="Longitude" step="0.000001" required>
+          <!-- Manual coordinates — only shown when auto-geocoding fails -->
+          <div id="manual-coords-section" class="hidden">
+            <div class="form-field">
+              <label>Location Coordinates</label>
+              <div class="field-group">
+                <input type="number" id="company-latitude" placeholder="Latitude" step="0.000001">
+                <input type="number" id="company-longitude" placeholder="Longitude" step="0.000001">
+              </div>
+              <div class="field-helper" style="color: var(--color-warning);">
+                <span>Coordinates could not be found automatically. Please enter them manually.</span>
+              </div>
             </div>
-            <div class="field-helper">
-              <span>GPS coordinates for precise location tracking</span>
-            </div>
-          </div>
-
-          <div class="field-group">
-            <button type="button" id="geocode-address-btn" class="btn btn-secondary">
-              <i data-lucide="search" style="width: 16px; height: 16px;"></i>
-              <span>Find Coordinates</span>
-            </button>
-            <button type="button" id="use-current-location-btn" class="btn btn-secondary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                class="lucide lucide-locate-fixed-icon lucide-locate-fixed">
-                <line x1="2" x2="5" y1="12" y2="12" />
-                <line x1="19" x2="22" y1="12" y2="12" />
-                <line x1="12" x2="12" y1="2" y2="5" />
-                <line x1="12" x2="12" y1="19" y2="22" />
-                <circle cx="12" cy="12" r="7" />
-                <circle cx="12" cy="12" r="3" />
-              </svg>
-              <span>Use My Location</span>
-            </button>
           </div>
 
           <div class="u-spacer-md"></div>
