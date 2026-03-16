@@ -26,7 +26,11 @@ async function renderTasksView() {
   } else {
     const result = await supabaseClient
       .from('tasks')
-      .select('*')
+      .select(`
+        *,
+        assigned_to_profile:profiles!tasks_assigned_to_fkey(first_name, last_name, email),
+        created_by_profile:profiles!tasks_created_by_fkey(first_name, last_name, email)
+      `)
       .or(`assigned_to.eq.${state.currentUser.id},created_by.eq.${state.currentUser.id}`)
       .order('created_at', { ascending: false });
 
@@ -391,96 +395,131 @@ function showTaskDetail(task, salesReps) {
   const content = document.getElementById('task-detail-content');
 
   const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== 'completed';
-  const assigneeName = task.assigned_to_profile
-    ? `${task.assigned_to_profile.first_name} ${task.assigned_to_profile.last_name}`
-    : 'Unassigned';
 
-  // Permission Logic: STRICT
-  // Manager can always edit.
-  // Sales Rep can only edit/delete if they created the task.
-  // If assigned to Sales Rep but created by Manager (or anyone else), Sales Rep CANNOT edit details or delete.
-  const canEditDetails = state.isManager || task.created_by === state.currentUser.id;
+  // Assignee
+  let assigneeName = 'Unassigned';
+  let assigneeInitials = '—';
+  if (task.assigned_to_profile) {
+    assigneeName = `${task.assigned_to_profile.first_name} ${task.assigned_to_profile.last_name}`;
+    assigneeInitials = (task.assigned_to_profile.first_name?.[0] || '') + (task.assigned_to_profile.last_name?.[0] || '');
+  } else if (task.assigned_to === state.currentUser.id) {
+    assigneeName = 'Me';
+    assigneeInitials = 'Me';
+  }
 
-  // Assigned By Info (Show if created by someone else)
+  // Assigned By (visible to sales reps when a manager assigned them the task)
   let assignedByHtml = '';
   if (task.created_by !== state.currentUser.id && task.created_by_profile) {
+    const assignerName = `${task.created_by_profile.first_name} ${task.created_by_profile.last_name}`;
+    const assignerInitials = (task.created_by_profile.first_name?.[0] || '') + (task.created_by_profile.last_name?.[0] || '');
     assignedByHtml = `
-      <div class="task-detail-meta-item">
-        <div class="task-detail-meta-label">Assigned By</div>
-        <div class="task-detail-meta-value">${task.created_by_profile.first_name} ${task.created_by_profile.last_name}</div>
+      <div class="tdv-person">
+        <div class="tdv-avatar tdv-avatar-purple">${assignerInitials}</div>
+        <div class="tdv-person-info">
+          <div class="tdv-person-label">Assigned By</div>
+          <div class="tdv-person-name">${assignerName}</div>
+        </div>
       </div>`;
   }
 
+  // Permission: manager always edits; sales rep only if they created it
+  const canEditDetails = state.isManager || task.created_by === state.currentUser.id;
+
+  // Status config
+  const statusMap = {
+    pending:     { label: 'To Do',       icon: '📋', cls: 'tdv-status-pending' },
+    in_progress: { label: 'In Progress', icon: '🔄', cls: 'tdv-status-in_progress' },
+    completed:   { label: 'Done',        icon: '✅', cls: 'tdv-status-completed' },
+  };
+  const sc = statusMap[task.status] || statusMap.pending;
+
+  // Priority config
+  const priorityMap = {
+    high:   { label: 'High',   icon: '🔴', cls: 'tdv-pill-priority-high' },
+    medium: { label: 'Medium', icon: '🟡', cls: 'tdv-pill-priority-medium' },
+    low:    { label: 'Low',    icon: '🔵', cls: 'tdv-pill-priority-low' },
+  };
+  const pc = priorityMap[task.priority] || priorityMap.medium;
+
+  // Due date pill
+  let duePillHtml;
+  if (task.due_date) {
+    const cls = isOverdue ? 'tdv-pill-overdue' : 'tdv-pill-due';
+    const label = (isOverdue ? 'Overdue · ' : '') + formatDate(task.due_date);
+    duePillHtml = `
+      <span class="tdv-pill ${cls}">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        ${label}
+      </span>`;
+  } else {
+    duePillHtml = `<span class="tdv-pill tdv-pill-nodate">No due date</span>`;
+  }
+
+  // Priority border class on header
+  const priorityBorderCls = task.priority ? `tdv-priority-${task.priority}` : 'tdv-priority-medium';
+
   content.innerHTML = `
-    <div class="task-detail-header">
-      <div class="task-detail-title">${task.title}</div>
-      <button class="modal-close" onclick="document.getElementById('task-detail-modal').classList.remove('active')">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-          class="lucide lucide-x-icon lucide-x">
-          <path d="M18 6 6 18" />
-          <path d="m6 6 12 12" />
-        </svg>
-      </button>
-    </div>
-    <div class="task-detail-body">
-      <div class="task-detail-section">
-        <div class="task-detail-section-title">Description</div>
-        <div class="task-detail-description">${task.description || 'No description provided'}</div>
+    <div class="tdv-header ${priorityBorderCls}">
+      <div class="tdv-header-row">
+        <span class="tdv-status-badge ${sc.cls}">${sc.icon} ${sc.label}</span>
+        <button class="modal-close" onclick="document.getElementById('task-detail-modal').classList.remove('active')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+          </svg>
+        </button>
       </div>
-      
-      <div class="task-detail-section">
-        <div class="task-detail-meta">
-          <div class="task-detail-meta-item">
-            <div class="task-detail-meta-label">Status</div>
-            <div class="task-detail-meta-value">
-              ${task.status === 'pending' ? '📋 To Do' : task.status === 'in_progress' ? '🔄 In Progress' : '✅ Done'}
+      <h2 class="tdv-title">${task.title}</h2>
+      <div class="tdv-pills">
+        <span class="tdv-pill ${pc.cls}">${pc.icon} ${pc.label} Priority</span>
+        ${duePillHtml}
+      </div>
+    </div>
+    <div class="tdv-body">
+      ${task.description ? `
+        <div class="tdv-section">
+          <div class="tdv-section-label">Description</div>
+          <div class="tdv-desc">${task.description}</div>
+        </div>
+      ` : ''}
+
+      <div class="tdv-section">
+        <div class="tdv-section-label">People</div>
+        <div class="tdv-people">
+          <div class="tdv-person">
+            <div class="tdv-avatar tdv-avatar-blue">${assigneeInitials}</div>
+            <div class="tdv-person-info">
+              <div class="tdv-person-label">Assigned To</div>
+              <div class="tdv-person-name">${assigneeName}</div>
             </div>
-          </div>
-          <div class="task-detail-meta-item">
-            <div class="task-detail-meta-label">Priority</div>
-            <div class="task-detail-meta-value">
-              ${task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Not set'}
-            </div>
-          </div>
-          <div class="task-detail-meta-item">
-            <div class="task-detail-meta-label">Due Date</div>
-            <div class="task-detail-meta-value ${isOverdue ? 'task-overdue' : ''}">
-              ${task.due_date ? formatDate(task.due_date) : 'No due date'}
-            </div>
-          </div>
-          <div class="task-detail-meta-item">
-            <div class="task-detail-meta-label">Assigned To</div>
-            <div class="task-detail-meta-value">${assigneeName}</div>
           </div>
           ${assignedByHtml}
         </div>
       </div>
 
-      <div class="task-detail-section">
-        ${canEditDetails ? `
-        <button class="btn btn-secondary" onclick="editTask('${task.id}')">
-          Edit Task
+    </div>
+    <div class="tdv-footer">
+      ${canEditDetails ? `
+        <button class="tdv-edit-btn" onclick="editTask('${task.id}')">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
+          Edit
         </button>
-        <button class="btn btn-secondary" onclick="deleteTask('${task.id}')" style="margin-left: 0.5rem;">
-          Delete
+        <button class="tdv-delete-btn" onclick="deleteTask('${task.id}')" title="Delete task">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
         </button>
-        ` : `
-        <div class="alert alert-info">
-            <i class="fas fa-lock"></i> Only the manager can edit or delete this task.
+      ` : `
+        <div class="tdv-lock-notice">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Only the task creator can edit or delete this task.
         </div>
-        `}
-      </div>
+      `}
     </div>
   `;
 
   modal.classList.add('active');
 
-  // Close on backdrop click
   modal.onclick = (e) => {
-    if (e.target === modal) {
-      modal.classList.remove('active');
-    }
+    if (e.target === modal) modal.classList.remove('active');
   };
 }
 
