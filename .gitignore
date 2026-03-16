@@ -5,6 +5,9 @@
 # config.js files are committed — they only contain public-safe keys.
 # (Groq API key is stored as a Supabase secret, never here.)
 
+# Backup files
+*.bak
+
 # OS / editor noise
 .DS_Store
 Thumbs.db

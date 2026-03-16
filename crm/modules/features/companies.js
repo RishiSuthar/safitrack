@@ -1,0 +1,858 @@
+// modules/features/companies.js
+// Companies list, modal, categories.
+import { state, supabaseClient, crmDebugLog, saveViewState } from '../state.js';
+import { viewContainer } from '../ui/dom.js';
+import { showToast, escapeHtml, getInitials, triggerConfetti } from '../ui/toast.js';
+import { renderSkeletonCards, renderError, getLeadScoreBadge } from '../utils/helpers.js';
+import { renderEditableDataTable, getCompanyLogoUrl, normalizeSearchText, normalizeForMatching, findDuplicateCompanyByName, guessDomainAndFavicon } from '../ui/spreadsheet.js';
+import { geocodeAddressWithOSM, searchNearbyOverpass, renderNearbySuggestions } from '../utils/geo.js';
+import { exportAllCompaniesToCsv, runCompaniesImportFromCsv, downloadCompaniesSampleCsv } from './import-export.js';
+
+async function renderCompaniesView() {
+  const companiesState = state.tableViewState.companies;
+  state.currentFilters.company_type = companiesState.companyType || '';
+
+  // Restore per-view sort — avoids sorting from another view leaking in
+  state.currentSortKey = companiesState.sortKey || 'name';
+  state.currentSortDir = companiesState.sortDir || 'asc';
+
+  const sortableCompanyColumns = ['name', 'address', 'company_type'];
+  const safeSortKey = sortableCompanyColumns.includes(state.currentSortKey) ? state.currentSortKey : 'name';
+  if (state.currentSortKey !== safeSortKey) {
+    state.currentSortKey = safeSortKey;
+    state.currentSortDir = 'asc';
+  }
+
+  // Fetch all companies (we'll paginate in the UI)
+  // Primary query includes category relation for industry labels.
+  let companies = [];
+  let error = null;
+
+  let primaryQ = supabaseClient
+    .from('companies')
+    .select(`*, company_categories(categories(id, name))`)
+    .order(safeSortKey, { ascending: state.currentSortDir === 'asc' });
+  if (state.currentOrganization?.id) primaryQ = primaryQ.eq('organization_id', state.currentOrganization.id);
+  const primaryQuery = await primaryQ;
+
+  companies = primaryQuery.data || [];
+  error = primaryQuery.error;
+  crmDebugLog('renderCompaniesView.primaryQuery', {
+    error,
+    count: companies.length,
+    sample: companies.length > 0 ? companies[0] : null
+  });
+
+  // Fallback: if relation query returns no rows without an explicit error,
+  // retry a flat companies query so table data is never blocked by relation access.
+  if (!error && companies.length === 0) {
+    let fallbackQ = supabaseClient.from('companies').select('*').order(safeSortKey, { ascending: state.currentSortDir === 'asc' });
+    if (state.currentOrganization?.id) fallbackQ = fallbackQ.eq('organization_id', state.currentOrganization.id);
+    const fallbackQuery = await fallbackQ;
+
+    crmDebugLog('renderCompaniesView.fallbackQuery', {
+      error: fallbackQuery.error || null,
+      count: Array.isArray(fallbackQuery.data) ? fallbackQuery.data.length : 0,
+      sample: Array.isArray(fallbackQuery.data) && fallbackQuery.data.length > 0 ? fallbackQuery.data[0] : null
+    });
+
+    if (!fallbackQuery.error && Array.isArray(fallbackQuery.data) && fallbackQuery.data.length > 0) {
+      companies = fallbackQuery.data;
+    }
+  }
+
+  if (error) {
+    crmDebugLog('renderCompaniesView.error', error);
+    viewContainer.innerHTML = renderError(error.message);
+    return;
+  }
+
+  // Store for global access
+  window.allCompaniesData = Array.isArray(companies) ? companies : [];
+  crmDebugLog('renderCompaniesView.window.allCompaniesData', {
+    count: window.allCompaniesData.length,
+    sample: window.allCompaniesData.length > 0 ? window.allCompaniesData[0] : null
+  });
+
+  // Initial pagination state
+  let currentPage = companiesState.currentPage || 1;
+  const recordsPerPage = 15; // Number of records per page
+  let searchQuery = companiesState.searchQuery || ''; // Separate search state
+
+  // Function to render the companies table
+  function renderCompaniesTable(companiesToRender, paginationInfo) {
+    const allowEditDelete = !state.isSalesRep;
+    const columns = [
+      {
+        key: 'selection',
+        label: '<input type="checkbox" class="selection-checkbox" id="companies-select-all">',
+        width: '50px',
+        readOnly: true,
+        sortable: false,
+        render: (val, row) => `<input type="checkbox" class="selection-checkbox row-select" data-id="${row.id}" ${state.selectedRecordIds.has(row.id) ? 'checked' : ''}>`
+      },
+      {
+        key: 'name', label: 'Company Name', width: '300px', icon: 'building', sortable: true, readOnly: state.isSalesRep, render: (val, row) => {
+          const domain = (row && row.domain) ? row.domain : '';
+          const logoUrl = getCompanyLogoUrl(domain);
+          const initials = getInitials(row.name || '');
+          return `
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:28px;height:28px;flex-shrink:0;position:relative;">
+                <div class="mention-avatar">${initials}</div>
+                ${logoUrl ? `<img src="${logoUrl}" style="display:none;width:28px;height:28px;object-fit:contain;border-radius:50%;position:absolute;left:0;top:0;" onload="this.style.display='block'; this.previousElementSibling.style.display='none'" onerror="this.style.display='none'" />` : ''}
+              </div>
+              <div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${row.name || '-'}</div>
+            </div>
+          `;
+        }
+      },
+      { key: 'industry', label: 'Industry', width: '150px', readOnly: true, icon: 'briefcase', sortable: false, render: (val, row) => val || row.company_categories?.map(c => c.categories.name).join(', ') || 'N/A' },
+      { key: 'address', label: 'Location', width: '190px', icon: 'map-pin', readOnly: state.isSalesRep },
+      {
+        key: 'company_type',
+        label: 'Type',
+        width: '120px',
+        icon: 'tag',
+        sortable: true,
+        type: 'select',
+        readOnly: state.isSalesRep,
+        options: ['Competitor', 'Customer', 'Distributor', 'Investor', 'Partner', 'Reseller', 'Supplier', 'Vendor', 'Other']
+      },
+      {
+        key: 'actions', label: 'Actions', width: '120px', readOnly: true, sortable: false, render: (val, row) => {
+          let buttons = `<button class="action-btn view-company" data-id="${row.id}" title="View company"><i data-lucide="eye"></i></button>`;
+          if (allowEditDelete) {
+            buttons += `<button class="action-btn edit-company" data-id="${row.id}" title="Edit company"><i data-lucide="square-pen"></i></button>`;
+            buttons += `<button class="action-btn delete-company" data-id="${row.id}" title="Delete company"><i data-lucide="trash-2"></i></button>`;
+          }
+          return `<div class="table-actions">${buttons}</div>`;
+        }
+      }
+    ];
+
+    let html = `
+
+
+      <div class="view-toolbar">
+        <div class="search-container u-flex-1 u-maxw-320">
+          <i data-lucide="search" class="u-icon-16 u-search-icon-muted"></i>
+          <input type="text" id="companies-search" placeholder="Search companies...">
+          <div id="clear-companies-search" class="search-clear-btn hidden" title="Clear search">
+            <i data-lucide="x" class="u-icon-16"></i>
+          </div>
+        </div>
+        
+        <div class="u-flex-1"></div>
+
+        ${state.isSalesRep ? '' : `
+        <button class="toolbar-btn" id="companies-import-export-btn">
+          <i data-lucide="file-up"></i> Import / Export
+        </button>
+    `}
+
+        <button class="toolbar-btn toolbar-btn-primary" id="add-company-btn">
+          <i data-lucide="plus" class="u-icon-16"></i> New Company
+        </button>
+      </div>
+      
+      ${renderEditableDataTable(companiesToRender, columns, 'companies-spreadsheet', 'companies')}
+      
+      <div id="companies-pagination" class="u-p-md"></div>
+    `;
+
+    viewContainer.innerHTML = html;
+
+    // Initialize Lucide icons immediately
+    if (window.lucide) lucide.createIcons();
+
+    // Restore search value after rendering
+    const searchInput = document.getElementById('companies-search');
+    if (searchInput && searchInput.value !== searchQuery) {
+      searchInput.value = searchQuery;
+    }
+
+    // Create pagination controls
+    createPaginationControls(
+      paginationInfo.currentPage,
+      paginationInfo.totalPages,
+      paginationInfo.totalRecords,
+      paginationInfo.recordsPerPage,
+      'companies-pagination',
+      (newPage) => {
+        currentPage = newPage;
+        companiesState.currentPage = currentPage;
+        saveViewState({ companies: companiesState });
+        const result = searchAndPaginate(
+          window.allCompaniesData,
+          searchQuery,
+          currentPage,
+          recordsPerPage,
+          (item, query) => filterAndSearchCompany(item, query)
+        );
+        renderCompaniesTable(result.data, result);
+      }
+    );
+
+    // Initialize event listeners
+    initializeCompaniesEventListeners();
+  }
+
+  // Separate function to initialize event listeners
+  function initializeCompaniesEventListeners() {
+
+    if (!state.isSalesRep) {
+      document.getElementById('companies-import-export-btn')?.addEventListener('click', () => {
+        openCompaniesImportExportModal();
+      });
+    }
+
+    const searchInput = document.getElementById('companies-search');
+    if (searchInput) {
+      // Remove any existing listeners by cloning and replacing
+      const newSearchInput = searchInput.cloneNode(true);
+      searchInput.parentNode.replaceChild(newSearchInput, searchInput);
+
+      // Add new listener
+      newSearchInput.addEventListener('input', (e) => {
+        // Store the current cursor position
+        const cursorPosition = e.target.selectionStart;
+        const searchValue = e.target.value;
+
+        searchQuery = searchValue;
+        companiesState.searchQuery = searchQuery;
+        saveViewState({ companies: companiesState });
+
+        // Use a small delay to avoid too many rapid searches
+        clearTimeout(newSearchInput.searchTimeout);
+        newSearchInput.searchTimeout = setTimeout(() => {
+          currentPage = 1; // Reset to first page when searching
+          companiesState.currentPage = currentPage;
+          saveViewState({ companies: companiesState });
+          const result = searchAndPaginate(
+            window.allCompaniesData,
+            searchQuery,
+            currentPage,
+            recordsPerPage,
+            (item, query) => filterAndSearchCompany(item, query)
+          );
+
+          // Store the active element and cursor position before re-rendering
+          const activeElement = document.activeElement;
+          const wasSearchInput = activeElement && activeElement.id === 'companies-search';
+
+          renderCompaniesTable(result.data, result);
+
+          // Restore focus and cursor position to the search input if it was the active element
+          if (wasSearchInput) {
+            setTimeout(() => {
+              const searchElement = document.getElementById('companies-search');
+              searchElement.focus();
+              // Set the cursor position to where it was before
+              searchElement.setSelectionRange(cursorPosition, cursorPosition);
+            }, 0);
+          }
+        }, 300); // 300ms delay
+      });
+    }
+    // Add company button
+    document.getElementById('add-company-btn')?.addEventListener('click', () => {
+      openCompanyModal();
+    });
+
+    // View, edit and delete buttons
+    document.querySelectorAll('.view-company').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const companyId = btn.dataset.id;
+        const company = window.allCompaniesData.find(c => c.id === companyId);
+        if (company) {
+          openCompanyViewModal(company);
+        }
+      });
+    });
+
+    if (!state.isSalesRep) {
+      document.querySelectorAll('.edit-company').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const companyId = btn.dataset.id;
+          const company = window.allCompaniesData.find(c => c.id === companyId);
+          if (company) {
+            openCompanyModal(company);
+          }
+        });
+      });
+
+      document.querySelectorAll('.delete-company').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const companyId = btn.dataset.id;
+          const company = window.allCompaniesData.find(c => c.id === companyId);
+
+          const confirmed = await showConfirmDialog(
+            'Delete Company',
+            `Are you sure you want to delete ${company.name}?`
+          );
+
+          if (!confirmed) return;
+
+          const { error } = await supabaseClient
+            .from('companies')
+            .delete()
+            .eq('id', companyId);
+
+          if (error) {
+            showToast('Error deleting company: ' + error.message, 'error');
+            return;
+          }
+
+          // Remove from local data and refresh
+          window.allCompaniesData = window.allCompaniesData.filter(c => c.id !== companyId);
+
+          showToast('Company deleted successfully', 'success');
+
+          // Re-render with current page
+          const result = searchAndPaginate(
+            window.allCompaniesData,
+            searchQuery,
+            currentPage,
+            recordsPerPage,
+            (item, query) => filterAndSearchCompany(item, query)
+          );
+
+          // Adjust current page if necessary
+          if (result.data.length === 0 && result.currentPage > 1) {
+            currentPage--;
+            const adjustedResult = searchAndPaginate(
+              window.allCompaniesData,
+              searchQuery,
+              currentPage,
+              recordsPerPage,
+              (item, query) => filterAndSearchCompany(item, query)
+            );
+            renderCompaniesTable(adjustedResult.data, adjustedResult);
+          } else {
+            renderCompaniesTable(result.data, result);
+          }
+        });
+      });
+    } // end if (!state.isSalesRep)
+
+    // Clear search event
+    const clearSearchBtn = document.getElementById('clear-companies-search');
+    if (clearSearchBtn) {
+      if (searchQuery) clearSearchBtn.classList.remove('hidden');
+      clearSearchBtn.onclick = () => {
+        searchQuery = '';
+        companiesState.searchQuery = searchQuery;
+        searchInput.value = '';
+        clearSearchBtn.classList.add('hidden');
+        currentPage = 1;
+        companiesState.currentPage = currentPage;
+        saveViewState({ companies: companiesState });
+        const result = searchAndPaginate(
+          window.allCompaniesData,
+          searchQuery,
+          1,
+          recordsPerPage,
+          (item, query) => filterAndSearchCompany(item, query)
+        );
+        renderCompaniesTable(result.data, result);
+      };
+    }
+
+    // Company type filter event
+    const typeFilter = document.getElementById('company-type-filter');
+    if (typeFilter) {
+      typeFilter.value = state.currentFilters.company_type || '';
+      typeFilter.onchange = (e) => {
+        state.currentFilters.company_type = e.target.value;
+        companiesState.companyType = state.currentFilters.company_type;
+        currentPage = 1;
+        companiesState.currentPage = currentPage;
+        saveViewState({ companies: companiesState });
+        const result = searchAndPaginate(
+          window.allCompaniesData,
+          searchQuery,
+          1,
+          recordsPerPage,
+          (item, query) => filterAndSearchCompany(item, query)
+        );
+        renderCompaniesTable(result.data, result);
+      };
+    }
+
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value;
+        companiesState.searchQuery = searchQuery;
+        if (searchQuery) {
+          clearSearchBtn?.classList.remove('hidden');
+        } else {
+          clearSearchBtn?.classList.add('hidden');
+        }
+
+        currentPage = 1;
+        companiesState.currentPage = currentPage;
+        const result = searchAndPaginate(
+          window.allCompaniesData,
+          searchQuery,
+          1,
+          recordsPerPage,
+          (item, query) => filterAndSearchCompany(item, query)
+        );
+        renderCompaniesTable(result.data, result);
+      });
+    }
+
+    // Sort event
+    const sortBtn = document.getElementById('companies-sort-btn');
+    if (sortBtn) {
+      sortBtn.onclick = () => {
+        handleHeaderSort('name');
+      };
+    }
+  }
+
+  // Helper for combined filter/search
+
+  // Initialize Lucide icons
+  if (window.lucide) lucide.createIcons();
+  // Initial data processing
+  const initialData = searchAndPaginate(
+    window.allCompaniesData,
+    searchQuery,
+    currentPage,
+    recordsPerPage,
+    (item, query) => filterAndSearchCompany(item, query)
+  );
+  renderCompaniesTable(initialData.data, initialData);
+
+  // Explicitly initialize icons after rendering table
+  if (window.lucide) lucide.createIcons();
+  // Helper for combined filter/search
+  function filterAndSearchCompany(company, query) {
+    if (state.currentFilters.company_type && company.company_type !== state.currentFilters.company_type) return false;
+    if (!query) return true;
+    return matchesTokenizedQuery(
+      query,
+      company.name,
+      company.description,
+      company.address
+    );
+  }
+}
+
+
+
+// Update the openCompanyModal function to use the global data
+function openCompanyModal(company = null) {
+  const modal = document.getElementById('company-modal');
+  const modalTitle = document.getElementById('company-modal-title');
+  const saveBtn = document.getElementById('save-company-btn');
+  const addMoreWrapper = document.getElementById('company-add-more-wrapper');
+
+  // Reset form
+  document.getElementById('company-name-input').value = '';
+  document.getElementById('company-type').value = '';
+  document.getElementById('company-description').value = '';
+  document.getElementById('company-domain') && (document.getElementById('company-domain').value = '');
+  document.getElementById('company-address').value = '';
+  document.getElementById('company-latitude').value = '';
+  document.getElementById('company-longitude').value = '';
+  document.getElementById('company-radius').value = '200';
+
+  // Clear categories
+  document.getElementById('categories-container').innerHTML = '<input type="text" class="categories-input" id="categories-input" placeholder="Add category...">';
+  state.companyCategories = [];
+
+  // Set modal title and show manual coordinates section
+  const salesRepViewOnly = company && state.isSalesRep;
+  if (company) {
+    modalTitle.innerHTML = salesRepViewOnly ? 'View Company' : 'Edit Company';
+    if (addMoreWrapper) addMoreWrapper.style.display = 'none';
+
+    // Fill form with company data
+    document.getElementById('company-name-input').value = company.name || '';
+    document.getElementById('company-type').value = company.company_type || '';
+    document.getElementById('company-description').value = company.description || '';
+    document.getElementById('company-domain') && (document.getElementById('company-domain').value = company.domain || '');
+    document.getElementById('company-address').value = company.address || '';
+    document.getElementById('company-latitude').value = company.latitude?.toString() || '';
+    document.getElementById('company-longitude').value = company.longitude?.toString() || '';
+    document.getElementById('company-radius').value = company.radius?.toString() || '200';
+
+    // Fill categories
+    if (company.company_categories && company.company_categories.length > 0) {
+      company.company_categories.forEach(c => {
+        addCategory(c.categories.name);
+      });
+    }
+  } else {
+    modalTitle.innerHTML = 'New Company';
+    if (addMoreWrapper) addMoreWrapper.style.display = 'inline-flex';
+  }
+
+  // Show modal
+  modal.style.display = 'flex';
+  document.body.classList.add('modal-active');
+
+  // Initialize event listeners
+  initCompanyModalListeners(company, salesRepViewOnly);
+}
+
+
+function initCompanyModalListeners(company, viewOnly = false) {
+  const categoriesInput = document.getElementById('categories-input');
+  const saveBtn = document.getElementById('save-company-btn');
+  const companyNameInput = document.getElementById('company-name-input');
+  const duplicateWarning = document.getElementById('company-duplicate-warning');
+
+  // disable editing if viewOnly (sales rep opening existing company)
+  if (viewOnly) {
+    // hide save button and disable all inputs/selects/textareas
+    if (saveBtn) saveBtn.style.display = 'none';
+    const inputs = document.querySelectorAll('#company-modal input, #company-modal select, #company-modal textarea, #company-modal button');
+    inputs.forEach(el => {
+      // keep close/cancel buttons enabled
+      if (el.id === 'cancel-company-btn' || el.classList.contains('modal-close')) return;
+      el.disabled = true;
+    });
+  }
+
+  function updateCompanyDuplicateState() {
+    if (company) {
+      if (duplicateWarning) {
+        duplicateWarning.textContent = '';
+        duplicateWarning.classList.add('hidden');
+      }
+      return false;
+    }
+
+    const duplicate = findDuplicateCompanyByName(companyNameInput?.value || '');
+    if (duplicateWarning) {
+      if (duplicate) {
+        duplicateWarning.textContent = `Duplicate detected: ${duplicate.name}`;
+        duplicateWarning.classList.remove('hidden');
+      } else {
+        duplicateWarning.textContent = '';
+        duplicateWarning.classList.add('hidden');
+      }
+    }
+
+    return Boolean(duplicate);
+  }
+
+  // Get buttons after they exist in the DOM
+  const geocodeBtn = document.getElementById('geocode-address-btn');
+  const useCurrentLocationBtn = document.getElementById('use-current-location-btn');
+
+  // Categories input
+  categoriesInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && categoriesInput.value.trim()) {
+      e.preventDefault();
+      addCategory(categoriesInput.value.trim());
+      categoriesInput.value = '';
+    }
+  });
+
+  if (companyNameInput) {
+    companyNameInput.addEventListener('input', updateCompanyDuplicateState);
+  }
+
+  updateCompanyDuplicateState();
+
+  // Geocode button (Updated to use OpenStreetMap Nominatim)
+  if (geocodeBtn) {
+    const newGeocodeBtn = geocodeBtn.cloneNode(true);
+    geocodeBtn.parentNode.replaceChild(newGeocodeBtn, geocodeBtn);
+
+    newGeocodeBtn.addEventListener('click', async () => {
+      const addressInput = document.getElementById('company-address');
+      const address = addressInput.value.trim();
+
+      if (!address) {
+        showToast('Please enter an address to geocode', 'error');
+        return;
+      }
+
+      // Set loading state
+      newGeocodeBtn.disabled = true;
+      newGeocodeBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Geocoding...';
+
+      try {
+        // CALL THE NEW NOMINATIM FUNCTION
+        const geo = await geocodeAddressWithOSM(address);
+
+        // Update coordinates fields
+        document.getElementById('company-latitude').value = geo.latitude.toFixed(6);
+        document.getElementById('company-longitude').value = geo.longitude.toFixed(6);
+        document.getElementById('company-radius').value = '200';
+
+        // Hide manual coordinate input section
+        const manualCoordsSection = document.getElementById('manual-coords-section');
+        if (manualCoordsSection) {
+          manualCoordsSection.classList.add('hidden');
+        }
+
+        showToast(`Address found: ${geo.displayName}`, 'success');
+
+      } catch (error) {
+        showToast(error.message, 'error');
+      } finally {
+        // Restore button state
+        newGeocodeBtn.disabled = false;
+        newGeocodeBtn.innerHTML = `
+          Search Address
+        `;
+      }
+    });
+  }
+
+  // Use current location button
+  if (useCurrentLocationBtn) {
+    const newUseLocationBtn = useCurrentLocationBtn.cloneNode(true);
+    useCurrentLocationBtn.parentNode.replaceChild(newUseLocationBtn, useCurrentLocationBtn);
+
+    newUseLocationBtn.addEventListener('click', () => {
+      if (navigator.geolocation) {
+        newUseLocationBtn.disabled = true;
+        newUseLocationBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Getting location...';
+
+        navigator.geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            document.getElementById('company-latitude').value = latitude.toFixed(6);
+            document.getElementById('company-longitude').value = longitude.toFixed(6);
+            document.getElementById('company-radius').value = '200';
+
+            // Hide manual section
+            document.getElementById('manual-coords-section').classList.add('hidden');
+
+            showToast('Current location set successfully', 'success');
+          },
+          (error) => {
+            showToast('Unable to get location', 'error');
+          },
+          { enableHighAccuracy: true, timeout: 10000 }
+        );
+      } else {
+        showToast('Geolocation not supported', 'error');
+      }
+
+      newUseLocationBtn.disabled = false;
+      newUseLocationBtn.innerHTML = 'Use Current Location';
+    });
+  }
+
+  // Nearby search moved to company view modal initialization
+
+  // Save company
+  // In initCompanyModalListeners function, update the save button handler:
+  saveBtn.onclick = async () => {
+    if (company && state.isSalesRep) {
+      showToast('Sales representatives are not allowed to edit companies', 'error');
+      return;
+    }
+    const name = document.getElementById('company-name-input').value.trim();
+    const companyType = document.getElementById('company-type').value.trim();
+    const description = document.getElementById('company-description').value.trim();
+    const address = document.getElementById('company-address').value.trim(); // This is correct
+    const latitude = parseFloat(document.getElementById('company-latitude').value);
+    const longitude = parseFloat(document.getElementById('company-longitude').value);
+    const radius = parseInt(document.getElementById('company-radius').value);
+
+    // Validate
+    if (!name || !companyType || !address || (!latitude && !longitude)) {
+      showToast('Please enter company name, type, address, and coordinates', 'error');
+      return;
+    }
+
+    if (!company && updateCompanyDuplicateState()) {
+      showToast('Potential duplicate company found. Please review before saving.', 'error');
+      return;
+    }
+
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+    try {
+      const domain = document.getElementById('company-domain')?.value.trim();
+      const companyData = {
+        name,
+        company_type: companyType,
+        description: description || null,
+        domain: domain || null,
+        address: address, // Make sure this is included
+        latitude,
+        longitude,
+        radius,
+        created_by: state.currentUser.id,
+        organization_id: state.currentOrganization?.id
+      };
+
+      let result;
+      let companyId;
+
+      if (company) {
+        // Update existing company
+        result = await supabaseClient
+          .from('companies')
+          .update(companyData)
+          .eq('id', company.id)
+          .select(); // Add .select() to return the updated data
+
+        if (result.error) throw result.error;
+        companyId = company.id;
+
+        const index = window.allCompaniesData.findIndex(c => c.id === companyId);
+        if (index !== -1) {
+          window.allCompaniesData[index] = { ...window.allCompaniesData[index], ...companyData };
+        }
+
+      } else {
+        // Create new company
+        result = await supabaseClient
+          .from('companies')
+          .insert([companyData])
+          .select(); // Add .select() to return the inserted data
+
+        if (result.error) throw result.error;
+
+        // Check if result.data exists and has elements before accessing
+        if (!result.data || result.data.length === 0) {
+          throw new Error('Company was created but no data was returned');
+        }
+
+        companyId = result.data[0].id;
+        window.allCompaniesData.push(result.data[0]);
+
+      }
+
+      // Handle categories - ONLY if there are categories to process
+      if (state.companyCategories && state.companyCategories.length > 0) {
+        // Delete existing categories ONLY if editing an existing company
+        if (company) {
+          await supabaseClient
+            .from('company_categories')
+            .delete()
+            .eq('company_id', companyId);
+        }
+
+        // Add categories
+        for (const categoryName of state.companyCategories) {
+          // First, ensure all categories exist
+          const { data: existingCategory, error: categoryError } = await supabaseClient
+            .from('categories')
+            .select('id')
+            .eq('name', categoryName)
+            .single();
+
+          if (categoryError && categoryError.code !== 'PGRST116') { // Not found error
+            throw categoryError;
+          }
+
+          let categoryId;
+          if (existingCategory) {
+            categoryId = existingCategory.id;
+          } else {
+            // Create new category
+            const { data: newCategory, error: insertError } = await supabaseClient
+              .from('categories')
+              .insert([{ name: categoryName }])
+              .select();
+
+            if (insertError) throw insertError;
+
+            // Check if newCategory exists and has elements before accessing
+            if (!newCategory || newCategory.length === 0) {
+              throw new Error('Category was created but no data was returned');
+            }
+
+            categoryId = newCategory[0].id;
+          }
+
+          // Link category to company
+          const { error: linkError } = await supabaseClient
+            .from('company_categories')
+            .insert([{
+              company_id: companyId,
+              category_id: categoryId
+            }]);
+
+          if (linkError) throw linkError;
+        }
+      }
+
+      const shouldAddMore = !company && Boolean(document.getElementById('company-add-more-toggle')?.checked);
+
+      showToast(`Company ${company ? 'updated' : 'created'} successfully!`, 'success');
+      closeModal('company-modal');
+      await renderCompaniesView();
+
+      if (shouldAddMore) {
+        openCompanyModal();
+        const addMoreToggle = document.getElementById('company-add-more-toggle');
+        if (addMoreToggle) addMoreToggle.checked = true;
+      }
+
+    } catch (error) {
+      console.error('Error saving company:', error);
+      showToast(`Error ${company ? 'updating' : 'creating'} company: ${error.message}`, 'error');
+
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.innerHTML = 'Save Company';
+      if (!company) updateCompanyDuplicateState();
+    }
+  };
+}
+
+function addCategory(name) {
+  if (!state.companyCategories.includes(name)) {
+    state.companyCategories.push(name);
+    renderCategories();
+  }
+}
+
+function removeCategory(name) {
+  state.companyCategories = state.companyCategories.filter(c => c !== name);
+  renderCategories();
+}
+
+function renderCategories() {
+  const container = document.getElementById('categories-container');
+  if (!container) return;
+
+  const categoriesHTML = state.companyCategories.map(category => `
+    <span class="category-tag">
+      ${category}
+      <button class="tag-remove" onclick="removeCategory('${category}')">×</button>
+    </span>
+  `).join('');
+
+  container.innerHTML = categoriesHTML + `<input type="text" class="categories-input" id="categories-input" placeholder="Add category...">`;
+
+  const newInput = document.getElementById('categories-input');
+  newInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && newInput.value.trim()) {
+      e.preventDefault();
+      addCategory(newInput.value.trim());
+      newInput.value = '';
+    }
+  });
+}
+
+// ======================
+
+
+// ── Exports ────────────────────────────────────────────────────
+export {
+  renderCompaniesView,
+  openCompanyModal,
+  initCompanyModalListeners,
+  addCategory,
+  removeCategory,
+  renderCategories,
+};
