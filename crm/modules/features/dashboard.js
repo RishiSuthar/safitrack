@@ -1,394 +1,613 @@
 // modules/features/dashboard.js
-// Professional dashboard view.
 import { state, supabaseClient } from '../state.js';
-import { viewContainer } from '../ui/dom.js';
-import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
-import { renderSkeletonCards } from '../utils/helpers.js';
+import { showToast } from '../ui/toast.js';
+import { renderError, getCurrencySymbol } from '../utils/helpers.js';
+
+// ── Helpers ─────────────────────────────────────────────────────
+
+const ORG_ID = () => state.currentOrganization?.id || '00000000-0000-0000-0000-000000000000';
+
+function fmtMoney(n) {
+  const sym = getCurrencySymbol();
+  const abs = Math.abs(n || 0);
+  if (abs >= 1_000_000) return `${sym} ${(n / 1_000_000).toFixed(1)}M`;
+  if (abs >= 1_000) return `${sym} ${(n / 1_000).toFixed(1)}K`;
+  return `${sym} ${Math.round(n).toLocaleString()}`;
+}
+
+function fmtFull(n) {
+  return `${getCurrencySymbol()} ${Math.round(n || 0).toLocaleString()}`;
+}
+
+function pct(a, b) { return b > 0 ? ((a / b) * 100).toFixed(1) : '0.0'; }
+
+function relTime(date) {
+  const now = Date.now();
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return '—';
+  const diff = now - d.getTime();
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}d ago`;
+  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+function daysUntil(dateStr) {
+  if (!dateStr) return Infinity;
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return Infinity;
+  return Math.ceil((d - new Date()) / 86400000);
+}
+
+function initials(first, last) {
+  return ((first || '')[0] || '') + ((last || '')[0] || '') || '?';
+}
+
+const STAGE_META = [
+  { key: 'prospecting',  label: 'Prospecting',  color: '#3b82f6' },
+  { key: 'qualification', label: 'Qualification', color: '#8b5cf6' },
+  { key: 'proposal',     label: 'Proposal',     color: '#f59e0b' },
+  { key: 'negotiation',  label: 'Negotiation',  color: '#f97316' },
+  { key: 'closed-won',   label: 'Closed Won',   color: '#10b981' },
+  { key: 'closed-lost',  label: 'Closed Lost',  color: '#ef4444' },
+];
+
+function normalizeStage(stage) {
+  const v = String(stage || '').toLowerCase().replace(/_/g, '-');
+  if (v === 'closed-won' || v === 'closed-lost') return v;
+  if (['prospecting', 'qualification', 'proposal', 'negotiation'].includes(v)) return v;
+  return 'prospecting';
+}
+
+function esc(s) {
+  const el = document.createElement('span');
+  el.textContent = s || '';
+  return el.innerHTML;
+}
+
+// ── Data layer ──────────────────────────────────────────────────
+
+async function fetchDashboardData() {
+  const orgId = ORG_ID();
+
+  const [
+    peopleRes,
+    companiesRes,
+    tasksRes,
+    oppsRes,
+    visitsRes,
+    profilesRes,
+    remindersRes,
+  ] = await Promise.all([
+    supabaseClient.from('people').select('*', { count: 'exact', head: true }).eq('organization_id', orgId),
+    supabaseClient.from('companies').select('*', { count: 'exact', head: true }).eq('organization_id', orgId),
+    supabaseClient.from('tasks').select('id, title, status, priority, due_date, assigned_to, created_at').eq('organization_id', orgId),
+    supabaseClient.from('opportunities').select('id, name, value, stage, created_at, updated_at').eq('organization_id', orgId),
+    supabaseClient.from('visits').select('id, user_id, company_name, visit_type, lead_score, notes, created_at').eq('organization_id', orgId).order('created_at', { ascending: false }).limit(200),
+    supabaseClient.from('profiles').select('id, first_name, last_name, role').eq('organization_id', orgId),
+    supabaseClient.from('reminders').select('id, title, reminder_date, is_completed, created_at').eq('organization_id', orgId).eq('is_completed', false).order('reminder_date', { ascending: true }).limit(10),
+  ]);
+
+  const err = [peopleRes, companiesRes, tasksRes, oppsRes, visitsRes, profilesRes, remindersRes].find(r => r.error);
+  if (err) throw new Error(err.error.message);
+
+  return {
+    peopleCount: peopleRes.count || 0,
+    companiesCount: companiesRes.count || 0,
+    tasks: tasksRes.data || [],
+    opps: oppsRes.data || [],
+    visits: visitsRes.data || [],
+    profiles: profilesRes.data || [],
+    reminders: remindersRes.data || [],
+  };
+}
+
+// ── Compute metrics ─────────────────────────────────────────────
+
+function compute(raw) {
+  const now = new Date();
+  const todayStr = now.toISOString().slice(0, 10);
+
+  // Opportunities
+  const opps = raw.opps.map(o => ({
+    ...o,
+    stage: normalizeStage(o.stage),
+    val: Number(o.value) || 0,
+  }));
+
+  const openOpps   = opps.filter(o => !['closed-won', 'closed-lost'].includes(o.stage));
+  const wonOpps    = opps.filter(o => o.stage === 'closed-won');
+  const lostOpps   = opps.filter(o => o.stage === 'closed-lost');
+  const closedOpps = [...wonOpps, ...lostOpps];
+
+  const pipelineValue = openOpps.reduce((s, o) => s + o.val, 0);
+  const wonRevenue    = wonOpps.reduce((s, o) => s + o.val, 0);
+  const lostRevenue   = lostOpps.reduce((s, o) => s + o.val, 0);
+  const winRate       = closedOpps.length > 0 ? (wonOpps.length / closedOpps.length) * 100 : 0;
+  const avgDealSize   = wonOpps.length > 0 ? wonRevenue / wonOpps.length : 0;
+
+  // Weighted pipeline: prospecting 10%, qualification 30%, proposal 60%, negotiation 80%
+  const stageWeights = { prospecting: 0.1, qualification: 0.3, proposal: 0.6, negotiation: 0.8 };
+  const weightedPipeline = openOpps.reduce((s, o) => s + o.val * (stageWeights[o.stage] || 0.1), 0);
+
+  // Pipeline by stage
+  const stageBreakdown = STAGE_META.map(sm => {
+    const items = opps.filter(o => o.stage === sm.key);
+    return { ...sm, count: items.length, value: items.reduce((s, o) => s + o.val, 0) };
+  });
+
+  // Tasks
+  const tasks = raw.tasks;
+  const completedTasks = tasks.filter(t => (t.status || '').toLowerCase() === 'completed');
+  const openTasks      = tasks.filter(t => (t.status || '').toLowerCase() !== 'completed');
+  const overdueTasks   = openTasks.filter(t => t.due_date && daysUntil(t.due_date) < 0);
+  const dueSoonTasks   = openTasks
+    .filter(t => { const d = daysUntil(t.due_date); return d >= 0 && d <= 7; })
+    .sort((a, b) => daysUntil(a.due_date) - daysUntil(b.due_date));
+  const taskCompletionRate = tasks.length > 0 ? (completedTasks.length / tasks.length) * 100 : 0;
+
+  // Visits
+  const visits = raw.visits;
+  const visitsToday = visits.filter(v => (v.created_at || '').slice(0, 10) === todayStr).length;
+  const visits7d = visits.filter(v => {
+    const d = new Date(v.created_at);
+    return !isNaN(d) && (now - d) <= 7 * 86400000;
+  }).length;
+  const visits30d = visits.filter(v => {
+    const d = new Date(v.created_at);
+    return !isNaN(d) && (now - d) <= 30 * 86400000;
+  }).length;
+
+  // Team activity — rep leaderboard (last 30 days)
+  const reps = raw.profiles.filter(p => p.role === 'sales_rep' || p.role === 'manager');
+  const repMap = new Map(reps.map(p => [p.id, p]));
+
+  const repStats = new Map();
+  visits.forEach(v => {
+    if (!v.user_id) return;
+    const d = new Date(v.created_at);
+    if (isNaN(d) || (now - d) > 30 * 86400000) return;
+    if (!repStats.has(v.user_id)) repStats.set(v.user_id, { visits: 0, wonValue: 0 });
+    repStats.get(v.user_id).visits++;
+  });
+  wonOpps.forEach(o => {
+    const uid = o.profiles ? null : null; // won opps don't carry user_id directly
+    // attribution via updated_at within 30d
+  });
+
+  const leaderboard = Array.from(repStats.entries())
+    .map(([uid, s]) => {
+      const p = repMap.get(uid);
+      return {
+        id: uid,
+        name: p ? `${p.first_name || ''} ${p.last_name || ''}`.trim() : 'Unknown',
+        initials: p ? initials(p.first_name, p.last_name) : '??',
+        visits: s.visits,
+      };
+    })
+    .sort((a, b) => b.visits - a.visits)
+    .slice(0, 8);
+
+  const activeRepCount = repStats.size;
+  const totalReps = reps.filter(p => p.role === 'sales_rep').length;
+
+  // 6-month trend
+  const months = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push({
+      key: `${d.getFullYear()}-${String(d.getMonth()).padStart(2, '0')}`,
+      label: d.toLocaleDateString(undefined, { month: 'short' }),
+      created: 0, won: 0, visits: 0,
+    });
+  }
+
+  opps.forEach(o => {
+    const cd = new Date(o.created_at);
+    const ck = `${cd.getFullYear()}-${String(cd.getMonth()).padStart(2, '0')}`;
+    const bucket = months.find(m => m.key === ck);
+    if (bucket) bucket.created += o.val;
+    if (o.stage === 'closed-won') {
+      const wd = new Date(o.updated_at || o.created_at);
+      const wk = `${wd.getFullYear()}-${String(wd.getMonth()).padStart(2, '0')}`;
+      const wb = months.find(m => m.key === wk);
+      if (wb) wb.won += o.val;
+    }
+  });
+
+  visits.forEach(v => {
+    const vd = new Date(v.created_at);
+    const vk = `${vd.getFullYear()}-${String(vd.getMonth()).padStart(2, '0')}`;
+    const vb = months.find(m => m.key === vk);
+    if (vb) vb.visits++;
+  });
+
+  // Deals furthest along the pipeline (negotiation first, then proposal)
+  const closingSoon = openOpps
+    .filter(o => o.stage === 'negotiation' || o.stage === 'proposal')
+    .sort((a, b) => {
+      const order = { negotiation: 0, proposal: 1 };
+      return (order[a.stage] ?? 2) - (order[b.stage] ?? 2) || b.val - a.val;
+    })
+    .slice(0, 6);
+
+  // Reminders
+  const upcomingReminders = (raw.reminders || []).slice(0, 5);
+
+  // Profile lookup map
+  const profileMap = new Map(raw.profiles.map(p => [p.id, p]));
+
+  return {
+    pipelineValue, wonRevenue, lostRevenue, winRate, avgDealSize, weightedPipeline,
+    openOpps, wonOpps, closedOpps, stageBreakdown,
+    tasks, completedTasks, openTasks, overdueTasks, dueSoonTasks, taskCompletionRate,
+    visitsToday, visits7d, visits30d, visits: visits.slice(0, 10),
+    leaderboard, activeRepCount, totalReps,
+    peopleCount: raw.peopleCount, companiesCount: raw.companiesCount,
+    months, closingSoon, upcomingReminders, profileMap,
+  };
+}
+
+// ── Render ──────────────────────────────────────────────────────
+
+function buildHTML(m) {
+  const maxBar = Math.max(...m.months.map(mo => Math.max(mo.created, mo.won)), 1);
+  const maxVisitBar = Math.max(...m.months.map(mo => mo.visits), 1);
+
+  // Pipeline stage bar (horizontal stacked)
+  const totalPipeVal = m.stageBreakdown.reduce((s, st) => s + st.value, 0) || 1;
+
+  return `
+<div class="db">
+
+  <!-- Header -->
+  <div class="db-head">
+    <div>
+      <h1 class="db-title">Dashboard</h1>
+      <p class="db-sub">Organization overview — real-time data from your team's pipeline, tasks, and field activity.</p>
+    </div>
+    <button class="db-refresh" id="db-refresh"><i data-lucide="refresh-cw"></i> Refresh</button>
+  </div>
+
+  <!-- KPI Row -->
+  <div class="db-kpis">
+    <div class="db-kpi">
+      <div class="db-kpi-top">
+        <span class="db-kpi-label">Open Pipeline</span>
+        <div class="db-kpi-icon" style="background:rgba(59,130,246,0.1);color:#3b82f6;"><i data-lucide="layers"></i></div>
+      </div>
+      <div class="db-kpi-val">${fmtMoney(m.pipelineValue)}</div>
+      <div class="db-kpi-foot">${m.openOpps.length} open deal${m.openOpps.length !== 1 ? 's' : ''} &middot; weighted ${fmtMoney(m.weightedPipeline)}</div>
+    </div>
+    <div class="db-kpi">
+      <div class="db-kpi-top">
+        <span class="db-kpi-label">Won Revenue</span>
+        <div class="db-kpi-icon" style="background:rgba(16,185,129,0.1);color:#10b981;"><i data-lucide="trophy"></i></div>
+      </div>
+      <div class="db-kpi-val">${fmtMoney(m.wonRevenue)}</div>
+      <div class="db-kpi-foot">${m.wonOpps.length} won &middot; ${pct(m.wonOpps.length, m.closedOpps.length)}% win rate</div>
+    </div>
+    <div class="db-kpi">
+      <div class="db-kpi-top">
+        <span class="db-kpi-label">Avg Deal Size</span>
+        <div class="db-kpi-icon" style="background:rgba(139,92,246,0.1);color:#8b5cf6;"><i data-lucide="scale"></i></div>
+      </div>
+      <div class="db-kpi-val">${fmtMoney(m.avgDealSize)}</div>
+      <div class="db-kpi-foot">across ${m.wonOpps.length} closed-won</div>
+    </div>
+    <div class="db-kpi">
+      <div class="db-kpi-top">
+        <span class="db-kpi-label">Field Visits</span>
+        <div class="db-kpi-icon" style="background:rgba(249,115,22,0.1);color:#f97316;"><i data-lucide="map-pin"></i></div>
+      </div>
+      <div class="db-kpi-val">${m.visits30d}</div>
+      <div class="db-kpi-foot">${m.visitsToday} today &middot; ${m.visits7d} this week</div>
+    </div>
+    <div class="db-kpi">
+      <div class="db-kpi-top">
+        <span class="db-kpi-label">Tasks</span>
+        <div class="db-kpi-icon" style="background:rgba(245,158,11,0.1);color:#d97706;"><i data-lucide="list-checks"></i></div>
+      </div>
+      <div class="db-kpi-val">${m.taskCompletionRate.toFixed(0)}%</div>
+      <div class="db-kpi-foot">${m.openTasks.length} open &middot; ${m.completedTasks.length} done &middot; ${m.overdueTasks.length} overdue</div>
+    </div>
+    <div class="db-kpi">
+      <div class="db-kpi-top">
+        <span class="db-kpi-label">Team</span>
+        <div class="db-kpi-icon" style="background:rgba(99,102,241,0.1);color:#6366f1;"><i data-lucide="users"></i></div>
+      </div>
+      <div class="db-kpi-val">${m.activeRepCount}<span class="db-kpi-of">/${m.totalReps}</span></div>
+      <div class="db-kpi-foot">active reps (30d) &middot; ${m.peopleCount} contacts &middot; ${m.companiesCount} companies</div>
+    </div>
+  </div>
+
+  <!-- Pipeline Stage Bar -->
+  <div class="db-card">
+    <div class="db-card-head">
+      <h2 class="db-card-title">Pipeline by Stage</h2>
+      <span class="db-card-sub">${fmtFull(m.pipelineValue + m.wonRevenue + m.lostRevenue)} total value across ${m.stageBreakdown.reduce((s, st) => s + st.count, 0)} opportunities</span>
+    </div>
+    <div class="db-stage-bar">
+      ${m.stageBreakdown.filter(s => s.value > 0).map(s => `<div class="db-stage-seg" style="width:${Math.max((s.value / totalPipeVal) * 100, 2)}%;background:${s.color};" title="${s.label}: ${fmtFull(s.value)} (${s.count})"></div>`).join('')}
+      ${m.stageBreakdown.every(s => s.value === 0) ? '<div class="db-stage-seg" style="width:100%;background:var(--border-color);"></div>' : ''}
+    </div>
+    <div class="db-stage-legend">
+      ${m.stageBreakdown.map(s => `
+        <div class="db-stage-item">
+          <span class="db-dot" style="background:${s.color};"></span>
+          <span class="db-stage-name">${s.label}</span>
+          <span class="db-stage-val">${fmtMoney(s.value)}</span>
+          <span class="db-stage-ct">${s.count}</span>
+        </div>
+      `).join('')}
+    </div>
+  </div>
+
+  <!-- Charts Row -->
+  <div class="db-row-2">
+
+    <!-- Revenue Trend -->
+    <div class="db-card">
+      <div class="db-card-head">
+        <h2 class="db-card-title">Revenue Trend</h2>
+        <div class="db-legend-row">
+          <span class="db-legend"><span class="db-dot" style="background:#3b82f6;"></span>Created</span>
+          <span class="db-legend"><span class="db-dot" style="background:#10b981;"></span>Won</span>
+        </div>
+      </div>
+      <div class="db-chart-area">
+        ${m.months.map(mo => {
+          const cH = Math.max((mo.created / maxBar) * 100, mo.created > 0 ? 4 : 0);
+          const wH = Math.max((mo.won / maxBar) * 100, mo.won > 0 ? 4 : 0);
+          return `
+          <div class="db-bar-group">
+            <div class="db-bar-pair">
+              <div class="db-bar db-bar-c" style="height:${cH}%;" title="Created: ${fmtFull(mo.created)}"></div>
+              <div class="db-bar db-bar-w" style="height:${wH}%;" title="Won: ${fmtFull(mo.won)}"></div>
+            </div>
+            <span class="db-bar-label">${mo.label}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- Visit Trend -->
+    <div class="db-card">
+      <div class="db-card-head">
+        <h2 class="db-card-title">Visit Activity</h2>
+        <span class="db-card-sub">Last 6 months</span>
+      </div>
+      <div class="db-chart-area">
+        ${m.months.map(mo => {
+          const h = Math.max((mo.visits / maxVisitBar) * 100, mo.visits > 0 ? 4 : 0);
+          return `
+          <div class="db-bar-group">
+            <div class="db-bar-pair">
+              <div class="db-bar db-bar-v" style="height:${h}%;" title="${mo.visits} visits"></div>
+            </div>
+            <span class="db-bar-label">${mo.label}</span>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+  </div>
+
+  <!-- Middle Row: Leaderboard + Tasks Due + Closing Soon -->
+  <div class="db-row-3">
+
+    <!-- Team Leaderboard -->
+    <div class="db-card">
+      <div class="db-card-head">
+        <h2 class="db-card-title">Team Leaderboard</h2>
+        <span class="db-card-sub">Visits (30d)</span>
+      </div>
+      ${m.leaderboard.length === 0
+        ? '<div class="db-empty">No visit activity in the last 30 days</div>'
+        : `<div class="db-lb-list">
+          ${m.leaderboard.map((rep, i) => `
+            <div class="db-lb-row">
+              <span class="db-lb-rank">${i + 1}</span>
+              <div class="db-avatar" style="background:${['#3b82f6','#8b5cf6','#f97316','#10b981','#ef4444','#6366f1','#ec4899','#14b8a6'][i % 8]};">${esc(rep.initials)}</div>
+              <span class="db-lb-name">${esc(rep.name)}</span>
+              <span class="db-lb-val">${rep.visits}</span>
+              <div class="db-lb-bar-track"><div class="db-lb-bar-fill" style="width:${m.leaderboard[0].visits > 0 ? (rep.visits / m.leaderboard[0].visits) * 100 : 0}%;"></div></div>
+            </div>
+          `).join('')}
+        </div>`
+      }
+    </div>
+
+    <!-- Tasks Due Soon / Overdue -->
+    <div class="db-card">
+      <div class="db-card-head">
+        <h2 class="db-card-title">Upcoming Tasks</h2>
+        ${m.overdueTasks.length > 0 ? `<span class="db-badge-warn">${m.overdueTasks.length} overdue</span>` : ''}
+      </div>
+      ${[...m.overdueTasks.slice(0, 4), ...m.dueSoonTasks.slice(0, 4)].length === 0
+        ? '<div class="db-empty">No tasks due in the next 7 days</div>'
+        : `<div class="db-task-list">
+          ${m.overdueTasks.slice(0, 4).map(t => {
+            const d = daysUntil(t.due_date);
+            const ap = t.assigned_to ? m.profileMap.get(t.assigned_to) : null;
+            const assignee = ap ? `${ap.first_name || ''} ${ap.last_name || ''}`.trim() : '';
+            return `
+            <div class="db-task-row db-task-overdue">
+              <div class="db-task-pri db-pri-${(t.priority || 'medium').toLowerCase()}"></div>
+              <div class="db-task-body">
+                <span class="db-task-name">${esc(t.title || 'Untitled')}</span>
+                ${assignee ? `<span class="db-task-assignee">${esc(assignee)}</span>` : ''}
+              </div>
+              <span class="db-task-due db-due-overdue">${Math.abs(d)}d overdue</span>
+            </div>`;
+          }).join('')}
+          ${m.dueSoonTasks.slice(0, 4).map(t => {
+            const d = daysUntil(t.due_date);
+            const ap2 = t.assigned_to ? m.profileMap.get(t.assigned_to) : null;
+            const assignee = ap2 ? `${ap2.first_name || ''} ${ap2.last_name || ''}`.trim() : '';
+            return `
+            <div class="db-task-row">
+              <div class="db-task-pri db-pri-${(t.priority || 'medium').toLowerCase()}"></div>
+              <div class="db-task-body">
+                <span class="db-task-name">${esc(t.title || 'Untitled')}</span>
+                ${assignee ? `<span class="db-task-assignee">${esc(assignee)}</span>` : ''}
+              </div>
+              <span class="db-task-due">${d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : `${d}d`}</span>
+            </div>`;
+          }).join('')}
+        </div>`
+      }
+    </div>
+
+    <!-- Late-Stage Deals -->
+    <div class="db-card">
+      <div class="db-card-head">
+        <h2 class="db-card-title">Late-Stage Deals</h2>
+        <span class="db-card-sub">Negotiation &amp; Proposal</span>
+      </div>
+      ${m.closingSoon.length === 0
+        ? '<div class="db-empty">No deals in negotiation or proposal stage</div>'
+        : `<div class="db-close-list">
+          ${m.closingSoon.map(o => {
+            const stageMeta = STAGE_META.find(s => s.key === o.stage);
+            return `
+            <div class="db-close-row">
+              <div class="db-close-info">
+                <span class="db-close-name">${esc(o.name || 'Untitled')}</span>
+                <span class="db-close-stage" style="color:${stageMeta?.color || '#888'};">${stageMeta?.label || o.stage}</span>
+              </div>
+              <div class="db-close-right">
+                <span class="db-close-val">${fmtMoney(o.val)}</span>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>`
+      }
+    </div>
+  </div>
+
+  <!-- Bottom Row: Recent Visits + Reminders -->
+  <div class="db-row-bottom">
+    <!-- Recent Visits -->
+    <div class="db-card db-card-wide">
+      <div class="db-card-head">
+        <h2 class="db-card-title">Recent Visits</h2>
+        <span class="db-card-sub">Latest field activity</span>
+      </div>
+      ${m.visits.length === 0
+        ? '<div class="db-empty">No visits recorded yet</div>'
+        : `<table class="db-table">
+          <thead>
+            <tr><th>Rep</th><th>Company</th><th>Type</th><th>Score</th><th>When</th></tr>
+          </thead>
+          <tbody>
+            ${m.visits.map(v => {
+              const vp = v.user_id ? m.profileMap.get(v.user_id) : null;
+              const name = vp ? `${vp.first_name || ''} ${vp.last_name || ''}`.trim() : 'Unknown';
+              const ini = vp ? initials(vp.first_name, vp.last_name) : '??';
+              const score = Number(v.lead_score);
+              const scoreOk = Number.isFinite(score);
+              const cls = scoreOk && score >= 80 ? 'hi' : scoreOk && score >= 50 ? 'md' : 'lo';
+              return `
+              <tr>
+                <td><div class="db-user"><div class="db-avatar-sm">${esc(ini)}</div><span>${esc(name)}</span></div></td>
+                <td>${esc(v.company_name || '—')}</td>
+                <td>${esc(v.visit_type || 'Visit')}</td>
+                <td>${scoreOk ? `<span class="db-score db-score-${cls}">${score}</span>` : '<span class="db-muted">—</span>'}</td>
+                <td class="db-muted">${relTime(v.created_at)}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>`
+      }
+    </div>
+
+    <!-- Reminders -->
+    <div class="db-card">
+      <div class="db-card-head">
+        <h2 class="db-card-title">Upcoming Reminders</h2>
+      </div>
+      ${m.upcomingReminders.length === 0
+        ? '<div class="db-empty">No pending reminders</div>'
+        : `<div class="db-rem-list">
+          ${m.upcomingReminders.map(r => {
+            const d = daysUntil(r.reminder_date);
+            const overdue = d < 0;
+            return `
+            <div class="db-rem-row${overdue ? ' db-rem-overdue' : ''}">
+              <i data-lucide="bell" class="db-rem-icon"></i>
+              <span class="db-rem-title">${esc(r.title || 'Reminder')}</span>
+              <span class="db-rem-due ${overdue ? 'db-due-overdue' : ''}">${overdue ? `${Math.abs(d)}d overdue` : d === 0 ? 'Today' : d === 1 ? 'Tomorrow' : `in ${d}d`}</span>
+            </div>`;
+          }).join('')}
+        </div>`
+      }
+    </div>
+  </div>
+
+</div>`;
+}
+
+// ── Main render function ────────────────────────────────────────
 
 async function renderProfessionalDashboardView() {
   const viewContainer = document.getElementById('view-container');
   const headerTitle = document.querySelector('.header-title');
   if (headerTitle) headerTitle.textContent = 'Dashboard';
 
+  // Loading skeleton
+  viewContainer.innerHTML = `
+    <div class="db">
+      <div class="db-head">
+        <div>
+          <div class="db-skel db-skel-title"></div>
+          <div class="db-skel db-skel-sub"></div>
+        </div>
+      </div>
+      <div class="db-kpis">
+        ${Array(6).fill('<div class="db-kpi db-kpi-loading"><div class="db-skel db-skel-block"></div></div>').join('')}
+      </div>
+      <div class="db-card"><div class="db-skel db-skel-chart"></div></div>
+    </div>`;
+
   try {
-    const [
-      contactsResult,
-      companiesResult,
-      tasksResult,
-      opportunitiesResult,
-      visitsResult,
-      repsResult
-    ] = await Promise.all([
-      supabaseClient.from('people').select('*', { count: 'exact', head: true }).eq('organization_id', state.currentOrganization?.id || '00000000-0000-0000-0000-000000000000'),
-      supabaseClient.from('companies').select('*', { count: 'exact', head: true }).eq('organization_id', state.currentOrganization?.id || '00000000-0000-0000-0000-000000000000'),
-      supabaseClient.from('tasks').select('id, status, due_date, created_at').eq('organization_id', state.currentOrganization?.id || '00000000-0000-0000-0000-000000000000'),
-      supabaseClient.from('opportunities').select('id, value, stage, created_at, updated_at').eq('organization_id', state.currentOrganization?.id || '00000000-0000-0000-0000-000000000000'),
-      supabaseClient
-        .from('visits')
-        .select('id, user_id, company_name, visit_type, lead_score, created_at, profiles(first_name, last_name)')
-        .eq('organization_id', state.currentOrganization?.id || '00000000-0000-0000-0000-000000000000')
-        .order('created_at', { ascending: false })
-        .limit(100),
-      supabaseClient.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'sales_rep').eq('organization_id', state.currentOrganization?.id || '00000000-0000-0000-0000-000000000000')
-    ]);
+    const raw = await fetchDashboardData();
+    const metrics = compute(raw);
+    viewContainer.innerHTML = buildHTML(metrics);
+    if (window.lucide) lucide.createIcons();
 
-    if (contactsResult.error || companiesResult.error || tasksResult.error || opportunitiesResult.error || visitsResult.error || repsResult.error) {
-      throw new Error(
-        contactsResult.error?.message ||
-        companiesResult.error?.message ||
-        tasksResult.error?.message ||
-        opportunitiesResult.error?.message ||
-        visitsResult.error?.message ||
-        repsResult.error?.message ||
-        'Unable to load dashboard data'
-      );
-    }
-
-    const contactsCount = contactsResult.count || 0;
-    const companiesCount = companiesResult.count || 0;
-    const tasks = tasksResult.data || [];
-    const opportunities = opportunitiesResult.data || [];
-    const recentVisits = visitsResult.data || [];
-    const totalSalesReps = repsResult.count || 0;
-
-    const normalizeStage = (stage) => {
-      const value = String(stage || '').toLowerCase().replace(/_/g, '-');
-      if (value === 'closed-won') return 'closed-won';
-      if (value === 'closed-lost') return 'closed-lost';
-      if (['prospecting', 'qualification', 'proposal', 'negotiation'].includes(value)) return value;
-      return 'prospecting';
-    };
-
-    const formatMoney = (amount) => `$${Math.round(amount || 0).toLocaleString()}`;
-    const now = new Date();
-    const todayYMD = now.toISOString().slice(0, 10);
-    const weekStart = new Date(now);
-    weekStart.setDate(now.getDate() - 6);
-    weekStart.setHours(0, 0, 0, 0);
-
-    const completedTasks = tasks.filter(t => String(t.status || '').toLowerCase() === 'completed').length;
-    const openTasks = tasks.length - completedTasks;
-    const taskCompletionRate = tasks.length > 0 ? (completedTasks / tasks.length) * 100 : 0;
-
-    const enrichedOpps = opportunities.map(opp => ({
-      ...opp,
-      normalizedStage: normalizeStage(opp.stage),
-      numericValue: Number(opp.value) || 0
-    }));
-
-    const openOpps = enrichedOpps.filter(o => !['closed-won', 'closed-lost'].includes(o.normalizedStage));
-    const wonOpps = enrichedOpps.filter(o => o.normalizedStage === 'closed-won');
-    const closedOpps = enrichedOpps.filter(o => ['closed-won', 'closed-lost'].includes(o.normalizedStage));
-    const pipelineOpenValue = openOpps.reduce((sum, o) => sum + o.numericValue, 0);
-    const wonRevenue = wonOpps.reduce((sum, o) => sum + o.numericValue, 0);
-    const winRate = closedOpps.length > 0 ? (wonOpps.length / closedOpps.length) * 100 : 0;
-    const avgDealSize = openOpps.length > 0 ? pipelineOpenValue / openOpps.length : 0;
-
-    const visitsToday = recentVisits.filter(v => {
-      const visitDate = (v.date || v.created_at || '').toString().slice(0, 10);
-      return visitDate === todayYMD;
-    }).length;
-
-    const visitsThisWeek = recentVisits.filter(v => {
-      const visitDate = new Date(v.date || v.created_at);
-      return !Number.isNaN(visitDate.getTime()) && visitDate >= weekStart;
-    }).length;
-
-    const activeRepIds30d = new Set(
-      recentVisits
-        .filter(v => {
-          const visitDate = new Date(v.date || v.created_at);
-          const daysAgo = (now - visitDate) / (1000 * 60 * 60 * 24);
-          return !Number.isNaN(visitDate.getTime()) && daysAgo <= 30;
-        })
-        .map(v => v.user_id)
-        .filter(Boolean)
-    );
-
-    const leadScoreValues = recentVisits
-      .map(v => Number(v.lead_score))
-      .filter(score => Number.isFinite(score) && score > 0);
-    const avgLeadScore = leadScoreValues.length
-      ? (leadScoreValues.reduce((sum, score) => sum + score, 0) / leadScoreValues.length)
-      : 0;
-
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const trendMonths = [];
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      trendMonths.push({
-        key: `${d.getFullYear()}-${d.getMonth()}`,
-        name: monthNames[d.getMonth()],
-        pipelineValue: 0,
-        wonValue: 0
-      });
-    }
-
-    enrichedOpps.forEach(opp => {
-      const createdAt = new Date(opp.created_at);
-      const createdKey = `${createdAt.getFullYear()}-${createdAt.getMonth()}`;
-      const createdBucket = trendMonths.find(m => m.key === createdKey);
-      if (createdBucket) createdBucket.pipelineValue += opp.numericValue;
-
-      if (opp.normalizedStage === 'closed-won') {
-        const wonAt = new Date(opp.updated_at || opp.created_at);
-        const wonKey = `${wonAt.getFullYear()}-${wonAt.getMonth()}`;
-        const wonBucket = trendMonths.find(m => m.key === wonKey);
-        if (wonBucket) wonBucket.wonValue += opp.numericValue;
-      }
-    });
-
-    const maxTrendValue = Math.max(...trendMonths.map(m => Math.max(m.pipelineValue, m.wonValue)), 1);
-
-    const stageMeta = [
-      { key: 'prospecting', label: 'Prospecting', color: '#3b82f6' },
-      { key: 'qualification', label: 'Qualification', color: '#8b5cf6' },
-      { key: 'proposal', label: 'Proposal', color: '#f59e0b' },
-      { key: 'negotiation', label: 'Negotiation', color: '#f97316' },
-      { key: 'closed-won', label: 'Closed Won', color: '#10b981' },
-      { key: 'closed-lost', label: 'Closed Lost', color: '#ef4444' }
-    ];
-
-    const stageSummary = stageMeta.map(meta => {
-      const stageOpps = enrichedOpps.filter(o => o.normalizedStage === meta.key);
-      return {
-        ...meta,
-        count: stageOpps.length,
-        value: stageOpps.reduce((sum, o) => sum + o.numericValue, 0)
-      };
-    });
-
-    const donutTotal = Math.max(enrichedOpps.length, 1);
-    let running = 0;
-    const donutSegments = stageSummary
-      .filter(item => item.count > 0)
-      .map(item => {
-        const start = running;
-        const pct = (item.count / donutTotal) * 100;
-        running += pct;
-        return `${item.color} ${start}% ${running}%`;
-      });
-    const donutBackground = donutSegments.length
-      ? `conic-gradient(${donutSegments.join(', ')})`
-      : 'conic-gradient(#e5e7eb 0% 100%)';
-
-    const html = `
-      <div class="dashboard-container">
-        <div class="dashboard-header">
-           <div>
-         <h1 class="dashboard-title">Revenue & Activity Overview</h1>
-         <p class="dashboard-subtitle">Live metrics from contacts, tasks, opportunities, and visits</p>
-           </div>
-           <div class="dashboard-actions">
-          <button class="btn btn-secondary btn-sm" id="dashboard-refresh-btn">
-           <i class="fas fa-rotate-right"></i>
-           Refresh
-          </button>
-           </div>
-        </div>
-
-        <div class="stats-grid">
-           <div class="stat-card">
-              <div class="stat-header">
-            <span class="stat-title">Open Pipeline</span>
-            <div class="stat-icon green"><i class="fas fa-sack-dollar"></i></div>
-          </div>
-          <div class="stat-value-container">
-            <span class="stat-value">${formatMoney(pipelineOpenValue)}</span>
-          </div>
-          <div class="stat-meta">${openOpps.length} open opportunities</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-header">
-            <span class="stat-title">Closed Revenue</span>
-            <div class="stat-icon blue"><i class="fas fa-chart-line"></i></div>
-          </div>
-          <div class="stat-value-container">
-            <span class="stat-value">${formatMoney(wonRevenue)}</span>
-          </div>
-          <div class="stat-meta">Win rate ${winRate.toFixed(1)}%</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-header">
-            <span class="stat-title">Task Completion</span>
-            <div class="stat-icon orange"><i class="fas fa-list-check"></i></div>
-          </div>
-          <div class="stat-value-container">
-            <span class="stat-value">${taskCompletionRate.toFixed(0)}%</span>
-          </div>
-          <div class="stat-meta">${openTasks} open • ${completedTasks} done</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-header">
-            <span class="stat-title">Visits</span>
-            <div class="stat-icon purple"><i class="fas fa-handshake"></i></div>
-          </div>
-          <div class="stat-value-container">
-            <span class="stat-value">${visitsThisWeek}</span>
-          </div>
-          <div class="stat-meta">${visitsToday} today</div>
-        </div>
-
-        <div class="stat-card">
-          <div class="stat-header">
-            <span class="stat-title">Active Reps (30d)</span>
-                 <div class="stat-icon purple"><i class="fas fa-address-book"></i></div>
-              </div>
-              <div class="stat-value-container">
-            <span class="stat-value">${activeRepIds30d.size}</span>
-              </div>
-          <div class="stat-meta">of ${totalSalesReps} sales reps</div>
-           </div>
-
-           <div class="stat-card">
-              <div class="stat-header">
-            <span class="stat-title">Coverage</span>
-            <div class="stat-icon blue"><i class="fas fa-building"></i></div>
-              </div>
-              <div class="stat-value-container">
-            <span class="stat-value">${contactsCount}</span>
-              </div>
-          <div class="stat-meta">${companiesCount} companies • avg lead ${avgLeadScore.toFixed(0)}%</div>
-           </div>
-        </div>
-
-        <div class="charts-grid">
-           <div class="chart-card">
-              <div class="chart-header">
-            <h3 class="chart-title">6-Month Opportunity Value Trend</h3>
-            <span class="chart-caption">Created vs Closed Won</span>
-              </div>
-          <div class="chart-placeholder trend-chart-placeholder">
-            <div class="css-chart dual-series-chart">
-              ${trendMonths.map(m => {
-      const createdHeight = Math.max((m.pipelineValue / maxTrendValue) * 100, m.pipelineValue > 0 ? 5 : 0);
-      const wonHeight = Math.max((m.wonValue / maxTrendValue) * 100, m.wonValue > 0 ? 5 : 0);
-      return `
-                        <div class="chart-bar-group">
-                   <div class="chart-bars-pair">
-                    <div class="chart-bar chart-bar-created" style="height: ${createdHeight}%;" data-value="Created ${formatMoney(m.pipelineValue)}"></div>
-                    <div class="chart-bar chart-bar-won" style="height: ${wonHeight}%;" data-value="Won ${formatMoney(m.wonValue)}"></div>
-                   </div>
-                            <span class="chart-label">${m.name}</span>
-                        </div>
-                        `;
-    }).join('')}
-                 </div>
-            <div class="trend-legend">
-              <span><span class="legend-dot created"></span>Created</span>
-              <span><span class="legend-dot won"></span>Closed Won</span>
-            </div>
-              </div>
-           </div>
-
-           <div class="chart-card">
-              <div class="chart-header">
-                 <h3 class="chart-title">Pipeline Stages</h3>
-              </div>
-              <div class="donut-chart-container">
-            <div class="donut-chart" style="background: ${donutBackground};">
-                    <div class="donut-inner">
-                <span class="donut-total">${enrichedOpps.length}</span>
-                       <span class="donut-label">Opportunities</span>
-                    </div>
-                 </div>
-                 <div class="donut-legend">
-              ${stageSummary.map(item => `
-               <div class="legend-item">
-                <div class="legend-dot" style="background:${item.color};"></div>
-                ${item.label} (${item.count})
-               </div>
-              `).join('')}
-                 </div>
-              </div>
-           </div>
-        </div>
-
-      <div class="stage-breakdown-card">
-       <div class="chart-header">
-        <h3 class="chart-title">Stage Value Breakdown</h3>
-       </div>
-       <div class="stage-breakdown-grid">
-        ${stageSummary.map(item => `
-          <div class="stage-breakdown-item">
-           <div class="stage-breakdown-top">
-            <span class="legend-dot" style="background:${item.color};"></span>
-            <span>${item.label}</span>
-           </div>
-           <div class="stage-breakdown-value">${formatMoney(item.value)}</div>
-           <div class="stage-breakdown-count">${item.count} deals</div>
-          </div>
-        `).join('')}
-       </div>
-      </div>
-
-        <div class="recent-activity-card">
-           <div class="chart-header">
-          <h3 class="chart-title">Recent Visit Activity</h3>
-           </div>
-           <div class="table-responsive">
-              <table class="dashboard-table">
-                 <thead>
-                    <tr>
-                       <th>Representative</th>
-                       <th>Company</th>
-                <th>Visit Type</th>
-                <th>Lead Score</th>
-                       <th>Date</th>
-                    </tr>
-                 </thead>
-                 <tbody>
-              ${recentVisits.slice(0, 8).map(visit => {
-      const repName = visit.profiles ? `${visit.profiles.first_name} ${visit.profiles.last_name}` : 'Unknown';
-      const initials = repName.split(' ').map(n => n[0]).join('').substring(0, 2);
-      const score = Number(visit.lead_score);
-      const scoreClass = Number.isFinite(score) && score >= 80 ? 'high' : Number.isFinite(score) && score >= 50 ? 'medium' : 'low';
-      const visitDate = new Date(visit.date || visit.created_at);
-      return `
-                        <tr>
-                           <td>
-                              <div class="user-cell">
-                                 <div class="user-img-circle">${initials}</div>
-                                 <span style="font-weight:500;">${repName}</span>
-                              </div>
-                           </td>
-                           <td>${visit.company_name || 'N/A'}</td>
-                  <td>${visit.visit_type || 'General Visit'}</td>
-                  <td>${Number.isFinite(score) ? `<span class="lead-score-pill ${scoreClass}">${score}%</span>` : '<span class="text-muted">—</span>'}</td>
-                  <td>${Number.isNaN(visitDate.getTime()) ? '—' : visitDate.toLocaleDateString()}</td>
-                        </tr>
-                        `;
-    }).join('') || '<tr><td colspan="5">No recent visits</td></tr>'}
-                 </tbody>
-              </table>
-           </div>
-        </div>
-
-      </div>
-    `;
-
-    viewContainer.innerHTML = html;
-
-    document.getElementById('dashboard-refresh-btn')?.addEventListener('click', () => {
+    document.getElementById('db-refresh')?.addEventListener('click', () => {
       renderProfessionalDashboardView();
-      showToast('Dashboard refreshed', 'success', { subtle: true, duration: 1200 });
+      showToast('Refreshing dashboard…', 'success', { subtle: true, duration: 1000 });
+    });
+
+    // Animate bars in
+    requestAnimationFrame(() => {
+      viewContainer.querySelectorAll('.db-bar').forEach(bar => {
+        const h = bar.style.height;
+        bar.style.height = '0%';
+        requestAnimationFrame(() => { bar.style.height = h; });
+      });
+      viewContainer.querySelectorAll('.db-lb-bar-fill').forEach(bar => {
+        const w = bar.style.width;
+        bar.style.width = '0%';
+        requestAnimationFrame(() => { bar.style.width = w; });
+      });
+      viewContainer.querySelectorAll('.db-stage-seg').forEach(seg => {
+        const w = seg.style.width;
+        seg.style.width = '0%';
+        requestAnimationFrame(() => { seg.style.width = w; });
+      });
     });
 
   } catch (err) {
-    console.error('Error rendering dashboard:', err);
-    viewContainer.innerHTML = renderError('Failed to load dashboard data: ' + err.message);
+    console.error('Dashboard error:', err);
+    viewContainer.innerHTML = renderError('Failed to load dashboard: ' + err.message);
   }
 }
 
-// ======================
-// CHANGE PASSWORD MODAL
-// ======================
-
-
 // ── Exports ────────────────────────────────────────────────────
-export {
-  renderProfessionalDashboardView,
-};
+export { renderProfessionalDashboardView };
