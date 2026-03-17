@@ -2648,7 +2648,7 @@ body {
   text-decoration: none;
   position: relative;
   overflow: hidden;
-  letter-spacing: 0.3px;
+  letter-spacing: normal;
 }
 
 .btn i,
@@ -2687,10 +2687,14 @@ body {
   background: var(--color-primary);
   color: #ffffff;
   border: 1px solid transparent;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(47, 95, 208, 0.2);
 }
 
 .btn-primary:hover:not(:disabled) {
   background: var(--color-primary-dark);
+  box-shadow: 0 6px 16px rgba(47, 95, 208, 0.28);
 }
 
 .btn-primary:active:not(:disabled) {
@@ -18344,9 +18348,11 @@ button svg {
 /* ── Page header ── */
 .rem-page-head {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: flex-end;
   gap: 1rem;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
 }
 
 .rem-page-head-text {

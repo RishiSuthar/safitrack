@@ -69,7 +69,7 @@ async function renderTasksView() {
           <i class="fas fa-filter"></i> Filter
         </button>
         <button class="btn btn-primary" id="add-task-btn">
-          <i class="fas fa-plus"></i> New Task
+          <i data-lucide="plus" class="u-icon-16"></i> New Task
         </button>
       </div>
     </div>

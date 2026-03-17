@@ -164,7 +164,7 @@ async function renderCallLogsView() {
                     ` : ''}
                     ${(!state.isManager || state.managerCallLogViewMode === 'my') ? `
                     <button class="btn btn-primary" id="log-call-btn">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-plus-icon"><path d="M5 12h14"/><path d="M12 5v14"/></svg> <span>Log Call</span>
+                        <i data-lucide="plus" class="u-icon-16"></i> Log Call
                     </button>
                     ` : ''}
                 </div>

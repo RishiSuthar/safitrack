@@ -163,11 +163,10 @@
     padding: 0 var(--space-4);
     height: var(--control-height-md);
     border-radius: var(--btn-radius);
-    background: #2f5fd0;
+    background: var(--color-primary);
     color: #ffffff !important;
     border: none;
     font-size: 0.8125rem;
-    /* Match toolbar-btn font size */
     font-weight: 500;
     cursor: pointer;
     transition: background-color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast);
@@ -181,7 +180,7 @@
 }
 
 .toolbar-btn-primary:hover {
-    background: #254db1;
+    background: var(--color-primary-dark);
     box-shadow: 0 6px 16px rgba(47, 95, 208, 0.28);
     transform: translateY(var(--motion-distance-hover));
 }

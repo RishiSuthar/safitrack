@@ -155,7 +155,7 @@ async function renderRemindersView() {
     <div class="rem-page">
 
       <div class="rem-page-head">
-        <button class="btn btn-primary" id="add-reminder-btn"><i data-lucide="plus"></i> New Reminder</button>
+        <button class="btn btn-primary" id="add-reminder-btn"><i data-lucide="plus" class="u-icon-16"></i> New Reminder</button>
       </div>
 
       <div class="rem-kpis">

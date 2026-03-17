@@ -175,7 +175,7 @@ async function renderOpportunityPipelineView() {
         </button>
 
         <button class="btn btn-primary pipeline-add-btn" id="add-opportunity-btn">
-          <i class="fas fa-plus"></i> New Opportunity
+          <i data-lucide="plus" class="u-icon-16"></i> New Opportunity
         </button>
       </div>
 
