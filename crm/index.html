@@ -2332,41 +2332,70 @@
   <div id="ai-chat-window" class="ai-chat-window">
     <div class="ai-chat-header">
       <div class="ai-chat-header-identity">
-        <div class="ai-chat-avatar">S</div>
-        <div>
-          <div class="ai-chat-title">Safi AI</div>
-          <div class="ai-chat-subtitle"><span class="ai-chat-status-dot"></span>Online</div>
-        </div>
+        <div class="ai-chat-title">Ask Safi</div>
       </div>
       <div class="ai-chat-header-actions">
-        <button id="ai-chat-new" class="ai-chat-new" title="Start new chat">New chat</button>
-        <button id="ai-chat-close" class="ai-chat-close" aria-label="Close chat">
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" />
-            <line x1="6" y1="6" x2="18" y2="18" />
+        <button id="ai-chat-new" class="ai-chat-header-btn" title="New chat">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"/><path d="M12 5v14"/>
+          </svg>
+        </button>
+        <button class="ai-chat-header-btn" title="History">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+            <path d="M3 3v5h5"/><path d="M12 7v5l4 2"/>
+          </svg>
+        </button>
+        <button class="ai-chat-header-btn" title="More">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="1"/><circle cx="12" cy="5" r="1"/><circle cx="12" cy="19" r="1"/>
+          </svg>
+        </button>
+        <button id="ai-chat-close" class="ai-chat-header-btn" aria-label="Close chat">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
           </svg>
         </button>
       </div>
     </div>
     <div id="ai-chat-messages" class="ai-chat-messages"></div>
     <div class="ai-chat-footer">
-      <div class="ai-chat-quick-actions" id="ai-chat-quick-actions">
-        <button class="ai-chat-chip" data-prompt="What's on my agenda today?">Today's agenda</button>
-        <button class="ai-chat-chip" data-prompt="Create a task">Create a task</button>
-        <button class="ai-chat-chip" data-prompt="Set a reminder">Set a reminder</button>
-        <button class="ai-chat-chip" data-prompt="Add an opportunity">Add opportunity</button>
-        <button class="ai-chat-chip" data-prompt="Give me sales advice on a deal">Sales advice</button>
+      <div id="ai-prompts-menu" class="ai-prompts-menu" hidden>
+        <div class="ai-prompts-list">
+          <button class="ai-prompt-item" data-prompt="What's on my agenda today?" data-label="Today's agenda">
+            <i class="ai-prompt-icon fas fa-calendar-day"></i><span>Today's agenda</span>
+          </button>
+          <button class="ai-prompt-item" data-prompt="Give me sales advice for my current pipeline" data-label="Sales advice">
+            <i class="ai-prompt-icon fas fa-lightbulb"></i><span>Sales advice</span>
+          </button>
+          <button class="ai-prompt-item" data-prompt="Create a task" data-label="Create a task">
+            <i class="ai-prompt-icon fas fa-square-check"></i><span>Create a task</span>
+          </button>
+          <button class="ai-prompt-item" data-prompt="Create a reminder" data-label="Create a reminder">
+            <i class="ai-prompt-icon fas fa-bell"></i><span>Create a reminder</span>
+          </button>
+          <button class="ai-prompt-item" data-prompt="Add an opportunity" data-label="Add opportunity">
+            <i class="ai-prompt-icon fas fa-bullseye"></i><span>Add opportunity</span>
+          </button>
+          <p class="ai-prompts-empty" hidden>No matching prompts</p>
+        </div>
       </div>
-      <div class="ai-chat-input">
-        <input id="ai-chat-input" type="text" placeholder="Message Safi AI..." autocomplete="off" />
-        <button id="ai-chat-send" class="ai-chat-send-btn" aria-label="Send message" disabled>
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
-            <line x1="12" y1="19" x2="12" y2="5" />
-            <polyline points="5 12 12 5 19 12" />
-          </svg>
-        </button>
+      <div class="ai-chat-input-wrap">
+        <textarea id="ai-chat-input" class="ai-chat-textarea" placeholder="Ask anything..." rows="1" autocomplete="off"></textarea>
+        <div class="ai-chat-input-actions">
+          <button id="ai-prompts-btn" class="ai-chat-prompts-btn" title="Prompts" type="button">/</button>
+          <button id="ai-chat-send" class="ai-chat-send-btn" aria-label="Send message" disabled>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14">
+              <line x1="12" y1="19" x2="12" y2="5"/>
+              <polyline points="5 12 12 5 19 12"/>
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   </div>

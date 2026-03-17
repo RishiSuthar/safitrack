@@ -266,10 +266,7 @@ function buildHTML(m) {
 
   <!-- Header -->
   <div class="db-head">
-    <div>
-      <h1 class="db-title">Dashboard</h1>
-      <p class="db-sub">Organization overview — real-time data from your team's pipeline, tasks, and field activity.</p>
-    </div>
+    <div></div>
     <button class="db-refresh" id="db-refresh"><i data-lucide="refresh-cw"></i> Refresh</button>
   </div>
 

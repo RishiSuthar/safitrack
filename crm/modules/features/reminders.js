@@ -158,43 +158,7 @@ async function renderRemindersView() {
         <button class="btn btn-primary" id="add-reminder-btn"><i data-lucide="plus" class="u-icon-16"></i> New Reminder</button>
       </div>
 
-      <div class="rem-kpis">
-        <div class="rem-kpi">
-          <div class="rem-kpi-icon"><i data-lucide="layers"></i></div>
-          <div class="rem-kpi-body">
-            <div class="rem-kpi-val">${totalReminders}</div>
-            <div class="rem-kpi-label">Total</div>
-          </div>
-        </div>
-        <div class="rem-kpi">
-          <div class="rem-kpi-icon"><i data-lucide="clock"></i></div>
-          <div class="rem-kpi-body">
-            <div class="rem-kpi-val">${pendingReminders}</div>
-            <div class="rem-kpi-label">Pending</div>
-          </div>
-        </div>
-        <div class="rem-kpi">
-          <div class="rem-kpi-icon"><i data-lucide="sun"></i></div>
-          <div class="rem-kpi-body">
-            <div class="rem-kpi-val">${todayReminders}</div>
-            <div class="rem-kpi-label">Due Today</div>
-          </div>
-        </div>
-        <div class="rem-kpi">
-          <div class="rem-kpi-icon"><i data-lucide="check-circle-2"></i></div>
-          <div class="rem-kpi-body">
-            <div class="rem-kpi-val">${completedReminders}</div>
-            <div class="rem-kpi-label">Completed</div>
-          </div>
-        </div>
-        <div class="rem-kpi ${overdueReminders > 0 ? 'is-danger' : ''}">
-          <div class="rem-kpi-icon"><i data-lucide="alert-triangle"></i></div>
-          <div class="rem-kpi-body">
-            <div class="rem-kpi-val">${overdueReminders}</div>
-            <div class="rem-kpi-label">Overdue</div>
-          </div>
-        </div>
-      </div>
+
 
       <div class="rem-body">
         <aside class="rem-sidebar">

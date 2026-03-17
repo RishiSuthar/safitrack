@@ -57,6 +57,17 @@ function initializeAIChat() {
   input.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
+      // If slash prompts menu is open, pick first visible prompt instead of sending
+      const menu = document.getElementById('ai-prompts-menu');
+      if (menu && !menu.hidden) {
+        const first = menu.querySelector('.ai-prompt-item:not([hidden])');
+        if (first) { first.click(); }
+        else {
+          menu.hidden = true;
+          document.getElementById('ai-prompts-btn')?.classList.remove('active');
+        }
+        return;
+      }
       onUserSubmit();
     }
   });
@@ -103,23 +114,92 @@ function initializeAIChat() {
   // Enable send button only when input has content
   function updateSendBtn() {
     sendBtn.disabled = !input.value.trim();
+    // Auto-resize textarea
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 120) + 'px';
   }
   updateSendBtn();
   input.addEventListener('input', updateSendBtn);
 
-  // Quick action chips
-  const quickActions = document.getElementById('ai-chat-quick-actions');
-  if (quickActions) {
-    quickActions.addEventListener('click', (e) => {
-      const chip = e.target.closest('.ai-chat-chip');
-      if (!chip) return;
-      const prompt = chip.dataset.prompt;
-      if (!prompt) return;
-      input.value = prompt;
-      input.dispatchEvent(new Event('input'));
-      onUserSubmit();
+  // Prompts dropdown
+  const promptsBtn = document.getElementById('ai-prompts-btn');
+  const promptsMenu = document.getElementById('ai-prompts-menu');
+  let menuOpenedBySlash = false;
+
+  function filterPrompts(query) {
+    if (!promptsMenu) return;
+    const items = promptsMenu.querySelectorAll('.ai-prompt-item');
+    const q = query.toLowerCase().trim();
+    let anyVisible = false;
+    items.forEach(item => {
+      const label = (item.dataset.label || '').toLowerCase();
+      const matches = !q || label.includes(q);
+      item.hidden = !matches;
+      if (matches) anyVisible = true;
+    });
+    const noResults = promptsMenu.querySelector('.ai-prompts-empty');
+    if (noResults) noResults.hidden = anyVisible;
+  }
+
+  function openPromptsMenu() {
+    if (!promptsMenu) return;
+    promptsMenu.hidden = false;
+    promptsBtn?.classList.add('active');
+  }
+
+  function closePromptsMenu() {
+    if (!promptsMenu) return;
+    promptsMenu.hidden = true;
+    promptsBtn?.classList.remove('active');
+    menuOpenedBySlash = false;
+    promptsMenu.querySelectorAll('.ai-prompt-item').forEach(i => i.hidden = false);
+    const noResults = promptsMenu.querySelector('.ai-prompts-empty');
+    if (noResults) noResults.hidden = true;
+  }
+
+  function selectPrompt(prompt) {
+    closePromptsMenu();
+    input.value = prompt;
+    input.style.height = 'auto';
+    input.dispatchEvent(new Event('input'));
+    input.focus();
+    onUserSubmit();
+  }
+
+  if (promptsBtn && promptsMenu) {
+    promptsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!promptsMenu.hidden) { closePromptsMenu(); return; }
+      menuOpenedBySlash = false;
+      filterPrompts('');
+      openPromptsMenu();
+    });
+
+    promptsMenu.addEventListener('click', (e) => {
+      const item = e.target.closest('.ai-prompt-item');
+      if (!item || item.hidden) return;
+      selectPrompt(item.dataset.prompt);
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!promptsMenu.hidden && !promptsBtn.contains(e.target) && !promptsMenu.contains(e.target)) {
+        closePromptsMenu();
+      }
     });
   }
+
+  // Slash command: typing /... in the textarea opens and filters prompts live
+  input.addEventListener('input', () => {
+    if (!promptsMenu) return;
+    const val = input.value;
+    if (val.startsWith('/')) {
+      filterPrompts(val.slice(1));
+      openPromptsMenu();
+      menuOpenedBySlash = true;
+    } else if (menuOpenedBySlash) {
+      closePromptsMenu();
+    }
+  });
 }
 
 async function onUserSubmit() {
@@ -129,6 +209,8 @@ async function onUserSubmit() {
   lastUserMessage = text;
   appendUserMessage(text);
   input.value = '';
+  input.style.height = 'auto';
+  input.dispatchEvent(new Event('input'));
   await processUserMessage(text);
 }
 
