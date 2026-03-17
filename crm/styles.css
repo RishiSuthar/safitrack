@@ -2995,10 +2995,6 @@ body.modal-active {
   overflow: hidden !important;
 }
 
-body.modal-active .app-header {
-  display: none !important;
-}
-
 .header-left {
   display: flex;
   align-items: center;
