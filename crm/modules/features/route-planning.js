@@ -97,9 +97,9 @@ async function renderRoutePlanningView() {
 
   let html = `
     <div class="page-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-      <button class="btn btn-primary ai-safi-plan-btn" id="open-ai-safi-plan">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/></svg>
-        A.I SAFI PLAN
+      <button class="btn btn-primary auto-plan-btn" id="open-ai-safi-plan">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+        Auto Plan
       </button>
     </div>
 
@@ -841,7 +841,6 @@ function initAISafiPlan(companies, salesReps) {
 }
 
 function openAISafiPlanModal(companies, salesReps) {
-  // Remove existing modal if present
   const existingModal = document.getElementById('ai-safi-plan-modal');
   if (existingModal) existingModal.remove();
 
@@ -852,234 +851,88 @@ function openAISafiPlanModal(companies, salesReps) {
 
   modal.innerHTML = `
     <div class="modal-backdrop" onclick="closeModal('ai-safi-plan-modal')"></div>
-    <div class="modal-container ai-safi-modal">
-      <div class="modal-header ai-safi-header">
-        <div class="ai-safi-header-content">
-          <div class="ai-safi-logo">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8"/><path d="m4.93 10.93 1.41 1.41"/><path d="M2 18h2"/><path d="M20 18h2"/><path d="m19.07 10.93-1.41 1.41"/><path d="M22 22H2"/><path d="m8 6 4-4 4 4"/><path d="M16 18a4 4 0 0 0-8 0"/></svg>
-          </div>
-          <div>
-            <h3>A.I SAFI PLAN</h3>
-            <p class="ai-safi-subtitle">Intelligent Route Distribution</p>
-          </div>
+    <div class="modal-container auto-plan-modal">
+      <div class="modal-header auto-plan-header">
+        <div class="auto-plan-title">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+          <h3>Auto Plan</h3>
         </div>
         <button class="modal-close" onclick="closeModal('ai-safi-plan-modal')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
       </div>
 
-      <!-- Wizard Steps Indicator -->
-      <div class="ai-safi-steps">
-        <div class="ai-safi-step active" data-step="1">
-          <div class="step-number">1</div>
-          <div class="step-label">Select Reps</div>
-        </div>
-        <div class="ai-safi-step-line"></div>
-        <div class="ai-safi-step" data-step="2">
-          <div class="step-number">2</div>
-          <div class="step-label">Select Companies</div>
-        </div>
-        <div class="ai-safi-step-line"></div>
-        <div class="ai-safi-step" data-step="3">
-          <div class="step-number">3</div>
-          <div class="step-label">Generate Routes</div>
-        </div>
-        <div class="ai-safi-step-line"></div>
-        <div class="ai-safi-step" data-step="4">
-          <div class="step-number">4</div>
-          <div class="step-label">Review & Assign</div>
-        </div>
+      <div class="auto-plan-tabs">
+        <button class="auto-plan-tab active" data-step="1">Configure</button>
+        <button class="auto-plan-tab" data-step="2">Review</button>
       </div>
 
-      <div class="modal-body ai-safi-body">
-        <!-- Step 1: Select Sales Reps -->
-        <div class="ai-safi-step-content active" id="ai-safi-step-1">
-          <div class="step-intro">
-            <h4>Select Sales Representatives</h4>
-            <p>Choose the reps you want to assign routes to. The companies will be intelligently distributed based on geographic proximity.</p>
-          </div>
+      <div class="modal-body auto-plan-body">
+        <!-- Step 1: Configure -->
+        <div class="auto-plan-step-content active" id="auto-plan-step-1">
+          <div class="auto-plan-configure">
+            <div class="auto-plan-panel">
+              <div class="auto-plan-panel-header">
+                <span class="auto-plan-panel-label">Reps</span>
+                <span class="auto-plan-panel-count" id="selected-reps-count">0</span>
+                <button class="btn btn-ghost btn-sm" id="select-all-reps">Select all</button>
+              </div>
+              <div class="auto-plan-panel-list" id="rep-selection-grid">
+                ${salesReps.map(rep => `
+                  <label class="auto-plan-row" data-rep-id="${rep.id}">
+                    <input type="checkbox" value="${rep.id}">
+                    <span class="auto-plan-row-avatar">${rep.first_name.charAt(0)}${rep.last_name.charAt(0)}</span>
+                    <span class="auto-plan-row-info">
+                      <span class="auto-plan-row-name">${rep.first_name} ${rep.last_name}</span>
+                      <span class="auto-plan-row-sub">${rep.email || ''}</span>
+                    </span>
+                  </label>
+                `).join('')}
+              </div>
+            </div>
 
-          <div class="ai-safi-stats-preview">
-            <div class="stat-card">
-              <div class="stat-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-              </div>
-              <div class="stat-info">
-                <span class="stat-value">${companies.length}</span>
-                <span class="stat-label">Companies</span>
-              </div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-              </div>
-              <div class="stat-info">
-                <span class="stat-value">${salesReps.length}</span>
-                <span class="stat-label">Available Reps</span>
-              </div>
-            </div>
-            <div class="stat-card highlight">
-              <div class="stat-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-              </div>
-              <div class="stat-info">
-                <span class="stat-value" id="routes-to-create">0</span>
-                <span class="stat-label">Routes to Create</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="rep-selection-container">
-            <div class="rep-selection-header">
-              <span class="selection-count"><span id="selected-reps-count">0</span> reps selected</span>
-              <button class="btn btn-ghost btn-sm" id="select-all-reps">Select All</button>
-            </div>
-            <div class="rep-grid" id="rep-selection-grid">
-              ${salesReps.map(rep => `
-                <div class="rep-selection-card" data-rep-id="${rep.id}">
-                  <div class="rep-checkbox">
-                    <input type="checkbox" id="rep-${rep.id}" value="${rep.id}">
-                    <label for="rep-${rep.id}"></label>
-                  </div>
-                  <div class="rep-avatar">${rep.first_name.charAt(0)}${rep.last_name.charAt(0)}</div>
-                  <div class="rep-details">
-                    <div class="rep-name">${rep.first_name} ${rep.last_name}</div>
-                    <div class="rep-email">${rep.email || 'No email'}</div>
-                  </div>
+            <div class="auto-plan-panel">
+              <div class="auto-plan-panel-header">
+                <span class="auto-plan-panel-label">Companies</span>
+                <span class="auto-plan-panel-count" id="selected-companies-count">${companies.length}</span>
+                <div class="auto-plan-panel-actions">
+                  <button class="btn btn-ghost btn-sm" id="select-visible-companies" title="Select all visible companies">Select visible</button>
+                  <button class="btn btn-ghost btn-sm" id="select-all-companies">All</button>
+                  <button class="btn btn-ghost btn-sm" id="deselect-all-companies">None</button>
                 </div>
-              `).join('')}
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 2: Select Companies -->
-        <div class="ai-safi-step-content" id="ai-safi-step-2">
-          <div class="step-intro">
-            <h4>Select Companies to Include</h4>
-            <p>All companies are selected by default. Uncheck any companies you want to exclude from route planning.</p>
-          </div>
-
-          <div class="selection-summary-bar" id="company-selection-summary">
-            <span class="selection-summary-text"><strong id="selected-companies-count">${companies.length}</strong> of ${companies.length} companies selected</span>
-            <div class="company-selection-actions">
-              <button class="btn btn-ghost btn-sm" id="select-all-companies">Select All</button>
-              <button class="btn btn-ghost btn-sm" id="deselect-all-companies">Deselect All</button>
-            </div>
-          </div>
-
-          <div class="company-selection-step">
-            <div class="company-selection-header">
-              <div class="company-selection-search">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                <input type="text" id="company-search" placeholder="Search companies...">
               </div>
-            </div>
-            <div class="company-grid-container">
-              <div class="company-grid" id="company-selection-grid">
+              <div class="auto-plan-panel-search">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                <input type="text" id="company-search" placeholder="Search...">
+              </div>
+              <div class="auto-plan-panel-list" id="company-selection-grid">
                 ${companies.map(company => `
-                  <div class="company-select-card selected" data-company-id="${company.id}">
-                    <div class="company-select-checkbox">
-                      <input type="checkbox" id="company-${company.id}" value="${company.id}" checked>
-                      <label for="company-${company.id}"></label>
-                    </div>
-                    <div class="company-select-icon">
-                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                    </div>
-                    <div class="company-select-info">
-                      <div class="company-select-name">${company.name}</div>
-                      <div class="company-select-address">${company.address || 'No address'}</div>
-                    </div>
-                  </div>
+                  <label class="auto-plan-row selected" data-company-id="${company.id}">
+                    <input type="checkbox" value="${company.id}" checked>
+                    <span class="auto-plan-row-info">
+                      <span class="auto-plan-row-name">${company.name}</span>
+                      <span class="auto-plan-row-sub">${company.address || 'No address'}</span>
+                    </span>
+                  </label>
                 `).join('')}
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Step 3: Generating Routes (Processing) -->
-        <div class="ai-safi-step-content" id="ai-safi-step-3">
-          <div class="ai-processing-container">
-            <div class="ai-data-stream">
-              <div class="data-particle"></div>
-              <div class="data-particle"></div>
-              <div class="data-particle"></div>
-              <div class="data-particle"></div>
-              <div class="data-particle"></div>
-              <div class="data-particle"></div>
-            </div>
-            <div class="ai-processing-animation">
-              <div class="ai-brain">
-                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5a3 3 0 1 0-5.997.125 4 4 0 0 0-2.526 5.77 4 4 0 0 0 .556 6.588A4 4 0 1 0 12 18Z"/><path d="M12 5a3 3 0 1 1 5.997.125 4 4 0 0 1 2.526 5.77 4 4 0 0 1-.556 6.588A4 4 0 1 1 12 18Z"/><path d="M15 13a4.5 4.5 0 0 1-3-4 4.5 4.5 0 0 1-3 4"/><path d="M17.599 6.5a3 3 0 0 0 .399-1.375"/><path d="M6.003 5.125A3 3 0 0 0 6.401 6.5"/><path d="M3.477 10.896a4 4 0 0 1 .585-.396"/><path d="M19.938 10.5a4 4 0 0 1 .585.396"/><path d="M6 18a4 4 0 0 1-1.967-.516"/><path d="M19.967 17.484A4 4 0 0 1 18 18"/></svg>
-              </div>
-              <div class="ai-pulse-rings">
-                <div class="pulse-ring"></div>
-                <div class="pulse-ring"></div>
-                <div class="pulse-ring"></div>
-              </div>
-            </div>
-            <div class="ai-processing-text">
-              <h4>🧠 SAFI Neural Engine Active</h4>
-              <p id="ai-processing-status">Initializing route optimization matrix</p>
-            </div>
-            <div class="ai-progress-bar">
-              <div class="ai-progress-fill" id="ai-progress-fill"></div>
-            </div>
-            <div class="ai-processing-steps">
-              <div class="processing-step" id="proc-step-1">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
-                <span>Parsing geospatial coordinates</span>
-              </div>
-              <div class="processing-step" id="proc-step-2">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
-                <span>Running anomaly detection</span>
-              </div>
-              <div class="processing-step" id="proc-step-3">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
-                <span>Computing spatial clusters</span>
-              </div>
-              <div class="processing-step" id="proc-step-4">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
-                <span>Optimizing traveling salesman</span>
-              </div>
-              <div class="processing-step" id="proc-step-5">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
-                <span>Finalizing route assignments</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 4: Review & Assign Routes -->
-        <div class="ai-safi-step-content" id="ai-safi-step-4">
-          <div class="step-intro">
-            <h4>Review Generated Routes</h4>
-            <p>Here are the optimized routes. You can reassign reps or add additional reps to any route.</p>
-          </div>
-
-          <!-- Outlier Warning will be inserted here dynamically -->
+        <!-- Step 2: Review -->
+        <div class="auto-plan-step-content" id="auto-plan-step-2">
           <div id="outlier-warning-container"></div>
-
-          <div class="ai-routes-overview" id="ai-routes-overview">
-            <!-- Routes will be rendered here -->
-          </div>
+          <div class="ai-routes-overview" id="ai-routes-overview"></div>
         </div>
       </div>
 
-      <div class="modal-footer ai-safi-footer">
-        <button class="btn btn-secondary" id="ai-safi-back" style="display: none;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-          Back
-        </button>
+      <div class="modal-footer auto-plan-footer">
+        <button class="btn btn-secondary" id="ai-safi-back" style="display: none;">Back</button>
         <div class="footer-spacer"></div>
         <button class="btn btn-secondary" onclick="closeModal('ai-safi-plan-modal')">Cancel</button>
-        <button class="btn btn-primary" id="ai-safi-next" disabled>
-          Continue
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-        </button>
-        <button class="btn btn-primary btn-success" id="ai-safi-save" style="display: none;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          Save All Routes
-        </button>
+        <button class="btn btn-primary" id="ai-safi-next" disabled>Generate Routes</button>
+        <button class="btn btn-primary" id="ai-safi-save" style="display: none;">Save All Routes</button>
       </div>
     </div>
   `;
@@ -1091,10 +944,10 @@ function openAISafiPlanModal(companies, salesReps) {
 function initAISafiPlanLogic(modal, companies, salesReps) {
   let currentStep = 1;
   let selectedReps = [];
-  let selectedCompanies = companies.map(c => c.id); // All companies selected by default
+  let selectedCompanies = companies.map(c => c.id);
   let generatedRoutes = [];
-  let outlierCompanies = []; // Companies that are too far (>100km from centroid)
-  const OUTLIER_THRESHOLD_KM = 100; // Distance threshold for outliers
+  let outlierCompanies = [];
+  const OUTLIER_THRESHOLD_KM = 100;
 
   const nextBtn = modal.querySelector('#ai-safi-next');
   const backBtn = modal.querySelector('#ai-safi-back');
@@ -1102,187 +955,121 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
   const repGrid = modal.querySelector('#rep-selection-grid');
   const selectAllBtn = modal.querySelector('#select-all-reps');
   const selectedCountEl = modal.querySelector('#selected-reps-count');
-  const routesToCreateEl = modal.querySelector('#routes-to-create');
-
-  // Company selection elements
   const companyGrid = modal.querySelector('#company-selection-grid');
   const companySearch = modal.querySelector('#company-search');
   const selectedCompaniesCountEl = modal.querySelector('#selected-companies-count');
   const selectAllCompaniesBtn = modal.querySelector('#select-all-companies');
   const deselectAllCompaniesBtn = modal.querySelector('#deselect-all-companies');
+  const selectVisibleBtn = modal.querySelector('#select-visible-companies');
 
-  // Rep selection logic
-  repGrid.addEventListener('click', (e) => {
-    const card = e.target.closest('.rep-selection-card');
-    if (!card) return;
-
-    const checkbox = card.querySelector('input[type="checkbox"]');
-    const repId = card.dataset.repId;
-
-    // Only toggle if not clicking directly on checkbox (checkbox handles itself)
-    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'LABEL') {
-      checkbox.checked = !checkbox.checked;
-    }
-
-    // Sync state with checkbox
-    if (checkbox.checked) {
-      card.classList.add('selected');
-      if (!selectedReps.includes(repId)) {
-        selectedReps.push(repId);
-      }
-    } else {
-      card.classList.remove('selected');
-      selectedReps = selectedReps.filter(id => id !== repId);
-    }
-
-    updateSelectionUI();
-  });
-
-  // Also handle direct checkbox changes
+  // Rep selection
   repGrid.addEventListener('change', (e) => {
     if (e.target.type !== 'checkbox') return;
-    const card = e.target.closest('.rep-selection-card');
-    if (!card) return;
-
-    const repId = card.dataset.repId;
-
+    const row = e.target.closest('.auto-plan-row');
+    if (!row) return;
+    const repId = row.dataset.repId;
     if (e.target.checked) {
-      card.classList.add('selected');
-      if (!selectedReps.includes(repId)) {
-        selectedReps.push(repId);
-      }
+      row.classList.add('selected');
+      if (!selectedReps.includes(repId)) selectedReps.push(repId);
     } else {
-      card.classList.remove('selected');
+      row.classList.remove('selected');
       selectedReps = selectedReps.filter(id => id !== repId);
     }
-
-    updateSelectionUI();
+    updateUI();
   });
 
   selectAllBtn.addEventListener('click', () => {
     const allSelected = selectedReps.length === salesReps.length;
-
-    repGrid.querySelectorAll('.rep-selection-card').forEach(card => {
-      const checkbox = card.querySelector('input[type="checkbox"]');
-      checkbox.checked = !allSelected;
-      card.classList.toggle('selected', !allSelected);
+    repGrid.querySelectorAll('.auto-plan-row').forEach(row => {
+      const cb = row.querySelector('input[type="checkbox"]');
+      cb.checked = !allSelected;
+      row.classList.toggle('selected', !allSelected);
     });
-
     selectedReps = allSelected ? [] : salesReps.map(r => r.id);
-    selectAllBtn.textContent = allSelected ? 'Select All' : 'Deselect All';
-    updateSelectionUI();
+    selectAllBtn.textContent = allSelected ? 'Select all' : 'Deselect all';
+    updateUI();
   });
 
-  // Company selection logic
-  companyGrid.addEventListener('click', (e) => {
-    const card = e.target.closest('.company-select-card');
-    if (!card) return;
-
-    const checkbox = card.querySelector('input[type="checkbox"]');
-    const companyId = card.dataset.companyId;
-
-    // Only toggle if not clicking directly on checkbox (checkbox handles itself)
-    if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'LABEL') {
-      checkbox.checked = !checkbox.checked;
-    }
-
-    // Sync state with checkbox
-    if (checkbox.checked) {
-      card.classList.add('selected');
-      if (!selectedCompanies.includes(companyId)) {
-        selectedCompanies.push(companyId);
-      }
-    } else {
-      card.classList.remove('selected');
-      selectedCompanies = selectedCompanies.filter(id => id !== companyId);
-    }
-
-    updateCompanySelectionUI();
-  });
-
-  // Also handle direct checkbox changes
+  // Company selection
   companyGrid.addEventListener('change', (e) => {
     if (e.target.type !== 'checkbox') return;
-    const card = e.target.closest('.company-select-card');
-    if (!card) return;
-
-    const companyId = card.dataset.companyId;
-
+    const row = e.target.closest('.auto-plan-row');
+    if (!row) return;
+    const companyId = row.dataset.companyId;
     if (e.target.checked) {
-      card.classList.add('selected');
-      if (!selectedCompanies.includes(companyId)) {
-        selectedCompanies.push(companyId);
-      }
+      row.classList.add('selected');
+      if (!selectedCompanies.includes(companyId)) selectedCompanies.push(companyId);
     } else {
-      card.classList.remove('selected');
+      row.classList.remove('selected');
       selectedCompanies = selectedCompanies.filter(id => id !== companyId);
     }
-
-    updateCompanySelectionUI();
+    updateUI();
   });
 
   selectAllCompaniesBtn.addEventListener('click', () => {
-    companyGrid.querySelectorAll('.company-select-card').forEach(card => {
-      const checkbox = card.querySelector('input[type="checkbox"]');
-      checkbox.checked = true;
-      card.classList.add('selected');
+    companyGrid.querySelectorAll('.auto-plan-row').forEach(row => {
+      row.querySelector('input[type="checkbox"]').checked = true;
+      row.classList.add('selected');
     });
     selectedCompanies = companies.map(c => c.id);
-    updateCompanySelectionUI();
+    updateUI();
   });
 
   deselectAllCompaniesBtn.addEventListener('click', () => {
-    companyGrid.querySelectorAll('.company-select-card').forEach(card => {
-      const checkbox = card.querySelector('input[type="checkbox"]');
-      checkbox.checked = false;
-      card.classList.remove('selected');
+    companyGrid.querySelectorAll('.auto-plan-row').forEach(row => {
+      row.querySelector('input[type="checkbox"]').checked = false;
+      row.classList.remove('selected');
     });
     selectedCompanies = [];
-    updateCompanySelectionUI();
+    updateUI();
   });
 
-  // Company search
+  // Select visible (filtered) companies
+  selectVisibleBtn.addEventListener('click', () => {
+    const visibleRows = [...companyGrid.querySelectorAll('.auto-plan-row')].filter(r => r.style.display !== 'none');
+    const allVisibleSelected = visibleRows.every(r => r.querySelector('input[type="checkbox"]').checked);
+
+    visibleRows.forEach(row => {
+      const cb = row.querySelector('input[type="checkbox"]');
+      const companyId = row.dataset.companyId;
+      if (allVisibleSelected) {
+        cb.checked = false;
+        row.classList.remove('selected');
+        selectedCompanies = selectedCompanies.filter(id => id !== companyId);
+      } else {
+        cb.checked = true;
+        row.classList.add('selected');
+        if (!selectedCompanies.includes(companyId)) selectedCompanies.push(companyId);
+      }
+    });
+    updateUI();
+  });
+
   companySearch.addEventListener('input', (e) => {
     const query = e.target.value.toLowerCase();
-    companyGrid.querySelectorAll('.company-select-card').forEach(card => {
-      const companyId = card.dataset.companyId;
+    companyGrid.querySelectorAll('.auto-plan-row').forEach(row => {
+      const companyId = row.dataset.companyId;
       const company = companies.find(c => c.id === companyId);
       const match = !query || (company && matchesTokenizedQuery(query, company.name, company.description, company.address));
-      card.style.display = match ? '' : 'none';
+      row.style.display = match ? '' : 'none';
     });
+    // Update visible count on the button
+    const visibleCount = [...companyGrid.querySelectorAll('.auto-plan-row')].filter(r => r.style.display !== 'none').length;
+    selectVisibleBtn.textContent = query ? `Select visible (${visibleCount})` : 'Select visible';
   });
 
-  function updateCompanySelectionUI() {
-    selectedCompaniesCountEl.textContent = selectedCompanies.length;
-    nextBtn.disabled = selectedCompanies.length === 0;
-  }
-
-  function updateSelectionUI() {
+  function updateUI() {
     selectedCountEl.textContent = selectedReps.length;
-    routesToCreateEl.textContent = selectedReps.length;
-    nextBtn.disabled = selectedReps.length === 0;
-
-    // Animate the routes count
-    routesToCreateEl.classList.add('animate-pop');
-    setTimeout(() => routesToCreateEl.classList.remove('animate-pop'), 300);
+    selectedCompaniesCountEl.textContent = selectedCompanies.length;
+    nextBtn.disabled = selectedReps.length === 0 || selectedCompanies.length === 0;
   }
 
-  // Navigation
-  nextBtn.addEventListener('click', async () => {
-    if (currentStep === 1) {
-      goToStep(2);
-    } else if (currentStep === 2) {
-      goToStep(3);
-      await generateRoutes();
-    }
+  nextBtn.addEventListener('click', () => {
+    if (currentStep === 1) generateAndShowRoutes();
   });
 
   backBtn.addEventListener('click', () => {
-    if (currentStep === 2) {
-      goToStep(1);
-    } else if (currentStep === 4) {
-      goToStep(2);
-    }
+    if (currentStep === 2) goToStep(1);
   });
 
   saveBtn.addEventListener('click', async () => {
@@ -1291,115 +1078,32 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
 
   function goToStep(step) {
     currentStep = step;
-
-    // Update step indicators
-    modal.querySelectorAll('.ai-safi-step').forEach(s => {
-      const stepNum = parseInt(s.dataset.step);
-      s.classList.remove('active', 'completed');
-      if (stepNum === step) s.classList.add('active');
-      if (stepNum < step) s.classList.add('completed');
+    modal.querySelectorAll('.auto-plan-tab').forEach(t => {
+      const s = parseInt(t.dataset.step);
+      t.classList.toggle('active', s === step);
+      t.classList.toggle('completed', s < step);
     });
-
-    // Update step content visibility
-    modal.querySelectorAll('.ai-safi-step-content').forEach(c => c.classList.remove('active'));
-    modal.querySelector(`#ai-safi-step-${step}`).classList.add('active');
-
-    // Update buttons based on step
+    modal.querySelectorAll('.auto-plan-step-content').forEach(c => c.classList.remove('active'));
+    modal.querySelector(`#auto-plan-step-${step}`).classList.add('active');
     if (step === 1) {
       backBtn.style.display = 'none';
-      nextBtn.style.display = 'flex';
+      nextBtn.style.display = '';
       saveBtn.style.display = 'none';
-      nextBtn.disabled = selectedReps.length === 0;
-    } else if (step === 2) {
-      backBtn.style.display = 'flex';
-      nextBtn.style.display = 'flex';
-      saveBtn.style.display = 'none';
-      nextBtn.disabled = selectedCompanies.length === 0;
-    } else if (step === 3) {
-      backBtn.style.display = 'none';
+      updateUI();
+    } else {
+      backBtn.style.display = '';
       nextBtn.style.display = 'none';
-      saveBtn.style.display = 'none';
-    } else if (step === 4) {
-      backBtn.style.display = 'flex';
-      nextBtn.style.display = 'none';
-      saveBtn.style.display = 'flex';
+      saveBtn.style.display = '';
     }
   }
 
-  async function generateRoutes() {
-    const progressFill = modal.querySelector('#ai-progress-fill');
-    const statusText = modal.querySelector('#ai-processing-status');
-
-    // AI-like status messages for each step
-    const aiMessages = {
-      step1: [
-        'Parsing geospatial input vectors',
-        'Loading coordinate matrices',
-        'Indexing location data points'
-      ],
-      step2: [
-        'Running K-means anomaly detection',
-        'Calculating distance thresholds',
-        'Flagging outlier coordinates'
-      ],
-      step3: [
-        'Applying DBSCAN clustering',
-        'Computing cluster centroids',
-        'Building proximity graphs'
-      ],
-      step4: [
-        'Solving TSP with nearest neighbor',
-        'Minimizing total travel distance',
-        'Reordering waypoints'
-      ],
-      step5: [
-        'Mapping clusters to agents',
-        'Balancing workload distribution',
-        'Finalizing allocations'
-      ]
-    };
-
-    // Animate processing steps with tech-y messages
-    const animateStep = async (stepId, stepKey, progress) => {
-      const stepEl = modal.querySelector(`#${stepId}`);
-      stepEl.classList.add('active');
-      stepEl.querySelector('svg').innerHTML = '<circle cx="12" cy="12" r="10" class="spinner-circle"/>';
-
-      const messages = aiMessages[stepKey];
-      for (let i = 0; i < messages.length; i++) {
-        statusText.textContent = messages[i] + '...';
-        await delay(200);
-      }
-
-      progressFill.style.width = `${progress}%`;
-      stepEl.classList.remove('active');
-      stepEl.classList.add('completed');
-      stepEl.querySelector('svg').innerHTML = '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>';
-    };
-
-    await animateStep('proc-step-1', 'step1', 20);
-    await animateStep('proc-step-2', 'step2', 40);
-    await animateStep('proc-step-3', 'step3', 60);
-    await animateStep('proc-step-4', 'step4', 80);
-    await animateStep('proc-step-5', 'step5', 100);
-
-    // Get selected companies
+  function generateAndShowRoutes() {
     const selectedCompanyObjects = companies.filter(c => selectedCompanies.includes(c.id));
-
-    // Detect outliers and generate routes
     const result = distributeCompaniesToRoutes(selectedCompanyObjects, selectedReps, salesReps);
     generatedRoutes = result.routes;
     outlierCompanies = result.outliers;
-
-    statusText.textContent = '✓ Optimization complete';
-    const titleEl = modal.querySelector('.ai-processing-text h4');
-    if (titleEl) titleEl.textContent = '✨ Routes optimized successfully';
-    await delay(600);
-
-    // Render routes preview with outlier warning
     renderRoutesPreview(modal, generatedRoutes, salesReps, outlierCompanies);
-
-    goToStep(4);
+    goToStep(2);
   }
 
   function distributeCompaniesToRoutes(companiesForRoutes, selectedRepIds, allReps) {
@@ -1586,307 +1290,216 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
     const container = modal.querySelector('#ai-routes-overview');
     const outlierContainer = modal.querySelector('#outlier-warning-container');
 
-    // Render outlier warning if any
+    // Outlier notice
     if (outliers.length > 0) {
       outlierContainer.innerHTML = `
-        <div class="outlier-warning">
-          <div class="outlier-warning-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-          </div>
-          <div class="outlier-warning-content">
-            <div class="outlier-warning-title">Locations Left Out</div>
-            <div class="outlier-warning-text">
-              The following ${outliers.length} location${outliers.length > 1 ? 's were' : ' was'} left out because ${outliers.length > 1 ? 'they are' : 'it is'} more than 100km from any nearby location in the assigned routes. <strong>There are not enough reps to cover all areas.</strong> Consider adding more reps to include these locations.
-            </div>
-            <div class="outlier-locations">
-              ${outliers.map(company => `
-                <div class="outlier-location-tag">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                  <span class="outlier-name">${company.name}</span>
-                  <span class="outlier-distance">${company.nearestRouteDistance || Math.round(company.excludedDistance)} km to nearest stop</span>
-                </div>
-              `).join('')}
-            </div>
+        <div class="rv-outlier-notice">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+          <span><strong>${outliers.length}</strong> location${outliers.length > 1 ? 's' : ''} excluded (>100 km from nearest stop).</span>
+          <button class="btn btn-ghost btn-sm rv-outlier-toggle">Show</button>
+          <div class="rv-outlier-expandable" style="display: none;">
+            ${outliers.map(c => `<span class="rv-outlier-chip">${c.name} <em>${c.nearestRouteDistance || Math.round(c.excludedDistance)} km</em></span>`).join('')}
           </div>
         </div>
       `;
+      outlierContainer.querySelector('.rv-outlier-toggle')?.addEventListener('click', (e) => {
+        const exp = outlierContainer.querySelector('.rv-outlier-expandable');
+        const showing = exp.style.display !== 'none';
+        exp.style.display = showing ? 'none' : 'flex';
+        e.target.textContent = showing ? 'Show' : 'Hide';
+      });
     } else {
       outlierContainer.innerHTML = '';
     }
 
     if (routes.length === 0) {
-      container.innerHTML = '<p class="text-muted text-center">No routes generated</p>';
+      container.innerHTML = '<p class="text-muted text-center" style="padding:3rem">No routes generated. Try selecting more companies or reps.</p>';
       return;
     }
 
+    // Summary strip
+    const totalStops = routes.reduce((s, r) => s + r.companies.length, 0);
+    const totalDist = routes.reduce((s, r) => s + r.totalDistance, 0);
+
     let html = `
-      <div class="routes-summary-bar">
-        <div class="summary-item">
-          <strong>${routes.length}</strong> Routes Created
-        </div>
-        <div class="summary-item">
-          <strong>${routes.reduce((sum, r) => sum + r.companies.length, 0)}</strong> Companies Distributed
-        </div>
-        <div class="summary-item">
-          <strong>${routes.reduce((sum, r) => sum + r.totalDistance, 0).toFixed(1)} km</strong> Total Distance
-        </div>
+      <div class="rv-summary">
+        <span class="rv-summary-item"><strong>${routes.length}</strong> routes</span>
+        <span class="rv-summary-sep"></span>
+        <span class="rv-summary-item"><strong>${totalStops}</strong> stops</span>
+        <span class="rv-summary-sep"></span>
+        <span class="rv-summary-item"><strong>${totalDist.toFixed(1)}</strong> km total</span>
       </div>
 
-      <div class="routes-preview-grid">
-        ${routes.map((route, routeIndex) => `
-          <div class="route-preview-card" data-route-index="${routeIndex}">
-            <div class="route-preview-header" style="border-left: 4px solid ${route.color}">
-              <div class="route-header-info">
-                <input type="text" class="route-name-input" value="${route.name}" data-route-index="${routeIndex}">
-                <div class="route-meta">
-                  <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg> ${route.companies.length} stops</span>
-                  <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${route.estimatedDuration} min</span>
-                  <span><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> ${route.totalDistance.toFixed(1)} km</span>
+      <div class="rv-grid">
+        ${routes.map((route, ri) => {
+          const rep = allReps.find(r => route.assignedReps.includes(r.id));
+          const repName = rep ? `${rep.first_name} ${rep.last_name}` : 'Unassigned';
+          const repInitials = rep ? `${rep.first_name.charAt(0)}${rep.last_name.charAt(0)}` : '?';
+          const extraReps = route.assignedReps.length - 1;
+          return `
+          <div class="rv-card" data-route-index="${ri}">
+            <div class="rv-card-color" style="background:${route.color}"></div>
+            <div class="rv-card-body">
+              <div class="rv-card-top">
+                <input type="text" class="rv-route-name" value="${route.name}" data-route-index="${ri}">
+                <div class="rv-card-stats">
+                  <span>${route.companies.length} stops</span>
+                  <span>${route.totalDistance.toFixed(1)} km</span>
+                  <span>${route.estimatedDuration} min</span>
                 </div>
               </div>
-              <button class="btn btn-ghost btn-sm toggle-route-details">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
-              </button>
-            </div>
 
-            <div class="route-preview-reps">
-              <label>Assigned to:</label>
-              <div class="assigned-reps-container" data-route-index="${routeIndex}">
-                ${route.assignedReps.map(repId => {
-      const rep = allReps.find(r => r.id === repId);
-      return rep ? `
-                    <div class="assigned-rep-tag switchable" data-rep-id="${repId}" data-route-index="${routeIndex}" title="Click to switch rep">
-                      <span class="rep-avatar-sm">${rep.first_name.charAt(0)}${rep.last_name.charAt(0)}</span>
-                      <span>${rep.first_name} ${rep.last_name}</span>
-                      <svg class="switch-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
-                      ${route.assignedReps.length > 1 ? `<button class="remove-rep-btn" data-rep-id="${repId}">×</button>` : ''}
-                    </div>
-                  ` : '';
-    }).join('')}
-                <button class="add-rep-btn" data-route-index="${routeIndex}">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></svg>
-                  Add Rep
-                </button>
+              <div class="rv-card-rep-section">
+                <div class="rv-rep-display" data-route-index="${ri}">
+                  <span class="rv-rep-avatar" style="background:${route.color}">${repInitials}</span>
+                  <span class="rv-rep-name">${repName}</span>
+                  ${extraReps > 0 ? `<span class="rv-rep-extra">+${extraReps}</span>` : ''}
+                  <svg class="rv-rep-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                </div>
+                <div class="rv-rep-dropdown" id="rv-rep-dropdown-${ri}" style="display:none">
+                  <div class="rv-rep-dropdown-section">
+                    <span class="rv-rep-dropdown-label">Assigned</span>
+                    ${route.assignedReps.map(repId => {
+                      const r = allReps.find(x => x.id === repId);
+                      if (!r) return '';
+                      return `
+                      <div class="rv-rep-dropdown-row assigned" data-rep-id="${repId}">
+                        <span class="rv-rep-avatar-sm" style="background:${route.color}">${r.first_name.charAt(0)}${r.last_name.charAt(0)}</span>
+                        <span>${r.first_name} ${r.last_name}</span>
+                        ${route.assignedReps.length > 1 ? `<button class="rv-rep-remove" data-rep-id="${repId}" data-route-index="${ri}" title="Remove">&times;</button>` : ''}
+                      </div>`;
+                    }).join('')}
+                  </div>
+                  <div class="rv-rep-dropdown-divider"></div>
+                  <div class="rv-rep-dropdown-section">
+                    <span class="rv-rep-dropdown-label">Add or switch</span>
+                    ${allReps.filter(r => !route.assignedReps.includes(r.id)).map(r => `
+                      <div class="rv-rep-dropdown-row available" data-rep-id="${r.id}" data-route-index="${ri}">
+                        <span class="rv-rep-avatar-sm">${r.first_name.charAt(0)}${r.last_name.charAt(0)}</span>
+                        <span>${r.first_name} ${r.last_name}</span>
+                        <span class="rv-rep-actions">
+                          ${route.assignedReps.length === 1 ? `<button class="rv-rep-action-btn rv-switch-btn" data-action="switch" title="Replace current rep">Switch</button>` : ''}
+                          <button class="rv-rep-action-btn rv-add-btn" data-action="add" title="Add to this route">Add</button>
+                        </span>
+                      </div>
+                    `).join('')}
+                    ${allReps.filter(r => !route.assignedReps.includes(r.id)).length === 0 ? '<div class="rv-rep-dropdown-empty">All reps assigned</div>' : ''}
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div class="route-preview-companies collapsed">
-              <div class="companies-list-header">Companies in this route:</div>
-              <div class="route-companies-list">
+              <div class="rv-card-map" id="rv-map-${ri}"></div>
+
+              <div class="rv-card-stops">
                 ${route.companies.map((company, idx) => `
-                  <div class="route-company-item">
-                    <div class="company-order" style="background: ${route.color}">${idx + 1}</div>
-                    <div class="company-info">
-                      <div class="company-name">${company.name}</div>
-                      <div class="company-address">${company.address || 'No address'}</div>
-                    </div>
+                  <div class="rv-stop">
+                    <span class="rv-stop-num" style="background:${route.color}">${idx + 1}</span>
+                    <span class="rv-stop-name">${company.name}</span>
+                    <span class="rv-stop-addr">${company.address || ''}</span>
                   </div>
                 `).join('')}
               </div>
             </div>
-
-            <div class="route-preview-map" id="route-preview-map-${routeIndex}"></div>
           </div>
-        `).join('')}
+        `}).join('')}
       </div>
     `;
 
     container.innerHTML = html;
 
-    // Initialize route maps
+    // Init maps
     setTimeout(() => {
-      routes.forEach((route, index) => {
-        initRoutePreviewMap(`route-preview-map-${index}`, route);
-      });
-    }, 100);
-
-    // Toggle route details
-    container.querySelectorAll('.toggle-route-details').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const card = btn.closest('.route-preview-card');
-        const companies = card.querySelector('.route-preview-companies');
-        companies.classList.toggle('collapsed');
-        btn.querySelector('svg').style.transform = companies.classList.contains('collapsed') ? '' : 'rotate(180deg)';
-      });
-    });
+      routes.forEach((route, i) => initRoutePreviewMap(`rv-map-${i}`, route));
+    }, 50);
 
     // Route name editing
-    container.querySelectorAll('.route-name-input').forEach(input => {
+    container.querySelectorAll('.rv-route-name').forEach(input => {
       input.addEventListener('change', (e) => {
-        const routeIndex = parseInt(e.target.dataset.routeIndex);
-        generatedRoutes[routeIndex].name = e.target.value;
+        generatedRoutes[parseInt(e.target.dataset.routeIndex)].name = e.target.value;
       });
     });
 
-    // Switch rep - click on rep tag to change
-    container.querySelectorAll('.assigned-rep-tag.switchable').forEach(tag => {
-      tag.addEventListener('click', (e) => {
-        // Don't trigger if clicking remove button
-        if (e.target.closest('.remove-rep-btn')) return;
-
-        const routeIndex = parseInt(tag.dataset.routeIndex);
-        const currentRepId = tag.dataset.repId;
-        showSwitchRepDropdown(tag, routeIndex, currentRepId, allReps, generatedRoutes, container, outliers);
+    // Rep dropdown toggle
+    container.querySelectorAll('.rv-rep-display').forEach(el => {
+      el.addEventListener('click', (e) => {
+        const ri = el.dataset.routeIndex;
+        const dd = modal.querySelector(`#rv-rep-dropdown-${ri}`);
+        const isOpen = dd.style.display !== 'none';
+        // Close all open dropdowns
+        container.querySelectorAll('.rv-rep-dropdown').forEach(d => d.style.display = 'none');
+        container.querySelectorAll('.rv-rep-display').forEach(d => d.classList.remove('open'));
+        if (!isOpen) {
+          dd.style.display = '';
+          el.classList.add('open');
+        }
       });
     });
 
-    // Add rep button
-    container.querySelectorAll('.add-rep-btn').forEach(btn => {
+    // Close dropdown on outside click
+    const closeHandler = (e) => {
+      if (!e.target.closest('.rv-rep-display') && !e.target.closest('.rv-rep-dropdown')) {
+        container.querySelectorAll('.rv-rep-dropdown').forEach(d => d.style.display = 'none');
+        container.querySelectorAll('.rv-rep-display').forEach(d => d.classList.remove('open'));
+      }
+    };
+    document.removeEventListener('click', modal._closeRepDropdown);
+    modal._closeRepDropdown = closeHandler;
+    document.addEventListener('click', closeHandler);
+
+    // Remove rep
+    container.querySelectorAll('.rv-rep-remove').forEach(btn => {
       btn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const routeIndex = parseInt(btn.dataset.routeIndex);
-        showAddRepDropdown(btn, routeIndex, allReps, generatedRoutes, container, outliers);
-      });
-    });
-
-    // Remove rep button
-    container.querySelectorAll('.remove-rep-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
+        const ri = parseInt(btn.dataset.routeIndex);
         const repId = btn.dataset.repId;
-        const card = btn.closest('.route-preview-card');
-        const routeIndex = parseInt(card.dataset.routeIndex);
-        generatedRoutes[routeIndex].assignedReps = generatedRoutes[routeIndex].assignedReps.filter(id => id !== repId);
+        generatedRoutes[ri].assignedReps = generatedRoutes[ri].assignedReps.filter(id => id !== repId);
         renderRoutesPreview(modal, generatedRoutes, allReps, outliers);
       });
     });
-  }
 
-  // Dropdown for switching a rep on a route
-  function showSwitchRepDropdown(tag, routeIndex, currentRepId, allReps, routes, container, outliers) {
-    // Remove existing dropdowns
-    document.querySelectorAll('.add-rep-dropdown').forEach(d => d.remove());
-
-    const route = routes[routeIndex];
-    // Get reps not already on this route (excluding current)
-    const availableReps = allReps.filter(r => r.id !== currentRepId && !route.assignedReps.includes(r.id));
-
-    if (availableReps.length === 0) {
-      showToast('No other reps available to switch to', 'info');
-      return;
-    }
-
-    const dropdown = document.createElement('div');
-    dropdown.className = 'add-rep-dropdown switch-dropdown';
-    dropdown.innerHTML = `
-      <div class="dropdown-header">Switch to:</div>
-      ${availableReps.map(rep => `
-        <div class="dropdown-rep-option" data-rep-id="${rep.id}">
-          <span class="rep-avatar-sm">${rep.first_name.charAt(0)}${rep.last_name.charAt(0)}</span>
-          <span>${rep.first_name} ${rep.last_name}</span>
-        </div>
-      `).join('')}
-    `;
-
-    tag.style.position = 'relative';
-    tag.appendChild(dropdown);
-
-    dropdown.querySelectorAll('.dropdown-rep-option').forEach(opt => {
-      opt.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const newRepId = opt.dataset.repId;
-        // Replace the current rep with new one
-        const repIndex = routes[routeIndex].assignedReps.indexOf(currentRepId);
-        if (repIndex > -1) {
-          routes[routeIndex].assignedReps[repIndex] = newRepId;
-        }
-        dropdown.remove();
-        renderRoutesPreview(modal, routes, allReps, outliers);
+    // Add or switch rep
+    container.querySelectorAll('.rv-rep-dropdown-row.available').forEach(row => {
+      row.querySelectorAll('.rv-rep-action-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const ri = parseInt(row.dataset.routeIndex);
+          const newRepId = row.dataset.repId;
+          const action = btn.dataset.action;
+          if (action === 'switch') {
+            generatedRoutes[ri].assignedReps = [newRepId];
+          } else {
+            generatedRoutes[ri].assignedReps.push(newRepId);
+          }
+          renderRoutesPreview(modal, generatedRoutes, allReps, outliers);
+        });
       });
     });
-
-    // Close dropdown on outside click
-    setTimeout(() => {
-      document.addEventListener('click', function closeDropdown(e) {
-        if (!dropdown.contains(e.target) && !tag.contains(e.target)) {
-          dropdown.remove();
-          document.removeEventListener('click', closeDropdown);
-        }
-      });
-    }, 10);
   }
 
   function initRoutePreviewMap(containerId, route) {
-    const container = document.getElementById(containerId);
-    if (!container || route.companies.length === 0) return;
+    const el = document.getElementById(containerId);
+    if (!el || route.companies.length === 0) return;
 
-    const map = L.map(containerId, {
-      zoomControl: false,
-      attributionControl: false
-    }).setView([route.companies[0].latitude, route.companies[0].longitude], 12);
-
+    const map = L.map(containerId, { zoomControl: false, attributionControl: false })
+      .setView([route.companies[0].latitude, route.companies[0].longitude], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-    // Add markers
     const bounds = [];
-    route.companies.forEach((company, idx) => {
-      const marker = L.marker([company.latitude, company.longitude], {
+    route.companies.forEach((c, idx) => {
+      L.marker([c.latitude, c.longitude], {
         icon: L.divIcon({
           className: 'custom-marker',
-          html: `<div style="background: ${route.color}; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.3);">${idx + 1}</div>`,
-          iconSize: [24, 24]
+          html: `<div style="background:${route.color};color:#fff;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;border:2px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3)">${idx + 1}</div>`,
+          iconSize: [22, 22]
         })
       }).addTo(map);
-      bounds.push([company.latitude, company.longitude]);
+      bounds.push([c.latitude, c.longitude]);
     });
 
-    // Draw route line
     if (route.companies.length >= 2) {
-      const latlngs = route.companies.map(c => [c.latitude, c.longitude]);
-      L.polyline(latlngs, { color: route.color, weight: 3, opacity: 0.8 }).addTo(map);
+      L.polyline(route.companies.map(c => [c.latitude, c.longitude]), { color: route.color, weight: 2.5, opacity: 0.7 }).addTo(map);
     }
-
-    if (bounds.length > 0) {
-      map.fitBounds(bounds, { padding: [20, 20] });
-    }
-  }
-
-  function showAddRepDropdown(btn, routeIndex, allReps, routes, container, outliers) {
-    // Remove existing dropdown
-    document.querySelectorAll('.add-rep-dropdown').forEach(d => d.remove());
-
-    const route = routes[routeIndex];
-    const availableReps = allReps.filter(r => !route.assignedReps.includes(r.id));
-
-    if (availableReps.length === 0) {
-      showToast('All reps are already assigned to this route', 'info');
-      return;
-    }
-
-    const dropdown = document.createElement('div');
-    dropdown.className = 'add-rep-dropdown';
-    dropdown.innerHTML = `
-      <div class="dropdown-header">Add rep:</div>
-      ${availableReps.map(rep => `
-        <div class="dropdown-rep-option" data-rep-id="${rep.id}">
-          <span class="rep-avatar-sm">${rep.first_name.charAt(0)}${rep.last_name.charAt(0)}</span>
-          <span>${rep.first_name} ${rep.last_name}</span>
-        </div>
-      `).join('')}
-    `;
-
-    btn.style.position = 'relative';
-    btn.appendChild(dropdown);
-
-    dropdown.querySelectorAll('.dropdown-rep-option').forEach(opt => {
-      opt.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const repId = opt.dataset.repId;
-        routes[routeIndex].assignedReps.push(repId);
-        dropdown.remove();
-        renderRoutesPreview(modal, routes, allReps, outliers);
-      });
-    });
-
-    // Close dropdown on outside click
-    setTimeout(() => {
-      document.addEventListener('click', function closeDropdown(e) {
-        if (!dropdown.contains(e.target) && !btn.contains(e.target)) {
-          dropdown.remove();
-          document.removeEventListener('click', closeDropdown);
-        }
-      });
-    }, 10);
+    if (bounds.length > 0) map.fitBounds(bounds, { padding: [15, 15] });
   }
 
   async function saveAllRoutes() {

@@ -229,31 +229,23 @@
     gap: 0.5rem;
     margin-bottom: 0.875rem;
   }
-  .ai-safi-modal {
+  .auto-plan-modal {
     border-radius: 0;
   }
-  .ai-safi-steps {
-    padding: 1rem;
+  .auto-plan-configure {
+    grid-template-columns: 1fr;
+    height: auto;
   }
-  .ai-safi-step .step-label {
-    display: none;
-  }
-  .ai-safi-step-line {
-    width: 30px;
-  }
-  .ai-safi-stats-preview {
+  .rv-grid {
     grid-template-columns: 1fr;
   }
-  .rep-grid {
-    grid-template-columns: 1fr;
+  .rv-card-stats {
+    flex-wrap: wrap;
   }
-  .routes-preview-grid {
-    grid-template-columns: 1fr;
-  }
-  .routes-summary-bar {
+  .rv-card-top {
     flex-direction: column;
+    align-items: stretch;
     gap: 0.5rem;
-    text-align: center;
   }
   .tasks-kanban-container {
     grid-template-columns: 1fr;
