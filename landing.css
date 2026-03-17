@@ -345,6 +345,26 @@ ul {
     gap: 6px;
 }
 
+.nav-caret {
+    display: inline-flex;
+    align-items: center;
+    color: var(--text-muted);
+    transition: transform var(--transition-fast);
+}
+
+.nav-caret svg {
+    width: 12px;
+    height: 8px;
+    display: block;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+}
+
+.nav-item:hover .nav-caret {
+    transform: rotate(180deg);
+}
+
 .mega-menu {
     position: absolute;
     top: 72px;
