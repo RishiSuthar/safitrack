@@ -82,11 +82,11 @@ class OnboardingManager {
                 position: "bottom"
             },
             {
-                title: "Command Center",
+                title: "Quick Actions & Search",
                 icon: "🔍",
-                text: "Use the Command Palette (Ctrl + K) to search for companies, people, or quickly jump between views instantly.",
-                target: "#command-palette-btn",
-                position: "bottom"
+                text: "Use Quick Actions (⌘K / Ctrl+K) to create tasks, reminders and more. Press / to search all your records instantly.",
+                target: "#sidebar-quick-actions-btn",
+                position: "right"
             },
             {
                 title: "Tasks & Focus",

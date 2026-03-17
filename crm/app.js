@@ -47,7 +47,7 @@ import {
 } from './modules/ui/spreadsheet.js';
 
 import { updateBottomActionBar, clearSelection, handleBatchDelete } from './modules/ui/batch-selection.js';
-import { openCommandPalette, closeCommandPalette } from './modules/ui/command-palette.js';
+import { openCommandPalette, closeCommandPalette, openQuickActions, closeQuickActions, openSearchRecords, closeSearchRecords } from './modules/ui/command-palette.js';
 import { initPWA, attemptShowPWABanner } from './modules/ui/pwa.js';
 import { showCompressionProgress, hideCompressionProgress } from './modules/ui/sidebar-resize.js';
 import { showMentionSuggestions, setActiveMention, insertMentionFromSuggestion } from './modules/ui/mention.js';
@@ -198,8 +198,10 @@ Object.assign(window, {
   // Batch selection
   updateBottomActionBar, clearSelection, handleBatchDelete,
 
-  // Command palette
+  // Command palette / Quick Actions / Search Records
   openCommandPalette, closeCommandPalette,
+  openQuickActions, closeQuickActions,
+  openSearchRecords, closeSearchRecords,
 
   // PWA
   initPWA, attemptShowPWABanner, showCompressionProgress, hideCompressionProgress,

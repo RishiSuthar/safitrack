@@ -2,12 +2,12 @@
 // Authentication: login, logout, signup wizard, Google OAuth, invite.
 import { state, supabaseClient, APP_BOOT_STARTED_AT, FAST_BOOT_SKIP_MS, LOADER_FADE_MS, clearViewState } from '../state.js';
 
-import { loadingScreen, authScreen, mainApp, logoutBtn, mobileMenuToggle, sidebarClose, sidebarOverlay, userAvatarBtn, userMenu, notificationsBtn, notificationsMenu, notificationsCount, notificationsList, notificationsEnableBtn, safiNudgeLauncher, commandPaletteBtn, commandPalette } from '../ui/dom.js';
+import { loadingScreen, authScreen, mainApp, logoutBtn, mobileMenuToggle, sidebarClose, sidebarOverlay, userAvatarBtn, userMenu, notificationsBtn, notificationsMenu, notificationsCount, notificationsList, notificationsEnableBtn, safiNudgeLauncher } from '../ui/dom.js';
 import { initApp } from './app-init.js';
 import { loadView, openSidebar, closeSidebar } from './navigation.js';
 import { stopDueNotificationsMonitor, markAllDueNotificationsRead, requestNotificationPermission, updateNotificationPermissionCTA } from '../features/notifications.js';
 import { stopSafiNudgeRealtime } from '../realtime/nudge.js';
-import { openCommandPalette, closeCommandPalette } from '../ui/command-palette.js';
+// command-palette.js now self-initializes its own keyboard shortcuts
 import { escapeHtml, showToast } from '../ui/toast.js';
 
 function initTheme() {
@@ -185,20 +185,7 @@ function initEventListeners() {
   // Theme toggle
   // themeToggle?.addEventListener('click', toggleTheme);
 
-  // Command palette
-  commandPaletteBtn?.addEventListener('click', openCommandPalette);
-  document.addEventListener('keydown', (e) => {
-    if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-      e.preventDefault();
-      openCommandPalette();
-    }
-    if (e.key === 'Escape') {
-      closeCommandPalette();
-      closeSidebar();
-    }
-  });
-
-  document.querySelector('.command-palette-backdrop')?.addEventListener('click', closeCommandPalette);
+  // Command palette keyboard shortcuts are now handled in command-palette.js module
 
   // Help Guide
   document.getElementById('help-guide-btn')?.addEventListener('click', () => {

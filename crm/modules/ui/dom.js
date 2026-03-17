@@ -27,8 +27,8 @@ export const pageLabelText       = el('page-label-text');
 export const logoutBtn           = el('logout-btn');
 export const userAvatarBtn       = el('user-avatar-btn');
 export const userMenu            = el('user-menu');
-export const commandPaletteBtn   = el('command-palette-btn');
-export const commandPalette      = el('command-palette');
+export const commandPaletteBtn   = el('sidebar-quick-actions-btn');
+export const commandPalette      = el('quick-actions-modal');
 
 // ── Notification centre ───────────────────────────────────────────────────────
 export const notificationsBtn        = el('notifications-btn');
