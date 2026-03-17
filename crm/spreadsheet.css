@@ -195,43 +195,68 @@
 
 /* Toolbar Search Input */
 .view-toolbar .search-container {
+    position: relative;
     display: flex;
     align-items: center;
-    height: var(--control-height-lg);
-    background: var(--bg-secondary);
-    border: 1px solid var(--spreadsheet-border);
-    border-radius: var(--btn-radius);
     margin-bottom: 0;
-    overflow: hidden;
+}
+
+.view-toolbar .search-container i,
+.view-toolbar .search-container svg {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    width: 16px;
+    height: 16px;
+    pointer-events: none;
+    z-index: 1;
 }
 
 .view-toolbar .search-container input {
-    height: 100%;
+    width: 100%;
+    height: 36px;
     font-size: 0.875rem;
-    background: transparent;
-    flex: 1;
-    border: none;
-    box-shadow: none;
-    padding: 0 12px 0 8px !important;
+    font-family: inherit;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    color: var(--text-primary);
+    padding: 0 2rem 0 2.5rem !important;
     min-width: 0;
+    flex: 1;
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .view-toolbar .search-container input:focus {
-    border: none;
-    box-shadow: none;
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.view-toolbar .search-container input::placeholder {
+    color: var(--text-muted);
 }
 
 .search-clear-btn {
+    position: absolute;
+    right: 0.375rem;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
-    margin-right: 4px;
+    width: 24px;
+    height: 24px;
     color: var(--text-muted);
     cursor: pointer;
-    border-radius: var(--radius-sm);
-    transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+    border-radius: var(--radius-full);
+    background: transparent;
+    border: none;
+    padding: 0;
+    z-index: 1;
+    transition: color var(--transition-fast), background-color var(--transition-fast);
 }
 
 .search-clear-btn:hover {
@@ -240,7 +265,7 @@
 }
 
 .search-clear-btn:active {
-    transform: translateY(var(--motion-distance-press));
+    transform: translateY(-50%) scale(0.92);
 }
 
 .search-clear-btn.hidden {

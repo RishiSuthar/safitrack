@@ -61,7 +61,7 @@ async function renderTasksView() {
 
     <div class="tasks-kanban-header">
       <div class="tasks-search-bar">
-        <i class="fas fa-search"></i>
+        <i data-lucide="search"></i>
         <input type="text" id="task-search-input" placeholder="Search tasks...">
       </div>
       <div class="tasks-header-actions">

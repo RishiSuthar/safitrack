@@ -2668,11 +2668,11 @@ body {
 }
 
 /* Predictable interaction states across controls */
-:where(.btn, .toolbar-btn, .toolbar-btn-primary, .task-filter, .reminder-filter, .toggle-btn, .filter-select, .action-btn, .search-clear-btn) {
+:where(.btn, .toolbar-btn, .toolbar-btn-primary, .task-filter, .reminder-filter, .toggle-btn, .filter-select, .action-btn) {
   transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast), transform var(--transition-fast), opacity var(--transition-fast);
 }
 
-:where(.btn, .toolbar-btn, .toolbar-btn-primary, .task-filter, .reminder-filter, .toggle-btn, .filter-select, .action-btn, .search-clear-btn):active {
+:where(.btn, .toolbar-btn, .toolbar-btn-primary, .task-filter, .reminder-filter, .toggle-btn, .filter-select, .action-btn):active {
   transform: translateY(var(--motion-distance-press));
 }
 
@@ -8660,22 +8660,40 @@ select {
   margin-bottom: 1rem;
 }
 
-.search-container i {
+.search-container i,
+.search-container svg {
   position: absolute;
-  left: 1rem;
+  left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
-  font-size: 0.875rem;
+  width: 16px;
+  height: 16px;
   pointer-events: none;
-  /* Ensure icon doesn't interfere with input */
   z-index: 1;
 }
 
 .search-container input {
-  padding-left: 2.75rem !important;
-  transition: none !important;
+  width: 100%;
+  height: 36px;
+  padding: 0 0.75rem 0 2.5rem !important;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
 
+.search-container input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.search-container input::placeholder {
+  color: var(--text-muted);
 }
 
 .search-results {
@@ -9983,27 +10001,30 @@ select {
 .pipeline-search i,
 .pipeline-search svg {
   position: absolute;
-  left: 0.7rem;
+  left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  width: 14px;
-  height: 14px;
+  width: 16px;
+  height: 16px;
   color: var(--text-muted);
+  pointer-events: none;
 }
 
 .pipeline-search input,
 .pipeline-select {
-  height: 34px;
+  height: 36px;
   border: 1px solid var(--border-color);
   border-radius: 10px;
   background: var(--bg-secondary);
   color: var(--text-primary);
-  font-size: 0.78rem;
+  font-size: 0.875rem;
 }
 
 .pipeline-search input {
   width: 100%;
-  padding: 0 0.7rem 0 2.1rem;
+  padding: 0 0.75rem 0 2.5rem;
+  font-family: inherit;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .pipeline-select {
@@ -10023,6 +10044,10 @@ select {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.pipeline-search input::placeholder {
+  color: var(--text-muted);
 }
 
 .pipeline-stages {
@@ -13620,29 +13645,35 @@ button svg {
 .nb-search-wrap i,
 .nb-search-wrap svg {
   position: absolute;
-  left: 1rem;
+  left: 0.75rem;
   color: var(--text-muted);
   pointer-events: none;
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   z-index: 2;
 }
 
 .nb-search-input {
   width: 100%;
-  padding: 0.75rem 1rem 0.75rem 2.75rem;
+  height: 36px;
+  padding: 0 0.75rem 0 2.5rem;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-xl);
+  border-radius: 10px;
   color: var(--text-primary);
-  transition: all var(--transition-fast);
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .nb-search-input:focus {
   outline: none;
-  background: var(--bg-primary);
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 4px var(--color-primary-bg);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.nb-search-input::placeholder {
+  color: var(--text-muted);
 }
 
 .nb-actions {
@@ -14272,23 +14303,42 @@ button svg {
 .panel-search {
   padding: 1rem;
   border-bottom: 1px solid var(--border-color-light);
+  position: relative;
+}
+
+.panel-search i,
+.panel-search svg {
+  position: absolute;
+  left: calc(1rem + 0.75rem);
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
 }
 
 .panel-search input {
   width: 100%;
-  padding: 0.625rem 0.875rem;
+  height: 36px;
+  padding: 0 0.75rem 0 2.5rem;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-radius: 10px;
   font-size: 0.875rem;
-  background: var(--bg-primary);
+  font-family: inherit;
+  background: var(--bg-secondary);
   color: var(--text-primary);
-  transition: var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .panel-search input:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.panel-search input::placeholder {
+  color: var(--text-muted);
 }
 
 .panel-body {
@@ -15902,12 +15952,25 @@ button svg {
 
 .company-selection-search input {
   width: 100%;
-  padding: 0.625rem 0.875rem 0.625rem 2.5rem;
+  height: 36px;
+  padding: 0 0.75rem 0 2.5rem;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-radius: 10px;
   font-size: 0.875rem;
-  background: var(--bg-primary);
+  font-family: inherit;
+  background: var(--bg-secondary);
   color: var(--text-primary);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.company-selection-search input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.company-selection-search input::placeholder {
+  color: var(--text-muted);
 }
 
 .company-selection-search svg {
@@ -16199,21 +16262,37 @@ button svg {
 
 .tasks-search-bar input {
   width: 100%;
-  padding: 0.625rem 0.875rem 0.625rem 2.5rem;
+  height: 36px;
+  padding: 0 0.75rem 0 2.5rem;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-radius: 10px;
   font-size: 0.875rem;
-  background: var(--bg-primary);
+  font-family: inherit;
+  background: var(--bg-secondary);
   color: var(--text-primary);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
-.tasks-search-bar i {
+.tasks-search-bar input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.tasks-search-bar input::placeholder {
+  color: var(--text-muted);
+}
+
+.tasks-search-bar i,
+.tasks-search-bar svg {
   position: absolute;
-  left: 0.875rem;
+  left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
-  font-size: 0.875rem;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
 }
 
 .tasks-header-actions {
@@ -18259,10 +18338,38 @@ button svg {
   align-items: center;
 }
 
+.search-input-wrapper .search-icon {
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+
 .search-input-wrapper input {
-  padding-left: 36px;
   width: 100%;
-  height: 100%;
+  height: 36px;
+  padding: 0 0.75rem 0 2.5rem;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.search-input-wrapper input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.search-input-wrapper input::placeholder {
+  color: var(--text-muted);
 }
 
 /* Call Log Modal specific adjustments */
@@ -18583,21 +18690,21 @@ button svg {
   left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
-  width: 13px;
-  height: 13px;
+  width: 16px;
+  height: 16px;
   color: var(--text-muted);
   pointer-events: none;
 }
 
 .rem-search-input {
   width: 100%;
-  height: 34px;
-  padding: 0 0.875rem 0 2.2rem;
-  border-radius: var(--radius-full);
+  height: 36px;
+  padding: 0 0.75rem 0 2.5rem;
+  border-radius: 10px;
   border: 1px solid var(--border-color);
   background: var(--bg-secondary);
   color: var(--text-primary);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-family: inherit;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
@@ -19295,7 +19402,6 @@ button svg {
 }
 
 .u-search-icon-muted {
-  margin-left: 12px;
   color: var(--text-muted);
 }
 
@@ -19560,29 +19666,36 @@ button svg {
 
 .visits-search-box input {
   width: 100%;
-  height: 42px;
-  padding: 0 1rem 0 2.75rem;
+  height: 36px;
+  padding: 0 0.75rem 0 2.5rem;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-radius: 10px;
   background: var(--bg-secondary);
-  font-size: 0.9375rem;
+  font-size: 0.875rem;
+  font-family: inherit;
   color: var(--text-primary);
-  transition: all var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .visits-search-box input:focus {
   outline: none;
   border-color: var(--color-primary);
-  background: var(--bg-primary);
   box-shadow: 0 0 0 3px var(--color-primary-bg);
 }
 
-.visits-search-box svg {
+.visits-search-box input::placeholder {
+  color: var(--text-muted);
+}
+
+.visits-search-box svg,
+.visits-search-box i {
   position: absolute;
-  left: 0.875rem;
+  left: 0.75rem;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
+  width: 16px;
+  height: 16px;
   pointer-events: none;
 }
 
@@ -20948,17 +21061,8 @@ button svg {
   position: relative;
 }
 
-.search-input-wrapper .search-icon {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
 .search-input-padded {
-  padding-left: 36px !important;
+  padding-left: 2.5rem !important;
   width: 100%;
 }
 
@@ -21235,7 +21339,8 @@ button svg {
   }
 
   .tasks-search-bar input {
-    padding: 0.75rem 0.875rem 0.75rem 2.25rem;
+    height: 40px;
+    padding: 0 0.75rem 0 2.5rem;
     font-size: 0.9375rem;
   }
 
@@ -21734,7 +21839,7 @@ button svg {
 
   .notes-sidebar-header .search-container input {
     font-size: 0.875rem;
-    padding: 0.5rem 0.75rem 0.5rem 2rem;
+    padding: 0 0.75rem 0 2.5rem;
   }
 
   .notes-sidebar-header .btn-sm {
@@ -22715,8 +22820,8 @@ button svg {
   }
 
   .visits-search-box input {
-    height: 44px;
-    font-size: 1rem;
+    height: 40px;
+    font-size: 0.9375rem;
     padding-left: 2.5rem;
     border-radius: 10px;
   }
@@ -23062,7 +23167,7 @@ button svg {
   }
 
   .panel-search input {
-    height: 44px;
+    height: 40px;
     font-size: 0.9375rem;
     border-radius: 10px;
   }

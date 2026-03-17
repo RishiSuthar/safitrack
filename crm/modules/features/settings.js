@@ -450,7 +450,7 @@ async function renderSettingsView() {
           </div>
 
           <div class="sv-members-search-bar">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <i data-lucide="search"></i>
             <input type="text" placeholder="Search by name or email…" id="sv-member-search">
           </div>
 
@@ -1309,18 +1309,21 @@ async function renderSettingsView() {
 
       /* ── Members table ── */
       .sv-members-search-bar {
+        position: relative;
         display: flex;
         align-items: center;
-        gap: 9px;
         border: 1px solid var(--border-color);
-        border-radius: 7px;
-        padding: 0 12px;
+        border-radius: 10px;
         background: var(--bg-secondary);
         margin-bottom: 16px;
         max-width: 360px;
+        height: 36px;
       }
-      .sv-members-search-bar svg { width: 14px; height: 14px; color: var(--text-muted); flex-shrink: 0; }
-      .sv-members-search-bar input { flex: 1; border: none; background: transparent; outline: none; padding: 9px 0; font-size: 0.9rem; color: var(--text-primary); font-family: inherit; }
+      .sv-members-search-bar i,
+      .sv-members-search-bar svg { position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-muted); pointer-events: none; }
+      .sv-members-search-bar input { width: 100%; height: 100%; border: none; background: transparent; outline: none; padding: 0 0.75rem 0 2.5rem; font-size: 0.875rem; color: var(--text-primary); font-family: inherit; border-radius: 10px; }
+      .sv-members-search-bar input:focus { box-shadow: 0 0 0 3px var(--color-primary-bg); border-color: var(--color-primary); }
+      .sv-members-search-bar input::placeholder { color: var(--text-muted); }
       .sv-members-table-wrap { border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
       .sv-members-table { width: 100%; border-collapse: collapse; text-align: left; }
       .sv-members-table th { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; padding: 11px 16px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); }

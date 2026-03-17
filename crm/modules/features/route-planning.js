@@ -112,6 +112,7 @@ async function renderRoutePlanningView() {
         </div>
         
         <div class="panel-search">
+          <i data-lucide="search"></i>
           <input type="text" id="company-search-input" placeholder="Search companies...">
         </div>
         
