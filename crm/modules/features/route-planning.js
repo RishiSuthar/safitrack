@@ -1,6 +1,6 @@
 // modules/features/route-planning.js
 // Route planning, AI SAFI plan, route list.
-import { state, supabaseClient, loadPersistedState as _loadPersistedState } from '../state.js';
+import { state, supabaseClient, loadPersistedState as _loadPersistedState, saveViewState } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards, renderError } from '../utils/helpers.js';
