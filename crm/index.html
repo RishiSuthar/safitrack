@@ -1147,27 +1147,19 @@
         </button>
       </div>
       <div class="modal-body">
-        <!-- Basic Information Section -->
         <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i data-lucide="info"></i>
-            </div>
-            <div>
-              <div class="form-section-title">Basic Information</div>
-            </div>
-          </div>
+          <div class="form-section-header"><div class="form-section-title">Basic Information</div></div>
 
           <div class="form-field">
             <label for="company-name-input">
-              Company Name <span class="required-indicator">*</span>
+              Company Name <span class="required-indicator">(required)</span>
             </label>
             <input type="text" id="company-name-input" placeholder="e.g., Acme Corporation" required>
           </div>
 
           <div class="form-field">
             <label for="company-type">
-              Company Type <span class="required-indicator">*</span>
+              Company Type <span class="required-indicator">(required)</span>
             </label>
             <select id="company-type" required>
               <option value="">Select a type...</option>
@@ -1186,7 +1178,7 @@
           <div class="form-field">
             <div style="position:relative;">
               <label for="company-description" style="display:block;">
-                <span style="display:inline-block;">Description <span class="optional-badge">Optional</span></span>
+                <span style="display:inline-block;">Description</span>
                 <button type="button" id="generate-company-desc-btn" title="Generate description with AI"
                   class="gradient-button small-gradient">
                   Generate with AI
@@ -1194,27 +1186,17 @@
                 <span id="generate-company-desc-spinner"
                   style="display:none; position:absolute; right:110px; top:2px; font-size:12px; color:var(--text-muted);">Generating…</span>
               </label>
-
-              <textarea id="company-description" placeholder="Brief description of the company and what they do..."
-                rows="3"></textarea>
-            </div>
-            <div class="field-helper">
-              <span>Add details about their business, industry, or key products</span>
+              <textarea id="company-description" placeholder="Brief description of the company..." rows="2"></textarea>
             </div>
           </div>
 
           <div class="form-field">
-            <label for="company-domain">
-              Company Domain <span class="optional-badge">Optional</span>
-            </label>
+            <label for="company-domain">Domain</label>
             <input type="text" id="company-domain" placeholder="e.g., example.com">
-            <div class="field-helper">
-              <span>Enter the company's website domain (optional). Example: example.com</span>
-            </div>
           </div>
 
           <div class="form-field">
-            <label>Categories <span class="optional-badge">Optional</span></label>
+            <label>Categories</label>
             <div class="categories-input-container" id="categories-container">
               <input type="text" class="categories-input" id="categories-input" placeholder="Add category...">
             </div>
@@ -1235,51 +1217,32 @@
           </div>
         </div>
 
-        <!-- Location Section -->
         <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i data-lucide="map-pin"></i>
-            </div>
-            <div>
-              <div class="form-section-title">Location Details</div>
-            </div>
-          </div>
+          <div class="form-section-header"><div class="form-section-title">Location</div></div>
 
           <div class="form-field">
             <label for="company-address">
-              Location Address <span class="required-indicator">*</span>
+              Address <span class="required-indicator">(required)</span>
             </label>
             <input type="text" id="company-address" placeholder="e.g., 123 Main St, Nairobi, Kenya" required>
-            <div class="field-helper">
-              <span>Coordinates will be detected automatically from this address</span>
-            </div>
           </div>
 
-          <!-- Manual coordinates — only shown when auto-geocoding fails -->
           <div id="manual-coords-section" class="hidden">
             <div class="form-field">
-              <label>Location Coordinates</label>
+              <label>Coordinates</label>
               <div class="field-group">
                 <input type="number" id="company-latitude" placeholder="Latitude" step="0.000001">
                 <input type="number" id="company-longitude" placeholder="Longitude" step="0.000001">
               </div>
-              <div class="field-helper" style="color: var(--color-warning);">
-                <span>Coordinates could not be found automatically. Please enter them manually.</span>
+              <div class="field-helper" style="display:block; color: var(--color-warning);">
+                <span>Could not auto-detect coordinates. Enter manually.</span>
               </div>
             </div>
           </div>
 
-          <div class="u-spacer-md"></div>
-
           <div class="form-field">
-            <label for="company-radius">
-              Verification Radius <span class="optional-badge">Optional</span>
-            </label>
+            <label for="company-radius">Verification Radius (m)</label>
             <input type="number" id="company-radius" value="200" min="50" max="1000">
-            <div class="field-helper">
-              <span>Distance in meters for location verification (50-1000m)</span>
-            </div>
           </div>
         </div>
       </div>
@@ -1317,38 +1280,21 @@
         </button>
       </div>
       <div class="modal-body">
-        <!-- Contact Information Section -->
         <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i data-lucide="contact"></i>
-            </div>
-            <div>
-              <div class="form-section-title">Contact Information</div>
-            </div>
-          </div>
-
           <div class="form-field">
             <label for="person-name">
-              Name <span class="required-indicator">*</span>
+              Name <span class="required-indicator">(required)</span>
             </label>
             <input type="text" id="person-name" placeholder="e.g., John Doe" required>
           </div>
 
           <div class="form-field">
-            <label for="person-email">
-              Email Address <span class="optional-badge">Optional</span>
-            </label>
+            <label for="person-email">Email</label>
             <input type="email" id="person-email" placeholder="e.g., john.doe@company.com">
-            <div class="field-helper">
-              <span>Professional email address</span>
-            </div>
           </div>
 
           <div class="form-field">
-            <label for="person-phone">
-              Phone Numbers <span class="optional-badge">Optional</span>
-            </label>
+            <label for="person-phone">Phone Numbers</label>
             <div class="phone-numbers-container" id="phone-numbers-container">
               <div class="phone-number-input">
                 <input type="tel" class="phone-number" placeholder="e.g., +254 712 345 678">
@@ -1362,57 +1308,29 @@
                 </button>
               </div>
             </div>
-            <div class="field-helper">
-              <span>Add multiple phone numbers if needed</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Professional Details Section -->
-        <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i data-lucide="briefcase"></i>
-            </div>
-            <div>
-              <div class="form-section-title">Professional Details</div>
-            </div>
           </div>
 
           <div class="form-field">
             <label for="person-company">
-              Company <span class="required-indicator">*</span>
+              Company <span class="required-indicator">(required)</span>
             </label>
             <div class="search-container">
               <i class="fas fa-search"></i>
               <input type="text" id="person-company" placeholder="Search for a company..." required autocomplete="off">
               <div id="person-company-search-results" class="search-results" style="display: none;"></div>
             </div>
-            <div class="field-helper">
-              <span>The company this person works for</span>
-            </div>
           </div>
 
           <div class="form-field">
-            <label for="person-job-title">
-              Job Title <span class="optional-badge">Optional</span>
-            </label>
-            <input type="text" id="person-job-title" placeholder="e.g., Sales Manager, CEO, Procurement Officer">
-            <div class="field-helper">
-              <span>Their role or position in the company</span>
-            </div>
+            <label for="person-job-title">Job Title</label>
+            <input type="text" id="person-job-title" placeholder="e.g., Sales Manager, CEO">
           </div>
 
           <div class="form-field">
-            <label for="person-opportunity">
-              Linked Opportunity <span class="optional-badge">Optional</span>
-            </label>
+            <label for="person-opportunity">Linked Opportunity</label>
             <select id="person-opportunity">
               <option value="">Select an opportunity</option>
             </select>
-            <div class="field-helper">
-              <span>Associate this contact with an active opportunity</span>
-            </div>
           </div>
         </div>
       </div>
@@ -1450,56 +1368,37 @@
         </button>
       </div>
       <div class="modal-body">
-        <!-- Deal Information Section -->
         <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i data-lucide="handshake"></i>
-            </div>
-            <div>
-              <div class="form-section-title">Deal Information</div>
-            </div>
-          </div>
-
           <div class="form-field">
             <label for="opportunity-name">
-              Opportunity Name <span class="required-indicator">*</span>
+              Opportunity Name <span class="required-indicator">(required)</span>
             </label>
             <input type="text" id="opportunity-name" placeholder="e.g., Q1 2024 Enterprise Software Deal" required>
-            <div class="field-helper">
-              <span>A descriptive name for this sales opportunity</span>
-            </div>
           </div>
 
           <div class="form-field">
             <label for="opportunity-company">
-              Company <span class="required-indicator">*</span>
+              Company <span class="required-indicator">(required)</span>
             </label>
             <div class="search-container">
               <i class="fas fa-search"></i>
-              <input type="text" id="opportunity-company" placeholder="Search for a company or enter custom name..."
+              <input type="text" id="opportunity-company" placeholder="Search or enter company name..."
                 autocomplete="off" required>
               <div id="opportunity-company-search-results" class="search-results" style="display: none;"></div>
-            </div>
-            <div class="field-helper">
-              <span>Search for existing company or enter a custom name</span>
             </div>
           </div>
 
           <div class="field-group">
             <div class="form-field">
               <label for="opportunity-value">
-                Deal Value<span class="required-indicator">*</span>
+                Deal Value <span class="required-indicator">(required)</span>
               </label>
               <input type="number" id="opportunity-value" placeholder="0.00" min="0" step="0.01" required>
-              <div class="field-helper">
-                <span>Total value of deal</span>
-              </div>
             </div>
 
             <div class="form-field">
               <label for="opportunity-stage">
-                Pipeline Stage <span class="required-indicator">*</span>
+                Pipeline Stage <span class="required-indicator">(required)</span>
               </label>
               <select id="opportunity-stage" required>
                 <option value="prospecting">Discovery</option>
@@ -1511,80 +1410,35 @@
           </div>
 
           <div class="form-field">
-            <label for="opportunity-probability">
-              Win Probability (%) <span class="required-indicator">*</span>
-            </label>
+            <label for="opportunity-probability">Win Probability (%)</label>
             <div class="probability-slider-container">
               <input type="range" id="opportunity-probability" min="0" max="100" value="50" class="probability-slider">
               <div class="probability-value"><span id="probability-display">50</span>%</div>
             </div>
-            <div class="field-helper">
-              <span>Estimated likelihood of closing this deal</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Timeline & Next Steps Section -->
-        <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i data-lucide="calendar-check"></i>
-            </div>
-            <div>
-              <div class="form-section-title">Timeline & Next Steps</div>
-            </div>
           </div>
 
           <div class="form-field">
-            <label for="opportunity-next-step">
-              Next Step <span class="optional-badge">Optional</span>
-            </label>
+            <label for="opportunity-next-step">Next Step</label>
             <input type="text" id="opportunity-next-step" placeholder="e.g., Schedule demo with decision makers">
-            <div class="field-helper">
-              <span>What's the next action to move this forward?</span>
-            </div>
           </div>
 
           <div class="form-field">
-            <label for="opportunity-next-step-date">
-              Next Step Due Date <span class="optional-badge">Optional</span>
-            </label>
+            <label for="opportunity-next-step-date">Next Step Due Date</label>
             <input type="date" id="opportunity-next-step-date">
           </div>
-        </div>
-
-        <!-- Additional Details Section -->
-        <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i data-lucide="clipboard-list"></i>
-            </div>
-            <div>
-              <div class="form-section-title">Additional Details</div>
-            </div>
-          </div>
 
           <div class="form-field">
-            <label>Competitors <span class="optional-badge">Optional</span></label>
+            <label>Competitors</label>
             <div class="competitors-input-container" id="competitors-container">
               <input type="text" class="competitors-input" id="competitors-input" placeholder="Add competitor name...">
             </div>
-            <div class="field-helper">
-              <span>Other companies competing for this deal</span>
-            </div>
           </div>
 
           <div class="form-field">
-            <label for="opportunity-notes">
-              Notes <span class="optional-badge">Optional</span>
-            </label>
+            <label for="opportunity-notes">Notes</label>
             <div class="mention-container">
-              <textarea id="opportunity-notes" placeholder="Additional details about this opportunity..."
-                rows="3"></textarea>
+              <textarea id="opportunity-notes" placeholder="Additional details..." rows="2"></textarea>
               <div id="opportunity-mention-suggestions" class="mention-suggestions" style="display: none;"></div>
-            </div>
-            <div class="field-helper">
-              <span>Any additional context or important information</span>
             </div>
           </div>
         </div>
@@ -1726,39 +1580,22 @@
         </button>
       </div>
       <div class="modal-body">
-        <!-- Task Details Section -->
         <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i data-lucide="clipboard-check"></i>
-            </div>
-            <div>
-              <div class="form-section-title">Task Details</div>
-            </div>
-          </div>
-
           <div class="form-field">
             <label for="task-title">
-              Task Title <span class="required-indicator">*</span>
+              Title <span class="required-indicator">(required)</span>
             </label>
             <input type="text" id="task-title" placeholder="e.g., Follow up with client about proposal" required>
           </div>
 
           <div class="form-field">
-            <label for="task-description">
-              Description <span class="optional-badge">Optional</span>
-            </label>
-            <textarea id="task-description" placeholder="Add more details about this task..." rows="3"></textarea>
-            <div class="field-helper">
-              <span>Provide context or specific instructions</span>
-            </div>
+            <label for="task-description">Description</label>
+            <textarea id="task-description" placeholder="Add more details..." rows="2"></textarea>
           </div>
 
           <div class="field-group">
             <div class="form-field">
-              <label for="task-priority">
-                Priority <span class="optional-badge">Optional</span>
-              </label>
+              <label for="task-priority">Priority</label>
               <select id="task-priority">
                 <option value="low">🟢 Low</option>
                 <option value="medium" selected>🟡 Medium</option>
@@ -1767,9 +1604,7 @@
             </div>
 
             <div class="form-field">
-              <label for="task-status">
-                Status <span class="optional-badge">Optional</span>
-              </label>
+              <label for="task-status">Status</label>
               <select id="task-status">
                 <option value="pending" selected>Pending</option>
                 <option value="in_progress">In Progress</option>
@@ -1777,39 +1612,17 @@
               </select>
             </div>
           </div>
-        </div>
-
-        <!-- Assignment & Deadline Section -->
-        <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i data-lucide="clock-3"></i>
-            </div>
-            <div>
-              <div class="form-section-title">Assignment & Deadline</div>
-            </div>
-          </div>
 
           <div class="form-field" id="task-assign-field" style="display:none;">
-            <label for="task-assign-to">
-              Assign To <span class="optional-badge">Optional</span>
-            </label>
+            <label for="task-assign-to">Assign To</label>
             <select id="task-assign-to">
               <option value="">Select a sales rep</option>
             </select>
-            <div class="field-helper">
-              <span>Assign this task to a team member</span>
-            </div>
           </div>
 
           <div class="form-field">
-            <label for="task-due-date">
-              Due Date <span class="optional-badge">Optional</span>
-            </label>
+            <label for="task-due-date">Due Date</label>
             <input type="datetime-local" id="task-due-date">
-            <div class="field-helper">
-              <span>When should this task be completed?</span>
-            </div>
           </div>
         </div>
       </div>
@@ -1835,54 +1648,31 @@
         </button>
       </div>
       <div class="modal-body">
-        <!-- Reminder Details Section -->
         <div class="form-section">
-          <div class="form-section-header">
-            <div class="form-section-icon">
-              <i class="fa-regular fa-bell"></i>
-            </div>
-            <div>
-              <div class="form-section-title">Reminder Details</div>
-            </div>
-          </div>
-
           <div class="form-field">
             <label for="reminder-title">
-              Reminder Title <span class="required-indicator">*</span>
+              Title <span class="required-indicator">(required)</span>
             </label>
             <input type="text" id="reminder-title" placeholder="e.g., Call client about contract renewal" required>
           </div>
 
           <div class="form-field">
-            <label for="reminder-description">
-              Description <span class="optional-badge">Optional</span>
-            </label>
-            <textarea id="reminder-description" placeholder="Add additional context..." rows="3"></textarea>
-            <div class="field-helper">
-              <span>Any important details to remember</span>
-            </div>
+            <label for="reminder-description">Description</label>
+            <textarea id="reminder-description" placeholder="Add additional context..." rows="2"></textarea>
           </div>
 
           <div class="form-field">
             <label for="reminder-date">
-              Reminder Date & Time <span class="required-indicator">*</span>
+              Date & Time <span class="required-indicator">(required)</span>
             </label>
             <input type="datetime-local" id="reminder-date" required>
-            <div class="field-helper">
-              <span>When should you be reminded?</span>
-            </div>
           </div>
 
           <div class="form-field" id="reminder-assign-field" style="display:none;">
-            <label for="reminder-assign-to">
-              Assign To <span class="optional-badge">Optional</span>
-            </label>
+            <label for="reminder-assign-to">Assign To</label>
             <select id="reminder-assign-to">
               <option value="">Select a sales rep</option>
             </select>
-            <div class="field-helper">
-              <span>Assign this reminder to a team member</span>
-            </div>
           </div>
         </div>
       </div>
@@ -2383,13 +2173,6 @@
 
       <div class="modal-header clm-header">
         <div class="clm-header-inner">
-          <div class="clm-header-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.9 12.72a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-            </svg>
-          </div>
           <h3 id="call-log-modal-title">Log New Call</h3>
         </div>
         <button class="modal-close" onclick="closeModal('call-log-modal')">
@@ -2407,12 +2190,7 @@
         <div class="clm-row-2">
           <div class="clm-field">
             <label class="clm-label">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
-                <circle cx="12" cy="7" r="4" />
-              </svg>
-              Contact <span class="required-indicator">*</span>
+              Contact <span class="required-indicator">(required)</span>
             </label>
             <div class="search-input-group">
               <input type="text" id="call-contact-input" class="clm-input" placeholder="Search or type a name…"
@@ -2424,11 +2202,6 @@
 
           <div class="clm-field">
             <label class="clm-label">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect width="20" height="14" x="2" y="7" rx="2" />
-                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
-              </svg>
               Company
             </label>
             <div class="search-input-group">
@@ -2448,22 +2221,12 @@
               <label class="clm-dir-option">
                 <input type="radio" name="call-direction-radio" value="Outbound" id="call-dir-out" checked>
                 <span class="clm-dir-chip">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M7 17 17 7" />
-                    <path d="M7 7h10v10" />
-                  </svg>
                   Outbound
                 </span>
               </label>
               <label class="clm-dir-option">
                 <input type="radio" name="call-direction-radio" value="Inbound" id="call-dir-in">
                 <span class="clm-dir-chip">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                    stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M17 7 7 17" />
-                    <path d="M17 17H7V7" />
-                  </svg>
                   Inbound
                 </span>
               </label>
@@ -2477,13 +2240,6 @@
 
           <div class="clm-field">
             <label class="clm-label" for="call-datetime">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                <line x1="16" x2="16" y1="2" y2="6" />
-                <line x1="8" x2="8" y1="2" y2="6" />
-                <line x1="3" x2="21" y1="10" y2="10" />
-              </svg>
               Date &amp; Time
             </label>
             <input type="datetime-local" id="call-datetime" class="clm-input">
@@ -2491,11 +2247,6 @@
 
           <div class="clm-field">
             <label class="clm-label" for="call-duration">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12,6 12,12 16,14" />
-              </svg>
               Duration (min)
             </label>
             <input type="number" id="call-duration" class="clm-input" placeholder="e.g. 5" min="0">
@@ -2504,74 +2255,41 @@
 
         <!-- Row 3: Outcome -->
         <div class="clm-field">
-          <label class="clm-label">Outcome <span class="required-indicator">*</span></label>
+          <label class="clm-label">Outcome <span class="required-indicator">(required)</span></label>
           <div class="clm-outcome-grid" id="call-outcome-options">
             <label class="clm-outcome-option">
               <input type="radio" name="call-outcome" value="Connected">
               <span class="clm-outcome-chip clm-outcome--connected">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
                 Connected
               </span>
             </label>
             <label class="clm-outcome-option">
               <input type="radio" name="call-outcome" value="Voicemail">
               <span class="clm-outcome-chip clm-outcome--voicemail">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="5.5" cy="11.5" r="3.5" />
-                  <circle cx="18.5" cy="11.5" r="3.5" />
-                  <line x1="2" x2="22" y1="15" y2="15" />
-                </svg>
                 Voicemail
               </span>
             </label>
             <label class="clm-outcome-option">
               <input type="radio" name="call-outcome" value="No Answer">
               <span class="clm-outcome-chip clm-outcome--noanswer">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <line x1="2" x2="22" y1="2" y2="22" />
-                  <path d="M10.68 13.31a16 16 0 0 1-2.06-2.06L4.27 6.9A2 2 0 0 0 2 9v3a10 10 0 0 0 8.83 9.93" />
-                  <path d="m13.47 10.53 5.55 5.55A2 2 0 0 0 22 15v-3a10 10 0 0 0-2.28-6.38" />
-                </svg>
                 No Answer
               </span>
             </label>
             <label class="clm-outcome-option">
               <input type="radio" name="call-outcome" value="Busy">
               <span class="clm-outcome-chip clm-outcome--busy">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <line x1="12" x2="12" y1="8" y2="12" />
-                  <line x1="12" x2="12.01" y1="16" y2="16" />
-                </svg>
                 Busy
               </span>
             </label>
             <label class="clm-outcome-option">
               <input type="radio" name="call-outcome" value="Wrong Number">
               <span class="clm-outcome-chip clm-outcome--wrong">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M18 6 6 18" />
-                  <path d="m6 6 12 12" />
-                </svg>
                 Wrong Number
               </span>
             </label>
             <label class="clm-outcome-option">
               <input type="radio" name="call-outcome" value="Call Failed">
               <span class="clm-outcome-chip clm-outcome--failed">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path
-                    d="m10.68 13.31-4.41-4.41a2 2 0 0 0-3 .26L1 12.27A10 10 0 0 0 14 22l2.86-2.27a2 2 0 0 0 .26-3L12.7 12.7" />
-                  <line x1="2" x2="22" y1="2" y2="22" />
-                </svg>
                 Call Failed
               </span>
             </label>
@@ -2581,10 +2299,6 @@
         <!-- Row 4: Notes -->
         <div class="clm-field">
           <label class="clm-label" for="call-notes">
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-            </svg>
             Notes
           </label>
           <textarea id="call-notes" class="clm-input clm-textarea" rows="3"
