@@ -21,10 +21,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (isCollapsed) {
       // Sidebar is HIDDEN (Collapsed): Show "Open" Icon (Arrows pointing OUT)
-      sidebarToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-right-close-icon lucide-panel-right-close"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/><path d="m8 9 3 3-3 3"/></svg>`;
+      sidebarToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-right-close-icon lucide-panel-right-close"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/><path d="m8 9 3 3-3 3"/></svg>`;
     } else {
       // Sidebar is VISIBLE (Expanded): Show "Close" Icon (Arrows pointing IN)
-      sidebarToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-right-open-icon lucide-panel-right-open"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/><path d="m10 15-3-3 3-3"/></svg>`;
+      sidebarToggle.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-right-open-icon lucide-panel-right-open"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/><path d="m10 15-3-3 3-3"/></svg>`;
     }
   };
 
@@ -32,23 +32,20 @@ document.addEventListener('DOMContentLoaded', () => {
   // Helper to force layout update
   // Helper to force layout update
   const adjustMainContent = (isCollapsed) => {
-    // Find the main content element
     const mainContent = document.querySelector('.main-content');
+    const appHeader = document.querySelector('.app-header');
+    const pageLabel = document.querySelector('.page-label');
 
     if (isCollapsed) {
-      // --- SIDEBAR IS COLLAPSED (60px) ---
-      // 1. Calculate exact remaining width: Full Screen Width - Sidebar Width
       mainContent.style.width = 'calc(100vw - 60px)';
-
-      // 2. Reduce margin to match the small sidebar
       mainContent.style.marginLeft = '60px';
+      if (appHeader) appHeader.style.left = '60px';
+      if (pageLabel) pageLabel.style.left = 'calc(60px + 12px)';
     } else {
-      // --- SIDEBAR IS EXPANDED (210px) ---
-      // 1. Clear inline width so your existing CSS media query handles it
       mainContent.style.width = '';
-
-      // 2. Clear inline margin so CSS handles it
       mainContent.style.marginLeft = '';
+      if (appHeader) appHeader.style.left = '';
+      if (pageLabel) pageLabel.style.left = '';
     }
   };
 
@@ -98,7 +95,7 @@ window.addEventListener('resize', () => {
     // On mobile, the toggle button is usually hidden, but if visible:
     if (sidebarToggle) {
       sidebarToggle.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-right-close-icon lucide-panel-right-close"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/><path d="m8 9 3 3-3 3"/></svg>`;
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-panel-right-open-icon lucide-panel-right-open"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/><path d="m10 15-3-3 3-3"/></svg>`;
     }
   }
 });
