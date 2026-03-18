@@ -22,7 +22,7 @@ async function initApp() {
 
   const { data: profile, error: profileError } = await supabaseClient
     .from('profiles')
-    .select('role, first_name, last_name, email, date_format, organization_id')
+    .select('role, first_name, last_name, email, date_format, organization_id, avatar_url')
     .eq('id', state.currentUser.id)
     .maybeSingle();
 
@@ -81,7 +81,7 @@ async function initApp() {
     try {
       const { data: org } = await supabaseClient
         .from('organizations')
-        .select('id, name, owner_id, max_members, currency')
+        .select('id, name, owner_id, max_members, currency, logo_url')
         .eq('id', profile.organization_id)
         .single();
       state.currentOrganization = org || null;
@@ -94,8 +94,14 @@ async function initApp() {
           ? state.currentOrganization.name.slice(0, 16) + '…'
           : state.currentOrganization.name;
         if (orgNameEl) orgNameEl.textContent = truncated;
-        if (orgAvatarEl) orgAvatarEl.textContent = state.currentOrganization.name[0].toUpperCase();
         if (headerOrgNameEl) headerOrgNameEl.textContent = state.currentOrganization.name;
+        if (orgAvatarEl) {
+          if (state.currentOrganization.logo_url) {
+            orgAvatarEl.innerHTML = `<img src="${state.currentOrganization.logo_url}" alt="" class="ws-btn-logo-img">`;
+          } else {
+            orgAvatarEl.textContent = state.currentOrganization.name[0].toUpperCase();
+          }
+        }
       }
     } catch (_orgErr) { /* non-critical */ }
   }
@@ -269,8 +275,15 @@ function updateUserDisplay(profile) {
   const initials = getInitials(displayName);
   const email = profile.email || state.currentUser.email;
 
-  // Update header avatar
-  document.getElementById('user-avatar').textContent = initials;
+  // Update header avatar – show photo if available, otherwise initials
+  const avatarEl = document.getElementById('user-avatar');
+  if (avatarEl) {
+    if (profile.avatar_url) {
+      avatarEl.innerHTML = `<img src="${profile.avatar_url}" alt="" class="user-avatar-img">`;
+    } else {
+      avatarEl.textContent = initials;
+    }
+  }
   document.getElementById('user-display-name').textContent = displayName;
   document.getElementById('user-display-email').textContent = email;
 

@@ -104,18 +104,24 @@ async function renderSettingsView() {
               </div>
               <div class="sv-field-control">
                 <div class="sv-avatar-wrap">
-                  <div class="sv-avatar-circle">
-                    ${initials}
+                  <div class="sv-avatar-circle" id="sv-settings-avatar-circle">
+                    ${state.currentUserProfile?.avatar_url
+                      ? `<img src="${state.currentUserProfile.avatar_url}" alt="" class="sv-avatar-img">`
+                      : initials}
                     <div class="sv-avatar-overlay">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                     </div>
                   </div>
+                  <input type="file" id="sv-avatar-upload" accept="image/jpeg,image/png,image/webp" style="display:none;">
                   <div class="sv-avatar-info">
                     <span class="sv-avatar-name">${fullName}</span>
-                    <button class="sv-ghost-btn">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                      Upload photo
-                    </button>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                      <button class="sv-ghost-btn" id="sv-avatar-upload-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        Upload photo
+                      </button>
+                      ${state.currentUserProfile?.avatar_url ? `<button class="sv-ghost-btn sv-ghost-btn--danger" id="sv-avatar-remove-btn" style="color:var(--color-danger,#ef4444);">Remove</button>` : ''}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -359,12 +365,25 @@ async function renderSettingsView() {
           </div>
 
           <div class="sv-org-identity-card">
-            <div class="sv-org-identity-avatar">${((state.currentOrganization?.name || 'W').match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase()}</div>
+            <div class="sv-org-identity-avatar" id="sv-org-identity-avatar">
+              ${state.currentOrganization?.logo_url
+                ? `<img src="${state.currentOrganization.logo_url}" alt="" class="sv-org-logo-img">`
+                : ((state.currentOrganization?.name || 'W').match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase()}
+            </div>
             <div class="sv-org-identity-body">
               <div class="sv-org-identity-name">${escH(state.currentOrganization?.name || '—')}</div>
               <div class="sv-org-identity-id">
                 <span class="sv-mono-chip">${escH((state.currentOrganization?.id || '').slice(0, 8).toUpperCase()) || '—'}</span>
               </div>
+              ${state.isManager ? `
+              <div style="display:flex;gap:8px;margin-top:6px;">
+                <button class="sv-ghost-btn" id="sv-org-logo-upload-btn" style="font-size:0.78rem;">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  ${state.currentOrganization?.logo_url ? 'Change logo' : 'Upload logo'}
+                </button>
+                ${state.currentOrganization?.logo_url ? `<button class="sv-ghost-btn" id="sv-org-logo-remove-btn" style="font-size:0.78rem;color:var(--color-danger,#ef4444);">Remove logo</button>` : ''}
+              </div>
+              <input type="file" id="sv-org-logo-upload" accept="image/jpeg,image/png,image/webp" style="display:none;">` : ''}
             </div>
             ${state.isManager ? `
             <button class="sv-ghost-btn" id="sv-org-name-edit-trigger">
@@ -1083,6 +1102,17 @@ async function renderSettingsView() {
       .sv-avatar-info { display: flex; flex-direction: column; gap: 5px; }
       .sv-avatar-name { font-size: 0.96rem; font-weight: 600; color: var(--text-primary); letter-spacing: -0.02em; }
 
+      /* Avatar photo fills the circle */
+      .sv-avatar-img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        display: block;
+      }
+
       /* ── Theme tiles ── */
       .sv-theme-grid { display: flex; gap: 12px; width: 100%; }
       .sv-theme-tile {
@@ -1206,6 +1236,15 @@ async function renderSettingsView() {
         color: #fff;
         letter-spacing: -0.04em;
         flex-shrink: 0;
+        overflow: hidden;
+      }
+      /* Org logo image inside the identity avatar */
+      .sv-org-logo-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 8px;
+        display: block;
       }
       .sv-org-identity-body { flex: 1; min-width: 0; }
       .sv-org-identity-name { font-size: 0.98rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.02em; margin-bottom: 4px; }
@@ -2179,6 +2218,177 @@ async function renderSettingsView() {
   document.getElementById('profile-firstname')?.addEventListener('input', () => debounceSave('profile'));
   document.getElementById('profile-lastname')?.addEventListener('input', () => debounceSave('profile'));
   document.getElementById('pref-email-notifs')?.addEventListener('change', () => autoSaveSettings('preferences'));
+
+  /* ─────────────── IMAGE COMPRESSION HELPER ─────────────── */
+  /**
+   * Compresses an image File to a Blob via an off-screen canvas.
+   * @param {File} file - source image file
+   * @param {number} maxPx - maximum width or height in pixels
+   * @param {number} quality - JPEG/WebP quality 0-1
+   * @returns {Promise<Blob>}
+   */
+  function compressImage(file, maxPx, quality) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        let { width, height } = img;
+        if (width > maxPx || height > maxPx) {
+          if (width > height) { height = Math.round(height * maxPx / width); width = maxPx; }
+          else { width = Math.round(width * maxPx / height); height = maxPx; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Canvas toBlob failed')), 'image/jpeg', quality);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Image load failed')); };
+      img.src = url;
+    });
+  }
+
+  /* ─────────────── USER AVATAR UPLOAD ─────────────── */
+  const avatarCircle = document.getElementById('sv-settings-avatar-circle');
+  const avatarInput = document.getElementById('sv-avatar-upload');
+  const avatarUploadBtn = document.getElementById('sv-avatar-upload-btn');
+  const avatarRemoveBtn = document.getElementById('sv-avatar-remove-btn');
+
+  // Both the circle and the button trigger the hidden input
+  avatarCircle?.addEventListener('click', () => avatarInput?.click());
+  avatarUploadBtn?.addEventListener('click', (e) => { e.stopPropagation(); avatarInput?.click(); });
+
+  avatarInput?.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !state.currentUser?.id) return;
+    avatarInput.value = '';
+    try {
+      showToast('Uploading avatar…', 'info');
+      const compressed = await compressImage(file, 256, 0.82);
+      const ext = 'jpg';
+      const path = `${state.currentUser.id}/avatar.${ext}`;
+      const { error: upErr } = await supabaseClient.storage
+        .from('avatars')
+        .upload(path, compressed, { contentType: 'image/jpeg', upsert: true });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(path);
+      // Bust cache with a timestamp
+      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+      const { error: dbErr } = await supabaseClient
+        .from('profiles').update({ avatar_url: publicUrl }).eq('id', state.currentUser.id);
+      if (dbErr) throw dbErr;
+      state.currentUserProfile = { ...(state.currentUserProfile || {}), avatar_url: publicUrl };
+      // Update settings circle
+      if (avatarCircle) avatarCircle.innerHTML = `<img src="${publicUrl}" alt="" class="sv-avatar-img"><div class="sv-avatar-overlay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>`;
+      // Update header avatar
+      const headerAvatar = document.getElementById('user-avatar');
+      if (headerAvatar) headerAvatar.innerHTML = `<img src="${publicUrl}" alt="" class="user-avatar-img">`;
+      // Show remove button if it wasn't there
+      if (!document.getElementById('sv-avatar-remove-btn')) {
+        const info = avatarUploadBtn?.parentElement;
+        if (info) {
+          const removeBtn = document.createElement('button');
+          removeBtn.id = 'sv-avatar-remove-btn';
+          removeBtn.className = 'sv-ghost-btn sv-ghost-btn--danger';
+          removeBtn.style.color = 'var(--color-danger,#ef4444)';
+          removeBtn.textContent = 'Remove';
+          removeBtn.addEventListener('click', handleAvatarRemove);
+          info.appendChild(removeBtn);
+        }
+      }
+      showToast('Avatar updated', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to upload avatar: ' + err.message, 'error');
+    }
+  });
+
+  async function handleAvatarRemove() {
+    if (!state.currentUser?.id) return;
+    try {
+      await supabaseClient.storage.from('avatars').remove([`${state.currentUser.id}/avatar.jpg`]);
+      await supabaseClient.from('profiles').update({ avatar_url: null }).eq('id', state.currentUser.id);
+      state.currentUserProfile = { ...(state.currentUserProfile || {}), avatar_url: null };
+      const initials = ((state.currentUserProfile?.first_name?.[0] || '') + (state.currentUserProfile?.last_name?.[0] || '')).toUpperCase() || (state.currentUser?.email?.[0] || 'U').toUpperCase();
+      if (avatarCircle) avatarCircle.innerHTML = `${initials}<div class="sv-avatar-overlay"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></div>`;
+      const headerAvatar = document.getElementById('user-avatar');
+      if (headerAvatar) headerAvatar.textContent = initials;
+      document.getElementById('sv-avatar-remove-btn')?.remove();
+      showToast('Avatar removed', 'info');
+    } catch (err) {
+      showToast('Failed to remove avatar', 'error');
+    }
+  }
+  avatarRemoveBtn?.addEventListener('click', handleAvatarRemove);
+
+  /* ─────────────── ORG LOGO UPLOAD ─────────────── */
+  const orgLogoInput = document.getElementById('sv-org-logo-upload');
+  const orgLogoUploadBtn = document.getElementById('sv-org-logo-upload-btn');
+  const orgLogoRemoveBtn = document.getElementById('sv-org-logo-remove-btn');
+  const orgIdentityAvatar = document.getElementById('sv-org-identity-avatar');
+
+  orgLogoUploadBtn?.addEventListener('click', () => orgLogoInput?.click());
+
+  orgLogoInput?.addEventListener('change', async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !state.currentOrganization?.id) return;
+    orgLogoInput.value = '';
+    try {
+      showToast('Uploading logo…', 'info');
+      const compressed = await compressImage(file, 400, 0.85);
+      const path = `${state.currentOrganization.id}/logo.jpg`;
+      const { error: upErr } = await supabaseClient.storage
+        .from('org-logos')
+        .upload(path, compressed, { contentType: 'image/jpeg', upsert: true });
+      if (upErr) throw upErr;
+      const { data: urlData } = supabaseClient.storage.from('org-logos').getPublicUrl(path);
+      const publicUrl = `${urlData.publicUrl}?t=${Date.now()}`;
+      const { error: dbErr } = await supabaseClient
+        .from('organizations').update({ logo_url: publicUrl }).eq('id', state.currentOrganization.id);
+      if (dbErr) throw dbErr;
+      state.currentOrganization = { ...state.currentOrganization, logo_url: publicUrl };
+      // Update settings identity avatar
+      if (orgIdentityAvatar) orgIdentityAvatar.innerHTML = `<img src="${publicUrl}" alt="" class="sv-org-logo-img">`;
+      if (orgLogoUploadBtn) orgLogoUploadBtn.childNodes[orgLogoUploadBtn.childNodes.length - 1].textContent = 'Change logo';
+      // Update sidebar ws-btn-avatar
+      const orgAvatarEl = document.getElementById('ws-btn-avatar');
+      if (orgAvatarEl) orgAvatarEl.innerHTML = `<img src="${publicUrl}" alt="" class="ws-btn-logo-img">`;
+      // Show remove button if not present
+      if (!document.getElementById('sv-org-logo-remove-btn')) {
+        const removeBtn = document.createElement('button');
+        removeBtn.id = 'sv-org-logo-remove-btn';
+        removeBtn.className = 'sv-ghost-btn';
+        removeBtn.style.cssText = 'font-size:0.78rem;color:var(--color-danger,#ef4444);';
+        removeBtn.textContent = 'Remove logo';
+        removeBtn.addEventListener('click', handleOrgLogoRemove);
+        orgLogoUploadBtn?.parentElement?.appendChild(removeBtn);
+      }
+      showToast('Organization logo updated', 'success');
+    } catch (err) {
+      console.error(err);
+      showToast('Failed to upload logo: ' + err.message, 'error');
+    }
+  });
+
+  async function handleOrgLogoRemove() {
+    if (!state.currentOrganization?.id) return;
+    try {
+      await supabaseClient.storage.from('org-logos').remove([`${state.currentOrganization.id}/logo.jpg`]);
+      await supabaseClient.from('organizations').update({ logo_url: null }).eq('id', state.currentOrganization.id);
+      state.currentOrganization = { ...state.currentOrganization, logo_url: null };
+      const orgInitials = ((state.currentOrganization?.name || 'W').match(/\b\w/g) || []).slice(0, 2).join('').toUpperCase();
+      if (orgIdentityAvatar) orgIdentityAvatar.textContent = orgInitials;
+      const orgAvatarEl = document.getElementById('ws-btn-avatar');
+      if (orgAvatarEl) orgAvatarEl.textContent = (state.currentOrganization?.name || 'W')[0].toUpperCase();
+      document.getElementById('sv-org-logo-remove-btn')?.remove();
+      if (orgLogoUploadBtn) orgLogoUploadBtn.childNodes[orgLogoUploadBtn.childNodes.length - 1].textContent = 'Upload logo';
+      showToast('Logo removed', 'info');
+    } catch (err) {
+      showToast('Failed to remove logo', 'error');
+    }
+  }
+  orgLogoRemoveBtn?.addEventListener('click', handleOrgLogoRemove);
 
   /* ─────────────── LOAD MEMBERS ─────────────── */
   const loadMembers = async () => {

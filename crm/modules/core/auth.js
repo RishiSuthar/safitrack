@@ -301,7 +301,13 @@ function initWorkspaceMenu() {
     const orgAvatar = menu.querySelector('#ws-menu-avatar');
     if (state.currentOrganization?.name) {
       if (orgLabel) orgLabel.textContent = state.currentOrganization.name;
-      if (orgAvatar) orgAvatar.textContent = state.currentOrganization.name[0].toUpperCase();
+      if (orgAvatar) {
+        if (state.currentOrganization.logo_url) {
+          orgAvatar.innerHTML = `<img src="${state.currentOrganization.logo_url}" alt="" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;display:block;">`;
+        } else {
+          orgAvatar.textContent = state.currentOrganization.name[0].toUpperCase();
+        }
+      }
     }
     const rect = triggerEl.getBoundingClientRect();
     menu.style.left = rect.left + 'px';
