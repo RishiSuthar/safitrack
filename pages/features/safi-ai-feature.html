@@ -13,6 +13,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../landing.css">
+<link rel="stylesheet" href="feature-page.css">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -46,27 +48,6 @@
 }
 html{scroll-behavior:smooth}
 body{background:var(--white);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
-
-/* ── NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:300;height:60px;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--rule)}
-.ni{max-width:1200px;margin:0 auto;padding:0 28px;height:100%;display:flex;align-items:center;justify-content:space-between}
-.logo img{height:26px;display:block;filter:brightness(0)}
-.fl{height:24px;filter:brightness(0)}
-.nl{display:flex;gap:28px}
-.nl a{font-size:14px;font-weight:500;color:var(--ink2);text-decoration:none;transition:color .15s}
-.nl a:hover,.nl a.act{color:var(--ink)}
-.nr{display:flex;align-items:center;gap:10px}
-a.si{font-size:14px;font-weight:500;color:var(--ink2);text-decoration:none;transition:color .15s}
-a.si:hover{color:var(--ink)}
-a.bp{font-size:13px;font-weight:600;color:#fff;background:var(--ink);padding:8px 20px;border-radius:8px;text-decoration:none;transition:opacity .15s}
-a.bp:hover{opacity:.82}
-.mb{display:none;background:none;border:none;cursor:pointer;flex-direction:column;gap:5px;padding:4px}
-.mb span{display:block;width:20px;height:1.5px;background:var(--ink)}
-.mo{display:none;position:fixed;inset:0;background:var(--white);z-index:400;flex-direction:column;padding:24px}
-.mc{background:none;border:none;color:var(--ink);cursor:pointer;align-self:flex-end}
-.mn{display:flex;flex-direction:column;gap:24px;margin-top:32px}
-.mn a{font-size:18px;font-weight:500;color:var(--ink2);text-decoration:none}
-.mn hr{border:none;border-top:1px solid var(--rule)}
 
 /* ── LAYOUT ── */
 .w{max-width:1200px;margin:0 auto;padding:0 28px}
@@ -301,21 +282,6 @@ blockquote{font-family:var(--serif);font-size:clamp(22px,3vw,34px);font-style:it
 .ctasec p{font-size:16px;color:var(--ink2);margin-bottom:36px}
 .ctabtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
 
-/* ── FOOTER ── */
-footer{border-top:1px solid var(--rule);padding:52px 0 32px}
-.fc{display:flex;justify-content:space-between;gap:40px;flex-wrap:wrap;padding-bottom:40px}
-
-.flinks{display:flex;gap:52px;flex-wrap:wrap}
-.fcol h4{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);margin-bottom:14px}
-.fcol ul{list-style:none;display:flex;flex-direction:column;gap:10px}
-.fcol ul li a{font-size:13px;color:var(--ink2);text-decoration:none;transition:color .15s}
-.fcol ul li a:hover{color:var(--ink)}
-.fb{display:flex;justify-content:space-between;align-items:center;padding-top:20px;border-top:1px solid var(--rule);flex-wrap:wrap;gap:12px}
-.fb p{font-size:12px;color:var(--ink3)}
-.fsoc{display:flex;gap:20px}
-.fsoc a{font-size:12px;color:var(--ink3);text-decoration:none;transition:color .15s}
-.fsoc a:hover{color:var(--ink)}
-
 /* ── FADE IN ── */
 .fi{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
 .fi.d1{transition-delay:.1s}
@@ -336,8 +302,6 @@ footer{border-top:1px solid var(--rule);padding:52px 0 32px}
   .metric:last-child{border-top:1px solid var(--rule)}
 }
 @media(max-width:640px){
-  .nl{display:none}
-  .mb{display:flex}
   h1.headline{font-size:36px}
   .ctxgrid{grid-template-columns:1fr}
   .ctxcell{border-right:none}
@@ -350,35 +314,264 @@ footer{border-top:1px solid var(--rule);padding:52px 0 32px}
 <body>
 
 <!-- NAV -->
-<nav>
-  <div class="ni">
-    <div style="display:flex;align-items:center;gap:36px">
-      <a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack"></a>
-      <div class="nl">
-        <a href="mainfeatures.html" class="act">Features</a>
-        <a href="../../index.html#product">Product</a>
-        <a href="../pricing.html">Pricing</a>
-      </div>
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="nav-left">
+                    <a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png"
+                            alt="SafiTrack"></a>
+                    <div class="nav-links">
+                        <div class="nav-item nav-features">
+                            <a href="mainfeatures.html" class="nav-link-toggle">Features
+                                <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg></span>
+                            </a>
+                            <div class="mega-menu" aria-hidden="true">
+                                <div class="mega-content-grid">
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Platform</div>
+                                        <div class="mega-items-grid">
+                                            <a href="safi-ai-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Safi AI</div>
+                                                    <div class="mega-desc">AI insights native to your CRM</div>
+                                                </div>
+                                            </a>
+                                            <a href="opportunities-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Pipelines</div>
+                                                    <div class="mega-desc">Visual deal tracking &amp; management</div>
+                                                </div>
+                                            </a>
+                                            <a href="companies-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2" /><path d="M9 22v-4h6v4" /><path d="M8 6h.01" /><path d="M16 6h.01" /><path d="M8 10h.01" /><path d="M16 10h.01" /><path d="M8 14h.01" /><path d="M16 14h.01" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Companies</div>
+                                                    <div class="mega-desc">Complete organization context</div>
+                                                </div>
+                                            </a>
+                                            <a href="people-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">People</div>
+                                                    <div class="mega-desc">Unified contact management</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Operations</div>
+                                        <div class="mega-items-grid">
+                                            <a href="sales-visits-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Sales visits</div>
+                                                    <div class="mega-desc">Field activity &amp; visit logging</div>
+                                                </div>
+                                            </a>
+                                            <a href="route-plans-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="3" /><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /><circle cx="18" cy="5" r="3" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Route plans</div>
+                                                    <div class="mega-desc">Optimized field routing</div>
+                                                </div>
+                                            </a>
+                                            <a href="technician-visits-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Service visits</div>
+                                                    <div class="mega-desc">Post-sales technician tracking</div>
+                                                </div>
+                                            </a>
+                                            <a href="tasks-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Tasks</div>
+                                                    <div class="mega-desc">Operational to-do management</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Insights &amp; Automation</div>
+                                        <div class="mega-items-grid">
+                                            <a href="call-logs-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Call Intelligence</div>
+                                                    <div class="mega-desc">Record &amp; analyze meetings</div>
+                                                </div>
+                                            </a>
+                                            <a href="notes-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Notes</div>
+                                                    <div class="mega-desc">Native meeting summaries</div>
+                                                </div>
+                                            </a>
+                                            <a href="reminders-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Reminders</div>
+                                                    <div class="mega-desc">Smart follow-up alerts</div>
+                                                </div>
+                                            </a>
+                                            <a href="reports-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Reports</div>
+                                                    <div class="mega-desc">Custom analytics &amp; dashboards</div>
+                                                </div>
+                                            </a>
+                                            <a href="workflows-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Workflows</div>
+                                                    <div class="mega-desc">Automate repetitive tasks</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mega-sidebar">
+                                    <div class="mega-sidebar-header">Get Started</div>
+                                    <ul class="mega-sidebar-list">
+                                        <li><a href="/crm/"><span>Open CRM</span></a></li>
+                                        <li><a href="../pricing.html"><span>View Pricing</span></a></li>
+                                        <li><a href="../../index.html#pricing"><span>Request Demo</span></a></li>
+                                    </ul>
+                                    <div class="mega-sidebar-footer">
+                                        <p>Trusted by 2,000+ teams</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nav-item nav-resources">
+                            <a href="../documentation.html" class="nav-link-toggle">Resources
+                                <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg></span>
+                            </a>
+                            <div class="mega-menu" aria-hidden="true">
+                                <div class="mega-content-grid">
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Insights</div>
+                                        <div class="mega-items-grid">
+                                            <a href="../integrations.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Integrations</div>
+                                                    <div class="mega-desc">Connect your stack</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Support</div>
+                                        <div class="mega-items-grid">
+                                            <a href="../documentation.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Documentation</div>
+                                                    <div class="mega-desc">Guides and tutorials</div>
+                                                </div>
+                                            </a>
+                                            <a href="../helpcenter.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Help Center</div>
+                                                    <div class="mega-desc">Get support</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Developers</div>
+                                        <div class="mega-items-grid">
+                                            <a href="../apireference.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">API Reference</div>
+                                                    <div class="mega-desc">Build with SafiTrack</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mega-sidebar">
+                                    <div class="mega-sidebar-header">More</div>
+                                    <ul class="mega-sidebar-list">
+                                        <li><a href="../blog.html"><span>Blog</span></a></li>
+                                        <li><a href="../careers.html"><span>Careers</span></a></li>
+                                        <li><a href="../status.html"><span>Status</span></a></li>
+                                    </ul>
+                                    <div class="mega-sidebar-footer">
+                                        <p>Always growing</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="../pricing.html">Pricing</a>
+                    </div>
+                </div>
+                <div class="nav-actions"><a href="/crm/" class="nav-link-sign-in">Sign in</a><a
+                        href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a></div>
+                <button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay"><button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg></button>
+        <div class="mobile-nav-content"><a href="mainfeatures.html" class="mobile-link">Features</a><a
+                href="../pricing.html" class="mobile-link">Pricing</a>
+            <hr class="mobile-divider"><a href="/crm/" class="mobile-link">Open App</a><a
+                href="../pricing.html#pricing-grid" class="btn-hero-primary"
+                style="margin-top: 1rem; text-align: center;">Get Started</a>
+        </div>
     </div>
-    <div class="nr">
-      <a href="/crm/" class="si">Sign in</a>
-      <a href="../pricing.html#pricing-grid" class="bp">Start for free</a>
-    </div>
-    <button class="mb" aria-label="Toggle Menu"><span></span><span></span></button>
-  </div>
-</nav>
-<div class="mo">
-  <button class="mc" aria-label="Close">
-    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
-  </button>
-  <div class="mn">
-    <a href="mainfeatures.html">Features</a>
-    <a href="../../index.html#product">Product</a>
-    <a href="../pricing.html">Pricing</a>
-    <hr>
-    <a href="/crm/">Open App</a>
-  </div>
-</div>
 
 <!-- ══ HERO ══ -->
 <header class="hero">
@@ -918,23 +1111,54 @@ footer{border-top:1px solid var(--rule);padding:52px 0 32px}
 </section>
 
 <!-- ══ FOOTER ══ -->
-<footer>
-  <div class="w">
-    <div class="fc">
-      <a href="../../index.html"><img src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="fl"></a>
-      <div class="flinks">
-        <div class="fcol"><h4>Product</h4><ul><li><a href="mainfeatures.html">Features</a></li><li><a href="../pricing.html">Pricing</a></li><li><a href="../integrations.html">Integrations</a></li></ul></div>
-        <div class="fcol"><h4>Company</h4><ul><li><a href="../blog.html">Blog</a></li><li><a href="../careers.html">Careers</a></li></ul></div>
-        <div class="fcol"><h4>Resources</h4><ul><li><a href="../documentation.html">Documentation</a></li><li><a href="../helpcenter.html">Help Center</a></li><li><a href="../apireference.html">API Reference</a></li><li><a href="../status.html">Status</a></li></ul></div>
-        <div class="fcol"><h4>Legal</h4><ul><li><a href="../legal/privacy.html">Privacy Policy</a></li><li><a href="../legal/terms.html">Terms of Service</a></li></ul></div>
-      </div>
-    </div>
-    <div class="fb">
-      <p>© 2026 SafiTrack. All rights reserved.</p>
-      <div class="fsoc"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div>
-    </div>
-  </div>
-</footer>
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo-wrapper"><a href="../../index.html"><img
+                                src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Product</h4>
+                        <ul>
+                            <li><a href="mainfeatures.html">Features</a></li>
+                            <li><a href="../pricing.html">Pricing</a></li>
+                            <li><a href="../integrations.html">Integrations</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Company</h4>
+                        <ul>
+                            <li><a href="../blog.html">Blog</a></li>
+                            <li><a href="../careers.html">Careers</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Resources</h4>
+                        <ul>
+                            <li><a href="../documentation.html">Documentation</a></li>
+                            <li><a href="../helpcenter.html">Help Center</a></li>
+                            <li><a href="../apireference.html">API Reference</a></li>
+                            <li><a href="../status.html">Status</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Legal</h4>
+                        <ul>
+                            <li><a href="../legal/privacy.html">Privacy Policy</a></li>
+                            <li><a href="../legal/terms.html">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+                <div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div>
+            </div>
+        </div>
+    </footer>
 
 <script>
 // ── Fade in on scroll ──
@@ -942,15 +1166,6 @@ const io = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); io.unobserve(e.target); } });
 }, { threshold: 0.08 });
 document.querySelectorAll('.fi').forEach(el => io.observe(el));
-
-// ── Nav scroll ──
-window.addEventListener('scroll', () => {
-  document.querySelector('nav').style.borderBottomColor = scrollY > 6 ? 'rgba(17,17,16,.12)' : 'rgba(17,17,16,.09)';
-}, { passive: true });
-
-// ── Mobile nav ──
-document.querySelector('.mb')?.addEventListener('click', () => document.querySelector('.mo').style.display = 'flex');
-document.querySelector('.mc')?.addEventListener('click', () => document.querySelector('.mo').style.display = 'none');
 
 // ── SECTION 1: Typewriter query terminal ──
 const queries = [
@@ -1026,5 +1241,7 @@ new IntersectionObserver(entries => {
   });
 }, { threshold: 0.25 }).observe(document.getElementById('dvis'));
 </script>
+    <script src="feature-page.js"></script>
+    <script src="../../landing.js"></script>
 </body>
 </html>
