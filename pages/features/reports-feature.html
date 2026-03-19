@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Analytics - SafiTrack CRM</title>
+    <meta name="description"
+        content="Turn your CRM data into actionable insights. SafiTrack Reports let you build custom dashboards, track pipeline health, and measure team performance in real time.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://safitrack.netlify.app/pages/features/reports-feature.html">
+    <meta property="og:title" content="Reports & Analytics — SafiTrack CRM">
+    <meta property="og:description"
+        content="Custom dashboards, pipeline analytics, and team performance metrics — all live in your CRM.">
+    <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
+    <meta property="twitter:card" content="summary_large_image">
+    <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../../landing.css">
+    <link rel="stylesheet" href="feature-page.css">
+    <style>
+        :root {
+            --accent: #0ea5e9;
+        }
+
+        /* ── Bar chart ── */
+        .rp-bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+            height: 120px;
+            padding: 0 4px;
+        }
+
+        .rp-bar-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+        }
+
+        .rp-bar {
+            width: 100%;
+            border-radius: 6px 6px 0 0;
+            transition: opacity .2s;
+        }
+
+        .rp-bar-label {
+            font-size: 10px;
+            color: #9ca3af;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        /* ── Donut chart ── */
+        .rp-donut-wrap {
+            position: relative;
+            width: 96px;
+            height: 96px;
+            flex-shrink: 0;
+        }
+
+        .rp-donut-wrap svg {
+            transform: rotate(-90deg);
+        }
+
+        .rp-donut-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        /* ── Sparkline ── */
+        .rp-sparkline {
+            width: 100%;
+            height: 36px;
+            overflow: visible;
+        }
+
+        /* ── Metric card ── */
+        .rp-metric {
+            background: #fff;
+            border: 1px solid #e6e9ef;
+            border-radius: 14px;
+            padding: 18px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .rp-metric-value {
+            font-size: 28px;
+            font-weight: 800;
+            color: #0b1220;
+            line-height: 1;
+        }
+
+        .rp-metric-label {
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+
+        .rp-metric-delta {
+            font-size: 12px;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+
+        .rp-metric-delta.up { color: #10b981; }
+        .rp-metric-delta.down { color: #ef4444; }
+
+        /* ── Report filter pill ── */
+        .rp-filter-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .rp-filter-pill {
+            padding: 5px 14px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            border: 1.5px solid #e6e9ef;
+            color: #374151;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        .rp-filter-pill.active {
+            background: #0b1220;
+            color: #fff;
+            border-color: #0b1220;
+        }
+
+        /* ── Table row ── */
+        .rp-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .rp-table th {
+            font-size: 11px;
+            font-weight: 700;
+            color: #9ca3af;
+            text-align: left;
+            padding: 0 12px 10px;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+        }
+
+        .rp-table td {
+            font-size: 13px;
+            color: #374151;
+            padding: 10px 12px;
+            border-top: 1px solid #f3f4f6;
+        }
+
+        .rp-table tr:first-child td { border-top: none; }
+
+        .rp-progress-bar {
+            height: 6px;
+            background: #f3f4f6;
+            border-radius: 100px;
+            overflow: hidden;
+        }
+
+        .rp-progress-fill {
+            height: 100%;
+            border-radius: 100px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Nav -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="nav-left">
+                    <a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png"
+                            alt="SafiTrack"></a>
+                    <div class="nav-links">
+                        <div class="nav-item nav-features">
+                            <a href="mainfeatures.html" class="nav-link-toggle">Features
+                                <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg></span>
+                            </a>
+                            <div class="mega-menu" aria-hidden="true">
+                                <div class="mega-content-grid">
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Platform</div>
+                                        <div class="mega-items-grid">
+                                            <a href="safi-ai-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Safi AI</div>
+                                                    <div class="mega-desc">AI insights native to your CRM</div>
+                                                </div>
+                                            </a>
+                                            <a href="opportunities-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Pipelines</div>
+                                                    <div class="mega-desc">Visual deal tracking &amp; management</div>
+                                                </div>
+                                            </a>
+                                            <a href="companies-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2" /><path d="M9 22v-4h6v4" /><path d="M8 6h.01" /><path d="M16 6h.01" /><path d="M8 10h.01" /><path d="M16 10h.01" /><path d="M8 14h.01" /><path d="M16 14h.01" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Companies</div>
+                                                    <div class="mega-desc">Complete organization context</div>
+                                                </div>
+                                            </a>
+                                            <a href="people-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">People</div>
+                                                    <div class="mega-desc">Unified contact management</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Operations</div>
+                                        <div class="mega-items-grid">
+                                            <a href="sales-visits-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Sales visits</div>
+                                                    <div class="mega-desc">Field activity &amp; visit logging</div>
+                                                </div>
+                                            </a>
+                                            <a href="route-plans-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="3" /><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /><circle cx="18" cy="5" r="3" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Route plans</div>
+                                                    <div class="mega-desc">Optimized field routing</div>
+                                                </div>
+                                            </a>
+                                            <a href="technician-visits-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Service visits</div>
+                                                    <div class="mega-desc">Post-sales technician tracking</div>
+                                                </div>
+                                            </a>
+                                            <a href="tasks-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Tasks</div>
+                                                    <div class="mega-desc">Operational to-do management</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Insights &amp; Automation</div>
+                                        <div class="mega-items-grid">
+                                            <a href="call-logs-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Call Intelligence</div>
+                                                    <div class="mega-desc">Record &amp; analyze meetings</div>
+                                                </div>
+                                            </a>
+                                            <a href="notes-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Notes</div>
+                                                    <div class="mega-desc">Native meeting summaries</div>
+                                                </div>
+                                            </a>
+                                            <a href="reminders-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Reminders</div>
+                                                    <div class="mega-desc">Smart follow-up alerts</div>
+                                                </div>
+                                            </a>
+                                            <a href="reports-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Reports</div>
+                                                    <div class="mega-desc">Custom analytics &amp; dashboards</div>
+                                                </div>
+                                            </a>
+                                            <a href="workflows-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Workflows</div>
+                                                    <div class="mega-desc">Automate repetitive tasks</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mega-sidebar">
+                                    <div class="mega-sidebar-header">Get Started</div>
+                                    <ul class="mega-sidebar-list">
+                                        <li><a href="/crm/"><span>Open CRM</span></a></li>
+                                        <li><a href="../pricing.html"><span>View Pricing</span></a></li>
+                                        <li><a href="../../index.html#pricing"><span>Request Demo</span></a></li>
+                                    </ul>
+                                    <div class="mega-sidebar-footer">
+                                        <p>Trusted by 2,000+ teams</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="nav-item nav-resources">
+                            <a href="../documentation.html" class="nav-link-toggle">Resources
+                                <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg></span>
+                            </a>
+                            <div class="mega-menu" aria-hidden="true">
+                                <div class="mega-content-grid">
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Insights</div>
+                                        <div class="mega-items-grid">
+                                            <a href="../integrations.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Integrations</div>
+                                                    <div class="mega-desc">Connect your stack</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Support</div>
+                                        <div class="mega-items-grid">
+                                            <a href="../documentation.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Documentation</div>
+                                                    <div class="mega-desc">Guides and tutorials</div>
+                                                </div>
+                                            </a>
+                                            <a href="../helpcenter.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Help Center</div>
+                                                    <div class="mega-desc">Get support</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Developers</div>
+                                        <div class="mega-items-grid">
+                                            <a href="../apireference.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">API Reference</div>
+                                                    <div class="mega-desc">Build with SafiTrack</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mega-sidebar">
+                                    <div class="mega-sidebar-header">More</div>
+                                    <ul class="mega-sidebar-list">
+                                        <li><a href="../blog.html"><span>Blog</span></a></li>
+                                        <li><a href="../careers.html"><span>Careers</span></a></li>
+                                        <li><a href="../status.html"><span>Status</span></a></li>
+                                    </ul>
+                                    <div class="mega-sidebar-footer">
+                                        <p>Always growing</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="../pricing.html">Pricing</a>
+                    </div>
+                </div>
+                <div class="nav-actions"><a href="/crm/" class="nav-link-sign-in">Sign in</a><a
+                        href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a></div>
+                <button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button>
+            </div>
+        </div>
+    </nav>
+    <div class="mobile-nav-overlay"><button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24"
+                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg></button>
+        <div class="mobile-nav-content"><a href="mainfeatures.html" class="mobile-link">Features</a><a
+                href="../pricing.html" class="mobile-link">Pricing</a>
+            <hr class="mobile-divider"><a href="/crm/" class="mobile-link">Open App</a><a
+                href="../pricing.html#pricing-grid" class="btn-hero-primary"
+                style="margin-top: 1rem; text-align: center;">Get Started</a>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- HERO                                               -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <header class="fp-hero">
+        <div class="fp-container">
+            <div class="fp-badge">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Analytics
+            </div>
+            <h1>Your pipeline.<br><span>Fully visible.</span></h1>
+            <p class="fp-subtitle">Build custom reports in seconds. Slice your data by rep, stage, region, or time period — then share with your team as a live dashboard. No exports, no spreadsheets.</p>
+
+            <!-- Hero Mockup: Analytics Dashboard -->
+            <div class="fp-mockup">
+                <div class="fp-mockup-window">
+                    <div class="fp-mockup-bar">
+                        <div class="fp-mockup-dot"></div>
+                        <div class="fp-mockup-dot"></div>
+                        <div class="fp-mockup-dot"></div>
+                        <div style="margin-left:16px;font-size:13px;color:#6b7280;font-weight:500;">Reports &amp; Analytics</div>
+                        <div style="margin-left:auto;display:flex;gap:8px;align-items:center;">
+                            <span style="padding:4px 12px;background:#f3f4f6;border-radius:6px;font-size:12px;color:#374151;font-weight:600;">This quarter</span>
+                            <span style="padding:4px 12px;background:#0b1220;border-radius:6px;font-size:12px;color:#fff;font-weight:600;">+ New Report</span>
+                        </div>
+                    </div>
+                    <div class="fp-mockup-body" style="padding:24px 28px;min-height:500px;background:#f9fafb;">
+
+                        <!-- Top KPI row -->
+                        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px;">
+                            <div class="rp-metric">
+                                <div class="rp-metric-label">Revenue Closed</div>
+                                <div class="rp-metric-value">$284k</div>
+                                <div class="rp-metric-delta up">↑ 18% vs last quarter</div>
+                            </div>
+                            <div class="rp-metric">
+                                <div class="rp-metric-label">Deals Won</div>
+                                <div class="rp-metric-value">47</div>
+                                <div class="rp-metric-delta up">↑ 12 new wins</div>
+                            </div>
+                            <div class="rp-metric">
+                                <div class="rp-metric-label">Win Rate</div>
+                                <div class="rp-metric-value">34%</div>
+                                <div class="rp-metric-delta down">↓ 3pts vs last qtr</div>
+                            </div>
+                            <div class="rp-metric">
+                                <div class="rp-metric-label">Avg Deal Size</div>
+                                <div class="rp-metric-value">$6.2k</div>
+                                <div class="rp-metric-delta up">↑ $800 vs target</div>
+                            </div>
+                        </div>
+
+                        <!-- Charts row -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
+
+                            <!-- Bar chart: Revenue by rep -->
+                            <div style="background:#fff;border:1px solid #e6e9ef;border-radius:14px;padding:20px;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                                    <div style="font-size:13px;font-weight:700;color:#0b1220;">Revenue by Rep</div>
+                                    <div style="font-size:11px;color:#9ca3af;font-weight:600;">Q1 2026</div>
+                                </div>
+                                <div class="rp-bar-chart">
+                                    <div class="rp-bar-group">
+                                        <div class="rp-bar" style="height:78px;background:#0b1220;"></div>
+                                        <div class="rp-bar-label">Ana</div>
+                                    </div>
+                                    <div class="rp-bar-group">
+                                        <div class="rp-bar" style="height:56px;background:#e2e8f0;"></div>
+                                        <div class="rp-bar-label">James</div>
+                                    </div>
+                                    <div class="rp-bar-group">
+                                        <div class="rp-bar" style="height:100px;background:#0ea5e9;"></div>
+                                        <div class="rp-bar-label">Sara</div>
+                                    </div>
+                                    <div class="rp-bar-group">
+                                        <div class="rp-bar" style="height:44px;background:#e2e8f0;"></div>
+                                        <div class="rp-bar-label">Mike</div>
+                                    </div>
+                                    <div class="rp-bar-group">
+                                        <div class="rp-bar" style="height:68px;background:#e2e8f0;"></div>
+                                        <div class="rp-bar-label">Priya</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Pipeline stage funnel -->
+                            <div style="background:#fff;border:1px solid #e6e9ef;border-radius:14px;padding:20px;">
+                                <div style="font-size:13px;font-weight:700;color:#0b1220;margin-bottom:16px;">Pipeline Funnel</div>
+                                <div style="display:flex;flex-direction:column;gap:8px;">
+                                    <div>
+                                        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                                            <span style="font-size:12px;color:#374151;font-weight:600;">Qualified</span>
+                                            <span style="font-size:12px;color:#6b7280;">138 deals</span>
+                                        </div>
+                                        <div class="rp-progress-bar"><div class="rp-progress-fill" style="width:100%;background:#0b1220;"></div></div>
+                                    </div>
+                                    <div>
+                                        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                                            <span style="font-size:12px;color:#374151;font-weight:600;">Proposal</span>
+                                            <span style="font-size:12px;color:#6b7280;">82 deals</span>
+                                        </div>
+                                        <div class="rp-progress-bar"><div class="rp-progress-fill" style="width:59%;background:#0ea5e9;"></div></div>
+                                    </div>
+                                    <div>
+                                        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                                            <span style="font-size:12px;color:#374151;font-weight:600;">Negotiation</span>
+                                            <span style="font-size:12px;color:#6b7280;">51 deals</span>
+                                        </div>
+                                        <div class="rp-progress-bar"><div class="rp-progress-fill" style="width:37%;background:#7c3aed;"></div></div>
+                                    </div>
+                                    <div>
+                                        <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
+                                            <span style="font-size:12px;color:#374151;font-weight:600;">Won</span>
+                                            <span style="font-size:12px;color:#10b981;font-weight:700;">47 deals</span>
+                                        </div>
+                                        <div class="rp-progress-bar"><div class="rp-progress-fill" style="width:34%;background:#10b981;"></div></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bottom: Saved reports list -->
+                        <div style="background:#fff;border:1px solid #e6e9ef;border-radius:14px;padding:16px 20px;">
+                            <div style="font-size:13px;font-weight:700;color:#0b1220;margin-bottom:14px;">Saved Reports</div>
+                            <div style="display:flex;flex-direction:column;gap:0;">
+                                <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f3f4f6;">
+                                    <div style="width:28px;height:28px;border-radius:8px;background:rgba(14,165,233,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                                    </div>
+                                    <div style="flex:1;font-size:13px;font-weight:600;color:#0b1220;">Pipeline by Stage — Q1 2026</div>
+                                    <div style="font-size:11px;color:#9ca3af;">Updated 2h ago</div>
+                                    <div style="padding:3px 10px;background:#f3f4f6;border-radius:6px;font-size:11px;color:#374151;font-weight:600;">Bar</div>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f3f4f6;">
+                                    <div style="width:28px;height:28px;border-radius:8px;background:rgba(16,185,129,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+                                    </div>
+                                    <div style="flex:1;font-size:13px;font-weight:600;color:#0b1220;">Win Rate by Territory</div>
+                                    <div style="font-size:11px;color:#9ca3af;">Updated 1d ago</div>
+                                    <div style="padding:3px 10px;background:#f3f4f6;border-radius:6px;font-size:11px;color:#374151;font-weight:600;">Donut</div>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:12px;padding:10px 0;">
+                                    <div style="width:28px;height:28px;border-radius:8px;background:rgba(139,92,246,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                                    </div>
+                                    <div style="flex:1;font-size:13px;font-weight:600;color:#0b1220;">Revenue Trend — Last 6 months</div>
+                                    <div style="font-size:11px;color:#9ca3af;">Live</div>
+                                    <div style="padding:3px 10px;background:rgba(16,185,129,.1);border-radius:6px;font-size:11px;color:#10b981;font-weight:700;">● Live</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- REPORT TYPES — 3-step visual                      -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section class="fp-grid-section" style="background:#f9fafb;">
+        <div class="fp-container">
+            <div class="fp-grid-header">
+                <div class="fp-section-label">Chart types</div>
+                <h2 class="fp-section-title">Pick the view your data deserves</h2>
+                <p class="fp-section-desc" style="margin:0 auto;text-align:center;">Every chart type is purpose-built for sales data. No configuration overhead — just pick what fits and go.</p>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-bottom:56px;">
+
+                <!-- Bar -->
+                <div style="background:#fff;border:1px solid #e6e9ef;border-radius:16px;padding:28px;text-align:center;">
+                    <div style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:20px;">
+                        <div style="display:flex;align-items:flex-end;justify-content:center;gap:8px;height:72px;">
+                            <div style="width:20px;height:48px;background:#0b1220;border-radius:4px 4px 0 0;"></div>
+                            <div style="width:20px;height:36px;background:#e2e8f0;border-radius:4px 4px 0 0;"></div>
+                            <div style="width:20px;height:62px;background:#0ea5e9;border-radius:4px 4px 0 0;"></div>
+                            <div style="width:20px;height:28px;background:#e2e8f0;border-radius:4px 4px 0 0;"></div>
+                            <div style="width:20px;height:52px;background:#e2e8f0;border-radius:4px 4px 0 0;"></div>
+                        </div>
+                    </div>
+                    <div style="font-size:16px;font-weight:700;color:#0b1220;margin-bottom:8px;">Bar Chart</div>
+                    <div style="font-size:13px;color:#6b7280;line-height:1.6;">Compare performance across reps, stages, or time periods at a glance.</div>
+                </div>
+
+                <!-- Line / trend -->
+                <div style="background:#fff;border:1px solid #e6e9ef;border-radius:16px;padding:28px;text-align:center;">
+                    <div style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:20px;">
+                        <svg viewBox="0 0 120 72" width="100%" height="72" fill="none">
+                            <polyline points="0,62 20,50 40,55 60,32 80,38 100,18 120,24" stroke="#0ea5e9" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <polyline points="0,62 20,50 40,55 60,32 80,38 100,18 120,24" stroke="#0ea5e9" stroke-width="0" fill="none"/>
+                            <path d="M0,62 20,50 40,55 60,32 80,38 100,18 120,24 L120,72 L0,72 Z" fill="rgba(14,165,233,0.08)"/>
+                        </svg>
+                    </div>
+                    <div style="font-size:16px;font-weight:700;color:#0b1220;margin-bottom:8px;">Trend Line</div>
+                    <div style="font-size:13px;color:#6b7280;line-height:1.6;">Track revenue, visits, or activity over time and spot momentum shifts instantly.</div>
+                </div>
+
+                <!-- Funnel -->
+                <div style="background:#fff;border:1px solid #e6e9ef;border-radius:16px;padding:28px;text-align:center;">
+                    <div style="background:#f9fafb;border-radius:12px;padding:20px;margin-bottom:20px;display:flex;flex-direction:column;align-items:center;gap:4px;">
+                        <div style="width:100%;height:14px;background:#0b1220;border-radius:4px;"></div>
+                        <div style="width:80%;height:12px;background:#0ea5e9;border-radius:4px;"></div>
+                        <div style="width:60%;height:12px;background:#7c3aed;border-radius:4px;"></div>
+                        <div style="width:40%;height:12px;background:#10b981;border-radius:4px;"></div>
+                    </div>
+                    <div style="font-size:16px;font-weight:700;color:#0b1220;margin-bottom:8px;">Pipeline Funnel</div>
+                    <div style="font-size:13px;color:#6b7280;line-height:1.6;">Visualize conversion rates at every stage and find where deals drop off.</div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- CUSTOM REPORTS                                     -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section class="fp-section">
+        <div class="fp-container">
+            <div class="fp-split">
+                <div class="fp-animate">
+                    <div class="fp-section-label">Custom Reports</div>
+                    <h2 class="fp-section-title">Answer any question<br>about your pipeline</h2>
+                    <p class="fp-section-desc">Build reports on any object, filtered by any field. Group by rep, territory, stage, or date — then share a live link with your team or leadership.</p>
+                    <ul class="fp-checklist">
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            <strong>Any object</strong> — report on Companies, People, Opportunities, Visits, or Tasks
+                        </li>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            <strong>Powerful filters</strong> — combine conditions with AND/OR logic across any field
+                        </li>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            <strong>Group &amp; aggregate</strong> — sum, count, or average any numeric field
+                        </li>
+                    </ul>
+                </div>
+                <div class="fp-visual fp-animate">
+                    <div class="fp-visual-inner" style="padding:24px;">
+                        <!-- Report builder UI -->
+                        <div style="font-size:11px;font-weight:700;color:#9ca3af;letter-spacing:.6px;text-transform:uppercase;margin-bottom:16px;">Report Builder</div>
+
+                        <!-- Object selector -->
+                        <div style="margin-bottom:14px;">
+                            <div style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">Data Source</div>
+                            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                                <span style="padding:5px 14px;background:#0b1220;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">Opportunities</span>
+                                <span style="padding:5px 14px;background:#f3f4f6;color:#374151;border-radius:8px;font-size:12px;font-weight:600;">Companies</span>
+                                <span style="padding:5px 14px;background:#f3f4f6;color:#374151;border-radius:8px;font-size:12px;font-weight:600;">Visits</span>
+                                <span style="padding:5px 14px;background:#f3f4f6;color:#374151;border-radius:8px;font-size:12px;font-weight:600;">Tasks</span>
+                            </div>
+                        </div>
+
+                        <!-- Filters -->
+                        <div style="margin-bottom:14px;">
+                            <div style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">Filters</div>
+                            <div style="display:flex;flex-direction:column;gap:6px;">
+                                <div style="display:flex;align-items:center;gap:8px;background:#f9fafb;border:1px solid #e6e9ef;border-radius:8px;padding:8px 12px;">
+                                    <span style="font-size:12px;color:#374151;font-weight:600;">Stage</span>
+                                    <span style="font-size:11px;color:#9ca3af;">is</span>
+                                    <span style="padding:2px 10px;background:#fff;border:1px solid #d1d5db;border-radius:6px;font-size:12px;color:#0b1220;font-weight:600;">Won</span>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" style="margin-left:auto;cursor:pointer;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                </div>
+                                <div style="display:flex;align-items:center;gap:8px;background:#f9fafb;border:1px solid #e6e9ef;border-radius:8px;padding:8px 12px;">
+                                    <span style="font-size:12px;color:#374151;font-weight:600;">Close Date</span>
+                                    <span style="font-size:11px;color:#9ca3af;">in the last</span>
+                                    <span style="padding:2px 10px;background:#fff;border:1px solid #d1d5db;border-radius:6px;font-size:12px;color:#0b1220;font-weight:600;">90 days</span>
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" style="margin-left:auto;cursor:pointer;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                </div>
+                                <div style="padding:7px 12px;border:1.5px dashed #e6e9ef;border-radius:8px;font-size:12px;color:#9ca3af;font-weight:600;text-align:center;cursor:pointer;">
+                                    + Add filter
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Group by -->
+                        <div>
+                            <div style="font-size:11px;font-weight:700;color:#6b7280;margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px;">Group By</div>
+                            <div style="display:flex;gap:8px;align-items:center;">
+                                <span style="padding:5px 14px;background:#0ea5e9;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">Owner</span>
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                                <span style="padding:5px 14px;background:#f3f4f6;color:#374151;border-radius:8px;font-size:12px;font-weight:600;">Territory</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- TEAM LEADERBOARD                                   -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section class="fp-section" style="background:#f9fafb;">
+        <div class="fp-container">
+            <div class="fp-split reversed">
+                <div class="fp-animate">
+                    <div class="fp-section-label">Team Performance</div>
+                    <h2 class="fp-section-title">Know who's winning<br>and who needs help</h2>
+                    <p class="fp-section-desc">Leaderboards and per-rep breakdowns surface performance gaps before they become problems. Managers get a clear view without hunting through data.</p>
+                    <ul class="fp-checklist">
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Individual rep scorecards with deals, visits, and revenue
+                        </li>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Team-level aggregates against quota and targets
+                        </li>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Period-over-period comparison in one click
+                        </li>
+                    </ul>
+                </div>
+                <div class="fp-visual fp-animate">
+                    <div class="fp-visual-inner" style="padding:24px;">
+                        <div style="font-size:11px;font-weight:700;color:#9ca3af;letter-spacing:.6px;text-transform:uppercase;margin-bottom:16px;">Team Leaderboard — Q1 2026</div>
+                        <table class="rp-table" style="width:100%;">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Rep</th>
+                                    <th>Deals Won</th>
+                                    <th>Revenue</th>
+                                    <th>vs Quota</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="font-weight:700;color:#f59e0b;">1</td>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <div style="width:26px;height:26px;border-radius:50%;background:#0ea5e9;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;">S</div>
+                                            <span style="font-weight:600;color:#0b1220;">Sara K.</span>
+                                        </div>
+                                    </td>
+                                    <td style="font-weight:700;color:#10b981;">18</td>
+                                    <td style="font-weight:700;">$112k</td>
+                                    <td><span style="padding:2px 8px;background:rgba(16,185,129,.1);border-radius:6px;font-size:11px;font-weight:700;color:#10b981;">124%</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight:700;color:#9ca3af;">2</td>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <div style="width:26px;height:26px;border-radius:50%;background:#0b1220;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;">A</div>
+                                            <span style="font-weight:600;color:#0b1220;">Ana R.</span>
+                                        </div>
+                                    </td>
+                                    <td style="font-weight:700;color:#10b981;">14</td>
+                                    <td style="font-weight:700;">$89k</td>
+                                    <td><span style="padding:2px 8px;background:rgba(16,185,129,.1);border-radius:6px;font-size:11px;font-weight:700;color:#10b981;">98%</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-weight:700;color:#cd7f32;">3</td>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <div style="width:26px;height:26px;border-radius:50%;background:#8b5cf6;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;">P</div>
+                                            <span style="font-weight:600;color:#0b1220;">Priya M.</span>
+                                        </div>
+                                    </td>
+                                    <td style="font-weight:700;color:#10b981;">11</td>
+                                    <td style="font-weight:700;">$68k</td>
+                                    <td><span style="padding:2px 8px;background:rgba(16,185,129,.1);border-radius:6px;font-size:11px;font-weight:700;color:#10b981;">75%</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="color:#9ca3af;">4</td>
+                                    <td>
+                                        <div style="display:flex;align-items:center;gap:8px;">
+                                            <div style="width:26px;height:26px;border-radius:50%;background:#f97316;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;">J</div>
+                                            <span style="font-weight:600;color:#0b1220;">James O.</span>
+                                        </div>
+                                    </td>
+                                    <td>4</td>
+                                    <td>$15k</td>
+                                    <td><span style="padding:2px 8px;background:rgba(239,68,68,.08);border-radius:6px;font-size:11px;font-weight:700;color:#ef4444;">42%</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- LIVE DASHBOARDS                                    -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section class="fp-section">
+        <div class="fp-container">
+            <div class="fp-split">
+                <div class="fp-animate">
+                    <div class="fp-section-label">Live Dashboards</div>
+                    <h2 class="fp-section-title">One screen.<br>Full picture.</h2>
+                    <p class="fp-section-desc">Combine multiple reports into a single dashboard. Pin it to your homepage, share a link with leadership, or export a snapshot — no BI tool required.</p>
+                    <ul class="fp-checklist">
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Pin any report to a shared team dashboard
+                        </li>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Data refreshes live — no manual exports ever needed
+                        </li>
+                        <li>
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            Export to PDF or CSV for board and investor reporting
+                        </li>
+                    </ul>
+                </div>
+                <div class="fp-visual fp-animate" style="padding:24px;">
+                    <!-- Dashboard grid mockup -->
+                    <div style="background:#f9fafb;border-radius:16px;padding:16px;border:1px solid #e6e9ef;">
+                        <div style="font-size:12px;font-weight:700;color:#0b1220;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                            Sales Dashboard — Live
+                            <div style="width:7px;height:7px;border-radius:50%;background:#10b981;margin-left:2px;"></div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                            <div style="background:#fff;border:1px solid #e6e9ef;border-radius:10px;padding:14px;">
+                                <div style="font-size:10px;color:#9ca3af;font-weight:600;margin-bottom:8px;">Revenue Trend</div>
+                                <svg viewBox="0 0 100 40" width="100%" height="40" fill="none">
+                                    <polyline points="0,35 16,28 32,30 48,18 64,22 80,10 100,14" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M0,35 16,28 32,30 48,18 64,22 80,10 100,14 L100,40 L0,40 Z" fill="rgba(14,165,233,0.07)"/>
+                                </svg>
+                            </div>
+                            <div style="background:#fff;border:1px solid #e6e9ef;border-radius:10px;padding:14px;">
+                                <div style="font-size:10px;color:#9ca3af;font-weight:600;margin-bottom:8px;">Win Rate</div>
+                                <div style="font-size:24px;font-weight:800;color:#0b1220;">34%</div>
+                                <div style="font-size:10px;color:#10b981;font-weight:700;">↑ +2pts this month</div>
+                            </div>
+                            <div style="background:#fff;border:1px solid #e6e9ef;border-radius:10px;padding:14px;">
+                                <div style="font-size:10px;color:#9ca3af;font-weight:600;margin-bottom:8px;">Pipeline Value</div>
+                                <div style="font-size:20px;font-weight:800;color:#0b1220;">$1.2M</div>
+                                <div style="font-size:10px;color:#6b7280;">138 open deals</div>
+                            </div>
+                            <div style="background:#fff;border:1px solid #e6e9ef;border-radius:10px;padding:14px;">
+                                <div style="font-size:10px;color:#9ca3af;font-weight:600;margin-bottom:8px;">Visits This Week</div>
+                                <div style="font-size:20px;font-weight:800;color:#0b1220;">84</div>
+                                <div style="font-size:10px;color:#10b981;font-weight:700;">↑ 12 more than last</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- STATS                                              -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section style="padding:80px 0;background:#0b1220;">
+        <div class="fp-container">
+            <div class="fp-stats" style="max-width:800px;">
+                <div class="fp-stat fp-animate" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);">
+                    <div class="fp-stat-num" style="color:#7dd3fc;">50+</div>
+                    <div class="fp-stat-label" style="color:#9ca3af;">pre-built report templates ready to use</div>
+                </div>
+                <div class="fp-stat fp-animate" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);">
+                    <div class="fp-stat-num" style="color:#7dd3fc;">Real-time</div>
+                    <div class="fp-stat-label" style="color:#9ca3af;">live data — no refresh button, ever</div>
+                </div>
+                <div class="fp-stat fp-animate" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);">
+                    <div class="fp-stat-num" style="color:#7dd3fc;">0</div>
+                    <div class="fp-stat-label" style="color:#9ca3af;">spreadsheets needed to run your pipeline review</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- FEATURE GRID                                       -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section class="fp-grid-section" style="background:#f9fafb;">
+        <div class="fp-container">
+            <div class="fp-grid-header">
+                <div class="fp-section-label">Everything included</div>
+                <h2 class="fp-section-title">Built for real reporting needs</h2>
+            </div>
+            <div class="fp-grid">
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon" style="background:rgba(14,165,233,.1);">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </div>
+                    <h4>Multiple chart types</h4>
+                    <p>Bar, line, funnel, donut — every chart type you need to present pipeline data clearly to any audience.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </div>
+                    <h4>Powerful filtering</h4>
+                    <p>Combine filters with AND/OR logic across any field. Drill into the exact slice of data you care about.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                    </div>
+                    <h4>Dashboard builder</h4>
+                    <p>Combine multiple reports into a shared dashboard. Pin charts, reorder, and share with your team in seconds.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    </div>
+                    <h4>Live data</h4>
+                    <p>Reports update in real time as your team adds deals, logs visits, and closes opportunities. No manual refresh.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    </div>
+                    <h4>Export anytime</h4>
+                    <p>Export any report to CSV or PDF instantly. Perfect for board reports, investor updates, or weekly reviews.</p>
+                </div>
+                <div class="fp-card fp-animate">
+                    <div class="fp-card-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    </div>
+                    <h4>Rep-level scorecards</h4>
+                    <p>Drill down to individual reps with visits, deals, call logs, and win rates — all in a single clean view.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════════════ -->
+    <!-- CTA                                                -->
+    <!-- ══════════════════════════════════════════════════ -->
+    <section class="fp-cta">
+        <div class="fp-container">
+            <h2>Stop guessing.<br>Start reporting.</h2>
+            <p>Build your first custom report in under 2 minutes. No data team required.</p>
+            <a href="/crm/" class="fp-cta-btn">
+                Open Reports
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+            </a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo-wrapper"><a href="../../index.html"><img
+                                src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Product</h4>
+                        <ul>
+                            <li><a href="mainfeatures.html">Features</a></li>
+                            <li><a href="../pricing.html">Pricing</a></li>
+                            <li><a href="../integrations.html">Integrations</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Company</h4>
+                        <ul>
+                            <li><a href="../blog.html">Blog</a></li>
+                            <li><a href="../careers.html">Careers</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Resources</h4>
+                        <ul>
+                            <li><a href="../documentation.html">Documentation</a></li>
+                            <li><a href="../helpcenter.html">Help Center</a></li>
+                            <li><a href="../apireference.html">API Reference</a></li>
+                            <li><a href="../status.html">Status</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Legal</h4>
+                        <ul>
+                            <li><a href="../legal/privacy.html">Privacy Policy</a></li>
+                            <li><a href="../legal/terms.html">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+                <div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="feature-page.js"></script>
+    <script src="../../landing.js"></script>
+</body>
+
+</html>
