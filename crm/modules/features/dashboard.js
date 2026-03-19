@@ -264,12 +264,6 @@ function buildHTML(m) {
   return `
 <div class="db">
 
-  <!-- Header -->
-  <div class="db-head">
-    <div></div>
-    <button class="db-refresh" id="db-refresh"><i data-lucide="refresh-cw"></i> Refresh</button>
-  </div>
-
   <!-- KPI Row -->
   <div class="db-kpis">
     <div class="db-kpi">
@@ -558,12 +552,6 @@ async function renderProfessionalDashboardView() {
   // Loading skeleton
   viewContainer.innerHTML = `
     <div class="db">
-      <div class="db-head">
-        <div>
-          <div class="db-skel db-skel-title"></div>
-          <div class="db-skel db-skel-sub"></div>
-        </div>
-      </div>
       <div class="db-kpis">
         ${Array(6).fill('<div class="db-kpi db-kpi-loading"><div class="db-skel db-skel-block"></div></div>').join('')}
       </div>
@@ -575,11 +563,6 @@ async function renderProfessionalDashboardView() {
     const metrics = compute(raw);
     viewContainer.innerHTML = buildHTML(metrics);
     if (window.lucide) lucide.createIcons();
-
-    document.getElementById('db-refresh')?.addEventListener('click', () => {
-      renderProfessionalDashboardView();
-      showToast('Refreshing dashboard…', 'success', { subtle: true, duration: 1000 });
-    });
 
     // Animate bars in
     requestAnimationFrame(() => {
