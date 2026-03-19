@@ -158,6 +158,8 @@ import {
 
 import { renderProfessionalDashboardView } from './modules/features/dashboard.js';
 
+import { renderReportsView, openReportBuilder, refreshAllWidgets } from './modules/features/reports.js';
+
 import {
   submitChangePassword, renderCallLogsView, deleteCallLog, openCallLogViewModal,
   openCompanyViewModal, openCallLogModal, initCallLogSearch, saveCallLog,
@@ -279,6 +281,9 @@ Object.assign(window, {
   // Call Logs
   renderCallLogsView, deleteCallLog, openCallLogViewModal, openCompanyViewModal,
   openCallLogModal, saveCallLog, submitChangePassword,
+
+  // Reports & Dashboard
+  renderReportsView, openReportBuilder, refreshAllWidgets,
 });
 
 // ── Live-binding proxies ───────────────────────────────────────────────────────

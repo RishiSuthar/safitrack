@@ -23,6 +23,7 @@ import { renderRemindersView } from '../features/reminders.js';
 import { renderCallLogsView } from '../features/call-logs.js';
 import { renderSettingsView } from '../features/settings.js';
 import { renderNotesView } from '../features/notes.js';
+import { renderReportsView } from '../features/reports.js';
 
 // ======================
 
@@ -216,6 +217,9 @@ async function loadView(viewName) {
       break;
     case 'settings':
       await renderSettingsView();
+      break;
+    case 'reports':
+      await renderReportsView();
       break;
     default:
       viewContainer.innerHTML = renderNotFound();
