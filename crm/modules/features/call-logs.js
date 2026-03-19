@@ -143,9 +143,26 @@ async function renderCallLogsView() {
   let html = `
         <div class="page-header">
             <div class="page-header-row">
-                <div>
+                <div class="search-input-wrapper cl-search">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+                    <input type="text" id="call-search" placeholder="Search by contact or company..." value="${state.callLogFilters.search}" class="filter-select search-input-padded">
                 </div>
                 <div class="call-logs-filters">
+                    <select id="call-direction-filter" class="filter-select">
+                        <option value="">All Directions</option>
+                        <option value="Inbound" ${state.callLogFilters.direction === 'Inbound' ? 'selected' : ''}>Inbound</option>
+                        <option value="Outbound" ${state.callLogFilters.direction === 'Outbound' ? 'selected' : ''}>Outbound</option>
+                    </select>
+                    <select id="call-outcome-filter" class="filter-select">
+                        <option value="">All Outcomes</option>
+                        <option value="Connected" ${state.callLogFilters.outcome === 'Connected' ? 'selected' : ''}>Connected</option>
+                        <option value="Voicemail" ${state.callLogFilters.outcome === 'Voicemail' ? 'selected' : ''}>Voicemail</option>
+                        <option value="No Answer" ${state.callLogFilters.outcome === 'No Answer' ? 'selected' : ''}>No Answer</option>
+                        <option value="Busy" ${state.callLogFilters.outcome === 'Busy' ? 'selected' : ''}>Busy</option>
+                        <option value="Wrong Number" ${state.callLogFilters.outcome === 'Wrong Number' ? 'selected' : ''}>Wrong Number</option>
+                        <option value="Call Failed" ${state.callLogFilters.outcome === 'Call Failed' ? 'selected' : ''}>Call Failed</option>
+                    </select>
+                    <button id="clear-filters" class="btn btn-secondary">Clear Filters</button>
                     ${state.isManager ? `
                         <div class="view-toggle">
                             <button class="toggle-btn ${state.managerCallLogViewMode === 'my' ? 'active' : ''}" id="view-my-logs">My Logs</button>
@@ -172,34 +189,6 @@ async function renderCallLogsView() {
         </div>
 
         <div class="card">
-            <div class="filters-section">
-                <div class="search-input-wrapper">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-                    <input type="text" id="call-search" placeholder="Search by contact or company..." value="${state.callLogFilters.search}" class="filter-select search-input-padded">
-                </div>
-                
-                <select id="call-direction-filter" class="filter-select">
-                    <option value="">All Directions</option>
-                    <option value="Inbound" ${state.callLogFilters.direction === 'Inbound' ? 'selected' : ''}>Inbound</option>
-                    <option value="Outbound" ${state.callLogFilters.direction === 'Outbound' ? 'selected' : ''}>Outbound</option>
-                </select>
-                
-                <select id="call-outcome-filter" class="filter-select">
-                    <option value="">All Outcomes</option>
-                    <option value="Connected" ${state.callLogFilters.outcome === 'Connected' ? 'selected' : ''}>Connected</option>
-                    <option value="Voicemail" ${state.callLogFilters.outcome === 'Voicemail' ? 'selected' : ''}>Voicemail</option>
-                    <option value="No Answer" ${state.callLogFilters.outcome === 'No Answer' ? 'selected' : ''}>No Answer</option>
-                    <option value="Busy" ${state.callLogFilters.outcome === 'Busy' ? 'selected' : ''}>Busy</option>
-                    <option value="Wrong Number" ${state.callLogFilters.outcome === 'Wrong Number' ? 'selected' : ''}>Wrong Number</option>
-                    <option value="Call Failed" ${state.callLogFilters.outcome === 'Call Failed' ? 'selected' : ''}>Call Failed</option>
-                </select>
-
-                <div class="filter-actions">
-                    <button id="clear-filters" class="btn btn-secondary">
-                        Clear Filters
-                    </button>
-                </div>
-            </div>
 
             <div class="table-container">
                 <table class="data-table">

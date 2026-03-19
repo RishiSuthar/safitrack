@@ -155,6 +155,18 @@ async function renderRemindersView() {
     <div class="rem-page">
 
       <div class="rem-page-head">
+        <div class="rem-search-wrap">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="rem-search-icon"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+          <input type="text" id="reminder-search" class="rem-search-input" placeholder="Search reminders...">
+        </div>
+        <div class="rem-filters">
+          <button class="reminder-filter active" data-filter="all">All</button>
+          <button class="reminder-filter" data-filter="pending">Pending</button>
+          <button class="reminder-filter" data-filter="today">Today</button>
+          <button class="reminder-filter" data-filter="overdue">Overdue</button>
+          <button class="reminder-filter" data-filter="completed">Done</button>
+          ${state.isManager ? '<button class="reminder-filter" data-filter="assigned">Assigned by Me</button>' : ''}
+        </div>
         <button class="btn btn-primary" id="add-reminder-btn"><i data-lucide="plus" class="u-icon-16"></i> New Reminder</button>
       </div>
 
@@ -174,20 +186,6 @@ async function renderRemindersView() {
         </aside>
 
         <div class="rem-main">
-          <div class="rem-toolbar">
-            <div class="rem-filters">
-              <button class="reminder-filter active" data-filter="all">All</button>
-              <button class="reminder-filter" data-filter="pending">Pending</button>
-              <button class="reminder-filter" data-filter="today">Today</button>
-              <button class="reminder-filter" data-filter="overdue">Overdue</button>
-              <button class="reminder-filter" data-filter="completed">Done</button>
-              ${state.isManager ? '<button class="reminder-filter" data-filter="assigned">Assigned by Me</button>' : ''}
-            </div>
-            <div class="rem-search-wrap">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="rem-search-icon"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-              <input type="text" id="reminder-search" class="rem-search-input" placeholder="Search reminders...">
-            </div>
-          </div>
 
           <div id="remx-filter-empty" class="rem-empty-msg" style="display:none;">No reminders match this filter or search.</div>
 

@@ -89,23 +89,6 @@ async function renderOpportunityPipelineView() {
     };
   });
 
-  // Calculate pipeline summary
-  const totalValue = opportunities.reduce((sum, opp) => sum + parseFloat(opp.value || 0), 0);
-  const avgProbability = opportunities.length > 0
-    ? opportunities.reduce((sum, opp) => sum + parseInt(opp.probability || 0), 0) / opportunities.length
-    : 0;
-  const wonValue = opportunitiesByStage['closed-won'].totalValue;
-  const lostValue = opportunitiesByStage['closed-lost'].totalValue;
-  const activeValue = totalValue - wonValue - lostValue;
-  const weightedForecast = opportunities.reduce((sum, opp) => {
-    const value = parseFloat(opp.value || 0);
-    const probability = parseFloat(opp.probability || 0);
-    return sum + (value * probability) / 100;
-  }, 0);
-  const closedCount = opportunities.filter(opp => opp.mappedStage === 'closed-won' || opp.mappedStage === 'closed-lost').length;
-  const wonCount = opportunities.filter(opp => opp.mappedStage === 'closed-won').length;
-  const winRate = closedCount > 0 ? Math.round((wonCount / closedCount) * 100) : 0;
-  const activeCount = opportunities.filter(opp => opp.mappedStage !== 'closed-won' && opp.mappedStage !== 'closed-lost').length;
   const ownerOptions = state.isManager
     ? Array.from(new Map(opportunities.map(opp => {
       const user = opp.profiles;
@@ -124,37 +107,6 @@ async function renderOpportunityPipelineView() {
   };
 
   let html = `
-    <div class="pipeline-summary">
-      <div class="pipeline-summary-card">
-        <div class="pipeline-summary-title">Pipeline</div>
-        <div class="pipeline-summary-value">${getCurrencySymbol()} ${totalValue.toLocaleString()}</div>
-        <div class="pipeline-summary-change">
-          <i class="fas fa-briefcase"></i> Active ${getCurrencySymbol()} ${Math.max(activeValue, 0).toLocaleString()}
-        </div>
-      </div>
-      <div class="pipeline-summary-card">
-        <div class="pipeline-summary-title">Active</div>
-        <div class="pipeline-summary-value">${activeCount}</div>
-        <div class="pipeline-summary-change">
-          <i class="fas fa-flag-checkered"></i> Won: ${wonCount}
-        </div>
-      </div>
-      <div class="pipeline-summary-card">
-        <div class="pipeline-summary-title">Weighted Forecast</div>
-        <div class="pipeline-summary-value">${getCurrencySymbol()} ${Math.round(weightedForecast).toLocaleString()}</div>
-        <div class="pipeline-summary-change">
-          <i class="fas fa-percent"></i> Avg probability: ${Math.round(avgProbability)}%
-        </div>
-      </div>
-      <div class="pipeline-summary-card">
-        <div class="pipeline-summary-title">Win Rate</div>
-        <div class="pipeline-summary-value">${winRate}%</div>
-        <div class="pipeline-summary-change">
-          <i class="fas fa-trophy"></i> Closed won value: ${getCurrencySymbol()} ${wonValue.toLocaleString()}
-        </div>
-      </div>
-    </div>
-
     <div class="pipeline-toolbar">
       <div class="pipeline-controls pipeline-controls-primary">
         <div class="pipeline-search">

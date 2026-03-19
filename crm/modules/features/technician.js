@@ -1772,33 +1772,7 @@ async function renderTechniciansDashboardView() {
     sampleVisit: hydratedVisits.length > 0 ? hydratedVisits[0] : null
   });
 
-  // Calculate statistics
-  const totalVisits = hydratedVisits.length;
-  const totalTechnicians = technicians.length;
-  const todayVisits = hydratedVisits.filter(v => {
-    const visitDate = new Date(v.created_at).toDateString();
-    return visitDate === new Date().toDateString();
-  }).length;
-
-
-
   let html = `
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-value">${totalVisits}</div>
-        <div class="stat-label">Total Service Visits</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">${totalTechnicians}</div>
-        <div class="stat-label">Active Technicians</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-value">${todayVisits}</div>
-        <div class="stat-label">Visits Today</div>
-      </div>
-    </div>
-
-    
     <!-- Filters -->
     <div class="card">
       <div class="card-header">

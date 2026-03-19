@@ -29,9 +29,6 @@ async function renderTeamDashboardView() {
   // Show loading state
   viewContainer.innerHTML = `
     <div class="visits-hub">
-      <div class="visits-hero">
-        ${[1, 2, 3, 4].map(() => '<div class="visits-skeleton" style="height: 120px;"></div>').join('')}
-      </div>
       <div class="visits-skeleton" style="height: 60px;"></div>
       <div class="visits-skeleton" style="height: 400px;"></div>
     </div>
@@ -74,19 +71,6 @@ async function renderTeamDashboardView() {
   visitsHubState.filteredVisits = visitsWithProfiles;
 
   // Calculate stats
-  const totalVisits = visitsWithProfiles.length;
-  const todayVisits = visitsWithProfiles.filter(v => isToday(new Date(v.created_at))).length;
-  const weekVisits = visitsWithProfiles.filter(v => isThisWeek(new Date(v.created_at))).length;
-  const lastWeekVisits = visitsWithProfiles.filter(v => isLastWeek(new Date(v.created_at))).length;
-  const weekTrend = lastWeekVisits > 0 ? Math.round(((weekVisits - lastWeekVisits) / lastWeekVisits) * 100) : 100;
-
-  const avgLeadScore = visitsWithProfiles.filter(v => v.lead_score).length > 0
-    ? Math.round(visitsWithProfiles.reduce((sum, v) => sum + (v.lead_score || 0), 0) / visitsWithProfiles.filter(v => v.lead_score).length)
-    : 0;
-
-  const verifiedVisits = visitsWithProfiles.filter(v => v.location_verified).length;
-  const verificationRate = totalVisits > 0 ? Math.round((verifiedVisits / totalVisits) * 100) : 0;
-
   // Build leaderboard
   const repStats = {};
   salesReps.forEach(rep => {
@@ -112,55 +96,6 @@ async function renderTeamDashboardView() {
   // Render the hub
   viewContainer.innerHTML = `
     <div class="visits-hub">
-      <!-- Hero Stats -->
-      <div class="visits-hero">
-        <div class="visits-hero-stat accent-blue">
-          <div class="visits-stat-header">
-            <div class="visits-stat-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-            </div>
-            ${weekTrend !== 0 ? `
-              <span class="visits-stat-trend ${weekTrend > 0 ? 'up' : 'down'}">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="${weekTrend > 0 ? '18 15 12 9 6 15' : '6 9 12 15 18 9'}"></polyline></svg>
-                ${Math.abs(weekTrend)}%
-              </span>
-            ` : ''}
-          </div>
-          <div class="visits-stat-value">${totalVisits}</div>
-          <div class="visits-stat-label">Total Visits</div>
-        </div>
-        
-        <div class="visits-hero-stat accent-green">
-          <div class="visits-stat-header">
-            <div class="visits-stat-icon green">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="m4.93 4.93 2.83 2.83"/><path d="M2 12h4"/><path d="m4.93 19.07 2.83-2.83"/><path d="M12 18v4"/><path d="m16.24 16.24 2.83 2.83"/><path d="M18 12h4"/><path d="m16.24 7.76 2.83-2.83"/><circle cx="12" cy="12" r="4"/></svg>
-            </div>
-          </div>
-          <div class="visits-stat-value">${todayVisits}</div>
-          <div class="visits-stat-label">Today's Visits</div>
-        </div>
-        
-        <div class="visits-hero-stat accent-orange">
-          <div class="visits-stat-header">
-            <div class="visits-stat-icon orange">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>
-            </div>
-          </div>
-          <div class="visits-stat-value">${avgLeadScore}%</div>
-          <div class="visits-stat-label">Avg Lead Score</div>
-        </div>
-        
-        <div class="visits-hero-stat accent-purple">
-          <div class="visits-stat-header">
-            <div class="visits-stat-icon purple">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
-            </div>
-          </div>
-          <div class="visits-stat-value">${verificationRate}%</div>
-          <div class="visits-stat-label">Location Verified</div>
-        </div>
-      </div>
-
       <!-- Command Bar -->
       <div class="visits-command-bar">
         <div class="visits-search-box">

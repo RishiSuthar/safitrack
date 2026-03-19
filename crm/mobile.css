@@ -896,31 +896,6 @@
   .photo-upload-area span {
     font-size: 0.8125rem;
   }
-  .visits-hero {
-    margin-bottom: 1rem;
-  }
-  .visits-stat-header {
-    margin-bottom: 0.5rem;
-  }
-  .visits-stat-icon {
-    width: 36px;
-    height: 36px;
-  }
-  .visits-stat-icon svg {
-    width: 18px;
-    height: 18px;
-  }
-  .visits-stat-trend {
-    font-size: 0.6875rem;
-    padding: 0.2rem 0.4rem;
-  }
-  .visits-stat-value {
-    margin-bottom: 0.125rem;
-  }
-  .visits-stat-sparkline {
-    height: 24px;
-    margin-top: 0.5rem;
-  }
   .visits-search-box input {
     height: 40px;
     font-size: 0.9375rem;
@@ -1706,26 +1681,6 @@
   .opportunity-card {
     padding: 0.75rem;
   }
-  .visits-hero-stat {
-    display: flex;
-    align-items: center;
-  }
-  .visits-stat-header {
-    margin-bottom: 0;
-    margin-right: auto;
-  }
-  .visits-stat-icon {
-    width: 40px;
-    height: 40px;
-  }
-  .visits-stat-content {
-    flex: 1;
-    text-align: right;
-  }
-  .visits-stat-trend {
-    position: absolute;
-    right: 0.625rem;
-  }
   .route-stats-grid {
     gap: 0.375rem;
   }
@@ -2257,64 +2212,6 @@
 
   .card-subtitle {
     font-size: 0.8125rem;
-  }
-
-  /* Stats grid */
-  .stats-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.625rem;
-    margin-bottom: 1rem;
-  }
-
-  .stat-card {
-    padding: 0.875rem;
-    border-radius: var(--radius-md);
-  }
-
-  .stat-card:hover {
-    transform: none;
-    box-shadow: var(--shadow-sm);
-  }
-
-  .stat-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-lg);
-    font-size: 0.875rem;
-    margin-bottom: 0.5rem;
-  }
-
-  .stat-icon svg {
-    width: 16px;
-    height: 16px;
-  }
-
-  .stat-value {
-    font-size: 1.5rem;
-    font-weight: 700;
-  }
-
-  .stat-label {
-    font-size: 0.75rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .stats-grid {
-    gap: 0.5rem;
-  }
-
-  .stat-card {
-    padding: 0.75rem;
-  }
-
-  .stat-value {
-    font-size: 1.25rem;
-  }
-
-  .stat-icon {
-    width: 32px;
-    height: 32px;
   }
 }
 
@@ -3059,20 +2956,6 @@
     overflow-x: hidden;
   }
 
-  .visits-hero {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.625rem;
-  }
-
-  .visits-hero-stat {
-    padding: 0.875rem;
-    border-radius: var(--radius-md);
-  }
-
-  .visits-stat-value {
-    font-size: 1.375rem;
-  }
-
   .visits-stat-label {
     font-size: 0.75rem;
   }
@@ -3250,17 +3133,6 @@
 
   /* Activity sidebar on mobile */
   .visits-activity-sidebar {
-    display: none;
-  }
-}
-
-@media (max-width: 480px) {
-  .visits-hero {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-  }
-
-  .visits-stat-sparkline {
     display: none;
   }
 }
@@ -4322,7 +4194,6 @@
 @media (hover: none) and (pointer: coarse) {
   /* Remove hover effects that cause sticky states on touch */
   .card:hover,
-  .stat-card:hover,
   .visit-card:hover,
   .visit-card-premium:hover,
   .reminder-card:hover,
@@ -4350,7 +4221,6 @@
   }
 
   .card:active,
-  .stat-card:active,
   .visit-card:active,
   .note-card:active {
     transform: scale(0.985);
@@ -4419,10 +4289,6 @@
 
   .modal-body {
     max-height: calc(88vh - 120px);
-  }
-
-  .stats-grid {
-    grid-template-columns: repeat(4, 1fr);
   }
 
   .funnel-hero {
@@ -4527,19 +4393,6 @@
   .card {
     padding: 0.75rem;
     border-radius: var(--radius-lg);
-  }
-
-  .stat-card {
-    padding: 0.625rem;
-  }
-
-  .stat-value {
-    font-size: 1.125rem;
-  }
-
-  .stat-icon {
-    width: 28px;
-    height: 28px;
   }
 
   .bottom-nav-item {
