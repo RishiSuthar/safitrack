@@ -4521,8 +4521,8 @@ body.modal-active {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
+  border: none;
+  background: transparent;
   color: var(--text-muted);
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -4587,9 +4587,7 @@ body.modal-active {
 }
 
 .sidebar-close:hover {
-  background: var(--bg-hover);
-  color: var(--text-secondary);
-  border-color: var(--border-color);
+  background: var(--bg-tertiary);
 }
 
 /* Scrollable nav sections container */
@@ -6612,12 +6610,11 @@ select {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
+  border: none;
+  background: transparent;
   color: var(--text-muted);
   border-radius: var(--btn-radius);
   cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
 }
 
 /* Company view summary enhancements */
@@ -6854,13 +6851,11 @@ select {
 
 /* Smaller screens: compact spacing */
 .modal-close:hover {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
-  border-color: var(--color-danger);
+  background: var(--bg-tertiary);
 }
 
 .modal-close:active {
-  transform: translateY(var(--motion-distance-press));
+  background: var(--bg-tertiary);
 }
 
 .modal-body {
@@ -11229,19 +11224,6 @@ body.is-dragging * {
   width: 32px;
   height: 32px;
   border-radius: var(--radius-md);
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
-}
-
-#safifind-modal .modal-close:hover {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
-  border-color: var(--color-danger);
-}
-
-#safifind-modal .modal-close:active {
-  transform: translateY(var(--motion-distance-press));
 }
 
 #safifind-modal .modal-container {
@@ -14015,16 +13997,14 @@ button svg {
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
+  border: none;
+  background: transparent;
   color: var(--text-secondary);
   cursor: pointer;
-  transition: all var(--transition-fast);
 }
 
 .nso-close-btn:hover {
   background: var(--bg-tertiary);
-  color: var(--text-primary);
 }
 
 .nso-status {
@@ -20219,8 +20199,6 @@ button svg {
   width: 32px;
   height: 32px;
   border-radius: var(--radius-md);
-  border: 1px solid var(--border-color);
-  color: var(--text-primary);
 }
 
 .record-hero-edit-btn:hover {
@@ -20240,21 +20218,18 @@ button svg {
   width: 36px;
   height: 36px;
   border-radius: 8px;
-  border: 1.5px solid var(--border-color);
-  background: var(--bg-secondary);
+  border: none;
+  background: transparent;
   color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: border-color 0.15s, background 0.15s, color 0.15s;
   flex-shrink: 0;
 }
 
 .record-hero-close-btn:hover {
-  background: #ef4444;
-  border-color: #ef4444;
-  color: #fff;
+  background: var(--bg-tertiary);
 }
 
 /* ── Body Layout ── */
@@ -20980,9 +20955,7 @@ button svg {
   background: var(--bg-secondary);
 }
 
-[data-theme="dark"] .record-hero-close-btn {
-  background: var(--bg-secondary);
-}
+
 
 [data-theme="dark"] .record-stat-item {
   background: var(--bg-primary);
