@@ -407,7 +407,7 @@ body {
     align-items: center;
     gap: 8px;
     padding: 16px 36px;
-    background: #0b1220;
+    background: #2f5fd0;
     color: #ffffff;
     border-radius: 12px;
     font-size: 16px;
@@ -419,9 +419,9 @@ body {
 }
 
 .fp-cta-btn:hover {
-    background: #1e293b;
+    background: #2451b8;
     transform: translateY(-1px);
-    box-shadow: 0 8px 24px rgba(11, 18, 32, 0.15);
+    box-shadow: 0 8px 24px rgba(47, 95, 208, 0.25);
 }
 
 /* ---------- INLINE UI COMPONENTS ---------- */

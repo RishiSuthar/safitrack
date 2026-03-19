@@ -35,8 +35,8 @@
         }
 
         .wf-block-trigger {
-            border: 2px solid #8b5cf6;
-            box-shadow: 0 2px 16px rgba(139, 92, 246, .12);
+            border: 2px solid #0b1220;
+            box-shadow: none;
         }
 
         .wf-block-action {
@@ -54,7 +54,7 @@
         .wf-connector-line {
             width: 2px;
             height: 28px;
-            background: linear-gradient(to bottom, #c4b5fd, #d1d5db);
+            background: #e6e9ef;
         }
 
         .wf-connector-dot {
@@ -74,8 +74,8 @@
             margin-bottom: 10px;
         }
 
-        .wf-badge-trigger { background: rgba(139,92,246,.1); color: #8b5cf6; }
-        .wf-badge-action  { background: rgba(16,185,129,.1);  color: #10b981; }
+        .wf-badge-trigger { background: rgba(11,18,32,.07); color: #374151; }
+        .wf-badge-action  { background: rgba(11,18,32,.07); color: #374151; }
 
         .wf-add-action {
             border: 2px dashed #e6e9ef;
@@ -435,7 +435,7 @@
                         <div style="margin-left:16px;font-size:13px;color:#6b7280;font-weight:500;">Workflow Builder</div>
                         <div style="margin-left:auto;display:flex;gap:8px;">
                             <span style="padding:4px 12px;background:#f3f4f6;border-radius:6px;font-size:12px;color:#374151;font-weight:600;">Save Draft</span>
-                            <span style="padding:4px 12px;background:#8b5cf6;border-radius:6px;font-size:12px;color:#fff;font-weight:600;">Activate</span>
+                            <span style="padding:4px 12px;background:rgba(11,18,32,.08);border-radius:6px;font-size:12px;color:#374151;font-weight:600;">Activate</span>
                         </div>
                     </div>
                     <div class="fp-mockup-body" style="display:flex;min-height:520px;">
@@ -445,10 +445,10 @@
                             <div style="font-size:11px;font-weight:700;color:#9ca3af;letter-spacing:.6px;text-transform:uppercase;margin-bottom:12px;">My Workflows</div>
 
                             <!-- Active workflow item -->
-                            <div style="background:#fff;border:1px solid #ddd6fe;border-radius:10px;padding:12px 14px;margin-bottom:8px;border-left:3px solid #8b5cf6;">
+                            <div style="background:#fff;border:1px solid #e6e9ef;border-radius:10px;padding:12px 14px;margin-bottom:8px;border-left:3px solid #0b1220;">
                                 <div style="font-size:13px;font-weight:700;color:#0b1220;margin-bottom:4px;">Lead Follow-up</div>
                                 <div style="display:flex;align-items:center;gap:5px;">
-                                    <div style="width:6px;height:6px;border-radius:50%;background:#10b981;flex-shrink:0;"></div>
+                                    <div style="width:6px;height:6px;border-radius:50%;background:#374151;flex-shrink:0;"></div>
                                     <span style="font-size:11px;color:#10b981;font-weight:600;">Active</span>
                                     <span style="font-size:11px;color:#9ca3af;margin-left:4px;">· 2 actions</span>
                                 </div>
@@ -466,13 +466,13 @@
                             <div style="background:#fff;border:1px solid #e6e9ef;border-radius:10px;padding:12px 14px;margin-bottom:8px;">
                                 <div style="font-size:13px;font-weight:600;color:#374151;margin-bottom:4px;">Task Auto-assign</div>
                                 <div style="display:flex;align-items:center;gap:5px;">
-                                    <div style="width:6px;height:6px;border-radius:50%;background:#10b981;flex-shrink:0;"></div>
+                                    <div style="width:6px;height:6px;border-radius:50%;background:#374151;flex-shrink:0;"></div>
                                     <span style="font-size:11px;color:#10b981;font-weight:600;">Active</span>
                                     <span style="font-size:11px;color:#9ca3af;margin-left:4px;">· 3 actions</span>
                                 </div>
                             </div>
 
-                            <div style="margin-top:16px;padding:10px 14px;background:rgba(139,92,246,.07);border:1px dashed #c4b5fd;border-radius:10px;text-align:center;font-size:12px;font-weight:600;color:#8b5cf6;cursor:pointer;">
+                            <div style="margin-top:16px;padding:10px 14px;background:rgba(11,18,32,.04);border:1px dashed #d1d5db;border-radius:10px;text-align:center;font-size:12px;font-weight:600;color:#9ca3af;cursor:pointer;">
                                 + New Workflow
                             </div>
                         </div>
@@ -511,7 +511,7 @@
                                     </div>
                                     <div style="font-size:15px;font-weight:700;color:#0b1220;margin-bottom:6px;">Create Task</div>
                                     <div style="font-size:13px;color:#6b7280;">Title: <span style="color:#0b1220;font-weight:600;">"Schedule intro call"</span></div>
-                                    <div style="font-size:13px;color:#6b7280;margin-top:4px;">Due: <span style="color:#0b1220;font-weight:600;">2 days</span> · Priority: <span style="color:#f59e0b;font-weight:600;">High</span></div>
+                                    <div style="font-size:13px;color:#6b7280;margin-top:4px;">Due: <span style="color:#0b1220;font-weight:600;">2 days</span> · Priority: <span style="color:#6b7280;font-weight:600;">High</span></div>
                                 </div>
 
                                 <!-- Connector -->
@@ -527,7 +527,7 @@
                                         &nbsp;ACTION 2
                                     </div>
                                     <div style="font-size:15px;font-weight:700;color:#0b1220;margin-bottom:6px;">Update Opportunity</div>
-                                    <div style="font-size:13px;color:#6b7280;">Stage: <span style="color:#8b5cf6;font-weight:600;">Qualification</span></div>
+                                    <div style="font-size:13px;color:#6b7280;">Stage: <span style="color:#0b1220;font-weight:600;">Qualification</span></div>
                                     <div style="font-size:13px;color:#6b7280;margin-top:4px;">Next step: <span style="color:#0b1220;font-weight:600;">"Discovery call booked"</span></div>
                                 </div>
 
@@ -565,10 +565,10 @@
             <div style="display:flex;align-items:flex-start;justify-content:center;gap:0;flex-wrap:wrap;margin-bottom:56px;">
 
                 <div style="text-align:center;flex:0 0 240px;padding:0 16px;">
-                    <div style="width:72px;height:72px;border-radius:20px;background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                    <div style="width:72px;height:72px;border-radius:20px;background:rgba(11,18,32,.06);border:1px solid rgba(11,18,32,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
                     </div>
-                    <div style="font-size:11px;font-weight:700;color:#8b5cf6;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;">Step 1</div>
+                    <div style="font-size:11px;font-weight:700;color:#6b7280;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;">Step 1</div>
                     <div style="font-size:18px;font-weight:700;color:#0b1220;margin-bottom:8px;">Choose a Trigger</div>
                     <div style="font-size:14px;color:#6b7280;line-height:1.6;">Pick what kicks the workflow off — a new record, an update, or a new task.</div>
                 </div>
@@ -578,10 +578,10 @@
                 </div>
 
                 <div style="text-align:center;flex:0 0 240px;padding:0 16px;">
-                    <div style="width:72px;height:72px;border-radius:20px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg>
+                    <div style="width:72px;height:72px;border-radius:20px;background:rgba(11,18,32,.06);border:1px solid rgba(11,18,32,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="12 8 12 12 14 14"/><circle cx="12" cy="12" r="10"/></svg>
                     </div>
-                    <div style="font-size:11px;font-weight:700;color:#10b981;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;">Step 2</div>
+                    <div style="font-size:11px;font-weight:700;color:#0b1220;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;">Step 2</div>
                     <div style="font-size:18px;font-weight:700;color:#0b1220;margin-bottom:8px;">Define Actions</div>
                     <div style="font-size:14px;color:#6b7280;line-height:1.6;">Chain one or more actions — create tasks, update records, or move opportunities through the pipeline.</div>
                 </div>
@@ -591,10 +591,10 @@
                 </div>
 
                 <div style="text-align:center;flex:0 0 240px;padding:0 16px;">
-                    <div style="width:72px;height:72px;border-radius:20px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+                    <div style="width:72px;height:72px;border-radius:20px;background:rgba(11,18,32,.06);border:1px solid rgba(11,18,32,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
                         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                     </div>
-                    <div style="font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;">Step 3</div>
+                    <div style="font-size:11px;font-weight:700;color:#0b1220;letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;">Step 3</div>
                     <div style="font-size:18px;font-weight:700;color:#0b1220;margin-bottom:8px;">Go Live</div>
                     <div style="font-size:14px;color:#6b7280;line-height:1.6;">Flip the switch. Your workflow activates instantly and runs silently in the background on every matching event.</div>
                 </div>
@@ -631,15 +631,15 @@
                     <!-- Trigger type cards -->
                     <div style="display:flex;flex-direction:column;gap:14px;">
 
-                        <div style="background:#fff;border:2px solid #8b5cf6;border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 12px rgba(139,92,246,.1);">
-                            <div style="width:44px;height:44px;border-radius:12px;background:rgba(139,92,246,.1);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        <div style="background:#fff;border:2px solid #0b1220;border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 8px rgba(11,18,32,.06);">
+                            <div style="width:44px;height:44px;border-radius:12px;background:rgba(11,18,32,.06);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                             </div>
                             <div style="flex:1;">
                                 <div style="font-size:14px;font-weight:700;color:#0b1220;margin-bottom:3px;">Record Created</div>
                                 <div style="font-size:12px;color:#6b7280;">Fires when a new Company, Person, or Opportunity is added</div>
                             </div>
-                            <div style="width:8px;height:8px;border-radius:50%;background:#8b5cf6;flex-shrink:0;"></div>
+                            <div style="width:8px;height:8px;border-radius:50%;background:#9ca3af;flex-shrink:0;"></div>
                         </div>
 
                         <div style="background:#fff;border:1px solid #e6e9ef;border-radius:14px;padding:18px 20px;display:flex;align-items:center;gap:16px;">
@@ -704,13 +704,13 @@
 
                             <div style="display:flex;align-items:stretch;gap:0;">
                                 <div style="display:flex;flex-direction:column;align-items:center;width:32px;flex-shrink:0;">
-                                    <div style="width:28px;height:28px;border-radius:50%;background:rgba(16,185,129,.12);border:2px solid #10b981;display:flex;align-items:center;justify-content:center;">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                                    <div style="width:28px;height:28px;border-radius:50%;background:rgba(11,18,32,.06);border:2px solid #9ca3af;display:flex;align-items:center;justify-content:center;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2.5"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
                                     </div>
-                                    <div style="width:2px;flex:1;background:linear-gradient(to bottom,#10b981,#d1d5db);margin-top:4px;"></div>
+                                    <div style="width:2px;flex:1;background:#e6e9ef;margin-top:4px;"></div>
                                 </div>
                                 <div style="flex:1;background:#fff;border:1px solid #d1fae5;border-radius:12px;padding:14px 16px;margin-left:12px;margin-bottom:8px;">
-                                    <div style="font-size:12px;font-weight:700;color:#10b981;margin-bottom:4px;">Create Task</div>
+                                    <div style="font-size:12px;font-weight:700;color:#0b1220;margin-bottom:4px;">Create Task</div>
                                     <div style="font-size:13px;font-weight:600;color:#0b1220;">"Schedule intro call"</div>
                                     <div style="font-size:12px;color:#6b7280;margin-top:2px;">Assigned to owner · Due in 2 days · Priority: High</div>
                                 </div>
@@ -718,13 +718,13 @@
 
                             <div style="display:flex;align-items:stretch;gap:0;">
                                 <div style="display:flex;flex-direction:column;align-items:center;width:32px;flex-shrink:0;">
-                                    <div style="width:28px;height:28px;border-radius:50%;background:rgba(139,92,246,.12);border:2px solid #8b5cf6;display:flex;align-items:center;justify-content:center;">
-                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                    <div style="width:28px;height:28px;border-radius:50%;background:rgba(11,18,32,.06);border:2px solid #9ca3af;display:flex;align-items:center;justify-content:center;">
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2.5"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                                     </div>
-                                    <div style="width:2px;flex:1;background:linear-gradient(to bottom,#8b5cf6,#d1d5db);margin-top:4px;"></div>
+                                    <div style="width:2px;flex:1;background:#e6e9ef;margin-top:4px;"></div>
                                 </div>
                                 <div style="flex:1;background:#fff;border:1px solid #ede9fe;border-radius:12px;padding:14px 16px;margin-left:12px;margin-bottom:8px;">
-                                    <div style="font-size:12px;font-weight:700;color:#8b5cf6;margin-bottom:4px;">Update Opportunity</div>
+                                    <div style="font-size:12px;font-weight:700;color:#0b1220;margin-bottom:4px;">Update Opportunity</div>
                                     <div style="font-size:13px;font-weight:600;color:#0b1220;">Stage → Qualification</div>
                                     <div style="font-size:12px;color:#6b7280;margin-top:2px;">Sets next step to "Discovery call booked"</div>
                                 </div>
@@ -732,12 +732,12 @@
 
                             <div style="display:flex;align-items:stretch;gap:0;">
                                 <div style="display:flex;flex-direction:column;align-items:center;width:32px;flex-shrink:0;">
-                                    <div style="width:28px;height:28px;border-radius:50%;background:rgba(59,130,246,.12);border:2px solid #3b82f6;display:flex;align-items:center;justify-content:center;">
+                                    <div style="width:28px;height:28px;border-radius:50%;background:rgba(11,18,32,.06);border:2px solid #9ca3af;display:flex;align-items:center;justify-content:center;">
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>
                                     </div>
                                 </div>
                                 <div style="flex:1;background:#fff;border:1px solid #dbeafe;border-radius:12px;padding:14px 16px;margin-left:12px;margin-bottom:8px;">
-                                    <div style="font-size:12px;font-weight:700;color:#3b82f6;margin-bottom:4px;">Update Task</div>
+                                    <div style="font-size:12px;font-weight:700;color:#0b1220;margin-bottom:4px;">Update Task</div>
                                     <div style="font-size:13px;font-weight:600;color:#0b1220;">Status → In Progress</div>
                                     <div style="font-size:12px;color:#6b7280;margin-top:2px;">Sets description to "Customer added to pipeline"</div>
                                 </div>
@@ -763,8 +763,8 @@
 
             <div class="fp-grid">
                 <div class="fp-card fp-animate">
-                    <div class="fp-card-icon" style="background:rgba(139,92,246,.1);">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><circle cx="18.5" cy="9" r="2"/></svg>
+                    <div class="fp-card-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><circle cx="18.5" cy="9" r="2"/></svg>
                     </div>
                     <h4>New Lead Nurture</h4>
                     <p>When a Company is created with type "Prospect" → create an intro task + move linked opportunity to Qualification.</p>
@@ -775,8 +775,8 @@
                 </div>
 
                 <div class="fp-card fp-animate">
-                    <div class="fp-card-icon" style="background:rgba(16,185,129,.1);">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                    <div class="fp-card-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
                     </div>
                     <h4>Deal Stage Advance</h4>
                     <p>When an Opportunity is updated to "Proposal" → create a follow-up task with a 3-day deadline for the deal owner.</p>
@@ -787,7 +787,7 @@
                 </div>
 
                 <div class="fp-card fp-animate">
-                    <div class="fp-card-icon" style="background:rgba(245,158,11,.1);">
+                    <div class="fp-card-icon">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
                     </div>
                     <h4>Task Auto-assign</h4>
@@ -799,7 +799,7 @@
                 </div>
 
                 <div class="fp-card fp-animate">
-                    <div class="fp-card-icon" style="background:rgba(59,130,246,.1);">
+                    <div class="fp-card-icon">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
                     </div>
                     <h4>Post-Call Follow-up</h4>
@@ -811,7 +811,7 @@
                 </div>
 
                 <div class="fp-card fp-animate">
-                    <div class="fp-card-icon" style="background:rgba(239,68,68,.1);">
+                    <div class="fp-card-icon">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                     </div>
                     <h4>Win / Loss Logging</h4>
@@ -823,13 +823,13 @@
                 </div>
 
                 <div class="fp-card fp-animate">
-                    <div class="fp-card-icon" style="background:rgba(139,92,246,.1);">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <div class="fp-card-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     </div>
                     <h4>Build Your Own</h4>
                     <p>Start from a blank canvas and wire up any trigger to any combination of actions. The builder is open — the possibilities aren't limited.</p>
                     <div style="margin-top:16px;display:flex;gap:6px;flex-wrap:wrap;">
-                        <span style="padding:3px 10px;background:rgba(139,92,246,.1);border-radius:100px;font-size:11px;color:#8b5cf6;font-weight:600;">Custom Workflow</span>
+                        <span style="padding:3px 10px;background:rgba(11,18,32,.06);border-radius:100px;font-size:11px;color:#374151;font-weight:600;">Custom Workflow</span>
                     </div>
                 </div>
             </div>
@@ -843,15 +843,15 @@
         <div class="fp-container">
             <div class="fp-stats" style="max-width:800px;">
                 <div class="fp-stat fp-animate" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);">
-                    <div class="fp-stat-num" style="color:#c4b5fd;">3×</div>
+                    <div class="fp-stat-num" style="color:#ffffff;">3×</div>
                     <div class="fp-stat-label" style="color:#9ca3af;">faster lead follow-up when workflows are active</div>
                 </div>
                 <div class="fp-stat fp-animate" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);">
-                    <div class="fp-stat-num" style="color:#c4b5fd;">2h</div>
+                    <div class="fp-stat-num" style="color:#ffffff;">2h</div>
                     <div class="fp-stat-label" style="color:#9ca3af;">saved per rep, per week on manual data entry</div>
                 </div>
                 <div class="fp-stat fp-animate" style="background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);">
-                    <div class="fp-stat-num" style="color:#c4b5fd;">100%</div>
+                    <div class="fp-stat-num" style="color:#ffffff;">100%</div>
                     <div class="fp-stat-label" style="color:#9ca3af;">of runs logged — full audit trail always visible</div>
                 </div>
             </div>
