@@ -119,12 +119,12 @@ async function renderCallLogsView() {
     const contactName = log.people ? log.people.name : log.contact_name;
     const companyName = log.companies ? log.companies.name : log.company_name;
 
-    // Search filter
+    // Search filter — tokenized, searches contact, company, notes, outcome, direction
     if (state.callLogFilters.search) {
-      const searchLower = state.callLogFilters.search.toLowerCase();
-      const matchesContact = (contactName || '').toLowerCase().includes(searchLower);
-      const matchesCompany = (companyName || '').toLowerCase().includes(searchLower);
-      if (!matchesContact && !matchesCompany) return false;
+      if (!matchesTokenizedQuery(
+        state.callLogFilters.search,
+        contactName, companyName, log.notes, log.outcome, log.direction
+      )) return false;
     }
 
     // Direction filter
@@ -140,129 +140,131 @@ async function renderCallLogsView() {
     return true;
   });
 
+  const isFiltered = !!(state.callLogFilters.search || state.callLogFilters.direction || state.callLogFilters.outcome);
+
   let html = `
-        <div class="page-header">
-            <div class="page-header-row">
-                <div class="search-input-wrapper cl-search">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-                    <input type="text" id="call-search" placeholder="Search by contact or company..." value="${state.callLogFilters.search}" class="filter-select search-input-padded">
-                </div>
-                <div class="call-logs-filters">
-                    <select id="call-direction-filter" class="filter-select">
-                        <option value="">All Directions</option>
-                        <option value="Inbound" ${state.callLogFilters.direction === 'Inbound' ? 'selected' : ''}>Inbound</option>
-                        <option value="Outbound" ${state.callLogFilters.direction === 'Outbound' ? 'selected' : ''}>Outbound</option>
-                    </select>
-                    <select id="call-outcome-filter" class="filter-select">
-                        <option value="">All Outcomes</option>
-                        <option value="Connected" ${state.callLogFilters.outcome === 'Connected' ? 'selected' : ''}>Connected</option>
-                        <option value="Voicemail" ${state.callLogFilters.outcome === 'Voicemail' ? 'selected' : ''}>Voicemail</option>
-                        <option value="No Answer" ${state.callLogFilters.outcome === 'No Answer' ? 'selected' : ''}>No Answer</option>
-                        <option value="Busy" ${state.callLogFilters.outcome === 'Busy' ? 'selected' : ''}>Busy</option>
-                        <option value="Wrong Number" ${state.callLogFilters.outcome === 'Wrong Number' ? 'selected' : ''}>Wrong Number</option>
-                        <option value="Call Failed" ${state.callLogFilters.outcome === 'Call Failed' ? 'selected' : ''}>Call Failed</option>
-                    </select>
-                    <button id="clear-filters" class="btn btn-secondary">Clear Filters</button>
-                    ${state.isManager ? `
-                        <div class="view-toggle">
-                            <button class="toggle-btn ${state.managerCallLogViewMode === 'my' ? 'active' : ''}" id="view-my-logs">My Logs</button>
-                            <button class="toggle-btn ${state.managerCallLogViewMode === 'team' ? 'active' : ''}" id="view-team-logs">Team Logs</button>
-                        </div>
-                        ${state.managerCallLogViewMode === 'team' ? `
-                            <select id="rep-filter" class="filter-select">
-                                <option value="">All Representatives</option>
-                                ${reps.map(rep => `
-                                    <option value="${rep.id}" ${state.selectedRepId === rep.id ? 'selected' : ''}>
-                                        ${rep.first_name} ${rep.last_name}
-                                    </option>
-                                `).join('')}
-                            </select>
-                        ` : ''}
-                    ` : ''}
-                    ${(!state.isManager || state.managerCallLogViewMode === 'my') ? `
-                    <button class="btn btn-primary" id="log-call-btn">
-                        <i data-lucide="plus" class="u-icon-16"></i> Log Call
-                    </button>
-                    ` : ''}
-                </div>
-            </div>
+    <div class="page-header">
+      <div class="page-header-row">
+        <div class="search-input-wrapper cl-search">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+          <input type="text" id="call-search" placeholder="Search contacts or companies…" value="${state.callLogFilters.search}" class="filter-select search-input-padded">
         </div>
-
-        <div class="card">
-
-            <div class="table-container">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>DateTime</th>
-                            ${(state.isManager && state.managerCallLogViewMode === 'team') ? '<th>Representative</th>' : ''}
-                            <th>Contact</th>
-                            <th>Company</th>
-                            <th>Direction</th>
-                            <th>Duration</th>
-                            <th>Outcome</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${filteredLogs.length === 0 ? `
-                            <tr>
-                                <td colspan="${(state.isManager && state.managerCallLogViewMode === 'team') ? '8' : '7'}" class="text-center">No call logs found</td>
-                            </tr>
-                        ` : filteredLogs.map(log => {
-    const outcomeClass = (log.outcome || '').toLowerCase().replace(' ', '-');
-    const contactName = log.people ? log.people.name : log.contact_name;
-    const companyName = log.companies ? log.companies.name : log.company_name;
-    const repName = log.profiles ? `${log.profiles.first_name} ${log.profiles.last_name}` : 'Unknown';
-
-    return `
-                                <tr>
-                                    <td>${formatDateWithTime(log.call_at)}</td>
-                                    ${(state.isManager && state.managerCallLogViewMode === 'team') ? `<td>${repName}</td>` : ''}
-                                    <td>${contactName || 'N/A'}</td>
-                                    <td>${companyName || 'N/A'}</td>
-                                    <td>
-                                        <span class="direction-badge ${log.direction === 'Inbound' ? 'inbound' : 'outbound'}">
-                                            ${log.direction === 'Inbound' ? `
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-down-left"><path d="M17 7 7 17"/><path d="M17 17H7V7"/></svg>
-                                            ` : `
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-up-right"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
-                                            `}
-                                            ${log.direction}
-                                        </span>
-                                    </td>
-                                    <td>${log.duration_seconds ? Math.floor(log.duration_seconds / 60) + 'm' : 'N/A'}</td>
-                                    <td>
-                                        <span class="outcome-badge ${outcomeClass}">${log.outcome}</span>
-                                    </td>
-                                    <td>
-                                        <div class="table-actions">
-                                            <button class="action-btn view-call-log" data-id="${log.id}" title="View Log">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
-                                            </button>
-                                            ${(!state.isManager || log.user_id === state.currentUser.id) ? `
-                                            <button class="action-btn edit-call-log" data-id="${log.id}" title="Edit Log">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-pencil"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-                                            </button>
-                                            <button class="action-btn delete-call-log" data-id="${log.id}" title="Delete Log">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
-                                            </button>
-                                            ` : ''}
-                                        </div>
-                                    </td>
-                                </tr>
-                            `;
-  }).join('')}
-                    </tbody>
-                </table>
+        <div class="call-logs-filters">
+          <select id="call-direction-filter" class="filter-select">
+            <option value="">All Directions</option>
+            <option value="Inbound" ${state.callLogFilters.direction === 'Inbound' ? 'selected' : ''}>Inbound</option>
+            <option value="Outbound" ${state.callLogFilters.direction === 'Outbound' ? 'selected' : ''}>Outbound</option>
+          </select>
+          <select id="call-outcome-filter" class="filter-select">
+            <option value="">All Outcomes</option>
+            <option value="Connected" ${state.callLogFilters.outcome === 'Connected' ? 'selected' : ''}>Connected</option>
+            <option value="Voicemail" ${state.callLogFilters.outcome === 'Voicemail' ? 'selected' : ''}>Voicemail</option>
+            <option value="No Answer" ${state.callLogFilters.outcome === 'No Answer' ? 'selected' : ''}>No Answer</option>
+            <option value="Busy" ${state.callLogFilters.outcome === 'Busy' ? 'selected' : ''}>Busy</option>
+            <option value="Wrong Number" ${state.callLogFilters.outcome === 'Wrong Number' ? 'selected' : ''}>Wrong Number</option>
+            <option value="Call Failed" ${state.callLogFilters.outcome === 'Call Failed' ? 'selected' : ''}>Call Failed</option>
+          </select>
+          ${isFiltered ? `<button id="clear-filters" class="btn btn-ghost cl-clear-filters-btn" title="Clear filters"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Clear</button>` : `<button id="clear-filters" class="btn btn-ghost cl-clear-filters-btn" style="display:none"></button>`}
+          ${state.isManager ? `
+            <div class="view-toggle">
+              <button class="toggle-btn ${state.managerCallLogViewMode === 'my' ? 'active' : ''}" id="view-my-logs">My Logs</button>
+              <button class="toggle-btn ${state.managerCallLogViewMode === 'team' ? 'active' : ''}" id="view-team-logs">Team</button>
             </div>
+            ${state.managerCallLogViewMode === 'team' ? `
+              <select id="rep-filter" class="filter-select">
+                <option value="">All Reps</option>
+                ${reps.map(rep => `<option value="${rep.id}" ${state.selectedRepId === rep.id ? 'selected' : ''}>${rep.first_name} ${rep.last_name}</option>`).join('')}
+              </select>
+            ` : ''}
+          ` : ''}
+          ${(!state.isManager || state.managerCallLogViewMode === 'my') ? `
+            <button class="btn btn-primary" id="log-call-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              Log Call
+            </button>
+          ` : ''}
         </div>
-    `;
+      </div>
+    </div>
+
+    ${filteredLogs.length === 0 ? `
+      <div class="cl-empty">
+        <div class="cl-empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.9 12.72a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <div class="cl-empty-title">${isFiltered ? 'No results' : 'No call logs yet'}</div>
+        <div class="cl-empty-desc">${isFiltered ? 'Try adjusting your search or filters.' : 'Start logging your sales calls to track every conversation.'}</div>
+        ${(!state.isManager || state.managerCallLogViewMode === 'my') && !isFiltered ? `
+          <button class="btn btn-primary" id="log-call-btn-empty">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+            Log your first call
+          </button>
+        ` : ''}
+      </div>
+    ` : `
+      <div class="cl-feed">
+        ${filteredLogs.map(log => {
+          const isInbound = log.direction === 'Inbound';
+          const outcomeClass = (log.outcome || '').toLowerCase().replace(/\s+/g, '-');
+          const contactName = log.people ? log.people.name : log.contact_name;
+          const companyName = log.companies ? log.companies.name : log.company_name;
+          const repName = log.profiles ? `${log.profiles.first_name} ${log.profiles.last_name}` : '';
+          const durSecs = log.duration_seconds || 0;
+          const durText = durSecs >= 3600
+            ? `${Math.floor(durSecs / 3600)}h ${Math.floor((durSecs % 3600) / 60)}m`
+            : durSecs >= 60 ? `${Math.floor(durSecs / 60)}m`
+            : durSecs > 0 ? `< 1m` : '';
+          const noteSnippet = log.notes ? log.notes.slice(0, 72) + (log.notes.length > 72 ? '…' : '') : '';
+          const canEdit = !state.isManager || log.user_id === state.currentUser.id;
+
+          return `
+            <div class="cl-row" data-id="${log.id}">
+              <div class="cl-row-dir ${isInbound ? 'cl-row-dir--inbound' : 'cl-row-dir--outbound'}" title="${isInbound ? 'Inbound' : 'Outbound'}">
+                ${isInbound
+                  ? `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M17 7 7 17"/><path d="M17 17H7V7"/></svg>`
+                  : `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>`
+                }
+              </div>
+              <div class="cl-row-body">
+                <div class="cl-row-name">${escapeHtml(contactName || '—')}</div>
+                <div class="cl-row-sub">
+                  ${companyName ? `<span class="cl-row-company">${escapeHtml(companyName)}</span>` : ''}
+                  ${noteSnippet ? `<span class="cl-row-note">${escapeHtml(noteSnippet)}</span>` : ''}
+                </div>
+              </div>
+              ${(state.isManager && state.managerCallLogViewMode === 'team' && repName) ? `
+                <div class="cl-row-rep">${escapeHtml(repName)}</div>
+              ` : ''}
+              <div class="cl-row-meta">
+                <span class="cl-row-time">${formatDateWithTime(log.call_at)}</span>
+                ${durText ? `<span class="cl-row-dur">${durText}</span>` : ''}
+              </div>
+              <span class="outcome-badge ${outcomeClass}">${escapeHtml(log.outcome || '—')}</span>
+              <div class="cl-row-actions">
+                <button class="action-btn view-call-log" data-id="${log.id}" title="View">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+                </button>
+                ${canEdit ? `
+                  <button class="action-btn edit-call-log" data-id="${log.id}" title="Edit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+                  </button>
+                  <button class="action-btn delete-call-log" data-id="${log.id}" title="Delete">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
+                  </button>
+                ` : ''}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `}
+  `;
 
   viewContainer.innerHTML = html;
 
   // Listeners
   document.getElementById('log-call-btn')?.addEventListener('click', () => openCallLogModal());
+  document.getElementById('log-call-btn-empty')?.addEventListener('click', () => openCallLogModal());
 
   document.querySelectorAll('.view-call-log').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -327,9 +329,9 @@ async function renderCallLogsView() {
   });
 
   // Use event delegation for delete button
-  const tableContainer = viewContainer.querySelector('.table-container');
-  if (tableContainer) {
-    tableContainer.addEventListener('click', (e) => {
+  const feedEl = viewContainer.querySelector('.cl-feed');
+  if (feedEl) {
+    feedEl.addEventListener('click', (e) => {
       const deleteBtn = e.target.closest('.delete-call-log');
       if (deleteBtn) {
         e.preventDefault();
@@ -337,7 +339,7 @@ async function renderCallLogsView() {
         deleteCallLog(deleteBtn.dataset.id);
       }
     });
-  };
+  }
 }
 
 async function deleteCallLog(id) {
@@ -388,22 +390,59 @@ function openCallLogViewModal(log) {
     return;
   }
 
-  // Populate view modal
   const contactName = log.people ? log.people.name : log.contact_name;
   const companyName = log.companies ? log.companies.name : log.company_name;
   const repName = log.profiles ? `${log.profiles.first_name} ${log.profiles.last_name}` : 'Unknown';
 
+  // Avatar initials
+  const avatarEl = document.getElementById('clv2-avatar');
+  if (avatarEl) avatarEl.textContent = getInitials(contactName || '?');
+
+  // Hero
+  document.getElementById('view-call-contact').textContent = contactName || '—';
+  document.getElementById('view-call-company').textContent = companyName || '—';
+
+  // Direction badge
+  const dirEl = document.getElementById('view-call-direction');
+  dirEl.textContent = log.direction;
+  dirEl.className = `direction-badge ${log.direction === 'Inbound' ? 'inbound' : 'outbound'}`;
+
+  // Outcome badge
+  const outcomeEl = document.getElementById('view-call-outcome');
+  const outcomeClass = (log.outcome || '').toLowerCase().replace(/\s+/g, '-');
+  outcomeEl.textContent = log.outcome;
+  outcomeEl.className = `outcome-badge ${outcomeClass}`;
+
+  // Detail cells
   document.getElementById('view-call-datetime').textContent = formatDateWithTime(log.call_at);
-  document.getElementById('view-call-contact').textContent = contactName || 'N/A';
-  document.getElementById('view-call-company').textContent = companyName || 'N/A';
+
+  const durSecs = log.duration_seconds || 0;
+  const durText = durSecs >= 3600
+    ? `${Math.floor(durSecs / 3600)}h ${Math.floor((durSecs % 3600) / 60)}m`
+    : durSecs >= 60 ? `${Math.floor(durSecs / 60)} min`
+    : durSecs > 0 ? '< 1 min' : '—';
+  document.getElementById('view-call-duration').textContent = durText;
+
   document.getElementById('view-call-rep').textContent = repName;
-  document.getElementById('view-call-direction').textContent = log.direction;
-  document.getElementById('view-call-direction').className = `direction-badge ${log.direction === 'Inbound' ? 'inbound' : 'outbound'}`;
-  document.getElementById('view-call-duration').textContent = log.duration_seconds ? Math.floor(log.duration_seconds / 60) + ' minutes' : 'N/A';
-  document.getElementById('view-call-outcome').textContent = log.outcome;
-  const outcomeClass = (log.outcome || '').toLowerCase().replace(' ', '-');
-  document.getElementById('view-call-outcome').className = `outcome-badge ${outcomeClass}`;
-  document.getElementById('view-call-notes').textContent = log.notes || 'No notes';
+
+  // Notes
+  const notesEl = document.getElementById('view-call-notes');
+  notesEl.textContent = log.notes || 'No notes recorded.';
+  notesEl.style.fontStyle = log.notes ? 'normal' : 'italic';
+  notesEl.style.color = log.notes ? '' : 'var(--text-muted)';
+
+  // Edit button
+  const editBtn = document.getElementById('clv2-edit-btn');
+  if (editBtn) {
+    const canEdit = !state.isManager || log.user_id === state.currentUser.id;
+    editBtn.style.display = canEdit ? '' : 'none';
+    if (canEdit) {
+      editBtn.onclick = () => {
+        closeModal('call-log-view-modal');
+        setTimeout(() => openCallLogModal(log), 80);
+      };
+    }
+  }
 
   modal.style.display = 'flex';
 }

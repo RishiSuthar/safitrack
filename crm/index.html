@@ -1723,70 +1723,60 @@
   </div>
 
   <div id="call-log-view-modal" class="modal" style="display:none;">
-    <div class="modal-backdrop"></div>
-    <div class="modal-container clv-container">
+    <div class="modal-backdrop" onclick="closeModal('call-log-view-modal')"></div>
+    <div class="modal-container clv2-container">
 
-      <div class="clv-header">
-        <div class="clv-header-inner">
-          <div class="clv-header-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path
-                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.9 12.72a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
-            </svg>
-          </div>
-          <span>Call Details</span>
-        </div>
+      <div class="modal-header">
+        <h3 style="font-size:1rem;font-weight:600;margin:0;color:var(--text-primary)">Call Details</h3>
         <button class="modal-close" onclick="closeModal('call-log-view-modal')">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
+            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18" /><path d="m6 6 12 12" />
           </svg>
         </button>
       </div>
 
-      <div class="clv-hero">
-        <div id="view-call-outcome" class="outcome-badge"></div>
-        <div id="view-call-direction" class="direction-badge"></div>
-        <div class="clv-hero-time">
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12,6 12,12 16,14" />
-          </svg>
-          <span id="view-call-datetime"></span>
+      <!-- Hero: avatar + contact name + company + badges -->
+      <div class="clv2-hero">
+        <div class="clv2-avatar" id="clv2-avatar">?</div>
+        <div class="clv2-hero-info">
+          <div class="clv2-name" id="view-call-contact">—</div>
+          <div class="clv2-company" id="view-call-company">—</div>
+        </div>
+        <div class="clv2-badges">
+          <span id="view-call-outcome" class="outcome-badge"></span>
+          <span id="view-call-direction" class="direction-badge"></span>
         </div>
       </div>
 
-      <div class="clv-body">
-        <div class="clv-grid">
-          <div class="clv-item">
-            <div class="clv-item-label">Contact</div>
-            <div class="clv-item-value" id="view-call-contact"></div>
-          </div>
-          <div class="clv-item">
-            <div class="clv-item-label">Company</div>
-            <div class="clv-item-value" id="view-call-company"></div>
-          </div>
-          <div class="clv-item">
-            <div class="clv-item-label">Representative</div>
-            <div class="clv-item-value" id="view-call-rep"></div>
-          </div>
-          <div class="clv-item">
-            <div class="clv-item-label">Duration</div>
-            <div class="clv-item-value" id="view-call-duration"></div>
-          </div>
+      <!-- Detail cells -->
+      <div class="clv2-grid">
+        <div class="clv2-cell">
+          <span class="clv2-cell-label">Date &amp; Time</span>
+          <span class="clv2-cell-value" id="view-call-datetime">—</span>
         </div>
-
-        <div class="clv-notes">
-          <div class="clv-notes-label">Notes</div>
-          <div class="clv-notes-value" id="view-call-notes"></div>
+        <div class="clv2-cell">
+          <span class="clv2-cell-label">Duration</span>
+          <span class="clv2-cell-value" id="view-call-duration">—</span>
+        </div>
+        <div class="clv2-cell">
+          <span class="clv2-cell-label">Representative</span>
+          <span class="clv2-cell-value" id="view-call-rep">—</span>
         </div>
       </div>
 
-      <div class="clv-footer">
+      <!-- Notes -->
+      <div class="clv2-notes">
+        <div class="clv2-notes-label">Notes</div>
+        <div class="clv2-notes-body" id="view-call-notes">—</div>
+      </div>
+
+      <div class="modal-footer clv2-footer">
         <button class="btn btn-ghost" onclick="closeModal('call-log-view-modal')">Close</button>
+        <button class="btn btn-secondary" id="clv2-edit-btn" style="display:none">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
+          Edit
+        </button>
       </div>
 
     </div>
@@ -2137,145 +2127,113 @@
 
   <div id="call-log-modal" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>
-    <div class="modal-container modal-size-xl">
+    <div class="modal-container">
 
-      <div class="modal-header clm-header">
-        <div class="clm-header-inner">
-          <h3 id="call-log-modal-title">Log New Call</h3>
-        </div>
+      <div class="modal-header">
+        <h3 id="call-log-modal-title" style="font-size:1rem;font-weight:600;margin:0;color:var(--text-primary)">Log New Call</h3>
         <button class="modal-close" onclick="closeModal('call-log-modal')">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
+            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 6 6 18" /><path d="m6 6 12 12" />
           </svg>
         </button>
       </div>
 
-      <div class="modal-body clm-body">
+      <div class="modal-body">
+        <div class="form-section">
 
-        <!-- Row 1: Contact + Company -->
-        <div class="clm-row-2">
-          <div class="clm-field">
-            <label class="clm-label">
-              Contact <span class="required-indicator">(required)</span>
-            </label>
-            <div class="search-input-group">
-              <input type="text" id="call-contact-input" class="clm-input" placeholder="Search or type a name…"
-                autocomplete="off">
-              <div id="call-contact-results" class="live-search-results"></div>
-            </div>
-            <input type="hidden" id="call-contact-id">
-          </div>
-
-          <div class="clm-field">
-            <label class="clm-label">
-              Company
-            </label>
-            <div class="search-input-group">
-              <input type="text" id="call-company-input" class="clm-input" placeholder="Search or type a company…"
-                autocomplete="off">
-              <div id="call-company-results" class="live-search-results"></div>
-            </div>
-            <input type="hidden" id="call-company-id">
-          </div>
-        </div>
-
-        <!-- Row 2: Direction chips + Date/Time + Duration -->
-        <div class="clm-meta-row">
-          <div class="clm-field clm-field--direction">
-            <label class="clm-label">Direction</label>
-            <div class="clm-direction-group">
-              <label class="clm-dir-option">
-                <input type="radio" name="call-direction-radio" value="Outbound" id="call-dir-out" checked>
-                <span class="clm-dir-chip">
-                  Outbound
-                </span>
+          <!-- Contact + Company -->
+          <div class="field-group" style="margin-bottom:0.875rem">
+            <div class="form-field" style="margin-bottom:0">
+              <label for="call-contact-input">
+                Contact <span class="required-indicator">(required)</span>
               </label>
-              <label class="clm-dir-option">
-                <input type="radio" name="call-direction-radio" value="Inbound" id="call-dir-in">
-                <span class="clm-dir-chip">
-                  Inbound
-                </span>
+              <div class="search-input-group">
+                <input type="text" id="call-contact-input" placeholder="Search or type a name…" autocomplete="off">
+                <div id="call-contact-results" class="live-search-results"></div>
+              </div>
+              <input type="hidden" id="call-contact-id">
+            </div>
+            <div class="form-field" style="margin-bottom:0">
+              <label for="call-company-input">Company</label>
+              <div class="search-input-group">
+                <input type="text" id="call-company-input" placeholder="Search or type a company…" autocomplete="off">
+                <div id="call-company-results" class="live-search-results"></div>
+              </div>
+              <input type="hidden" id="call-company-id">
+            </div>
+          </div>
+
+          <!-- Direction + Date + Duration -->
+          <div class="field-group-3" style="margin-bottom:0.875rem">
+            <div class="form-field" style="margin-bottom:0">
+              <label>Direction</label>
+              <div class="clm-direction-group">
+                <label class="clm-dir-option">
+                  <input type="radio" name="call-direction-radio" value="Outbound" id="call-dir-out" checked>
+                  <span class="clm-dir-chip">Outbound</span>
+                </label>
+                <label class="clm-dir-option">
+                  <input type="radio" name="call-direction-radio" value="Inbound" id="call-dir-in">
+                  <span class="clm-dir-chip">Inbound</span>
+                </label>
+              </div>
+              <select id="call-direction" style="display:none;">
+                <option value="Outbound">Outbound</option>
+                <option value="Inbound">Inbound</option>
+              </select>
+            </div>
+            <div class="form-field" style="margin-bottom:0">
+              <label for="call-datetime">Date &amp; Time</label>
+              <input type="datetime-local" id="call-datetime">
+            </div>
+            <div class="form-field" style="margin-bottom:0">
+              <label for="call-duration">Duration (min)</label>
+              <input type="number" id="call-duration" placeholder="e.g. 5" min="0">
+            </div>
+          </div>
+
+          <!-- Outcome -->
+          <div class="form-field" style="margin-bottom:0.875rem">
+            <label>Outcome <span class="required-indicator">(required)</span></label>
+            <div class="clm-outcome-grid" id="call-outcome-options">
+              <label class="clm-outcome-option">
+                <input type="radio" name="call-outcome" value="Connected">
+                <span class="clm-outcome-chip clm-outcome--connected">Connected</span>
+              </label>
+              <label class="clm-outcome-option">
+                <input type="radio" name="call-outcome" value="Voicemail">
+                <span class="clm-outcome-chip clm-outcome--voicemail">Voicemail</span>
+              </label>
+              <label class="clm-outcome-option">
+                <input type="radio" name="call-outcome" value="No Answer">
+                <span class="clm-outcome-chip clm-outcome--noanswer">No Answer</span>
+              </label>
+              <label class="clm-outcome-option">
+                <input type="radio" name="call-outcome" value="Busy">
+                <span class="clm-outcome-chip clm-outcome--busy">Busy</span>
+              </label>
+              <label class="clm-outcome-option">
+                <input type="radio" name="call-outcome" value="Wrong Number">
+                <span class="clm-outcome-chip clm-outcome--wrong">Wrong Number</span>
+              </label>
+              <label class="clm-outcome-option">
+                <input type="radio" name="call-outcome" value="Call Failed">
+                <span class="clm-outcome-chip clm-outcome--failed">Call Failed</span>
               </label>
             </div>
-            <!-- hidden select kept for saveCallLog compatibility -->
-            <select id="call-direction" style="display:none;">
-              <option value="Outbound">Outbound</option>
-              <option value="Inbound">Inbound</option>
-            </select>
           </div>
 
-          <div class="clm-field">
-            <label class="clm-label" for="call-datetime">
-              Date &amp; Time
-            </label>
-            <input type="datetime-local" id="call-datetime" class="clm-input">
+          <!-- Notes -->
+          <div class="form-field" style="margin-bottom:0">
+            <label for="call-notes">Notes</label>
+            <textarea id="call-notes" rows="3" placeholder="What was discussed?"></textarea>
           </div>
 
-          <div class="clm-field">
-            <label class="clm-label" for="call-duration">
-              Duration (min)
-            </label>
-            <input type="number" id="call-duration" class="clm-input" placeholder="e.g. 5" min="0">
-          </div>
         </div>
-
-        <!-- Row 3: Outcome -->
-        <div class="clm-field">
-          <label class="clm-label">Outcome <span class="required-indicator">(required)</span></label>
-          <div class="clm-outcome-grid" id="call-outcome-options">
-            <label class="clm-outcome-option">
-              <input type="radio" name="call-outcome" value="Connected">
-              <span class="clm-outcome-chip clm-outcome--connected">
-                Connected
-              </span>
-            </label>
-            <label class="clm-outcome-option">
-              <input type="radio" name="call-outcome" value="Voicemail">
-              <span class="clm-outcome-chip clm-outcome--voicemail">
-                Voicemail
-              </span>
-            </label>
-            <label class="clm-outcome-option">
-              <input type="radio" name="call-outcome" value="No Answer">
-              <span class="clm-outcome-chip clm-outcome--noanswer">
-                No Answer
-              </span>
-            </label>
-            <label class="clm-outcome-option">
-              <input type="radio" name="call-outcome" value="Busy">
-              <span class="clm-outcome-chip clm-outcome--busy">
-                Busy
-              </span>
-            </label>
-            <label class="clm-outcome-option">
-              <input type="radio" name="call-outcome" value="Wrong Number">
-              <span class="clm-outcome-chip clm-outcome--wrong">
-                Wrong Number
-              </span>
-            </label>
-            <label class="clm-outcome-option">
-              <input type="radio" name="call-outcome" value="Call Failed">
-              <span class="clm-outcome-chip clm-outcome--failed">
-                Call Failed
-              </span>
-            </label>
-          </div>
-        </div>
-
-        <!-- Row 4: Notes -->
-        <div class="clm-field">
-          <label class="clm-label" for="call-notes">
-            Notes
-          </label>
-          <textarea id="call-notes" class="clm-input clm-textarea" rows="3"
-            placeholder="What was discussed?"></textarea>
-        </div>
-
       </div>
 
-      <div class="modal-footer clm-footer">
+      <div class="modal-footer">
         <button class="btn btn-ghost" onclick="closeModal('call-log-modal')">Cancel</button>
         <button class="btn btn-primary" id="save-call-log-btn">Save Log</button>
       </div>

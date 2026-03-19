@@ -778,6 +778,29 @@
   .filter-actions {
     width: 100%;
   }
+  /* Feed rows on small screens */
+  .cl-feed {
+    border-radius: var(--radius-md);
+  }
+  .cl-row {
+    padding: 0.625rem 0.75rem;
+    gap: 0.625rem;
+  }
+  .cl-row-dir {
+    width: 28px;
+    height: 28px;
+  }
+  .cl-row-meta {
+    display: none;
+  }
+  .cl-row-actions {
+    opacity: 1;
+  }
+  .cl-row > .outcome-badge {
+    min-width: unset;
+    font-size: 0.65rem;
+    padding: 0.15rem 0.45rem;
+  }
   .search-input-wrapper {
     width: 100%;
   }
