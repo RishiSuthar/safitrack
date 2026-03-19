@@ -12347,6 +12347,10 @@ body.is-dragging * {
   transform: scale(0.95);
 }
 
+.action-btn svg {
+  stroke-width: 1.5;
+}
+
 .company-description,
 .person-details {
   font-size: 0.9375rem;
