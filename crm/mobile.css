@@ -2488,6 +2488,28 @@
     height: 36px;
     border-radius: var(--radius-lg);
   }
+
+  .record-stats-bar {
+    flex-wrap: wrap;
+  }
+
+  .record-stat-item {
+    flex: 1 1 calc(50% - 1px);
+    min-width: calc(50% - 1px);
+    padding: 10px 6px;
+  }
+
+  .record-stat-value {
+    font-size: 1rem;
+  }
+
+  .record-quick-actions {
+    justify-content: center;
+  }
+
+  .record-tab-count {
+    display: none;
+  }
 }
 
 /* ──────────────────────────────────────────────────────────────

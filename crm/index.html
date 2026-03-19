@@ -1812,13 +1812,32 @@
             </svg>
           </button>
           <button class="modal-close" onclick="closeModal('company-view-modal')" title="Close">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-x-icon lucide-x">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 6 6 18" />
               <path d="m6 6 12 12" />
             </svg>
           </button>
+        </div>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="record-stats-bar" id="company-view-stats">
+        <div class="record-stat-item">
+          <div class="record-stat-value" id="company-stat-pipeline">—</div>
+          <div class="record-stat-label">Pipeline Value</div>
+        </div>
+        <div class="record-stat-item">
+          <div class="record-stat-value record-stat-value--primary" id="company-stat-opps">—</div>
+          <div class="record-stat-label">Opportunities</div>
+        </div>
+        <div class="record-stat-item">
+          <div class="record-stat-value" id="company-stat-people">—</div>
+          <div class="record-stat-label">People</div>
+        </div>
+        <div class="record-stat-item">
+          <div class="record-stat-value" id="company-stat-activity">—</div>
+          <div class="record-stat-label">Last Activity</div>
         </div>
       </div>
 
@@ -1830,10 +1849,11 @@
           <div class="record-tabs">
             <button class="record-tab company-view-tab active" data-tab="opps">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
+                <line x1="12" y1="1" x2="12" y2="23" />
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
               </svg>
               Opportunities
+              <span class="record-tab-count" id="company-tab-opps-count">0</span>
             </button>
             <button class="record-tab company-view-tab" data-tab="employees">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1843,6 +1863,7 @@
                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
               People
+              <span class="record-tab-count" id="company-tab-people-count">0</span>
             </button>
             <button class="record-tab company-view-tab" data-tab="calls">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1850,6 +1871,7 @@
                   d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
               </svg>
               Call Logs
+              <span class="record-tab-count" id="company-tab-calls-count">0</span>
             </button>
             <button class="record-tab company-view-tab" data-tab="visits">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1857,6 +1879,7 @@
                 <circle cx="12" cy="10" r="3" />
               </svg>
               Visits
+              <span class="record-tab-count" id="company-tab-visits-count">0</span>
             </button>
           </div>
 
@@ -1870,6 +1893,7 @@
 
         <!-- Right: Sidebar info fields -->
         <aside class="record-sidebar">
+          <div class="record-quick-actions" id="company-view-quick-actions"></div>
           <div class="record-sidebar-section">
             <div class="record-sidebar-title">Details</div>
             <div class="record-field-card">
@@ -2018,7 +2042,7 @@
           <div class="record-hero-meta-row">
             <span class="record-hero-subtitle" id="person-view-hero-subtitle"></span>
           </div>
-          <div class="record-hero-contact-chips" id="person-view-hero-chips"></div>
+          <div class="record-hero-contact-chips" id="person-view-hero-chips" style="display:none;"></div>
         </div>
         <div class="record-hero-actions">
           <button class="record-hero-edit-btn" id="person-view-edit-btn" title="Edit person" aria-label="Edit person">
@@ -2029,13 +2053,32 @@
             </svg>
           </button>
           <button class="modal-close" onclick="closeModal('person-view-modal')" title="Close">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-x-icon lucide-x">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 6 6 18" />
               <path d="m6 6 12 12" />
             </svg>
           </button>
+        </div>
+      </div>
+
+      <!-- Stats Bar -->
+      <div class="record-stats-bar" id="person-view-stats">
+        <div class="record-stat-item">
+          <div class="record-stat-value" id="person-stat-pipeline">—</div>
+          <div class="record-stat-label">Pipeline Value</div>
+        </div>
+        <div class="record-stat-item">
+          <div class="record-stat-value record-stat-value--primary" id="person-stat-opps">—</div>
+          <div class="record-stat-label">Opportunities</div>
+        </div>
+        <div class="record-stat-item">
+          <div class="record-stat-value" id="person-stat-calls">—</div>
+          <div class="record-stat-label">Calls</div>
+        </div>
+        <div class="record-stat-item">
+          <div class="record-stat-value" id="person-stat-activity">—</div>
+          <div class="record-stat-label">Last Activity</div>
         </div>
       </div>
 
@@ -2047,20 +2090,39 @@
           <div class="record-tabs">
             <button class="record-tab person-view-tab active" data-tab="opps">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10" />
-                <polyline points="12 6 12 12 16 14" />
+                <line x1="12" y1="1" x2="12" y2="23" />
+                <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
               </svg>
               Opportunities
+              <span class="record-tab-count" id="person-tab-opps-count">0</span>
+            </button>
+            <button class="record-tab person-view-tab" data-tab="calls">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
+              </svg>
+              Call Logs
+              <span class="record-tab-count" id="person-tab-calls-count">0</span>
+            </button>
+            <button class="record-tab person-view-tab" data-tab="visits">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              Visits
+              <span class="record-tab-count" id="person-tab-visits-count">0</span>
             </button>
           </div>
 
           <div class="record-tab-panels">
             <div id="person-view-opps" class="record-tab-panel"></div>
+            <div id="person-view-calls" class="record-tab-panel" style="display:none;"></div>
+            <div id="person-view-visits" class="record-tab-panel" style="display:none;"></div>
           </div>
         </div>
 
         <!-- Right: Sidebar info fields -->
         <aside class="record-sidebar">
+
           <div class="record-sidebar-section">
             <div class="record-sidebar-title">Contact Info</div>
             <div class="record-field-card">

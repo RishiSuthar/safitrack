@@ -20041,8 +20041,7 @@ button svg {
 
 .record-hero-avatar--person {
   border-radius: 50%;
-  background: linear-gradient(135deg, #7c3aed, #a78bfa);
-  box-shadow: 0 4px 16px rgba(124, 58, 237, 0.3);
+  background: var(--color-primary);
 }
 
 .record-hero-info {
@@ -20216,6 +20215,14 @@ button svg {
   justify-content: center;
 }
 
+.record-hero-actions .modal-close {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
 .record-hero-edit-btn:hover {
   background: var(--color-primary);
   color: #fff;
@@ -20224,8 +20231,8 @@ button svg {
 
 #company-view-edit-btn:hover,
 #person-view-edit-btn:hover {
-  background: #ef4444;
-  border-color: #ef4444;
+  background: var(--color-primary);
+  border-color: var(--color-primary);
   color: #fff;
 }
 
@@ -20739,6 +20746,217 @@ button svg {
   line-height: 1.5;
 }
 
+/* ==========================================================================
+   RECORD VIEW MODAL — REVAMP ENHANCEMENTS
+   ========================================================================== */
+
+
+
+/* ── Stats Bar ── */
+.record-stats-bar {
+  display: flex;
+  align-items: stretch;
+  gap: 1px;
+  padding: 0;
+  background: var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.record-stat-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 8px;
+  background: var(--bg-primary);
+  gap: 2px;
+  min-width: 0;
+  transition: background 0.15s;
+}
+
+.record-stat-item:first-child {
+  border-radius: 0;
+}
+
+.record-stat-item:hover {
+  background: var(--bg-secondary);
+}
+
+.record-stat-value {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.record-stat-value--primary {
+  color: var(--color-primary);
+}
+
+.record-stat-value--success {
+  color: #22c55e;
+}
+
+.record-stat-value--warning {
+  color: #f59e0b;
+}
+
+.record-stat-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+/* ── Tab count badges ── */
+.record-tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 100px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  background: var(--bg-secondary);
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  margin-left: 4px;
+  line-height: 1;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.record-tab.active .record-tab-count {
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: var(--color-primary);
+  border-color: color-mix(in srgb, var(--color-primary) 25%, transparent);
+}
+
+/* ── Quick Actions in sidebar ── */
+.record-quick-actions {
+  display: flex;
+  gap: 6px;
+  padding: 0 0 12px;
+  flex-wrap: wrap;
+}
+
+.record-quick-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.record-quick-action svg {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+
+.record-quick-action:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary) 6%, transparent);
+  transform: translateY(-1px);
+}
+
+.record-quick-action--email:hover {
+  border-color: #3b82f6;
+  color: #3b82f6;
+  background: color-mix(in srgb, #3b82f6 6%, transparent);
+}
+
+.record-quick-action--call:hover {
+  border-color: #22c55e;
+  color: #22c55e;
+  background: color-mix(in srgb, #22c55e 6%, transparent);
+}
+
+.record-quick-action--directions:hover {
+  border-color: #f59e0b;
+  color: #f59e0b;
+  background: color-mix(in srgb, #f59e0b 6%, transparent);
+}
+
+/* ── Last Activity indicator in hero ── */
+.record-hero-last-activity {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.record-hero-last-activity-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
+}
+
+.record-hero-last-activity-dot--stale {
+  background: #f59e0b;
+}
+
+.record-hero-last-activity-dot--cold {
+  background: #ef4444;
+}
+
+/* ── Enhanced tab panel transitions ── */
+.record-tab-panel {
+  animation: recordTabFadeIn 0.2s ease;
+}
+
+@keyframes recordTabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ── Improved sidebar section dividers ── */
+.record-sidebar-section + .record-sidebar-section {
+  border-top: 1px solid var(--border-color);
+  padding-top: 12px;
+}
+
+
+
+/* ── Better edit button states ── */
+#company-view-edit-btn:hover,
+#person-view-edit-btn:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
 /* ── Dark mode tweaks ── */
 [data-theme="dark"] .record-modal-panel {
   background: var(--bg-secondary);
@@ -20764,6 +20982,18 @@ button svg {
 
 [data-theme="dark"] .record-hero-close-btn {
   background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .record-stat-item {
+  background: var(--bg-primary);
+}
+
+[data-theme="dark"] .record-stat-item:hover {
+  background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .record-quick-action {
+  background: var(--bg-primary);
 }
 
 /* ── Mobile responsive ── */

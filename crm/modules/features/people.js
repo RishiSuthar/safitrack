@@ -537,15 +537,6 @@ async function openPersonViewModal(personOrId) {
     }
   }
 
-  // Hero contact chips
-  const personChips = document.getElementById('person-view-hero-chips');
-  if (personChips) {
-    const emailChip = person.email ? `<a class="record-hero-chip" href="mailto:${escapeHtml(person.email)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>${escapeHtml(person.email)}</a>` : '';
-    const phone = person.phone_numbers && Array.isArray(person.phone_numbers) && person.phone_numbers.length ? person.phone_numbers[0] : (person.phone || '');
-    const phoneChip = phone ? `<a class="record-hero-chip" href="tel:${escapeHtml(phone)}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg>${escapeHtml(phone)}</a>` : '';
-    personChips.innerHTML = emailChip + phoneChip;
-  }
-
   // Wire Edit button
   const personEditBtn = document.getElementById('person-view-edit-btn');
   if (personEditBtn) {
@@ -577,12 +568,31 @@ async function openPersonViewModal(personOrId) {
   const titleEl = document.getElementById('person-view-title'); if (titleEl) titleEl.textContent = person.job_title || '—';
   const notesEl = document.getElementById('person-view-notes'); if (notesEl) notesEl.textContent = person.notes || '—';
 
-  // Tab placeholder
+  // Tab placeholders
   document.getElementById('person-view-opps').innerHTML = '<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="record-empty-title">Loading...</div></div>';
+  const personCallsPanel = document.getElementById('person-view-calls');
+  if (personCallsPanel) personCallsPanel.innerHTML = '<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19"/></svg></div><div class="record-empty-title">Loading...</div></div>';
+  const personVisitsPanel = document.getElementById('person-view-visits');
+  if (personVisitsPanel) personVisitsPanel.innerHTML = '<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg></div><div class="record-empty-title">Loading...</div></div>';
+
+  // Reset stats
+  const pipelineStat = document.getElementById('person-stat-pipeline'); if (pipelineStat) pipelineStat.textContent = '—';
+  const oppsStat = document.getElementById('person-stat-opps'); if (oppsStat) oppsStat.textContent = '—';
+  const callsStat = document.getElementById('person-stat-calls'); if (callsStat) callsStat.textContent = '—';
+  const activityStat = document.getElementById('person-stat-activity'); if (activityStat) activityStat.textContent = '—';
+
+  // Reset tab counts
+  ['person-tab-opps-count', 'person-tab-calls-count', 'person-tab-visits-count'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '0'; });
+
+  // Reset tabs to first tab active
+  modal.querySelectorAll('.person-view-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
+  document.getElementById('person-view-opps').style.display = 'block';
+  const personCallsReset = document.getElementById('person-view-calls'); if (personCallsReset) personCallsReset.style.display = 'none';
+  const personVisitsReset = document.getElementById('person-view-visits'); if (personVisitsReset) personVisitsReset.style.display = 'none';
 
   modal.style.display = 'flex';
 
-  // Tab switching
+  // Tab switching (updated for new tabs)
   const personTabs = modal.querySelectorAll('.person-view-tab');
   personTabs.forEach(tab => {
     tab.onclick = () => {
@@ -590,24 +600,62 @@ async function openPersonViewModal(personOrId) {
       tab.classList.add('active');
       const name = tab.dataset.tab;
       document.getElementById('person-view-opps').style.display = name === 'opps' ? 'block' : 'none';
+      const callsEl = document.getElementById('person-view-calls');
+      if (callsEl) callsEl.style.display = name === 'calls' ? 'block' : 'none';
+      const visitsEl = document.getElementById('person-view-visits');
+      if (visitsEl) visitsEl.style.display = name === 'visits' ? 'block' : 'none';
     };
   });
 
-  // Populate Opportunities for this person (use attached object or fetch by id)
+  // Fetch all related data in parallel
   (async () => {
-    const oppsEl = document.getElementById('person-view-opps');
     try {
-      let opps = [];
+      // Build opportunity queries
+      const oppQueries = [];
       if (person.opportunity && person.opportunity.id) {
-        // If person.opportunity is present but likely a minimal object, fetch full opportunity
-        const { data, error } = await supabaseClient.from('opportunities').select('*').eq('id', person.opportunity.id).single();
-        if (!error && data) opps = [data];
+        oppQueries.push(supabaseClient.from('opportunities').select('*').eq('id', person.opportunity.id));
       } else if (person.opportunity_id) {
-        const { data, error } = await supabaseClient.from('opportunities').select('*').eq('id', person.opportunity_id).limit(1);
-        if (!error && data && data.length) opps = data;
+        oppQueries.push(supabaseClient.from('opportunities').select('*').eq('id', person.opportunity_id).limit(1));
+      }
+      oppQueries.push(supabaseClient.from('opportunities').select('*').or(`contact_id.eq.${person.id},person_id.eq.${person.id}`).limit(50));
+
+      const [callsResult, visitsResult, ...oppResults] = await Promise.all([
+        supabaseClient.from('call_logs').select('*, people(*), profiles(*)').eq('person_id', person.id).order('call_at', { ascending: false }).limit(50),
+        supabaseClient.from('visits').select('*, user:profiles(first_name,last_name)').eq('person_id', person.id).order('created_at', { ascending: false }).limit(10),
+        ...oppQueries
+      ]);
+
+      // Dedupe opportunities
+      const oppMap = new Map();
+      oppResults.forEach(r => { (r.data || []).forEach(o => { if (o && o.id) oppMap.set(String(o.id), o); }); });
+      const opps = Array.from(oppMap.values());
+      const calls = callsResult.data || [];
+      const visits = visitsResult.data || [];
+
+      // ── Populate Stats Bar ──
+      const totalPipeline = opps.reduce((sum, o) => sum + (parseFloat(o.value || o.amount || 0) || 0), 0);
+      if (pipelineStat) pipelineStat.textContent = totalPipeline ? `${getCurrencySymbol()} ${totalPipeline.toLocaleString()}` : '0';
+      if (oppsStat) oppsStat.textContent = String(opps.length);
+      if (callsStat) callsStat.textContent = String(calls.length);
+
+      // Determine last activity
+      const dates = [];
+      if (calls.length) dates.push(new Date(calls[0].call_at));
+      if (visits.length) dates.push(new Date(visits[0].created_at));
+      opps.forEach(o => { if (o.updated_at) dates.push(new Date(o.updated_at)); });
+      if (dates.length) {
+        const latest = new Date(Math.max(...dates.map(d => d.getTime())));
+        const daysAgo = Math.floor((Date.now() - latest.getTime()) / (1000 * 60 * 60 * 24));
+        if (activityStat) activityStat.textContent = daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : `${daysAgo}d ago`;
       }
 
-      // If still empty, try to find opportunities that reference this person by contact or person id
+      // ── Update Tab Counts ──
+      const oppsCountEl = document.getElementById('person-tab-opps-count'); if (oppsCountEl) oppsCountEl.textContent = String(opps.length);
+      const callsCountEl = document.getElementById('person-tab-calls-count'); if (callsCountEl) callsCountEl.textContent = String(calls.length);
+      const visitsCountEl = document.getElementById('person-tab-visits-count'); if (visitsCountEl) visitsCountEl.textContent = String(visits.length);
+
+      // ── Render Opportunities Tab ──
+      const oppsEl = document.getElementById('person-view-opps');
       if (opps.length === 0 && person.id) {
         const { data, error } = await supabaseClient.from('opportunities').select('*').or(`contact_id.eq.${person.id},person_id.eq.${person.id}`).limit(50);
         if (!error && data && data.length) opps = data;
@@ -656,9 +704,60 @@ async function openPersonViewModal(personOrId) {
           });
         });
       }
+
+      // ── Render Call Logs Tab ──
+      const personCallsEl = document.getElementById('person-view-calls');
+      if (personCallsEl) {
+        if (!calls || calls.length === 0) {
+          personCallsEl.innerHTML = `<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg></div><div class="record-empty-title">No call logs</div><div class="record-empty-desc">No call records found for this person.</div></div>`;
+        } else {
+          personCallsEl.innerHTML = calls.map(log => {
+            const isInbound = (log.direction || '').toLowerCase() === 'inbound';
+            const phoneIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3"/></svg>`;
+            const repName = escapeHtml(log.profiles ? `${log.profiles.first_name || ''} ${log.profiles.last_name || ''}`.trim() : '');
+            return `
+              <div class="record-call-row" data-id="${log.id}">
+                <div class="record-call-icon${isInbound ? ' record-call-icon--inbound' : ''}">${phoneIcon}</div>
+                <div class="record-call-body">
+                  <div class="record-call-contact">${escapeHtml(log.company_name || log.notes || 'Call')}</div>
+                  <div class="record-call-meta">${typeof formatDateWithTime === 'function' ? formatDateWithTime(log.call_at) : new Date(log.call_at).toLocaleDateString()}${repName ? ` · ${repName}` : ''}</div>
+                </div>
+                <div class="record-call-right">
+                  <span class="record-call-outcome-pill">${escapeHtml(log.outcome || 'N/A')}</span>
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
+      // ── Render Visits Tab ──
+      const personVisitsEl = document.getElementById('person-view-visits');
+      if (personVisitsEl) {
+        if (!visits || visits.length === 0) {
+          personVisitsEl.innerHTML = `<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="record-empty-title">No recent visits</div><div class="record-empty-desc">No visits have been recorded for this person yet.</div></div>`;
+        } else {
+          const pinSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
+          personVisitsEl.innerHTML = visits.map(v => {
+            const repName = v.user ? `${v.user.first_name || ''} ${v.user.last_name || ''}`.trim() : '';
+            return `
+              <div class="record-visit-row" data-id="${v.id}">
+                <div class="record-visit-dot">${pinSvg}</div>
+                <div class="record-visit-body">
+                  <div class="record-visit-type">${escapeHtml(v.contact_name || v.visit_type || 'Visit')}</div>
+                  <div class="record-visit-meta">${escapeHtml(v.visit_type || '')} · ${typeof formatDate === 'function' ? formatDate(v.created_at) : new Date(v.created_at).toLocaleDateString()}${repName ? ` · ${escapeHtml(repName)}` : ''}</div>
+                  ${v.notes ? `<div class="record-visit-notes">${escapeHtml(v.notes)}</div>` : ''}
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
     } catch (e) {
-      oppsEl.innerHTML = '<div class="text-center p-6">Error loading opportunities</div>';
-      crmDebugLog('person-view-opps-error', e);
+      const oppsEl = document.getElementById('person-view-opps');
+      if (oppsEl) oppsEl.innerHTML = '<div class="text-center p-6">Error loading data</div>';
+      crmDebugLog('person-view-data-error', e);
     }
   })();
 

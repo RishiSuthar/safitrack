@@ -807,6 +807,17 @@ async function openCompanyViewModal(companyOrId) {
   document.getElementById('company-view-calls').innerHTML = '<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19"/></svg></div><div class="record-empty-title">Loading...</div></div>';
   document.getElementById('company-view-visits').innerHTML = '<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg></div><div class="record-empty-title">Loading...</div></div>';
 
+  // Reset stats bar and tab counts
+  ['company-stat-pipeline', 'company-stat-opps', 'company-stat-people', 'company-stat-activity'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '—'; });
+  ['company-tab-opps-count', 'company-tab-people-count', 'company-tab-calls-count', 'company-tab-visits-count'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '0'; });
+
+  // Reset tabs to first tab active
+  modal.querySelectorAll('.company-view-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
+  document.getElementById('company-view-opps').style.display = 'block';
+  const empResetEl = document.getElementById('company-view-employees'); if (empResetEl) empResetEl.style.display = 'none';
+  document.getElementById('company-view-calls').style.display = 'none';
+  document.getElementById('company-view-visits').style.display = 'none';
+
   modal.style.display = 'flex';
 
   // Tab switching for the company view modal
@@ -867,6 +878,52 @@ async function openCompanyViewModal(companyOrId) {
     } catch (err) {
       crmDebugLog('company-view-people-fallback-error', err);
     }
+  }
+
+  // ── Populate Stats Bar ──
+  try {
+    const totalPipeline = opportunities.reduce((sum, o) => sum + (parseFloat(o.value || o.amount || 0) || 0), 0);
+    const pipelineStatEl = document.getElementById('company-stat-pipeline');
+    if (pipelineStatEl) pipelineStatEl.textContent = totalPipeline ? `${getCurrencySymbol()} ${totalPipeline.toLocaleString()}` : '0';
+    const oppsStatEl = document.getElementById('company-stat-opps');
+    if (oppsStatEl) oppsStatEl.textContent = String(opportunities.length);
+    const peopleStatEl = document.getElementById('company-stat-people');
+    if (peopleStatEl) peopleStatEl.textContent = String(employees.length);
+
+    // Determine last activity date
+    const activityDates = [];
+    if (calls.length && calls[0].call_at) activityDates.push(new Date(calls[0].call_at));
+    if (visits.length && visits[0].created_at) activityDates.push(new Date(visits[0].created_at));
+    opportunities.forEach(o => { if (o.updated_at) activityDates.push(new Date(o.updated_at)); });
+    const activityStatEl = document.getElementById('company-stat-activity');
+    if (activityDates.length && activityStatEl) {
+      const latest = new Date(Math.max(...activityDates.map(d => d.getTime())));
+      const daysAgo = Math.floor((Date.now() - latest.getTime()) / (1000 * 60 * 60 * 24));
+      activityStatEl.textContent = daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : `${daysAgo}d ago`;
+    }
+  } catch (statsErr) {
+    crmDebugLog('company-view-stats-error', statsErr);
+  }
+
+  // ── Update Tab Count Badges ──
+  const companyOppsCountEl = document.getElementById('company-tab-opps-count'); if (companyOppsCountEl) companyOppsCountEl.textContent = String(opportunities.length);
+  const companyPeopleCountEl = document.getElementById('company-tab-people-count'); if (companyPeopleCountEl) companyPeopleCountEl.textContent = String(employees.length);
+  const companyCallsCountEl = document.getElementById('company-tab-calls-count'); if (companyCallsCountEl) companyCallsCountEl.textContent = String(calls.length);
+  const companyVisitsCountEl = document.getElementById('company-tab-visits-count'); if (companyVisitsCountEl) companyVisitsCountEl.textContent = String(visits.length);
+
+  // ── Quick Action Buttons in Sidebar ──
+  const companyQuickActions = document.getElementById('company-view-quick-actions');
+  if (companyQuickActions) {
+    let actionsHtml = '';
+    if (company.address && company.latitude && company.longitude) {
+      actionsHtml += `<a class="record-quick-action record-quick-action--directions" href="https://www.google.com/maps/dir/?api=1&destination=${company.latitude},${company.longitude}" target="_blank" rel="noopener noreferrer" title="Get directions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Directions</a>`;
+    }
+    if (company.domain) {
+      let domainUrl = String(company.domain).trim();
+      if (!/^https?:\/\//i.test(domainUrl)) domainUrl = 'https://' + domainUrl;
+      actionsHtml += `<a class="record-quick-action" href="${domainUrl.replace(/"/g, '&quot;')}" target="_blank" rel="noopener noreferrer" title="Visit website"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Website</a>`;
+    }
+    companyQuickActions.innerHTML = actionsHtml;
   }
 
   // Render a richer summary area with avatar, key stats and actions
