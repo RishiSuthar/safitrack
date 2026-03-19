@@ -7,9 +7,9 @@
    Each page sets  --accent  on :root            */
 
 :root {
-    --accent: #3b82f6;
-    --accent-light: color-mix(in srgb, var(--accent) 12%, transparent);
-    --accent-mid: color-mix(in srgb, var(--accent) 30%, transparent);
+    --accent: #0b1220;
+    --accent-light: rgba(11, 18, 32, 0.06);
+    --accent-mid: rgba(11, 18, 32, 0.12);
 }
 
 /* ---------- Base ---------- */
@@ -80,10 +80,7 @@ body {
 }
 
 .fp-hero h1 span {
-    background: linear-gradient(135deg, var(--accent), color-mix(in srgb, var(--accent) 60%, #7c3aed));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    color: inherit;
 }
 
 .fp-hero .fp-subtitle {
@@ -155,7 +152,7 @@ body {
     font-weight: 700;
     letter-spacing: 0.8px;
     text-transform: uppercase;
-    color: var(--accent);
+    color: #6b7280;
     margin-bottom: 16px;
 }
 
