@@ -7455,7 +7455,8 @@ select {
   margin-bottom: 0;
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .search-container i {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .search-container i,
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .search-container svg {
   display: none;
 }
 

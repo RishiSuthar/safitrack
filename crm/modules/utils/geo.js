@@ -204,7 +204,7 @@ function renderNearbySuggestions(items = [], targetModalId = 'company-modal') {
   if (!items || items.length === 0) {
     container.innerHTML = `
       <div class="form-section-header">
-        <div class="form-section-icon"><i data-lucide="search"></i></div>
+        <div class="form-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg></div>
         <div><div class="form-section-title">Nearby Suggestions</div><div class="form-section-description">No suggestions found</div></div>
       </div>`;
     if (window.lucide) lucide.createIcons();
@@ -226,7 +226,7 @@ function renderNearbySuggestions(items = [], targetModalId = 'company-modal') {
 
   container.innerHTML = `
     <div class="form-section-header">
-      <div class="form-section-icon"><i data-lucide="search"></i></div>
+      <div class="form-section-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg></div>
       <div><div class="form-section-title">Nearby Suggestions</div><div class="form-section-description">Potential companies within chosen radius</div></div>
     </div>
     <div class="form-field" style="padding-top:8px;">${listHtml}</div>

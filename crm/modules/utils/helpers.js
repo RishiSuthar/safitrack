@@ -176,7 +176,7 @@ function renderNotFound() {
   return `
     <div class="card">
       <div class="empty-state empty-state-alert">
-        <i data-lucide="search" class="empty-state-icon"></i>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="empty-state-icon"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
         <h3 class="empty-state-title">Not Found</h3>
         <p class="empty-state-description">The requested page does not exist.</p>
       </div>
