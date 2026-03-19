@@ -161,6 +161,13 @@ import { renderProfessionalDashboardView } from './modules/features/dashboard.js
 import { renderReportsView, openReportBuilder, refreshAllWidgets } from './modules/features/reports.js';
 
 import {
+  renderWorkflowsView, openWorkflowBuilder, closeWorkflowBuilder, saveWorkflow,
+  deleteWorkflow, toggleWorkflowActive, openTriggerPicker, removeTrigger,
+  openActionPicker, openActionEditor, removeAction, confirmActionEdit,
+  closePanel as closeWorkflowPanel, onWorkflowNameChange, toggleBuilderActive,
+} from './modules/features/workflows.js';
+
+import {
   submitChangePassword, renderCallLogsView, deleteCallLog, openCallLogViewModal,
   openCompanyViewModal, openCallLogModal, initCallLogSearch, saveCallLog,
 } from './modules/features/call-logs.js';
@@ -284,6 +291,12 @@ Object.assign(window, {
 
   // Reports & Dashboard
   renderReportsView, openReportBuilder, refreshAllWidgets,
+
+  // Workflows
+  renderWorkflowsView, openWorkflowBuilder, closeWorkflowBuilder, saveWorkflow,
+  deleteWorkflow, toggleWorkflowActive, openTriggerPicker, removeTrigger,
+  openActionPicker, openActionEditor, removeAction, confirmActionEdit,
+  closePanel: closeWorkflowPanel, onWorkflowNameChange, toggleBuilderActive,
 });
 
 // ── Live-binding proxies ───────────────────────────────────────────────────────

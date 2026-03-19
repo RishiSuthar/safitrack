@@ -134,7 +134,15 @@ class CustomCalendar {
         }
 
         this.picker.style.top = `${top}px`;
-        this.picker.style.left = `${rect.left}px`;
+
+        const pickerWidth = this.picker.offsetWidth || 340;
+        const windowWidth = window.innerWidth;
+        let left = rect.left;
+        if (left + pickerWidth > windowWidth - 8) {
+            left = rect.right - pickerWidth;
+            if (left < 8) left = 8;
+        }
+        this.picker.style.left = `${left}px`;
     }
 
     parseInputValue(value) {
