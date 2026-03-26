@@ -36,4 +36,6 @@ export const notificationsMenu       = el('notifications-menu');
 export const notificationsCount      = el('notifications-count');
 export const notificationsList       = el('notifications-list');
 export const notificationsEnableBtn  = el('enable-notifications-btn');
+export const notificationsMarkAllBtn = el('notifications-mark-all-btn');
+export const notificationsFilterTabs = el('notifications-filter-tabs');
 export const safiNudgeLauncher       = el('safi-nudge-launcher');

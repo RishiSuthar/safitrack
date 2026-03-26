@@ -2,6 +2,18 @@
 // Due-date notifications: tasks, reminders, opportunities.
 import { state, supabaseClient, DUE_NOTIFIED_STORAGE_KEY, DUE_READ_STORAGE_KEY } from '../state.js';
 import { notificationsList, notificationsCount, notificationsEnableBtn } from '../ui/dom.js';
+
+// Active filter for the notification panel ('all' | 'unread' | 'overdue')
+let notifActiveFilter = 'all';
+
+export function setNotifActiveFilter(filter) {
+  notifActiveFilter = filter;
+  renderDueNotificationsUI();
+}
+
+export function getNotifActiveFilter() {
+  return notifActiveFilter;
+}
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 
 function getNotificationPermission() {
@@ -192,6 +204,7 @@ function renderDueNotificationsUI() {
   const unreadCount = state.dueNotificationState.items.filter(item => !readMap[item.key]).length;
   state.dueNotificationState.unreadCount = unreadCount;
 
+  // Bell badge
   if (unreadCount > 0) {
     notificationsCount.style.display = 'inline-flex';
     notificationsCount.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
@@ -199,26 +212,78 @@ function renderDueNotificationsUI() {
     notificationsCount.style.display = 'none';
   }
 
-  if (state.dueNotificationState.items.length === 0) {
-    notificationsList.innerHTML = '<div class="notifications-empty">No due alerts right now.</div>';
+  // Bell ring animation
+  const bellBtn = document.getElementById('notifications-btn');
+  if (bellBtn) bellBtn.classList.toggle('has-unread', unreadCount > 0);
+
+  // Unread count pill inside header
+  const unreadPill = document.getElementById('notifications-unread-pill');
+  if (unreadPill) {
+    if (unreadCount > 0) {
+      unreadPill.style.display = 'inline-flex';
+      unreadPill.textContent = unreadCount > 99 ? '99+' : String(unreadCount);
+    } else {
+      unreadPill.style.display = 'none';
+    }
+  }
+
+  // Apply active filter
+  let filteredItems = state.dueNotificationState.items;
+  if (notifActiveFilter === 'unread') {
+    filteredItems = filteredItems.filter(item => !readMap[item.key]);
+  } else if (notifActiveFilter === 'overdue') {
+    filteredItems = filteredItems.filter(item => item.status === 'overdue');
+  }
+
+  // Empty state
+  if (filteredItems.length === 0) {
+    const emptyMsg = notifActiveFilter === 'unread' ? 'No unread notifications'
+      : notifActiveFilter === 'overdue' ? 'No overdue items'
+      : 'All caught up';
+    const emptySub = notifActiveFilter === 'unread' ? 'Check back later for new alerts'
+      : notifActiveFilter === 'overdue' ? 'Everything is on track'
+      : 'No due alerts right now';
+    notificationsList.innerHTML = `
+      <div class="notifications-empty">
+        <div class="notifications-empty-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
+        </div>
+        <span class="notifications-empty-text">${emptyMsg}</span>
+        <span class="notifications-empty-sub">${emptySub}</span>
+      </div>
+    `;
     return;
   }
 
-  notificationsList.innerHTML = state.dueNotificationState.items.map(item => {
-    const unreadClass = readMap[item.key] ? '' : ' unread';
-    const typeLabel = item.entityType === 'deal' ? 'Deal' : (item.entityType === 'task' ? 'Task' : 'Reminder');
+  const TYPE_LABEL = { task: 'Task', reminder: 'Reminder', deal: 'Deal' };
+
+  notificationsList.innerHTML = filteredItems.map(item => {
+    const isUnread = !readMap[item.key];
+    const unreadClass = isUnread ? ' unread' : '';
+    const typeLabel = TYPE_LABEL[item.entityType] || item.entityType;
     const timeLabel = formatDueLabel(item.dueAt);
     return `
-      <button class="notification-item ${item.status}${unreadClass}" data-view="${item.view}">
-        <div class="notification-item-head">
-          <span class="notification-item-type">${typeLabel}</span>
-          <span class="notification-item-time">${timeLabel}</span>
+      <button class="notification-item ${item.status}${unreadClass}" data-view="${item.view}" data-key="${item.key}">
+        <div class="notification-item-body">
+          <div class="notification-item-head">
+            <span class="notification-item-type">${typeLabel}</span>
+            <span class="notification-item-time">${timeLabel}</span>
+          </div>
+          <div class="notification-item-title">${escapeHtml(item.title)}</div>
+          <div class="notification-item-message">${escapeHtml(item.message)}</div>
         </div>
-        <div class="notification-item-title">${item.title}</div>
-        <div class="notification-item-message">${item.message}</div>
+        ${isUnread ? '<div class="notif-unread-dot"></div>' : ''}
       </button>
     `;
   }).join('');
+}
+
+function markSingleNotificationRead(key) {
+  if (!key) return;
+  const readMap = readJsonStorage(DUE_READ_STORAGE_KEY, {});
+  readMap[key] = Date.now();
+  writeJsonStorage(DUE_READ_STORAGE_KEY, readMap);
+  renderDueNotificationsUI();
 }
 
 function updateNotificationPermissionCTA() {
@@ -423,6 +488,7 @@ export {
   showDuePopup,
   notifyForNewDueItems,
   markAllDueNotificationsRead,
+  markSingleNotificationRead,
   refreshDueNotifications,
   startDueNotificationsMonitor,
   stopDueNotificationsMonitor,

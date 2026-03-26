@@ -3096,12 +3096,31 @@ body.modal-active {
   background: var(--bg-active);
 }
 
+/* ──────────────────────────────────────────────────────────────────────
+   NOTIFICATIONS — redesigned
+────────────────────────────────────────────────────────────────────── */
+
 .notifications-menu {
   position: relative;
 }
 
 .notification-bell-btn {
   position: relative;
+}
+
+/* Bell ring animation when there are unread notifications */
+@keyframes notif-bell-ring {
+  0%, 60%, 100% { transform: rotate(0); }
+  10% { transform: rotate(14deg); }
+  20% { transform: rotate(-12deg); }
+  30% { transform: rotate(10deg); }
+  40% { transform: rotate(-7deg); }
+  50% { transform: rotate(4deg); }
+}
+
+.notification-bell-btn.has-unread svg {
+  animation: notif-bell-ring 1.4s ease 0.2s both;
+  transform-origin: top center;
 }
 
 .safi-nudge-launcher {
@@ -3125,6 +3144,7 @@ body.modal-active {
   border-color: transparent;
 }
 
+/* Badge */
 .notification-badge {
   position: absolute;
   top: -4px;
@@ -3144,20 +3164,21 @@ body.modal-active {
   box-shadow: 0 0 0 2px var(--bg-primary);
 }
 
+/* Popover panel */
 .notifications-popover {
   position: absolute;
   top: calc(100% + var(--space-1));
   right: 0;
-  width: min(92vw, 360px);
-  max-height: min(70vh, 480px);
+  width: min(96vw, 400px);
+  max-height: min(74vh, 520px);
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
   opacity: 0;
   visibility: hidden;
-  transform: translateY(-4px);
-  transition: opacity var(--transition-fast), visibility var(--transition-fast), transform var(--transition-fast);
+  transform: translateY(-6px) scale(0.98);
+  transition: opacity 150ms var(--motion-ease-emphasized), visibility 150ms, transform 150ms var(--motion-ease-emphasized);
   z-index: var(--z-dropdown);
   overflow: hidden;
   display: flex;
@@ -3167,32 +3188,261 @@ body.modal-active {
 .notifications-menu.active .notifications-popover {
   opacity: 1;
   visibility: visible;
-  transform: translateY(0);
+  transform: translateY(0) scale(1);
 }
 
+/* Header */
 .notifications-popover-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--border-color);
+  padding: var(--space-4) var(--space-4) var(--space-2);
+  flex-shrink: 0;
+}
+
+.notifications-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 
 .notifications-title {
-  font-size: var(--type-md);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.notifications-unread-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  background: var(--color-primary-bg);
+}
+
+.notifications-mark-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 var(--space-2);
+  height: 28px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.notifications-mark-all-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--color-primary);
+  border-color: var(--border-color);
+}
+
+/* Filter tabs */
+.notifications-filter-tabs {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 var(--space-3) var(--space-2);
+  flex-shrink: 0;
+}
+
+.notif-tab {
+  padding: 0 var(--space-3);
+  height: 28px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.notif-tab:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.notif-tab.active {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Divider */
+.notifications-divider {
+  height: 1px;
+  background: var(--border-color);
+  flex-shrink: 0;
+}
+
+/* Scrollable list */
+.notifications-list {
+  overflow-y: auto;
+  padding: var(--space-2) var(--space-3) var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  flex: 1;
+}
+
+/* Empty state */
+.notifications-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-8) var(--space-4) var(--space-7);
+  text-align: center;
+}
+
+.notifications-empty-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+}
+
+.notifications-empty-text {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.notifications-empty-sub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: -4px;
+}
+
+/* Notification item — Apple card style */
+.notification-item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+  text-align: left;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-3) var(--space-3);
+  cursor: pointer;
+  transition: background var(--transition-fast), box-shadow var(--transition-fast);
+  position: relative;
+  background: var(--bg-secondary);
+  box-shadow: var(--shadow-sm);
+}
+
+.notification-item:hover {
+  background: var(--bg-tertiary);
+  box-shadow: var(--shadow-md);
+}
+
+/* Unread — subtle tint only, no color borders */
+.notification-item.unread {
+  background: var(--color-primary-bg);
+  border-color: rgba(var(--color-primary-rgb), 0.15);
+}
+.notification-item.unread:hover {
+  background: var(--color-primary-bg-hover);
+}
+
+/* Item body */
+.notification-item-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 2px;
+}
+
+.notification-item-type {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.notification-item-time {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.notification-item-title {
+  font-size: 0.8125rem;
   font-weight: 600;
   color: var(--text-primary);
+  margin-bottom: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.notification-item-message {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Unread indicator dot */
+.notif-unread-dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  margin-top: 4px;
+  box-shadow: 0 0 0 2px var(--color-primary-bg);
+}
+
+/* Footer — device alerts CTA */
+.notifications-popover-footer {
+  border-top: 1px solid var(--border-color);
+  padding: var(--space-2) var(--space-3);
+  flex-shrink: 0;
 }
 
 .notifications-enable-btn {
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 0 var(--space-3);
+  height: 34px;
+  font-size: 0.8125rem;
+  font-weight: 500;
   color: var(--text-secondary);
-  border-radius: var(--btn-radius);
-  padding: 0 var(--space-2);
-  height: var(--control-height-xs);
-  font-size: var(--type-xs);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
   cursor: pointer;
   transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
 }
@@ -3200,21 +3450,7 @@ body.modal-active {
 .notifications-enable-btn:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
-}
-
-.notifications-list {
-  overflow-y: auto;
-  padding: var(--space-2);
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-}
-
-.notifications-empty {
-  padding: var(--space-5) var(--space-3);
-  text-align: center;
-  color: var(--text-muted);
-  font-size: var(--type-sm);
+  background: var(--color-primary-bg);
 }
 
 /* ----- Disable hover transform for key CRM action buttons -----
@@ -3254,75 +3490,6 @@ body.modal-active {
   /* remove any hover translation/scale */
 }
 
-
-.notification-item {
-  display: block;
-  width: 100%;
-  text-align: left;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  border-radius: var(--btn-radius);
-  padding: var(--space-3);
-  cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast);
-}
-
-.notification-item:hover {
-  border-color: var(--color-primary);
-  background: var(--bg-hover);
-}
-
-.notification-item.unread {
-  border-color: rgba(47, 95, 208, 0.3);
-  background: var(--color-primary-bg-hover);
-}
-
-.notification-item-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.25rem;
-}
-
-.notification-item-type {
-  font-size: 0.6875rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.notification-item-time {
-  font-size: 0.6875rem;
-  color: var(--text-muted);
-  white-space: nowrap;
-}
-
-.notification-item-title {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 0.1875rem;
-}
-
-.notification-item-message {
-  font-size: 0.75rem;
-  color: var(--text-secondary);
-  line-height: 1.35;
-}
-
-.notification-item.overdue .notification-item-type {
-  color: var(--color-danger);
-}
-
-.notification-item.due-soon .notification-item-type {
-  color: var(--color-warning);
-}
-
-.notification-item.due-today .notification-item-type {
-  color: var(--color-primary);
-}
 
 .due-popup-container {
   position: fixed;

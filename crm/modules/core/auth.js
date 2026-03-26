@@ -2,10 +2,10 @@
 // Authentication: login, logout, signup wizard, Google OAuth, invite.
 import { state, supabaseClient, APP_BOOT_STARTED_AT, FAST_BOOT_SKIP_MS, LOADER_FADE_MS, clearViewState } from '../state.js';
 
-import { loadingScreen, authScreen, mainApp, logoutBtn, mobileMenuToggle, sidebarClose, sidebarOverlay, userAvatarBtn, userMenu, notificationsBtn, notificationsMenu, notificationsCount, notificationsList, notificationsEnableBtn, safiNudgeLauncher } from '../ui/dom.js';
+import { loadingScreen, authScreen, mainApp, logoutBtn, mobileMenuToggle, sidebarClose, sidebarOverlay, userAvatarBtn, userMenu, notificationsBtn, notificationsMenu, notificationsCount, notificationsList, notificationsEnableBtn, notificationsMarkAllBtn, notificationsFilterTabs, safiNudgeLauncher } from '../ui/dom.js';
 import { initApp } from './app-init.js';
 import { loadView, openSidebar, closeSidebar } from './navigation.js';
-import { stopDueNotificationsMonitor, markAllDueNotificationsRead, requestNotificationPermission, updateNotificationPermissionCTA } from '../features/notifications.js';
+import { stopDueNotificationsMonitor, markAllDueNotificationsRead, markSingleNotificationRead, requestNotificationPermission, updateNotificationPermissionCTA, setNotifActiveFilter, getNotifActiveFilter } from '../features/notifications.js';
 import { stopSafiNudgeRealtime } from '../realtime/nudge.js';
 // command-palette.js now self-initializes its own keyboard shortcuts
 import { escapeHtml, showToast } from '../ui/toast.js';
@@ -145,9 +145,21 @@ function initEventListeners() {
     e.stopPropagation();
     userMenu?.classList.remove('active');
     notificationsMenu?.classList.toggle('active');
-    if (notificationsMenu?.classList.contains('active')) {
-      markAllDueNotificationsRead();
-    }
+  });
+
+  notificationsMarkAllBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    markAllDueNotificationsRead();
+  });
+
+  notificationsFilterTabs?.addEventListener('click', (e) => {
+    const tab = e.target.closest('.notif-tab');
+    if (!tab) return;
+    const filter = tab.dataset.filter;
+    if (!filter || filter === getNotifActiveFilter()) return;
+    notificationsFilterTabs.querySelectorAll('.notif-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    setNotifActiveFilter(filter);
   });
 
   safiNudgeLauncher?.addEventListener('click', async (e) => {
@@ -167,6 +179,8 @@ function initEventListeners() {
     const itemEl = e.target.closest('.notification-item');
     if (!itemEl) return;
     const targetView = itemEl.dataset.view;
+    const key = itemEl.dataset.key;
+    markSingleNotificationRead(key);
     notificationsMenu?.classList.remove('active');
     if (targetView && targetView !== state.currentView) {
       await loadView(targetView);
