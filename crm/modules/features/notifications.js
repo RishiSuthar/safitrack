@@ -227,6 +227,20 @@ function renderDueNotificationsUI() {
     }
   }
 
+  // Nav badges for Tasks and Reminders
+  const tasksDue = state.dueNotificationState.items.filter(i => i.entityType === 'task').length;
+  const remindersDue = state.dueNotificationState.items.filter(i => i.entityType === 'reminder').length;
+  const tasksBadge = document.getElementById('nav-badge-tasks');
+  const remindersBadge = document.getElementById('nav-badge-reminders');
+  if (tasksBadge) {
+    tasksBadge.style.display = tasksDue > 0 ? '' : 'none';
+    tasksBadge.textContent = tasksDue > 99 ? '99+' : String(tasksDue);
+  }
+  if (remindersBadge) {
+    remindersBadge.style.display = remindersDue > 0 ? '' : 'none';
+    remindersBadge.textContent = remindersDue > 99 ? '99+' : String(remindersDue);
+  }
+
   // Apply active filter
   let filteredItems = state.dueNotificationState.items;
   if (notifActiveFilter === 'unread') {

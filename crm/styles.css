@@ -4839,17 +4839,18 @@ body.modal-active {
 }
 
 .nav-item .nav-badge {
-  font-size: 10px;
-  font-weight: 600;
-  padding: 0 6px;
-  min-width: 18px;
-  height: 18px;
-  line-height: 18px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 0 5px;
+  min-width: 20px;
+  height: 20px;
+  line-height: 20px;
   text-align: center;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-md);
   background: var(--color-primary);
   color: #fff;
   margin-left: auto;
+  flex-shrink: 0;
 }
 
 
