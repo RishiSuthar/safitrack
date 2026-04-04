@@ -93,8 +93,9 @@ async function renderRoutePlanningView() {
   // Group routes by their locations (same stops = same route)
   const groupedRoutes = groupRoutesByLocations(routes, routeLocations);
 
-  // Filter companies with valid coordinates
+  // Split companies into those with and without coordinates
   const validCompanies = companies.filter(c => c.latitude && c.longitude);
+  const noAddressCompanies = companies.filter(c => !c.latitude || !c.longitude);
 
   let html = `
     <div class="page-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
@@ -118,12 +119,13 @@ async function renderRoutePlanningView() {
         </div>
         
         <div class="panel-body" id="companies-list">
-          ${validCompanies.length === 0 ? `
+          ${companies.length === 0 ? `
             <div class="panel-empty">
               <div class="panel-empty-icon">📍</div>
-              <div class="panel-empty-text">No companies with coordinates</div>
+              <div class="panel-empty-text">No companies found</div>
             </div>
-          ` : validCompanies.map(company => `
+          ` : [
+            ...validCompanies.map(company => `
             <div class="company-quick-card" data-company-id="${company.id}" data-lat="${company.latitude}" data-lng="${company.longitude}">
               <div class="company-card-name">
                 ${company.name}
@@ -134,7 +136,18 @@ async function renderRoutePlanningView() {
                 <button class="company-card-add-btn">+ Add</button>
               </div>
             </div>
-          `).join('')}
+          `),
+            ...noAddressCompanies.map(company => `
+            <div class="company-quick-card company-quick-card--no-address" data-company-id="${company.id}" data-no-address="true">
+              <div class="company-card-name">${company.name}</div>
+              <div class="company-card-address company-card-address--missing">No address — edit company to add one</div>
+              <div class="company-card-footer">
+                <div class="company-card-distance"></div>
+                <button class="company-card-add-btn" disabled title="Add an address to this company first">No Address</button>
+              </div>
+            </div>
+          `)
+          ].join('')}
         </div>
       </div>
 
@@ -347,8 +360,13 @@ function initRoutePlanning(companies, salesReps) {
   companiesList.addEventListener('click', (e) => {
     const addBtn = e.target.closest('.company-card-add-btn');
     if (!addBtn) return;
+    if (addBtn.disabled) return;
 
     const card = addBtn.closest('.company-quick-card');
+    if (card.dataset.noAddress) {
+      showToast('This company has no address. Edit the company and add an address first.', 'error');
+      return;
+    }
     const companyId = card.dataset.companyId;
 
     // Check if already added

@@ -7111,6 +7111,12 @@ select {
   font-weight: 700;
 }
 
+.form-field label .field-hint {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
 .form-field label .optional-badge {
   font-size: 0.65rem;
   font-weight: 550;
@@ -14506,6 +14512,28 @@ button svg {
 .company-quick-card.added .company-card-add-btn {
   background: var(--color-success);
   pointer-events: none;
+}
+
+.company-quick-card--no-address {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.company-quick-card--no-address:hover {
+  border-color: var(--border-color);
+  background: var(--bg-primary);
+  transform: none;
+}
+
+.company-card-address--missing {
+  color: var(--color-warning, #f59e0b);
+  font-style: italic;
+}
+
+.company-card-add-btn:disabled {
+  background: var(--bg-tertiary, #e5e7eb);
+  color: var(--text-muted);
+  cursor: not-allowed;
 }
 
 /* Route Builder Panel (Center) */

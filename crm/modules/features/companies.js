@@ -577,9 +577,9 @@ function initCompanyModalListeners(company, viewOnly = false) {
     const address = document.getElementById('company-address').value.trim();
     const radius = parseInt(document.getElementById('company-radius').value);
 
-    // Validate required fields (coordinates handled via auto-geocoding below)
-    if (!name || !companyType || !address) {
-      showToast('Please enter company name, type, and address', 'error');
+    // Validate required fields (address is optional)
+    if (!name || !companyType) {
+      showToast('Please enter company name and type', 'error');
       return;
     }
 
@@ -604,8 +604,8 @@ function initCompanyModalListeners(company, viewOnly = false) {
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
-    // Auto-geocode the address if not in manual-entry mode
-    if (!manualCoordsVisible) {
+    // Auto-geocode the address if not in manual-entry mode and an address was provided
+    if (!manualCoordsVisible && address) {
       const addressChanged = !company || address !== (company.address || '');
       if (addressChanged) {
         try {
@@ -622,7 +622,7 @@ function initCompanyModalListeners(company, viewOnly = false) {
           document.getElementById('company-longitude').value = '';
           latitude = NaN;
           longitude = NaN;
-          if (isNaN(latitude) || isNaN(longitude)) {
+          if (!company) {
             showToast('Could not find coordinates for this address. Please enter them manually.', 'error');
           } else {
             showToast('Could not find coordinates for the new address. Please verify or update them manually.', 'error');

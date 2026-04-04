@@ -665,7 +665,7 @@ window.selectCompany = function (companyId) {
 
   // Check if coordinates are valid numbers
   if (isNaN(latitude) || isNaN(longitude)) {
-    showToast('Invalid coordinates for this company. Please update company location.', 'error');
+    showToast(`"${company.name}" has no address. Please edit the company and add an address before logging a visit.`, 'error');
     document.getElementById('verify-location').disabled = true;
     return;
   }
