@@ -1069,12 +1069,14 @@ function initOpportunityModalListeners(opportunity) {
     companyInput.searchTimeout = setTimeout(async () => {
       let companies = window.allCompaniesData || [];
 
-      // If companies not loaded, fetch them
+      // If companies not loaded, fetch them (scoped to current org)
       if (companies.length === 0) {
-        const { data } = await supabaseClient
+        let q = supabaseClient
           .from('companies')
           .select('*')
           .order('name', { ascending: true });
+        if (state.currentOrganization?.id) q = q.eq('organization_id', state.currentOrganization.id);
+        const { data } = await q;
         companies = data || [];
         window.allCompaniesData = companies; // Cache for future use
       }
