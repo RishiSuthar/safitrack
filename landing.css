@@ -265,7 +265,7 @@ ul {
 }
 
 .logo img {
-    height: 32px;
+    height: 40px;
     width: auto;
     filter: grayscale(100%) brightness(0) contrast(120%);
     /* force logos to black/gray on white nav */
@@ -4804,6 +4804,13 @@ section+section {
     color: var(--text-primary);
 }
 
+.footer-logo {
+    height: 40px;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+}
+
 .footer-tagline {
     font-size: 14px;
     line-height: 1.6;
@@ -4828,14 +4835,6 @@ section+section {
 }
 
 /* Make sure logo and tagline scale down gracefully */
-.footer-logo {
-    height: 32px;
-    width: auto;
-    max-width: 100%;
-    object-fit: contain;
-}
-
-
 .footer-column {
     display: flex;
     flex-direction: column;

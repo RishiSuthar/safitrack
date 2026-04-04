@@ -1398,7 +1398,7 @@ body {
 }
 
 .stage-brand-logo {
-  width: 180px;
+  width: 220px;
   height: auto;
   opacity: 0.85;
 }
@@ -1924,6 +1924,12 @@ body {
 .auth-logo-mobile {
   display: none;
   margin-bottom: 2rem;
+}
+
+.mobile-logo-main {
+  width: 220px;
+  max-width: 100%;
+  height: auto;
 }
 
 .auth-header h2 {
