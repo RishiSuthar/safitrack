@@ -10,20 +10,20 @@ async function renderRemindersView() {
   let error;
 
   if (state.isManager) {
-    const result = await supabaseClient
+    let remindersQ = supabaseClient
       .from('reminders')
       .select(`
         *,
         assigned_to_profile:profiles!reminders_assigned_to_fkey(first_name, last_name, email),
         created_by_profile:profiles!reminders_created_by_fkey(first_name, last_name, email)
       `)
-      .eq('created_by', state.currentUser.id)
       .order('reminder_date', { ascending: true });
-
+    if (state.currentOrganization?.id) remindersQ = remindersQ.eq('organization_id', state.currentOrganization.id);
+    const result = await remindersQ;
     reminders = result.data;
     error = result.error;
   } else {
-    const result = await supabaseClient
+    let remindersQ = supabaseClient
       .from('reminders')
       .select(`
         *,
@@ -32,7 +32,8 @@ async function renderRemindersView() {
       `)
       .or(`assigned_to.eq.${state.currentUser.id},created_by.eq.${state.currentUser.id}`)
       .order('reminder_date', { ascending: true });
-
+    if (state.currentOrganization?.id) remindersQ = remindersQ.eq('organization_id', state.currentOrganization.id);
+    const result = await remindersQ;
     reminders = result.data;
     error = result.error;
   }

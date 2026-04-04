@@ -20,12 +20,14 @@ async function renderNotesView() {
   viewContainer.style.display = 'none';
 
   // Fetch data
-  const { data: notes, error } = await supabaseClient
+  let notesQ = supabaseClient
     .from('notes')
     .select('*')
     .eq('user_id', state.currentUser.id)
     .order('is_pinned', { ascending: false })
     .order('updated_at', { ascending: false });
+  if (state.currentOrganization?.id) notesQ = notesQ.eq('organization_id', state.currentOrganization.id);
+  const { data: notes, error } = await notesQ;
 
   if (error) {
     showToast('Error loading notes: ' + error.message, 'error');

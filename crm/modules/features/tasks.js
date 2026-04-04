@@ -11,20 +11,20 @@ async function renderTasksView() {
   let error;
 
   if (state.isManager) {
-    const result = await supabaseClient
+    let tasksQ = supabaseClient
       .from('tasks')
       .select(`
         *,
         assigned_to_profile:profiles!tasks_assigned_to_fkey(first_name, last_name, email),
         created_by_profile:profiles!tasks_created_by_fkey(first_name, last_name, email)
       `)
-      .eq('created_by', state.currentUser.id)
       .order('created_at', { ascending: false });
-
+    if (state.currentOrganization?.id) tasksQ = tasksQ.eq('organization_id', state.currentOrganization.id);
+    const result = await tasksQ;
     tasks = result.data;
     error = result.error;
   } else {
-    const result = await supabaseClient
+    let tasksQ = supabaseClient
       .from('tasks')
       .select(`
         *,
@@ -33,7 +33,8 @@ async function renderTasksView() {
       `)
       .or(`assigned_to.eq.${state.currentUser.id},created_by.eq.${state.currentUser.id}`)
       .order('created_at', { ascending: false });
-
+    if (state.currentOrganization?.id) tasksQ = tasksQ.eq('organization_id', state.currentOrganization.id);
+    const result = await tasksQ;
     tasks = result.data;
     error = result.error;
   }

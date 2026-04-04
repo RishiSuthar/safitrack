@@ -101,6 +101,8 @@ async function renderCallLogsView() {
         `)
     .order('created_at', { ascending: false });
 
+  if (state.currentOrganization?.id) query = query.eq('organization_id', state.currentOrganization.id);
+
   if (!state.isManager || state.managerCallLogViewMode === 'my') {
     query = query.eq('user_id', state.currentUser.id);
   } else if (state.selectedRepId) {
@@ -838,17 +840,18 @@ async function openCompanyViewModal(companyOrId) {
 
 
   // Fetch related records in parallel (by id and by name to be safe)
+  const orgId = state.currentOrganization?.id;
   const [oppsById, oppsByName, callsById, callsByName, visitsById, visitsByName, peopleById, peopleByName] = await Promise.all([
-    supabaseClient.from('opportunities').select('*').eq('company_id', company.id),
-    supabaseClient.from('opportunities').select('*').eq('company_name', company.name),
-    supabaseClient.from('call_logs').select('*, people(*), profiles(*)').eq('company_id', company.id).order('call_at', { ascending: false }).limit(50),
-    supabaseClient.from('call_logs').select('*, people(*), profiles(*)').eq('company_name', company.name).order('call_at', { ascending: false }).limit(50),
-    supabaseClient.from('visits').select('*, user:profiles(first_name,last_name)').eq('company_id', company.id).order('created_at', { ascending: false }).limit(10),
-    supabaseClient.from('visits').select('*, user:profiles(first_name,last_name)').eq('company_name', company.name).order('created_at', { ascending: false }).limit(10),
+    (() => { let q = supabaseClient.from('opportunities').select('*').eq('company_id', company.id); if (orgId) q = q.eq('organization_id', orgId); return q; })(),
+    (() => { let q = supabaseClient.from('opportunities').select('*').eq('company_name', company.name); if (orgId) q = q.eq('organization_id', orgId); return q; })(),
+    (() => { let q = supabaseClient.from('call_logs').select('*, people(*), profiles(*)').eq('company_id', company.id).order('call_at', { ascending: false }).limit(50); if (orgId) q = q.eq('organization_id', orgId); return q; })(),
+    (() => { let q = supabaseClient.from('call_logs').select('*, people(*), profiles(*)').eq('company_name', company.name).order('call_at', { ascending: false }).limit(50); if (orgId) q = q.eq('organization_id', orgId); return q; })(),
+    (() => { let q = supabaseClient.from('visits').select('*, user:profiles(first_name,last_name)').eq('company_id', company.id).order('created_at', { ascending: false }).limit(10); if (orgId) q = q.eq('organization_id', orgId); return q; })(),
+    (() => { let q = supabaseClient.from('visits').select('*, user:profiles(first_name,last_name)').eq('company_name', company.name).order('created_at', { ascending: false }).limit(10); if (orgId) q = q.eq('organization_id', orgId); return q; })(),
     // Query people by company_id (most reliable). Avoid ordering by potentially missing columns.
-    supabaseClient.from('people').select('*').eq('company_id', company.id).limit(200),
+    (() => { let q = supabaseClient.from('people').select('*').eq('company_id', company.id).limit(200); if (orgId) q = q.eq('organization_id', orgId); return q; })(),
     // Fallback: try to find people where the name contains the company name (less reliable but avoids using non-existent company_name column).
-    supabaseClient.from('people').select('*').ilike('name', `%${String(company.name || '').replace(/%/g, '')}%`).limit(200)
+    (() => { let q = supabaseClient.from('people').select('*').ilike('name', `%${String(company.name || '').replace(/%/g, '')}%`).limit(200); if (orgId) q = q.eq('organization_id', orgId); return q; })()
   ]);
 
   const dedupeById = (arr) => {

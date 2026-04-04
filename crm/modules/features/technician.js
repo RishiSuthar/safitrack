@@ -6,10 +6,9 @@ import { showToast, escapeHtml, getInitials, handleImageError } from '../ui/toas
 import { renderSkeletonCards, renderError } from '../utils/helpers.js';
 
 async function renderTechnicianLogVisitView() {
-  const { data: companies } = await supabaseClient
-    .from('companies')
-    .select('*')
-    .order('name', { ascending: true });
+  let companiesQ = supabaseClient.from('companies').select('*').order('name', { ascending: true });
+  if (state.currentOrganization?.id) companiesQ = companiesQ.eq('organization_id', state.currentOrganization.id);
+  const { data: companies } = await companiesQ;
 
   viewContainer.innerHTML = `
     <div class="page-header">

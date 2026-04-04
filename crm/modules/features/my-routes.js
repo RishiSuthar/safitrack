@@ -65,10 +65,9 @@ async function renderMyRoutesView() {
 
       if (locationIds.length > 0) {
         try {
-          const { data: companiesData } = await supabaseClient
-            .from('companies')
-            .select('*')
-            .in('id', locationIds);
+          let myRoutesCompaniesQ = supabaseClient.from('companies').select('*').in('id', locationIds);
+          if (state.currentOrganization?.id) myRoutesCompaniesQ = myRoutesCompaniesQ.eq('organization_id', state.currentOrganization.id);
+          const { data: companiesData } = await myRoutesCompaniesQ;
 
           if (companiesData) companies = companiesData;
         } catch (e) {

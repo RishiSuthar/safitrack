@@ -35,11 +35,13 @@ async function renderOpportunityPipelineView() {
     error = result.error;
   } else {
     // Sales reps only see their own opportunities
-    const result = await supabaseClient
+    let oppQ = supabaseClient
       .from('opportunities')
       .select('*')
       .eq('user_id', state.currentUser.id)
       .order('created_at', { ascending: false });
+    if (state.currentOrganization?.id) oppQ = oppQ.eq('organization_id', state.currentOrganization.id);
+    const result = await oppQ;
 
     opportunities = result.data;
     error = result.error;

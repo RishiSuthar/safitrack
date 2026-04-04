@@ -285,7 +285,7 @@ async function exportAllCompaniesToCsv() {
   }
 
   try {
-    const { data: companies, error } = await supabaseClient
+    let companiesExportQ = supabaseClient
       .from('companies')
       .select(`
         name,
@@ -300,6 +300,8 @@ async function exportAllCompaniesToCsv() {
         )
       `)
       .order('name', { ascending: true });
+    if (state.currentOrganization?.id) companiesExportQ = companiesExportQ.eq('organization_id', state.currentOrganization.id);
+    const { data: companies, error } = await companiesExportQ;
 
     if (error) throw error;
 

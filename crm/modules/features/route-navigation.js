@@ -45,10 +45,9 @@ async function startRouteNavigation(routeId) {
     let companies = [];
     if (locationIds.length > 0) {
       try {
-        const { data: companiesData } = await supabaseClient
-          .from('companies')
-          .select('*')
-          .in('id', locationIds);
+        let routeNavCompaniesQ = supabaseClient.from('companies').select('*').in('id', locationIds);
+        if (state.currentOrganization?.id) routeNavCompaniesQ = routeNavCompaniesQ.eq('organization_id', state.currentOrganization.id);
+        const { data: companiesData } = await routeNavCompaniesQ;
 
         if (companiesData) companies = companiesData;
       } catch (e) {

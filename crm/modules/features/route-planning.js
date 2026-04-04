@@ -73,10 +73,11 @@ async function renderRoutePlanningView() {
       .select(`*, assigned_to:profiles!routes_assigned_to_fkey(id, first_name, last_name)`)
       .eq('created_by', state.currentUser.id)
       .order('created_at', { ascending: false }),
-    supabaseClient
-      .from('route_locations')
-      .select('route_id, company_id, position')
-      .order('position', { ascending: true })
+    (() => {
+      let rlQ = supabaseClient.from('route_locations').select('route_id, company_id, position').order('position', { ascending: true });
+      if (orgId) rlQ = rlQ.eq('organization_id', orgId);
+      return rlQ;
+    })()
   ]);
 
   const { data: companies, error: companiesError } = companiesResult;

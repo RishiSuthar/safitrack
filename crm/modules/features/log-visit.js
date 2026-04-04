@@ -8,10 +8,9 @@ import { geocodeAddressWithOSM } from '../utils/geo.js';
 
 
 async function renderLogVisitView() {
-  const { data: companies } = await supabaseClient
-    .from('companies')
-    .select('*')
-    .order('name', { ascending: true });
+  let companiesQ = supabaseClient.from('companies').select('*').order('name', { ascending: true });
+  if (state.currentOrganization?.id) companiesQ = companiesQ.eq('organization_id', state.currentOrganization.id);
+  const { data: companies } = await companiesQ;
 
   viewContainer.innerHTML = `
     <div class="log-visit-shell">
