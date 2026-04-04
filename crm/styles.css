@@ -14500,6 +14500,25 @@ button svg {
   background: var(--bg-primary);
 }
 
+.cqc--suggested {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg);
+}
+
+.cqc-ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
 .cqc-avatar {
   width: 34px;
   height: 34px;

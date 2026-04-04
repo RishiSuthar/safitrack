@@ -307,6 +307,7 @@ function initRoutePlanning(companies, salesReps) {
   let markers = [];
   let routeLine = null;
   let sortable = null;
+  let _suggestionTimer = null;
 
   const searchInput = document.getElementById('company-search-input');
   const companiesList = document.getElementById('companies-list');
@@ -545,6 +546,14 @@ function initRoutePlanning(companies, salesReps) {
     // Update map
     updateMap();
     saveRouteBuilderState();
+
+    // Debounced AI recommendation
+    clearTimeout(_suggestionTimer);
+    if (routeStops.length > 0) {
+      _suggestionTimer = setTimeout(() => showNearestLocationRecommendation(), 350);
+    } else {
+      _clearSuggestion();
+    }
   }
 
   function removeStop(stopId) {
@@ -783,7 +792,14 @@ function initRoutePlanning(companies, salesReps) {
     }
   });
 
-  // AI Nearest Location Recommendation
+  function _clearSuggestion() {
+    companiesList.querySelectorAll('.cqc--suggested').forEach(card => {
+      card.classList.remove('cqc--suggested');
+      const badge = card.querySelector('.cqc-ai-badge');
+      if (badge) badge.remove();
+    });
+  }
+
   function showNearestLocationRecommendation() {
     if (routeStops.length === 0) return;
 
@@ -791,57 +807,49 @@ function initRoutePlanning(companies, salesReps) {
     let nearestCompany = null;
     let shortestDistance = Infinity;
 
-    // Find nearest company that's not already in route
     companies.forEach(company => {
-      // Skip if already in route
       if (routeStops.find(stop => stop.id === company.id)) return;
+      if (!company.latitude || !company.longitude) return;
 
       const dist = calculateDistance(
-        lastStop.latitude,
-        lastStop.longitude,
-        parseFloat(company.latitude),
-        parseFloat(company.longitude)
+        lastStop.latitude, lastStop.longitude,
+        parseFloat(company.latitude), parseFloat(company.longitude)
       );
-
       if (dist < shortestDistance) {
         shortestDistance = dist;
         nearestCompany = company;
       }
     });
 
-    if (nearestCompany && shortestDistance < 50) { // Only show if within 50km
-      // Highlight the nearest company card
-      const nearestCard = companiesList.querySelector(`[data-company-id="${nearestCompany.id}"]`);
-      if (nearestCard && !nearestCard.classList.contains('cqc--added')) {
-        // Remove previous highlights
-        companiesList.querySelectorAll('.cqc').forEach(card => {
-          card.style.outline = '';
-        });
+    // Clear any previous suggestion first
+    _clearSuggestion();
 
-        // Highlight nearest
-        nearestCard.style.outline = '2px solid var(--color-primary)';
+    if (!nearestCompany || shortestDistance >= 50) return;
 
-        // Scroll into view
-        nearestCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    const nearestCard = companiesList.querySelector(`[data-company-id="${nearestCompany.id}"]`);
+    if (!nearestCard || nearestCard.classList.contains('cqc--added')) return;
 
-        // Show toast with AI suggestion
-        showToast(`💡 AI Suggestion: ${nearestCompany.name} is ${shortestDistance.toFixed(1)}km away`, 'info', 5000);
+    // Mark the card
+    nearestCard.classList.add('cqc--suggested');
+
+    // Inject the AI badge if not already there
+    if (!nearestCard.querySelector('.cqc-ai-badge')) {
+      const badge = document.createElement('div');
+      badge.className = 'cqc-ai-badge';
+      badge.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg> ${shortestDistance.toFixed(1)} km`;
+      const addBtn = nearestCard.querySelector('.cqc-add');
+      if (addBtn) {
+        nearestCard.insertBefore(badge, addBtn);
+      } else {
+        nearestCard.appendChild(badge);
       }
     }
+
+    nearestCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 
-  // Call AI recommendation after adding a stop
-  const originalUpdateRouteDisplay = updateRouteDisplay;
-  updateRouteDisplay = function () {
-    originalUpdateRouteDisplay();
-    if (routeStops.length > 0) {
-      setTimeout(() => showNearestLocationRecommendation(), 300);
-    }
-  };
-}
+} // end initRoutePlanning
 
-
-// Global function to select recommended location
 window.selectRecommendedLocation = function (locationId) {
   const checkbox = document.querySelector(`#loc-${locationId}`);
   if (checkbox && !checkbox.checked) {
