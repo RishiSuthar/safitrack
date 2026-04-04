@@ -415,6 +415,8 @@ function initRoutePlanning(companies, salesReps) {
         mapEmptyState.style.display = 'flex';
       }
 
+      // Persist the empty state so stops don't reappear on refresh
+      saveRouteBuilderState();
       return;
     }
 
@@ -541,16 +543,20 @@ function initRoutePlanning(companies, salesReps) {
   function updateMap() {
     if (routeStops.length === 0) return;
 
+    // Always ensure the container is visible when we have stops
+    mapEmptyState.style.display = 'none';
+    mapContainer.style.display = 'block';
+
     // Initialize map if needed
     if (!map) {
-      mapEmptyState.style.display = 'none';
-      mapContainer.style.display = 'block';
-
       map = L.map('route-planning-map').setView([routeStops[0].latitude, routeStops[0].longitude], 13);
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
       }).addTo(map);
     }
+
+    // Let Leaflet recalculate container size (needed after display:none→block)
+    map.invalidateSize();
 
     // Clear existing markers and lines
     markers.forEach(marker => map.removeLayer(marker));
