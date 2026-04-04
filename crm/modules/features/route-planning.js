@@ -222,6 +222,10 @@ async function renderRoutePlanningView() {
       <div class="rp-panel rp-panel--map">
         <div class="rp-panel-head">
           <span class="rp-panel-title">Map Preview</span>
+          <button class="btn btn-primary btn-sm auto-plan-btn" id="open-ai-safi-plan" style="margin-left:auto">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/></svg>
+            Auto Plan
+          </button>
         </div>
         <div class="rp-map-wrap">
           <div id="route-planning-map" style="display:none;width:100%;height:100%;"></div>
