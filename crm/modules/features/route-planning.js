@@ -97,169 +97,195 @@ async function renderRoutePlanningView() {
   const validCompanies = companies.filter(c => c.latitude && c.longitude);
   const noAddressCompanies = companies.filter(c => !c.latitude || !c.longitude);
 
-  let html = `
-    <div class="page-header" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
-      <button class="btn btn-primary auto-plan-btn" id="open-ai-safi-plan">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
-        Auto Plan
-      </button>
-    </div>
+  // Deterministic avatar color from name hash
+  const avatarPalette = ['#6366f1','#8b5cf6','#ec4899','#f97316','#10b981','#06b6d4','#3b82f6','#f59e0b'];
+  const getAvatarColor = (name) => {
+    let h = 0;
+    for (let i = 0; i < name.length; i++) h = (h << 5) - h + name.charCodeAt(i);
+    return avatarPalette[Math.abs(h) % avatarPalette.length];
+  };
 
+  let html = `
     <div class="route-planning-container">
-      <!-- Left Panel: Company Selection -->
-      <div class="company-selection-panel">
-        <div class="panel-header">
-          <div class="panel-title">Available Companies</div>
-          <div class="panel-subtitle">${validCompanies.length} locations</div>
+
+      <!-- ── Left: Company Picker ─────────────────── -->
+      <div class="rp-panel rp-panel--picker">
+        <div class="rp-panel-head">
+          <span class="rp-panel-title">Companies</span>
+          <span class="rp-panel-badge">${validCompanies.length}</span>
         </div>
-        
-        <div class="panel-search">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-          <input type="text" id="company-search-input" placeholder="Search companies...">
+        <div class="rp-panel-search">
+          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+          <input type="text" id="company-search-input" placeholder="Search…">
         </div>
-        
-        <div class="panel-body" id="companies-list">
+        <div class="rp-panel-body" id="companies-list">
           ${companies.length === 0 ? `
-            <div class="panel-empty">
-              <div class="panel-empty-icon">📍</div>
-              <div class="panel-empty-text">No companies found</div>
+            <div class="rp-empty">
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+              <p>No companies yet</p>
             </div>
           ` : [
             ...validCompanies.map(company => `
-            <div class="company-quick-card" data-company-id="${company.id}" data-lat="${company.latitude}" data-lng="${company.longitude}">
-              <div class="company-card-name">
-                ${company.name}
+            <div class="cqc" data-company-id="${company.id}" data-lat="${company.latitude}" data-lng="${company.longitude}">
+              <div class="cqc-avatar" style="background:${getAvatarColor(company.name)}">${escapeHtml(getInitials(company.name))}</div>
+              <div class="cqc-body">
+                <div class="cqc-name">${escapeHtml(company.name)}</div>
+                <div class="cqc-meta">
+                  <span class="cqc-address">${escapeHtml(company.address || '')}</span>
+                  <span class="cqc-dist" id="cqc-dist-${company.id}"></span>
+                </div>
               </div>
-              <div class="company-card-address">${company.address || 'No address'}</div>
-              <div class="company-card-footer">
-                <div class="company-card-distance"></div>
-                <button class="company-card-add-btn">+ Add</button>
-              </div>
+              <button class="cqc-add" aria-label="Add to route">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+              </button>
+              <span class="cqc-badge" style="display:none">1</span>
             </div>
           `),
             ...noAddressCompanies.map(company => `
-            <div class="company-quick-card company-quick-card--no-address" data-company-id="${company.id}" data-no-address="true">
-              <div class="company-card-name">${company.name}</div>
-              <div class="company-card-address company-card-address--missing">No address — edit company to add one</div>
-              <div class="company-card-footer">
-                <div class="company-card-distance"></div>
-                <button class="company-card-add-btn" disabled title="Add an address to this company first">No Address</button>
+            <div class="cqc cqc--noaddr" data-company-id="${company.id}" data-no-address="true">
+              <div class="cqc-avatar cqc-avatar--noaddr">${escapeHtml(getInitials(company.name))}</div>
+              <div class="cqc-body">
+                <div class="cqc-name">${escapeHtml(company.name)}</div>
+                <div class="cqc-meta">
+                  <span class="cqc-noaddr-label">No address — edit to add one</span>
+                </div>
               </div>
+              <svg class="cqc-lock" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
             </div>
           `)
           ].join('')}
         </div>
       </div>
 
-      <!-- Center Panel: Route Builder -->
-      <div class="route-builder-panel">
-        <div class="route-stats-card">
-          <div class="route-stats-grid">
-            <div class="route-stat-item">
-              <span class="route-stat-value" id="route-stops-count">0</span>
-              <span class="route-stat-label">Stops</span>
-            </div>
-            <div class="route-stat-item">
-              <span class="route-stat-value" id="route-distance">0 km</span>
-              <span class="route-stat-label">Distance</span>
-            </div>
-            <div class="route-stat-item">
-              <span class="route-stat-value" id="route-duration">0 min</span>
-              <span class="route-stat-label">Est. Time</span>
+      <!-- ── Center: Route Builder ──────────────────── -->
+      <div class="rp-panel rp-panel--builder">
+
+        <!-- Stats strip -->
+        <div class="rp-stats">
+          <div class="rp-stat">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+            <div>
+              <span class="rp-stat-val" id="route-stops-count">0</span>
+              <span class="rp-stat-key">Stops</span>
             </div>
           </div>
-          
-          <div class="route-assignment">
-            <input type="text" id="route-name-input" placeholder="Route name (e.g., Downtown Route)">
-            <select id="route-rep-select">
-              <option value="">Assign to...</option>
-              ${salesReps.map(rep => `
-                <option value="${rep.id}">${rep.first_name} ${rep.last_name}</option>
-              `).join('')}
-            </select>
+          <div class="rp-stat-sep"></div>
+          <div class="rp-stat">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
+            <div>
+              <span class="rp-stat-val" id="route-distance">—</span>
+              <span class="rp-stat-key">Distance</span>
+            </div>
           </div>
-        </div>
-        
-        <div class="route-stops-container" id="route-stops-container">
-          <div class="route-stops-empty">
-            <div class="route-stops-empty-icon">🗺️</div>
-            <div class="route-stops-empty-text">No stops added yet</div>
-            <div class="route-stops-empty-hint">Click "+ Add" on companies to build your route</div>
+          <div class="rp-stat-sep"></div>
+          <div class="rp-stat">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div>
+              <span class="rp-stat-val" id="route-duration">—</span>
+              <span class="rp-stat-key">Est. Time</span>
+            </div>
           </div>
         </div>
-        
-        <div class="route-actions">
-          <button class="btn btn-secondary" id="optimize-route-btn" style="display: none;">
-            Optimize
-          </button>
-          <button class="btn btn-primary" id="save-route-btn" style="display: none;">
-            Save Route
-          </button>
+
+        <!-- Name + Assignment -->
+        <div class="rp-assign">
+          <input type="text" id="route-name-input" placeholder="Route name…" autocomplete="off">
+          <select id="route-rep-select">
+            <option value="">Assign to rep…</option>
+            ${salesReps.map(rep => `<option value="${rep.id}">${escapeHtml(rep.first_name)} ${escapeHtml(rep.last_name)}</option>`).join('')}
+          </select>
+        </div>
+
+        <!-- Stops list -->
+        <div class="rp-stops" id="route-stops-container">
+          <div class="rp-stops-empty">
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg>
+            <p>No stops yet</p>
+            <span>Click a company on the left to add it</span>
+          </div>
+        </div>
+
+        <!-- Actions footer -->
+        <div class="rp-footer">
+          <button class="btn rp-btn-clear" id="clear-route-btn" style="display:none">Clear all</button>
+          <div class="rp-footer-right">
+            <button class="btn btn-secondary rp-btn-optimize" id="optimize-route-btn" style="display:none">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 3 4 4-4 4"/><path d="M20 7H4"/><path d="m8 21-4-4 4-4"/><path d="M4 17h16"/></svg>
+              Optimize
+            </button>
+            <button class="btn btn-primary" id="save-route-btn" style="display:none">Save Route</button>
+          </div>
         </div>
       </div>
 
-      <!-- Right Panel: Map Preview -->
-      <div class="map-preview-panel">
-        <div class="panel-header">
-          <div class="panel-title">Route Preview</div>
-          <div class="panel-subtitle">Live map view</div>
+      <!-- ── Right: Map Preview ──────────────────────── -->
+      <div class="rp-panel rp-panel--map">
+        <div class="rp-panel-head">
+          <span class="rp-panel-title">Map Preview</span>
         </div>
-        
-        <div class="route-map-container">
-          <div id="route-planning-map" style="display: none;"></div>
-          <div class="map-empty-state" id="map-empty-state">
-            <div class="map-empty-icon">🗺️</div>
-            <div>Add stops to see route on map</div>
+        <div class="rp-map-wrap">
+          <div id="route-planning-map" style="display:none;width:100%;height:100%;"></div>
+          <div class="rp-map-empty" id="map-empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>
+            <p>Add stops to preview route</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Existing Routes Section -->
-    <div class="card mt-3">
-      <div class="card-header">
-        <h3 class="card-title">Existing Routes</h3>
+    <!-- ── Existing Routes ─────────────────────────────── -->
+    <div class="rp-saved-section">
+      <div class="rp-saved-header">
+        <h3 class="rp-saved-title">Saved Routes</h3>
+        <span class="rp-saved-count">${groupedRoutes.length}</span>
       </div>
-      <div class="routes-list">
-        ${groupedRoutes.length === 0 ?
-      '<p class="text-muted text-center u-p-xl">No routes created yet</p>' :
-      groupedRoutes.map(group => `
-            <div class="route-item" data-id="${group.routeIds[0]}" data-route-ids="${group.routeIds.join(',')}">
-              <div class="route-info">
-                <h4>${group.name}</h4>
-                <div class="route-assignees">
-                  <span class="route-assignees-label">Assigned to:</span>
-                  <div class="route-assignees-list">
-                    ${group.assignees.length === 0 ? '<span class="text-muted">Unassigned</span>' :
-          group.assignees.map(assignee => `
-                        <span class="route-assignee-tag">
-                          <span class="assignee-avatar">${assignee.first_name.charAt(0)}${assignee.last_name.charAt(0)}</span>
-                          ${assignee.first_name} ${assignee.last_name}
-                        </span>
-                      `).join('')}
-                  </div>
+      ${groupedRoutes.length === 0 ? `
+        <div class="rp-empty rp-empty--full">
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg>
+          <p>No saved routes yet — build one above</p>
+        </div>
+      ` : `
+        <div class="ri-grid">
+          ${groupedRoutes.map(group => `
+            <div class="ri" data-id="${group.routeIds[0]}" data-route-ids="${group.routeIds.join(',')}">
+              <div class="ri-icon-col">
+                <div class="ri-icon-wrap">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg>
                 </div>
-                <p class="route-meta-info">
-                  <span>Created: ${formatDate(group.created_at)}</span>
-                  ${group.estimated_duration ? `<span>• Est. duration: ${group.estimated_duration} min</span>` : ''}
-                  ${group.stopsCount ? `<span>• ${group.stopsCount} stops</span>` : ''}
-                </p>
               </div>
-              <div class="route-actions">
-                <button class="btn btn-sm btn-ghost view-route-btn" data-id="${group.routeIds[0]}">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
+              <div class="ri-body">
+                <div class="ri-name">${escapeHtml(group.name)}</div>
+                <div class="ri-chips">
+                  ${group.stopsCount ? `<span class="ri-chip ri-chip--stops">${group.stopsCount} stop${group.stopsCount !== 1 ? 's' : ''}</span>` : ''}
+                  ${group.total_distance ? `<span class="ri-chip ri-chip--dist">${(group.total_distance / 1000).toFixed(1)} km</span>` : ''}
+                  ${group.estimated_duration ? `<span class="ri-chip ri-chip--time">${group.estimated_duration} min</span>` : ''}
+                  <span class="ri-chip ri-chip--date">${formatDate(group.created_at)}</span>
+                </div>
+                <div class="ri-assignees">
+                  ${group.assignees.length === 0
+                    ? '<span class="ri-unassigned">Unassigned</span>'
+                    : group.assignees.map(a => `
+                        <span class="ri-assignee">
+                          <span class="ri-assignee-av">${escapeHtml(a.first_name.charAt(0))}${escapeHtml(a.last_name.charAt(0))}</span>
+                          <span class="ri-assignee-name">${escapeHtml(a.first_name)} ${escapeHtml(a.last_name)}</span>
+                        </span>`).join('')}
+                </div>
+              </div>
+              <div class="ri-actions">
+                <button class="btn btn-sm btn-ghost view-route-btn" data-id="${group.routeIds[0]}" title="View">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
                 </button>
-                <button class="btn btn-sm btn-ghost edit-route-btn" data-id="${group.routeIds[0]}">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen-icon lucide-square-pen"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
+                <button class="btn btn-sm btn-ghost edit-route-btn" data-id="${group.routeIds[0]}" title="Edit">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
                 </button>
-                <button class="btn btn-sm btn-ghost delete-route-btn" data-id="${group.routeIds.join(',')}" data-route-name="${group.name}">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
+                <button class="btn btn-sm btn-ghost ri-delete-btn delete-route-btn" data-id="${group.routeIds.join(',')}" data-route-name="${escapeHtml(group.name)}" title="Delete">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
                 </button>
               </div>
             </div>
-          `).join('')
-    }
-      </div>
+          `).join('')}
+        </div>
+      `}
     </div>
   `;
 
@@ -318,14 +344,6 @@ function initRoutePlanning(companies, salesReps) {
   // Restore visual added state on company cards 
   if (routeStops.length > 0) {
     setTimeout(() => {
-      routeStops.forEach(stop => {
-        const card = companiesList.querySelector(`[data-company-id="${stop.id}"]`);
-        if (card) {
-          card.classList.add('added');
-          const addBtn = card.querySelector('.company-card-add-btn');
-          if (addBtn) addBtn.textContent = '✓ Added';
-        }
-      });
       updateRouteDisplay();
     }, 50);
   }
@@ -341,11 +359,11 @@ function initRoutePlanning(companies, salesReps) {
     searchInput.addEventListener('input', (e) => {
       const searchTerm = e.target.value.toLowerCase();
       saveViewState({ routePlan: { search: e.target.value } });
-      const companyCards = companiesList.querySelectorAll('.company-quick-card');
+      const companyCards = companiesList.querySelectorAll('.cqc');
 
       companyCards.forEach(card => {
-        const name = card.querySelector('.company-card-name').textContent.toLowerCase();
-        const address = card.querySelector('.company-card-address').textContent.toLowerCase();
+        const name = card.querySelector('.cqc-name').textContent.toLowerCase();
+        const address = (card.querySelector('.cqc-address') || { textContent: '' }).textContent.toLowerCase();
 
         if (name.includes(searchTerm) || address.includes(searchTerm)) {
           card.style.display = '';
@@ -356,29 +374,39 @@ function initRoutePlanning(companies, salesReps) {
     });
   }
 
-  // Add company to route
-  companiesList.addEventListener('click', (e) => {
-    const addBtn = e.target.closest('.company-card-add-btn');
-    if (!addBtn) return;
-    if (addBtn.disabled) return;
+  // Clear all button
+  const clearBtn = document.getElementById('clear-route-btn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      routeStops = [];
+      companiesList.querySelectorAll('.cqc').forEach(card => {
+        card.classList.remove('cqc--added');
+        const badge = card.querySelector('.cqc-badge');
+        const addBtn = card.querySelector('.cqc-add');
+        if (badge) badge.style.display = 'none';
+        if (addBtn) addBtn.style.display = '';
+      });
+      updateRouteDisplay();
+    });
+  }
 
-    const card = addBtn.closest('.company-quick-card');
+  // Add company to route — click anywhere on the card
+  companiesList.addEventListener('click', (e) => {
+    const card = e.target.closest('.cqc');
+    if (!card) return;
     if (card.dataset.noAddress) {
       showToast('This company has no address. Edit the company and add an address first.', 'error');
       return;
     }
-    const companyId = card.dataset.companyId;
-
-    // Check if already added
-    if (routeStops.find(stop => stop.id === companyId)) {
+    if (card.classList.contains('cqc--added')) {
       showToast('Company already added to route', 'warning');
       return;
     }
 
+    const companyId = card.dataset.companyId;
     const company = companies.find(c => c.id === companyId);
     if (!company) return;
 
-    // Add to route
     routeStops.push({
       id: company.id,
       name: company.name,
@@ -386,10 +414,6 @@ function initRoutePlanning(companies, salesReps) {
       latitude: parseFloat(company.latitude),
       longitude: parseFloat(company.longitude)
     });
-
-    // Mark as added
-    card.classList.add('added');
-    addBtn.textContent = '✓ Added';
 
     updateRouteDisplay();
   });
@@ -400,14 +424,15 @@ function initRoutePlanning(companies, salesReps) {
 
     if (routeStops.length === 0) {
       stopsContainer.innerHTML = `
-        <div class="route-stops-empty">
-          <div class="route-stops-empty-icon">🗺️</div>
-          <div class="route-stops-empty-text">No stops added yet</div>
-          <div class="route-stops-empty-hint">Click "+ Add" on companies to build your route</div>
+        <div class="rp-stops-empty">
+          <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="3"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15"/><circle cx="18" cy="5" r="3"/></svg>
+          <p>No stops yet</p>
+          <span>Click a company on the left to add it</span>
         </div>
       `;
       optimizeBtn.style.display = 'none';
       saveBtn.style.display = 'none';
+      if (clearBtn) clearBtn.style.display = 'none';
 
       // Hide map
       if (map) {
@@ -415,57 +440,93 @@ function initRoutePlanning(companies, salesReps) {
         mapEmptyState.style.display = 'flex';
       }
 
+      // Reset all company card badges
+      companiesList.querySelectorAll('.cqc').forEach(card => {
+        card.classList.remove('cqc--added');
+        const badge = card.querySelector('.cqc-badge');
+        const addBtn = card.querySelector('.cqc-add');
+        if (badge) badge.style.display = 'none';
+        if (addBtn) addBtn.style.display = '';
+      });
+
       // Persist the empty state so stops don't reappear on refresh
       saveRouteBuilderState();
       return;
     }
 
     // Show action buttons
-    if (routeStops.length >= 2) {
-      optimizeBtn.style.display = 'block';
-    }
-    saveBtn.style.display = 'block';
+    optimizeBtn.style.display = routeStops.length >= 2 ? '' : 'none';
+    saveBtn.style.display = '';
+    if (clearBtn) clearBtn.style.display = '';
+
+    // Update company card badges to reflect current positions
+    // First reset all, then mark active ones
+    companiesList.querySelectorAll('.cqc').forEach(card => {
+      card.classList.remove('cqc--added');
+      const badge = card.querySelector('.cqc-badge');
+      const addBtn = card.querySelector('.cqc-add');
+      if (badge) badge.style.display = 'none';
+      if (addBtn) addBtn.style.display = '';
+    });
+    routeStops.forEach((stop, index) => {
+      const card = companiesList.querySelector(`[data-company-id="${stop.id}"]`);
+      if (card) {
+        card.classList.add('cqc--added');
+        const badge = card.querySelector('.cqc-badge');
+        const addBtn = card.querySelector('.cqc-add');
+        if (badge) { badge.textContent = index + 1; badge.style.display = 'flex'; }
+        if (addBtn) addBtn.style.display = 'none';
+      }
+    });
+
+    // Pre-compute inter-stop distances
+    const legDistances = routeStops.map((stop, i) => {
+      if (i === 0) return null;
+      const d = calculateDistance(
+        routeStops[i - 1].latitude, routeStops[i - 1].longitude,
+        stop.latitude, stop.longitude
+      );
+      return d.toFixed(1) + ' km from previous';
+    });
 
     // Render stops
     stopsContainer.innerHTML = routeStops.map((stop, index) => `
-      <div class="route-stop-item" data-stop-id="${stop.id}">
-        <div class="route-stop-number">${index + 1}</div>
-        <div class="route-stop-info">
-          <div class="route-stop-name">${stop.name}</div>
-          <div class="route-stop-address">${stop.address || 'No address'}</div>
+      <div class="rsi" data-stop-id="${stop.id}">
+        <div class="rsi-grip" title="Drag to reorder">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
         </div>
-        <button class="route-stop-remove" data-stop-id="${stop.id}">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-          </svg>
+        <div class="rsi-num">${index + 1}</div>
+        <div class="rsi-body">
+          <div class="rsi-name">${escapeHtml(stop.name)}</div>
+          <div class="rsi-sub">
+            ${index === 0 ? '<span class="rsi-tag rsi-tag--start">Start</span>' : ''}
+            ${legDistances[index] ? `<span class="rsi-leg">${legDistances[index]}</span>` : ''}
+          </div>
+        </div>
+        <button class="rsi-remove" data-stop-id="${stop.id}" aria-label="Remove stop">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
       </div>
     `).join('');
 
     // Initialize sortable
-    if (sortable) {
-      sortable.destroy();
-    }
+    if (sortable) sortable.destroy();
 
     sortable = new Sortable(stopsContainer, {
       animation: 120,
       easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
       delayOnTouchOnly: true,
       touchStartThreshold: 4,
-      handle: '.route-stop-item',
+      handle: '.rsi-grip',
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
       dragClass: 'sortable-drag',
-      onStart: function () {
-        document.body.classList.add('is-dragging');
-      },
+      onStart: function () { document.body.classList.add('is-dragging'); },
       onEnd: function () {
         document.body.classList.remove('is-dragging');
-        // Update routeStops array based on new order
         const newOrder = [];
-        stopsContainer.querySelectorAll('.route-stop-item').forEach(item => {
-          const stopId = item.dataset.stopId;
-          const stop = routeStops.find(s => s.id === stopId);
+        stopsContainer.querySelectorAll('.rsi').forEach(item => {
+          const stop = routeStops.find(s => s.id === item.dataset.stopId);
           if (stop) newOrder.push(stop);
         });
         routeStops = newOrder;
@@ -473,12 +534,9 @@ function initRoutePlanning(companies, salesReps) {
       }
     });
 
-    // Add remove button listeners
-    stopsContainer.querySelectorAll('.route-stop-remove').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const stopId = btn.dataset.stopId;
-        removeStop(stopId);
-      });
+    // Remove button listeners
+    stopsContainer.querySelectorAll('.rsi-remove').forEach(btn => {
+      btn.addEventListener('click', () => removeStop(btn.dataset.stopId));
     });
 
     // Calculate and update distance/time
@@ -491,15 +549,6 @@ function initRoutePlanning(companies, salesReps) {
 
   function removeStop(stopId) {
     routeStops = routeStops.filter(stop => stop.id !== stopId);
-
-    // Unmark company card
-    const card = companiesList.querySelector(`[data-company-id="${stopId}"]`);
-    if (card) {
-      card.classList.remove('added');
-      const btn = card.querySelector('.company-card-add-btn');
-      if (btn) btn.textContent = '+ Add';
-    }
-
     updateRouteDisplay();
   }
 
@@ -704,11 +753,13 @@ function initRoutePlanning(companies, salesReps) {
       routeNameInput.value = '';
       routeRepSelect.value = '';
 
-      // Unmark all company cards
-      companiesList.querySelectorAll('.company-quick-card.added').forEach(card => {
-        card.classList.remove('added');
-        const btn = card.querySelector('.company-card-add-btn');
-        if (btn) btn.textContent = '+ Add';
+      // Unmark all company cards (updateRouteDisplay handles this, but reset here for clarity)
+      companiesList.querySelectorAll('.cqc.cqc--added').forEach(card => {
+        card.classList.remove('cqc--added');
+        const badge = card.querySelector('.cqc-badge');
+        const addBtn = card.querySelector('.cqc-add');
+        if (badge) badge.style.display = 'none';
+        if (addBtn) addBtn.style.display = '';
       });
 
       // Clear stats
@@ -761,19 +812,17 @@ function initRoutePlanning(companies, salesReps) {
     if (nearestCompany && shortestDistance < 50) { // Only show if within 50km
       // Highlight the nearest company card
       const nearestCard = companiesList.querySelector(`[data-company-id="${nearestCompany.id}"]`);
-      if (nearestCard && !nearestCard.classList.contains('added')) {
+      if (nearestCard && !nearestCard.classList.contains('cqc--added')) {
         // Remove previous highlights
-        companiesList.querySelectorAll('.company-quick-card').forEach(card => {
-          card.style.boxShadow = '';
-          card.style.border = '';
+        companiesList.querySelectorAll('.cqc').forEach(card => {
+          card.style.outline = '';
         });
 
         // Highlight nearest
-        nearestCard.style.boxShadow = '0 0 0 2px var(--color-primary)';
-        nearestCard.style.border = '1.5px solid var(--color-primary)';
+        nearestCard.style.outline = '2px solid var(--color-primary)';
 
         // Scroll into view
-        nearestCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        nearestCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
         // Show toast with AI suggestion
         showToast(`💡 AI Suggestion: ${nearestCompany.name} is ${shortestDistance.toFixed(1)}km away`, 'info', 5000);
@@ -822,8 +871,8 @@ function initRouteList() {
   document.querySelectorAll('.delete-route-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const routeIds = btn.dataset.id.split(','); // Can be multiple IDs
-      const routeItem = btn.closest('.route-item');
-      const routeName = btn.dataset.routeName || routeItem.querySelector('h4').textContent;
+      const routeItem = btn.closest('.ri');
+      const routeName = btn.dataset.routeName || routeItem?.querySelector('.ri-name')?.textContent || 'this route';
       const assigneeCount = routeIds.length;
 
       const confirmMessage = assigneeCount > 1
@@ -844,7 +893,7 @@ function initRouteList() {
         if (error) throw error;
 
         showToast('Route deleted successfully', 'success');
-        routeItem.remove();
+        if (routeItem) routeItem.remove();
       } catch (error) {
         showToast('Error deleting route: ' + error.message, 'error');
       }
