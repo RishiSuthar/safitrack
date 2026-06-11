@@ -4847,7 +4847,7 @@ body.modal-active {
 .nav-item .nav-badge {
   font-size: 0.6875rem;
   font-weight: 700;
-  padding: 0 5px;
+  padding: 0 5dpx;
   min-width: 20px;
   height: 20px;
   line-height: 20px;
