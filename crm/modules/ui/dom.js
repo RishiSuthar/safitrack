@@ -2,7 +2,7 @@
 // Cached DOM element references shared across all modules.
 // Queried lazily to survive any dynamic insertion of elements.
 
-function el(id) {
+export function el(id) {
   return document.getElementById(id);
 }
 

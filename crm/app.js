@@ -51,6 +51,8 @@ import { openCommandPalette, closeCommandPalette, openQuickActions, closeQuickAc
 import { initPWA, attemptShowPWABanner } from './modules/ui/pwa.js';
 import { showCompressionProgress, hideCompressionProgress } from './modules/ui/sidebar-resize.js';
 import { showMentionSuggestions, setActiveMention, insertMentionFromSuggestion } from './modules/ui/mention.js';
+import { initMobileOptimizations } from './modules/ui/mobile-optimize.js';
+import { initMobileNavigation } from './modules/ui/mobile-navigation.js';
 
 // ── Utils ─────────────────────────────────────────────────────────────────────
 import {
@@ -321,6 +323,8 @@ STATE_GLOBALS.forEach(key => {
 
 // ── Application Bootstrap ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  initMobileOptimizations(); // Initialize mobile-specific enhancements
+  initMobileNavigation(); // Initialize mobile menu handling
   initTheme();
   initAuth();
   initEventListeners();
