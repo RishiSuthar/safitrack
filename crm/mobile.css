@@ -1877,10 +1877,12 @@
     height: 38px;
     min-width: 38px;
     min-height: 38px;
+    padding: 0;
     border-radius: var(--radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
+    box-sizing: border-box;
   }
 
   .header-right svg {
@@ -1892,19 +1894,31 @@
   .header-ai-btn {
     width: 38px;
     height: 38px;
+    padding: 0;
+    justify-content: center;
+  }
+  
+  .header-ai-btn span {
+    display: none;
   }
 
   /* User avatar in header */
   .user-avatar-btn {
-    width: 34px;
-    height: 34px;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   .user-avatar-btn img,
-  .user-avatar-btn .avatar-initials {
-    width: 34px;
-    height: 34px;
+  .user-avatar-btn .avatar-initials,
+  .user-avatar {
+    width: 28px;
+    height: 28px;
     font-size: 0.75rem;
+    margin: 0;
   }
 }
 
@@ -2205,7 +2219,7 @@
    ────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .page-label {
-    display: none;
+    display: none !important;
   }
 }
 
@@ -2703,7 +2717,8 @@
   /* Toolbar */
   .spreadsheet-toolbar,
   .view-toolbar {
-    flex-direction: column;
+    flex-direction: row;
+    flex-wrap: wrap;
     gap: 0.5rem;
     padding: 0.75rem;
   }
@@ -2711,7 +2726,7 @@
   .spreadsheet-search,
   .view-toolbar .search-container {
     width: 100%;
-    order: 1;
+    order: -1;
   }
 
   .spreadsheet-search input,
@@ -2728,10 +2743,19 @@
     order: 2;
   }
 
-  .spreadsheet-actions .btn {
+  .spreadsheet-actions .btn,
+  .view-toolbar .toolbar-btn {
     flex: 1;
     min-width: calc(50% - 0.25rem);
     justify-content: center;
+  }
+
+  /* Fix for floating sticky checkbox on mobile spreadsheet */
+  .spreadsheet-table th.th-selection,
+  .spreadsheet-table td:first-child {
+    position: static !important;
+    box-shadow: none !important;
+    z-index: 1 !important;
   }
 
   .spreadsheet-filters {
@@ -2887,13 +2911,36 @@
     gap: 0.5rem;
   }
 
+  .pipeline-controls-primary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
   .pipeline-search {
     width: 100%;
+    flex: 1 1 100%;
+    position: relative !important;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+  }
+
+  .pipeline-search svg,
+  .pipeline-search i {
+    position: absolute;
+    left: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 2;
   }
 
   .pipeline-search input {
     width: 100%;
     min-height: 40px;
+    box-sizing: border-box;
+    padding-left: 2.5rem !important;
   }
 
   /* Pipeline filters — horizontal scroll */
@@ -2997,8 +3044,11 @@
 @media (max-width: 768px) {
   .visits-hub {
     gap: 0.875rem;
-    max-width: 100%;
+    max-width: 100vw;
+    width: 100%;
     overflow-x: hidden;
+    box-sizing: border-box;
+    padding: 0;
   }
 
   .visits-stat-label {
@@ -3011,6 +3061,8 @@
     gap: 0.625rem;
     border-radius: var(--radius-md);
     max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
     overflow: hidden;
   }
 
@@ -3053,6 +3105,9 @@
   .visits-main-content {
     grid-template-columns: 1fr;
     gap: 0.875rem;
+    max-width: 100%;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   /* Visit cards */
