@@ -23340,6 +23340,12 @@ textarea.ups-input {
   transform: translateY(-1px);
 }
 
+@media (max-width: 768px) {
+  .safi-nudge-launcher {
+    display: none !important;
+  }
+}
+
 /* Toast Card */
 .nudge-toast-card {
   position: fixed;
