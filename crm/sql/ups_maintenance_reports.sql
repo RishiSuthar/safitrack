@@ -68,6 +68,8 @@ CREATE TABLE IF NOT EXISTS ups_maintenance_reports (
   photo_path TEXT,
   signature_data TEXT,
   manager_approval_status VARCHAR(20) DEFAULT 'Pending',
+  denial_reason TEXT,
+  flagged_sections JSONB,
 
   -- Timestamps
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()

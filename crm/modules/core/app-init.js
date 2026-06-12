@@ -333,9 +333,16 @@ function updateNavigationForRole() {
       el.style.display = 'none';
     });
     // Hide views that technicians should not access
-    ['sales-funnel', 'opportunity-pipeline', 'call-logs', 'companies', 'people'].forEach(view => {
+    ['sales-funnel', 'opportunity-pipeline', 'call-logs', 'companies', 'people', 'workflows', 'reports'].forEach(view => {
       document.querySelectorAll(`.sidebar-nav [data-view="${view}"]`).forEach(el => el.style.display = 'none');
     });
+    
+    // Also hide entire sections
+    const salesNav = document.getElementById('sales-nav-section');
+    if (salesNav) salesNav.style.display = 'none';
+    const intelNav = document.getElementById('intelligence-nav-section');
+    if (intelNav) intelNav.style.display = 'none';
+
     document.querySelectorAll('.sidebar-nav [data-view="user-management"]').forEach(el => {
       el.style.display = 'flex';
     });

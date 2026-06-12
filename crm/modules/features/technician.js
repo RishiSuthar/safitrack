@@ -88,7 +88,7 @@ async function renderTechnicianLogVisitView() {
 // UPS VISIT FORM — 7-step multi-step mobile-first form
 // ════════════════════════════════════════════════════════════════
 
-function renderUPSVisitForm() {
+function renderUPSVisitForm(existingData = null) {
   document.body.classList.add('ups-form-active');
 
   const techName = `${state.currentUser.first_name || ''} ${state.currentUser.last_name || ''}`.trim() || state.currentUser.email;
@@ -105,6 +105,17 @@ function renderUPSVisitForm() {
           <div class="ups-progress-fill" id="ups-progress-fill" style="width: ${(1/7)*100}%"></div>
         </div>
       </div>
+
+      ${existingData && existingData.manager_approval_status === 'Denied' ? `
+        <div style="background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.2); padding:12px; margin:16px 16px 0 16px; border-radius:8px;">
+          <h4 style="margin:0 0 4px 0; color:#ef4444; font-size:14px; display:flex; align-items:center; gap:6px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+            Report Denied
+          </h4>
+          <p style="margin:0 0 8px 0; font-size:13px; color:var(--text-primary);"><strong>Reason:</strong> ${escapeHtml(existingData.denial_reason || 'No reason provided')}</p>
+          <p style="margin:0; font-size:12px; color:var(--text-muted);"><strong>Flagged Sections:</strong> ${(existingData.flagged_sections || []).join(', ') || 'None'}</p>
+        </div>
+      ` : ''}
 
       <!-- Steps viewport -->
       <div class="ups-steps-viewport">
@@ -391,14 +402,14 @@ function renderUPSVisitForm() {
     </div>
   `;
 
-  initUPSFormLogic(techName);
+  initUPSFormLogic(techName, existingData);
 }
 
 // ════════════════════════════════════════════════════════════════
 // UPS FORM LOGIC — Navigation, validation, toggles, submission
 // ════════════════════════════════════════════════════════════════
 
-function initUPSFormLogic(techName) {
+function initUPSFormLogic(techName, existingData) {
   let currentStep = 0;
   const totalSteps = 7;
   const track = document.getElementById('ups-steps-track');
@@ -407,6 +418,69 @@ function initUPSFormLogic(techName) {
   const sectionName = document.getElementById('ups-section-name');
   const btnBack = document.getElementById('ups-btn-back');
   const btnNext = document.getElementById('ups-btn-next');
+
+  if (existingData) {
+    const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== null && val !== undefined) el.value = val; };
+    const setToggle = (name, val) => {
+      // Toggle logic usually removes 'selected' from all buttons in the group, we'll just click it
+      // But they might not be in the DOM yet, wait! They are in the DOM.
+      // However, we can just manually add the class here so we don't trigger events if not needed.
+      const btn = document.querySelector(`button.ups-toggle-btn[data-name="${name}"][data-value="${val}"]`);
+      if (btn) {
+        btn.parentElement.querySelectorAll('.ups-toggle-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      }
+    };
+
+    setVal('ups-site-name', existingData.site_client_name);
+    setVal('ups-location', existingData.location_building);
+    setVal('ups-brand', existingData.ups_brand);
+    setVal('ups-serial', existingData.ups_serial_number);
+    setVal('ups-model', existingData.ups_model);
+    setVal('ups-runtime', existingData.total_ups_runtime);
+    
+    setVal('ups-temperature', existingData.ambient_room_temperature);
+    setVal('ups-humidity', existingData.humidity_level);
+    
+    if (existingData.operating_mode) setToggle('ups-operating-mode', existingData.operating_mode);
+    setVal('ups-rectifier-vdc', existingData.rectifier_dc_output_voltage);
+    setVal('ups-inverter-freq', existingData.inverter_output_frequency);
+    setVal('ups-load-pct', existingData.load_percentage);
+    
+    setVal('ups-in-rn', existingData.input_voltage_rn);
+    setVal('ups-in-yn', existingData.input_voltage_yn);
+    setVal('ups-in-bn', existingData.input_voltage_bn);
+    setVal('ups-out-rn', existingData.output_voltage_rn);
+    setVal('ups-out-yn', existingData.output_voltage_yn);
+    setVal('ups-out-bn', existingData.output_voltage_bn);
+    setVal('ups-out-current', existingData.output_load_current);
+    
+    setVal('ups-batt-brand', existingData.battery_brand);
+    setVal('ups-batt-size', existingData.battery_size);
+    setVal('ups-batt-qty', existingData.battery_quantity_series);
+    setVal('ups-batt-bank-v', existingData.total_battery_bank_voltage);
+    setVal('ups-batt-charge-v', existingData.charging_voltage);
+    setVal('ups-batt-temp', existingData.battery_surface_temperature);
+    
+    if (existingData.battery_connections_tightened !== null) setToggle('ups-batt-tight', String(existingData.battery_connections_tightened));
+    if (existingData.signs_bulging_leakage !== null) setToggle('ups-batt-bulge', String(existingData.signs_bulging_leakage));
+    if (existingData.battery_self_test_result) setToggle('ups-batt-test', existingData.battery_self_test_result);
+    
+    if (existingData.transfer_manual_bypass) setToggle('ups-chk-bypass', existingData.transfer_manual_bypass);
+    if (existingData.load_transfer_test) setToggle('ups-chk-transfer', existingData.load_transfer_test);
+    if (existingData.cooling_fan_check) setToggle('ups-chk-fan', existingData.cooling_fan_check);
+    if (existingData.error_alarm_log_cleared) setToggle('ups-chk-alarm', existingData.error_alarm_log_cleared);
+    if (existingData.unit_interior_cleaned) setToggle('ups-chk-clean', existingData.unit_interior_cleaned);
+    if (existingData.internal_wiring_inspected) setToggle('ups-chk-wiring', existingData.internal_wiring_inspected);
+    setVal('ups-firmware', existingData.firmware_version);
+    
+    if (existingData.overall_system_status) setToggle('ups-overall-status', existingData.overall_system_status);
+    setVal('ups-client-eng', existingData.client_engineer_name);
+    setVal('ups-notes', existingData.notes_remarks);
+    
+    // We will let them re-sign or re-take photo if they want, but don't force it.
+    // So if existingData has them, they won't be erased unless we explicitly null them.
+  }
 
   // ── Toggle button logic ──
   document.querySelectorAll('.ups-toggle-group').forEach(group => {
@@ -570,7 +644,7 @@ function initUPSFormLogic(techName) {
 
     try {
       // Upload photo if exists
-      let photoPath = null;
+      let photoPath = existingData ? existingData.photo_path : null;
       if (selectedPhotoFile) {
         try {
           const compressed = await compressImage(selectedPhotoFile, 1200, 0.7);
@@ -591,7 +665,7 @@ function initUPSFormLogic(techName) {
       }
 
       // Capture signature
-      let signatureData = null;
+      let signatureData = existingData ? existingData.signature_data : null;
       if (hasSignature) {
         signatureData = canvas.toDataURL('image/png');
       }
@@ -650,15 +724,28 @@ function initUPSFormLogic(techName) {
         signature_data: signatureData
       };
 
-      const { data: result, error } = await supabaseClient
-        .from('ups_maintenance_reports')
-        .insert([data])
-        .select('id')
-        .single();
+      let result;
+      if (existingData) {
+        data.manager_approval_status = 'Pending'; // reset approval
+        const { data: updateRes, error } = await supabaseClient
+          .from('ups_maintenance_reports')
+          .update(data)
+          .eq('id', existingData.id)
+          .select('id')
+          .single();
+        if (error) throw error;
+        result = updateRes;
+      } else {
+        const { data: insertRes, error } = await supabaseClient
+          .from('ups_maintenance_reports')
+          .insert([data])
+          .select('id')
+          .single();
+        if (error) throw error;
+        result = insertRes;
+      }
 
-      if (error) throw error;
-
-      showToast('UPS Report Submitted!', 'success');
+      showToast(existingData ? 'UPS Report Resubmitted!' : 'UPS Report Submitted!', 'success');
       renderSuccessScreen(result.id);
 
     } catch (e) {
@@ -771,7 +858,7 @@ async function renderTechnicianActivityView() {
         </thead>
         <tbody>
           ${reports.map(r => `
-            <tr>
+            <tr ${r.manager_approval_status === 'Denied' ? `onclick="window._editUPSReport('${r.id}')" style="cursor:pointer;" title="Click to edit denied report"` : ''}>
               <td class="ups-report-id-cell">${r.id.substring(0, 8)}…</td>
               <td>${escapeHtml(r.site_client_name || '—')}</td>
               <td>
@@ -792,6 +879,21 @@ async function renderTechnicianActivityView() {
     </div>
   `;
 }
+
+window._editUPSReport = async function(reportId) {
+  const { data: r, error } = await supabaseClient
+    .from('ups_maintenance_reports')
+    .select('*')
+    .eq('id', reportId)
+    .single();
+    
+  if (error || !r) {
+    showToast('Failed to load report for editing', 'error');
+    return;
+  }
+  
+  renderUPSVisitForm(r);
+};
 
 // ════════════════════════════════════════════════════════════════
 // MANAGER VIEW — TECHNICIANS DASHBOARD
@@ -939,6 +1041,11 @@ function renderReportsTable(reports, allReports) {
 // ════════════════════════════════════════════════════════════════
 
 window._updateUPSApproval = async function (reportId, status) {
+  if (status === 'Denied') {
+    renderDenialModal(reportId);
+    return;
+  }
+
   try {
     const { data, error } = await supabaseClient
       .from('ups_maintenance_reports')
@@ -957,6 +1064,77 @@ window._updateUPSApproval = async function (reportId, status) {
     showToast(`Failed to update approval: ${err.message}`, 'error');
   }
 };
+
+function renderDenialModal(reportId) {
+  const modalHTML = `
+    <div class="ups-modal-overlay" id="ups-denial-modal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:9999; padding:16px;">
+      <div class="ups-modal-content" style="width:100%; max-width:500px; padding:24px; border-radius:12px; background:var(--bg-primary); color:var(--text-primary); box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+        <h2 style="margin-top:0; margin-bottom:16px; font-size:20px;">Deny Report</h2>
+        <p style="margin-bottom:16px; color:var(--text-muted); font-size:14px;">Select the sections that need correction and provide a reason for the technician.</p>
+        
+        <div style="margin-bottom:16px;">
+          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Flagged Sections</label>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;" id="ups-denial-sections">
+            ${STEP_NAMES.map(name => `
+              <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+                <input type="checkbox" value="${name}">
+                ${name}
+              </label>
+            `).join('')}
+          </div>
+        </div>
+
+        <div style="margin-bottom:24px;">
+          <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Reason for Denial</label>
+          <textarea id="ups-denial-reason" class="ups-input" rows="4" placeholder="E.g., Battery voltages are too low, please re-measure..."></textarea>
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:12px;">
+          <button class="btn btn-secondary" onclick="document.getElementById('ups-denial-modal').remove()">Cancel</button>
+          <button class="btn btn-danger" id="ups-denial-submit">Submit Denial</button>
+        </div>
+      </div>
+    </div>
+  `;
+  document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+  document.getElementById('ups-denial-submit').addEventListener('click', async () => {
+    const reason = document.getElementById('ups-denial-reason').value.trim();
+    const checked = Array.from(document.querySelectorAll('#ups-denial-sections input:checked')).map(cb => cb.value);
+    
+    if (!reason) {
+      showToast('Please provide a reason for denial.', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('ups-denial-submit');
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    try {
+      const { data, error } = await supabaseClient
+        .from('ups_maintenance_reports')
+        .update({ 
+          manager_approval_status: 'Denied',
+          denial_reason: reason,
+          flagged_sections: checked
+        })
+        .eq('id', reportId)
+        .select();
+        
+      if (error) throw error;
+      if (!data || data.length === 0) throw new Error('Update blocked by permissions.');
+      
+      showToast('Report denied and sent back to technician.', 'success');
+      document.getElementById('ups-denial-modal').remove();
+      renderTechniciansDashboardView();
+    } catch (err) {
+      showToast(`Failed: ${err.message}`, 'error');
+      btn.disabled = false;
+      btn.textContent = 'Submit Denial';
+    }
+  });
+}
 
 window._viewUPSReport = async function (reportId) {
   const container = document.getElementById('ups-reports-container');
