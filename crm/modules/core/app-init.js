@@ -117,10 +117,9 @@ async function initApp() {
   updateUserDisplay(profile);
   updateNavigationForRole();
 
-  // Load all people for mention functionality
-  await loadAllPeople();
-  // Load companies early so logos are available on first render
-  await loadAllCompanies();
+  // Start loading people and companies non-blockingly, storing the promises globally
+  window.allPeoplePromise = loadAllPeople();
+  window.allCompaniesPromise = loadAllCompanies();
 
   const savedView = localStorage.getItem('lastActiveView');
 
@@ -171,8 +170,8 @@ async function initApp() {
 
 async function loadAllPeople() {
   const orgId = state.currentOrganization?.id;
-  let pQ = supabaseClient.from('people').select('id, name, email, company_id').order('name', { ascending: true });
-  let cQ = supabaseClient.from('companies').select('id, name');
+  let pQ = supabaseClient.from('people').select('*').order('name', { ascending: true });
+  let cQ = supabaseClient.from('companies').select('id, name').order('name', { ascending: true });
   if (orgId) {
     pQ = pQ.eq('organization_id', orgId);
     cQ = cQ.eq('organization_id', orgId);
@@ -219,7 +218,7 @@ async function loadAllCompanies() {
   try {
     // diagnostic logs removed
     const doFetch = async () => {
-      let q = supabaseClient.from('companies').select('id, name, domain').order('name', { ascending: true });
+      let q = supabaseClient.from('companies').select('*, company_categories(categories(id, name))').order('name', { ascending: true });
       if (state.currentOrganization?.id) q = q.eq('organization_id', state.currentOrganization.id);
       const { data: companies, error } = await q;
       return { companies, error };

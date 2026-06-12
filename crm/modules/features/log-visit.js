@@ -8,9 +8,17 @@ import { geocodeAddressWithOSM } from '../utils/geo.js';
 
 
 async function renderLogVisitView() {
-  let companiesQ = supabaseClient.from('companies').select('*').order('name', { ascending: true });
-  if (state.currentOrganization?.id) companiesQ = companiesQ.eq('organization_id', state.currentOrganization.id);
-  const { data: companies } = await companiesQ;
+  if (window.allCompaniesPromise) await window.allCompaniesPromise;
+  
+  // Create a sorted copy of the cached companies
+  let companies = [...(window.allCompaniesData || [])];
+  companies.sort((a, b) => {
+    let nameA = (a.name || '').toLowerCase();
+    let nameB = (b.name || '').toLowerCase();
+    if (nameA < nameB) return -1;
+    if (nameA > nameB) return 1;
+    return 0;
+  });
 
   viewContainer.innerHTML = `
     <div class="log-visit-shell">

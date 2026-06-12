@@ -57,16 +57,25 @@ function groupRoutesByLocations(routes, routeLocations) {
 }
 
 async function renderRoutePlanningView() {
-  // Fetch companies, sales reps, and existing routes
+  // Fetch sales reps and existing routes (companies are cached)
+  if (window.allCompaniesPromise) await window.allCompaniesPromise;
+
+  let companies = [...(window.allCompaniesData || [])];
+  companies.sort((a, b) => {
+    let nameA = (a.name || '').toLowerCase();
+    let nameB = (b.name || '').toLowerCase();
+    if (nameA < nameB) return -1;
+    if (nameA > nameB) return 1;
+    return 0;
+  });
+
   const orgId = state.currentOrganization?.id;
-  let companiesQ = supabaseClient.from('companies').select('*').order('name', { ascending: true });
   let profilesQ = supabaseClient.from('profiles').select('*').eq('role', 'sales_rep').order('first_name', { ascending: true });
   if (orgId) {
-    companiesQ = companiesQ.eq('organization_id', orgId);
     profilesQ = profilesQ.eq('organization_id', orgId);
   }
-  const [companiesResult, profilesResult, routesResult, routeLocationsResult] = await Promise.all([
-    companiesQ,
+
+  const [profilesResult, routesResult, routeLocationsResult] = await Promise.all([
     profilesQ,
     supabaseClient
       .from('routes')
@@ -80,12 +89,11 @@ async function renderRoutePlanningView() {
     })()
   ]);
 
-  const { data: companies, error: companiesError } = companiesResult;
   const { data: salesReps, error: profilesError } = profilesResult;
   const { data: routes, error: routesError } = routesResult;
   const { data: routeLocations, error: routeLocationsError } = routeLocationsResult;
 
-  if (companiesError || profilesError || routesError || routeLocationsError) {
+  if (profilesError || routesError || routeLocationsError) {
     viewContainer.innerHTML = renderError('Error loading data');
     return;
   }

@@ -25,51 +25,49 @@ async function renderPeopleView() {
     state.currentSortDir = 'asc';
   }
 
-  const orgId = state.currentOrganization?.id;
-  let rpQ = supabaseClient.from('people').select('*').order(safeSortKey, { ascending: state.currentSortDir === 'asc' });
-  let rcQ = supabaseClient.from('companies').select('id, name').order('name', { ascending: true });
-  let roQ = supabaseClient.from('opportunities').select('id, name').order('name', { ascending: true });
-  if (orgId) {
-    rpQ = rpQ.eq('organization_id', orgId);
-    rcQ = rcQ.eq('organization_id', orgId);
-    roQ = roQ.eq('organization_id', orgId);
-  }
-  const [peopleResult, companiesResult, opportunitiesResult] = await Promise.all([rpQ, rcQ, roQ]);
+  // Ensure the global data is loaded
+  if (window.allPeoplePromise) await window.allPeoplePromise;
+  if (window.allCompaniesPromise) await window.allCompaniesPromise;
 
-  const { data: people, error: peopleError } = peopleResult;
-  const { data: companies } = companiesResult;
-  const { data: opportunities } = opportunitiesResult;
-
-  crmDebugLog('renderPeopleView.peopleResult', {
-    error: peopleError || null,
-    count: Array.isArray(people) ? people.length : 0,
-    sample: Array.isArray(people) && people.length > 0 ? people[0] : null
-  });
-  crmDebugLog('renderPeopleView.companiesResult', {
-    error: companiesResult.error || null,
-    count: Array.isArray(companies) ? companies.length : 0,
-    sample: Array.isArray(companies) && companies.length > 0 ? companies[0] : null
-  });
-  crmDebugLog('renderPeopleView.opportunitiesResult', {
-    error: opportunitiesResult.error || null,
-    count: Array.isArray(opportunities) ? opportunities.length : 0,
-    sample: Array.isArray(opportunities) && opportunities.length > 0 ? opportunities[0] : null
-  });
-
-  if (peopleError) {
-    crmDebugLog('renderPeopleView.error', peopleError);
-    viewContainer.innerHTML = renderError(peopleError.message);
-    return;
+  if (!window.opportunitiesData) {
+    const orgId = state.currentOrganization?.id;
+    let roQ = supabaseClient.from('opportunities').select('id, name').order('name', { ascending: true });
+    if (orgId) {
+      roQ = roQ.eq('organization_id', orgId);
+    }
+    const { data: opportunities, error } = await roQ;
+    if (error) {
+      crmDebugLog('renderPeopleView.opportunitiesError', error);
+      viewContainer.innerHTML = renderError(error.message);
+      return;
+    }
+    window.opportunitiesData = opportunities || [];
   }
 
-  // Store for global access
-  window.companiesData = companies || [];
-  window.opportunitiesData = opportunities || [];
+  // Use the cached data
+  window.companiesData = window.allCompaniesData || [];
+  if (!window.allPeopleData || window.allPeopleData.length === 0) {
+    window.allPeopleData = state.allPeople || [];
+  }
+
+  // Sort people in memory
+  window.allPeopleData.sort((a, b) => {
+    let valA = a[safeSortKey] || '';
+    let valB = b[safeSortKey] || '';
+    if (Array.isArray(valA)) valA = valA.length; // for phone_numbers
+    if (Array.isArray(valB)) valB = valB.length;
+    if (typeof valA === 'string') valA = valA.toLowerCase();
+    if (typeof valB === 'string') valB = valB.toLowerCase();
+    if (valA < valB) return state.currentSortDir === 'asc' ? -1 : 1;
+    if (valA > valB) return state.currentSortDir === 'asc' ? 1 : -1;
+    return 0;
+  });
 
   const companiesById = new Map((window.companiesData || []).map((company) => [String(company.id), company]));
   const opportunitiesById = new Map((window.opportunitiesData || []).map((opportunity) => [String(opportunity.id), opportunity]));
 
-  window.allPeopleData = (people || []).map((person) => {
+  // Ensure relationships are mapped
+  window.allPeopleData = window.allPeopleData.map((person) => {
     const company = person.company_id ? companiesById.get(String(person.company_id)) || null : null;
     const opportunity = person.opportunity_id ? opportunitiesById.get(String(person.opportunity_id)) || null : null;
 
@@ -81,7 +79,7 @@ async function renderPeopleView() {
     };
   });
 
-  crmDebugLog('renderPeopleView.windowData', {
+  crmDebugLog('renderPeopleView.cachedData', {
     peopleCount: window.allPeopleData.length,
     companiesCount: window.companiesData.length,
     opportunitiesCount: window.opportunitiesData.length,

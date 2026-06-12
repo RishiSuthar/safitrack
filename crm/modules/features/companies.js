@@ -23,55 +23,28 @@ async function renderCompaniesView() {
     state.currentSortDir = 'asc';
   }
 
-  // Fetch all companies (we'll paginate in the UI)
-  // Primary query includes category relation for industry labels.
-  let companies = [];
-  let error = null;
+  // Ensure the global data is loaded
+  if (window.allCompaniesPromise) {
+    await window.allCompaniesPromise;
+  }
 
-  let primaryQ = supabaseClient
-    .from('companies')
-    .select(`*, company_categories(categories(id, name))`)
-    .order(safeSortKey, { ascending: state.currentSortDir === 'asc' });
-  if (state.currentOrganization?.id) primaryQ = primaryQ.eq('organization_id', state.currentOrganization.id);
-  const primaryQuery = await primaryQ;
+  // Use the cached data
+  let companies = window.allCompaniesData || [];
 
-  companies = primaryQuery.data || [];
-  error = primaryQuery.error;
-  crmDebugLog('renderCompaniesView.primaryQuery', {
-    error,
-    count: companies.length,
-    sample: companies.length > 0 ? companies[0] : null
+  // Sort data in memory since we are not querying the database
+  companies.sort((a, b) => {
+    let valA = a[safeSortKey] || '';
+    let valB = b[safeSortKey] || '';
+    if (typeof valA === 'string') valA = valA.toLowerCase();
+    if (typeof valB === 'string') valB = valB.toLowerCase();
+    if (valA < valB) return state.currentSortDir === 'asc' ? -1 : 1;
+    if (valA > valB) return state.currentSortDir === 'asc' ? 1 : -1;
+    return 0;
   });
 
-  // Fallback: if relation query returns no rows without an explicit error,
-  // retry a flat companies query so table data is never blocked by relation access.
-  if (!error && companies.length === 0) {
-    let fallbackQ = supabaseClient.from('companies').select('*').order(safeSortKey, { ascending: state.currentSortDir === 'asc' });
-    if (state.currentOrganization?.id) fallbackQ = fallbackQ.eq('organization_id', state.currentOrganization.id);
-    const fallbackQuery = await fallbackQ;
-
-    crmDebugLog('renderCompaniesView.fallbackQuery', {
-      error: fallbackQuery.error || null,
-      count: Array.isArray(fallbackQuery.data) ? fallbackQuery.data.length : 0,
-      sample: Array.isArray(fallbackQuery.data) && fallbackQuery.data.length > 0 ? fallbackQuery.data[0] : null
-    });
-
-    if (!fallbackQuery.error && Array.isArray(fallbackQuery.data) && fallbackQuery.data.length > 0) {
-      companies = fallbackQuery.data;
-    }
-  }
-
-  if (error) {
-    crmDebugLog('renderCompaniesView.error', error);
-    viewContainer.innerHTML = renderError(error.message);
-    return;
-  }
-
-  // Store for global access
-  window.allCompaniesData = Array.isArray(companies) ? companies : [];
-  crmDebugLog('renderCompaniesView.window.allCompaniesData', {
-    count: window.allCompaniesData.length,
-    sample: window.allCompaniesData.length > 0 ? window.allCompaniesData[0] : null
+  crmDebugLog('renderCompaniesView.cachedData', {
+    count: companies.length,
+    sample: companies.length > 0 ? companies[0] : null
   });
 
   // Initial pagination state
