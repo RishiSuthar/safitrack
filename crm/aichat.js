@@ -461,6 +461,470 @@ async function handleFindContact(text) {
   }
 }
 
+// ------------------------------------------------------------------
+// CRM Data Fetching Functions
+// ------------------------------------------------------------------
+
+// Extract search terms from the user's natural language query
+async function extractSearchTerms(text) {
+  try {
+    const messages = [
+      { role: 'system', content: 'Extract search keywords from the user message. Return strict JSON: {"search": "...", "company": "...", "person": "...", "filter": "..."}. Only include keys you can extract. "search" is the main search term, "company" is a company name if mentioned, "person" is a person name if mentioned, "filter" is any filter like type/stage/status. Return only JSON, no explanation.' },
+      { role: 'user', content: text }
+    ];
+    const raw = await groqChat(messages, 80, 0);
+    const parsed = JSON.parse(raw.match(/\{[\s\S]*\}/)?.[0] || '{}');
+    return parsed;
+  } catch (e) {
+    return { search: text };
+  }
+}
+
+// Fetch company data for AI context
+async function fetchCompanyContext(text) {
+  const terms = await extractSearchTerms(text);
+  const searchTerm = terms.company || terms.search || '';
+
+  try {
+    // Get company count
+    const { count: totalCount } = await supabaseClient
+      .from('companies')
+      .select('*', { count: 'exact', head: true });
+
+    // Fetch companies matching search (or all if no search term)
+    let query = supabaseClient
+      .from('companies')
+      .select('id, name, company_type, address, description, domain, company_categories(categories(name))')
+      .order('name', { ascending: true })
+      .limit(30);
+
+    if (searchTerm && searchTerm.length > 1) {
+      query = query.or(`name.ilike.%${searchTerm}%,address.ilike.%${searchTerm}%,company_type.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
+    }
+
+    if (terms.filter) {
+      // Try to filter by company_type
+      query = supabaseClient
+        .from('companies')
+        .select('id, name, company_type, address, description, domain, company_categories(categories(name))')
+        .ilike('company_type', `%${terms.filter}%`)
+        .order('name', { ascending: true })
+        .limit(30);
+    }
+
+    const { data: companies, error } = await query;
+    if (error) throw error;
+
+    // For each company, get counts of people and opportunities
+    const companyDetails = [];
+    for (const c of (companies || []).slice(0, 20)) {
+      const [peopleRes, oppsRes] = await Promise.all([
+        supabaseClient.from('people').select('id', { count: 'exact', head: true }).eq('company_id', c.id),
+        supabaseClient.from('opportunities').select('id, value', { count: 'exact', head: true }).ilike('company_name', `%${c.name}%`)
+      ]);
+
+      const categories = (c.company_categories || []).map(cc => cc.categories?.name).filter(Boolean).join(', ');
+      companyDetails.push(
+        `• ${c.name} | Type: ${c.company_type || 'N/A'} | Location: ${c.address || 'N/A'} | Industry: ${categories || 'N/A'} | Contacts: ${peopleRes.count || 0} | Deals: ${oppsRes.count || 0}`
+      );
+    }
+
+    // Get type breakdown
+    const typeBreakdown = {};
+    (companies || []).forEach(c => {
+      const t = c.company_type || 'Unspecified';
+      typeBreakdown[t] = (typeBreakdown[t] || 0) + 1;
+    });
+    const typeLines = Object.entries(typeBreakdown).map(([t, n]) => `${t}: ${n}`).join(', ');
+
+    const lines = [
+      `Total companies in CRM: ${totalCount || 0}`,
+      searchTerm ? `Companies matching "${searchTerm}": ${companies?.length || 0}` : `Showing first ${Math.min(20, companies?.length || 0)} companies`,
+      `Type breakdown: ${typeLines}`,
+      '',
+      ...companyDetails
+    ];
+
+    return lines.join('\n');
+  } catch (err) {
+    console.error('fetchCompanyContext error', err);
+    return 'Error fetching company data.';
+  }
+}
+
+// Fetch people/contacts data for AI context
+async function fetchPeopleContext(text) {
+  const terms = await extractSearchTerms(text);
+  const searchPerson = terms.person || terms.search || '';
+  const searchCompany = terms.company || '';
+
+  try {
+    const { count: totalCount } = await supabaseClient
+      .from('people')
+      .select('*', { count: 'exact', head: true });
+
+    let query = supabaseClient
+      .from('people')
+      .select('id, name, email, job_title, phone_numbers, company_id, companies(name)')
+      .order('name', { ascending: true })
+      .limit(30);
+
+    if (searchPerson && searchPerson.length > 1) {
+      query = query.or(`name.ilike.%${searchPerson}%,email.ilike.%${searchPerson}%,job_title.ilike.%${searchPerson}%`);
+    }
+
+    // If company mentioned, resolve and filter
+    if (searchCompany) {
+      const { data: companyMatches } = await supabaseClient
+        .from('companies')
+        .select('id')
+        .ilike('name', `%${searchCompany}%`)
+        .limit(5);
+      if (companyMatches && companyMatches.length) {
+        const ids = companyMatches.map(c => c.id);
+        query = supabaseClient
+          .from('people')
+          .select('id, name, email, job_title, phone_numbers, company_id, companies(name)')
+          .in('company_id', ids)
+          .order('name', { ascending: true })
+          .limit(30);
+
+        if (searchPerson && searchPerson.length > 1 && searchPerson !== searchCompany) {
+          query = query.ilike('name', `%${searchPerson}%`);
+        }
+      }
+    }
+
+    const { data: people, error } = await query;
+    if (error) throw error;
+
+    const peopleLines = (people || []).map(p => {
+      const companyName = p.companies?.name || 'No company';
+      const phones = (p.phone_numbers && p.phone_numbers.length) ? p.phone_numbers.join(', ') : 'N/A';
+      return `• ${p.name} | ${p.job_title || 'No title'} | ${companyName} | Email: ${p.email || 'N/A'} | Phone: ${phones}`;
+    });
+
+    const lines = [
+      `Total contacts in CRM: ${totalCount || 0}`,
+      searchPerson || searchCompany
+        ? `Contacts matching query: ${people?.length || 0}`
+        : `Showing first ${Math.min(30, people?.length || 0)} contacts`,
+      '',
+      ...peopleLines
+    ];
+
+    return lines.join('\n');
+  } catch (err) {
+    console.error('fetchPeopleContext error', err);
+    return 'Error fetching people data.';
+  }
+}
+
+// Fetch opportunities/pipeline data for AI context
+async function fetchOpportunityContext(text) {
+  const terms = await extractSearchTerms(text);
+  const searchTerm = terms.company || terms.search || '';
+
+  try {
+    // Get all opportunities for summary stats
+    let allQuery = supabaseClient
+      .from('opportunities')
+      .select('id, name, company_name, stage, value, probability, next_step, next_step_date, notes, created_at, updated_at')
+      .order('value', { ascending: false })
+      .limit(50);
+
+    if (searchTerm && searchTerm.length > 1) {
+      allQuery = allQuery.or(`name.ilike.%${searchTerm}%,company_name.ilike.%${searchTerm}%,stage.ilike.%${searchTerm}%,notes.ilike.%${searchTerm}%`);
+    }
+
+    const { data: opportunities, error } = await allQuery;
+    if (error) throw error;
+
+    const opps = opportunities || [];
+
+    // Calculate pipeline metrics
+    const totalValue = opps.reduce((sum, o) => sum + (parseFloat(o.value) || 0), 0);
+    const openOpps = opps.filter(o => !['closed-won', 'closed-lost', 'won', 'lost'].includes((o.stage || '').toLowerCase()));
+    const openValue = openOpps.reduce((sum, o) => sum + (parseFloat(o.value) || 0), 0);
+    const weightedValue = opps.reduce((sum, o) => sum + ((parseFloat(o.value) || 0) * (parseFloat(o.probability) || 0) / 100), 0);
+
+    // Stage breakdown
+    const stageBreakdown = {};
+    opps.forEach(o => {
+      const s = o.stage || 'unknown';
+      if (!stageBreakdown[s]) stageBreakdown[s] = { count: 0, value: 0 };
+      stageBreakdown[s].count++;
+      stageBreakdown[s].value += parseFloat(o.value) || 0;
+    });
+    const stageLines = Object.entries(stageBreakdown).map(
+      ([s, d]) => `  ${s}: ${d.count} deals worth ${d.value.toLocaleString()}`
+    );
+
+    // Deals needing attention (overdue next steps)
+    const now = new Date();
+    const overdueDeals = opps.filter(o => {
+      if (!o.next_step_date) return false;
+      return new Date(o.next_step_date) < now && !['closed-won', 'closed-lost', 'won', 'lost'].includes((o.stage || '').toLowerCase());
+    });
+
+    // Top deals list
+    const dealLines = opps.slice(0, 15).map(o => {
+      const overdue = o.next_step_date && new Date(o.next_step_date) < now ? ' [OVERDUE]' : '';
+      return `• ${o.name} | ${o.company_name || 'N/A'} | Stage: ${o.stage} | Value: ${(parseFloat(o.value) || 0).toLocaleString()} | Prob: ${o.probability || 0}% | Next: ${o.next_step || 'N/A'}${overdue}`;
+    });
+
+    const currency = (typeof orgCurrency !== 'undefined' && orgCurrency) || 'USD';
+    const lines = [
+      `Pipeline Overview (${currency}):`,
+      `  Total deals: ${opps.length}`,
+      `  Open deals: ${openOpps.length} worth ${openValue.toLocaleString()}`,
+      `  Total pipeline: ${totalValue.toLocaleString()}`,
+      `  Weighted pipeline: ${weightedValue.toLocaleString()}`,
+      `  Deals with overdue actions: ${overdueDeals.length}`,
+      '',
+      'Stage breakdown:',
+      ...stageLines,
+      '',
+      searchTerm ? `Deals matching "${searchTerm}":` : 'Top deals by value:',
+      ...dealLines
+    ];
+
+    return lines.join('\n');
+  } catch (err) {
+    console.error('fetchOpportunityContext error', err);
+    return 'Error fetching opportunity data.';
+  }
+}
+
+// Fetch recent activity (visits, calls, notes) for AI context
+async function fetchActivityContext(text) {
+  const terms = await extractSearchTerms(text);
+  const searchTerm = terms.company || terms.person || terms.search || '';
+
+  try {
+    // Fetch recent visits
+    let visitsQuery = supabaseClient
+      .from('visits')
+      .select('id, company_name, contact_name, visit_type, notes, created_at, user:profiles(first_name, last_name)')
+      .order('created_at', { ascending: false })
+      .limit(15);
+
+    if (searchTerm && searchTerm.length > 1) {
+      visitsQuery = visitsQuery.or(`company_name.ilike.%${searchTerm}%,contact_name.ilike.%${searchTerm}%,notes.ilike.%${searchTerm}%`);
+    }
+
+    // Fetch recent call logs
+    let callsQuery = supabaseClient
+      .from('call_logs')
+      .select('id, company_name, direction, outcome, notes, call_at, duration_minutes, people(name), profiles(first_name, last_name)')
+      .order('call_at', { ascending: false })
+      .limit(15);
+
+    if (searchTerm && searchTerm.length > 1) {
+      callsQuery = callsQuery.or(`company_name.ilike.%${searchTerm}%,notes.ilike.%${searchTerm}%`);
+    }
+
+    // Fetch recent notes
+    let notesQuery = supabaseClient
+      .from('notes')
+      .select('id, title, body, created_at, updated_at')
+      .order('updated_at', { ascending: false })
+      .limit(10);
+
+    if (searchTerm && searchTerm.length > 1) {
+      notesQuery = notesQuery.or(`title.ilike.%${searchTerm}%,body.ilike.%${searchTerm}%`);
+    }
+
+    const [visitsRes, callsRes, notesRes] = await Promise.all([visitsQuery, callsQuery, notesQuery]);
+
+    const visits = visitsRes.data || [];
+    const calls = callsRes.data || [];
+    const notes = notesRes.data || [];
+
+    const visitLines = visits.map(v => {
+      const rep = v.user ? `${v.user.first_name || ''} ${v.user.last_name || ''}`.trim() : '';
+      const dateStr = new Date(v.created_at).toLocaleDateString();
+      return `  • ${dateStr} — ${v.company_name || 'Unknown'} (${v.visit_type || 'visit'}) — Contact: ${v.contact_name || 'N/A'}${rep ? ` — Rep: ${rep}` : ''}${v.notes ? ` — Notes: ${v.notes.substring(0, 80)}` : ''}`;
+    });
+
+    const callLines = calls.map(c => {
+      const contact = c.people?.name || 'Unknown';
+      const rep = c.profiles ? `${c.profiles.first_name || ''} ${c.profiles.last_name || ''}`.trim() : '';
+      const dateStr = new Date(c.call_at).toLocaleDateString();
+      return `  • ${dateStr} — ${c.company_name || 'Unknown'} — ${c.direction || ''} call — Outcome: ${c.outcome || 'N/A'} — Contact: ${contact}${rep ? ` — Rep: ${rep}` : ''}${c.duration_minutes ? ` — ${c.duration_minutes}min` : ''}`;
+    });
+
+    const noteLines = notes.map(n => {
+      const dateStr = new Date(n.updated_at || n.created_at).toLocaleDateString();
+      const preview = (n.body || '').substring(0, 60).replace(/\n/g, ' ');
+      return `  • ${dateStr} — ${n.title || 'Untitled'} — ${preview}`;
+    });
+
+    const lines = [
+      `Recent Visits (${visits.length}):`,
+      ...(visitLines.length ? visitLines : ['  No visits found']),
+      '',
+      `Recent Calls (${calls.length}):`,
+      ...(callLines.length ? callLines : ['  No call logs found']),
+      '',
+      `Recent Notes (${notes.length}):`,
+      ...(noteLines.length ? noteLines : ['  No notes found'])
+    ];
+
+    return lines.join('\n');
+  } catch (err) {
+    console.error('fetchActivityContext error', err);
+    return 'Error fetching activity data.';
+  }
+}
+
+// Fetch full CRM summary for AI context
+async function fetchCRMSummary() {
+  try {
+    const now = new Date();
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
+    const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59).toISOString();
+    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000).toISOString();
+
+    const [
+      companiesCount,
+      peopleCount,
+      oppsRes,
+      tasksRes,
+      remindersRes,
+      visitsWeek,
+      callsWeek
+    ] = await Promise.all([
+      supabaseClient.from('companies').select('*', { count: 'exact', head: true }),
+      supabaseClient.from('people').select('*', { count: 'exact', head: true }),
+      supabaseClient.from('opportunities').select('id, name, company_name, stage, value, probability, next_step_date').limit(200),
+      supabaseClient.from('tasks').select('id, title, status, due_date, priority').neq('status', 'completed').limit(50),
+      supabaseClient.from('reminders').select('id, title, is_completed, reminder_date').eq('is_completed', false).limit(50),
+      supabaseClient.from('visits').select('id', { count: 'exact', head: true }).gte('created_at', weekAgo),
+      supabaseClient.from('call_logs').select('id', { count: 'exact', head: true }).gte('call_at', weekAgo)
+    ]);
+
+    const opps = oppsRes.data || [];
+    const tasks = tasksRes.data || [];
+    const reminders = remindersRes.data || [];
+
+    // Pipeline metrics
+    const openOpps = opps.filter(o => !['closed-won', 'closed-lost', 'won', 'lost'].includes((o.stage || '').toLowerCase()));
+    const wonOpps = opps.filter(o => ['closed-won', 'won'].includes((o.stage || '').toLowerCase()));
+    const totalPipeline = openOpps.reduce((s, o) => s + (parseFloat(o.value) || 0), 0);
+    const wonValue = wonOpps.reduce((s, o) => s + (parseFloat(o.value) || 0), 0);
+    const weightedPipeline = openOpps.reduce((s, o) => s + ((parseFloat(o.value) || 0) * (parseFloat(o.probability) || 0) / 100), 0);
+
+    // Stage breakdown
+    const stages = {};
+    opps.forEach(o => { const s = o.stage || 'unknown'; stages[s] = (stages[s] || 0) + 1; });
+    const stageLines = Object.entries(stages).map(([s, n]) => `  ${s}: ${n}`);
+
+    // Overdue items
+    const overdueTasks = tasks.filter(t => t.due_date && new Date(t.due_date) < now);
+    const overdueReminders = reminders.filter(r => r.reminder_date && new Date(r.reminder_date) < now);
+    const overdueDeals = openOpps.filter(o => o.next_step_date && new Date(o.next_step_date) < now);
+
+    // Tasks by priority
+    const highPriority = tasks.filter(t => t.priority === 'high');
+
+    const currency = (typeof orgCurrency !== 'undefined' && orgCurrency) || 'USD';
+    const lines = [
+      `CRM Overview:`,
+      `  Companies: ${companiesCount.count || 0}`,
+      `  Contacts: ${peopleCount.count || 0}`,
+      `  Total opportunities: ${opps.length}`,
+      `  Open deals: ${openOpps.length} worth ${currency} ${totalPipeline.toLocaleString()}`,
+      `  Won deals: ${wonOpps.length} worth ${currency} ${wonValue.toLocaleString()}`,
+      `  Weighted pipeline: ${currency} ${weightedPipeline.toLocaleString()}`,
+      '',
+      `Pipeline by stage:`,
+      ...stageLines,
+      '',
+      `This week's activity:`,
+      `  Visits: ${visitsWeek.count || 0}`,
+      `  Calls: ${callsWeek.count || 0}`,
+      '',
+      `Pending items:`,
+      `  Open tasks: ${tasks.length} (${highPriority.length} high priority)`,
+      `  Active reminders: ${reminders.length}`,
+      '',
+      `Attention needed:`,
+      `  Overdue tasks: ${overdueTasks.length}`,
+      `  Overdue reminders: ${overdueReminders.length}`,
+      `  Deals with overdue actions: ${overdueDeals.length}`
+    ];
+
+    return lines.join('\n');
+  } catch (err) {
+    console.error('fetchCRMSummary error', err);
+    return 'Error fetching CRM summary.';
+  }
+}
+
+// ------------------------------------------------------------------
+// CRM Query Handlers
+// ------------------------------------------------------------------
+
+async function handleQueryCompanies(text) {
+  const context = await fetchCompanyContext(text);
+
+  const messages = [
+    { role: 'system', content: `You are Safi AI, a smart CRM assistant. The user is asking about companies in their CRM. Below is the real data from their database. Present it in a clear, friendly, and insightful way. Use **bold** for company names. Use bullet points for lists. If showing numbers, highlight key stats. If they asked about a specific company, focus on that one with a richer summary. Keep it conversational and actionable — point out things they might care about (e.g. companies with no contacts, patterns in types). Max 300 words.` },
+    { role: 'user', content: `User question: "${text}"\n\nCRM Company Data:\n${context}\n\nAnswer the user's question based on this data.` }
+  ];
+  const reply = await groqChat(messages, 400, 0.6);
+  appendAIMessage(reply);
+}
+
+async function handleQueryPeople(text) {
+  const context = await fetchPeopleContext(text);
+
+  const messages = [
+    { role: 'system', content: `You are Safi AI, a smart CRM assistant. The user is asking about contacts/people in their CRM. Below is the real data from their database. Present it clearly and helpfully. Use **bold** for names. Use bullet points. Highlight useful patterns (e.g. contacts without emails, key decision-makers by title). Keep it conversational and concise. Max 300 words.` },
+    { role: 'user', content: `User question: "${text}"\n\nCRM People Data:\n${context}\n\nAnswer the user's question based on this data.` }
+  ];
+  const reply = await groqChat(messages, 400, 0.6);
+  appendAIMessage(reply);
+}
+
+async function handleQueryOpportunities(text) {
+  const context = await fetchOpportunityContext(text);
+
+  const messages = [
+    { role: 'system', content: `You are Safi AI, a sharp CRM and sales assistant. The user is asking about their deals/pipeline. Below is the real data. Present pipeline stats clearly, highlight key metrics with **bold**, use bullet points for deal lists. Be insightful — call out stuck deals, overdue actions, biggest opportunities. If they asked about specific deals or stages, focus there. Use the actual numbers. Keep it actionable. Max 350 words.` },
+    { role: 'user', content: `User question: "${text}"\n\nPipeline Data:\n${context}\n\nAnswer the user's question based on this real data.` }
+  ];
+  const reply = await groqChat(messages, 450, 0.6);
+  appendAIMessage(reply);
+}
+
+async function handleQueryActivity(text) {
+  const context = await fetchActivityContext(text);
+
+  const messages = [
+    { role: 'system', content: `You are Safi AI, a helpful CRM assistant. The user is asking about recent activity — visits, calls, and notes. Below is the real data. Summarize the activity in a clear, timeline-friendly way. Use **bold** for company and contact names. Group by type if helpful. Highlight patterns (e.g. most visited company, call outcomes). Keep it conversational. Max 300 words.` },
+    { role: 'user', content: `User question: "${text}"\n\nActivity Data:\n${context}\n\nAnswer the user's question based on this data.` }
+  ];
+  const reply = await groqChat(messages, 400, 0.6);
+  appendAIMessage(reply);
+}
+
+async function handleCRMSummary(text) {
+  const context = await fetchCRMSummary();
+
+  const dayOfWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+  const dateStr = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+
+  const messages = [
+    { role: 'system', content: `You are Safi AI, a sharp and encouraging CRM assistant who acts like a trusted business advisor. The user wants a status update on their CRM/business. Below is the real data. Give a comprehensive but punchy overview. Structure it with clear sections (use **bold** headers). Lead with the overall health/vibe. Highlight wins, flag risks (overdue items, stuck deals). End with 2-3 specific recommended actions. Use bullet points. Be motivating but honest. Max 400 words.` },
+    { role: 'user', content: `Today is ${dayOfWeek}, ${dateStr}. Here is the full CRM status:\n\n${context}\n\nGive a comprehensive, actionable CRM status update.` }
+  ];
+  const reply = await groqChat(messages, 500, 0.7);
+  appendAIMessage(reply);
+}
+
+
 // handle advice queries about an existing opportunity
 async function handleAdvice(text) {
   // try to glean a company/opportunity name from the text
@@ -525,6 +989,33 @@ async function handleUserMessage(text) {
     }
     if (chatState.intent === 'find_contact') {
       await handleFindContact(text);
+      resetConversation();
+      return;
+    }
+
+    // CRM data query intents — one-shot lookups
+    if (chatState.intent === 'query_companies') {
+      await handleQueryCompanies(text);
+      resetConversation();
+      return;
+    }
+    if (chatState.intent === 'query_people') {
+      await handleQueryPeople(text);
+      resetConversation();
+      return;
+    }
+    if (chatState.intent === 'query_opportunities') {
+      await handleQueryOpportunities(text);
+      resetConversation();
+      return;
+    }
+    if (chatState.intent === 'query_activity') {
+      await handleQueryActivity(text);
+      resetConversation();
+      return;
+    }
+    if (chatState.intent === 'crm_summary') {
+      await handleCRMSummary(text);
       resetConversation();
       return;
     }
@@ -781,24 +1272,57 @@ Intents:
 - advise_opportunity: user wants tips, advice, or strategy on how to WIN or progress an EXISTING deal (e.g. "how do I win the Safaricom deal", "help me with this opportunity", "how can I close [company]")
 - today_agenda: user wants to know what they have on for today, their schedule, tasks due today, reminders today (e.g. "what's on my agenda", "what do I have today", "my day", "what's due today")
 - find_contact: user wants to look up a person/contact in the CRM (e.g. "find John", "who is Jane at KCB", "look up David", "search for a contact")
+- query_companies: user is asking ABOUT companies in the CRM — listing, counting, searching, or getting details on one or more companies (e.g. "how many companies do we have", "tell me about KCB", "list our customers", "show me companies in Nairobi", "what companies are we working with")
+- query_people: user is asking about people/contacts in the CRM — listing, counting, or querying contacts (e.g. "who works at Safaricom", "how many contacts do we have", "show me people without emails", "list contacts at KCB")
+- query_opportunities: user is asking about the deals/pipeline — pipeline summary, deal counts, deal stages, values, stuck deals (e.g. "what's my pipeline looking like", "show me deals over 500K", "which deals are in prospecting", "deals closing this month", "pipeline summary")
+- query_activity: user is asking about recent activity — visits, call logs, notes (e.g. "show me recent visits", "what calls were made this week", "my recent activity", "last visit to Safaricom")
+- crm_summary: user wants an overall CRM health check or status update across all data (e.g. "give me a status update", "how's business", "CRM overview", "give me the big picture")
 - none: anything else (greetings, questions, general conversation)
 
-Key rule: if the user says "create", "add", "make", "log", or "new" + opportunity/deal, it is ALWAYS create_opportunity, never advise_opportunity.` },
+Key rules:
+- If the user says "create", "add", "make", "log", or "new" + opportunity/deal, it is ALWAYS create_opportunity, never advise_opportunity.
+- If the user is asking a QUESTION about companies/people/deals (not creating), use the query_* intents.
+- If the user asks broadly about "the business" or "everything" or "status", use crm_summary.` },
     { role: 'user', content: `User message: "${text}"` }
   ];
   const response = await groqChat(messages, 20, 0);
-  const match = response.match(/create_task|create_reminder|create_opportunity|advise_opportunity|today_agenda|find_contact/);
+  const match = response.match(/create_task|create_reminder|create_opportunity|advise_opportunity|today_agenda|find_contact|query_companies|query_people|query_opportunities|query_activity|crm_summary/);
   return match ? match[0] : 'none';
 }
 
 async function generateCasualReply(text) {
+  // Check if the question might benefit from CRM context
+  const businessKeywords = /\b(company|companies|deal|deals|pipeline|contact|contacts|client|clients|customer|customers|sales|revenue|target|quota|visit|visits|call|calls|opportunity|opportunities|lead|leads|prospect|report|business|performance|team|rep|reps)\b/i;
+  let crmContext = '';
+
+  if (businessKeywords.test(text)) {
+    try {
+      // Fetch a lightweight CRM snapshot for context
+      const [companiesCount, peopleCount, oppsRes] = await Promise.all([
+        supabaseClient.from('companies').select('*', { count: 'exact', head: true }),
+        supabaseClient.from('people').select('*', { count: 'exact', head: true }),
+        supabaseClient.from('opportunities').select('id, stage, value').limit(100)
+      ]);
+
+      const opps = oppsRes.data || [];
+      const openOpps = opps.filter(o => !['closed-won', 'closed-lost', 'won', 'lost'].includes((o.stage || '').toLowerCase()));
+      const pipelineValue = openOpps.reduce((s, o) => s + (parseFloat(o.value) || 0), 0);
+      const currency = (typeof orgCurrency !== 'undefined' && orgCurrency) || 'USD';
+
+      crmContext = `\n\n[CRM Context: ${companiesCount.count || 0} companies, ${peopleCount.count || 0} contacts, ${openOpps.length} open deals worth ${currency} ${pipelineValue.toLocaleString()} total pipeline]`;
+    } catch (e) {
+      // Non-critical, continue without context
+    }
+  }
+
   const messages = [
-    { role: 'system', content: 'You are Safi AI, a warm, smart assistant embedded in a CRM used by sales teams. Talk like a knowledgeable colleague — friendly, natural, and helpful. Use contractions, be conversational, and keep things concise. When listing items use markdown bullet points (- item) or numbered lists. Use **bold** for key terms. Use headings only when the response has clearly distinct sections. Never be stiff or robotic. Show genuine interest in helping.' },
-    { role: 'user', content: text }
+    { role: 'system', content: `You are Safi AI, a warm, smart assistant embedded in a CRM used by sales teams. Talk like a knowledgeable colleague — friendly, natural, and helpful. Use contractions, be conversational, and keep things concise. When listing items use markdown bullet points (- item) or numbered lists. Use **bold** for key terms. Use headings only when the response has clearly distinct sections. Never be stiff or robotic. Show genuine interest in helping.${crmContext ? ' You have access to the user\'s CRM data — use it naturally if relevant to their question, but don\'t force it.' : ''}` },
+    { role: 'user', content: text + crmContext }
   ];
-  const response = await groqChat(messages, 200, 0.7);
+  const response = await groqChat(messages, 250, 0.7);
   return response.trim();
 }
+
 
 async function extractFields(text, intent) {
   let fieldList;
