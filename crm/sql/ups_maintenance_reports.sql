@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS ups_maintenance_reports (
   notes_remarks TEXT,
   photo_path TEXT,
   signature_data TEXT,
+  manager_approval_status VARCHAR(20) DEFAULT 'Pending',
 
   -- Timestamps
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
@@ -107,3 +108,13 @@ CREATE POLICY "Technicians can update own reports"
   TO authenticated
   USING (auth.uid() = technician_id)
   WITH CHECK (auth.uid() = technician_id);
+
+-- Managers can update reports in their organization (for approvals)
+CREATE POLICY "Managers can update reports in their org"
+  ON ups_maintenance_reports
+  FOR UPDATE
+  TO authenticated
+  USING (
+    organization_id = public.get_my_org_id() AND
+    EXISTS (SELECT 1 FROM profiles WHERE id = auth.uid() AND role = 'manager')
+  );

@@ -729,7 +729,7 @@ async function renderTechnicianActivityView() {
 
   const { data: reports, error } = await supabaseClient
     .from('ups_maintenance_reports')
-    .select('id, site_client_name, overall_system_status, created_at')
+    .select('id, site_client_name, overall_system_status, created_at, manager_approval_status')
     .eq('technician_id', state.currentUser.id)
     .order('created_at', { ascending: false })
     .limit(50);
@@ -765,6 +765,7 @@ async function renderTechnicianActivityView() {
             <th>Report ID</th>
             <th>Site / Client</th>
             <th>Status</th>
+            <th>Approval</th>
             <th>Date</th>
           </tr>
         </thead>
@@ -776,6 +777,11 @@ async function renderTechnicianActivityView() {
               <td>
                 <span class="ups-status-badge ${r.overall_system_status === 'Pass' ? 'ups-status-badge-pass' : 'ups-status-badge-fail'}">
                   ${r.overall_system_status || '—'}
+                </span>
+              </td>
+              <td>
+                <span class="ups-status-badge ${r.manager_approval_status === 'Approved' ? 'ups-status-badge-pass' : (r.manager_approval_status === 'Denied' ? 'ups-status-badge-fail' : '')}" style="${!r.manager_approval_status || r.manager_approval_status === 'Pending' ? 'background:var(--bg-secondary); color:var(--text-primary);' : ''}">
+                  ${r.manager_approval_status || 'Pending'}
                 </span>
               </td>
               <td>${formatDate(r.created_at)}</td>
@@ -823,7 +829,7 @@ async function renderTechniciansDashboardView() {
   // Fetch reports
   let query = supabaseClient
     .from('ups_maintenance_reports')
-    .select('id, site_client_name, technician_name, overall_system_status, created_at')
+    .select('id, site_client_name, technician_name, overall_system_status, created_at, manager_approval_status')
     .order('created_at', { ascending: false })
     .limit(100);
 
@@ -882,6 +888,7 @@ function renderReportsTable(reports, allReports) {
             <th>Technician</th>
             <th>Date</th>
             <th>Status</th>
+            <th>Approval</th>
           </tr>
         </thead>
         <tbody>
@@ -896,17 +903,60 @@ function renderReportsTable(reports, allReports) {
                   ${r.overall_system_status || '—'}
                 </span>
               </td>
+              <td onclick="event.stopPropagation()">
+                ${!r.manager_approval_status || r.manager_approval_status === 'Pending' ? `
+                  <div style="display:flex; gap:6px;">
+                    <button class="btn btn-sm btn-success" onclick="window._updateUPSApproval('${r.id}', 'Approved')" style="padding:4px 8px; font-size:12px; min-height:28px;" title="Approve">
+                      <i data-lucide="check" style="width:14px; height:14px; pointer-events:none;"></i>
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="window._updateUPSApproval('${r.id}', 'Denied')" style="padding:4px 8px; font-size:12px; min-height:28px;" title="Deny">
+                      <i data-lucide="x" style="width:14px; height:14px; pointer-events:none;"></i>
+                    </button>
+                  </div>
+                ` : `
+                  <div style="display:flex; gap:6px; align-items:center;">
+                    <span class="ups-status-badge ${r.manager_approval_status === 'Approved' ? 'ups-status-badge-pass' : 'ups-status-badge-fail'}">
+                      ${r.manager_approval_status}
+                    </span>
+                    <button class="btn btn-sm" onclick="window._updateUPSApproval('${r.id}', 'Pending')" style="padding:4px 8px; font-size:12px; min-height:28px; background:transparent; border:1px solid var(--border-color); color:var(--text-muted);" title="Reset to Pending">
+                      <i data-lucide="undo" style="width:14px; height:14px; pointer-events:none;"></i>
+                    </button>
+                  </div>
+                `}
+              </td>
             </tr>
           `).join('')}
         </tbody>
       </table>
     </div>
   `;
+
+  if (window.lucide) lucide.createIcons();
 }
 
 // ════════════════════════════════════════════════════════════════
-// REPORT DETAIL VIEW (Manager)
+// REPORT DETAIL VIEW & APPROVAL (Manager)
 // ════════════════════════════════════════════════════════════════
+
+window._updateUPSApproval = async function (reportId, status) {
+  try {
+    const { data, error } = await supabaseClient
+      .from('ups_maintenance_reports')
+      .update({ manager_approval_status: status })
+      .eq('id', reportId)
+      .select();
+      
+    if (error) throw error;
+    if (!data || data.length === 0) {
+      throw new Error('Update blocked by permissions. Are you logged in as a Manager for this organization?');
+    }
+    
+    showToast(`Report marked as ${status}`, 'success');
+    renderTechniciansDashboardView(); // Refresh the list
+  } catch (err) {
+    showToast(`Failed to update approval: ${err.message}`, 'error');
+  }
+};
 
 window._viewUPSReport = async function (reportId) {
   const container = document.getElementById('ups-reports-container');
@@ -937,8 +987,15 @@ window._viewUPSReport = async function (reportId) {
     <div class="ups-report-detail" id="ups-report-print-target">
       <div class="ups-report-detail-header">
         <div>
-          <h3>UPS Report — ${escapeHtml(r.site_client_name || 'Unknown')}</h3>
-          <div style="font-size:12px; color:var(--text-muted); margin-top:2px;">ID: ${r.id} • ${formatDate(r.created_at)}</div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <h3 style="margin:0;">UPS Report — ${escapeHtml(r.site_client_name || 'Unknown')}</h3>
+            ${r.manager_approval_status && r.manager_approval_status !== 'Pending' ? `
+              <span class="ups-status-badge ${r.manager_approval_status === 'Approved' ? 'ups-status-badge-pass' : 'ups-status-badge-fail'}">
+                ${r.manager_approval_status}
+              </span>
+            ` : ''}
+          </div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">ID: ${r.id} • ${formatDate(r.created_at)}</div>
         </div>
         <div class="ups-report-detail-actions">
           <button class="btn btn-secondary btn-sm" onclick="window._backToReportsList()">
@@ -1189,6 +1246,7 @@ window._downloadUPSPDF = function (reportId) {
       <h3>Conclusion</h3>
       <div class="ups-print-grid">
         <div class="ups-print-field"><span class="ups-print-field-label">Overall Status:</span><span class="ups-print-field-value" style="font-weight:800;">${valOrDash(r.overall_system_status)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Manager Approval:</span><span class="ups-print-field-value" style="font-weight:800;">${valOrDash(r.manager_approval_status)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Client Engineer:</span><span class="ups-print-field-value">${valOrDash(r.client_engineer_name)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Servicing Engineer:</span><span class="ups-print-field-value">${valOrDash(r.servicing_engineer_name)}</span></div>
         ${r.notes_remarks ? `<div class="ups-print-field" style="grid-column:1/-1;"><span class="ups-print-field-label">Notes:</span><span class="ups-print-field-value">${valOrDash(r.notes_remarks)}</span></div>` : ''}
