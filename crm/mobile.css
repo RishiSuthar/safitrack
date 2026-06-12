@@ -6650,3 +6650,78 @@
     border-radius: 2px;
   }
 }
+
+/* ──────────────────────────────────────────────────────────────
+   61. UPS MAINTENANCE REPORT FORM — Mobile optimizations
+   ────────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  /* Hide bottom nav when UPS form is active to maximize screen real estate */
+  body.ups-form-active .bottom-nav {
+    display: none !important;
+  }
+
+  .ups-form-container {
+    padding-bottom: 80px;
+  }
+
+  .ups-step {
+    padding: 16px 14px 20px;
+  }
+
+  .ups-field-row {
+    grid-template-columns: 1fr;
+  }
+
+  .ups-field-row-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .ups-step-title {
+    font-size: 18px;
+  }
+
+  .ups-nav-footer {
+    padding: 10px 14px;
+    padding-bottom: max(10px, env(safe-area-inset-bottom));
+  }
+
+  /* Reports table — stack on mobile */
+  .ups-reports-search {
+    width: 100%;
+  }
+
+  .ups-reports-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ups-reports-table th:nth-child(4),
+  .ups-reports-table td:nth-child(4) {
+    display: none; /* hide date column on mobile */
+  }
+
+  .ups-report-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .ups-report-detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 380px) {
+  .ups-toggle-btn {
+    font-size: 13px;
+    min-height: 44px;
+  }
+
+  .ups-step {
+    padding: 14px 12px 18px;
+  }
+
+  .ups-progress-bar {
+    padding: 10px 12px 12px;
+  }
+}
+

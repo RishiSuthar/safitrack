@@ -142,13 +142,7 @@ import {
 } from './modules/features/import-export.js';
 
 import {
-  renderTechnicianLogVisitView, initTechnicianLocationSelect, renderTechnicianCompanyDashboard,
-  loadLocationHistory, formatFormType, renderSurveyVisitForm, initSurveyVisitForm,
-  renderInstallationVisitForm, initInstallationVisitForm, renderMaintenanceVisitForm,
-  initMaintenanceVisitForm, compressImage, renderTechnicianActivityView,
-  renderTechnicianVisitCard, renderTechniciansDashboardView, renderTechnicianVisitCardForManager,
-  initTechniciansMap, initTechnicianFilters, generateTechnicianVisitPDF,
-  renderTechnicianForm, viewLocationOnMap, viewTechnicianVisitDetails,
+  renderTechnicianLogVisitView, renderTechnicianActivityView, renderTechniciansDashboardView,
 } from './modules/features/technician.js';
 
 import {
@@ -277,8 +271,7 @@ Object.assign(window, {
 
   // Technician
   renderTechnicianLogVisitView, renderTechnicianActivityView,
-  renderTechniciansDashboardView, compressImage,
-  renderTechnicianForm, viewLocationOnMap, viewTechnicianVisitDetails,
+  renderTechniciansDashboardView,
 
   // Notes
   renderNotesView, openNoteSlideOver, closeNoteSlideOver, saveActiveNote,

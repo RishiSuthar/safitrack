@@ -22635,3 +22635,711 @@ textarea.wf-field-input {
     flex-direction: row;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   UPS MAINTENANCE REPORT — Multi-step mobile-first form
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Form container ─────────────────────────────────────────────────────────── */
+.ups-form-container {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - var(--header-height, 56px) - 70px);
+  max-width: 640px;
+  margin: 0 auto;
+  position: relative;
+  padding-bottom: 88px; /* space for sticky footer */
+}
+
+/* ── Progress bar (sticky top) ──────────────────────────────────────────────── */
+.ups-progress-bar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--bg-primary);
+  padding: 12px 16px 14px;
+  border-bottom: 1px solid var(--border-color-light, var(--border-color));
+}
+.ups-progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+.ups-progress-step-text {
+  font-size: 13px;
+  font-weight: 650;
+  color: var(--text-primary);
+  letter-spacing: 0.01em;
+}
+.ups-progress-section-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.ups-progress-track {
+  width: 100%;
+  height: 6px;
+  background: var(--bg-gray, #e5e7eb);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.ups-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  border-radius: 100px;
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── Steps viewport ─────────────────────────────────────────────────────────── */
+.ups-steps-viewport {
+  flex: 1;
+  overflow: hidden;
+  position: relative;
+}
+.ups-steps-track {
+  display: flex;
+  transition: transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ups-steps-track {
+    transition: none;
+  }
+  .ups-progress-fill {
+    transition: none;
+  }
+}
+.ups-step {
+  flex: 0 0 100%;
+  min-width: 100%;
+  padding: 20px 16px 24px;
+  box-sizing: border-box;
+}
+.ups-step-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+.ups-step-subtitle {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 20px;
+}
+
+/* ── Form fields ────────────────────────────────────────────────────────────── */
+.ups-field {
+  margin-bottom: 16px;
+}
+.ups-field-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+.ups-field-label .ups-required {
+  color: #ef4444;
+  margin-left: 2px;
+}
+.ups-field-unit {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 12px;
+  margin-left: 4px;
+}
+.ups-input {
+  width: 100%;
+  min-height: 48px;
+  padding: 12px 14px;
+  font-size: 16px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.ups-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+.ups-input.ups-input-error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+.ups-input[disabled],
+.ups-input[readonly] {
+  background: var(--bg-tertiary, #f1f5f9);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 0.75;
+}
+textarea.ups-input {
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.5;
+}
+.ups-error-message {
+  display: block;
+  font-size: 12px;
+  color: #ef4444;
+  margin-top: 4px;
+  font-weight: 500;
+  min-height: 0;
+}
+.ups-field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.ups-field-row-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* ── Toggle / selector buttons ──────────────────────────────────────────────── */
+.ups-toggle-group {
+  display: flex;
+  gap: 0;
+  width: 100%;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1.5px solid var(--border-color);
+}
+.ups-toggle-btn {
+  flex: 1;
+  min-height: 48px;
+  padding: 10px 8px;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  transition: background 0.2s, color 0.2s;
+  position: relative;
+  text-align: center;
+}
+.ups-toggle-btn:not(:last-child) {
+  border-right: 1.5px solid var(--border-color);
+}
+.ups-toggle-btn:hover:not(.selected) {
+  background: var(--bg-hover, #f8f9fa);
+}
+
+/* Selected states */
+.ups-toggle-btn.selected.toggle-yes {
+  background: #dcfce7;
+  color: #15803d;
+}
+.ups-toggle-btn.selected.toggle-no {
+  background: #fee2e2;
+  color: #dc2626;
+}
+.ups-toggle-btn.selected.toggle-na {
+  background: #f1f5f9;
+  color: #475569;
+}
+.ups-toggle-btn.selected.toggle-pass {
+  background: #dcfce7;
+  color: #15803d;
+}
+.ups-toggle-btn.selected.toggle-fail {
+  background: #fee2e2;
+  color: #dc2626;
+}
+.ups-toggle-btn.selected.toggle-not-tested {
+  background: #f1f5f9;
+  color: #475569;
+}
+.ups-toggle-btn.selected.toggle-normal {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+.ups-toggle-btn.selected.toggle-bypass {
+  background: #fef3c7;
+  color: #b45309;
+}
+.ups-toggle-btn.selected.toggle-fault {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+/* Dark mode toggle adjustments */
+[data-theme="dark"] .ups-toggle-btn.selected.toggle-yes { background: rgba(22, 163, 74, 0.2); color: #4ade80; }
+[data-theme="dark"] .ups-toggle-btn.selected.toggle-no { background: rgba(220, 38, 38, 0.2); color: #f87171; }
+[data-theme="dark"] .ups-toggle-btn.selected.toggle-na { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
+[data-theme="dark"] .ups-toggle-btn.selected.toggle-pass { background: rgba(22, 163, 74, 0.2); color: #4ade80; }
+[data-theme="dark"] .ups-toggle-btn.selected.toggle-fail { background: rgba(220, 38, 38, 0.2); color: #f87171; }
+[data-theme="dark"] .ups-toggle-btn.selected.toggle-not-tested { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
+[data-theme="dark"] .ups-toggle-btn.selected.toggle-normal { background: rgba(109, 40, 217, 0.2); color: #a78bfa; }
+[data-theme="dark"] .ups-toggle-btn.selected.toggle-bypass { background: rgba(180, 83, 9, 0.2); color: #fbbf24; }
+[data-theme="dark"] .ups-toggle-btn.selected.toggle-fault { background: rgba(220, 38, 38, 0.2); color: #f87171; }
+
+.ups-toggle-group.ups-input-error {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* ── Sticky nav footer ──────────────────────────────────────────────────────── */
+.ups-nav-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 60;
+  display: flex;
+  gap: 12px;
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color-light, var(--border-color));
+  backdrop-filter: blur(12px);
+}
+.ups-nav-btn {
+  flex: 1;
+  min-height: 48px;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 650;
+  font-family: inherit;
+  border-radius: 12px;
+  cursor: pointer;
+  border: 1.5px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: background 0.2s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.ups-nav-btn:active {
+  transform: scale(0.97);
+}
+.ups-nav-btn-primary {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  border-color: transparent;
+}
+.ups-nav-btn-primary:hover {
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+}
+.ups-nav-btn-submit {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  border-color: transparent;
+}
+.ups-nav-btn-submit:hover {
+  background: linear-gradient(135deg, #16a34a, #15803d);
+}
+.ups-nav-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Success screen ─────────────────────────────────────────────────────────── */
+.ups-success-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  min-height: 60vh;
+}
+.ups-success-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #dcfce7, #bbf7d0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.ups-success-icon svg {
+  width: 40px;
+  height: 40px;
+  color: #16a34a;
+}
+.ups-success-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 8px;
+}
+.ups-success-subtitle {
+  font-size: 15px;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+}
+.ups-success-report-id {
+  font-family: monospace;
+  font-size: 13px;
+  color: var(--text-secondary);
+  background: var(--bg-tertiary, #f1f5f9);
+  padding: 8px 16px;
+  border-radius: 8px;
+  margin-bottom: 32px;
+  word-break: break-all;
+}
+.ups-success-btn {
+  min-height: 48px;
+  padding: 12px 32px;
+  font-size: 15px;
+  font-weight: 650;
+  font-family: inherit;
+  border-radius: 12px;
+  cursor: pointer;
+  border: none;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  color: #fff;
+  transition: background 0.2s, transform 0.1s;
+}
+.ups-success-btn:active {
+  transform: scale(0.97);
+}
+
+/* ── UPS Visit launch card ──────────────────────────────────────────────────── */
+.ups-visit-card {
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 16px;
+  padding: 32px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
+  max-width: 400px;
+  margin: 0 auto;
+}
+.ups-visit-card:hover {
+  border-color: #6366f1;
+  box-shadow: 0 8px 32px rgba(99, 102, 241, 0.12);
+  transform: translateY(-2px);
+}
+.ups-visit-card:active {
+  transform: translateY(0);
+}
+.ups-visit-card-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+[data-theme="dark"] .ups-visit-card-icon {
+  background: linear-gradient(135deg, rgba(109, 40, 217, 0.2), rgba(139, 92, 246, 0.2));
+}
+.ups-visit-card-icon svg {
+  width: 32px;
+  height: 32px;
+  color: #7c3aed;
+}
+.ups-visit-card-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+.ups-visit-card-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* ── Section divider ────────────────────────────────────────────────────────── */
+.ups-section-divider {
+  height: 1px;
+  background: var(--border-color-light, var(--border-color));
+  margin: 20px 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   UPS REPORTS — Manager viewer (inside Technicians dashboard)
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.ups-reports-section {
+  margin-top: 24px;
+}
+.ups-reports-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.ups-reports-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ups-reports-search {
+  min-height: 40px;
+  padding: 8px 14px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  outline: none;
+  width: 280px;
+  max-width: 100%;
+  transition: border-color 0.2s;
+}
+.ups-reports-search:focus {
+  border-color: #6366f1;
+}
+.ups-reports-search::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Reports table ──────────────────────────────────────────────────────────── */
+.ups-reports-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--bg-secondary);
+}
+.ups-reports-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.ups-reports-table th {
+  text-align: left;
+  padding: 12px 16px;
+  font-size: 11px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-tertiary, var(--bg-secondary));
+  white-space: nowrap;
+}
+.ups-reports-table td {
+  padding: 12px 16px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color-light, var(--border-color));
+  vertical-align: middle;
+}
+.ups-reports-table tbody tr {
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ups-reports-table tbody tr:hover {
+  background: var(--bg-hover, rgba(99, 102, 241, 0.04));
+}
+.ups-reports-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.ups-report-id-cell {
+  font-family: monospace;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+.ups-status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-size: 12px;
+  font-weight: 650;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.ups-status-badge-pass {
+  background: #dcfce7;
+  color: #15803d;
+}
+.ups-status-badge-fail {
+  background: #fee2e2;
+  color: #dc2626;
+}
+[data-theme="dark"] .ups-status-badge-pass {
+  background: rgba(22, 163, 74, 0.2);
+  color: #4ade80;
+}
+[data-theme="dark"] .ups-status-badge-fail {
+  background: rgba(220, 38, 38, 0.2);
+  color: #f87171;
+}
+.ups-reports-empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* ── Report detail view ─────────────────────────────────────────────────────── */
+.ups-report-detail {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.ups-report-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-tertiary, var(--bg-secondary));
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.ups-report-detail-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.ups-report-detail-actions {
+  display: flex;
+  gap: 8px;
+}
+.ups-report-detail-body {
+  padding: 20px;
+}
+.ups-report-section {
+  margin-bottom: 24px;
+}
+.ups-report-section:last-child {
+  margin-bottom: 0;
+}
+.ups-report-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  margin: 0 0 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color-light, var(--border-color));
+}
+.ups-report-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 24px;
+}
+.ups-report-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ups-report-field-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.ups-report-field-value {
+  font-size: 14px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════════
+   UPS REPORT — Print / PDF Styles
+   ═══════════════════════════════════════════════════════════════════════════════ */
+@media print {
+  body.ups-print-mode * {
+    visibility: hidden !important;
+  }
+  body.ups-print-mode .ups-print-target,
+  body.ups-print-mode .ups-print-target * {
+    visibility: visible !important;
+  }
+  body.ups-print-mode .ups-print-target {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    background: #fff !important;
+    color: #111 !important;
+    font-size: 12px;
+    padding: 24px;
+  }
+  .ups-print-header {
+    text-align: center;
+    border-bottom: 2px solid #111;
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+  }
+  .ups-print-header h1 {
+    font-size: 22px;
+    margin: 0 0 4px;
+    font-weight: 800;
+  }
+  .ups-print-header p {
+    font-size: 12px;
+    color: #666;
+    margin: 0;
+  }
+  .ups-print-section {
+    margin-bottom: 16px;
+    page-break-inside: avoid;
+  }
+  .ups-print-section h3 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #333;
+    border-bottom: 1px solid #ccc;
+    padding-bottom: 4px;
+    margin: 0 0 8px;
+  }
+  .ups-print-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px 20px;
+    font-size: 12px;
+  }
+  .ups-print-field {
+    display: flex;
+    gap: 4px;
+  }
+  .ups-print-field-label {
+    color: #666;
+    font-weight: 500;
+    min-width: 120px;
+    flex-shrink: 0;
+  }
+  .ups-print-field-value {
+    color: #111;
+    font-weight: 600;
+  }
+  .ups-print-footer {
+    margin-top: 24px;
+    text-align: center;
+    font-size: 10px;
+    color: #999;
+    border-top: 1px solid #ccc;
+    padding-top: 8px;
+  }
+  /* Hide non-print elements */
+  .ups-nav-footer,
+  .ups-progress-bar,
+  .bottom-nav,
+  .sidebar,
+  .app-header,
+  .ups-report-detail-actions {
+    display: none !important;
+  }
+}
