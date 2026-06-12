@@ -252,7 +252,7 @@ function getSafiNudgeModal() {
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
           <h2 style="margin:0; font-size: 1.15rem; background: linear-gradient(90deg, var(--color-primary), #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Send a Quick Nudge</h2>
         </div>
-        <button class="modal-close-btn" type="button" id="safi-nudge-close" aria-label="Close">
+        <button class="modal-close" type="button" id="safi-nudge-close" aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
       </div>
