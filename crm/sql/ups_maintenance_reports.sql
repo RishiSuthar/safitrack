@@ -65,6 +65,8 @@ CREATE TABLE IF NOT EXISTS ups_maintenance_reports (
   client_engineer_name TEXT,
   servicing_engineer_name TEXT,
   notes_remarks TEXT,
+  photo_path TEXT,
+  signature_data TEXT,
 
   -- Timestamps
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()

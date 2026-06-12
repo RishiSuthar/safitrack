@@ -6,12 +6,37 @@ import { showToast, escapeHtml, getInitials, handleImageError } from '../ui/toas
 import { renderSkeletonCards, renderError } from '../utils/helpers.js';
 
 // ════════════════════════════════════════════════════════════════
-// HELPER — format date
+// HELPER — format date & compress image
 // ════════════════════════════════════════════════════════════════
 function formatDate(dateStr) {
   if (!dateStr) return '';
   const d = new Date(dateStr);
   return d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+}
+
+async function compressImage(file, maxPx = 1024, quality = 0.7) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        if (width > maxPx || height > maxPx) {
+          if (width > height) { height = Math.round((height * maxPx) / width); width = maxPx; }
+          else { width = Math.round((width * maxPx) / height); height = maxPx; }
+        }
+        const canvas = document.createElement('canvas');
+        canvas.width = width; canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(blob => resolve(new File([blob], file.name, { type: 'image/jpeg' })), 'image/jpeg', quality);
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -330,6 +355,29 @@ function renderUPSVisitForm() {
               <label class="ups-field-label">Notes / Remarks</label>
               <textarea class="ups-input" id="ups-notes" placeholder="Any additional notes or observations..." rows="4"></textarea>
             </div>
+
+            <div class="ups-section-divider"></div>
+            
+            <div class="ups-field">
+              <label class="ups-field-label">Photo Evidence</label>
+              <div class="ups-photo-upload-wrap">
+                <input type="file" class="ups-photo-input" id="ups-photo-input" accept="image/*" capture="environment">
+                <div class="ups-photo-preview-box" id="ups-photo-box">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                  <span style="font-size:13px; font-weight:500;">Tap to take photo</span>
+                </div>
+                <img class="ups-photo-preview-img" id="ups-photo-preview" src="">
+              </div>
+            </div>
+
+            <div class="ups-field">
+              <label class="ups-field-label">Signature</label>
+              <div class="ups-signature-wrap">
+                <button type="button" class="ups-signature-clear" id="ups-sig-clear">Clear</button>
+                <canvas class="ups-signature-canvas" id="ups-sig-canvas"></canvas>
+              </div>
+            </div>
+
           </div>
 
         </div>
@@ -396,15 +444,86 @@ function initUPSFormLogic(techName) {
     if (step === totalSteps - 1) {
       btnNext.textContent = '✓ Submit Report';
       btnNext.className = 'ups-nav-btn ups-nav-btn-submit';
+      // Ensure canvas is properly sized when made visible
+      setTimeout(resizeCanvas, 10);
     } else {
       btnNext.textContent = 'Next →';
       btnNext.className = 'ups-nav-btn ups-nav-btn-primary';
     }
 
-    // Scroll to top of the step viewport
+    // Scroll to top of the step viewport and page
     const viewport = document.querySelector('.ups-steps-viewport');
     if (viewport) viewport.scrollTop = 0;
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    const mainContent = document.querySelector('.main-content');
+    if (mainContent) mainContent.scrollTo({ top: 0, behavior: 'smooth' });
   }
+
+  // ── Signature Pad ──
+  const canvas = document.getElementById('ups-sig-canvas');
+  const ctx = canvas.getContext('2d');
+  let isDrawing = false;
+  let hasSignature = false;
+
+  function resizeCanvas() {
+    if (!canvas || !canvas.offsetWidth) return;
+    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+    // Only resize if needed to prevent clearing on every tab
+    if (canvas.width !== canvas.offsetWidth * ratio) {
+      canvas.width = canvas.offsetWidth * ratio;
+      canvas.height = canvas.offsetHeight * ratio;
+      ctx.scale(ratio, ratio);
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = '#000';
+    }
+  }
+  window.addEventListener('resize', resizeCanvas);
+
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    return { x: clientX - rect.left, y: clientY - rect.top };
+  }
+
+  const startDraw = (e) => { e.preventDefault(); isDrawing = true; hasSignature = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+  const draw = (e) => { if (!isDrawing) return; e.preventDefault(); const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+  const endDraw = () => { isDrawing = false; };
+
+  canvas.addEventListener('mousedown', startDraw);
+  canvas.addEventListener('mousemove', draw);
+  window.addEventListener('mouseup', endDraw);
+  canvas.addEventListener('touchstart', startDraw, { passive: false });
+  canvas.addEventListener('touchmove', draw, { passive: false });
+  window.addEventListener('touchend', endDraw);
+
+  document.getElementById('ups-sig-clear').addEventListener('click', () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    hasSignature = false;
+  });
+
+  // ── Photo Preview ──
+  let selectedPhotoFile = null;
+  const photoInput = document.getElementById('ups-photo-input');
+  const photoPreview = document.getElementById('ups-photo-preview');
+  const photoBox = document.getElementById('ups-photo-box');
+
+  photoInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      selectedPhotoFile = file;
+      const reader = new FileReader();
+      reader.onload = (re) => {
+        photoPreview.src = re.target.result;
+        photoPreview.style.display = 'block';
+        photoBox.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
 
   // ── Validate current step ──
   function validateStep(step) {
@@ -450,6 +569,33 @@ function initUPSFormLogic(techName) {
     btnNext.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="animate-spin"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> Submitting...</span>';
 
     try {
+      // Upload photo if exists
+      let photoPath = null;
+      if (selectedPhotoFile) {
+        try {
+          const compressed = await compressImage(selectedPhotoFile, 1200, 0.7);
+          const ext = compressed.name.split('.').pop() || 'jpg';
+          const fileName = `ups_${Date.now()}_${Math.random().toString(36).substring(2)}.${ext}`;
+          const filePath = `technician-photos/${fileName}`;
+          
+          const { error: uploadError } = await supabaseClient.storage
+            .from('safitrack')
+            .upload(filePath, compressed, { cacheControl: '3600', upsert: false });
+            
+          if (uploadError) throw uploadError;
+          photoPath = filePath;
+        } catch (err) {
+          console.error("Photo upload failed", err);
+          showToast("Photo upload failed, continuing without photo.", "error");
+        }
+      }
+
+      // Capture signature
+      let signatureData = null;
+      if (hasSignature) {
+        signatureData = canvas.toDataURL('image/png');
+      }
+
       const data = {
         technician_id: state.currentUser.id,
         organization_id: state.currentOrganization?.id,
@@ -499,7 +645,9 @@ function initUPSFormLogic(techName) {
         overall_system_status: getToggleValue('ups-overall-status'),
         client_engineer_name: document.getElementById('ups-client-eng').value.trim() || null,
         servicing_engineer_name: techName,
-        notes_remarks: document.getElementById('ups-notes').value.trim() || null
+        notes_remarks: document.getElementById('ups-notes').value.trim() || null,
+        photo_path: photoPath,
+        signature_data: signatureData
       };
 
       const { data: result, error } = await supabaseClient
@@ -656,7 +804,14 @@ async function renderTechniciansDashboardView() {
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
           All Reports
         </h3>
-        <input type="text" class="ups-reports-search" id="ups-reports-search" placeholder="Search by Report ID…" autocomplete="off">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1; justify-content:flex-end;">
+          <select class="ups-reports-search" id="ups-reports-filter-status" style="width:140px; padding:8px;">
+            <option value="">All Statuses</option>
+            <option value="Pass">Pass</option>
+            <option value="Fail">Fail</option>
+          </select>
+          <input type="text" class="ups-reports-search" id="ups-reports-search" placeholder="Search ID, Site, or Location…" autocomplete="off">
+        </div>
       </div>
 
       <div id="ups-reports-container">
@@ -686,17 +841,27 @@ async function renderTechniciansDashboardView() {
   const allReports = reports || [];
   renderReportsTable(allReports, allReports);
 
-  // Search filter
+  // Search & Filters
   const searchInput = document.getElementById('ups-reports-search');
-  searchInput.addEventListener('input', () => {
+  const statusFilter = document.getElementById('ups-reports-filter-status');
+
+  const applyFilters = () => {
     const q = searchInput.value.trim().toLowerCase();
-    if (!q) {
-      renderReportsTable(allReports, allReports);
-      return;
-    }
-    const filtered = allReports.filter(r => r.id.toLowerCase().includes(q));
+    const s = statusFilter.value;
+    
+    const filtered = allReports.filter(r => {
+      const matchSearch = !q || 
+        r.id.toLowerCase().includes(q) || 
+        (r.site_client_name || '').toLowerCase().includes(q) || 
+        (r.location_building || '').toLowerCase().includes(q);
+      const matchStatus = !s || r.overall_system_status === s;
+      return matchSearch && matchStatus;
+    });
     renderReportsTable(filtered, allReports);
-  });
+  };
+
+  searchInput.addEventListener('input', applyFilters);
+  statusFilter.addEventListener('change', applyFilters);
 }
 
 function renderReportsTable(reports, allReports) {
@@ -756,6 +921,13 @@ window._viewUPSReport = async function (reportId) {
   if (error || !r) {
     container.innerHTML = renderError(error?.message || 'Report not found');
     return;
+  }
+
+  // Get public URL for photo if exists
+  let photoUrl = null;
+  if (r.photo_path) {
+    const { data: urlData } = supabaseClient.storage.from('safitrack').getPublicUrl(r.photo_path);
+    photoUrl = urlData?.publicUrl;
   }
 
   const boolLabel = (v) => v === true ? 'Yes' : v === false ? 'No' : '—';
@@ -876,6 +1048,27 @@ window._viewUPSReport = async function (reportId) {
           </div>
         </div>
 
+        <!-- Evidence & Sign-off -->
+        ${(photoUrl || r.signature_data) ? `
+        <div class="ups-report-section">
+          <div class="ups-report-section-title">Evidence & Sign-off</div>
+          <div class="ups-report-fields" style="display:flex; flex-wrap:wrap; gap:24px;">
+            ${photoUrl ? `
+              <div class="ups-report-field" style="flex:1; min-width:200px; max-width:300px;">
+                <span class="ups-report-field-label" style="margin-bottom:8px;">Photo Evidence</span>
+                <img src="${photoUrl}" class="ups-report-photo-thumb" onclick="window.open(this.src, '_blank')">
+              </div>
+            ` : ''}
+            ${r.signature_data ? `
+              <div class="ups-report-field" style="flex:1; min-width:200px; max-width:300px;">
+                <span class="ups-report-field-label" style="margin-bottom:8px;">Signature</span>
+                <img src="${r.signature_data}" class="ups-report-sig-thumb">
+              </div>
+            ` : ''}
+          </div>
+        </div>
+        ` : ''}
+
       </div>
     </div>
   `;
@@ -903,6 +1096,12 @@ window._downloadUPSPDF = function (reportId) {
   const valOrDash = (v) => (v !== null && v !== undefined && v !== '') ? String(v) : '—';
   const siteName = (r.site_client_name || 'Unknown').replace(/[^a-zA-Z0-9]/g, '_');
   const dateStr = new Date(r.created_at).toISOString().split('T')[0];
+
+  let photoUrl = null;
+  if (r.photo_path) {
+    const { data: urlData } = supabaseClient.storage.from('safitrack').getPublicUrl(r.photo_path);
+    photoUrl = urlData?.publicUrl;
+  }
 
   // Create print container
   const printDiv = document.createElement('div');
@@ -995,6 +1194,26 @@ window._downloadUPSPDF = function (reportId) {
         ${r.notes_remarks ? `<div class="ups-print-field" style="grid-column:1/-1;"><span class="ups-print-field-label">Notes:</span><span class="ups-print-field-value">${valOrDash(r.notes_remarks)}</span></div>` : ''}
       </div>
     </div>
+
+    ${(photoUrl || r.signature_data) ? `
+    <div class="ups-print-section" style="margin-top:24px;">
+      <h3>Evidence & Sign-off</h3>
+      <div style="display:flex; gap:32px; align-items:flex-start; margin-top:12px;">
+        ${photoUrl ? `
+          <div style="flex:1;">
+            <div style="color:#666; font-weight:500; font-size:12px; margin-bottom:8px;">Photo Evidence:</div>
+            <img src="${photoUrl}" style="max-width:240px; max-height:240px; border:1px solid #ccc; border-radius:4px;">
+          </div>
+        ` : ''}
+        ${r.signature_data ? `
+          <div style="flex:1;">
+            <div style="color:#666; font-weight:500; font-size:12px; margin-bottom:8px;">Signature:</div>
+            <img src="${r.signature_data}" style="max-width:240px; max-height:100px; border-bottom:1px solid #111;">
+          </div>
+        ` : ''}
+      </div>
+    </div>
+    ` : ''}
 
     <div class="ups-print-footer">
       Sangyug Enterprises Ltd — Generated ${new Date().toLocaleString()}

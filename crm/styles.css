@@ -23254,6 +23254,95 @@ textarea.ups-input {
   font-weight: 500;
 }
 
+/* ── Signature & Photo Upload ────────────────────────────────────────────────── */
+.ups-photo-upload-wrap {
+  position: relative;
+  width: 100%;
+  border: 2px dashed var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  overflow: hidden;
+  transition: border-color 0.2s, background 0.2s;
+  text-align: center;
+}
+.ups-photo-upload-wrap:hover {
+  border-color: var(--color-primary);
+  background: var(--bg-hover);
+}
+.ups-photo-input {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 10;
+}
+.ups-photo-preview-box {
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--text-muted);
+}
+.ups-photo-preview-box svg {
+  width: 32px; height: 32px;
+  color: var(--text-secondary);
+}
+.ups-photo-preview-img {
+  width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  display: none;
+  background: #000;
+}
+
+.ups-signature-wrap {
+  border: 1.5px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  overflow: hidden;
+  position: relative;
+  touch-action: none; /* Prevent scroll while signing */
+}
+.ups-signature-canvas {
+  width: 100%;
+  height: 160px;
+  display: block;
+  cursor: crosshair;
+}
+.ups-signature-clear {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 5;
+}
+.ups-signature-clear:hover {
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.ups-report-photo-thumb {
+  max-width: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  cursor: pointer;
+}
+.ups-report-sig-thumb {
+  max-width: 200px;
+  background: #fff;
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 4px;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════════
    UPS REPORT — Print / PDF Styles
    ═══════════════════════════════════════════════════════════════════════════════ */
