@@ -65,16 +65,18 @@ function renderNextSafiNudge() {
   const fromName = escapeHtml(nudge.fromName || 'Teammate');
   const message = escapeHtml(nudge.message || 'You got a SafiNudge ✨');
 
+  const initials = getInitials(nudge.fromName || 'Teammate');
+  
   container.innerHTML = `
-    <div class="safi-nudge-stage" role="status" aria-live="polite">
-      <div class="safi-nudge-bot" aria-hidden="true">
-        <img class="safi-nudge-bot-gif" src="${SAFI_NUDGE_BOT_GIF}" alt="" loading="eager" decoding="async">
-        <span class="safi-nudge-bot-sparkle">✨</span>
+    <div class="nudge-toast-card" role="status" aria-live="polite">
+      <div class="nudge-toast-avatar">${initials}</div>
+      <div class="nudge-toast-content">
+        <div class="nudge-toast-title">Nudge from ${fromName}</div>
+        <div class="nudge-toast-message">${message}</div>
       </div>
-      <div class="safi-nudge-bubble">
-        <div class="safi-nudge-title">SafiNudge from ${fromName}</div>
-        <div class="safi-nudge-message">${message}</div>
-      </div>
+      <button class="nudge-toast-dismiss" aria-label="Dismiss">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
     </div>
   `;
 
@@ -244,49 +246,53 @@ function getSafiNudgeModal() {
   modal.style.display = 'none';
   modal.innerHTML = `
     <div class="modal-backdrop"></div>
-    <div class="modal-container snc-container">
-
-      <div class="snc-hero">
-        <button class="snc-close" type="button" id="safi-nudge-close" aria-label="Close">
-          <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    <div class="modal-container nudge-composer-container" style="max-width: 480px;">
+      <div class="modal-header">
+        <div class="modal-title-row" style="display:flex; align-items:center; gap: 8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          <h2 style="margin:0; font-size: 1.15rem; background: linear-gradient(90deg, var(--color-primary), #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Send a Quick Nudge</h2>
+        </div>
+        <button class="modal-close-btn" type="button" id="safi-nudge-close" aria-label="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
-        <img class="snc-bot" src="${SAFI_NUDGE_BOT_GIF}" alt="" loading="eager" decoding="async">
-        <div class="snc-hero-title">Nudge a teammate</div>
-        <div class="snc-hero-sub">Send a little something. No reason needed.</div>
       </div>
 
-      <div class="snc-body">
-
-        <div class="snc-to-row">
-          <span class="snc-to-badge">To</span>
-          <select id="safi-nudge-target-select" class="snc-select">
-            <option value="">Pick a teammate…</option>
-          </select>
+      <div class="modal-body" style="padding-top: 16px;">
+        <div class="form-field" style="margin-bottom: 16px;">
+          <label for="safi-nudge-target-select">To</label>
+          <div class="input-wrapper modern-input">
+            <select id="safi-nudge-target-select" class="input-small" style="width: 100%;" required>
+              <option value="">Pick a teammate…</option>
+            </select>
+          </div>
         </div>
 
-        <div class="snc-message-wrap">
-          <textarea id="safi-nudge-message" class="snc-textarea" rows="3" maxlength="160" placeholder="What do you want them to know?"></textarea>
-          <div class="snc-counter"><span id="safi-nudge-count">0</span> / 160</div>
+        <div class="form-field" style="margin-bottom: 16px; position: relative;">
+          <label for="safi-nudge-message">Message</label>
+          <div class="input-wrapper modern-input">
+            <textarea id="safi-nudge-message" rows="3" maxlength="160" placeholder="What do you want them to know?" style="width: 100%; border-radius: var(--radius-md); padding: 12px; border: 1px solid var(--border-color); background: var(--bg-primary); color: var(--text-primary); font-family: inherit; font-size: var(--type-md); resize: none; transition: border-color var(--transition-fast);"></textarea>
+          </div>
+          <div style="position: absolute; bottom: 8px; right: 12px; font-size: 0.75rem; color: var(--text-muted);"><span id="safi-nudge-count">0</span> / 160</div>
         </div>
 
-        <div class="snc-chips">
-          <button type="button" class="snc-chip safi-nudge-quick" data-msg="Proud of you 🌟">Proud of you 🌟</button>
-          <button type="button" class="snc-chip safi-nudge-quick" data-msg="You're on fire lately 🔥">You're on fire lately 🔥</button>
-          <button type="button" class="snc-chip safi-nudge-quick" data-msg="Just thinking of you 👋">Just thinking of you 👋</button>
-          <button type="button" class="snc-chip safi-nudge-quick" data-msg="Crushed it today 💪">Crushed it today 💪</button>
-          <button type="button" class="snc-chip safi-nudge-quick" data-msg="You've got this 🎯">You've got this 🎯</button>
-          <button type="button" class="snc-chip safi-nudge-quick" data-msg="Sending good energy ✨">Sending good energy ✨</button>
-          <button type="button" class="snc-chip safi-nudge-quick" data-msg="You matter here ♥️">You matter here ♥️</button>
-          <button type="button" class="snc-chip safi-nudge-quick" data-msg="Keep going, you're close 🙌">Keep going, you're close 🙌</button>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; padding-bottom: 8px;">
+          <button type="button" class="nudge-pill-btn safi-nudge-quick" data-msg="Proud of you 🌟">Proud of you 🌟</button>
+          <button type="button" class="nudge-pill-btn safi-nudge-quick" data-msg="You're on fire lately 🔥">You're on fire lately 🔥</button>
+          <button type="button" class="nudge-pill-btn safi-nudge-quick" data-msg="Just thinking of you 👋">Just thinking of you 👋</button>
+          <button type="button" class="nudge-pill-btn safi-nudge-quick" data-msg="Crushed it today 💪">Crushed it today 💪</button>
+          <button type="button" class="nudge-pill-btn safi-nudge-quick" data-msg="You've got this 🎯">You've got this 🎯</button>
+          <button type="button" class="nudge-pill-btn safi-nudge-quick" data-msg="Sending good energy ✨">Sending good energy ✨</button>
         </div>
-
       </div>
 
-      <div class="snc-footer">
-        <button class="snc-cancel-btn" type="button" id="safi-nudge-cancel">Maybe later</button>
-        <button class="snc-send-btn" type="button" id="safi-nudge-send">Send it 🚀</button>
+      <div class="modal-footer" style="display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid var(--border-color-light); background: var(--bg-primary);">
+        <button class="btn btn-secondary" type="button" id="safi-nudge-cancel" style="border-radius: var(--btn-radius);">Maybe later</button>
+        <div style="position: relative; min-width: 100px; height: 36px;">
+            <button class="gradient-button" type="button" id="safi-nudge-send" style="position: absolute; right: 0; top: 0; width: 100%; height: 100%; margin: 0; display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <span>Send it 🚀</span>
+            </button>
+        </div>
       </div>
-
     </div>
   `;
 

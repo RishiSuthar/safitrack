@@ -559,25 +559,6 @@ async function runCompaniesImportFromCsv() {
   }
 }
 
-window.closeModal = function (modalId) {
-  const modal = document.getElementById(modalId);
-  if (modal) {
-    modal.style.display = 'none';
-  }
-  // For dynamically created modals
-  if (!modal) {
-    document.querySelectorAll('.modal').forEach(m => {
-      if (m.id === modalId) m.remove();
-    });
-  }
-
-  // Remove active class if no other modals are visible
-  const visibleModals = Array.from(document.querySelectorAll('.modal')).filter(m => m.style.display !== 'none');
-  if (visibleModals.length === 0) {
-    document.body.classList.remove('modal-active');
-  }
-};
-
 // setDateRange removed (export modal removed)
 
 // executeExport removed (export modal removed)
