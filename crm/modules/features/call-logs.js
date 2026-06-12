@@ -84,10 +84,15 @@ async function renderCallLogsView() {
 
   // Ensure companies are loaded for search fallback
   if (!window.allCompaniesData) {
-    let companiesCacheQ = supabaseClient.from('companies').select('id, name, address').order('name', { ascending: true });
-    if (state.currentOrganization?.id) companiesCacheQ = companiesCacheQ.eq('organization_id', state.currentOrganization.id);
-    const { data: companies } = await companiesCacheQ;
-    window.allCompaniesData = companies || [];
+    if (window.allCompaniesPromise) {
+      await window.allCompaniesPromise;
+    } else {
+      // Fallback if not initialized via app-init
+      let companiesCacheQ = supabaseClient.from('companies').select('id, name, address').order('name', { ascending: true });
+      if (state.currentOrganization?.id) companiesCacheQ = companiesCacheQ.eq('organization_id', state.currentOrganization.id);
+      const { data: companies } = await companiesCacheQ;
+      window.allCompaniesData = companies || [];
+    }
   }
 
   // Default fetch - order by newest first (descending by created_at)

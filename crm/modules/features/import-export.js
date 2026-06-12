@@ -285,25 +285,8 @@ async function exportAllCompaniesToCsv() {
   }
 
   try {
-    let companiesExportQ = supabaseClient
-      .from('companies')
-      .select(`
-        name,
-        company_type,
-        description,
-        address,
-        latitude,
-        longitude,
-        radius,
-        company_categories(
-          categories(name)
-        )
-      `)
-      .order('name', { ascending: true });
-    if (state.currentOrganization?.id) companiesExportQ = companiesExportQ.eq('organization_id', state.currentOrganization.id);
-    const { data: companies, error } = await companiesExportQ;
-
-    if (error) throw error;
+    if (window.allCompaniesPromise) await window.allCompaniesPromise;
+    const companies = window.allCompaniesData || [];
 
     const rows = [
       ['name', 'company_type', 'description', 'address', 'latitude', 'longitude', 'radius', 'categories']
@@ -377,11 +360,8 @@ async function runCompaniesImportFromCsv() {
 
     const hasCategoriesColumn = rawHeaders.includes('categories');
 
-    const { data: existingCompanies, error: existingError } = await supabaseClient
-      .from('companies')
-      .select('id, name, address');
-
-    if (existingError) throw existingError;
+    if (window.allCompaniesPromise) await window.allCompaniesPromise;
+    const existingCompanies = window.allCompaniesData || [];
 
     const existingMap = new Map((existingCompanies || []).map(company => [
       `${(company.name || '').trim().toLowerCase()}::${(company.address || '').trim().toLowerCase()}`,
