@@ -6,25 +6,7 @@ import { sidebar, sidebarOverlay, viewContainer, pageLabel, pageLabelIcon, pageL
 import { showToast } from '../ui/toast.js';
 import { renderAccessDenied, renderNotFound } from '../utils/helpers.js';
 import { checkDueReminders } from '../features/notifications.js';
-import { renderLogVisitView } from '../features/log-visit.js';
-import { renderMyActivityView } from '../features/my-activity.js';
-import { renderSalesFunnelView } from '../features/sales-funnel.js';
-import { renderOpportunityPipelineView } from '../features/opportunities.js';
-import { renderProfessionalDashboardView } from '../features/dashboard.js';
-import { renderTeamDashboardView } from '../features/team-dashboard.js';
-import { renderRoutePlanningView } from '../features/route-planning.js';
-import { renderMyRoutesView } from '../features/my-routes.js';
-import { renderUserManagementView } from '../features/user-management.js';
-import { renderCompaniesView } from '../features/companies.js';
-import { renderPeopleView } from '../features/people.js';
-import { renderTasksView } from '../features/tasks.js';
-import { renderTechnicianLogVisitView, renderTechnicianActivityView, renderTechniciansDashboardView } from '../features/technician.js';
-import { renderRemindersView } from '../features/reminders.js';
-import { renderCallLogsView } from '../features/call-logs.js';
-import { renderSettingsView } from '../features/settings.js';
-import { renderNotesView } from '../features/notes.js';
-import { renderReportsView } from '../features/reports.js';
-import { renderWorkflowsView } from '../features/workflows.js';
+// Feature views are loaded via lazy-load proxy wrappers defined on the global window object.
 
 // ======================
 
@@ -138,92 +120,91 @@ async function loadView(viewName) {
 
   switch (viewName) {
     case 'log-visit':
-      await renderLogVisitView();
+      await window.renderLogVisitView();
       break;
     case 'my-activity':
-      await renderMyActivityView();
+      await window.renderMyActivityView();
       break;
-    // Add this case to your loadView function
     case 'notes':
-      await renderNotesView();
+      await window.renderNotesView();
       break;
     case 'sales-funnel':
-      await renderSalesFunnelView();
+      await window.renderSalesFunnelView();
       break;
     case 'opportunity-pipeline':
-      await renderOpportunityPipelineView();
+      await window.renderOpportunityPipelineView();
       break;
     case 'main-dashboard':
       if (state.isManager) {
-        await renderProfessionalDashboardView();
+        await window.renderProfessionalDashboardView();
       } else {
         viewContainer.innerHTML = renderAccessDenied();
       }
       break;
     case 'team-dashboard':
       if (state.isManager) {
-        await renderTeamDashboardView();
+        await window.renderTeamDashboardView();
       } else {
         viewContainer.innerHTML = renderAccessDenied();
       }
       break;
     case 'route-planning':
       if (state.isManager) {
-        await renderRoutePlanningView();
+        await window.renderRoutePlanningView();
       } else {
         viewContainer.innerHTML = renderAccessDenied();
       }
       break;
     case 'my-routes':
-      await renderMyRoutesView();
+      await window.renderMyRoutesView();
       break;
     case 'user-management':
-      await renderUserManagementView();
+      await window.renderUserManagementView();
       break;
     case 'companies':
-      await renderCompaniesView();
+      await window.renderCompaniesView();
       break;
     case 'people':
-      await renderPeopleView();
+      await window.renderPeopleView();
       break;
     case 'tasks':
-      await renderTasksView();
+      await window.renderTasksView();
       break;
     case 'technician-log-visit':
       if (state.isTechnician) {
-        await renderTechnicianLogVisitView();
+        await window.renderTechnicianLogVisitView();
       } else {
         viewContainer.innerHTML = renderAccessDenied();
       }
       break;
     case 'technician-activity':
       if (state.isTechnician) {
-        await renderTechnicianActivityView();
+        await window.renderTechnicianActivityView();
       } else {
         viewContainer.innerHTML = renderAccessDenied();
       }
       break;
     case 'technicians-dashboard':
       if (state.isManager) {
-        await renderTechniciansDashboardView();
+        await window.renderTechniciansDashboardView();
       } else {
         viewContainer.innerHTML = renderAccessDenied();
       }
       break;
     case 'reminders':
-      await renderRemindersView();
+      await window.renderRemindersView();
       break;
     case 'call-logs':
-      await renderCallLogsView();
+      await window.renderCallLogsView();
       break;
     case 'settings':
-      await renderSettingsView();
+      await window.renderSettingsView();
       break;
     case 'reports':
-      await renderReportsView();
+      await window.renderReportsView();
       break;
     case 'workflows':
-      await renderWorkflowsView();
+      await window.renderWorkflowsView();
       break;
     default:
       viewContainer.innerHTML = renderNotFound();

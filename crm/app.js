@@ -73,226 +73,251 @@ import {
 } from './modules/realtime/nudge.js';
 
 // ── Features ──────────────────────────────────────────────────────────────────
-import { renderSettingsView } from './modules/features/settings.js';
 
-import {
-  renderCompaniesView, openCompanyModal, initCompanyModalListeners,
-  addCategory, removeCategory, renderCategories,
-} from './modules/features/companies.js';
 
-import {
-  renderPeopleView, openPersonModal, openPersonViewModal, initPersonModalListeners,
-  addPhoneNumber, renderPhoneNumbers,
-} from './modules/features/people.js';
 
-import { renderLogVisitView, initLogVisitForm, geocodeAddress } from './modules/features/log-visit.js';
-import { renderMyActivityView, renderVisitCard } from './modules/features/my-activity.js';
-import { renderSalesFunnelView } from './modules/features/sales-funnel.js';
 
-import {
-  renderOpportunityPipelineView, updateOpportunityLogosAsync, initOpportunityEventListeners,
-  initPipelineDragAndDrop, updatePipelineStageCounts, updatePipelineSummary,
-  initPipelineFilters, openOpportunityModal, openOpportunityViewModal,
-  initOpportunityModalListeners, addCompetitor, getProbabilityColor, scheduleNextStepReminder,
-} from './modules/features/opportunities.js';
 
-import {
-  getNotificationPermission, requestNotificationPermission, readJsonStorage, writeJsonStorage,
-  formatDueLabel, getDueStatus, mapTaskToDueNotification, mapReminderToDueNotification,
-  mapOpportunityToDueNotification, fetchDueNotificationItems, renderDueNotificationsUI,
-  updateNotificationPermissionCTA, pushDeviceNotification, getDuePopupContainer,
-  clearDuePopupTimers, showDuePopup, notifyForNewDueItems, markAllDueNotificationsRead,
-  refreshDueNotifications, startDueNotificationsMonitor, stopDueNotificationsMonitor,
-  handleDueNotificationVisibility, checkDueReminders,
-} from './modules/features/notifications.js';
 
-import {
-  renderTeamDashboardView, isToday, isThisWeek, isLastWeek, isYesterday,
-  renderVisitsCards, renderVisitsTimeline, renderActivityTimeline, renderLeaderboard,
-  getRelativeTime, initVisitsHub, switchVisitsView, updateFilterCountBadge,
-  updateFilterState, applyVisitsFilters, clearAllFilters, closeVisitDetail,
-  fetchAndOpenVisit, openPhotoModal, closePhotoModal, initVisitsMap, debounce, generateVisitPDF,
-} from './modules/features/team-dashboard.js';
 
-import { renderUserManagementView } from './modules/features/user-management.js';
 
-import {
-  groupRoutesByLocations, renderRoutePlanningView, initRoutePlanning, initRouteList,
-  initAISafiPlan, openAISafiPlanModal, initAISafiPlanLogic, viewRouteDetails, editRoute,
-} from './modules/features/route-planning.js';
 
-import { renderMyRoutesView } from './modules/features/my-routes.js';
-import { startRouteNavigation, completeRoute } from './modules/features/route-navigation.js';
 
-import {
-  renderTasksView, renderKanbanTaskCard, initKanbanBoard, updateColumnCounts,
-  showTaskDetail, renderTaskCard, getStatusLabel, initTaskFilters,
-  initTaskActionButtons, openTaskModal, initTaskModalListeners,
-} from './modules/features/tasks.js';
 
-import {
-  renderRemindersView, initReminderFilters, initReminderActionButtons,
-  openReminderModal, initReminderModalListeners,
-} from './modules/features/reminders.js';
 
-import {
-  escapeCsvValue, downloadCsvFile, downloadCompaniesSampleCsv, parseCsv,
-  normalizeCompanyCsvHeader, parseCompanyType, parseCategoriesCell,
-  exportAllCompaniesToCsv, runCompaniesImportFromCsv,
-} from './modules/features/import-export.js';
 
-import {
-  renderTechnicianLogVisitView, renderTechnicianActivityView, renderTechniciansDashboardView,
-} from './modules/features/technician.js';
 
-import {
-  renderNotesView, updateNotesSidebar, renderNotesTags, renderNotesGrid, attachNotesViewEvents,
-  openNoteSlideOver, closeNoteSlideOver, deleteNoteRecord, saveActiveNote, createNewNoteV2,
-  togglePinActiveNote, deleteActiveNote, handleNoteTagging, showNotePersonSuggestions,
-  showNoteCompanySuggestions, renderNoteSuggestions, hideNoteTaggingSuggestions, insertNoteTag,
-} from './modules/features/notes.js';
 
-import { renderProfessionalDashboardView } from './modules/features/dashboard.js';
 
-import { renderReportsView, openReportBuilder, refreshAllWidgets } from './modules/features/reports.js';
 
-import {
-  renderWorkflowsView, openWorkflowBuilder, closeWorkflowBuilder, saveWorkflow,
-  deleteWorkflow, toggleWorkflowActive, openTriggerPicker, removeTrigger,
-  openActionPicker, openActionEditor, removeAction, confirmActionEdit,
-  closePanel as closeWorkflowPanel, onWorkflowNameChange, toggleBuilderActive,
-} from './modules/features/workflows.js';
 
-import {
-  submitChangePassword, renderCallLogsView, deleteCallLog, openCallLogViewModal,
-  openCompanyViewModal, openCallLogModal, initCallLogSearch, saveCallLog,
-} from './modules/features/call-logs.js';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ══════════════════════════════════════════════════════════════════════════════
 //  WINDOW BRIDGE
 //  Expose functions for HTML inline handlers and non-module sibling scripts.
 // ══════════════════════════════════════════════════════════════════════════════
 Object.assign(window, {
-  // State / client (non-module scripts like aichat.js / ai.js need these)
   supabaseClient,
   state,
-
-  // Core
   loadView, openSidebar, closeSidebar, updateActiveNav,
-
-  // Auth
   handleLogin, handleLogout, switchAuthPane, handleGoogleAuth,
   handleCompleteGoogleProfile, goToSignupStep, handleSignup,
   handleResendVerification, openInviteModal, closeInviteModal, handleInviteSubmit,
-
-  // Utils
   showToast, escapeHtml, showInlineSuccess, triggerConfetti, getInitials, handleImageError,
   formatDate, getDisplayNameFromProfile, getLeadScoreBadge, parseMarkdown,
   renderSkeletonCards, renderError, renderAccessDenied, renderNotFound, renderTags,
   geocodeAddressWithOSM, calculateDistance, buildOverpassQuery, searchNearbyOverpass,
-  renderNearbySuggestions, debounce,
-
-  // Spreadsheet / table engine
+  renderNearbySuggestions, 
   renderEditableDataTable, getDeepValue, getCompanyLogoUrl, normalizeSearchText,
   normalizeForMatching, findCompanyForOpportunity, slugifyForDomain, getGoogleFaviconUrl,
   guessDomainAndFavicon, matchesTokenizedQuery, normalizeEmailValue, normalizePhoneValue,
   findDuplicateCompanyByName, findDuplicatePersonContact, makeCellEditable,
   initResize, handleResizeMove, handleGenerateCompanyDescription, stopResize,
   handleCellUpdate, sortData, handleHeaderSort, refreshCurrentView,
-
-  // Batch selection
   updateBottomActionBar, clearSelection, handleBatchDelete,
-
-  // Command palette / Quick Actions / Search Records
   openCommandPalette, closeCommandPalette,
   openQuickActions, closeQuickActions,
   openSearchRecords, closeSearchRecords,
-
-  // PWA
   initPWA, attemptShowPWABanner, showCompressionProgress, hideCompressionProgress,
-
-  // Mention system
   showMentionSuggestions, setActiveMention, insertMentionFromSuggestion,
-
-  // Settings
-  renderSettingsView,
-
-  // Companies
-  renderCompaniesView, openCompanyModal, addCategory, removeCategory, renderCategories,
-
-  // People
-  renderPeopleView, openPersonModal, openPersonViewModal, addPhoneNumber, renderPhoneNumbers,
-
-  // Log Visit
-  renderLogVisitView, geocodeAddress,
-
-  // My Activity
-  renderMyActivityView, renderVisitCard,
-
-  // Sales Funnel
-  renderSalesFunnelView,
-
-  // Opportunities
-  renderOpportunityPipelineView, openOpportunityModal, openOpportunityViewModal,
-  addCompetitor, getProbabilityColor, initPipelineDragAndDrop,
-
-  // Notifications
-  requestNotificationPermission, markAllDueNotificationsRead,
-  updateNotificationPermissionCTA, refreshDueNotifications,
-  startDueNotificationsMonitor, stopDueNotificationsMonitor, checkDueReminders,
-
-  // Nudge
   startSafiNudgeRealtime, stopSafiNudgeRealtime, sendSafiNudge, populateSafiNudgeRecipients,
-
-  // Team Dashboard
-  renderTeamDashboardView, applyVisitsFilters, clearAllFilters, closeVisitDetail,
-  fetchAndOpenVisit, openPhotoModal, closePhotoModal, generateVisitPDF, switchVisitsView,
-
-  // User Management
-  renderUserManagementView,
-
-  // Route Planning
-  renderRoutePlanningView, viewRouteDetails, editRoute, openAISafiPlanModal,
-
-  // My Routes
-  renderMyRoutesView,
-
-  // Route Navigation
-  startRouteNavigation, completeRoute,
-
-  // Tasks
-  renderTasksView, openTaskModal, showTaskDetail,
-
-  // Reminders
-  renderRemindersView, openReminderModal,
-
-  // Import / Export
-  exportAllCompaniesToCsv, runCompaniesImportFromCsv, downloadCompaniesSampleCsv,
-
-  // Technician
-  renderTechnicianLogVisitView, renderTechnicianActivityView,
-  renderTechniciansDashboardView,
-
-  // Notes
-  renderNotesView, openNoteSlideOver, closeNoteSlideOver, saveActiveNote,
-  createNewNoteV2, togglePinActiveNote, deleteActiveNote,
-
-  // Dashboard
-  renderProfessionalDashboardView,
-
-  // Call Logs
-  renderCallLogsView, deleteCallLog, openCallLogViewModal, openCompanyViewModal,
-  openCallLogModal, saveCallLog, submitChangePassword,
-
-  // Reports & Dashboard
-  renderReportsView, openReportBuilder, refreshAllWidgets,
-
-  // Workflows
-  renderWorkflowsView, openWorkflowBuilder, closeWorkflowBuilder, saveWorkflow,
-  deleteWorkflow, toggleWorkflowActive, openTriggerPicker, removeTrigger,
-  openActionPicker, openActionEditor, removeAction, confirmActionEdit,
-  closePanel: closeWorkflowPanel, onWorkflowNameChange, toggleBuilderActive,
 });
+
+
+const lazyLoad = (modulePath, exportName) => {
+  return async (...args) => {
+    const mod = await import(modulePath);
+    return mod[exportName](...args);
+  };
+};
+
+// ── Lazy Loaded Features ──────────────────────────────────────────────────────
+window.renderSettingsView = lazyLoad('./modules/features/settings.js', 'renderSettingsView');
+window.renderCompaniesView = lazyLoad('./modules/features/companies.js', 'renderCompaniesView');
+window.openCompanyModal = lazyLoad('./modules/features/companies.js', 'openCompanyModal');
+window.initCompanyModalListeners = lazyLoad('./modules/features/companies.js', 'initCompanyModalListeners');
+window.addCategory = lazyLoad('./modules/features/companies.js', 'addCategory');
+window.removeCategory = lazyLoad('./modules/features/companies.js', 'removeCategory');
+window.renderCategories = lazyLoad('./modules/features/companies.js', 'renderCategories');
+window.renderPeopleView = lazyLoad('./modules/features/people.js', 'renderPeopleView');
+window.openPersonModal = lazyLoad('./modules/features/people.js', 'openPersonModal');
+window.openPersonViewModal = lazyLoad('./modules/features/people.js', 'openPersonViewModal');
+window.initPersonModalListeners = lazyLoad('./modules/features/people.js', 'initPersonModalListeners');
+window.addPhoneNumber = lazyLoad('./modules/features/people.js', 'addPhoneNumber');
+window.renderPhoneNumbers = lazyLoad('./modules/features/people.js', 'renderPhoneNumbers');
+window.renderLogVisitView = lazyLoad('./modules/features/log-visit.js', 'renderLogVisitView');
+window.initLogVisitForm = lazyLoad('./modules/features/log-visit.js', 'initLogVisitForm');
+window.geocodeAddress = lazyLoad('./modules/features/log-visit.js', 'geocodeAddress');
+window.renderMyActivityView = lazyLoad('./modules/features/my-activity.js', 'renderMyActivityView');
+window.renderVisitCard = lazyLoad('./modules/features/my-activity.js', 'renderVisitCard');
+window.renderSalesFunnelView = lazyLoad('./modules/features/sales-funnel.js', 'renderSalesFunnelView');
+window.renderOpportunityPipelineView = lazyLoad('./modules/features/opportunities.js', 'renderOpportunityPipelineView');
+window.updateOpportunityLogosAsync = lazyLoad('./modules/features/opportunities.js', 'updateOpportunityLogosAsync');
+window.initOpportunityEventListeners = lazyLoad('./modules/features/opportunities.js', 'initOpportunityEventListeners');
+window.initPipelineDragAndDrop = lazyLoad('./modules/features/opportunities.js', 'initPipelineDragAndDrop');
+window.updatePipelineStageCounts = lazyLoad('./modules/features/opportunities.js', 'updatePipelineStageCounts');
+window.updatePipelineSummary = lazyLoad('./modules/features/opportunities.js', 'updatePipelineSummary');
+window.initPipelineFilters = lazyLoad('./modules/features/opportunities.js', 'initPipelineFilters');
+window.openOpportunityModal = lazyLoad('./modules/features/opportunities.js', 'openOpportunityModal');
+window.openOpportunityViewModal = lazyLoad('./modules/features/opportunities.js', 'openOpportunityViewModal');
+window.initOpportunityModalListeners = lazyLoad('./modules/features/opportunities.js', 'initOpportunityModalListeners');
+window.addCompetitor = lazyLoad('./modules/features/opportunities.js', 'addCompetitor');
+window.getProbabilityColor = lazyLoad('./modules/features/opportunities.js', 'getProbabilityColor');
+window.scheduleNextStepReminder = lazyLoad('./modules/features/opportunities.js', 'scheduleNextStepReminder');
+window.getNotificationPermission = lazyLoad('./modules/features/notifications.js', 'getNotificationPermission');
+window.requestNotificationPermission = lazyLoad('./modules/features/notifications.js', 'requestNotificationPermission');
+window.readJsonStorage = lazyLoad('./modules/features/notifications.js', 'readJsonStorage');
+window.writeJsonStorage = lazyLoad('./modules/features/notifications.js', 'writeJsonStorage');
+window.formatDueLabel = lazyLoad('./modules/features/notifications.js', 'formatDueLabel');
+window.getDueStatus = lazyLoad('./modules/features/notifications.js', 'getDueStatus');
+window.mapTaskToDueNotification = lazyLoad('./modules/features/notifications.js', 'mapTaskToDueNotification');
+window.mapReminderToDueNotification = lazyLoad('./modules/features/notifications.js', 'mapReminderToDueNotification');
+window.mapOpportunityToDueNotification = lazyLoad('./modules/features/notifications.js', 'mapOpportunityToDueNotification');
+window.fetchDueNotificationItems = lazyLoad('./modules/features/notifications.js', 'fetchDueNotificationItems');
+window.renderDueNotificationsUI = lazyLoad('./modules/features/notifications.js', 'renderDueNotificationsUI');
+window.updateNotificationPermissionCTA = lazyLoad('./modules/features/notifications.js', 'updateNotificationPermissionCTA');
+window.pushDeviceNotification = lazyLoad('./modules/features/notifications.js', 'pushDeviceNotification');
+window.getDuePopupContainer = lazyLoad('./modules/features/notifications.js', 'getDuePopupContainer');
+window.clearDuePopupTimers = lazyLoad('./modules/features/notifications.js', 'clearDuePopupTimers');
+window.showDuePopup = lazyLoad('./modules/features/notifications.js', 'showDuePopup');
+window.notifyForNewDueItems = lazyLoad('./modules/features/notifications.js', 'notifyForNewDueItems');
+window.markAllDueNotificationsRead = lazyLoad('./modules/features/notifications.js', 'markAllDueNotificationsRead');
+window.refreshDueNotifications = lazyLoad('./modules/features/notifications.js', 'refreshDueNotifications');
+window.startDueNotificationsMonitor = lazyLoad('./modules/features/notifications.js', 'startDueNotificationsMonitor');
+window.stopDueNotificationsMonitor = lazyLoad('./modules/features/notifications.js', 'stopDueNotificationsMonitor');
+window.handleDueNotificationVisibility = lazyLoad('./modules/features/notifications.js', 'handleDueNotificationVisibility');
+window.checkDueReminders = lazyLoad('./modules/features/notifications.js', 'checkDueReminders');
+window.renderTeamDashboardView = lazyLoad('./modules/features/team-dashboard.js', 'renderTeamDashboardView');
+window.isToday = lazyLoad('./modules/features/team-dashboard.js', 'isToday');
+window.isThisWeek = lazyLoad('./modules/features/team-dashboard.js', 'isThisWeek');
+window.isLastWeek = lazyLoad('./modules/features/team-dashboard.js', 'isLastWeek');
+window.isYesterday = lazyLoad('./modules/features/team-dashboard.js', 'isYesterday');
+window.renderVisitsCards = lazyLoad('./modules/features/team-dashboard.js', 'renderVisitsCards');
+window.renderVisitsTimeline = lazyLoad('./modules/features/team-dashboard.js', 'renderVisitsTimeline');
+window.renderActivityTimeline = lazyLoad('./modules/features/team-dashboard.js', 'renderActivityTimeline');
+window.renderLeaderboard = lazyLoad('./modules/features/team-dashboard.js', 'renderLeaderboard');
+window.getRelativeTime = lazyLoad('./modules/features/team-dashboard.js', 'getRelativeTime');
+window.initVisitsHub = lazyLoad('./modules/features/team-dashboard.js', 'initVisitsHub');
+window.switchVisitsView = lazyLoad('./modules/features/team-dashboard.js', 'switchVisitsView');
+window.updateFilterCountBadge = lazyLoad('./modules/features/team-dashboard.js', 'updateFilterCountBadge');
+window.updateFilterState = lazyLoad('./modules/features/team-dashboard.js', 'updateFilterState');
+window.applyVisitsFilters = lazyLoad('./modules/features/team-dashboard.js', 'applyVisitsFilters');
+window.clearAllFilters = lazyLoad('./modules/features/team-dashboard.js', 'clearAllFilters');
+window.closeVisitDetail = lazyLoad('./modules/features/team-dashboard.js', 'closeVisitDetail');
+window.fetchAndOpenVisit = lazyLoad('./modules/features/team-dashboard.js', 'fetchAndOpenVisit');
+window.openPhotoModal = lazyLoad('./modules/features/team-dashboard.js', 'openPhotoModal');
+window.closePhotoModal = lazyLoad('./modules/features/team-dashboard.js', 'closePhotoModal');
+window.initVisitsMap = lazyLoad('./modules/features/team-dashboard.js', 'initVisitsMap');
+window.debounce = lazyLoad('./modules/features/team-dashboard.js', 'debounce');
+window.generateVisitPDF = lazyLoad('./modules/features/team-dashboard.js', 'generateVisitPDF');
+window.renderUserManagementView = lazyLoad('./modules/features/user-management.js', 'renderUserManagementView');
+window.groupRoutesByLocations = lazyLoad('./modules/features/route-planning.js', 'groupRoutesByLocations');
+window.renderRoutePlanningView = lazyLoad('./modules/features/route-planning.js', 'renderRoutePlanningView');
+window.initRoutePlanning = lazyLoad('./modules/features/route-planning.js', 'initRoutePlanning');
+window.initRouteList = lazyLoad('./modules/features/route-planning.js', 'initRouteList');
+window.initAISafiPlan = lazyLoad('./modules/features/route-planning.js', 'initAISafiPlan');
+window.openAISafiPlanModal = lazyLoad('./modules/features/route-planning.js', 'openAISafiPlanModal');
+window.initAISafiPlanLogic = lazyLoad('./modules/features/route-planning.js', 'initAISafiPlanLogic');
+window.viewRouteDetails = lazyLoad('./modules/features/route-planning.js', 'viewRouteDetails');
+window.editRoute = lazyLoad('./modules/features/route-planning.js', 'editRoute');
+window.renderMyRoutesView = lazyLoad('./modules/features/my-routes.js', 'renderMyRoutesView');
+window.startRouteNavigation = lazyLoad('./modules/features/route-navigation.js', 'startRouteNavigation');
+window.completeRoute = lazyLoad('./modules/features/route-navigation.js', 'completeRoute');
+window.renderTasksView = lazyLoad('./modules/features/tasks.js', 'renderTasksView');
+window.renderKanbanTaskCard = lazyLoad('./modules/features/tasks.js', 'renderKanbanTaskCard');
+window.initKanbanBoard = lazyLoad('./modules/features/tasks.js', 'initKanbanBoard');
+window.updateColumnCounts = lazyLoad('./modules/features/tasks.js', 'updateColumnCounts');
+window.showTaskDetail = lazyLoad('./modules/features/tasks.js', 'showTaskDetail');
+window.renderTaskCard = lazyLoad('./modules/features/tasks.js', 'renderTaskCard');
+window.getStatusLabel = lazyLoad('./modules/features/tasks.js', 'getStatusLabel');
+window.initTaskFilters = lazyLoad('./modules/features/tasks.js', 'initTaskFilters');
+window.initTaskActionButtons = lazyLoad('./modules/features/tasks.js', 'initTaskActionButtons');
+window.openTaskModal = lazyLoad('./modules/features/tasks.js', 'openTaskModal');
+window.initTaskModalListeners = lazyLoad('./modules/features/tasks.js', 'initTaskModalListeners');
+window.renderRemindersView = lazyLoad('./modules/features/reminders.js', 'renderRemindersView');
+window.initReminderFilters = lazyLoad('./modules/features/reminders.js', 'initReminderFilters');
+window.initReminderActionButtons = lazyLoad('./modules/features/reminders.js', 'initReminderActionButtons');
+window.openReminderModal = lazyLoad('./modules/features/reminders.js', 'openReminderModal');
+window.initReminderModalListeners = lazyLoad('./modules/features/reminders.js', 'initReminderModalListeners');
+window.escapeCsvValue = lazyLoad('./modules/features/import-export.js', 'escapeCsvValue');
+window.downloadCsvFile = lazyLoad('./modules/features/import-export.js', 'downloadCsvFile');
+window.downloadCompaniesSampleCsv = lazyLoad('./modules/features/import-export.js', 'downloadCompaniesSampleCsv');
+window.parseCsv = lazyLoad('./modules/features/import-export.js', 'parseCsv');
+window.normalizeCompanyCsvHeader = lazyLoad('./modules/features/import-export.js', 'normalizeCompanyCsvHeader');
+window.parseCompanyType = lazyLoad('./modules/features/import-export.js', 'parseCompanyType');
+window.parseCategoriesCell = lazyLoad('./modules/features/import-export.js', 'parseCategoriesCell');
+window.exportAllCompaniesToCsv = lazyLoad('./modules/features/import-export.js', 'exportAllCompaniesToCsv');
+window.runCompaniesImportFromCsv = lazyLoad('./modules/features/import-export.js', 'runCompaniesImportFromCsv');
+window.renderTechnicianLogVisitView = lazyLoad('./modules/features/technician.js', 'renderTechnicianLogVisitView');
+window.renderTechnicianActivityView = lazyLoad('./modules/features/technician.js', 'renderTechnicianActivityView');
+window.renderTechniciansDashboardView = lazyLoad('./modules/features/technician.js', 'renderTechniciansDashboardView');
+window.renderNotesView = lazyLoad('./modules/features/notes.js', 'renderNotesView');
+window.updateNotesSidebar = lazyLoad('./modules/features/notes.js', 'updateNotesSidebar');
+window.renderNotesTags = lazyLoad('./modules/features/notes.js', 'renderNotesTags');
+window.renderNotesGrid = lazyLoad('./modules/features/notes.js', 'renderNotesGrid');
+window.attachNotesViewEvents = lazyLoad('./modules/features/notes.js', 'attachNotesViewEvents');
+window.openNoteSlideOver = lazyLoad('./modules/features/notes.js', 'openNoteSlideOver');
+window.closeNoteSlideOver = lazyLoad('./modules/features/notes.js', 'closeNoteSlideOver');
+window.deleteNoteRecord = lazyLoad('./modules/features/notes.js', 'deleteNoteRecord');
+window.saveActiveNote = lazyLoad('./modules/features/notes.js', 'saveActiveNote');
+window.createNewNoteV2 = lazyLoad('./modules/features/notes.js', 'createNewNoteV2');
+window.togglePinActiveNote = lazyLoad('./modules/features/notes.js', 'togglePinActiveNote');
+window.deleteActiveNote = lazyLoad('./modules/features/notes.js', 'deleteActiveNote');
+window.handleNoteTagging = lazyLoad('./modules/features/notes.js', 'handleNoteTagging');
+window.showNotePersonSuggestions = lazyLoad('./modules/features/notes.js', 'showNotePersonSuggestions');
+window.showNoteCompanySuggestions = lazyLoad('./modules/features/notes.js', 'showNoteCompanySuggestions');
+window.renderNoteSuggestions = lazyLoad('./modules/features/notes.js', 'renderNoteSuggestions');
+window.hideNoteTaggingSuggestions = lazyLoad('./modules/features/notes.js', 'hideNoteTaggingSuggestions');
+window.insertNoteTag = lazyLoad('./modules/features/notes.js', 'insertNoteTag');
+window.renderProfessionalDashboardView = lazyLoad('./modules/features/dashboard.js', 'renderProfessionalDashboardView');
+window.renderReportsView = lazyLoad('./modules/features/reports.js', 'renderReportsView');
+window.openReportBuilder = lazyLoad('./modules/features/reports.js', 'openReportBuilder');
+window.refreshAllWidgets = lazyLoad('./modules/features/reports.js', 'refreshAllWidgets');
+window.renderWorkflowsView = lazyLoad('./modules/features/workflows.js', 'renderWorkflowsView');
+window.openWorkflowBuilder = lazyLoad('./modules/features/workflows.js', 'openWorkflowBuilder');
+window.closeWorkflowBuilder = lazyLoad('./modules/features/workflows.js', 'closeWorkflowBuilder');
+window.saveWorkflow = lazyLoad('./modules/features/workflows.js', 'saveWorkflow');
+window.deleteWorkflow = lazyLoad('./modules/features/workflows.js', 'deleteWorkflow');
+window.toggleWorkflowActive = lazyLoad('./modules/features/workflows.js', 'toggleWorkflowActive');
+window.openTriggerPicker = lazyLoad('./modules/features/workflows.js', 'openTriggerPicker');
+window.removeTrigger = lazyLoad('./modules/features/workflows.js', 'removeTrigger');
+window.openActionPicker = lazyLoad('./modules/features/workflows.js', 'openActionPicker');
+window.openActionEditor = lazyLoad('./modules/features/workflows.js', 'openActionEditor');
+window.removeAction = lazyLoad('./modules/features/workflows.js', 'removeAction');
+window.confirmActionEdit = lazyLoad('./modules/features/workflows.js', 'confirmActionEdit');
+window.closeWorkflowPanel = lazyLoad('./modules/features/workflows.js', 'closePanel');
+window.onWorkflowNameChange = lazyLoad('./modules/features/workflows.js', 'onWorkflowNameChange');
+window.toggleBuilderActive = lazyLoad('./modules/features/workflows.js', 'toggleBuilderActive');
+window.submitChangePassword = lazyLoad('./modules/features/call-logs.js', 'submitChangePassword');
+window.renderCallLogsView = lazyLoad('./modules/features/call-logs.js', 'renderCallLogsView');
+window.deleteCallLog = lazyLoad('./modules/features/call-logs.js', 'deleteCallLog');
+window.openCallLogViewModal = lazyLoad('./modules/features/call-logs.js', 'openCallLogViewModal');
+window.openCompanyViewModal = lazyLoad('./modules/features/call-logs.js', 'openCompanyViewModal');
+window.openCallLogModal = lazyLoad('./modules/features/call-logs.js', 'openCallLogModal');
+window.initCallLogSearch = lazyLoad('./modules/features/call-logs.js', 'initCallLogSearch');
+window.saveCallLog = lazyLoad('./modules/features/call-logs.js', 'saveCallLog');
 
 // ── Live-binding proxies ───────────────────────────────────────────────────────
 // Non-module scripts (aichat.js, etc.) access state vars as plain globals.

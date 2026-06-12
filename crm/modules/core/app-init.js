@@ -139,6 +139,12 @@ async function initApp() {
   // Load the determined view
   await loadView(viewToLoad);
 
+  // Initialize the refresh button
+  initRefreshButton();
+
+  // Show a welcome toast if not already done today
+  // ... (code below remains untouched)
+
   // Start sitewide due notifications monitor (tasks, reminders, deals)
   startDueNotificationsMonitor();
   startSafiNudgeRealtime();
@@ -376,6 +382,45 @@ function updateNavigationForRole() {
 // SIDEBAR & NAVIGATION
 // ======================
 
+
+function initRefreshButton() {
+  const btn = document.getElementById('refresh-data-btn');
+  if (!btn) return;
+
+  btn.addEventListener('click', async () => {
+    // Visual feedback
+    const svg = btn.querySelector('svg');
+    if (svg) svg.style.animation = 'spin 1s linear infinite';
+    btn.disabled = true;
+
+    try {
+      // Re-trigger the global load promises
+      window.allPeoplePromise = loadAllPeople();
+      window.allCompaniesPromise = loadAllCompanies();
+      
+      await Promise.all([window.allPeoplePromise, window.allCompaniesPromise]);
+
+      // Clear opportunities data so pipeline view is forced to refresh
+      window.opportunitiesData = null;
+
+      // Reload the current view so the new data renders immediately
+      if (typeof window.loadView === 'function' && window.state?.currentView) {
+        await window.loadView(window.state.currentView);
+      }
+
+      if (typeof window.showToast === 'function') {
+        window.showToast('Data refreshed successfully', 'success');
+      }
+    } catch (err) {
+      if (typeof window.showToast === 'function') {
+        window.showToast('Failed to refresh data', 'error');
+      }
+    } finally {
+      if (svg) svg.style.animation = '';
+      btn.disabled = false;
+    }
+  });
+}
 
 // ── Exports ────────────────────────────────────────────────────
 export {
