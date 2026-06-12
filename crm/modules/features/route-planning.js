@@ -4,6 +4,7 @@ import { state, supabaseClient, loadPersistedState as _loadPersistedState, saveV
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards, renderError } from '../utils/helpers.js';
+import { matchesTokenizedQuery } from '../ui/spreadsheet.js';
 
 function groupRoutesByLocations(routes, routeLocations) {
   // Create a map of route_id to its location signature (sorted company IDs)
@@ -105,6 +106,10 @@ async function renderRoutePlanningView() {
   const validCompanies = companies.filter(c => c.latitude && c.longitude);
   const noAddressCompanies = companies.filter(c => !c.latitude || !c.longitude);
 
+  console.log(`[Route Planner] Loaded ${companies.length} total companies.`);
+  console.log(`[Route Planner] ${validCompanies.length} companies have coordinates (routable).`);
+  console.log(`[Route Planner] ${noAddressCompanies.length} companies are missing coordinates or addresses.`);
+
   // Deterministic avatar color from name hash
   const avatarPalette = ['#6366f1','#8b5cf6','#ec4899','#f97316','#10b981','#06b6d4','#3b82f6','#f59e0b'];
   const getAvatarColor = (name) => {
@@ -120,7 +125,7 @@ async function renderRoutePlanningView() {
       <div class="rp-panel rp-panel--picker">
         <div class="rp-panel-head">
           <span class="rp-panel-title">Companies</span>
-          <span class="rp-panel-badge">${validCompanies.length}</span>
+          <span class="rp-panel-badge" title="${validCompanies.length} routable, ${noAddressCompanies.length} missing address">${companies.length}</span>
         </div>
         <div class="rp-panel-search">
           <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
@@ -304,7 +309,7 @@ async function renderRoutePlanningView() {
   viewContainer.innerHTML = html;
 
   // Initialize route planning functionality
-  initRoutePlanning(validCompanies, salesReps);
+  initRoutePlanning(companies, salesReps);
 
   // Initialize route list functionality
   initRouteList();
@@ -375,13 +380,18 @@ function initRoutePlanning(companies, salesReps) {
       const companyCards = companiesList.querySelectorAll('.cqc');
 
       companyCards.forEach(card => {
-        const name = card.querySelector('.cqc-name').textContent.toLowerCase();
-        const address = (card.querySelector('.cqc-address') || { textContent: '' }).textContent.toLowerCase();
-
-        if (name.includes(searchTerm) || address.includes(searchTerm)) {
-          card.style.display = '';
-        } else {
-          card.style.display = 'none';
+        const companyId = card.dataset.companyId;
+        const company = companies.find(c => String(c.id) === String(companyId));
+        if (company) {
+          const match = matchesTokenizedQuery(
+            searchTerm,
+            company.name,
+            company.address,
+            company.description,
+            company.email,
+            Array.isArray(company.phone_numbers) ? company.phone_numbers.join(' ') : company.phone_numbers
+          );
+          card.style.display = match ? '' : 'none';
         }
       });
     });
