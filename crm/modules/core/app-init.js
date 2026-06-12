@@ -176,13 +176,40 @@ async function initApp() {
 
 async function loadAllPeople() {
   const orgId = state.currentOrganization?.id;
-  let pQ = supabaseClient.from('people').select('*').order('name', { ascending: true });
-  let cQ = supabaseClient.from('companies').select('id, name').order('name', { ascending: true });
-  if (orgId) {
-    pQ = pQ.eq('organization_id', orgId);
-    cQ = cQ.eq('organization_id', orgId);
-  }
-  const [peopleResult, companiesResult] = await Promise.all([pQ, cQ]);
+
+  const fetchParallel = async (table, selectStr) => {
+    let qCount = supabaseClient.from(table).select('*', { count: 'exact', head: true });
+    if (orgId) qCount = qCount.eq('organization_id', orgId);
+    
+    const { count, error: countError } = await qCount;
+    if (countError || count === null) return { data: [], error: countError };
+    if (count === 0) return { data: [], error: null };
+
+    const pageSize = 1000;
+    const pages = Math.ceil(count / pageSize);
+    const promises = [];
+
+    for (let i = 0; i < pages; i++) {
+      const from = i * pageSize;
+      const to = from + pageSize - 1;
+      let q = supabaseClient.from(table).select(selectStr).order('name', { ascending: true });
+      if (orgId) q = q.eq('organization_id', orgId);
+      promises.push(q.range(from, to));
+    }
+
+    const results = await Promise.all(promises);
+    let allRecords = [];
+    for (const res of results) {
+      if (res.error) return { data: allRecords, error: res.error };
+      if (res.data) allRecords = allRecords.concat(res.data);
+    }
+    return { data: allRecords, error: null };
+  };
+
+  const [peopleResult, companiesResult] = await Promise.all([
+    fetchParallel('people', '*'),
+    fetchParallel('companies', 'id, name')
+  ]);
 
   const { data: people, error } = peopleResult;
   crmDebugLog('loadAllPeople.peopleResult', {
@@ -224,10 +251,32 @@ async function loadAllCompanies() {
   try {
     // diagnostic logs removed
     const doFetch = async () => {
-      let q = supabaseClient.from('companies').select('*, company_categories(categories(id, name))').order('name', { ascending: true });
-      if (state.currentOrganization?.id) q = q.eq('organization_id', state.currentOrganization.id);
-      const { data: companies, error } = await q;
-      return { companies, error };
+      let qCount = supabaseClient.from('companies').select('*', { count: 'exact', head: true });
+      if (state.currentOrganization?.id) qCount = qCount.eq('organization_id', state.currentOrganization.id);
+      
+      const { count, error: countError } = await qCount;
+      if (countError || count === null) return { companies: [], error: countError };
+      if (count === 0) return { companies: [], error: null };
+
+      const pageSize = 1000;
+      const pages = Math.ceil(count / pageSize);
+      const promises = [];
+
+      for (let i = 0; i < pages; i++) {
+        const from = i * pageSize;
+        const to = from + pageSize - 1;
+        let q = supabaseClient.from('companies').select('*, company_categories(categories(id, name))').order('name', { ascending: true });
+        if (state.currentOrganization?.id) q = q.eq('organization_id', state.currentOrganization.id);
+        promises.push(q.range(from, to));
+      }
+
+      const results = await Promise.all(promises);
+      let allCompanies = [];
+      for (const res of results) {
+        if (res.error) return { companies: allCompanies, error: res.error };
+        if (res.data) allCompanies = allCompanies.concat(res.data);
+      }
+      return { companies: allCompanies, error: null };
     };
 
     let { companies, error } = await doFetch();
