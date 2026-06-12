@@ -13,6 +13,15 @@ function updateBottomActionBar() {
   const count = state.selectedRecordIds.size;
   countEl.textContent = count;
 
+  const deleteBtn = document.getElementById('bab-delete-btn');
+  if (deleteBtn) {
+    if (state.currentView === 'companies' && state.isSalesRep) {
+      deleteBtn.style.display = 'none';
+    } else {
+      deleteBtn.style.display = '';
+    }
+  }
+
   if (count > 0) {
     bar.classList.add('active');
   } else {
@@ -30,6 +39,12 @@ async function handleBatchDelete() {
   if (state.selectedRecordIds.size === 0) return;
 
   const type = state.currentView === 'companies' ? 'companies' : 'people';
+
+  if (type === 'companies' && state.isSalesRep) {
+    showToast('Sales representatives are not allowed to delete companies', 'error');
+    return;
+  }
+
   const label = state.selectedRecordIds.size === 1 ? (type === 'companies' ? 'company' : 'person') : (type === 'companies' ? 'companies' : 'people');
   
   const confirmed = await showConfirmDialog(
