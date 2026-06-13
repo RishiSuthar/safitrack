@@ -23219,6 +23219,8 @@ textarea.ups-input {
 
 .ups-report-photo-thumb {
   max-width: 100%;
+  height: auto;
+  object-fit: contain;
   border-radius: 8px;
   border: 1px solid var(--border-color);
   cursor: pointer;
@@ -23552,6 +23554,9 @@ textarea.ups-input {
 .ups-report-photo-thumb {
   max-width: 100%;
   max-height: 300px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
   border-radius: var(--radius-sm);
   border: 1px solid var(--border-color);
   cursor: pointer;
