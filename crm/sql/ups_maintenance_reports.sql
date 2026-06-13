@@ -65,7 +65,8 @@ CREATE TABLE IF NOT EXISTS ups_maintenance_reports (
   client_engineer_name TEXT,
   servicing_engineer_name TEXT,
   notes_remarks TEXT,
-  photo_path TEXT,
+  photo_path TEXT,                -- Legacy: single photo (backward compat)
+  step_photos JSONB DEFAULT '{}', -- Per-step photos: {"0":"path","1":"path",...}
   signature_data TEXT,
   manager_approval_status VARCHAR(20) DEFAULT 'Pending',
   denial_reason TEXT,

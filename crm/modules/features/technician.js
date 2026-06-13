@@ -53,6 +53,26 @@ const STEP_NAMES = [
 ];
 
 // ════════════════════════════════════════════════════════════════
+// HELPER — Per-step photo upload HTML
+// ════════════════════════════════════════════════════════════════
+function stepPhotoHTML(stepIndex) {
+  return `
+    <div class="ups-section-divider"></div>
+    <div class="ups-field">
+      <label class="ups-field-label">Photo — ${STEP_NAMES[stepIndex]}</label>
+      <div class="ups-photo-upload-wrap ups-step-photo-wrap">
+        <input type="file" class="ups-photo-input ups-step-photo-input" id="ups-step-photo-${stepIndex}" accept="image/*" capture="environment" data-step="${stepIndex}">
+        <div class="ups-photo-preview-box ups-step-photo-box" id="ups-step-photo-box-${stepIndex}">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <span style="font-size:13px; font-weight:500;">Tap to take photo</span>
+        </div>
+        <img class="ups-photo-preview-img ups-step-photo-preview" id="ups-step-photo-preview-${stepIndex}" src="">
+      </div>
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════════════════════════════
 // TECHNICIAN LOG VISIT VIEW — Landing with UPS Visit button
 // ════════════════════════════════════════════════════════════════
 async function renderTechnicianLogVisitView() {
@@ -157,6 +177,7 @@ function renderUPSVisitForm(existingData = null) {
               <label class="ups-field-label">Technician Name</label>
               <input type="text" class="ups-input" id="ups-tech-name" value="${escapeHtml(techName)}" readonly disabled>
             </div>
+            ${stepPhotoHTML(0)}
           </div>
 
           <!-- STEP 2: Environmental Conditions -->
@@ -172,6 +193,7 @@ function renderUPSVisitForm(existingData = null) {
               <label class="ups-field-label">Humidity Level <span class="ups-field-unit">(%)</span></label>
               <input type="number" class="ups-input" id="ups-humidity" placeholder="e.g. 45" inputmode="decimal" autocomplete="off">
             </div>
+            ${stepPhotoHTML(1)}
           </div>
 
           <!-- STEP 3: UPS / Inverter Parameters -->
@@ -202,6 +224,7 @@ function renderUPSVisitForm(existingData = null) {
                 <input type="number" class="ups-input" id="ups-load-pct" placeholder="0" inputmode="decimal" autocomplete="off">
               </div>
             </div>
+            ${stepPhotoHTML(2)}
           </div>
 
           <!-- STEP 4: Electrical Measurements -->
@@ -246,6 +269,7 @@ function renderUPSVisitForm(existingData = null) {
               <label class="ups-field-label">Output Load Current <span class="ups-field-unit">(Amps)</span></label>
               <input type="number" class="ups-input" id="ups-out-current" placeholder="0" inputmode="decimal">
             </div>
+            ${stepPhotoHTML(3)}
           </div>
 
           <!-- STEP 5: Battery System -->
@@ -308,6 +332,7 @@ function renderUPSVisitForm(existingData = null) {
                 <button type="button" class="ups-toggle-btn toggle-not-tested" data-value="Not Tested">Not Tested</button>
               </div>
             </div>
+            ${stepPhotoHTML(4)}
           </div>
 
           <!-- STEP 6: Checks & Maintenance -->
@@ -339,6 +364,7 @@ function renderUPSVisitForm(existingData = null) {
               <label class="ups-field-label">Firmware / Software Version</label>
               <input type="text" class="ups-input" id="ups-firmware" placeholder="e.g. v3.2.1" autocomplete="off">
             </div>
+            ${stepPhotoHTML(5)}
           </div>
 
           <!-- STEP 7: Conclusion -->
@@ -367,19 +393,7 @@ function renderUPSVisitForm(existingData = null) {
               <textarea class="ups-input" id="ups-notes" placeholder="Any additional notes or observations..." rows="4"></textarea>
             </div>
 
-            <div class="ups-section-divider"></div>
-            
-            <div class="ups-field">
-              <label class="ups-field-label">Photo Evidence</label>
-              <div class="ups-photo-upload-wrap">
-                <input type="file" class="ups-photo-input" id="ups-photo-input" accept="image/*" capture="environment">
-                <div class="ups-photo-preview-box" id="ups-photo-box">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                  <span style="font-size:13px; font-weight:500;">Tap to take photo</span>
-                </div>
-                <img class="ups-photo-preview-img" id="ups-photo-preview" src="">
-              </div>
-            </div>
+            ${stepPhotoHTML(6)}
 
             <div class="ups-field">
               <label class="ups-field-label">Signature</label>
@@ -422,13 +436,13 @@ function initUPSFormLogic(techName, existingData) {
   if (existingData) {
     const setVal = (id, val) => { const el = document.getElementById(id); if (el && val !== null && val !== undefined) el.value = val; };
     const setToggle = (name, val) => {
-      // Toggle logic usually removes 'selected' from all buttons in the group, we'll just click it
-      // But they might not be in the DOM yet, wait! They are in the DOM.
-      // However, we can just manually add the class here so we don't trigger events if not needed.
-      const btn = document.querySelector(`button.ups-toggle-btn[data-name="${name}"][data-value="${val}"]`);
-      if (btn) {
-        btn.parentElement.querySelectorAll('.ups-toggle-btn').forEach(b => b.classList.remove('selected'));
-        btn.classList.add('selected');
+      const group = document.getElementById(name);
+      if (group) {
+        const btn = group.querySelector(`button.ups-toggle-btn[data-value="${val}"]`);
+        if (btn) {
+          group.querySelectorAll('.ups-toggle-btn').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+        }
       }
     };
 
@@ -556,6 +570,53 @@ function initUPSFormLogic(techName, existingData) {
   }
   window.addEventListener('resize', resizeCanvas);
 
+  // ── Per-Step Photo Preview ──
+  const selectedStepPhotos = {}; // { stepIndex: File }
+
+  document.querySelectorAll('.ups-step-photo-input').forEach(input => {
+    input.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      const stepIdx = input.dataset.step;
+      if (file) {
+        selectedStepPhotos[stepIdx] = file;
+        const reader = new FileReader();
+        reader.onload = (re) => {
+          const preview = document.getElementById(`ups-step-photo-preview-${stepIdx}`);
+          const box = document.getElementById(`ups-step-photo-box-${stepIdx}`);
+          if (preview) { preview.src = re.target.result; preview.style.display = 'block'; }
+          if (box) box.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  });
+
+  // Pre-populate existing step photos when editing
+  if (existingData && existingData.step_photos && typeof existingData.step_photos === 'object') {
+    for (const [stepIdx, photoPath] of Object.entries(existingData.step_photos)) {
+      if (!photoPath) continue;
+      const { data: urlData } = supabaseClient.storage.from('safitrack').getPublicUrl(photoPath);
+      const url = urlData?.publicUrl;
+      if (url) {
+        const preview = document.getElementById(`ups-step-photo-preview-${stepIdx}`);
+        const box = document.getElementById(`ups-step-photo-box-${stepIdx}`);
+        if (preview) { preview.src = url; preview.style.display = 'block'; }
+        if (box) box.style.display = 'none';
+      }
+    }
+  }
+  // Backward compat: if old photo_path exists and no step_photos, show it in step 6 (conclusion)
+  if (existingData && existingData.photo_path && (!existingData.step_photos || Object.keys(existingData.step_photos).length === 0)) {
+    const { data: urlData } = supabaseClient.storage.from('safitrack').getPublicUrl(existingData.photo_path);
+    const url = urlData?.publicUrl;
+    if (url) {
+      const preview = document.getElementById('ups-step-photo-preview-6');
+      const box = document.getElementById('ups-step-photo-box-6');
+      if (preview) { preview.src = url; preview.style.display = 'block'; }
+      if (box) box.style.display = 'none';
+    }
+  }
+
   function getPos(e) {
     const rect = canvas.getBoundingClientRect();
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
@@ -572,31 +633,11 @@ function initUPSFormLogic(techName, existingData) {
   window.addEventListener('mouseup', endDraw);
   canvas.addEventListener('touchstart', startDraw, { passive: false });
   canvas.addEventListener('touchmove', draw, { passive: false });
-  window.addEventListener('touchend', endDraw);
+  canvas.addEventListener('touchend', endDraw);
 
   document.getElementById('ups-sig-clear').addEventListener('click', () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     hasSignature = false;
-  });
-
-  // ── Photo Preview ──
-  let selectedPhotoFile = null;
-  const photoInput = document.getElementById('ups-photo-input');
-  const photoPreview = document.getElementById('ups-photo-preview');
-  const photoBox = document.getElementById('ups-photo-box');
-
-  photoInput.addEventListener('change', (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      selectedPhotoFile = file;
-      const reader = new FileReader();
-      reader.onload = (re) => {
-        photoPreview.src = re.target.result;
-        photoPreview.style.display = 'block';
-        photoBox.style.display = 'none';
-      };
-      reader.readAsDataURL(file);
-    }
   });
 
   // ── Validate current step ──
@@ -605,8 +646,13 @@ function initUPSFormLogic(techName, existingData) {
     const stepEl = document.querySelector(`.ups-step[data-step="${step}"]`);
     if (!stepEl) return true;
 
-    // Check required text inputs
-    stepEl.querySelectorAll('.ups-input[data-required="true"]').forEach(input => {
+    // Reset errors
+    stepEl.querySelectorAll('.ups-input').forEach(i => i.classList.remove('ups-input-error'));
+    stepEl.querySelectorAll('.ups-toggle-group').forEach(g => g.classList.remove('ups-input-error'));
+    stepEl.querySelectorAll('.ups-error-message').forEach(m => m.textContent = '');
+
+    // Required inputs
+    stepEl.querySelectorAll('.ups-input[required]').forEach(input => {
       if (!input.value.trim()) {
         input.classList.add('ups-input-error');
         const errEl = input.parentElement.querySelector('.ups-error-message');
@@ -615,7 +661,7 @@ function initUPSFormLogic(techName, existingData) {
       }
     });
 
-    // Check required toggle groups
+    // Required toggle groups
     stepEl.querySelectorAll('.ups-toggle-group[data-required="true"]').forEach(group => {
       const selected = group.querySelector('.ups-toggle-btn.selected');
       if (!selected) {
@@ -643,24 +689,25 @@ function initUPSFormLogic(techName, existingData) {
     btnNext.innerHTML = '<span style="display:inline-flex;align-items:center;gap:6px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="animate-spin"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> Submitting...</span>';
 
     try {
-      // Upload photo if exists
-      let photoPath = existingData ? existingData.photo_path : null;
-      if (selectedPhotoFile) {
+      // Upload per-step photos
+      const stepPhotos = existingData?.step_photos ? { ...existingData.step_photos } : {};
+      const stepEntries = Object.entries(selectedStepPhotos);
+      for (const [stepIdx, file] of stepEntries) {
         try {
-          const compressed = await compressImage(selectedPhotoFile, 1200, 0.7);
+          const compressed = await compressImage(file, 1200, 0.7);
           const ext = compressed.name.split('.').pop() || 'jpg';
-          const fileName = `ups_${Date.now()}_${Math.random().toString(36).substring(2)}.${ext}`;
+          const fileName = `ups_${Date.now()}_s${stepIdx}_${Math.random().toString(36).substring(2)}.${ext}`;
           const filePath = `technician-photos/${fileName}`;
-          
+
           const { error: uploadError } = await supabaseClient.storage
             .from('safitrack')
             .upload(filePath, compressed, { cacheControl: '3600', upsert: false });
-            
+
           if (uploadError) throw uploadError;
-          photoPath = filePath;
+          stepPhotos[stepIdx] = filePath;
         } catch (err) {
-          console.error("Photo upload failed", err);
-          showToast("Photo upload failed, continuing without photo.", "error");
+          console.error(`Photo upload failed for step ${stepIdx}`, err);
+          showToast(`Photo upload failed for step ${parseInt(stepIdx)+1}, continuing.`, 'error');
         }
       }
 
@@ -720,7 +767,8 @@ function initUPSFormLogic(techName, existingData) {
         client_engineer_name: document.getElementById('ups-client-eng').value.trim() || null,
         servicing_engineer_name: techName,
         notes_remarks: document.getElementById('ups-notes').value.trim() || null,
-        photo_path: photoPath,
+        photo_path: existingData?.photo_path || null, // backward compat
+        step_photos: stepPhotos,
         signature_data: signatureData
       };
 
@@ -845,37 +893,42 @@ async function renderTechnicianActivityView() {
   }
 
   container.innerHTML = `
-    <div class="ups-reports-table-wrap">
-      <table class="ups-reports-table">
-        <thead>
-          <tr>
-            <th>Report ID</th>
-            <th>Site / Client</th>
-            <th>Status</th>
-            <th>Approval</th>
-            <th>Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${reports.map(r => `
-            <tr ${r.manager_approval_status === 'Denied' ? `onclick="window._editUPSReport('${r.id}')" style="cursor:pointer;" title="Click to edit denied report"` : ''}>
-              <td class="ups-report-id-cell">${r.id.substring(0, 8)}…</td>
-              <td>${escapeHtml(r.site_client_name || '—')}</td>
-              <td>
-                <span class="ups-status-badge ${r.overall_system_status === 'Pass' ? 'ups-status-badge-pass' : 'ups-status-badge-fail'}">
-                  ${r.overall_system_status || '—'}
-                </span>
-              </td>
-              <td>
-                <span class="ups-status-badge ${r.manager_approval_status === 'Approved' ? 'ups-status-badge-pass' : (r.manager_approval_status === 'Denied' ? 'ups-status-badge-fail' : '')}" style="${!r.manager_approval_status || r.manager_approval_status === 'Pending' ? 'background:var(--bg-secondary); color:var(--text-primary);' : ''}">
-                  ${r.manager_approval_status || 'Pending'}
-                </span>
-              </td>
-              <td>${formatDate(r.created_at)}</td>
-            </tr>
-          `).join('')}
-        </tbody>
-      </table>
+    <div class="ups-tech-cards-wrap" style="max-width: 600px; margin: 0 auto; padding-bottom: 24px;">
+      ${reports.map(r => `
+        <div class="ups-tech-card">
+          <div class="ups-tech-card-header">
+            <div>
+              <div class="ups-tech-card-title">${escapeHtml(r.site_client_name || 'Unknown Site')}</div>
+              <div class="ups-tech-card-meta">
+                <span>Date: ${formatDate(r.created_at)}</span>
+                <span>ID: ${r.id.substring(0, 8)}…</span>
+              </div>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:4px; align-items:flex-end;">
+              <span class="ups-status-badge ${r.manager_approval_status === 'Approved' ? 'ups-status-badge-pass' : (r.manager_approval_status === 'Denied' ? 'ups-status-badge-fail' : '')}" style="${!r.manager_approval_status || r.manager_approval_status === 'Pending' ? 'background:var(--bg-secondary); color:var(--text-primary); border:1px solid var(--border-color);' : ''}">
+                ${r.manager_approval_status || 'Pending'}
+              </span>
+            </div>
+          </div>
+          
+          ${r.manager_approval_status === 'Denied' ? `
+            <div style="margin-top:8px; padding:8px 12px; background:var(--color-danger-bg); border-left:3px solid var(--color-danger); border-radius:var(--radius-xs); font-size:0.85rem; color:var(--color-danger-rgb);">
+              <strong>Denied:</strong> ${escapeHtml(r.denial_reason || 'Needs revision')}
+            </div>
+          ` : ''}
+
+          <div class="ups-tech-card-actions">
+            <button class="btn btn-secondary btn-sm" onclick="window._viewUPSReport('${r.id}', true)">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              View
+            </button>
+            <button class="btn btn-primary btn-sm" onclick="window._editUPSReport('${r.id}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit
+            </button>
+          </div>
+        </div>
+      `).join('')}
     </div>
   `;
 }
@@ -1136,8 +1189,9 @@ function renderDenialModal(reportId) {
   });
 }
 
-window._viewUPSReport = async function (reportId) {
-  const container = document.getElementById('ups-reports-container');
+window._viewUPSReport = async function (reportId, isTechnician = false) {
+  const containerId = isTechnician ? 'ups-activity-list' : 'ups-reports-container';
+  const container = document.getElementById(containerId);
   container.innerHTML = `<div class="ups-reports-empty">Loading report…</div>`;
 
   const { data: r, error } = await supabaseClient
@@ -1151,11 +1205,27 @@ window._viewUPSReport = async function (reportId) {
     return;
   }
 
-  // Get public URL for photo if exists
-  let photoUrl = null;
-  if (r.photo_path) {
-    const { data: urlData } = supabaseClient.storage.from('safitrack').getPublicUrl(r.photo_path);
-    photoUrl = urlData?.publicUrl;
+  function getStepPhotoUrl(rData, stepIdx) {
+    if (rData.step_photos && typeof rData.step_photos === 'object' && rData.step_photos[stepIdx]) {
+      const { data } = supabaseClient.storage.from('safitrack').getPublicUrl(rData.step_photos[stepIdx]);
+      return data?.publicUrl || null;
+    }
+    if (stepIdx === 6 && rData.photo_path && (!rData.step_photos || Object.keys(rData.step_photos).length === 0)) {
+      const { data } = supabaseClient.storage.from('safitrack').getPublicUrl(rData.photo_path);
+      return data?.publicUrl || null;
+    }
+    return null;
+  }
+
+  function mgrStepPhoto(stepIdx) {
+    const url = getStepPhotoUrl(r, stepIdx);
+    if (!url) return '';
+    return `
+      <div class="ups-report-field" style="grid-column: 1 / -1; margin-top: 12px;">
+        <span class="ups-report-field-label" style="margin-bottom:8px;">Photo — ${STEP_NAMES[stepIdx]}</span>
+        <img src="${url}" class="ups-report-photo-thumb" onclick="window.open(this.src, '_blank')">
+      </div>
+    `;
   }
 
   const boolLabel = (v) => v === true ? 'Yes' : v === false ? 'No' : '—';
@@ -1176,7 +1246,7 @@ window._viewUPSReport = async function (reportId) {
           <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">ID: ${r.id} • ${formatDate(r.created_at)}</div>
         </div>
         <div class="ups-report-detail-actions">
-          <button class="btn btn-secondary btn-sm" onclick="window._backToReportsList()">
+          <button class="btn btn-secondary btn-sm" onclick="${isTechnician ? 'window.renderTechnicianActivityView()' : 'window._backToReportsList()'}">
             ← Back
           </button>
           <button class="btn btn-primary btn-sm" onclick="window._downloadUPSPDF('${r.id}')">
@@ -1198,6 +1268,7 @@ window._viewUPSReport = async function (reportId) {
             <div class="ups-report-field"><span class="ups-report-field-label">UPS Model</span><span class="ups-report-field-value">${valOrDash(r.ups_model)}</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">Total Runtime (hrs)</span><span class="ups-report-field-value">${valOrDash(r.total_ups_runtime)}</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">Technician</span><span class="ups-report-field-value">${valOrDash(r.technician_name)}</span></div>
+            ${mgrStepPhoto(0)}
           </div>
         </div>
 
@@ -1207,6 +1278,7 @@ window._viewUPSReport = async function (reportId) {
           <div class="ups-report-fields">
             <div class="ups-report-field"><span class="ups-report-field-label">Room Temperature</span><span class="ups-report-field-value">${valOrDash(r.ambient_room_temperature)} °C</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">Humidity Level</span><span class="ups-report-field-value">${valOrDash(r.humidity_level)} %</span></div>
+            ${mgrStepPhoto(1)}
           </div>
         </div>
 
@@ -1218,6 +1290,7 @@ window._viewUPSReport = async function (reportId) {
             <div class="ups-report-field"><span class="ups-report-field-label">Rectifier DC Voltage</span><span class="ups-report-field-value">${valOrDash(r.rectifier_dc_output_voltage)} VDC</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">Inverter Frequency</span><span class="ups-report-field-value">${valOrDash(r.inverter_output_frequency)} Hz</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">Load Percentage</span><span class="ups-report-field-value">${valOrDash(r.load_percentage)} %</span></div>
+            ${mgrStepPhoto(2)}
           </div>
         </div>
 
@@ -1232,6 +1305,7 @@ window._viewUPSReport = async function (reportId) {
             <div class="ups-report-field"><span class="ups-report-field-label">Output Y-N</span><span class="ups-report-field-value">${valOrDash(r.output_voltage_yn)} V</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">Output B-N</span><span class="ups-report-field-value">${valOrDash(r.output_voltage_bn)} V</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">Output Load Current</span><span class="ups-report-field-value">${valOrDash(r.output_load_current)} A</span></div>
+            ${mgrStepPhoto(3)}
           </div>
         </div>
 
@@ -1248,6 +1322,7 @@ window._viewUPSReport = async function (reportId) {
             <div class="ups-report-field"><span class="ups-report-field-label">Connections Tight</span><span class="ups-report-field-value">${boolLabel(r.battery_connections_tightened)}</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">Bulging / Leakage</span><span class="ups-report-field-value">${boolLabel(r.signs_bulging_leakage)}</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">Self-Test Result</span><span class="ups-report-field-value">${valOrDash(r.battery_self_test_result)}</span></div>
+            ${mgrStepPhoto(4)}
           </div>
         </div>
 
@@ -1262,6 +1337,7 @@ window._viewUPSReport = async function (reportId) {
             <div class="ups-report-field"><span class="ups-report-field-label">Interior Cleaned</span><span class="ups-report-field-value">${valOrDash(r.unit_interior_cleaned)}</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">Wiring Inspected</span><span class="ups-report-field-value">${valOrDash(r.internal_wiring_inspected)}</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">Firmware Version</span><span class="ups-report-field-value">${valOrDash(r.firmware_version)}</span></div>
+            ${mgrStepPhoto(5)}
           </div>
         </div>
 
@@ -1280,26 +1356,19 @@ window._viewUPSReport = async function (reportId) {
             <div class="ups-report-field"><span class="ups-report-field-label">Client Engineer</span><span class="ups-report-field-value">${valOrDash(r.client_engineer_name)}</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">Servicing Engineer</span><span class="ups-report-field-value">${valOrDash(r.servicing_engineer_name)}</span></div>
             ${r.notes_remarks ? `<div class="ups-report-field" style="grid-column: 1 / -1;"><span class="ups-report-field-label">Notes / Remarks</span><span class="ups-report-field-value" style="white-space:pre-wrap;">${escapeHtml(r.notes_remarks)}</span></div>` : ''}
+            ${mgrStepPhoto(6)}
           </div>
         </div>
 
-        <!-- Evidence & Sign-off -->
-        ${(photoUrl || r.signature_data) ? `
+        <!-- Signature -->
+        ${r.signature_data ? `
         <div class="ups-report-section">
-          <div class="ups-report-section-title">Evidence & Sign-off</div>
+          <div class="ups-report-section-title">Signature</div>
           <div class="ups-report-fields" style="display:flex; flex-wrap:wrap; gap:24px;">
-            ${photoUrl ? `
-              <div class="ups-report-field" style="flex:1; min-width:200px; max-width:300px;">
-                <span class="ups-report-field-label" style="margin-bottom:8px;">Photo Evidence</span>
-                <img src="${photoUrl}" class="ups-report-photo-thumb" onclick="window.open(this.src, '_blank')">
-              </div>
-            ` : ''}
-            ${r.signature_data ? `
-              <div class="ups-report-field" style="flex:1; min-width:200px; max-width:300px;">
-                <span class="ups-report-field-label" style="margin-bottom:8px;">Signature</span>
-                <img src="${r.signature_data}" class="ups-report-sig-thumb">
-              </div>
-            ` : ''}
+            <div class="ups-report-field" style="flex:1; min-width:200px; max-width:300px;">
+              <span class="ups-report-field-label" style="margin-bottom:8px;">Signature</span>
+              <img src="${r.signature_data}" class="ups-report-sig-thumb">
+            </div>
           </div>
         </div>
         ` : ''}
@@ -1332,10 +1401,27 @@ window._downloadUPSPDF = function (reportId) {
   const siteName = (r.site_client_name || 'Unknown').replace(/[^a-zA-Z0-9]/g, '_');
   const dateStr = new Date(r.created_at).toISOString().split('T')[0];
 
-  let photoUrl = null;
-  if (r.photo_path) {
-    const { data: urlData } = supabaseClient.storage.from('safitrack').getPublicUrl(r.photo_path);
-    photoUrl = urlData?.publicUrl;
+  function getStepPhotoUrlLocal(rData, stepIdx) {
+    if (rData.step_photos && typeof rData.step_photos === 'object' && rData.step_photos[stepIdx]) {
+      const { data } = supabaseClient.storage.from('safitrack').getPublicUrl(rData.step_photos[stepIdx]);
+      return data?.publicUrl || null;
+    }
+    if (stepIdx === 6 && rData.photo_path && (!rData.step_photos || Object.keys(rData.step_photos).length === 0)) {
+      const { data } = supabaseClient.storage.from('safitrack').getPublicUrl(rData.photo_path);
+      return data?.publicUrl || null;
+    }
+    return null;
+  }
+
+  function pdfStepPhoto(stepIdx) {
+    const url = getStepPhotoUrlLocal(r, stepIdx);
+    if (!url) return '';
+    return `
+      <div style="margin-top:8px; grid-column:1/-1;">
+        <div style="color:#666; font-weight:500; font-size:11px; margin-bottom:4px;">📷 Photo — ${STEP_NAMES[stepIdx]}:</div>
+        <img src="${url}" style="max-width:200px; max-height:200px; border:1px solid #ccc; border-radius:4px;">
+      </div>
+    `;
   }
 
   // Create print container
@@ -1358,6 +1444,7 @@ window._downloadUPSPDF = function (reportId) {
         <div class="ups-print-field"><span class="ups-print-field-label">Model:</span><span class="ups-print-field-value">${valOrDash(r.ups_model)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Runtime (hrs):</span><span class="ups-print-field-value">${valOrDash(r.total_ups_runtime)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Technician:</span><span class="ups-print-field-value">${valOrDash(r.technician_name)}</span></div>
+        ${pdfStepPhoto(0)}
       </div>
     </div>
 
@@ -1366,6 +1453,7 @@ window._downloadUPSPDF = function (reportId) {
       <div class="ups-print-grid">
         <div class="ups-print-field"><span class="ups-print-field-label">Room Temp:</span><span class="ups-print-field-value">${valOrDash(r.ambient_room_temperature)} °C</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Humidity:</span><span class="ups-print-field-value">${valOrDash(r.humidity_level)} %</span></div>
+        ${pdfStepPhoto(1)}
       </div>
     </div>
 
@@ -1376,6 +1464,7 @@ window._downloadUPSPDF = function (reportId) {
         <div class="ups-print-field"><span class="ups-print-field-label">Rectifier DC:</span><span class="ups-print-field-value">${valOrDash(r.rectifier_dc_output_voltage)} VDC</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Inverter Freq:</span><span class="ups-print-field-value">${valOrDash(r.inverter_output_frequency)} Hz</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Load %:</span><span class="ups-print-field-value">${valOrDash(r.load_percentage)} %</span></div>
+        ${pdfStepPhoto(2)}
       </div>
     </div>
 
@@ -1389,6 +1478,7 @@ window._downloadUPSPDF = function (reportId) {
         <div class="ups-print-field"><span class="ups-print-field-label">Output Y-N:</span><span class="ups-print-field-value">${valOrDash(r.output_voltage_yn)} V</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Output B-N:</span><span class="ups-print-field-value">${valOrDash(r.output_voltage_bn)} V</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Load Current:</span><span class="ups-print-field-value">${valOrDash(r.output_load_current)} A</span></div>
+        ${pdfStepPhoto(3)}
       </div>
     </div>
 
@@ -1404,11 +1494,12 @@ window._downloadUPSPDF = function (reportId) {
         <div class="ups-print-field"><span class="ups-print-field-label">Connections Tight:</span><span class="ups-print-field-value">${boolLabel(r.battery_connections_tightened)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Bulging/Leakage:</span><span class="ups-print-field-value">${boolLabel(r.signs_bulging_leakage)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Self-Test:</span><span class="ups-print-field-value">${valOrDash(r.battery_self_test_result)}</span></div>
+        ${pdfStepPhoto(4)}
       </div>
     </div>
 
     <div class="ups-print-section">
-      <h3>Checks & Maintenance</h3>
+      <h3>Checks &amp; Maintenance</h3>
       <div class="ups-print-grid">
         <div class="ups-print-field"><span class="ups-print-field-label">Manual Bypass:</span><span class="ups-print-field-value">${valOrDash(r.transfer_manual_bypass)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Load Transfer:</span><span class="ups-print-field-value">${valOrDash(r.load_transfer_test)}</span></div>
@@ -1417,6 +1508,7 @@ window._downloadUPSPDF = function (reportId) {
         <div class="ups-print-field"><span class="ups-print-field-label">Interior Clean:</span><span class="ups-print-field-value">${valOrDash(r.unit_interior_cleaned)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Wiring Inspected:</span><span class="ups-print-field-value">${valOrDash(r.internal_wiring_inspected)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Firmware:</span><span class="ups-print-field-value">${valOrDash(r.firmware_version)}</span></div>
+        ${pdfStepPhoto(5)}
       </div>
     </div>
 
@@ -1428,25 +1520,15 @@ window._downloadUPSPDF = function (reportId) {
         <div class="ups-print-field"><span class="ups-print-field-label">Client Engineer:</span><span class="ups-print-field-value">${valOrDash(r.client_engineer_name)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Servicing Engineer:</span><span class="ups-print-field-value">${valOrDash(r.servicing_engineer_name)}</span></div>
         ${r.notes_remarks ? `<div class="ups-print-field" style="grid-column:1/-1;"><span class="ups-print-field-label">Notes:</span><span class="ups-print-field-value">${valOrDash(r.notes_remarks)}</span></div>` : ''}
+        ${pdfStepPhoto(6)}
       </div>
     </div>
 
-    ${(photoUrl || r.signature_data) ? `
+    ${r.signature_data ? `
     <div class="ups-print-section" style="margin-top:24px;">
-      <h3>Evidence & Sign-off</h3>
-      <div style="display:flex; gap:32px; align-items:flex-start; margin-top:12px;">
-        ${photoUrl ? `
-          <div style="flex:1;">
-            <div style="color:#666; font-weight:500; font-size:12px; margin-bottom:8px;">Photo Evidence:</div>
-            <img src="${photoUrl}" style="max-width:240px; max-height:240px; border:1px solid #ccc; border-radius:4px;">
-          </div>
-        ` : ''}
-        ${r.signature_data ? `
-          <div style="flex:1;">
-            <div style="color:#666; font-weight:500; font-size:12px; margin-bottom:8px;">Signature:</div>
-            <img src="${r.signature_data}" style="max-width:240px; max-height:100px; border-bottom:1px solid #111;">
-          </div>
-        ` : ''}
+      <h3>Signature</h3>
+      <div style="margin-top:12px;">
+        <img src="${r.signature_data}" style="max-width:240px; max-height:100px; border-bottom:1px solid #111;">
       </div>
     </div>
     ` : ''}
@@ -1472,6 +1554,9 @@ window._downloadUPSPDF = function (reportId) {
     }, 500);
   }, 100);
 };
+
+// Expose for back button in technician view
+window.renderTechnicianActivityView = renderTechnicianActivityView;
 
 // ── Exports ────────────────────────────────────────────────────
 export {
