@@ -10350,7 +10350,7 @@ select {
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.875rem;
   padding-bottom: 1rem;
-  align-items: start;
+  align-items: stretch;
 }
 
 .pipeline-stage {
@@ -10437,6 +10437,7 @@ select {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  flex: 1;
 }
 
 .pipeline-inline-add {
