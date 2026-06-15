@@ -1173,13 +1173,16 @@ async function generateVisitPDF(visitId) {
     addGradientHeader();
 
     // Title
-    doc.setFontSize(24);
+    doc.setFontSize(22);
     doc.setTextColor(...colors.white);
     doc.setFont(undefined, 'bold');
-    doc.text('SafiTrack Sales Report', 20, 30);
-    doc.setFontSize(11);
+    doc.text('Sangyug Enterprises Limited', 20, 25);
+    doc.setFontSize(9);
     doc.setFont(undefined, 'normal');
-    doc.text('Sales Visit Information', 20, 40);
+    doc.text('www.sangyug.com | Email: servicecentre@sangyug.com, info@sangyug.com | Phone: 0743 767960 | 0715 177456', 20, 33);
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.text('Sales Visit Report', 20, 43);
 
     // Lead score badge
     if (visit.lead_score) {
@@ -1275,7 +1278,7 @@ async function generateVisitPDF(visitId) {
     addSectionHeader('SALES REPRESENTATIVE');
     if (visit.user) {
       addInfoRow('Name', `${visit.user.first_name} ${visit.user.last_name}`);
-      addInfoRow('Email', visit.user.email);
+      addInfoRow('Email', 'servicecentre@sangyug.com');
     }
 
     addFooter(1);

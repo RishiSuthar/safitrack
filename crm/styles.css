@@ -23238,17 +23238,14 @@ textarea.ups-input {
    UPS REPORT — Print / PDF Styles
    ═══════════════════════════════════════════════════════════════════════════════ */
 @media print {
-  body.ups-print-mode * {
-    visibility: hidden !important;
+  body.ups-print-mode > *:not(.ups-print-target) {
+    display: none !important;
   }
   body.ups-print-mode .ups-print-target,
   body.ups-print-mode .ups-print-target * {
     visibility: visible !important;
   }
   body.ups-print-mode .ups-print-target {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
     background: #fff !important;
     color: #111 !important;

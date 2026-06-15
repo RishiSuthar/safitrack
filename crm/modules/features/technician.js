@@ -61,7 +61,7 @@ function stepPhotoHTML(stepIndex) {
     <div class="ups-field">
       <label class="ups-field-label">Photo — ${STEP_NAMES[stepIndex]}</label>
       <div class="ups-photo-upload-wrap ups-step-photo-wrap">
-        <input type="file" class="ups-photo-input ups-step-photo-input" id="ups-step-photo-${stepIndex}" accept="image/*" capture="environment" data-step="${stepIndex}">
+        <input type="file" class="ups-photo-input ups-step-photo-input" id="ups-step-photo-${stepIndex}" accept="image/*" data-step="${stepIndex}">
         <div class="ups-photo-preview-box ups-step-photo-box" id="ups-step-photo-box-${stepIndex}">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
           <span style="font-size:13px; font-weight:500;">Tap to take photo</span>
@@ -111,7 +111,8 @@ async function renderTechnicianLogVisitView() {
 function renderUPSVisitForm(existingData = null) {
   document.body.classList.add('ups-form-active');
 
-  const techName = `${state.currentUser.first_name || ''} ${state.currentUser.last_name || ''}`.trim() || state.currentUser.email;
+  const techProfile = state.currentUserProfile || {};
+  const techName = `${techProfile.first_name || state.currentUser.user_metadata?.first_name || ''} ${techProfile.last_name || state.currentUser.user_metadata?.last_name || ''}`.trim() || state.currentUser.email;
 
   viewContainer.innerHTML = `
     <div class="ups-form-container">
@@ -170,8 +171,17 @@ function renderUPSVisitForm(existingData = null) {
               </div>
             </div>
             <div class="ups-field">
-              <label class="ups-field-label">Total UPS Runtime <span class="ups-field-unit">(hours)</span></label>
-              <input type="number" class="ups-input" id="ups-runtime" placeholder="0" inputmode="decimal" autocomplete="off">
+              <label class="ups-field-label">Total UPS Runtime</label>
+              <div style="display: flex; gap: 8px;">
+                <div style="flex: 1;">
+                  <label style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px; display: block;">Hours</label>
+                  <input type="number" class="ups-input" id="ups-runtime-hours" placeholder="0" inputmode="numeric" autocomplete="off" min="0">
+                </div>
+                <div style="flex: 1;">
+                  <label style="font-size: 11px; color: var(--text-muted); margin-bottom: 4px; display: block;">Minutes</label>
+                  <input type="number" class="ups-input" id="ups-runtime-minutes" placeholder="0" inputmode="numeric" autocomplete="off" min="0" max="59">
+                </div>
+              </div>
             </div>
             <div class="ups-field">
               <label class="ups-field-label">Technician Name</label>
@@ -396,10 +406,17 @@ function renderUPSVisitForm(existingData = null) {
             ${stepPhotoHTML(6)}
 
             <div class="ups-field">
-              <label class="ups-field-label">Signature</label>
+              <label class="ups-field-label">Technician Signature</label>
               <div class="ups-signature-wrap">
                 <button type="button" class="ups-signature-clear" id="ups-sig-clear">Clear</button>
                 <canvas class="ups-signature-canvas" id="ups-sig-canvas"></canvas>
+              </div>
+            </div>
+            <div class="ups-field">
+              <label class="ups-field-label">Client Signature</label>
+              <div class="ups-signature-wrap">
+                <button type="button" class="ups-signature-clear" id="ups-client-sig-clear">Clear</button>
+                <canvas class="ups-signature-canvas" id="ups-client-sig-canvas"></canvas>
               </div>
             </div>
 
@@ -451,7 +468,13 @@ function initUPSFormLogic(techName, existingData) {
     setVal('ups-brand', existingData.ups_brand);
     setVal('ups-serial', existingData.ups_serial_number);
     setVal('ups-model', existingData.ups_model);
-    setVal('ups-runtime', existingData.total_ups_runtime);
+    if (existingData.total_ups_runtime !== null && existingData.total_ups_runtime !== undefined) {
+      const total = parseFloat(existingData.total_ups_runtime);
+      const hrs = Math.floor(total);
+      const mins = Math.round((total - hrs) * 60);
+      document.getElementById('ups-runtime-hours').value = hrs > 0 ? hrs : '';
+      document.getElementById('ups-runtime-minutes').value = mins > 0 ? mins : '';
+    }
     
     setVal('ups-temperature', existingData.ambient_room_temperature);
     setVal('ups-humidity', existingData.humidity_level);
@@ -548,25 +571,61 @@ function initUPSFormLogic(techName, existingData) {
     if (mainContent) mainContent.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  // ── Signature Pad ──
-  const canvas = document.getElementById('ups-sig-canvas');
-  const ctx = canvas.getContext('2d');
-  let isDrawing = false;
-  let hasSignature = false;
+  // ── Signature Pads ──
+  function setupSignature(canvasId, clearBtnId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return { hasSignature: false };
+    const ctx = canvas.getContext('2d');
+    const state = { hasSignature: false, canvas };
+    let isDrawing = false;
+
+    function resize() {
+      if (!canvas.offsetWidth) return;
+      const ratio = Math.max(window.devicePixelRatio || 1, 1);
+      if (canvas.width !== canvas.offsetWidth * ratio) {
+        canvas.width = canvas.offsetWidth * ratio;
+        canvas.height = canvas.offsetHeight * ratio;
+        ctx.scale(ratio, ratio);
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = '#000';
+      }
+    }
+    resize();
+
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+      const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    const startDraw = (e) => { e.preventDefault(); isDrawing = true; state.hasSignature = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+    const draw = (e) => { if (!isDrawing) return; e.preventDefault(); const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+    const endDraw = () => { isDrawing = false; };
+
+    canvas.addEventListener('mousedown', startDraw);
+    canvas.addEventListener('mousemove', draw);
+    window.addEventListener('mouseup', endDraw);
+    canvas.addEventListener('touchstart', startDraw, { passive: false });
+    canvas.addEventListener('touchmove', draw, { passive: false });
+    canvas.addEventListener('touchend', endDraw);
+
+    document.getElementById(clearBtnId).addEventListener('click', () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      state.hasSignature = false;
+    });
+
+    return { state, resize };
+  }
+
+  const techSig = setupSignature('ups-sig-canvas', 'ups-sig-clear');
+  const clientSig = setupSignature('ups-client-sig-canvas', 'ups-client-sig-clear');
 
   function resizeCanvas() {
-    if (!canvas || !canvas.offsetWidth) return;
-    const ratio = Math.max(window.devicePixelRatio || 1, 1);
-    // Only resize if needed to prevent clearing on every tab
-    if (canvas.width !== canvas.offsetWidth * ratio) {
-      canvas.width = canvas.offsetWidth * ratio;
-      canvas.height = canvas.offsetHeight * ratio;
-      ctx.scale(ratio, ratio);
-      ctx.lineCap = 'round';
-      ctx.lineJoin = 'round';
-      ctx.lineWidth = 2.5;
-      ctx.strokeStyle = '#000';
-    }
+    if (techSig.resize) techSig.resize();
+    if (clientSig.resize) clientSig.resize();
   }
   window.addEventListener('resize', resizeCanvas);
 
@@ -616,29 +675,6 @@ function initUPSFormLogic(techName, existingData) {
       if (box) box.style.display = 'none';
     }
   }
-
-  function getPos(e) {
-    const rect = canvas.getBoundingClientRect();
-    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-    return { x: clientX - rect.left, y: clientY - rect.top };
-  }
-
-  const startDraw = (e) => { e.preventDefault(); isDrawing = true; hasSignature = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
-  const draw = (e) => { if (!isDrawing) return; e.preventDefault(); const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
-  const endDraw = () => { isDrawing = false; };
-
-  canvas.addEventListener('mousedown', startDraw);
-  canvas.addEventListener('mousemove', draw);
-  window.addEventListener('mouseup', endDraw);
-  canvas.addEventListener('touchstart', startDraw, { passive: false });
-  canvas.addEventListener('touchmove', draw, { passive: false });
-  canvas.addEventListener('touchend', endDraw);
-
-  document.getElementById('ups-sig-clear').addEventListener('click', () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    hasSignature = false;
-  });
 
   // ── Validate current step ──
   function validateStep(step) {
@@ -711,10 +747,15 @@ function initUPSFormLogic(techName, existingData) {
         }
       }
 
-      // Capture signature
+      // Capture signatures
       let signatureData = existingData ? existingData.signature_data : null;
-      if (hasSignature) {
-        signatureData = canvas.toDataURL('image/png');
+      if (techSig.state.hasSignature) {
+        signatureData = techSig.state.canvas.toDataURL('image/png');
+      }
+      
+      let clientSignatureData = existingData ? existingData.client_signature_data : null;
+      if (clientSig.state.hasSignature) {
+        clientSignatureData = clientSig.state.canvas.toDataURL('image/png');
       }
 
       const data = {
@@ -726,7 +767,11 @@ function initUPSFormLogic(techName, existingData) {
         ups_brand: document.getElementById('ups-brand').value.trim() || null,
         ups_serial_number: document.getElementById('ups-serial').value.trim() || null,
         ups_model: document.getElementById('ups-model').value.trim() || null,
-        total_ups_runtime: parseFloat(document.getElementById('ups-runtime').value) || null,
+        total_ups_runtime: (() => {
+          const h = parseInt(document.getElementById('ups-runtime-hours').value) || 0;
+          const m = parseInt(document.getElementById('ups-runtime-minutes').value) || 0;
+          return (h > 0 || m > 0) ? +(h + (m / 60)).toFixed(2) : null;
+        })(),
         technician_name: techName,
         // Step 2
         ambient_room_temperature: parseFloat(document.getElementById('ups-temperature').value) || null,
@@ -769,7 +814,8 @@ function initUPSFormLogic(techName, existingData) {
         notes_remarks: document.getElementById('ups-notes').value.trim() || null,
         photo_path: existingData?.photo_path || null, // backward compat
         step_photos: stepPhotos,
-        signature_data: signatureData
+        signature_data: signatureData,
+        client_signature_data: clientSignatureData
       };
 
       let result;
@@ -1205,6 +1251,22 @@ window._viewUPSReport = async function (reportId, isTechnician = false) {
     return;
   }
 
+  // Fetch technician actual name if needed
+  if (r.technician_id) {
+    const { data: techProfile } = await supabaseClient
+      .from('profiles')
+      .select('first_name, last_name')
+      .eq('id', r.technician_id)
+      .single();
+    if (techProfile && (techProfile.first_name || techProfile.last_name)) {
+      const realName = `${techProfile.first_name || ''} ${techProfile.last_name || ''}`.trim();
+      r.technician_name = realName;
+      if (r.servicing_engineer_name && r.servicing_engineer_name.includes('@')) {
+        r.servicing_engineer_name = realName;
+      }
+    }
+  }
+
   function getStepPhotoUrl(rData, stepIdx) {
     if (rData.step_photos && typeof rData.step_photos === 'object' && rData.step_photos[stepIdx]) {
       const { data } = supabaseClient.storage.from('safitrack').getPublicUrl(rData.step_photos[stepIdx]);
@@ -1230,6 +1292,15 @@ window._viewUPSReport = async function (reportId, isTechnician = false) {
 
   const boolLabel = (v) => v === true ? 'Yes' : v === false ? 'No' : '—';
   const valOrDash = (v) => (v !== null && v !== undefined && v !== '') ? escapeHtml(String(v)) : '—';
+  const formatRuntimeHelper = (v) => {
+    if (v === null || v === undefined || v === '') return '—';
+    const hrs = Math.floor(v);
+    const mins = Math.round((v - hrs) * 60);
+    let res = [];
+    if (hrs > 0) res.push(`${hrs} hr${hrs !== 1 ? 's' : ''}`);
+    if (mins > 0) res.push(`${mins} min${mins !== 1 ? 's' : ''}`);
+    return res.length > 0 ? res.join(' ') : '0 mins';
+  };
 
   container.innerHTML = `
     <div class="ups-report-detail" id="ups-report-print-target">
@@ -1266,7 +1337,7 @@ window._viewUPSReport = async function (reportId, isTechnician = false) {
             <div class="ups-report-field"><span class="ups-report-field-label">UPS Brand</span><span class="ups-report-field-value">${valOrDash(r.ups_brand)}</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">UPS Serial Number</span><span class="ups-report-field-value">${valOrDash(r.ups_serial_number)}</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">UPS Model</span><span class="ups-report-field-value">${valOrDash(r.ups_model)}</span></div>
-            <div class="ups-report-field"><span class="ups-report-field-label">Total Runtime (hrs)</span><span class="ups-report-field-value">${valOrDash(r.total_ups_runtime)}</span></div>
+            <div class="ups-report-field"><span class="ups-report-field-label">Total Runtime</span><span class="ups-report-field-value">${formatRuntimeHelper(r.total_ups_runtime)}</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">Technician</span><span class="ups-report-field-value">${valOrDash(r.technician_name)}</span></div>
             ${mgrStepPhoto(0)}
           </div>
@@ -1360,15 +1431,23 @@ window._viewUPSReport = async function (reportId, isTechnician = false) {
           </div>
         </div>
 
-        <!-- Signature -->
-        ${r.signature_data ? `
+        <!-- Signatures -->
+        ${(r.signature_data || r.client_signature_data) ? `
         <div class="ups-report-section">
-          <div class="ups-report-section-title">Signature</div>
+          <div class="ups-report-section-title">Signatures</div>
           <div class="ups-report-fields" style="display:flex; flex-wrap:wrap; gap:24px;">
+            ${r.signature_data ? `
             <div class="ups-report-field" style="flex:1; min-width:200px; max-width:300px;">
-              <span class="ups-report-field-label" style="margin-bottom:8px;">Signature</span>
+              <span class="ups-report-field-label" style="margin-bottom:8px;">Technician Signature</span>
               <img src="${r.signature_data}" class="ups-report-sig-thumb">
             </div>
+            ` : ''}
+            ${r.client_signature_data ? `
+            <div class="ups-report-field" style="flex:1; min-width:200px; max-width:300px;">
+              <span class="ups-report-field-label" style="margin-bottom:8px;">Client Signature</span>
+              <img src="${r.client_signature_data}" class="ups-report-sig-thumb">
+            </div>
+            ` : ''}
           </div>
         </div>
         ` : ''}
@@ -1398,6 +1477,15 @@ window._downloadUPSPDF = function (reportId) {
 
   const boolLabel = (v) => v === true ? 'Yes' : v === false ? 'No' : '—';
   const valOrDash = (v) => (v !== null && v !== undefined && v !== '') ? String(v) : '—';
+  const formatRuntimeHelper = (v) => {
+    if (v === null || v === undefined || v === '') return '—';
+    const hrs = Math.floor(v);
+    const mins = Math.round((v - hrs) * 60);
+    let res = [];
+    if (hrs > 0) res.push(`${hrs} hr${hrs !== 1 ? 's' : ''}`);
+    if (mins > 0) res.push(`${mins} min${mins !== 1 ? 's' : ''}`);
+    return res.length > 0 ? res.join(' ') : '0 mins';
+  };
   const siteName = (r.site_client_name || 'Unknown').replace(/[^a-zA-Z0-9]/g, '_');
   const dateStr = new Date(r.created_at).toISOString().split('T')[0];
 
@@ -1429,8 +1517,11 @@ window._downloadUPSPDF = function (reportId) {
   printDiv.className = 'ups-print-target';
   printDiv.innerHTML = `
     <div class="ups-print-header">
-      <h1>Sangyug Enterprises Ltd</h1>
-      <p>UPS Maintenance Service Report</p>
+      <h1 style="margin-bottom:8px;">Sangyug Enterprises Limited</h1>
+      <p style="margin:4px 0;">www.sangyug.com</p>
+      <p style="margin:4px 0;">Email : servicecentre@sangyug.com, info@sangyug.com</p>
+      <p style="margin:4px 0;">Phone : 0743 767960 | 0715 177456</p>
+      <p style="margin-top:12px; font-weight:600;">UPS Maintenance Service Report</p>
       <p style="margin-top:4px;">Report ID: ${r.id} • Date: ${formatDate(r.created_at)}</p>
     </div>
 
@@ -1442,7 +1533,7 @@ window._downloadUPSPDF = function (reportId) {
         <div class="ups-print-field"><span class="ups-print-field-label">UPS Brand:</span><span class="ups-print-field-value">${valOrDash(r.ups_brand)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Serial Number:</span><span class="ups-print-field-value">${valOrDash(r.ups_serial_number)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Model:</span><span class="ups-print-field-value">${valOrDash(r.ups_model)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Runtime (hrs):</span><span class="ups-print-field-value">${valOrDash(r.total_ups_runtime)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Runtime:</span><span class="ups-print-field-value">${formatRuntimeHelper(r.total_ups_runtime)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Technician:</span><span class="ups-print-field-value">${valOrDash(r.technician_name)}</span></div>
         ${pdfStepPhoto(0)}
       </div>
@@ -1524,11 +1615,22 @@ window._downloadUPSPDF = function (reportId) {
       </div>
     </div>
 
-    ${r.signature_data ? `
+    ${(r.signature_data || r.client_signature_data) ? `
     <div class="ups-print-section" style="margin-top:24px;">
-      <h3>Signature</h3>
-      <div style="margin-top:12px;">
-        <img src="${r.signature_data}" style="max-width:240px; max-height:100px; border-bottom:1px solid #111;">
+      <h3>Signatures</h3>
+      <div class="ups-print-grid">
+        ${r.signature_data ? `
+        <div class="ups-print-field" style="flex-direction:column; gap:8px;">
+          <span class="ups-print-field-label">Technician Signature</span>
+          <img src="${r.signature_data}" style="max-width:240px; max-height:100px; border-bottom:1px solid #111;">
+        </div>
+        ` : ''}
+        ${r.client_signature_data ? `
+        <div class="ups-print-field" style="flex-direction:column; gap:8px;">
+          <span class="ups-print-field-label">Client Signature</span>
+          <img src="${r.client_signature_data}" style="max-width:240px; max-height:100px; border-bottom:1px solid #111;">
+        </div>
+        ` : ''}
       </div>
     </div>
     ` : ''}
