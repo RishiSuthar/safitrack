@@ -4,6 +4,7 @@ import { state, supabaseClient, crmDebugLog, loadPersistedState as _loadPersiste
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials, handleImageError } from '../ui/toast.js';
 import { renderSkeletonCards, renderError } from '../utils/helpers.js';
+import './solar-technician.js';
 
 // ════════════════════════════════════════════════════════════════
 // HELPER — format date & compress image
@@ -82,23 +83,51 @@ async function renderTechnicianLogVisitView() {
       <p class="text-muted" style="margin-bottom:24px;">Select a report type to begin</p>
     </div>
 
-    <div class="ups-visit-card" id="ups-visit-card" tabindex="0" role="button" aria-label="Start UPS Visit Report">
-      <div class="ups-visit-card-icon">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M6 7h11a4 4 0 0 1 0 8H6V7Z"/>
-          <path d="M6 7V3"/>
-          <path d="M6 15v4"/>
-          <path d="M10 7v8"/>
-          <path d="M14 7v8"/>
-        </svg>
+    <div style="display:flex; flex-direction:column; gap:16px; padding:0 16px; max-width:600px; margin:0 auto;">
+      <div class="ups-visit-card" id="ups-visit-card" tabindex="0" role="button" aria-label="Start UPS Visit Report">
+        <div class="ups-visit-card-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 7h11a4 4 0 0 1 0 8H6V7Z"/>
+            <path d="M6 7V3"/>
+            <path d="M6 15v4"/>
+            <path d="M10 7v8"/>
+            <path d="M14 7v8"/>
+          </svg>
+        </div>
+        <div class="ups-visit-card-title">UPS Visit</div>
+        <p class="ups-visit-card-desc">UPS maintenance & inspection report</p>
       </div>
-      <div class="ups-visit-card-title">UPS Visit</div>
-      <p class="ups-visit-card-desc">UPS maintenance & inspection report</p>
+
+      <div class="ups-visit-card" id="solar-survey-card" tabindex="0" role="button" aria-label="Start Solar Inverter Survey">
+        <div class="ups-visit-card-icon" style="color: #f59e0b; background: rgba(245, 158, 11, 0.1);">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+        </div>
+        <div class="ups-visit-card-title">Solar Inverter Survey</div>
+        <p class="ups-visit-card-desc">Site assessment and planning for solar</p>
+      </div>
     </div>
   `;
 
   document.getElementById('ups-visit-card').addEventListener('click', () => {
     renderUPSVisitForm();
+  });
+
+  document.getElementById('solar-survey-card').addEventListener('click', () => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          window.renderSolarSurveyForm(null, pos.coords.latitude, pos.coords.longitude);
+        },
+        (err) => {
+          console.warn('Geolocation failed or denied', err);
+          showToast('Location not available, proceeding without it', 'info');
+          window.renderSolarSurveyForm(null, null, null);
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+      );
+    } else {
+      window.renderSolarSurveyForm(null, null, null);
+    }
   });
 
   if (window.lucide) lucide.createIcons();
@@ -906,30 +935,47 @@ function renderSuccessScreen(reportId) {
 // ════════════════════════════════════════════════════════════════
 
 async function renderTechnicianActivityView() {
-  viewContainer.innerHTML = `<div class="page-header"><h1 class="page-title">My UPS Reports</h1></div><div id="ups-activity-list"></div>`;
+  viewContainer.innerHTML = `<div class="page-header"><h1 class="page-title">My Service Reports</h1></div><div id="ups-activity-list"></div>`;
 
-  const { data: reports, error } = await supabaseClient
-    .from('ups_maintenance_reports')
-    .select('id, site_client_name, overall_system_status, created_at, manager_approval_status')
-    .eq('technician_id', state.currentUser.id)
-    .order('created_at', { ascending: false })
-    .limit(50);
+  const [upsRes, solarRes] = await Promise.all([
+    supabaseClient
+      .from('ups_maintenance_reports')
+      .select('id, site_client_name, overall_system_status, created_at, manager_approval_status, denial_reason')
+      .eq('technician_id', state.currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(50),
+    supabaseClient
+      .from('solar_inverter_surveys')
+      .select('id, company_organization_name, manager_approval_status, created_at, denial_reason')
+      .eq('technician_id', state.currentUser.id)
+      .order('created_at', { ascending: false })
+      .limit(50)
+  ]);
 
   const container = document.getElementById('ups-activity-list');
 
-  if (error) {
-    container.innerHTML = renderError(error.message);
+  if (upsRes.error) {
+    container.innerHTML = renderError(upsRes.error.message);
+    return;
+  }
+  if (solarRes.error) {
+    container.innerHTML = renderError(solarRes.error.message);
     return;
   }
 
-  if (!reports || reports.length === 0) {
+  const upsReports = (upsRes.data || []).map(r => ({ ...r, _type: 'UPS', titleName: r.site_client_name }));
+  const solarReports = (solarRes.data || []).map(r => ({ ...r, _type: 'SOLAR', titleName: r.company_organization_name }));
+  
+  const allReports = [...upsReports, ...solarReports].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+  if (!allReports || allReports.length === 0) {
     container.innerHTML = `
       <div class="card">
         <div class="empty-state">
-          <h3 class="empty-state-title">No UPS reports yet</h3>
-          <p class="empty-state-description">Start logging UPS visits to see them here.</p>
+          <h3 class="empty-state-title">No service reports yet</h3>
+          <p class="empty-state-description">Start logging visits to see them here.</p>
           <button class="btn btn-primary" onclick="loadView('technician-log-visit')">
-            <i data-lucide="plus"></i> Log Your First UPS Visit
+            <i data-lucide="plus"></i> Log Your First Visit
           </button>
         </div>
       </div>
@@ -940,11 +986,14 @@ async function renderTechnicianActivityView() {
 
   container.innerHTML = `
     <div class="ups-tech-cards-wrap" style="max-width: 600px; margin: 0 auto; padding-bottom: 24px;">
-      ${reports.map(r => `
+      ${allReports.map(r => `
         <div class="ups-tech-card">
           <div class="ups-tech-card-header">
             <div>
-              <div class="ups-tech-card-title">${escapeHtml(r.site_client_name || 'Unknown Site')}</div>
+              <div class="ups-tech-card-title">
+                ${r._type === 'UPS' ? '<span style="font-size:10px; background:#e0e7ff; color:#4f46e5; padding:2px 6px; border-radius:12px; margin-right:6px; vertical-align:middle;">UPS</span>' : '<span style="font-size:10px; background:#fef3c7; color:#d97706; padding:2px 6px; border-radius:12px; margin-right:6px; vertical-align:middle;">SOLAR</span>'}
+                ${escapeHtml(r.titleName || 'Unknown Site')}
+              </div>
               <div class="ups-tech-card-meta">
                 <span>Date: ${formatDate(r.created_at)}</span>
                 <span>ID: ${r.id.substring(0, 8)}…</span>
@@ -964,11 +1013,11 @@ async function renderTechnicianActivityView() {
           ` : ''}
 
           <div class="ups-tech-card-actions">
-            <button class="btn btn-secondary btn-sm" onclick="window._viewUPSReport('${r.id}', true)">
+            <button class="btn btn-secondary btn-sm" onclick="${r._type === 'UPS' ? `window._viewUPSReport('${r.id}', true)` : `window._viewSolarReport('${r.id}', true)`}">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               View
             </button>
-            <button class="btn btn-primary btn-sm" onclick="window._editUPSReport('${r.id}')">
+            <button class="btn btn-primary btn-sm" onclick="${r._type === 'UPS' ? `window._editUPSReport('${r.id}')` : `window._editSolarReport('${r.id}')`}">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               Edit
             </button>
@@ -994,6 +1043,21 @@ window._editUPSReport = async function(reportId) {
   renderUPSVisitForm(r);
 };
 
+window._editSolarReport = async function(reportId) {
+  const { data: r, error } = await supabaseClient
+    .from('solar_inverter_surveys')
+    .select('*')
+    .eq('id', reportId)
+    .single();
+    
+  if (error || !r) {
+    showToast('Failed to load report for editing', 'error');
+    return;
+  }
+  
+  window.renderSolarSurveyForm(r, r.latitude, r.longitude);
+};
+
 // ════════════════════════════════════════════════════════════════
 // MANAGER VIEW — TECHNICIANS DASHBOARD
 // ════════════════════════════════════════════════════════════════
@@ -1001,8 +1065,8 @@ window._editUPSReport = async function(reportId) {
 async function renderTechniciansDashboardView() {
   viewContainer.innerHTML = `
     <div class="page-header">
-      <h1 class="page-title">UPS Maintenance Reports</h1>
-      <p class="text-muted">View and manage all UPS service reports</p>
+      <h1 class="page-title">Service Reports</h1>
+      <p class="text-muted">View and manage all UPS and Solar service reports</p>
     </div>
 
     <div class="ups-reports-section" id="ups-reports-section">
@@ -1012,10 +1076,16 @@ async function renderTechniciansDashboardView() {
           All Reports
         </h3>
         <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1; justify-content:flex-end;">
+          <select class="ups-reports-search" id="ups-reports-filter-type" style="width:120px; padding:8px;">
+            <option value="">All Types</option>
+            <option value="UPS">UPS</option>
+            <option value="SOLAR">Solar</option>
+          </select>
           <select class="ups-reports-search" id="ups-reports-filter-status" style="width:140px; padding:8px;">
             <option value="">All Statuses</option>
-            <option value="Pass">Pass</option>
-            <option value="Fail">Fail</option>
+            <option value="Approved">Approved</option>
+            <option value="Pending">Pending</option>
+            <option value="Denied">Denied</option>
           </select>
           <input type="text" class="ups-reports-search" id="ups-reports-search" placeholder="Search ID, Site, or Location…" autocomplete="off">
         </div>
@@ -1028,46 +1098,61 @@ async function renderTechniciansDashboardView() {
   `;
 
   // Fetch reports
-  let query = supabaseClient
+  let queryUPS = supabaseClient
     .from('ups_maintenance_reports')
     .select('id, site_client_name, technician_name, overall_system_status, created_at, manager_approval_status')
     .order('created_at', { ascending: false })
     .limit(100);
 
+  let querySolar = supabaseClient
+    .from('solar_inverter_surveys')
+    .select('id, company_organization_name, survey_done_by, created_at, manager_approval_status')
+    .order('created_at', { ascending: false })
+    .limit(100);
+
   if (state.currentOrganization?.id) {
-    query = query.eq('organization_id', state.currentOrganization.id);
+    queryUPS = queryUPS.eq('organization_id', state.currentOrganization.id);
+    querySolar = querySolar.eq('organization_id', state.currentOrganization.id);
   }
 
-  const { data: reports, error } = await query;
+  const [resUPS, resSolar] = await Promise.all([queryUPS, querySolar]);
 
-  if (error) {
-    document.getElementById('ups-reports-container').innerHTML = renderError(error.message);
+  if (resUPS.error || resSolar.error) {
+    document.getElementById('ups-reports-container').innerHTML = renderError((resUPS.error || resSolar.error).message);
     return;
   }
 
-  const allReports = reports || [];
+  const upsReports = (resUPS.data || []).map(r => ({ ...r, _type: 'UPS', titleName: r.site_client_name, techName: r.technician_name }));
+  const solarReports = (resSolar.data || []).map(r => ({ ...r, _type: 'SOLAR', titleName: r.company_organization_name, techName: r.survey_done_by }));
+  
+  const allReports = [...upsReports, ...solarReports].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
   renderReportsTable(allReports, allReports);
 
   // Search & Filters
   const searchInput = document.getElementById('ups-reports-search');
+  const typeFilter = document.getElementById('ups-reports-filter-type');
   const statusFilter = document.getElementById('ups-reports-filter-status');
 
   const applyFilters = () => {
     const q = searchInput.value.trim().toLowerCase();
+    const t = typeFilter.value;
     const s = statusFilter.value;
     
     const filtered = allReports.filter(r => {
       const matchSearch = !q || 
         r.id.toLowerCase().includes(q) || 
-        (r.site_client_name || '').toLowerCase().includes(q) || 
-        (r.location_building || '').toLowerCase().includes(q);
-      const matchStatus = !s || r.overall_system_status === s;
-      return matchSearch && matchStatus;
+        (r.titleName || '').toLowerCase().includes(q) || 
+        (r.techName || '').toLowerCase().includes(q);
+      const matchType = !t || r._type === t;
+      const matchStatus = !s || r.manager_approval_status === s || (!r.manager_approval_status && s === 'Pending');
+      return matchSearch && matchType && matchStatus;
     });
     renderReportsTable(filtered, allReports);
   };
 
   searchInput.addEventListener('input', applyFilters);
+  typeFilter.addEventListener('change', applyFilters);
   statusFilter.addEventListener('change', applyFilters);
 }
 
@@ -1084,33 +1169,33 @@ function renderReportsTable(reports, allReports) {
       <table class="ups-reports-table">
         <thead>
           <tr>
+            <th>Type</th>
             <th>Report ID</th>
             <th>Site / Client</th>
             <th>Technician</th>
             <th>Date</th>
-            <th>Status</th>
             <th>Approval</th>
           </tr>
         </thead>
         <tbody>
           ${reports.map(r => `
-            <tr onclick="window._viewUPSReport('${r.id}')">
-              <td class="ups-report-id-cell">${r.id.substring(0, 8)}…</td>
-              <td>${escapeHtml(r.site_client_name || '—')}</td>
-              <td>${escapeHtml(r.technician_name || '—')}</td>
-              <td>${formatDate(r.created_at)}</td>
+            <tr onclick="${r._type === 'UPS' ? `window._viewUPSReport('${r.id}')` : `window._viewSolarReport('${r.id}')`}">
               <td>
-                <span class="ups-status-badge ${r.overall_system_status === 'Pass' ? 'ups-status-badge-pass' : 'ups-status-badge-fail'}">
-                  ${r.overall_system_status || '—'}
+                <span style="font-size:11px; font-weight:600; padding:2px 8px; border-radius:12px; ${r._type === 'UPS' ? 'background:#e0e7ff; color:#4f46e5;' : 'background:#fef3c7; color:#d97706;'}">
+                  ${r._type}
                 </span>
               </td>
+              <td class="ups-report-id-cell">${r.id.substring(0, 8)}…</td>
+              <td>${escapeHtml(r.titleName || '—')}</td>
+              <td>${escapeHtml(r.techName || '—')}</td>
+              <td>${formatDate(r.created_at)}</td>
               <td onclick="event.stopPropagation()">
                 ${!r.manager_approval_status || r.manager_approval_status === 'Pending' ? `
                   <div style="display:flex; gap:6px;">
-                    <button class="btn btn-sm btn-success" onclick="window._updateUPSApproval('${r.id}', 'Approved')" style="padding:4px 8px; font-size:12px; min-height:28px;" title="Approve">
+                    <button class="btn btn-sm btn-success" onclick="window._updateReportApproval('${r._type}', '${r.id}', 'Approved')" style="padding:4px 8px; font-size:12px; min-height:28px;" title="Approve">
                       <i data-lucide="check" style="width:14px; height:14px; pointer-events:none;"></i>
                     </button>
-                    <button class="btn btn-sm btn-danger" onclick="window._updateUPSApproval('${r.id}', 'Denied')" style="padding:4px 8px; font-size:12px; min-height:28px;" title="Deny">
+                    <button class="btn btn-sm btn-danger" onclick="window._updateReportApproval('${r._type}', '${r.id}', 'Denied')" style="padding:4px 8px; font-size:12px; min-height:28px;" title="Deny">
                       <i data-lucide="x" style="width:14px; height:14px; pointer-events:none;"></i>
                     </button>
                   </div>
@@ -1119,7 +1204,7 @@ function renderReportsTable(reports, allReports) {
                     <span class="ups-status-badge ${r.manager_approval_status === 'Approved' ? 'ups-status-badge-pass' : 'ups-status-badge-fail'}">
                       ${r.manager_approval_status}
                     </span>
-                    <button class="btn btn-sm" onclick="window._updateUPSApproval('${r.id}', 'Pending')" style="padding:4px 8px; font-size:12px; min-height:28px; background:transparent; border:1px solid var(--border-color); color:var(--text-muted);" title="Reset to Pending">
+                    <button class="btn btn-sm" onclick="window._updateReportApproval('${r._type}', '${r.id}', 'Pending')" style="padding:4px 8px; font-size:12px; min-height:28px; background:transparent; border:1px solid var(--border-color); color:var(--text-muted);" title="Reset to Pending">
                       <i data-lucide="undo" style="width:14px; height:14px; pointer-events:none;"></i>
                     </button>
                   </div>
@@ -1139,15 +1224,17 @@ function renderReportsTable(reports, allReports) {
 // REPORT DETAIL VIEW & APPROVAL (Manager)
 // ════════════════════════════════════════════════════════════════
 
-window._updateUPSApproval = async function (reportId, status) {
+window._updateReportApproval = async function (type, reportId, status) {
   if (status === 'Denied') {
-    renderDenialModal(reportId);
+    renderDenialModal(reportId, type);
     return;
   }
 
+  const table = type === 'UPS' ? 'ups_maintenance_reports' : 'solar_inverter_surveys';
+
   try {
     const { data, error } = await supabaseClient
-      .from('ups_maintenance_reports')
+      .from(table)
       .update({ manager_approval_status: status })
       .eq('id', reportId)
       .select();
@@ -1164,7 +1251,10 @@ window._updateUPSApproval = async function (reportId, status) {
   }
 };
 
-function renderDenialModal(reportId) {
+window._updateUPSApproval = function(id, status) { window._updateReportApproval('UPS', id, status); };
+
+
+function renderDenialModal(reportId, type = 'UPS') {
   const modalHTML = `
     <div class="ups-modal-overlay" id="ups-denial-modal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:9999; padding:16px;">
       <div class="ups-modal-content" style="width:100%; max-width:500px; padding:24px; border-radius:12px; background:var(--bg-primary); color:var(--text-primary); box-shadow:0 10px 40px rgba(0,0,0,0.2);">
@@ -1174,7 +1264,7 @@ function renderDenialModal(reportId) {
         <div style="margin-bottom:16px;">
           <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Flagged Sections</label>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;" id="ups-denial-sections">
-            ${STEP_NAMES.map(name => `
+            ${(type === 'UPS' ? STEP_NAMES : window.SOLAR_STEP_NAMES).map(name => `
               <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
                 <input type="checkbox" value="${name}">
                 ${name}
@@ -1185,7 +1275,7 @@ function renderDenialModal(reportId) {
 
         <div style="margin-bottom:24px;">
           <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Reason for Denial</label>
-          <textarea id="ups-denial-reason" class="ups-input" rows="4" placeholder="E.g., Battery voltages are too low, please re-measure..."></textarea>
+          <textarea id="ups-denial-reason" class="ups-input" rows="4" placeholder="E.g., Values seem incorrect, please re-measure..."></textarea>
         </div>
 
         <div style="display:flex; justify-content:flex-end; gap:12px;">
@@ -1210,9 +1300,11 @@ function renderDenialModal(reportId) {
     btn.disabled = true;
     btn.textContent = 'Submitting...';
 
+    const table = type === 'UPS' ? 'ups_maintenance_reports' : 'solar_inverter_surveys';
+
     try {
       const { data, error } = await supabaseClient
-        .from('ups_maintenance_reports')
+        .from(table)
         .update({ 
           manager_approval_status: 'Denied',
           denial_reason: reason,

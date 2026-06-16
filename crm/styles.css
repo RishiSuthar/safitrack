@@ -22723,6 +22723,10 @@ textarea.ups-input {
 }
 
 /* Selected states */
+.ups-toggle-btn.selected:not([class*="toggle-"]) {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
 .ups-toggle-btn.selected.toggle-yes {
   background: #dcfce7;
   color: #15803d;
@@ -22761,6 +22765,7 @@ textarea.ups-input {
 }
 
 /* Dark mode toggle adjustments */
+[data-theme="dark"] .ups-toggle-btn.selected:not([class*="toggle-"]) { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
 [data-theme="dark"] .ups-toggle-btn.selected.toggle-yes { background: rgba(22, 163, 74, 0.2); color: #4ade80; }
 [data-theme="dark"] .ups-toggle-btn.selected.toggle-no { background: rgba(220, 38, 38, 0.2); color: #f87171; }
 [data-theme="dark"] .ups-toggle-btn.selected.toggle-na { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
