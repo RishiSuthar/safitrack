@@ -479,20 +479,13 @@ function initLogVisitForm(companies) {
           return;
         }
 
-        const isWithinRadius = distance <= (window.selectedCompanyData.radius + accuracy);
-
-        if (isWithinRadius) {
-          locationStatus.className = 'location-status success';
-          locationStatus.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Location verified! You are ${distance.toFixed(0)}m from ${window.selectedCompanyData.name}`;
-          locationVerified = true;
-          submitBtn.disabled = false;
-          initVerificationMap(userLat, userLng, window.selectedCompanyData);
-        } else {
-          locationStatus.className = 'location-status error';
-          locationStatus.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Too far from ${window.selectedCompanyData.name}. You are ${distance.toFixed(0)}m away (max: ${window.selectedCompanyData.radius}m)`;
-          locationVerified = false;
-          submitBtn.disabled = true;
-        }
+        // Display how far they are, but always allow submission
+        locationStatus.className = 'location-status success';
+        locationStatus.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Location checked! You are ${distance.toFixed(0)}m from ${window.selectedCompanyData.name}`;
+        locationVerified = true;
+        window.verifiedDistance = distance;
+        submitBtn.disabled = false;
+        initVerificationMap(userLat, userLng, window.selectedCompanyData);
 
         updateLogVisitStepState();
 
@@ -584,6 +577,11 @@ function initLogVisitForm(companies) {
         ? await predictLeadScore(company, contact, notes, visitType)
         : null;
 
+      const tagsToSave = [...state.visitTags];
+      if (typeof window.verifiedDistance !== 'undefined') {
+        tagsToSave.push(`__distance:${Math.round(window.verifiedDistance)}`);
+      }
+
       const visitData = {
         user_id: state.currentUser.id,
         company_name: company,
@@ -598,7 +596,7 @@ function initLogVisitForm(companies) {
         longitude: window.selectedCompanyData.longitude,
         photo_url: photoUrl,
         travel_time: travelTime ? parseInt(travelTime) : null,
-        tags: state.visitTags,
+        tags: tagsToSave,
         mentioned_people: state.mentionedPeople,
         created_at: new Date().toISOString(),
         organization_id: state.currentOrganization?.id

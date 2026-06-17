@@ -327,6 +327,10 @@ function renderVisitsCards(visits) {
     };
 
     const scoreClass = visit.lead_score >= 70 ? 'score-high' : visit.lead_score >= 40 ? 'score-medium' : 'score-low';
+    
+    const distanceTag = (visit.tags || []).find(t => typeof t === 'string' && t.startsWith('__distance:'));
+    const distanceVal = distanceTag ? distanceTag.split(':')[1] : null;
+    const displayTags = (visit.tags || []).filter(t => typeof t !== 'string' || !t.startsWith('__distance:'));
 
     return `
       <div class="visit-card-premium" data-visit-id="${visit.id}" data-type="${visit.visit_type || 'new_lead'}" onclick="openVisitDetail('${visit.id}')">
@@ -348,15 +352,15 @@ function renderVisitsCards(visits) {
         <div class="visit-card-meta">
           <span class="visit-card-badge type-${visit.visit_type || 'new_lead'}">${visitTypeLabels[visit.visit_type] || 'Visit'}</span>
           ${visit.lead_score ? `<span class="visit-card-badge ${scoreClass}">${visit.lead_score}% Score</span>` : ''}
-          ${visit.location_verified ? `<span class="visit-card-badge verified"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Verified</span>` : ''}
+          ${distanceVal != null ? `<span class="visit-card-badge distance"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${distanceVal}m from site</span>` : ''}
         </div>
         
         ${visit.notes ? `<div class="visit-card-notes">${visit.notes}</div>` : ''}
         
         <div class="visit-card-footer">
           <div class="visit-card-tags">
-            ${(visit.tags || []).slice(0, 3).map(tag => `<span class="visit-card-tag">${tag}</span>`).join('')}
-            ${(visit.tags || []).length > 3 ? `<span class="visit-card-tag">+${visit.tags.length - 3}</span>` : ''}
+            ${displayTags.slice(0, 3).map(tag => `<span class="visit-card-tag">${tag}</span>`).join('')}
+            ${displayTags.length > 3 ? `<span class="visit-card-tag">+${displayTags.length - 3}</span>` : ''}
           </div>
           <div class="visit-card-actions">
             ${visit.latitude && visit.longitude ? `
@@ -754,13 +758,17 @@ window.openVisitDetail = function (visitId) {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit'
   });
 
-  const visitTypeLabels = {
+    const visitTypeLabels = {
     'new_lead': 'New Lead',
     'follow_up': 'Follow-up',
     'demo': 'Product Demo',
     'closing': 'Closing',
     'support': 'Customer Support'
   };
+  
+  const distanceTag = (visit.tags || []).find(t => typeof t === 'string' && t.startsWith('__distance:'));
+  const distanceVal = distanceTag ? distanceTag.split(':')[1] : null;
+  const displayTags = (visit.tags || []).filter(t => typeof t !== 'string' || !t.startsWith('__distance:'));
 
   const detailBody = document.getElementById('visit-detail-body');
   if (!detailBody) {
@@ -803,8 +811,8 @@ window.openVisitDetail = function (visitId) {
           </div>
         ` : ''}
         <div class="visit-detail-meta-item">
-          <span class="visit-detail-meta-label">Location Verified</span>
-          <span class="visit-detail-meta-value">${visit.location_verified ? 'Yes ✓' : 'No'}</span>
+          <span class="visit-detail-meta-label">Distance from Site</span>
+          <span class="visit-detail-meta-value">${distanceVal != null ? `${distanceVal}m` : 'Unknown'}</span>
         </div>
       </div>
     </div>
@@ -825,11 +833,11 @@ window.openVisitDetail = function (visitId) {
       </div>
     ` : ''}
     
-    ${visit.tags && visit.tags.length > 0 ? `
+    ${displayTags.length > 0 ? `
       <div class="visit-detail-section">
         <h4 class="visit-detail-section-title">Tags</h4>
         <div class="visit-card-tags" style="gap: 0.5rem;">
-          ${visit.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+          ${displayTags.map(tag => `<span class="tag">${tag}</span>`).join('')}
         </div>
       </div>
     ` : ''}
@@ -1042,18 +1050,23 @@ window.exportVisitsToCSV = function () {
     return;
   }
 
-  const headers = ['Date', 'Company', 'Sales Rep', 'Visit Type', 'Contact', 'Lead Score', 'Notes', 'Location Verified'];
+  const headers = ['Date', 'Company', 'Sales Rep', 'Visit Type', 'Contact', 'Lead Score', 'Notes', 'Distance from Site'];
   const pref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
-  const rows = visits.map(v => [
-    pref === 'MM/DD/YYYY' ? (new Date(v.created_at) instanceof Date ? `${String(new Date(v.created_at).getMonth() + 1).padStart(2, '0')}/${String(new Date(v.created_at).getDate()).padStart(2, '0')}/${new Date(v.created_at).getFullYear()}` : '') : formatDateDDMMYYYY(v.created_at),
-    v.company_name || '',
-    v.user ? `${v.user.first_name} ${v.user.last_name}` : '',
-    v.visit_type || '',
-    v.contact_name || '',
-    v.lead_score || '',
-    (v.notes || '').replace(/"/g, '""'),
-    v.location_verified ? 'Yes' : 'No'
-  ]);
+  const rows = visits.map(v => {
+    const distTag = (v.tags || []).find(t => typeof t === 'string' && t.startsWith('__distance:'));
+    const distVal = distTag ? distTag.split(':')[1] + 'm' : 'Unknown';
+    
+    return [
+      pref === 'MM/DD/YYYY' ? (new Date(v.created_at) instanceof Date ? `${String(new Date(v.created_at).getMonth() + 1).padStart(2, '0')}/${String(new Date(v.created_at).getDate()).padStart(2, '0')}/${new Date(v.created_at).getFullYear()}` : '') : formatDateDDMMYYYY(v.created_at),
+      v.company_name || '',
+      v.user ? `${v.user.first_name} ${v.user.last_name}` : '',
+      v.visit_type || '',
+      v.contact_name || '',
+      v.lead_score || '',
+      (v.notes || '').replace(/"/g, '""'),
+      distVal
+    ];
+  });
 
   const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
@@ -1256,7 +1269,9 @@ async function generateVisitPDF(visitId) {
       doc.textWithLink(btnLabel, textX, textY, { url: mapsUrl });
       yPos += btnHeight + 4;
       doc.setTextColor(...colors.dark);
-      addInfoRow('Location Verified', visit.location_verified ? 'Yes ✓' : 'No');
+      const distTag = (visit.tags || []).find(t => typeof t === 'string' && t.startsWith('__distance:'));
+      const distVal = distTag ? distTag.split(':')[1] : null;
+      addInfoRow('Distance from Site', distVal != null ? `${distVal}m` : 'Unknown');
     }
     yPos += 5;
 
