@@ -56,11 +56,12 @@ const STEP_NAMES = [
 // ════════════════════════════════════════════════════════════════
 // HELPER — Per-step photo upload HTML
 // ════════════════════════════════════════════════════════════════
-function stepPhotoHTML(stepIndex) {
+function stepPhotoHTML(stepIndex, customLabel) {
+  const labelText = customLabel || `Photo — ${STEP_NAMES[stepIndex]}`;
   return `
     <div class="ups-section-divider"></div>
     <div class="ups-field">
-      <label class="ups-field-label">Photo — ${STEP_NAMES[stepIndex]}</label>
+      <label class="ups-field-label">${labelText}</label>
       <div class="ups-photo-upload-wrap ups-step-photo-wrap">
         <input type="file" class="ups-photo-input ups-step-photo-input" id="ups-step-photo-${stepIndex}" accept="image/*" data-step="${stepIndex}">
         <div class="ups-photo-preview-box ups-step-photo-box" id="ups-step-photo-box-${stepIndex}">
@@ -199,6 +200,26 @@ function renderUPSVisitForm(existingData = null) {
                 <input type="text" class="ups-input" id="ups-model" placeholder="Model" autocomplete="off">
               </div>
             </div>
+            <div class="ups-field-row">
+              <div class="ups-field">
+                <label class="ups-field-label">UPS Size <span class="ups-field-unit">(kVA)</span></label>
+                <input type="number" class="ups-input" id="ups-size-kva" placeholder="e.g. 10" inputmode="decimal" autocomplete="off">
+              </div>
+              <div class="ups-field">
+                <label class="ups-field-label">Phase</label>
+                <div class="ups-toggle-group" id="ups-phase">
+                  <button type="button" class="ups-toggle-btn toggle-single" data-value="Single">Single</button>
+                  <button type="button" class="ups-toggle-btn toggle-three" data-value="Three">Three</button>
+                </div>
+              </div>
+            </div>
+            <div class="ups-field">
+              <label class="ups-field-label">Model Type</label>
+              <div class="ups-toggle-group" id="ups-model-type">
+                <button type="button" class="ups-toggle-btn toggle-rackmount" data-value="Rackmount">Rackmount</button>
+                <button type="button" class="ups-toggle-btn toggle-tower" data-value="Tower">Tower</button>
+              </div>
+            </div>
             <div class="ups-field">
               <label class="ups-field-label">Total UPS Runtime</label>
               <div style="display: flex; gap: 8px;">
@@ -216,7 +237,7 @@ function renderUPSVisitForm(existingData = null) {
               <label class="ups-field-label">Technician Name</label>
               <input type="text" class="ups-input" id="ups-tech-name" value="${escapeHtml(techName)}" readonly disabled>
             </div>
-            ${stepPhotoHTML(0)}
+            ${stepPhotoHTML(0, 'Before Service Photo')}
           </div>
 
           <!-- STEP 2: Environmental Conditions -->
@@ -432,7 +453,7 @@ function renderUPSVisitForm(existingData = null) {
               <textarea class="ups-input" id="ups-notes" placeholder="Any additional notes or observations..." rows="4"></textarea>
             </div>
 
-            ${stepPhotoHTML(6)}
+            ${stepPhotoHTML(6, 'After Service Photo')}
 
             <div class="ups-field">
               <label class="ups-field-label">Technician Signature</label>
@@ -497,6 +518,9 @@ function initUPSFormLogic(techName, existingData) {
     setVal('ups-brand', existingData.ups_brand);
     setVal('ups-serial', existingData.ups_serial_number);
     setVal('ups-model', existingData.ups_model);
+    setVal('ups-size-kva', existingData.ups_size_kva);
+    if (existingData.phase) setToggle('ups-phase', existingData.phase);
+    if (existingData.model_type) setToggle('ups-model-type', existingData.model_type);
     if (existingData.total_ups_runtime !== null && existingData.total_ups_runtime !== undefined) {
       const total = parseFloat(existingData.total_ups_runtime);
       const hrs = Math.floor(total);
@@ -796,6 +820,9 @@ function initUPSFormLogic(techName, existingData) {
         ups_brand: document.getElementById('ups-brand').value.trim() || null,
         ups_serial_number: document.getElementById('ups-serial').value.trim() || null,
         ups_model: document.getElementById('ups-model').value.trim() || null,
+        ups_size_kva: document.getElementById('ups-size-kva').value ? parseFloat(document.getElementById('ups-size-kva').value) : null,
+        phase: getToggleValue('ups-phase'),
+        model_type: getToggleValue('ups-model-type'),
         total_ups_runtime: (() => {
           const h = parseInt(document.getElementById('ups-runtime-hours').value) || 0;
           const m = parseInt(document.getElementById('ups-runtime-minutes').value) || 0;
@@ -1371,12 +1398,12 @@ window._viewUPSReport = async function (reportId, isTechnician = false) {
     return null;
   }
 
-  function mgrStepPhoto(stepIdx) {
+  function mgrStepPhoto(stepIdx, label = null) {
     const url = getStepPhotoUrl(r, stepIdx);
     if (!url) return '';
     return `
       <div class="ups-report-field" style="grid-column: 1 / -1; margin-top: 12px;">
-        <span class="ups-report-field-label" style="margin-bottom:8px;">Photo — ${STEP_NAMES[stepIdx]}</span>
+        <span class="ups-report-field-label" style="margin-bottom:8px;">${label || 'Photo — ' + STEP_NAMES[stepIdx]}</span>
         <img src="${url}" class="ups-report-photo-thumb" onclick="window.open(this.src, '_blank')">
       </div>
     `;
@@ -1419,6 +1446,19 @@ window._viewUPSReport = async function (reportId, isTechnician = false) {
         </div>
       </div>
       <div class="ups-report-detail-body">
+        
+        <!-- Before & After Photos -->
+        <div class="ups-report-section">
+          <div class="ups-report-section-title">Before & After Service Photos</div>
+          <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom: 24px;">
+            <div style="flex:1; min-width:200px;">
+              ${mgrStepPhoto(0, 'Before Service')}
+            </div>
+            <div style="flex:1; min-width:200px;">
+              ${mgrStepPhoto(6, 'After Service')}
+            </div>
+          </div>
+        </div>
 
         <!-- Site Info -->
         <div class="ups-report-section">
@@ -1429,9 +1469,11 @@ window._viewUPSReport = async function (reportId, isTechnician = false) {
             <div class="ups-report-field"><span class="ups-report-field-label">UPS Brand</span><span class="ups-report-field-value">${valOrDash(r.ups_brand)}</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">UPS Serial Number</span><span class="ups-report-field-value">${valOrDash(r.ups_serial_number)}</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">UPS Model</span><span class="ups-report-field-value">${valOrDash(r.ups_model)}</span></div>
+            <div class="ups-report-field"><span class="ups-report-field-label">UPS Size (kVA)</span><span class="ups-report-field-value">${valOrDash(r.ups_size_kva)}</span></div>
+            <div class="ups-report-field"><span class="ups-report-field-label">Phase</span><span class="ups-report-field-value">${valOrDash(r.phase)}</span></div>
+            <div class="ups-report-field"><span class="ups-report-field-label">Model Type</span><span class="ups-report-field-value">${valOrDash(r.model_type)}</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">Total Runtime</span><span class="ups-report-field-value">${formatRuntimeHelper(r.total_ups_runtime)}</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">Technician</span><span class="ups-report-field-value">${valOrDash(r.technician_name)}</span></div>
-            ${mgrStepPhoto(0)}
           </div>
         </div>
 
@@ -1519,7 +1561,7 @@ window._viewUPSReport = async function (reportId, isTechnician = false) {
             <div class="ups-report-field"><span class="ups-report-field-label">Client Engineer</span><span class="ups-report-field-value">${valOrDash(r.client_engineer_name)}</span></div>
             <div class="ups-report-field"><span class="ups-report-field-label">Servicing Engineer</span><span class="ups-report-field-value">${valOrDash(r.servicing_engineer_name)}</span></div>
             ${r.notes_remarks ? `<div class="ups-report-field" style="grid-column: 1 / -1;"><span class="ups-report-field-label">Notes / Remarks</span><span class="ups-report-field-value" style="white-space:pre-wrap;">${escapeHtml(r.notes_remarks)}</span></div>` : ''}
-            ${mgrStepPhoto(6)}
+            ${mgrStepPhoto(6, 'Final Site Photo')}
           </div>
         </div>
 
@@ -1593,12 +1635,12 @@ window._downloadUPSPDF = function (reportId) {
     return null;
   }
 
-  function pdfStepPhoto(stepIdx) {
+  function pdfStepPhoto(stepIdx, label = null) {
     const url = getStepPhotoUrlLocal(r, stepIdx);
     if (!url) return '';
     return `
-      <div style="margin-top:8px; grid-column:1/-1;">
-        <div style="color:#666; font-weight:500; font-size:11px; margin-bottom:4px;">📷 Photo — ${STEP_NAMES[stepIdx]}:</div>
+      <div style="margin-top:8px;">
+        <div style="color:#666; font-weight:500; font-size:11px; margin-bottom:4px;">📷 ${label || STEP_NAMES[stepIdx]}:</div>
         <img src="${url}" style="max-width:200px; max-height:200px; border:1px solid #ccc; border-radius:4px;">
       </div>
     `;
@@ -1618,6 +1660,20 @@ window._downloadUPSPDF = function (reportId) {
     </div>
 
     <div class="ups-print-section">
+      <h3>Before & After Service Photos</h3>
+      <div style="display:flex; gap:16px; margin-top:12px;">
+        <div style="flex:1;">
+          <strong style="font-size:12px; display:block; margin-bottom:4px;">Before Service</strong>
+          ${pdfStepPhoto(0, 'Before Service')}
+        </div>
+        <div style="flex:1;">
+          <strong style="font-size:12px; display:block; margin-bottom:4px;">After Service</strong>
+          ${pdfStepPhoto(6, 'After Service')}
+        </div>
+      </div>
+    </div>
+
+    <div class="ups-print-section">
       <h3>Site Information</h3>
       <div class="ups-print-grid">
         <div class="ups-print-field"><span class="ups-print-field-label">Site / Client:</span><span class="ups-print-field-value">${valOrDash(r.site_client_name)}</span></div>
@@ -1625,9 +1681,11 @@ window._downloadUPSPDF = function (reportId) {
         <div class="ups-print-field"><span class="ups-print-field-label">UPS Brand:</span><span class="ups-print-field-value">${valOrDash(r.ups_brand)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Serial Number:</span><span class="ups-print-field-value">${valOrDash(r.ups_serial_number)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Model:</span><span class="ups-print-field-value">${valOrDash(r.ups_model)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Size (kVA):</span><span class="ups-print-field-value">${valOrDash(r.ups_size_kva)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Phase:</span><span class="ups-print-field-value">${valOrDash(r.phase)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Model Type:</span><span class="ups-print-field-value">${valOrDash(r.model_type)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Runtime:</span><span class="ups-print-field-value">${formatRuntimeHelper(r.total_ups_runtime)}</span></div>
         <div class="ups-print-field"><span class="ups-print-field-label">Technician:</span><span class="ups-print-field-value">${valOrDash(r.technician_name)}</span></div>
-        ${pdfStepPhoto(0)}
       </div>
     </div>
 

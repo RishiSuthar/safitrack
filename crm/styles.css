@@ -22763,6 +22763,13 @@ textarea.ups-input {
   background: #fee2e2;
   color: #dc2626;
 }
+.ups-toggle-btn.selected.toggle-single,
+.ups-toggle-btn.selected.toggle-three,
+.ups-toggle-btn.selected.toggle-rackmount,
+.ups-toggle-btn.selected.toggle-tower {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
 
 /* Dark mode toggle adjustments */
 [data-theme="dark"] .ups-toggle-btn.selected:not([class*="toggle-"]) { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
@@ -22775,6 +22782,10 @@ textarea.ups-input {
 [data-theme="dark"] .ups-toggle-btn.selected.toggle-normal { background: rgba(109, 40, 217, 0.2); color: #a78bfa; }
 [data-theme="dark"] .ups-toggle-btn.selected.toggle-bypass { background: rgba(180, 83, 9, 0.2); color: #fbbf24; }
 [data-theme="dark"] .ups-toggle-btn.selected.toggle-fault { background: rgba(220, 38, 38, 0.2); color: #f87171; }
+[data-theme="dark"] .ups-toggle-btn.selected.toggle-single,
+[data-theme="dark"] .ups-toggle-btn.selected.toggle-three,
+[data-theme="dark"] .ups-toggle-btn.selected.toggle-rackmount,
+[data-theme="dark"] .ups-toggle-btn.selected.toggle-tower { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
 
 .ups-toggle-group.ups-input-error {
   border-color: #ef4444;

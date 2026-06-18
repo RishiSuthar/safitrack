@@ -16,6 +16,9 @@ CREATE TABLE IF NOT EXISTS ups_maintenance_reports (
   ups_brand TEXT,
   ups_serial_number TEXT,
   ups_model TEXT,
+  ups_size_kva NUMERIC,
+  phase VARCHAR(10) CHECK (phase IN ('Single', 'Three')),
+  model_type VARCHAR(15) CHECK (model_type IN ('Rackmount', 'Tower')),
   total_ups_runtime NUMERIC,
   technician_name TEXT NOT NULL,
 
