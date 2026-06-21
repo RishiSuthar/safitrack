@@ -142,6 +142,7 @@ async function renderOpportunityPipelineView() {
             <input type="date" class="crm-date-input" id="pipeline-filter-date-from" placeholder="From">
             <span class="crm-date-range-label">to</span>
             <input type="date" class="crm-date-input" id="pipeline-filter-date-to" placeholder="To">
+            <button class="crm-filter-clear" id="pipeline-date-clear" style="display:none; padding:4px 8px; font-size:0.75rem;">✕ Clear dates</button>
           </div>
 
           ${state.isManager ? `
@@ -784,6 +785,9 @@ function initPipelineFilters(opportunities) {
     const hasFilters = activeFilter !== 'all' || owner !== 'all' || sort !== 'newest' || dateFrom || dateTo || query;
     if (resetBtn) resetBtn.style.display = hasFilters ? 'inline-flex' : 'none';
 
+    const dateClearBtn = document.getElementById('pipeline-date-clear');
+    if (dateClearBtn) dateClearBtn.style.display = (dateFrom || dateTo) ? 'inline-flex' : 'none';
+
     document.querySelectorAll('.opportunity-card').forEach(card => {
       let show = true;
       const oppId = card.dataset.id;
@@ -845,6 +849,14 @@ function initPipelineFilters(opportunities) {
     if (quickFilterSelect) quickFilterSelect.value = 'all';
     if (ownerSelect) ownerSelect.value = 'all';
     if (sortSelect) sortSelect.value = 'newest';
+    const dfrom = document.getElementById('pipeline-filter-date-from');
+    const dto = document.getElementById('pipeline-filter-date-to');
+    if (dfrom) dfrom.value = '';
+    if (dto) dto.value = '';
+    applyPipelineControls();
+  });
+
+  document.getElementById('pipeline-date-clear')?.addEventListener('click', () => {
     const dfrom = document.getElementById('pipeline-filter-date-from');
     const dto = document.getElementById('pipeline-filter-date-to');
     if (dfrom) dfrom.value = '';

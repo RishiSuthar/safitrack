@@ -168,6 +168,7 @@ async function renderTeamDashboardView() {
               <input type="date" id="filter-date-from">
               <span>to</span>
               <input type="date" id="filter-date-to">
+              <button class="crm-filter-clear" id="visits-date-clear" style="display:none; padding:4px 8px; font-size:0.75rem; border:none; background:transparent;">✕ Clear dates</button>
             </div>
           </div>
         </div>
@@ -575,6 +576,16 @@ function initVisitsHub() {
     });
   }
 
+  const clearDatesBtn = document.getElementById('visits-date-clear');
+  if (clearDatesBtn) {
+    clearDatesBtn.addEventListener('click', () => {
+      document.getElementById('filter-date-from').value = '';
+      document.getElementById('filter-date-to').value = '';
+      updateFilterState();
+      applyVisitsFilters();
+    });
+  }
+
 
 
   // Activity tabs
@@ -746,8 +757,11 @@ function clearAllFilters() {
   document.getElementById('filter-score').value = '';
   document.getElementById('filter-date-from').value = '';
   document.getElementById('filter-date-to').value = '';
-  document.getElementById('filters-count').style.display = 'none';
+  
+  const clearDatesBtn = document.getElementById('visits-date-clear');
+  if (clearDatesBtn) clearDatesBtn.style.display = 'none';
 
+  updateFilterState();
   applyVisitsFilters();
 }
 

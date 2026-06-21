@@ -89,6 +89,7 @@ async function renderTasksView() {
           <input type="date" class="crm-date-input" id="task-filter-date-from" placeholder="From">
           <span class="crm-date-range-label">to</span>
           <input type="date" class="crm-date-input" id="task-filter-date-to" placeholder="To">
+          <button class="crm-filter-clear" id="task-date-clear" style="display:none; padding:4px 8px; font-size:0.75rem;">✕ Clear dates</button>
         </div>
 
         ${state.isManager ? `
@@ -422,6 +423,9 @@ function initKanbanBoard(tasks, salesReps) {
     const hasFilters = activePriority !== 'all' || dateFrom || dateTo || assignee !== 'all';
     if (clearBtn) clearBtn.style.display = hasFilters ? 'inline-flex' : 'none';
 
+    const dateClearBtn = document.getElementById('task-date-clear');
+    if (dateClearBtn) dateClearBtn.style.display = (dateFrom || dateTo) ? 'inline-flex' : 'none';
+
     document.querySelectorAll('.kanban-task-card').forEach(card => {
       const taskId = card.dataset.taskId;
       const task = tasks.find(t => t.id === taskId);
@@ -485,6 +489,14 @@ function initKanbanBoard(tasks, salesReps) {
     if (dto) dto.value = '';
     const assigneeEl = document.getElementById('task-filter-assignee');
     if (assigneeEl) assigneeEl.value = 'all';
+    applyTaskFilters();
+  });
+
+  document.getElementById('task-date-clear')?.addEventListener('click', () => {
+    const dfrom = document.getElementById('task-filter-date-from');
+    const dto = document.getElementById('task-filter-date-to');
+    if (dfrom) dfrom.value = '';
+    if (dto) dto.value = '';
     applyTaskFilters();
   });
 }

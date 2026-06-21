@@ -1091,15 +1091,9 @@ window._editSolarReport = async function(reportId) {
 
 async function renderTechniciansDashboardView() {
   viewContainer.innerHTML = `
-    <div class="page-header">
-      <h1 class="page-title">Service Reports</h1>
-      <p class="text-muted">View and manage all UPS and Solar service reports</p>
-    </div>
-
-    <div class="ups-reports-section" id="ups-reports-section">
+    <div class="ups-reports-section" id="ups-reports-section" style="margin-top: 0;">
       <div class="ups-reports-header">
         <h3 class="ups-reports-title">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
           All Reports
         </h3>
         <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1; justify-content:flex-end; align-items:center;">
@@ -1119,6 +1113,7 @@ async function renderTechniciansDashboardView() {
             <input type="date" class="ups-reports-search" id="ups-reports-filter-date-from" placeholder="From" style="width:130px; padding:8px;">
             <span style="font-size:0.75rem; color:var(--text-muted); font-weight:550;">to</span>
             <input type="date" class="ups-reports-search" id="ups-reports-filter-date-to" placeholder="To" style="width:130px; padding:8px;">
+            <button class="crm-filter-clear" id="ups-reports-date-clear" style="display:none;">✕ Clear dates</button>
           </div>
           <input type="text" class="ups-reports-search" id="ups-reports-search" placeholder="Search ID, Site, or Location…" autocomplete="off">
         </div>
@@ -1181,6 +1176,9 @@ async function renderTechniciansDashboardView() {
     const s = statusFilter.value;
     const dateFrom = dateFromInput?.value || '';
     const dateTo = dateToInput?.value || '';
+
+    const clearBtn = document.getElementById('ups-reports-date-clear');
+    if (clearBtn) clearBtn.style.display = (dateFrom || dateTo) ? 'inline-block' : 'none';
     
     const filtered = allReports.filter(r => {
       const matchSearch = !q || 
@@ -1211,6 +1209,12 @@ async function renderTechniciansDashboardView() {
   statusFilter.addEventListener('change', applyFilters);
   dateFromInput?.addEventListener('change', applyFilters);
   dateToInput?.addEventListener('change', applyFilters);
+
+  document.getElementById('ups-reports-date-clear')?.addEventListener('click', () => {
+    if (dateFromInput) dateFromInput.value = '';
+    if (dateToInput) dateToInput.value = '';
+    applyFilters();
+  });
 }
 
 function renderReportsTable(reports, allReports) {

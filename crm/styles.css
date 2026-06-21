@@ -23695,7 +23695,7 @@ textarea.ups-input {
   right: 6px;
 }
 
-.crm-filter-bar .crm-filter-clear {
+.crm-filter-clear {
   height: 30px;
   padding: 0 10px;
   border-radius: var(--radius-full);
@@ -23712,7 +23712,7 @@ textarea.ups-input {
   transition: color var(--transition-fast), background var(--transition-fast);
 }
 
-.crm-filter-bar .crm-filter-clear:hover {
+.crm-filter-clear:hover {
   color: var(--color-danger);
   background: var(--color-danger-bg, rgba(239, 68, 68, 0.08));
 }
@@ -23728,9 +23728,9 @@ textarea.ups-input {
 }
 
 .crm-filter-panel.open {
-  max-height: 200px;
+  max-height: 400px;
   opacity: 1;
-  padding: 8px 0 4px;
+  padding: 8px 0 12px;
 }
 
 /* Filter button active state (when panel is open) */
