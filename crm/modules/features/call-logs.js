@@ -144,10 +144,23 @@ async function renderCallLogsView() {
       return false;
     }
 
+    // Date range filter
+    if (state.callLogFilters.dateFrom) {
+      const fromDate = new Date(state.callLogFilters.dateFrom);
+      const callDate = new Date(log.call_at || log.created_at);
+      if (callDate < fromDate) return false;
+    }
+    if (state.callLogFilters.dateTo) {
+      const toDate = new Date(state.callLogFilters.dateTo);
+      toDate.setHours(23, 59, 59, 999);
+      const callDate = new Date(log.call_at || log.created_at);
+      if (callDate > toDate) return false;
+    }
+
     return true;
   });
 
-  const isFiltered = !!(state.callLogFilters.search || state.callLogFilters.direction || state.callLogFilters.outcome);
+  const isFiltered = !!(state.callLogFilters.search || state.callLogFilters.direction || state.callLogFilters.outcome || state.callLogFilters.dateFrom || state.callLogFilters.dateTo);
 
   let html = `
     <div class="page-header">
@@ -171,6 +184,12 @@ async function renderCallLogsView() {
             <option value="Wrong Number" ${state.callLogFilters.outcome === 'Wrong Number' ? 'selected' : ''}>Wrong Number</option>
             <option value="Call Failed" ${state.callLogFilters.outcome === 'Call Failed' ? 'selected' : ''}>Call Failed</option>
           </select>
+          <div class="crm-date-range" style="display:inline-flex; align-items:center; gap:6px; margin-left:4px;">
+            <span class="crm-date-range-label" style="font-size:0.75rem; color:var(--text-muted); font-weight:550;">Date:</span>
+            <input type="date" class="crm-date-input" id="call-date-from" value="${state.callLogFilters.dateFrom || ''}" placeholder="From" style="height:30px; padding:0 10px; width:130px; border-radius:var(--radius-full); border:1px solid var(--border-color); background:var(--bg-secondary); color:var(--text-secondary); font-size:0.79rem; font-family:inherit; cursor:pointer;">
+            <span class="crm-date-range-label" style="font-size:0.75rem; color:var(--text-muted); font-weight:550;">to</span>
+            <input type="date" class="crm-date-input" id="call-date-to" value="${state.callLogFilters.dateTo || ''}" placeholder="To" style="height:30px; padding:0 10px; width:130px; border-radius:var(--radius-full); border:1px solid var(--border-color); background:var(--bg-secondary); color:var(--text-secondary); font-size:0.79rem; font-family:inherit; cursor:pointer;">
+          </div>
           ${isFiltered ? `<button id="clear-filters" class="btn btn-ghost cl-clear-filters-btn" title="Clear filters"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Clear</button>` : `<button id="clear-filters" class="btn btn-ghost cl-clear-filters-btn" style="display:none"></button>`}
           ${state.isManager ? `
             <div class="view-toggle">
@@ -328,8 +347,26 @@ async function renderCallLogsView() {
     renderCallLogsView();
   });
 
+  // Initialize CustomCalendar on date inputs
+  if (window.initCustomCalendar) {
+    window.initCustomCalendar('#call-date-from', { type: 'date' });
+    window.initCustomCalendar('#call-date-to', { type: 'date' });
+  }
+
+  document.getElementById('call-date-from')?.addEventListener('change', (e) => {
+    state.callLogFilters.dateFrom = e.target.value;
+    saveViewState({ callLogs: state.callLogFilters });
+    renderCallLogsView();
+  });
+
+  document.getElementById('call-date-to')?.addEventListener('change', (e) => {
+    state.callLogFilters.dateTo = e.target.value;
+    saveViewState({ callLogs: state.callLogFilters });
+    renderCallLogsView();
+  });
+
   document.getElementById('clear-filters')?.addEventListener('click', () => {
-    state.callLogFilters = { search: '', direction: '', outcome: '' };
+    state.callLogFilters = { search: '', direction: '', outcome: '', dateFrom: '', dateTo: '' };
     saveViewState({ callLogs: state.callLogFilters });
     clearTimeout(state.filterDebounceTimer);
     renderCallLogsView();

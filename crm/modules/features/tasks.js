@@ -66,7 +66,7 @@ async function renderTasksView() {
         <input type="text" id="task-search-input" placeholder="Search tasks...">
       </div>
       <div class="tasks-header-actions">
-        <button class="btn btn-secondary" id="filter-tasks-btn">
+        <button class="btn btn-secondary crm-filter-toggle-btn" id="filter-tasks-btn">
           <i class="fas fa-filter"></i> Filter
         </button>
         <button class="btn btn-primary" id="add-task-btn">
@@ -74,7 +74,37 @@ async function renderTasksView() {
         </button>
       </div>
     </div>
+
+    <div class="crm-filter-panel" id="tasks-filter-panel">
+      <div class="crm-filter-bar">
+        <button class="crm-filter-pill active" data-task-filter-priority="all">All Priorities</button>
+        <button class="crm-filter-pill" data-task-filter-priority="high">🔴 High</button>
+        <button class="crm-filter-pill" data-task-filter-priority="medium">🟡 Medium</button>
+        <button class="crm-filter-pill" data-task-filter-priority="low">🔵 Low</button>
+
+        <span class="crm-filter-divider"></span>
+
+        <div class="crm-date-range">
+          <span class="crm-date-range-label">Due:</span>
+          <input type="date" class="crm-date-input" id="task-filter-date-from" placeholder="From">
+          <span class="crm-date-range-label">to</span>
+          <input type="date" class="crm-date-input" id="task-filter-date-to" placeholder="To">
+        </div>
+
+        ${state.isManager ? `
+          <span class="crm-filter-divider"></span>
+          <select class="crm-filter-select" id="task-filter-assignee">
+            <option value="all">All Assignees</option>
+            <option value="${state.currentUser.id}">Me</option>
+            ${salesReps.map(rep => `<option value="${rep.id}">${rep.first_name} ${rep.last_name}</option>`).join('')}
+          </select>
+        ` : ''}
+
+        <button class="crm-filter-clear" id="task-filter-clear" style="display:none;">✕ Clear</button>
+      </div>
+    </div>
   `;
+
 
   // Always render Kanban
   // Group tasks by status
@@ -351,14 +381,7 @@ function initKanbanBoard(tasks, salesReps) {
     searchInput.addEventListener('input', (e) => {
       const query = e.target.value.toLowerCase();
       saveViewState({ tasks: { search: query } });
-      document.querySelectorAll('.kanban-task-card').forEach(card => {
-        const title = card.querySelector('.task-card-title').textContent.toLowerCase();
-        const description = card.querySelector('.task-card-description')?.textContent.toLowerCase() || '';
-        const matches = title.includes(query) || description.includes(query);
-        card.style.display = matches ? 'flex' : 'none';
-      });
-      // Update column counts after filtering
-      updateColumnCounts();
+      applyTaskFilters();
     });
   }
 
@@ -370,13 +393,100 @@ function initKanbanBoard(tasks, salesReps) {
     });
   }
 
-  // Header Filter button
+  // Header Filter button — toggle filter panel
   const filterBtn = document.getElementById('filter-tasks-btn');
-  if (filterBtn) {
+  const filterPanel = document.getElementById('tasks-filter-panel');
+  if (filterBtn && filterPanel) {
     filterBtn.addEventListener('click', () => {
-      showToast('Task filtering is currently being enhanced!', 'info');
+      const isOpen = filterPanel.classList.toggle('open');
+      filterBtn.classList.toggle('is-active', isOpen);
     });
   }
+
+  // Initialize CustomCalendar on date inputs
+  if (window.initCustomCalendar) {
+    window.initCustomCalendar('#task-filter-date-from', { type: 'date' });
+    window.initCustomCalendar('#task-filter-date-to', { type: 'date' });
+  }
+
+  // Task filter logic
+  const applyTaskFilters = () => {
+    const priorityBtn = document.querySelector('[data-task-filter-priority].active');
+    const activePriority = priorityBtn?.dataset.taskFilterPriority || 'all';
+    const dateFrom = document.getElementById('task-filter-date-from')?.value || '';
+    const dateTo = document.getElementById('task-filter-date-to')?.value || '';
+    const assignee = document.getElementById('task-filter-assignee')?.value || 'all';
+    const query = (document.getElementById('task-search-input')?.value || '').toLowerCase();
+    const clearBtn = document.getElementById('task-filter-clear');
+
+    const hasFilters = activePriority !== 'all' || dateFrom || dateTo || assignee !== 'all';
+    if (clearBtn) clearBtn.style.display = hasFilters ? 'inline-flex' : 'none';
+
+    document.querySelectorAll('.kanban-task-card').forEach(card => {
+      const taskId = card.dataset.taskId;
+      const task = tasks.find(t => t.id === taskId);
+      if (!task) { card.style.display = 'none'; return; }
+
+      let show = true;
+
+      // Priority filter
+      if (activePriority !== 'all' && task.priority !== activePriority) show = false;
+
+      // Date range filter
+      if (show && (dateFrom || dateTo) && task.due_date) {
+        const dueDate = new Date(task.due_date);
+        if (dateFrom && dueDate < new Date(dateFrom)) show = false;
+        if (dateTo) {
+          const toEnd = new Date(dateTo);
+          toEnd.setHours(23, 59, 59, 999);
+          if (dueDate > toEnd) show = false;
+        }
+      } else if (show && (dateFrom || dateTo) && !task.due_date) {
+        show = false; // no due date, but date filter is active
+      }
+
+      // Assignee filter
+      if (show && assignee !== 'all' && task.assigned_to !== assignee) show = false;
+
+      // Search filter
+      if (show && query) {
+        const title = (task.title || '').toLowerCase();
+        const description = (task.description || '').toLowerCase();
+        show = title.includes(query) || description.includes(query);
+      }
+
+      card.style.display = show ? 'flex' : 'none';
+    });
+
+    updateColumnCounts();
+  };
+
+  // Priority pill clicks
+  document.querySelectorAll('[data-task-filter-priority]').forEach(pill => {
+    pill.addEventListener('click', () => {
+      document.querySelectorAll('[data-task-filter-priority]').forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
+      applyTaskFilters();
+    });
+  });
+
+  // Date filter changes
+  document.getElementById('task-filter-date-from')?.addEventListener('change', applyTaskFilters);
+  document.getElementById('task-filter-date-to')?.addEventListener('change', applyTaskFilters);
+  document.getElementById('task-filter-assignee')?.addEventListener('change', applyTaskFilters);
+
+  // Clear filters
+  document.getElementById('task-filter-clear')?.addEventListener('click', () => {
+    document.querySelectorAll('[data-task-filter-priority]').forEach(p => p.classList.remove('active'));
+    document.querySelector('[data-task-filter-priority="all"]')?.classList.add('active');
+    const dfrom = document.getElementById('task-filter-date-from');
+    const dto = document.getElementById('task-filter-date-to');
+    if (dfrom) dfrom.value = '';
+    if (dto) dto.value = '';
+    const assigneeEl = document.getElementById('task-filter-assignee');
+    if (assigneeEl) assigneeEl.value = 'all';
+    applyTaskFilters();
+  });
 }
 
 function updateColumnCounts() {

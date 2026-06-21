@@ -171,6 +171,16 @@ async function renderRemindersView() {
         <button class="btn btn-primary" id="add-reminder-btn"><i data-lucide="plus" class="u-icon-16"></i> New Reminder</button>
       </div>
 
+      <div class="crm-filter-bar" style="padding: 0 0 8px;">
+        <div class="crm-date-range">
+          <span class="crm-date-range-label">Date:</span>
+          <input type="date" class="crm-date-input" id="reminder-filter-date-from" placeholder="From">
+          <span class="crm-date-range-label">to</span>
+          <input type="date" class="crm-date-input" id="reminder-filter-date-to" placeholder="To">
+        </div>
+        <button class="crm-filter-clear" id="reminder-date-clear" style="display:none;">✕ Clear dates</button>
+      </div>
+
 
 
       <div class="rem-body">
@@ -223,14 +233,26 @@ function initReminderFilters(reminders) {
   const cards = document.querySelectorAll('.reminder-card');
   const emptyState = document.getElementById('remx-filter-empty');
 
+  // Initialize CustomCalendar on date inputs
+  if (window.initCustomCalendar) {
+    window.initCustomCalendar('#reminder-filter-date-from', { type: 'date' });
+    window.initCustomCalendar('#reminder-filter-date-to', { type: 'date' });
+  }
+
   const applyFilters = () => {
     const activeFilter = document.querySelector('.reminder-filter.active')?.dataset.filter || 'all';
     const query = (searchInput?.value || '').trim().toLowerCase();
+    const dateFrom = document.getElementById('reminder-filter-date-from')?.value || '';
+    const dateTo = document.getElementById('reminder-filter-date-to')?.value || '';
     const now = Date.now();
     const startToday = new Date();
     startToday.setHours(0, 0, 0, 0);
     const endToday = new Date(startToday);
     endToday.setDate(endToday.getDate() + 1);
+
+    // Show/hide clear button
+    const clearBtn = document.getElementById('reminder-date-clear');
+    if (clearBtn) clearBtn.style.display = (dateFrom || dateTo) ? 'inline-flex' : 'none';
 
     let visibleCount = 0;
 
@@ -252,6 +274,20 @@ function initReminderFilters(reminders) {
         show = completed;
       } else if (activeFilter === 'pending') {
         show = !completed;
+      }
+
+      // Date range filter
+      if (show && (dateFrom || dateTo)) {
+        if (dueTs === 0) {
+          show = false;
+        } else {
+          if (dateFrom && dueTs < new Date(dateFrom).getTime()) show = false;
+          if (dateTo) {
+            const toEnd = new Date(dateTo);
+            toEnd.setHours(23, 59, 59, 999);
+            if (dueTs > toEnd.getTime()) show = false;
+          }
+        }
       }
 
       if (show && query) {
@@ -276,6 +312,17 @@ function initReminderFilters(reminders) {
   });
 
   searchInput?.addEventListener('input', applyFilters);
+  document.getElementById('reminder-filter-date-from')?.addEventListener('change', applyFilters);
+  document.getElementById('reminder-filter-date-to')?.addEventListener('change', applyFilters);
+
+  // Clear dates button
+  document.getElementById('reminder-date-clear')?.addEventListener('click', () => {
+    const df = document.getElementById('reminder-filter-date-from');
+    const dt = document.getElementById('reminder-filter-date-to');
+    if (df) df.value = '';
+    if (dt) dt.value = '';
+    applyFilters();
+  });
 
   applyFilters();
 }

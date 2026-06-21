@@ -1102,7 +1102,7 @@ async function renderTechniciansDashboardView() {
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/><path d="M14 2v4a2 2 0 0 0 2 2h4"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
           All Reports
         </h3>
-        <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1; justify-content:flex-end;">
+        <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1; justify-content:flex-end; align-items:center;">
           <select class="ups-reports-search" id="ups-reports-filter-type" style="width:120px; padding:8px;">
             <option value="">All Types</option>
             <option value="UPS">UPS</option>
@@ -1114,6 +1114,12 @@ async function renderTechniciansDashboardView() {
             <option value="Pending">Pending</option>
             <option value="Denied">Denied</option>
           </select>
+          <div style="display:inline-flex; align-items:center; gap:6px;">
+            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:550;">Date:</span>
+            <input type="date" class="ups-reports-search" id="ups-reports-filter-date-from" placeholder="From" style="width:130px; padding:8px;">
+            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:550;">to</span>
+            <input type="date" class="ups-reports-search" id="ups-reports-filter-date-to" placeholder="To" style="width:130px; padding:8px;">
+          </div>
           <input type="text" class="ups-reports-search" id="ups-reports-search" placeholder="Search ID, Site, or Location…" autocomplete="off">
         </div>
       </div>
@@ -1160,11 +1166,21 @@ async function renderTechniciansDashboardView() {
   const searchInput = document.getElementById('ups-reports-search');
   const typeFilter = document.getElementById('ups-reports-filter-type');
   const statusFilter = document.getElementById('ups-reports-filter-status');
+  const dateFromInput = document.getElementById('ups-reports-filter-date-from');
+  const dateToInput = document.getElementById('ups-reports-filter-date-to');
+
+  // Initialize CustomCalendar on date inputs
+  if (window.initCustomCalendar) {
+    window.initCustomCalendar('#ups-reports-filter-date-from', { type: 'date' });
+    window.initCustomCalendar('#ups-reports-filter-date-to', { type: 'date' });
+  }
 
   const applyFilters = () => {
     const q = searchInput.value.trim().toLowerCase();
     const t = typeFilter.value;
     const s = statusFilter.value;
+    const dateFrom = dateFromInput?.value || '';
+    const dateTo = dateToInput?.value || '';
     
     const filtered = allReports.filter(r => {
       const matchSearch = !q || 
@@ -1173,7 +1189,19 @@ async function renderTechniciansDashboardView() {
         (r.techName || '').toLowerCase().includes(q);
       const matchType = !t || r._type === t;
       const matchStatus = !s || r.manager_approval_status === s || (!r.manager_approval_status && s === 'Pending');
-      return matchSearch && matchType && matchStatus;
+
+      let matchDate = true;
+      if (dateFrom || dateTo) {
+        const reportDate = new Date(r.created_at);
+        if (dateFrom && reportDate < new Date(dateFrom)) matchDate = false;
+        if (dateTo) {
+          const toEnd = new Date(dateTo);
+          toEnd.setHours(23, 59, 59, 999);
+          if (reportDate > toEnd) matchDate = false;
+        }
+      }
+
+      return matchSearch && matchType && matchStatus && matchDate;
     });
     renderReportsTable(filtered, allReports);
   };
@@ -1181,6 +1209,8 @@ async function renderTechniciansDashboardView() {
   searchInput.addEventListener('input', applyFilters);
   typeFilter.addEventListener('change', applyFilters);
   statusFilter.addEventListener('change', applyFilters);
+  dateFromInput?.addEventListener('change', applyFilters);
+  dateToInput?.addEventListener('change', applyFilters);
 }
 
 function renderReportsTable(reports, allReports) {

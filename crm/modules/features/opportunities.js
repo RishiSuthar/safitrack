@@ -109,23 +109,15 @@ async function renderOpportunityPipelineView() {
   };
 
   let html = `
-    <div class="pipeline-toolbar">
-      <div class="pipeline-controls pipeline-controls-primary">
+    <div class="pipeline-toolbar" style="flex-direction: column; align-items: stretch; gap: 8px;">
+      <div class="pipeline-controls pipeline-controls-primary" style="width: 100%;">
         <div class="pipeline-search">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
           <input type="text" id="pipeline-search" placeholder="Search company, deal, notes...">
         </div>
 
-        <select id="pipeline-quick-filter" class="pipeline-select pipeline-quick-filter">
-          <option value="all">All Opportunities</option>
-          <option value="high-value">High Value</option>
-          <option value="high-probability">High Probability</option>
-          <option value="next-step-due">Next Step Due</option>
-          ${state.isManager ? '<option value="my-reps">Sales Reps</option>' : ''}
-        </select>
-
-        <button class="btn btn-secondary" id="pipeline-advanced-toggle" aria-expanded="false">
-          <i data-lucide="sliders-horizontal"></i> More Filters
+        <button class="btn btn-secondary crm-filter-toggle-btn" id="pipeline-advanced-toggle" aria-expanded="false">
+          <i data-lucide="sliders-horizontal"></i> Filters
         </button>
 
         <button class="btn btn-primary pipeline-add-btn" id="add-opportunity-btn">
@@ -133,27 +125,46 @@ async function renderOpportunityPipelineView() {
         </button>
       </div>
 
-      <div class="pipeline-controls pipeline-controls-advanced" id="pipeline-advanced-controls" hidden>
-
-        ${state.isManager ? `
-          <select id="pipeline-owner-filter" class="pipeline-select">
-            <option value="all">All Owners</option>
-            ${ownerOptions.map(([id, name]) => `<option value="${id}">${name}</option>`).join('')}
+      <div class="crm-filter-panel" id="pipeline-advanced-controls">
+        <div class="crm-filter-bar" style="padding-top: 0;">
+          <select id="pipeline-quick-filter" class="crm-filter-select">
+            <option value="all">All Deals</option>
+            <option value="high-value">High Value</option>
+            <option value="high-probability">High Probability</option>
+            <option value="next-step-due">Next Step Due</option>
+            ${state.isManager ? '<option value="my-reps">Sales Reps</option>' : ''}
           </select>
-        ` : ''}
 
-        <select id="pipeline-sort" class="pipeline-select">
-          <option value="newest">Sort: Newest</option>
-          <option value="oldest">Sort: Oldest</option>
-          <option value="value-desc">Sort: Highest Value</option>
-          <option value="value-asc">Sort: Lowest Value</option>
-          <option value="probability-desc">Sort: Highest Probability</option>
-          <option value="next-step">Sort: Next Step Due</option>
-        </select>
+          <span class="crm-filter-divider"></span>
 
-        <button class="btn btn-ghost" id="pipeline-reset-controls">
-          Reset
-        </button>
+          <div class="crm-date-range">
+            <span class="crm-date-range-label">Next Step:</span>
+            <input type="date" class="crm-date-input" id="pipeline-filter-date-from" placeholder="From">
+            <span class="crm-date-range-label">to</span>
+            <input type="date" class="crm-date-input" id="pipeline-filter-date-to" placeholder="To">
+          </div>
+
+          ${state.isManager ? `
+            <span class="crm-filter-divider"></span>
+            <select id="pipeline-owner-filter" class="crm-filter-select">
+              <option value="all">All Owners</option>
+              ${ownerOptions.map(([id, name]) => `<option value="${id}">${name}</option>`).join('')}
+            </select>
+          ` : ''}
+
+          <span class="crm-filter-divider"></span>
+          
+          <select id="pipeline-sort" class="crm-filter-select">
+            <option value="newest">Sort: Newest</option>
+            <option value="oldest">Sort: Oldest</option>
+            <option value="value-desc">Sort: Highest Value</option>
+            <option value="value-asc">Sort: Lowest Value</option>
+            <option value="probability-desc">Sort: Highest Probability</option>
+            <option value="next-step">Sort: Next Step Due</option>
+          </select>
+
+          <button class="crm-filter-clear" id="pipeline-reset-controls" style="display:none;">✕ Clear</button>
+        </div>
       </div>
     </div>
 
@@ -729,6 +740,11 @@ function initPipelineFilters(opportunities) {
     advancedToggle.classList.add('is-open');
   }
 
+  if (window.initCustomCalendar) {
+    window.initCustomCalendar('#pipeline-filter-date-from', { type: 'date' });
+    window.initCustomCalendar('#pipeline-filter-date-to', { type: 'date' });
+  }
+
   const compareBySort = (a, b, sort) => {
     const aValue = Number(a.dataset.value || 0);
     const bValue = Number(b.dataset.value || 0);
@@ -752,6 +768,8 @@ function initPipelineFilters(opportunities) {
     const query = (searchInput?.value || '').trim().toLowerCase();
     const owner = ownerSelect?.value || 'all';
     const sort = sortSelect?.value || 'newest';
+    const dateFrom = document.getElementById('pipeline-filter-date-from')?.value || '';
+    const dateTo = document.getElementById('pipeline-filter-date-to')?.value || '';
 
     saveViewState({
       pipeline: {
@@ -759,15 +777,19 @@ function initPipelineFilters(opportunities) {
         quickFilter: activeFilter,
         owner: owner,
         sort: sort,
-        advancedOpen: advancedToggle?.classList.contains('is-open') || false
+        advancedOpen: advancedToggle?.classList.contains('is-active') || false
       }
     });
 
+    const hasFilters = activeFilter !== 'all' || owner !== 'all' || sort !== 'newest' || dateFrom || dateTo || query;
+    if (resetBtn) resetBtn.style.display = hasFilters ? 'inline-flex' : 'none';
+
     document.querySelectorAll('.opportunity-card').forEach(card => {
       let show = true;
+      const oppId = card.dataset.id;
+      const opportunity = opportunities.find(opp => opp.id === oppId);
 
       if (activeFilter === 'my-reps') {
-        const opportunity = opportunities.find(opp => opp.id === card.dataset.id);
         show = opportunity && opportunity.profiles && opportunity.profiles.role === 'sales_rep';
       } else if (activeFilter === 'high-value') {
         show = Number(card.dataset.value || 0) >= 100000;
@@ -779,6 +801,20 @@ function initPipelineFilters(opportunities) {
 
       if (show && owner !== 'all') {
         show = card.dataset.ownerId === owner;
+      }
+
+      if (show && (dateFrom || dateTo) && opportunity) {
+        if (!opportunity.next_step_date) {
+          show = false;
+        } else {
+          const nextDate = new Date(opportunity.next_step_date);
+          if (dateFrom && nextDate < new Date(dateFrom)) show = false;
+          if (dateTo) {
+            const toEnd = new Date(dateTo);
+            toEnd.setHours(23, 59, 59, 999);
+            if (nextDate > toEnd) show = false;
+          }
+        }
       }
 
       if (show && query) {
@@ -798,17 +834,9 @@ function initPipelineFilters(opportunities) {
   };
 
   advancedToggle?.addEventListener('click', () => {
-    const isHidden = advancedControls?.hasAttribute('hidden');
-    if (isHidden) {
-      advancedControls?.removeAttribute('hidden');
-      advancedToggle.setAttribute('aria-expanded', 'true');
-      advancedToggle.classList.add('is-open');
-    } else {
-      advancedControls?.setAttribute('hidden', '');
-      advancedToggle.setAttribute('aria-expanded', 'false');
-      advancedToggle.classList.remove('is-open');
-    }
-    // Re-save state to capture panel toggle
+    const isOpen = advancedControls?.classList.toggle('open');
+    advancedToggle?.classList.toggle('is-active', isOpen);
+    advancedToggle?.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     applyPipelineControls();
   });
 
@@ -817,6 +845,10 @@ function initPipelineFilters(opportunities) {
     if (quickFilterSelect) quickFilterSelect.value = 'all';
     if (ownerSelect) ownerSelect.value = 'all';
     if (sortSelect) sortSelect.value = 'newest';
+    const dfrom = document.getElementById('pipeline-filter-date-from');
+    const dto = document.getElementById('pipeline-filter-date-to');
+    if (dfrom) dfrom.value = '';
+    if (dto) dto.value = '';
     applyPipelineControls();
   });
 
@@ -824,6 +856,8 @@ function initPipelineFilters(opportunities) {
   searchInput?.addEventListener('input', applyPipelineControls);
   ownerSelect?.addEventListener('change', applyPipelineControls);
   sortSelect?.addEventListener('change', applyPipelineControls);
+  document.getElementById('pipeline-filter-date-from')?.addEventListener('change', applyPipelineControls);
+  document.getElementById('pipeline-filter-date-to')?.addEventListener('change', applyPipelineControls);
 
   applyPipelineControls();
 }

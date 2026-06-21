@@ -23576,6 +23576,170 @@ textarea.ups-input {
   cursor: pointer;
 }
 
+/* ═══════════════════════════════════════════════════════════════════════════════
+   UNIFIED CRM FILTER BAR — shared across Tasks, Reminders, Call Logs, etc.
+   ═══════════════════════════════════════════════════════════════════════════════ */
+
+.crm-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 10px 0;
+}
+
+.crm-filter-bar .crm-filter-pill {
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 0.79rem;
+  font-weight: 550;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.crm-filter-bar .crm-filter-pill:hover {
+  border-color: rgba(var(--color-primary-rgb), 0.45);
+  color: var(--color-primary);
+}
+
+.crm-filter-bar .crm-filter-pill.active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+}
+
+.crm-filter-bar .crm-filter-select {
+  height: 30px;
+  padding: 0 28px 0 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 0.79rem;
+  font-weight: 550;
+  font-family: inherit;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.crm-filter-bar .crm-filter-select:focus {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+.crm-filter-bar .crm-filter-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border-color);
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+.crm-filter-bar .crm-date-range {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.crm-filter-bar .crm-date-range-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 550;
+  white-space: nowrap;
+}
+
+.crm-filter-bar .crm-date-input {
+  height: 30px;
+  padding: 0 10px;
+  width: 130px;
+  border-radius: var(--radius-full);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 0.79rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color var(--transition-fast);
+}
+
+.crm-filter-bar .crm-date-input:focus {
+  border-color: var(--color-primary);
+  outline: none;
+}
+
+.crm-filter-bar .crm-date-input::placeholder {
+  color: var(--text-muted);
+}
+
+/* Calendar-wrapped date inputs need extra spacing for the icon */
+.crm-filter-bar .calendar-input-wrapper {
+  display: inline-flex;
+  align-items: center;
+}
+
+.crm-filter-bar .calendar-input-wrapper .calendar-icon-trigger {
+  right: 6px;
+}
+
+.crm-filter-bar .crm-filter-clear {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: var(--radius-full);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+
+.crm-filter-bar .crm-filter-clear:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-bg, rgba(239, 68, 68, 0.08));
+}
+
+/* ── Collapsible filter panel (for Tasks, etc.) ─────────────── */
+
+.crm-filter-panel {
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.2s ease, padding 0.2s ease;
+  padding: 0 0;
+}
+
+.crm-filter-panel.open {
+  max-height: 200px;
+  opacity: 1;
+  padding: 8px 0 4px;
+}
+
+/* Filter button active state (when panel is open) */
+.crm-filter-toggle-btn.is-active {
+  background: var(--color-primary) !important;
+  border-color: var(--color-primary) !important;
+  color: #fff !important;
+}
+
 /* ===== ACTIVITY TIMELINE ===== */
 .activity-timeline {
   display: flex;

@@ -542,6 +542,12 @@ function initVisitsHub() {
     });
   }
 
+  // Initialize CustomCalendar on date inputs (replaces native browser date picker)
+  if (window.initCustomCalendar) {
+    window.initCustomCalendar('#filter-date-from', { type: 'date' });
+    window.initCustomCalendar('#filter-date-to', { type: 'date' });
+  }
+
   // Filter controls
   ['filter-rep', 'filter-type', 'filter-score', 'filter-date-from', 'filter-date-to'].forEach(id => {
     const el = document.getElementById(id);

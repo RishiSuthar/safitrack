@@ -117,7 +117,7 @@ export const state = {
     },
   },
   callLogFilters: Object.assign(
-    { search: '', direction: '', outcome: '' },
+    { search: '', direction: '', outcome: '', dateFrom: '', dateTo: '' },
     _persisted.callLogs || {}
   ),
   filterDebounceTimer: null,
