@@ -117,7 +117,7 @@ async function renderOpportunityPipelineView() {
         </div>
 
         <button class="btn btn-secondary crm-filter-toggle-btn" id="pipeline-advanced-toggle" aria-expanded="false">
-          <i data-lucide="sliders-horizontal"></i> Filters
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sliders-horizontal-icon lucide-sliders-horizontal"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg> Filters
         </button>
 
         <button class="btn btn-primary pipeline-add-btn" id="add-opportunity-btn">
