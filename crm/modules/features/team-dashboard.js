@@ -873,7 +873,7 @@ window.openVisitDetail = function (visitId) {
 
   panel.classList.add('open');
   backdrop.classList.add('open');
-  console.log('Panel opened successfully');
+  document.body.style.overflow = 'hidden'; // prevent background scroll on mobile
 
   // Initialize mini map if coordinates exist
   if (visit.latitude && visit.longitude) {
@@ -891,8 +891,11 @@ window.openVisitDetail = function (visitId) {
 };
 
 function closeVisitDetail() {
-  document.getElementById('visit-detail-panel').classList.remove('open');
-  document.getElementById('visit-detail-backdrop').classList.remove('open');
+  const panel = document.getElementById('visit-detail-panel');
+  const backdrop = document.getElementById('visit-detail-backdrop');
+  if (panel) panel.classList.remove('open');
+  if (backdrop) backdrop.classList.remove('open');
+  document.body.style.overflow = ''; // restore scrolling
   visitsHubState.selectedVisitId = null;
 }
 
