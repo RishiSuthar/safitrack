@@ -2716,28 +2716,37 @@ async function renderSettingsView() {
         console.warn('Could not get auth token for support chat', e);
       }
 
-      const systemPrompt = `You are the SafiTrack CRM Support Assistant, an AI expert built to help users navigate and master SafiTrack.
+      const safeState = JSON.parse(JSON.stringify(state, (key, value) => {
+        // Exclude circular or excessively large DOM/instance objects
+        if (key === 'chartInstances' || key === 'safiNudgeChannel') return undefined;
+        // Truncate large arrays to prevent context overflow while still providing awareness
+        if (Array.isArray(value) && value.length > 20) {
+           return value.slice(0, 20).concat([`... (${value.length - 20} more items)`]);
+        }
+        return value;
+      }));
 
-About SafiTrack:
-SafiTrack is a field sales and operations CRM, specifically tailored for solar sales, technicians, and field teams. 
-Key Features include:
-- Dashboard & Team Dashboard: High-level metrics, leaderboards, and sales funnels.
-- Opportunities & Pipeline: Track deals through various stages of the sales process.
-- People & Companies: CRM database for contacts and businesses.
-- Route Planning & Navigation: Optimize daily field routes and navigate between visits.
-- Log Visit: Quickly log outcomes of door-knocking or client visits.
-- Technician & Solar-Technician: Workflows, forms, and tools specific to site surveys and installations (like the UPS form).
-- Tasks, Notes & Reminders: Personal productivity tools.
-- Reports & Report Engine: Advanced data analytics.
-- Settings: Manage profile, organization, subscription, team invites, and support.
+      // Strategy: Give the AI full access to "see for itself" by extracting the entire UI structure from the DOM.
+      const domClone = document.body.cloneNode(true);
+      domClone.querySelectorAll('svg, script, style, img, path, iframe, canvas, link, meta, noscript').forEach(el => el.remove());
+      
+      const cleanUIHTML = domClone.innerHTML.replace(/\s+/g, ' ').trim();
 
-Instructions:
+      const systemPrompt = `You are the SafiTrack CRM Support Assistant.
+You have direct, raw access to the user's FULL CRM user interface. 
+Use the UI structure provided below to understand exactly what features exist, what they are called, and where they are located.
+
+CRITICAL INSTRUCTIONS:
+- If a user asks about a feature, SEARCH the UI STRUCTURE below. If you find a button, modal, or section that matches, explain where it is based on its CSS classes or IDs (e.g. if it's in a sidebar, modal, or header).
+- Do not say a feature does not exist if you can find evidence of it in the UI STRUCTURE.
 - Keep your answers concise, practical, and highly friendly.
-- Provide step-by-step guidance when a user asks how to do something.
-- Do not make up features. If a feature doesn't exist in the list above, kindly let them know.
-- Do not use markdown formatting (no bolding, no code blocks) because the chat UI doesn't render it. Use plain text formatting.
+- Do not use markdown formatting.
 
-User query: ${text}`;
+CURRENT USER STATE:
+${JSON.stringify({ role: state.isManager ? 'Manager' : 'User', view: state.currentView, organization: state.currentOrganization?.name || 'Unknown' }, null, 2)}
+
+FULL CRM UI STRUCTURE (HTML Snapshot):
+${cleanUIHTML}`;
 
       const response = await fetch(proxyUrl, {
         method: 'POST',
@@ -2746,9 +2755,12 @@ User query: ${text}`;
           ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
         },
         body: JSON.stringify({
+          system_instruction: {
+            parts: [{ text: systemPrompt }]
+          },
           contents: [{
             role: 'user',
-            parts: [{ text: systemPrompt }]
+            parts: [{ text: text }]
           }]
         })
       });
@@ -2774,9 +2786,12 @@ User query: ${text}`;
       `);
       
       // Auto-scroll after bot replies
-      requestAnimationFrame(() => {
-        supportChatMessages.scrollTo({ top: supportChatMessages.scrollHeight, behavior: 'smooth' });
-      });
+      const scrollToBottom = () => {
+        supportChatMessages.lastElementChild?.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      };
+      scrollToBottom();
+      setTimeout(scrollToBottom, 100);
+      setTimeout(scrollToBottom, 300);
     } catch (err) {
       console.error('Support Chat Error:', err);
       document.getElementById(loadingId)?.remove();
@@ -2790,8 +2805,8 @@ User query: ${text}`;
           </div>
         </div>
       `);
+      supportChatMessages.scrollTop = supportChatMessages.scrollHeight;
     }
-    supportChatMessages.scrollTop = supportChatMessages.scrollHeight;
   }
 
   supportChatSend?.addEventListener('click', sendSupportMessage);
