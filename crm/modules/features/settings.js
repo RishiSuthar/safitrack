@@ -441,9 +441,18 @@ async function renderSettingsView() {
                     <span style="font-size:1rem;font-weight:700;color:var(--text-primary);" id="sv-currency-symbol-preview">${getCurrencySymbol()}</span>
                     <span style="color:var(--text-muted);font-size:0.8rem;font-weight:500;" id="sv-currency-code-preview">${state.orgCurrency || 'USD'}</span>
                   </div>
-                  <select id="sv-currency-select" class="sv-input" style="width:230px;min-width:0;">
-                    ${CURRENCIES.map(c => `<option value="${c.code}" ${(state.orgCurrency || 'USD') === c.code ? 'selected' : ''}>${c.symbol} — ${c.name} (${c.code})</option>`).join('')}
-                  </select>
+                  <div class="crm-dd crm-dd--form" data-dd-id="sv-currency-select" style="width:230px;min-width:0;">
+                    <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+                      <span class="crm-dd-label">${(() => { const c = CURRENCIES.find(x => x.code === (state.orgCurrency || 'USD')); return c ? `${c.symbol} — ${c.name} (${c.code})` : (state.orgCurrency || 'USD'); })()}</span>
+                      <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+                    </button>
+                    <div class="crm-dd-panel" role="listbox">
+                      <ul class="crm-dd-list">
+                        ${CURRENCIES.map(c => `<li class="crm-dd-option${(state.orgCurrency || 'USD') === c.code ? ' is-selected' : ''}" role="option" data-value="${c.code}" data-label="${c.symbol} \u2014 ${c.name} (${c.code})" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${c.symbol} \u2014 ${c.name} (${c.code})</li>`).join('')}
+                      </ul>
+                    </div>
+                    <input class="crm-dd-value-input" type="hidden" id="sv-currency-select" value="${state.orgCurrency || 'USD'}">
+                  </div>
                   <span id="sv-currency-status" style="font-size:0.82rem;color:var(--text-muted);"></span>
                 </div>
                 ` : `
@@ -2175,9 +2184,10 @@ async function renderSettingsView() {
   /* ─────────────── CURRENCY AUTO-SAVE ─────────────── */
   document.getElementById('sv-currency-select')?.addEventListener('change', async () => {
     if (!state.isManager) return;
-    const select = document.getElementById('sv-currency-select');
-    if (!select || !state.currentOrganization?.id) return;
-    const newCode = select.value;
+    const input = document.getElementById('sv-currency-select');
+    const ddRoot = input?.closest('.crm-dd');
+    if (!input || !state.currentOrganization?.id) return;
+    const newCode = input.value;
     const found = CURRENCIES.find(c => c.code === newCode);
     const sym = found ? found.symbol : newCode;
     // Instant preview
@@ -2187,7 +2197,9 @@ async function renderSettingsView() {
     if (symPreview) symPreview.textContent = sym;
     if (codePreview) codePreview.textContent = newCode;
     if (statusEl) statusEl.textContent = 'Saving…';
-    select.disabled = true;
+    // Disable the dropdown trigger while saving
+    const trigger = ddRoot?.querySelector('.crm-dd-trigger');
+    if (trigger) { trigger.disabled = true; ddRoot.classList.add('is-disabled'); }
     try {
       const { data, error } = await supabaseClient
         .from('organizations')
@@ -2210,7 +2222,7 @@ async function renderSettingsView() {
       if (statusEl) { statusEl.textContent = 'Failed to save'; statusEl.style.color = 'var(--color-danger, #ef4444)'; }
       showToast('Failed to update currency.', 'error');
     } finally {
-      select.disabled = false;
+      if (trigger) { trigger.disabled = false; ddRoot?.classList.remove('is-disabled'); }
     }
   });
 

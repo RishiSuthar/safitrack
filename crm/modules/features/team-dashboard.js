@@ -134,32 +134,59 @@ async function renderTeamDashboardView() {
         <div class="visits-filters-grid">
           <div class="visits-filter-group">
             <label class="visits-filter-label">Sales Rep</label>
-            <select class="visits-filter-select" id="filter-rep">
-              <option value="">All Reps</option>
-              ${salesReps.map(rep => `<option value="${rep.id}">${rep.first_name} ${rep.last_name}</option>`).join('')}
-            </select>
+            <div class="crm-dd crm-dd--form" data-dd-id="filter-rep">
+              <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+                <span class="crm-dd-label">All Reps</span>
+                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+              </button>
+              <div class="crm-dd-panel" role="listbox">
+                <ul class="crm-dd-list">
+                  <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="All Reps" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Reps</li>
+                  ${salesReps.map(rep => `<li class="crm-dd-option" role="option" data-value="${rep.id}" data-label="${rep.first_name} ${rep.last_name}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${rep.first_name} ${rep.last_name}</li>`).join('')}
+                </ul>
+              </div>
+              <input class="crm-dd-value-input" type="hidden" id="filter-rep" value="">
+            </div>
           </div>
           
           <div class="visits-filter-group">
             <label class="visits-filter-label">Visit Type</label>
-            <select class="visits-filter-select" id="filter-type">
-              <option value="">All Types</option>
-              <option value="new_lead">New Lead</option>
-              <option value="follow_up">Follow-up</option>
-              <option value="demo">Product Demo</option>
-              <option value="closing">Closing</option>
-              <option value="support">Customer Support</option>
-            </select>
+            <div class="crm-dd crm-dd--form" data-dd-id="filter-type">
+              <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+                <span class="crm-dd-label">All Types</span>
+                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+              </button>
+              <div class="crm-dd-panel" role="listbox">
+                <ul class="crm-dd-list">
+                  <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="All Types" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Types</li>
+                  <li class="crm-dd-option" role="option" data-value="new_lead" data-label="New Lead" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>New Lead</li>
+                  <li class="crm-dd-option" role="option" data-value="follow_up" data-label="Follow-up" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Follow-up</li>
+                  <li class="crm-dd-option" role="option" data-value="demo" data-label="Product Demo" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Product Demo</li>
+                  <li class="crm-dd-option" role="option" data-value="closing" data-label="Closing" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Closing</li>
+                  <li class="crm-dd-option" role="option" data-value="support" data-label="Customer Support" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Customer Support</li>
+                </ul>
+              </div>
+              <input class="crm-dd-value-input" type="hidden" id="filter-type" value="">
+            </div>
           </div>
           
           <div class="visits-filter-group">
             <label class="visits-filter-label">Lead Score</label>
-            <select class="visits-filter-select" id="filter-score">
-              <option value="">Any Score</option>
-              <option value="70">High (70%+)</option>
-              <option value="40">Medium (40-69%)</option>
-              <option value="0">Low (< 40%)</option>
-            </select>
+            <div class="crm-dd crm-dd--form" data-dd-id="filter-score">
+              <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+                <span class="crm-dd-label">Any Score</span>
+                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+              </button>
+              <div class="crm-dd-panel" role="listbox">
+                <ul class="crm-dd-list">
+                  <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="Any Score" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Any Score</li>
+                  <li class="crm-dd-option" role="option" data-value="70" data-label="High (70%+)" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>High (70%+)</li>
+                  <li class="crm-dd-option" role="option" data-value="40" data-label="Medium (40-69%)" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Medium (40-69%)</li>
+                  <li class="crm-dd-option" role="option" data-value="0" data-label="Low (&lt; 40%)" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Low (&lt; 40%)</li>
+                </ul>
+              </div>
+              <input class="crm-dd-value-input" type="hidden" id="filter-score" value="">
+            </div>
           </div>
           
           <div class="visits-filter-group span-2">
@@ -189,13 +216,22 @@ async function renderTeamDashboardView() {
             </div>
             <div class="visits-list-sort">
               <label>Sort by:</label>
-              <select class="visits-sort-select" id="visits-sort">
-                <option value="newest">Newest First</option>
-                <option value="oldest">Oldest First</option>
-                <option value="score-high">Highest Score</option>
-                <option value="score-low">Lowest Score</option>
-                <option value="company">Company A-Z</option>
-              </select>
+              <div class="crm-dd crm-dd--filter" data-dd-id="visits-sort">
+                <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="crm-dd-label">Newest First</span>
+                  <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+                </button>
+                <div class="crm-dd-panel" role="listbox">
+                  <ul class="crm-dd-list">
+                    <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="newest" data-label="Newest First" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Newest First</li>
+                    <li class="crm-dd-option" role="option" data-value="oldest" data-label="Oldest First" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Oldest First</li>
+                    <li class="crm-dd-option" role="option" data-value="score-high" data-label="Highest Score" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Highest Score</li>
+                    <li class="crm-dd-option" role="option" data-value="score-low" data-label="Lowest Score" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Lowest Score</li>
+                    <li class="crm-dd-option" role="option" data-value="company" data-label="Company A-Z" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Company A-Z</li>
+                  </ul>
+                </div>
+                <input class="crm-dd-value-input" type="hidden" id="visits-sort" value="newest">
+              </div>
             </div>
           </div>
           

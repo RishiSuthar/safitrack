@@ -94,11 +94,20 @@ async function renderTasksView() {
 
         ${state.isManager ? `
           <span class="crm-filter-divider"></span>
-          <select class="crm-filter-select" id="task-filter-assignee">
-            <option value="all">All Assignees</option>
-            <option value="${state.currentUser.id}">Me</option>
-            ${salesReps.map(rep => `<option value="${rep.id}">${rep.first_name} ${rep.last_name}</option>`).join('')}
-          </select>
+          <div class="crm-dd crm-dd--filter crm-dd--right" data-dd-id="task-filter-assignee">
+            <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+              <span class="crm-dd-label">All Assignees</span>
+              <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="crm-dd-panel" role="listbox">
+              <ul class="crm-dd-list">
+                <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="all" data-label="All Assignees" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Assignees</li>
+                <li class="crm-dd-option" role="option" data-value="${state.currentUser.id}" data-label="Me" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Me</li>
+                ${salesReps.map(rep => `<li class="crm-dd-option" role="option" data-value="${rep.id}" data-label="${rep.first_name} ${rep.last_name}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${rep.first_name} ${rep.last_name}</li>`).join('')}
+              </ul>
+            </div>
+            <input class="crm-dd-value-input" type="hidden" id="task-filter-assignee" value="all">
+          </div>
         ` : ''}
 
         <button class="crm-filter-clear" id="task-filter-clear" style="display:none;">✕ Clear</button>
@@ -459,7 +468,7 @@ function initKanbanBoard(tasks, salesReps) {
         show = title.includes(query) || description.includes(query);
       }
 
-      card.style.display = show ? 'flex' : 'none';
+      card.style.display = show ? '' : 'none';
     });
 
     updateColumnCounts();
@@ -488,7 +497,13 @@ function initKanbanBoard(tasks, salesReps) {
     if (dfrom) dfrom.value = '';
     if (dto) dto.value = '';
     const assigneeEl = document.getElementById('task-filter-assignee');
-    if (assigneeEl) assigneeEl.value = 'all';
+    if (assigneeEl) {
+      if (window.setCrmDropdownValue) {
+        window.setCrmDropdownValue(assigneeEl, 'all');
+      } else {
+        assigneeEl.value = 'all';
+      }
+    }
     applyTaskFilters();
   });
 

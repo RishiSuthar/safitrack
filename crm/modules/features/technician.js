@@ -1097,17 +1097,35 @@ async function renderTechniciansDashboardView() {
           All Reports
         </h3>
         <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1; justify-content:flex-end; align-items:center;">
-          <select class="ups-reports-search" id="ups-reports-filter-type" style="width:120px; padding:8px;">
-            <option value="">All Types</option>
-            <option value="UPS">UPS</option>
-            <option value="SOLAR">Solar</option>
-          </select>
-          <select class="ups-reports-search" id="ups-reports-filter-status" style="width:140px; padding:8px;">
-            <option value="">All Statuses</option>
-            <option value="Approved">Approved</option>
-            <option value="Pending">Pending</option>
-            <option value="Denied">Denied</option>
-          </select>
+          <div class="crm-dd crm-dd--filter" data-dd-id="ups-reports-filter-type" style="width:120px;">
+            <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+              <span class="crm-dd-label">All Types</span>
+              <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="crm-dd-panel" role="listbox">
+              <ul class="crm-dd-list">
+                <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="All Types" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Types</li>
+                <li class="crm-dd-option" role="option" data-value="UPS" data-label="UPS" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>UPS</li>
+                <li class="crm-dd-option" role="option" data-value="SOLAR" data-label="Solar" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Solar</li>
+              </ul>
+            </div>
+            <input class="crm-dd-value-input ups-reports-search" type="hidden" id="ups-reports-filter-type" value="">
+          </div>
+          <div class="crm-dd crm-dd--filter" data-dd-id="ups-reports-filter-status" style="width:140px;">
+            <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+              <span class="crm-dd-label">All Statuses</span>
+              <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="crm-dd-panel" role="listbox">
+              <ul class="crm-dd-list">
+                <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="All Statuses" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Statuses</li>
+                <li class="crm-dd-option" role="option" data-value="Approved" data-label="Approved" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Approved</li>
+                <li class="crm-dd-option" role="option" data-value="Pending" data-label="Pending" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Pending</li>
+                <li class="crm-dd-option" role="option" data-value="Denied" data-label="Denied" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Denied</li>
+              </ul>
+            </div>
+            <input class="crm-dd-value-input ups-reports-search" type="hidden" id="ups-reports-filter-status" value="">
+          </div>
           <div style="display:inline-flex; align-items:center; gap:6px;">
             <span style="font-size:0.75rem; color:var(--text-muted); font-weight:550;">Date:</span>
             <input type="date" class="ups-reports-search" id="ups-reports-filter-date-from" placeholder="From" style="width:130px; padding:8px;">

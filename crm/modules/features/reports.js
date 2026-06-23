@@ -470,9 +470,18 @@ function renderBuilderUI() {
         <div class="rpt-config-section">
           <div class="rpt-config-label">Data source</div>
           <div class="rpt-config-select-wrap">
-            <select class="rpt-config-select" id="rpt-source-select">
-              ${sources.map(([key, src]) => '<option value="' + key + '" ' + (cfg.data_source === key ? 'selected' : '') + '>' + src.label + '</option>').join('')}
-            </select>
+            <div class="crm-dd crm-dd--form" data-dd-id="rpt-source-select">
+              <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+                <span class="crm-dd-label">${DATA_SOURCES[cfg.data_source]?.label || 'Select…'}</span>
+                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+              </button>
+              <div class="crm-dd-panel" role="listbox">
+                <ul class="crm-dd-list">
+                  ${sources.map(([key, src]) => '<li class="crm-dd-option' + (cfg.data_source === key ? ' is-selected' : '') + '" role="option" data-value="' + key + '" data-label="' + src.label + '" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' + src.label + '</li>').join('')}
+                </ul>
+              </div>
+              <input class="crm-dd-value-input" type="hidden" id="rpt-source-select" value="${cfg.data_source || ''}">
+            </div>
           </div>
         </div>
         <div class="rpt-config-section">
@@ -497,9 +506,18 @@ function renderBuilderUI() {
         <div class="rpt-config-section">
           <div class="rpt-config-label">Visualization</div>
           <div class="rpt-config-select-wrap">
-            <select class="rpt-config-select" id="rpt-viz-select">
-              ${VIZ_TYPES.map(v => '<option value="' + v.key + '" ' + (cfg.visualization === v.key ? 'selected' : '') + '>' + v.label + '</option>').join('')}
-            </select>
+            <div class="crm-dd crm-dd--form" data-dd-id="rpt-viz-select">
+              <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+                <span class="crm-dd-label">${VIZ_TYPES.find(v => v.key === cfg.visualization)?.label || 'Select…'}</span>
+                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+              </button>
+              <div class="crm-dd-panel" role="listbox">
+                <ul class="crm-dd-list">
+                  ${VIZ_TYPES.map(v => '<li class="crm-dd-option' + (cfg.visualization === v.key ? ' is-selected' : '') + '" role="option" data-value="' + v.key + '" data-label="' + v.label + '" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>' + v.label + '</li>').join('')}
+                </ul>
+              </div>
+              <input class="crm-dd-value-input" type="hidden" id="rpt-viz-select" value="${cfg.visualization || ''}">
+            </div>
           </div>
         </div>
         <div class="rpt-config-section rpt-config-export">
@@ -569,6 +587,57 @@ function bindBuilderEvents() {
   });
 }
 
+// ── Helpers ─────────────────────────────────────────────────────────────────
+
+function buildDropdownStr(options, selectedValue, placeholder, inputClasses, dataIdxAttr = '') {
+  const selOpt = options.find(o => o.value === selectedValue);
+  const label = selOpt ? selOpt.label : placeholder;
+  const hasValClass = selectedValue ? ' has-value' : '';
+  const idxData = dataIdxAttr !== '' ? ` data-idx="${dataIdxAttr}"` : '';
+
+  let html = `<div class="crm-dd crm-dd--form">`;
+  html += `<button type="button" class="crm-dd-trigger${hasValClass}" aria-haspopup="listbox" aria-expanded="false">`;
+  html += `<span class="crm-dd-label">${esc(label)}</span>`;
+  html += `<span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>`;
+  html += `</button><div class="crm-dd-panel" role="listbox"><ul class="crm-dd-list">`;
+
+  if (!selectedValue) {
+    html += `<li class="crm-dd-option is-selected" role="option" data-value="" data-label="${esc(placeholder)}"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${esc(placeholder)}</li>`;
+  }
+
+  for (const o of options) {
+    const isSel = o.value === selectedValue ? ' is-selected' : '';
+    html += `<li class="crm-dd-option${isSel}" role="option" data-value="${esc(o.value)}" data-label="${esc(o.label)}"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${esc(o.label)}</li>`;
+  }
+
+  html += `</ul></div><input class="crm-dd-value-input ${inputClasses}" type="hidden"${idxData} value="${esc(selectedValue || '')}"></div>`;
+  return html;
+}
+
+function buildDropdownIdStr(id, options, selectedValue, placeholder, inputClasses = '') {
+  const selOpt = options.find(o => o.value === selectedValue);
+  const label = selOpt ? selOpt.label : placeholder;
+  const hasValClass = selectedValue ? ' has-value' : '';
+
+  let html = `<div class="crm-dd crm-dd--form" data-dd-id="${id}">`;
+  html += `<button type="button" class="crm-dd-trigger${hasValClass}" aria-haspopup="listbox" aria-expanded="false">`;
+  html += `<span class="crm-dd-label">${esc(label)}</span>`;
+  html += `<span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>`;
+  html += `</button><div class="crm-dd-panel" role="listbox"><ul class="crm-dd-list">`;
+
+  if (!selectedValue && placeholder) {
+    html += `<li class="crm-dd-option is-selected" role="option" data-value="" data-label="${esc(placeholder)}"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${esc(placeholder)}</li>`;
+  }
+
+  for (const o of options) {
+    const isSel = o.value === selectedValue ? ' is-selected' : '';
+    html += `<li class="crm-dd-option${isSel}" role="option" data-value="${esc(o.value)}" data-label="${esc(o.label)}"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${esc(o.label)}</li>`;
+  }
+
+  html += `</ul></div><input class="crm-dd-value-input ${inputClasses}" type="hidden" id="${id}" value="${esc(selectedValue || '')}"></div>`;
+  return html;
+}
+
 // ── Config Panel: Filters ───────────────────────────────────────────────────
 
 function renderConfigFilters() {
@@ -583,12 +652,13 @@ function renderConfigFilters() {
     const operators = FILTER_OPERATORS[fieldType] || FILTER_OPERATORS.text;
     const needsValue = !['is_null', 'not_null'].includes(f.operator);
 
+    const fieldOpts = source.fields.map(fd => ({ value: fd.key, label: fd.label }));
+    const opOpts = operators.map(op => ({ value: op.key, label: op.label }));
+
     return '<div class="rpt-config-filter-row" data-idx="' + i + '">' +
-      '<select class="rpt-config-select rpt-cf-field" data-idx="' + i + '"><option value="">Field</option>' +
-      source.fields.map(fd => '<option value="' + fd.key + '" ' + (f.field === fd.key ? 'selected' : '') + '>' + fd.label + '</option>').join('') +
-      '</select><select class="rpt-config-select rpt-cf-op" data-idx="' + i + '"><option value="">Op</option>' +
-      operators.map(op => '<option value="' + op.key + '" ' + (f.operator === op.key ? 'selected' : '') + '>' + op.label + '</option>').join('') +
-      '</select>' + (needsValue ? renderConfigFilterValue(f, fieldDef, i) : '') +
+      buildDropdownStr(fieldOpts, f.field, 'Field', 'rpt-cf-field', i) +
+      buildDropdownStr(opOpts, f.operator, 'Op', 'rpt-cf-op', i) +
+      (needsValue ? renderConfigFilterValue(f, fieldDef, i) : '') +
       '<button class="rpt-config-remove-btn" data-remove-filter="' + i + '"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>';
   }).join('');
 
@@ -625,8 +695,8 @@ function renderConfigFilters() {
 
 function renderConfigFilterValue(filter, fieldDef, idx) {
   if (fieldDef?.type === 'select' && fieldDef.options) {
-    return '<select class="rpt-config-select rpt-cf-value" data-idx="' + idx + '"><option value="">Select...</option>' +
-      fieldDef.options.map(o => '<option value="' + o + '" ' + (filter.value === o ? 'selected' : '') + '>' + formatLabel(o) + '</option>').join('') + '</select>';
+    const valOpts = fieldDef.options.map(o => ({ value: o, label: formatLabel(o) }));
+    return buildDropdownStr(valOpts, filter.value, 'Select...', 'rpt-cf-value', idx);
   }
   if (fieldDef?.type === 'date') return '<input type="date" class="rpt-config-input rpt-cf-value" data-idx="' + idx + '" value="' + esc(filter.value || '') + '">';
   if (fieldDef?.type === 'number') return '<input type="number" class="rpt-config-input rpt-cf-value" data-idx="' + idx + '" value="' + esc(filter.value || '') + '" placeholder="Value">';
@@ -648,16 +718,17 @@ function renderConfigRelationships() {
     const conditionType = conditionField?.type || 'text';
     const operators = FILTER_OPERATORS[conditionType] || FILTER_OPERATORS.text;
 
+    const targetOpts = (source.relationships || []).map(rk => ({ value: rk, label: DATA_SOURCES[rk]?.label || rk }));
+    const condOpts = [{ value: '_exists', label: 'exist' }].concat(targetFields.map(f => ({ value: f.key, label: f.label })));
+
     let row = '<div class="rpt-config-filter-row" data-idx="' + i + '">' +
-      '<select class="rpt-config-select rpt-cr-target" data-idx="' + i + '"><option value="">Related to...</option>' +
-      (source.relationships || []).map(rk => { const rs = DATA_SOURCES[rk]; return rs ? '<option value="' + rk + '" ' + (rel.target === rk ? 'selected' : '') + '>' + rs.label + '</option>' : ''; }).join('') +
-      '</select><select class="rpt-config-select rpt-cr-condition" data-idx="' + i + '"><option value="_exists" ' + (rel.condition === '_exists' ? 'selected' : '') + '>exist</option>' +
-      targetFields.map(f => '<option value="' + f.key + '" ' + (rel.condition === f.key ? 'selected' : '') + '>' + f.label + '</option>').join('') + '</select>';
+      buildDropdownStr(targetOpts, rel.target, 'Related to...', 'rpt-cr-target', i) +
+      buildDropdownStr(condOpts, rel.condition || '_exists', 'exist', 'rpt-cr-condition', i);
 
     if (rel.condition && rel.condition !== '_exists') {
-      row += '<select class="rpt-config-select rpt-cr-op" data-idx="' + i + '"><option value="">Op</option>' +
-        operators.map(op => '<option value="' + op.key + '" ' + (rel.operator === op.key ? 'selected' : '') + '>' + op.label + '</option>').join('') +
-        '</select><input type="text" class="rpt-config-input rpt-cr-value" data-idx="' + i + '" value="' + esc(rel.value || '') + '" placeholder="Value">';
+      const opOpts = operators.map(op => ({ value: op.key, label: op.label }));
+      row += buildDropdownStr(opOpts, rel.operator, 'Op', 'rpt-cr-op', i) +
+        '<input type="text" class="rpt-config-input rpt-cr-value" data-idx="' + i + '" value="' + esc(rel.value || '') + '" placeholder="Value">';
     }
 
     row += '<button class="rpt-config-remove-btn" data-remove-rel="' + i + '"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg></button></div>';
@@ -716,13 +787,13 @@ function renderConfigMetrics() {
     const metricDef = METRIC_TYPES.find(mt => mt.key === m.type);
     const showField = metricDef?.needsField;
 
+    const typeOpts = METRIC_TYPES.map(mt => ({ value: mt.key, label: mt.label }));
     let row = '<div class="rpt-config-metric-row" data-idx="' + i + '">' +
-      '<select class="rpt-config-select rpt-cm-type" data-idx="' + i + '">' +
-      METRIC_TYPES.map(mt => '<option value="' + mt.key + '" ' + (m.type === mt.key ? 'selected' : '') + '>' + mt.label + '</option>').join('') + '</select>';
+      buildDropdownStr(typeOpts, m.type, 'Type', 'rpt-cm-type', i);
 
     if (showField) {
-      row += '<select class="rpt-config-select rpt-cm-field" data-idx="' + i + '"><option value="">Field</option>' +
-        numericFields.map(f => '<option value="' + f.key + '" ' + (m.field === f.key ? 'selected' : '') + '>' + f.label + '</option>').join('') + '</select>';
+      const fieldOpts = numericFields.map(f => ({ value: f.key, label: f.label }));
+      row += buildDropdownStr(fieldOpts, m.field, 'Field', 'rpt-cm-field', i);
     }
 
     if (_currentConfig.metrics.length > 1) {
@@ -772,10 +843,12 @@ function renderConfigGrouping() {
   const fieldDef = source.fields.find(f => f.key === g.field);
   const isDate = fieldDef?.type === 'date';
 
-  area.innerHTML = '<div class="rpt-config-grouping-row"><select class="rpt-config-select" id="rpt-group-field"><option value="">No grouping</option>' +
-    source.fields.map(f => '<option value="' + f.key + '" ' + (g.field === f.key ? 'selected' : '') + '>' + f.label + '</option>').join('') + '</select>' +
-    (isDate ? '<select class="rpt-config-select" id="rpt-group-interval">' +
-      DATE_INTERVALS.map(d => '<option value="' + d.key + '" ' + (g.interval === d.key ? 'selected' : '') + '>' + d.label + '</option>').join('') + '</select>' : '') + '</div>';
+  const fieldOpts = source.fields.map(f => ({ value: f.key, label: f.label }));
+  const intervalOpts = DATE_INTERVALS.map(d => ({ value: d.key, label: d.label }));
+
+  area.innerHTML = '<div class="rpt-config-grouping-row">' +
+    buildDropdownIdStr('rpt-group-field', fieldOpts, g.field, 'No grouping') +
+    (isDate ? buildDropdownIdStr('rpt-group-interval', intervalOpts, g.interval, 'Interval') : '') + '</div>';
 
   document.getElementById('rpt-group-field')?.addEventListener('change', function() {
     _currentConfig.grouping = { field: this.value || undefined };

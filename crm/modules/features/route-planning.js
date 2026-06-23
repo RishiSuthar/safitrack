@@ -203,10 +203,19 @@ async function renderRoutePlanningView() {
         <!-- Name + Assignment -->
         <div class="rp-assign">
           <input type="text" id="route-name-input" placeholder="Route name…" autocomplete="off">
-          <select id="route-rep-select">
-            <option value="">Assign to rep…</option>
-            ${salesReps.map(rep => `<option value="${rep.id}">${escapeHtml(rep.first_name)} ${escapeHtml(rep.last_name)}</option>`).join('')}
-          </select>
+          <div class="crm-dd crm-dd--form" data-dd-id="route-rep-select">
+            <button type="button" class="crm-dd-trigger" aria-haspopup="listbox" aria-expanded="false">
+              <span class="crm-dd-label" style="color:var(--text-muted)">Assign to rep…</span>
+              <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="crm-dd-panel" role="listbox">
+              <ul class="crm-dd-list">
+                <li class="crm-dd-option" role="option" data-value="" data-label="Assign to rep…" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Assign to rep…</li>
+                ${salesReps.map(rep => `<li class="crm-dd-option" role="option" data-value="${rep.id}" data-label="${escapeHtml(rep.first_name)} ${escapeHtml(rep.last_name)}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${escapeHtml(rep.first_name)} ${escapeHtml(rep.last_name)}</li>`).join('')}
+              </ul>
+            </div>
+            <input class="crm-dd-value-input" type="hidden" id="route-rep-select" value="">
+          </div>
         </div>
 
         <!-- Stops list -->

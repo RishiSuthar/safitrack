@@ -261,9 +261,18 @@ function getSafiNudgeModal() {
         <div class="form-field" style="margin-bottom: 16px;">
           <label for="safi-nudge-target-select">To</label>
           <div class="input-wrapper modern-input">
-            <select id="safi-nudge-target-select" class="input-small" style="width: 100%;" required>
-              <option value="">Pick a teammate…</option>
-            </select>
+            <div class="crm-dd crm-dd--form" data-dd-id="safi-nudge-target-select" style="width: 100%;" data-dd-required="true">
+              <button type="button" class="crm-dd-trigger" aria-haspopup="listbox" aria-expanded="false">
+                <span class="crm-dd-label" style="color:var(--text-muted)">Pick a teammate…</span>
+                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+              </button>
+              <div class="crm-dd-panel" role="listbox">
+                <ul class="crm-dd-list">
+                  <li class="crm-dd-option" role="option" data-value="" data-label="Pick a teammate…" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Pick a teammate…</li>
+                </ul>
+              </div>
+              <input class="crm-dd-value-input" type="hidden" id="safi-nudge-target-select" required>
+            </div>
           </div>
         </div>
 
@@ -326,7 +335,9 @@ function getSafiNudgeModal() {
   modal.querySelector('#safi-nudge-send')?.addEventListener('click', async () => {
     const targetSelect = modal.querySelector('#safi-nudge-target-select');
     const targetId = targetSelect?.value || '';
-    const targetName = targetSelect?.selectedOptions?.[0]?.textContent?.trim() || 'Teammate';
+    const root = targetSelect?.closest('.crm-dd');
+    const selOpt = root?.querySelector('.crm-dd-option.is-selected');
+    const targetName = selOpt?.dataset.label || 'Teammate';
     const rawMessage = messageInput?.value || '';
     const message = rawMessage.trim();
 
@@ -351,13 +362,22 @@ function getSafiNudgeModal() {
 
 async function populateSafiNudgeRecipients(selectEl, preselectedUserId = null) {
   if (!selectEl) return;
+  const root = selectEl.closest?.('.crm-dd') || selectEl;
 
-  selectEl.innerHTML = '<option value="">Loading teammates…</option>';
+  if (window.updateCrmDropdownOptions) {
+    window.updateCrmDropdownOptions(root, [{ value: '', label: 'Loading teammates…' }], false);
+  } else {
+    selectEl.innerHTML = '<option value="">Loading teammates…</option>';
+  }
 
   // Guard: we must know the org before we can safely scope the query
   const orgId = state.currentOrganization?.id;
   if (!orgId) {
-    selectEl.innerHTML = '<option value="">No teammates visible for your role</option>';
+    if (window.updateCrmDropdownOptions) {
+      window.updateCrmDropdownOptions(root, [{ value: '', label: 'No teammates visible for your role' }], false);
+    } else {
+      selectEl.innerHTML = '<option value="">No teammates visible for your role</option>';
+    }
     return;
   }
 
@@ -442,17 +462,34 @@ async function populateSafiNudgeRecipients(selectEl, preselectedUserId = null) {
     .sort((a, b) => a.name.localeCompare(b.name));
 
   if (teammates.length === 0) {
-    selectEl.innerHTML = '<option value="">No teammates visible for your role</option>';
+    if (window.updateCrmDropdownOptions) {
+      window.updateCrmDropdownOptions(root, [{ value: '', label: 'No teammates visible for your role' }], false);
+    } else {
+      selectEl.innerHTML = '<option value="">No teammates visible for your role</option>';
+    }
     showToast('Could not find visible teammates to nudge yet', 'error');
     return;
   }
 
-  selectEl.innerHTML = '<option value="">Choose a teammate</option>' + teammates.map((user) => {
-    return `<option value="${user.id}">${escapeHtml(user.name)}</option>`;
-  }).join('');
+  const options = [{ value: '', label: 'Choose a teammate' }].concat(
+    teammates.map(user => ({ value: user.id, label: user.name }))
+  );
 
-  if (preselectedUserId) {
-    selectEl.value = String(preselectedUserId);
+  if (window.updateCrmDropdownOptions) {
+    window.updateCrmDropdownOptions(root, options, false);
+    if (preselectedUserId) {
+      window.setCrmDropdownValue(root, String(preselectedUserId));
+    } else {
+      window.setCrmDropdownValue(root, '');
+    }
+  } else {
+    selectEl.innerHTML = '<option value="">Choose a teammate</option>' + teammates.map((user) => {
+      return `<option value="${user.id}">${escapeHtml(user.name)}</option>`;
+    }).join('');
+
+    if (preselectedUserId) {
+      selectEl.value = String(preselectedUserId);
+    }
   }
 }
 
@@ -476,13 +513,18 @@ window.openSafiNudgeComposer = async function (targetUserId = '', targetUserName
   await populateSafiNudgeRecipients(targetSelect, targetUserId || null);
 
   if (targetSelect && !targetUserId) {
-    targetSelect.value = '';
+    window.setCrmDropdownValue?.(targetSelect.closest('.crm-dd') || targetSelect, '');
   }
 
   modal.style.display = 'flex';
   if (window.lucide) lucide.createIcons();
+  
+  // init dropdown inside modal if not yet init
+  const dd = modal.querySelector('.crm-dd');
+  if (dd && window.initCrmDropdown) window.initCrmDropdown(dd);
+
   if (targetSelect && !targetSelect.value) {
-    targetSelect.focus();
+    dd?.querySelector('.crm-dd-trigger')?.focus() || targetSelect.focus();
   } else {
     messageInput?.focus();
   }

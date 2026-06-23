@@ -781,9 +781,18 @@ function renderFieldsEditor(action) {
             return `
               <div class="wf-field-row">
                 <label class="wf-field-label">${f.label}</label>
-                <select class="wf-field-input wf-assignee-select" data-field-key="${f.key}">
-                  <option value="">— Loading… —</option>
-                </select>
+                <div class="crm-dd crm-dd--form" data-dd-id="${f.key}">
+                  <button type="button" class="crm-dd-trigger" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="crm-dd-label">— Loading… —</span>
+                    <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+                  </button>
+                  <div class="crm-dd-panel" role="listbox">
+                    <ul class="crm-dd-list">
+                      <li class="crm-dd-option" role="option" data-value="" data-label="— Loading… —" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>— Loading… —</li>
+                    </ul>
+                  </div>
+                  <input class="crm-dd-value-input wf-field-input wf-assignee-select" type="hidden" data-field-key="${f.key}" value="">
+                </div>
               </div>
             `;
           }
@@ -791,10 +800,19 @@ function renderFieldsEditor(action) {
             return `
               <div class="wf-field-row">
                 <label class="wf-field-label">${f.label}${f.required ? ' *' : ''}</label>
-                <select class="wf-field-input" data-field-key="${f.key}">
-                  <option value="">— Select —</option>
-                  ${(f.options || []).map(opt => `<option value="${opt}" ${val === opt ? 'selected' : ''}>${f.optionLabels ? (f.optionLabels[opt] || opt) : opt}</option>`).join('')}
-                </select>
+                <div class="crm-dd crm-dd--form" data-dd-id="${f.key}">
+                  <button type="button" class="crm-dd-trigger" aria-haspopup="listbox" aria-expanded="false">
+                    <span class="crm-dd-label">${val ? (f.optionLabels ? (f.optionLabels[val] || val) : val) : '— Select —'}</span>
+                    <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+                  </button>
+                  <div class="crm-dd-panel" role="listbox">
+                    <ul class="crm-dd-list">
+                      <li class="crm-dd-option${val === '' ? ' is-selected' : ''}" role="option" data-value="" data-label="— Select —" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>— Select —</li>
+                      ${(f.options || []).map(opt => `<li class="crm-dd-option${val === opt ? ' is-selected' : ''}" role="option" data-value="${opt}" data-label="${f.optionLabels ? (f.optionLabels[opt] || opt) : opt}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${f.optionLabels ? (f.optionLabels[opt] || opt) : opt}</li>`).join('')}
+                    </ul>
+                  </div>
+                  <input class="crm-dd-value-input wf-field-input" type="hidden" data-field-key="${f.key}" value="${escapeHtml(val)}">
+                </div>
               </div>
             `;
           }
@@ -841,10 +859,19 @@ async function loadAssigneeDropdowns(action) {
   const val = (action.field_values || {}).assigned_to || '';
 
   selects.forEach(sel => {
-    sel.innerHTML = '<option value="">— Select —</option>' +
-      (profiles || []).map(p =>
-        `<option value="${p.id}" ${val === p.id ? 'selected' : ''}>${p.first_name || ''} ${p.last_name || ''}</option>`
-      ).join('');
+    if (window.updateCrmDropdownOptions) {
+      const root = sel.closest('.crm-dd');
+      const options = [{ value: '', label: '— Select —' }].concat(
+        (profiles || []).map(p => ({ value: p.id, label: \`\${p.first_name || ''} \${p.last_name || ''}\`.trim() }))
+      );
+      window.updateCrmDropdownOptions(root, options, false);
+      window.setCrmDropdownValue(root, val);
+    } else {
+      sel.innerHTML = '<option value="">— Select —</option>' +
+        (profiles || []).map(p =>
+          \`<option value="\${p.id}" \${val === p.id ? 'selected' : ''}>\${p.first_name || ''} \${p.last_name || ''}</option>\`
+        ).join('');
+    }
   });
 }
 
@@ -862,6 +889,7 @@ function initActionEditorListeners(idx) {
       const container = document.getElementById('wf-action-fields-container');
       if (container) {
         container.innerHTML = renderFieldsEditor(action);
+        if (window.initAllCrmDropdowns) window.initAllCrmDropdowns();
         initCalendarsInPanel();
       }
       // If update_record, also update search placeholder

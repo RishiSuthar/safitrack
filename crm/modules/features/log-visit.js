@@ -68,13 +68,22 @@ async function renderLogVisitView() {
 
             <div class="form-field">
               <label for="visit-type">Visit Type</label>
-              <select id="visit-type">
-                <option value="new_lead">New Lead</option>
-                <option value="follow_up">Follow-up</option>
-                <option value="demo">Product Demo</option>
-                <option value="closing">Closing</option>
-                <option value="support">Customer Support</option>
-              </select>
+              <div class="crm-dd crm-dd--form" data-dd-id="visit-type">
+                <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="crm-dd-label">New Lead</span>
+                  <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+                </button>
+                <div class="crm-dd-panel" role="listbox">
+                  <ul class="crm-dd-list">
+                    <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="new_lead" data-label="New Lead" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>New Lead</li>
+                    <li class="crm-dd-option" role="option" data-value="follow_up" data-label="Follow-up" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Follow-up</li>
+                    <li class="crm-dd-option" role="option" data-value="demo" data-label="Product Demo" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Product Demo</li>
+                    <li class="crm-dd-option" role="option" data-value="closing" data-label="Closing" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Closing</li>
+                    <li class="crm-dd-option" role="option" data-value="support" data-label="Customer Support" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Customer Support</li>
+                  </ul>
+                </div>
+                <input class="crm-dd-value-input" type="hidden" id="visit-type" name="visit-type" value="new_lead">
+              </div>
             </div>
 
             <div class="form-field log-visit-row-span">

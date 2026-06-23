@@ -170,20 +170,38 @@ async function renderCallLogsView() {
           <input type="text" id="call-search" placeholder="Search contacts or companies…" value="${state.callLogFilters.search}" class="filter-select search-input-padded">
         </div>
         <div class="call-logs-filters">
-          <select id="call-direction-filter" class="filter-select">
-            <option value="">All Directions</option>
-            <option value="Inbound" ${state.callLogFilters.direction === 'Inbound' ? 'selected' : ''}>Inbound</option>
-            <option value="Outbound" ${state.callLogFilters.direction === 'Outbound' ? 'selected' : ''}>Outbound</option>
-          </select>
-          <select id="call-outcome-filter" class="filter-select">
-            <option value="">All Outcomes</option>
-            <option value="Connected" ${state.callLogFilters.outcome === 'Connected' ? 'selected' : ''}>Connected</option>
-            <option value="Voicemail" ${state.callLogFilters.outcome === 'Voicemail' ? 'selected' : ''}>Voicemail</option>
-            <option value="No Answer" ${state.callLogFilters.outcome === 'No Answer' ? 'selected' : ''}>No Answer</option>
-            <option value="Busy" ${state.callLogFilters.outcome === 'Busy' ? 'selected' : ''}>Busy</option>
-            <option value="Wrong Number" ${state.callLogFilters.outcome === 'Wrong Number' ? 'selected' : ''}>Wrong Number</option>
-            <option value="Call Failed" ${state.callLogFilters.outcome === 'Call Failed' ? 'selected' : ''}>Call Failed</option>
-          </select>
+          <div class="crm-dd crm-dd--filter" data-dd-id="call-direction-filter">
+            <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+              <span class="crm-dd-label">${state.callLogFilters.direction || 'All Directions'}</span>
+              <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="crm-dd-panel" role="listbox">
+              <ul class="crm-dd-list">
+                <li class="crm-dd-option${!state.callLogFilters.direction ? ' is-selected' : ''}" role="option" aria-selected="${!state.callLogFilters.direction}" data-value="" data-label="All Directions" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Directions</li>
+                <li class="crm-dd-option${state.callLogFilters.direction === 'Inbound' ? ' is-selected' : ''}" role="option" aria-selected="${state.callLogFilters.direction === 'Inbound'}" data-value="Inbound" data-label="Inbound" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Inbound</li>
+                <li class="crm-dd-option${state.callLogFilters.direction === 'Outbound' ? ' is-selected' : ''}" role="option" aria-selected="${state.callLogFilters.direction === 'Outbound'}" data-value="Outbound" data-label="Outbound" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Outbound</li>
+              </ul>
+            </div>
+            <input class="crm-dd-value-input" type="hidden" id="call-direction-filter" value="${state.callLogFilters.direction || ''}">
+          </div>
+          <div class="crm-dd crm-dd--filter" data-dd-id="call-outcome-filter">
+            <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+              <span class="crm-dd-label">${state.callLogFilters.outcome || 'All Outcomes'}</span>
+              <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="crm-dd-panel" role="listbox">
+              <ul class="crm-dd-list">
+                <li class="crm-dd-option${!state.callLogFilters.outcome ? ' is-selected' : ''}" role="option" data-value="" data-label="All Outcomes" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Outcomes</li>
+                <li class="crm-dd-option${state.callLogFilters.outcome === 'Connected' ? ' is-selected' : ''}" role="option" data-value="Connected" data-label="Connected" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Connected</li>
+                <li class="crm-dd-option${state.callLogFilters.outcome === 'Voicemail' ? ' is-selected' : ''}" role="option" data-value="Voicemail" data-label="Voicemail" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Voicemail</li>
+                <li class="crm-dd-option${state.callLogFilters.outcome === 'No Answer' ? ' is-selected' : ''}" role="option" data-value="No Answer" data-label="No Answer" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>No Answer</li>
+                <li class="crm-dd-option${state.callLogFilters.outcome === 'Busy' ? ' is-selected' : ''}" role="option" data-value="Busy" data-label="Busy" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Busy</li>
+                <li class="crm-dd-option${state.callLogFilters.outcome === 'Wrong Number' ? ' is-selected' : ''}" role="option" data-value="Wrong Number" data-label="Wrong Number" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Wrong Number</li>
+                <li class="crm-dd-option${state.callLogFilters.outcome === 'Call Failed' ? ' is-selected' : ''}" role="option" data-value="Call Failed" data-label="Call Failed" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Call Failed</li>
+              </ul>
+            </div>
+            <input class="crm-dd-value-input" type="hidden" id="call-outcome-filter" value="${state.callLogFilters.outcome || ''}">  
+          </div>
           <div class="crm-date-range" style="display:inline-flex; align-items:center; gap:6px; margin-left:4px;">
             <span class="crm-date-range-label" style="font-size:0.75rem; color:var(--text-muted); font-weight:550;">Date:</span>
             <input type="date" class="crm-date-input" id="call-date-from" value="${state.callLogFilters.dateFrom || ''}" placeholder="From" style="height:30px; padding:0 10px; width:130px; border-radius:var(--radius-full); border:1px solid var(--border-color); background:var(--bg-secondary); color:var(--text-secondary); font-size:0.79rem; font-family:inherit; cursor:pointer;">
@@ -197,10 +215,19 @@ async function renderCallLogsView() {
               <button class="toggle-btn ${state.managerCallLogViewMode === 'team' ? 'active' : ''}" id="view-team-logs">Team</button>
             </div>
             ${state.managerCallLogViewMode === 'team' ? `
-              <select id="rep-filter" class="filter-select">
-                <option value="">All Reps</option>
-                ${reps.map(rep => `<option value="${rep.id}" ${state.selectedRepId === rep.id ? 'selected' : ''}>${rep.first_name} ${rep.last_name}</option>`).join('')}
-              </select>
+              <div class="crm-dd crm-dd--filter" data-dd-id="rep-filter">
+                <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="crm-dd-label">All Reps</span>
+                  <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+                </button>
+                <div class="crm-dd-panel" role="listbox">
+                  <ul class="crm-dd-list">
+                    <li class="crm-dd-option${!state.selectedRepId ? ' is-selected' : ''}" role="option" data-value="" data-label="All Reps" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Reps</li>
+                    ${reps.map(rep => `<li class="crm-dd-option${state.selectedRepId === rep.id ? ' is-selected' : ''}" role="option" data-value="${rep.id}" data-label="${rep.first_name} ${rep.last_name}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${rep.first_name} ${rep.last_name}</li>`).join('')}
+                  </ul>
+                </div>
+                <input class="crm-dd-value-input" type="hidden" id="rep-filter" value="${state.selectedRepId || ''}">
+              </div>
             ` : ''}
           ` : ''}
           ${(!state.isManager || state.managerCallLogViewMode === 'my') ? `

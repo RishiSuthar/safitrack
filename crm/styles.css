@@ -14592,8 +14592,12 @@ button svg {
 }
 
 .rp-assign input,
-.rp-assign select {
+.rp-assign .crm-dd {
   flex: 1;
+  min-width: 0;
+}
+
+.rp-assign input {
   height: 34px;
   padding: 0 0.75rem;
   border: 1px solid var(--border-color);
@@ -14604,8 +14608,11 @@ button svg {
   color: var(--text-primary);
 }
 
-.rp-assign input:focus,
-.rp-assign select:focus {
+.rp-assign .crm-dd-trigger {
+  height: 34px;
+}
+
+.rp-assign input:focus {
   outline: none;
   border-color: var(--color-primary);
 }
@@ -23731,6 +23738,7 @@ textarea.ups-input {
   max-height: 400px;
   opacity: 1;
   padding: 8px 0 12px;
+  overflow: visible;
 }
 
 /* Filter button active state (when panel is open) */

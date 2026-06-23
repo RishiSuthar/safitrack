@@ -127,13 +127,22 @@ async function renderOpportunityPipelineView() {
 
       <div class="crm-filter-panel" id="pipeline-advanced-controls">
         <div class="crm-filter-bar" style="padding-top: 0;">
-          <select id="pipeline-quick-filter" class="crm-filter-select">
-            <option value="all">All Deals</option>
-            <option value="high-value">High Value</option>
-            <option value="high-probability">High Probability</option>
-            <option value="next-step-due">Next Step Due</option>
-            ${state.isManager ? '<option value="my-reps">Sales Reps</option>' : ''}
-          </select>
+          <div class="crm-dd crm-dd--filter" data-dd-id="pipeline-quick-filter">
+            <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+              <span class="crm-dd-label">All Deals</span>
+              <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="crm-dd-panel" role="listbox">
+              <ul class="crm-dd-list">
+                <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="all" data-label="All Deals" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Deals</li>
+                <li class="crm-dd-option" role="option" data-value="high-value" data-label="High Value" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>High Value</li>
+                <li class="crm-dd-option" role="option" data-value="high-probability" data-label="High Probability" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>High Probability</li>
+                <li class="crm-dd-option" role="option" data-value="next-step-due" data-label="Next Step Due" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Next Step Due</li>
+                ${state.isManager ? '<li class="crm-dd-option" role="option" data-value="my-reps" data-label="Sales Reps" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sales Reps</li>' : ''}
+              </ul>
+            </div>
+            <input class="crm-dd-value-input" type="hidden" id="pipeline-quick-filter" value="all">
+          </div>
 
           <span class="crm-filter-divider"></span>
 
@@ -147,22 +156,40 @@ async function renderOpportunityPipelineView() {
 
           ${state.isManager ? `
             <span class="crm-filter-divider"></span>
-            <select id="pipeline-owner-filter" class="crm-filter-select">
-              <option value="all">All Owners</option>
-              ${ownerOptions.map(([id, name]) => `<option value="${id}">${name}</option>`).join('')}
-            </select>
+            <div class="crm-dd crm-dd--filter" data-dd-id="pipeline-owner-filter">
+              <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+                <span class="crm-dd-label">All Owners</span>
+                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+              </button>
+              <div class="crm-dd-panel" role="listbox">
+                <ul class="crm-dd-list">
+                  <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="all" data-label="All Owners" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Owners</li>
+                  ${ownerOptions.map(([id, name]) => `<li class="crm-dd-option" role="option" data-value="${id}" data-label="${name}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${name}</li>`).join('')}
+                </ul>
+              </div>
+              <input class="crm-dd-value-input" type="hidden" id="pipeline-owner-filter" value="all">
+            </div>
           ` : ''}
 
           <span class="crm-filter-divider"></span>
           
-          <select id="pipeline-sort" class="crm-filter-select">
-            <option value="newest">Sort: Newest</option>
-            <option value="oldest">Sort: Oldest</option>
-            <option value="value-desc">Sort: Highest Value</option>
-            <option value="value-asc">Sort: Lowest Value</option>
-            <option value="probability-desc">Sort: Highest Probability</option>
-            <option value="next-step">Sort: Next Step Due</option>
-          </select>
+          <div class="crm-dd crm-dd--filter" data-dd-id="pipeline-sort">
+            <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+              <span class="crm-dd-label">Sort: Newest</span>
+              <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+            </button>
+            <div class="crm-dd-panel" role="listbox">
+              <ul class="crm-dd-list">
+                <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="newest" data-label="Sort: Newest" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sort: Newest</li>
+                <li class="crm-dd-option" role="option" data-value="oldest" data-label="Sort: Oldest" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sort: Oldest</li>
+                <li class="crm-dd-option" role="option" data-value="value-desc" data-label="Sort: Highest Value" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sort: Highest Value</li>
+                <li class="crm-dd-option" role="option" data-value="value-asc" data-label="Sort: Lowest Value" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sort: Lowest Value</li>
+                <li class="crm-dd-option" role="option" data-value="probability-desc" data-label="Sort: Highest Probability" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sort: Highest Probability</li>
+                <li class="crm-dd-option" role="option" data-value="next-step" data-label="Sort: Next Step Due" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sort: Next Step Due</li>
+              </ul>
+            </div>
+            <input class="crm-dd-value-input" type="hidden" id="pipeline-sort" value="newest">
+          </div>
 
           <button class="crm-filter-clear" id="pipeline-reset-controls" style="display:none;">✕ Clear</button>
         </div>
@@ -732,9 +759,9 @@ function initPipelineFilters(opportunities) {
   // Load persisted state
   const persistedState = _loadPersistedState().pipeline || {};
   if (searchInput && persistedState.search) searchInput.value = persistedState.search;
-  if (quickFilterSelect && persistedState.quickFilter) quickFilterSelect.value = persistedState.quickFilter;
-  if (ownerSelect && persistedState.owner) ownerSelect.value = persistedState.owner;
-  if (sortSelect && persistedState.sort) sortSelect.value = persistedState.sort;
+  if (quickFilterSelect && persistedState.quickFilter) window.setCrmDropdownValue?.('pipeline-quick-filter', persistedState.quickFilter) || (quickFilterSelect.value = persistedState.quickFilter);
+  if (ownerSelect && persistedState.owner) window.setCrmDropdownValue?.('pipeline-owner-filter', persistedState.owner) || (ownerSelect.value = persistedState.owner);
+  if (sortSelect && persistedState.sort) window.setCrmDropdownValue?.('pipeline-sort', persistedState.sort) || (sortSelect.value = persistedState.sort);
   if (persistedState.advancedOpen && advancedToggle && advancedControls) {
     advancedControls.removeAttribute('hidden');
     advancedToggle.setAttribute('aria-expanded', 'true');
@@ -846,9 +873,9 @@ function initPipelineFilters(opportunities) {
 
   resetBtn?.addEventListener('click', () => {
     if (searchInput) searchInput.value = '';
-    if (quickFilterSelect) quickFilterSelect.value = 'all';
-    if (ownerSelect) ownerSelect.value = 'all';
-    if (sortSelect) sortSelect.value = 'newest';
+    window.setCrmDropdownValue?.('pipeline-quick-filter', 'all') || (quickFilterSelect && (quickFilterSelect.value = 'all'));
+    window.setCrmDropdownValue?.('pipeline-owner-filter', 'all') || (ownerSelect && (ownerSelect.value = 'all'));
+    window.setCrmDropdownValue?.('pipeline-sort', 'newest') || (sortSelect && (sortSelect.value = 'newest'));
     const dfrom = document.getElementById('pipeline-filter-date-from');
     const dto = document.getElementById('pipeline-filter-date-to');
     if (dfrom) dfrom.value = '';
