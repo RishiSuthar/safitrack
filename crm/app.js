@@ -310,7 +310,6 @@ window.confirmActionEdit = lazyLoad('./modules/features/workflows.js', 'confirmA
 window.closeWorkflowPanel = lazyLoad('./modules/features/workflows.js', 'closePanel');
 window.onWorkflowNameChange = lazyLoad('./modules/features/workflows.js', 'onWorkflowNameChange');
 window.toggleBuilderActive = lazyLoad('./modules/features/workflows.js', 'toggleBuilderActive');
-window.submitChangePassword = lazyLoad('./modules/features/call-logs.js', 'submitChangePassword');
 window.renderCallLogsView = lazyLoad('./modules/features/call-logs.js', 'renderCallLogsView');
 window.deleteCallLog = lazyLoad('./modules/features/call-logs.js', 'deleteCallLog');
 window.openCallLogViewModal = lazyLoad('./modules/features/call-logs.js', 'openCallLogViewModal');

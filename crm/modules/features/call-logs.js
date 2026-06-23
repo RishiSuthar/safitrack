@@ -1319,7 +1319,6 @@ async function saveCallLog(logId = null) {
 
 // ── Exports ────────────────────────────────────────────────────
 export {
-  submitChangePassword,
   renderCallLogsView,
   deleteCallLog,
   openCallLogViewModal,
