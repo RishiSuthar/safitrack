@@ -155,12 +155,17 @@ async function renderRemindersView() {
   viewContainer.innerHTML = `
     <div class="rem-page">
 
-      <div class="rem-page-head">
-        <div class="rem-search-wrap">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="rem-search-icon"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-          <input type="text" id="reminder-search" class="rem-search-input" placeholder="Search reminders...">
+      <div class="rem-header-container">
+        <div class="rem-page-head" style="justify-content: space-between;">
+          <div class="rem-search-wrap">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="rem-search-icon"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+            <input type="text" id="reminder-search" class="rem-search-input" placeholder="Search reminders...">
+          </div>
+          <button class="btn btn-primary" id="add-reminder-btn" style="margin-left: 0;"><i data-lucide="plus" class="u-icon-16"></i> New Reminder</button>
         </div>
-        <div class="rem-filters">
+
+      <div class="crm-filter-bar" style="margin-bottom: 12px; flex-wrap: wrap;">
+        <div class="rem-filters" style="display: flex; gap: 8px; flex-wrap: wrap; flex: 0 0 auto;">
           <button class="reminder-filter active" data-filter="all">All</button>
           <button class="reminder-filter" data-filter="pending">Pending</button>
           <button class="reminder-filter" data-filter="today">Today</button>
@@ -168,20 +173,18 @@ async function renderRemindersView() {
           <button class="reminder-filter" data-filter="completed">Done</button>
           ${state.isManager ? '<button class="reminder-filter" data-filter="assigned">Assigned by Me</button>' : ''}
         </div>
-        <button class="btn btn-primary" id="add-reminder-btn"><i data-lucide="plus" class="u-icon-16"></i> New Reminder</button>
-      </div>
 
-      <div class="crm-filter-bar" style="padding: 0 0 8px;">
+        <span class="crm-filter-divider" style="height: 24px; width: 1px; background: var(--border-color); margin: 0 4px;"></span>
+
         <div class="crm-date-range">
           <span class="crm-date-range-label">Date:</span>
           <input type="date" class="crm-date-input" id="reminder-filter-date-from" placeholder="From">
           <span class="crm-date-range-label">to</span>
           <input type="date" class="crm-date-input" id="reminder-filter-date-to" placeholder="To">
         </div>
-        <button class="crm-filter-clear" id="reminder-date-clear" style="display:none;">✕ Clear dates</button>
+        <button class="crm-filter-clear" id="reminder-date-clear" style="display:none;">✕ Clear</button>
       </div>
-
-
+      </div>
 
       <div class="rem-body">
         <aside class="rem-sidebar">
@@ -405,15 +408,23 @@ function openReminderModal(reminder = null, salesReps = []) {
   // Populate sales reps dropdown for managers
   if (state.isManager && salesReps.length > 0) {
     assignField.style.display = 'block';
-    assignSelect.innerHTML = '<option value="">Select a sales rep</option>';
-
-    // Add option for self
-    assignSelect.innerHTML += `<option value="${state.currentUser.id}">Me</option>`;
-
-    // Add options for sales reps
-    salesReps.forEach(rep => {
-      assignSelect.innerHTML += `<option value="${rep.id}">${rep.first_name} ${rep.last_name}</option>`;
-    });
+    const assignList = document.getElementById('reminder-assign-to-list');
+    if (assignList) {
+      let listHtml = `<li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="Select a sales rep" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Select a sales rep</li>`;
+      listHtml += `<li class="crm-dd-option" role="option" data-value="${state.currentUser.id}" data-label="Me" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Me</li>`;
+      
+      salesReps.forEach(rep => {
+        listHtml += `<li class="crm-dd-option" role="option" data-value="${rep.id}" data-label="${rep.first_name} ${rep.last_name}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${rep.first_name} ${rep.last_name}</li>`;
+      });
+      assignList.innerHTML = listHtml;
+    }
+    
+    // Reset value
+    if (window.setCrmDropdownValue) {
+      window.setCrmDropdownValue(assignSelect, '');
+    } else {
+      assignSelect.value = '';
+    }
   } else {
     assignField.style.display = 'none';
   }
@@ -442,7 +453,11 @@ function openReminderModal(reminder = null, salesReps = []) {
     }
 
     if (state.isManager && reminder.assigned_to) {
-      assignSelect.value = reminder.assigned_to;
+      if (window.setCrmDropdownValue) {
+        window.setCrmDropdownValue(assignSelect, reminder.assigned_to);
+      } else {
+        assignSelect.value = reminder.assigned_to;
+      }
     }
   } else {
     modalTitle.innerHTML = 'New Reminder';

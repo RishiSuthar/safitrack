@@ -862,14 +862,14 @@ async function loadAssigneeDropdowns(action) {
     if (window.updateCrmDropdownOptions) {
       const root = sel.closest('.crm-dd');
       const options = [{ value: '', label: '— Select —' }].concat(
-        (profiles || []).map(p => ({ value: p.id, label: \`\${p.first_name || ''} \${p.last_name || ''}\`.trim() }))
+        (profiles || []).map(p => ({ value: p.id, label: `${p.first_name || ''} ${p.last_name || ''}`.trim() }))
       );
       window.updateCrmDropdownOptions(root, options, false);
       window.setCrmDropdownValue(root, val);
     } else {
       sel.innerHTML = '<option value="">— Select —</option>' +
         (profiles || []).map(p =>
-          \`<option value="\${p.id}" \${val === p.id ? 'selected' : ''}>\${p.first_name || ''} \${p.last_name || ''}</option>\`
+          `<option value="${p.id}" ${val === p.id ? 'selected' : ''}>${p.first_name || ''} ${p.last_name || ''}</option>`
         ).join('');
     }
   });

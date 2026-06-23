@@ -912,7 +912,12 @@ function openOpportunityModal(opportunity = null) {
   document.getElementById('opportunity-value').value = '';
   document.getElementById('opportunity-probability').value = 50;
   document.getElementById('probability-display').textContent = '50';
-  document.getElementById('opportunity-stage').value = 'prospecting'; // Default to first stage
+  const stageEl = document.getElementById('opportunity-stage');
+  if (window.setCrmDropdownValue) {
+    window.setCrmDropdownValue(stageEl, 'prospecting');
+  } else {
+    stageEl.value = 'prospecting';
+  }
   document.getElementById('opportunity-next-step').value = '';
   document.getElementById('opportunity-next-step-date').value = '';
 
@@ -949,7 +954,12 @@ function openOpportunityModal(opportunity = null) {
     if (opportunity.stage === 'proposal' || opportunity.stage === 'negotiation') stageValue = 'qualification'; // Map to In Progress
     if (opportunity.stage === 'closed-won') stageValue = 'closed-won'; // Map to Won/Invoiced
 
-    document.getElementById('opportunity-stage').value = stageValue;
+    const editStageEl = document.getElementById('opportunity-stage');
+    if (window.setCrmDropdownValue) {
+      window.setCrmDropdownValue(editStageEl, stageValue);
+    } else {
+      editStageEl.value = stageValue;
+    }
 
     document.getElementById('opportunity-next-step').value = opportunity.next_step || '';
     document.getElementById('opportunity-next-step-date').value = opportunity.next_step_date || '';

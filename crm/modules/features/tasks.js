@@ -66,17 +66,13 @@ async function renderTasksView() {
         <input type="text" id="task-search-input" placeholder="Search tasks...">
       </div>
       <div class="tasks-header-actions">
-        <button class="btn btn-secondary crm-filter-toggle-btn" id="filter-tasks-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sliders-horizontal-icon lucide-sliders-horizontal"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg> Filter
-        </button>
         <button class="btn btn-primary" id="add-task-btn">
           <i data-lucide="plus" class="u-icon-16"></i> New Task
         </button>
       </div>
     </div>
 
-    <div class="crm-filter-panel" id="tasks-filter-panel">
-      <div class="crm-filter-bar">
+    <div class="crm-filter-bar" style="margin-bottom: 12px; flex-wrap: wrap;">
         <button class="crm-filter-pill active" data-task-filter-priority="all">All Priorities</button>
         <button class="crm-filter-pill" data-task-filter-priority="high">🔴 High</button>
         <button class="crm-filter-pill" data-task-filter-priority="medium">🟡 Medium</button>
@@ -112,7 +108,6 @@ async function renderTasksView() {
 
         <button class="crm-filter-clear" id="task-filter-clear" style="display:none;">✕ Clear</button>
       </div>
-    </div>
   `;
 
 
@@ -403,15 +398,7 @@ function initKanbanBoard(tasks, salesReps) {
     });
   }
 
-  // Header Filter button — toggle filter panel
-  const filterBtn = document.getElementById('filter-tasks-btn');
-  const filterPanel = document.getElementById('tasks-filter-panel');
-  if (filterBtn && filterPanel) {
-    filterBtn.addEventListener('click', () => {
-      const isOpen = filterPanel.classList.toggle('open');
-      filterBtn.classList.toggle('is-active', isOpen);
-    });
-  }
+
 
   // Initialize CustomCalendar on date inputs
   if (window.initCustomCalendar) {

@@ -6,66 +6,6 @@ import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards, renderError, getCurrencySymbol } from '../utils/helpers.js';
 
 // ======================
-window.openChangePasswordModal = function () {
-  const modal = document.getElementById('change-password-modal');
-  if (modal) {
-    document.getElementById('change-password-form').reset();
-    modal.style.display = 'flex';
-
-    const saveBtn = document.getElementById('save-new-password-btn');
-    saveBtn.onclick = submitChangePassword;
-  }
-};
-
-
-// ======================
-// PASSWORD VISIBILITY TOGGLE (EXTERNAL BUTTON)
-// ======================
-window.togglePasswordVisibility = function (inputId, btn) {
-  const input = document.getElementById(inputId);
-  const icon = btn.querySelector('i');
-  if (input.type === 'password') {
-    input.type = 'text';
-    icon.classList.remove('fa-eye');
-    icon.classList.add('fa-eye-slash');
-  } else {
-    input.type = 'password';
-    icon.classList.remove('fa-eye-slash');
-    icon.classList.add('fa-eye');
-  }
-};
-
-async function submitChangePassword() {
-  const newPass = document.getElementById('new-password').value;
-  const confirmPass = document.getElementById('confirm-new-password').value;
-
-  if (newPass !== confirmPass) {
-    showToast('Passwords do not match', 'error');
-    return;
-  }
-
-  const btn = document.getElementById('save-new-password-btn');
-  const originalText = btn.innerHTML;
-  btn.disabled = true;
-  btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
-
-  const { data, error } = await supabaseClient.auth.updateUser({
-    password: newPass
-  });
-
-  if (error) {
-    showToast(error.message, 'error');
-    btn.disabled = false;
-    btn.innerHTML = originalText;
-  } else {
-    showToast('Password updated successfully', 'success');
-    closeModal('change-password-modal');
-    btn.disabled = false;
-    btn.innerHTML = originalText;
-  }
-}
-
-// ======================
 // PWA LOGIC
 // ======================
 let deferredPrompt;
@@ -164,12 +104,18 @@ async function renderCallLogsView() {
 
   let html = `
     <div class="page-header">
-      <div class="page-header-row">
+      <div class="page-header-row" style="justify-content: space-between; margin-bottom: 12px;">
         <div class="search-input-wrapper cl-search">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="search-icon"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
           <input type="text" id="call-search" placeholder="Search contacts or companies…" value="${state.callLogFilters.search}" class="filter-select search-input-padded">
         </div>
-        <div class="call-logs-filters">
+        <button class="btn btn-primary" id="log-call-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+          Log Call
+        </button>
+      </div>
+      <div class="page-header-row">
+        <div class="call-logs-filters" style="width: 100%;">
           <div class="crm-dd crm-dd--filter" data-dd-id="call-direction-filter">
             <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
               <span class="crm-dd-label">${state.callLogFilters.direction || 'All Directions'}</span>
@@ -204,9 +150,9 @@ async function renderCallLogsView() {
           </div>
           <div class="crm-date-range" style="display:inline-flex; align-items:center; gap:6px; margin-left:4px;">
             <span class="crm-date-range-label" style="font-size:0.75rem; color:var(--text-muted); font-weight:550;">Date:</span>
-            <input type="date" class="crm-date-input" id="call-date-from" value="${state.callLogFilters.dateFrom || ''}" placeholder="From" style="height:30px; padding:0 10px; width:130px; border-radius:var(--radius-full); border:1px solid var(--border-color); background:var(--bg-secondary); color:var(--text-secondary); font-size:0.79rem; font-family:inherit; cursor:pointer;">
+            <input type="date" class="crm-date-input" id="call-date-from" value="${state.callLogFilters.dateFrom || ''}" placeholder="From" style="height:36px; padding:0 10px; width:130px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-secondary); color:var(--text-secondary); font-size:0.875rem; font-family:inherit; cursor:pointer;">
             <span class="crm-date-range-label" style="font-size:0.75rem; color:var(--text-muted); font-weight:550;">to</span>
-            <input type="date" class="crm-date-input" id="call-date-to" value="${state.callLogFilters.dateTo || ''}" placeholder="To" style="height:30px; padding:0 10px; width:130px; border-radius:var(--radius-full); border:1px solid var(--border-color); background:var(--bg-secondary); color:var(--text-secondary); font-size:0.79rem; font-family:inherit; cursor:pointer;">
+            <input type="date" class="crm-date-input" id="call-date-to" value="${state.callLogFilters.dateTo || ''}" placeholder="To" style="height:36px; padding:0 10px; width:130px; border-radius:10px; border:1px solid var(--border-color); background:var(--bg-secondary); color:var(--text-secondary); font-size:0.875rem; font-family:inherit; cursor:pointer;">
           </div>
           ${isFiltered ? `<button id="clear-filters" class="btn btn-ghost cl-clear-filters-btn" title="Clear filters"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg> Clear</button>` : `<button id="clear-filters" class="btn btn-ghost cl-clear-filters-btn" style="display:none"></button>`}
           ${state.isManager ? `
@@ -230,12 +176,6 @@ async function renderCallLogsView() {
               </div>
             ` : ''}
           ` : ''}
-          ${(!state.isManager || state.managerCallLogViewMode === 'my') ? `
-            <button class="btn btn-primary" id="log-call-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-              Log Call
-            </button>
-          ` : ''}
         </div>
       </div>
     </div>
@@ -247,7 +187,7 @@ async function renderCallLogsView() {
         </div>
         <div class="cl-empty-title">${isFiltered ? 'No results' : 'No call logs yet'}</div>
         <div class="cl-empty-desc">${isFiltered ? 'Try adjusting your search or filters.' : 'Start logging your sales calls to track every conversation.'}</div>
-        ${(!state.isManager || state.managerCallLogViewMode === 'my') && !isFiltered ? `
+        ${!isFiltered ? `
           <button class="btn btn-primary" id="log-call-btn-empty">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
             Log your first call

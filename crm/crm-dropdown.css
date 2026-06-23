@@ -208,10 +208,10 @@
 
 /* ── Filter-bar variant: compact pill style ── */
 .crm-dd--filter .crm-dd-trigger {
-  height: var(--control-height-sm); /* 28px */
-  padding: 0 8px;
-  border-radius: var(--radius-full);
-  font-size: 0.78rem;
+  height: 36px;
+  padding: 0 10px;
+  border-radius: 10px;
+  font-size: 0.875rem;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
 }

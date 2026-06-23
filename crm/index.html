@@ -902,13 +902,7 @@
     <div id="notes-view-container" class="notes-view-root" style="display:none;">
       <!-- Sub-sidebar for categories and tags -->
       <aside class="notes-sub-sidebar">
-        <div class="nss-header">
-          <button id="add-note-action-btn" class="nss-add-btn" title="New Note">
-            <i data-lucide="plus"></i>
-            <span>New Note</span>
-          </button>
-        </div>
-        <div class="nss-content">
+        <div class="nss-content" style="padding-top: 1rem;">
           <div class="nss-section">
             <button class="nss-item active" data-category="all">
               <i data-lucide="layout-grid"></i>
@@ -948,14 +942,9 @@
             <input type="text" id="nb-search-input" class="nb-search-input" placeholder="Search notes, contacts...">
           </div>
           <div class="nb-actions">
-            <div class="nb-view-toggle">
-              <button class="nb-toggle-btn active" data-layout="grid" title="Grid View">
-                <i data-lucide="layout-grid"></i>
-              </button>
-              <button class="nb-toggle-btn" data-layout="list" title="List View">
-                <i data-lucide="list"></i>
-              </button>
-            </div>
+            <button class="btn btn-primary" id="add-note-action-btn">
+              <i data-lucide="plus" class="u-icon-16"></i> New Note
+            </button>
           </div>
         </header>
         <div id="notes-grid" class="notes-grid">
@@ -1413,12 +1402,12 @@
               </label>
               <div class="crm-dd crm-dd--form" data-dd-id="opportunity-stage" data-dd-required="true">
                 <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
-                  <span class="crm-dd-label">Discovery</span>
+                  <span class="crm-dd-label">Lead</span>
                   <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
                 </button>
                 <div class="crm-dd-panel" role="listbox">
                   <ul class="crm-dd-list">
-                    <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="prospecting" data-label="Discovery" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Discovery</li>
+                    <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="prospecting" data-label="Lead" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Lead</li>
                     <li class="crm-dd-option" role="option" data-value="qualification" data-label="In Progress" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>In Progress</li>
                     <li class="crm-dd-option" role="option" data-value="closed-won" data-label="Won/Invoiced 🎉" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Won/Invoiced 🎉</li>
                     <li class="crm-dd-option" role="option" data-value="closed-lost" data-label="Lost" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Lost</li>

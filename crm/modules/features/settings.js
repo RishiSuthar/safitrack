@@ -1834,8 +1834,67 @@ async function renderSettingsView() {
   });
 
   /* ─────────────── CHANGE PASSWORD ─────────────── */
+  window.openChangePasswordModal = function () {
+    const modal = document.getElementById('change-password-modal');
+    if (modal) {
+      document.getElementById('change-password-form').reset();
+      modal.style.display = 'flex';
+      const saveBtn = document.getElementById('save-new-password-btn');
+      saveBtn.onclick = submitChangePassword;
+    }
+  };
+
+  window.togglePasswordVisibility = function (inputId, btn) {
+    const input = document.getElementById(inputId);
+    const icon = btn.querySelector('i');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.remove('fa-eye');
+      icon.classList.add('fa-eye-slash');
+    } else {
+      input.type = 'password';
+      icon.classList.remove('fa-eye-slash');
+      icon.classList.add('fa-eye');
+    }
+  };
+
+  async function submitChangePassword() {
+    const newPass = document.getElementById('new-password').value;
+    const confirmPass = document.getElementById('confirm-new-password').value;
+
+    if (newPass !== confirmPass) {
+      showToast('Passwords do not match', 'error');
+      return;
+    }
+
+    const btn = document.getElementById('save-new-password-btn');
+    const originalText = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Updating...';
+
+    const { data, error } = await supabaseClient.auth.updateUser({
+      password: newPass
+    });
+
+    if (error) {
+      showToast(error.message, 'error');
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    } else {
+      showToast('Password updated successfully', 'success');
+      // We don't have closeModal from helpers easily accessible here without window.closeModal, assuming it's global
+      if (window.closeModal) {
+        window.closeModal('change-password-modal');
+      } else {
+        document.getElementById('change-password-modal').style.display = 'none';
+      }
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  }
+
   document.getElementById('profile-change-password-btn')?.addEventListener('click', () => {
-    try { openChangePasswordModal(); } catch (e) { console.error(e); }
+    try { window.openChangePasswordModal(); } catch (e) { console.error(e); }
   });
 
   /* ─────────────── BROWSER NOTIFS ─────────────── */
