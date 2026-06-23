@@ -66,6 +66,12 @@ async function renderSettingsView() {
           Billing
         </button>` : ''}
 
+        <div class="sv-nav-section-label" style="margin-top:24px;">Help</div>
+        <button class="sv-nav-item" data-section="support">
+          <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          Support
+        </button>
+
         <div class="sv-nav-divider"></div>
 
         <button class="sv-nav-item" data-section="export">
@@ -688,6 +694,61 @@ async function renderSettingsView() {
           </div>
         </section>
 
+        <!-- ═══════════════════ SUPPORT ═══════════════════ -->
+        <section class="sv-section" data-section="support" style="display:none; height: 100%; flex-direction: column;">
+          <div class="sv-page-header" style="flex-shrink: 0;">
+            <div>
+              <h2 class="sv-page-title">Support</h2>
+              <p class="sv-page-subtitle">Chat with our AI support assistant.</p>
+            </div>
+          </div>
+
+          <!-- API Key Config removed (now using backend proxy) -->
+
+          <!-- Chat UI -->
+          <div class="sv-support-chat-wrapper" style="flex: 1; display: flex; flex-direction: column; padding: 20px 0;">
+            <div class="sv-support-chat-container" style="flex: 1; display: flex; flex-direction: column; border-radius: 16px; background: var(--bg-secondary); overflow: hidden; box-shadow: 0 10px 30px -10px rgba(0,0,0,0.1); border: 1px solid var(--border-color); min-height: 400px; position: relative;">
+              
+              <!-- Chat Header -->
+              <div style="padding: 16px 24px; border-bottom: 1px solid var(--border-color); background: var(--bg-primary); display: flex; align-items: center; gap: 12px; z-index: 10;">
+                <div style="width: 40px; height: 40px; border-radius: 12px; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid var(--border-color); padding: 6px; box-sizing: border-box;">
+                  <img src="https://i.imgur.com/4pIw8QP.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                </div>
+                <div>
+                  <h3 style="margin: 0; font-size: 1rem; font-weight: 600; color: var(--text-primary);">SafiTrack Assistant</h3>
+                  <div style="display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+                    <span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981;"></span>
+                    Online and ready to help
+                  </div>
+                </div>
+              </div>
+
+              <!-- Chat Messages -->
+              <div id="sv-support-chat-messages" style="flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; background: var(--bg-primary);">
+                <!-- Initial Message -->
+                <div style="display: flex; gap: 12px; align-items: flex-end; animation: slideInLeft 0.3s ease-out forwards;">
+                  <div style="width: 32px; height: 32px; border-radius: 10px; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid var(--border-color); padding: 4px; box-sizing: border-box;">
+                    <img src="https://i.imgur.com/4pIw8QP.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+                  </div>
+                  <div style="background: var(--bg-secondary); padding: 14px 18px; border-radius: 18px; border-bottom-left-radius: 4px; border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.95rem; max-width: 80%; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                    Hi there! I'm the SafiTrack Support Assistant. How can I help you today?
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Chat Input -->
+              <div style="padding: 20px; border-top: 1px solid var(--border-color); background: var(--bg-primary);">
+                <div style="display: flex; gap: 10px; background: var(--bg-secondary); padding: 6px 6px 6px 16px; border-radius: 24px; border: 1px solid var(--border-color); align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: border-color 0.2s, box-shadow 0.2s;" onfocusin="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 2px rgba(99, 102, 241, 0.2)';" onfocusout="this.style.borderColor='var(--border-color)'; this.style.boxShadow='0 2px 6px rgba(0,0,0,0.02)';">
+                  <input type="text" id="sv-support-chat-input" placeholder="Type your message here..." style="flex: 1; border: none; background: transparent; outline: none; color: var(--text-primary); font-size: 0.95rem; font-family: inherit;">
+                  <button id="sv-support-chat-send" style="background: linear-gradient(135deg, var(--color-primary), #6366f1); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(99,102,241,0.3);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px; margin-left: -2px;"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </main>
     </div>
   `;
@@ -698,6 +759,20 @@ async function renderSettingsView() {
     style.id = 'sv-styles';
     style.textContent = `
       /* ── Root shell ── */
+      @keyframes slideInRight {
+        from { opacity: 0; transform: translateX(10px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes slideInLeft {
+        from { opacity: 0; transform: translateX(-10px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+      @keyframes blink {
+        0% { opacity: 0.2; transform: scale(0.8); }
+        20% { opacity: 1; transform: scale(1.1); }
+        100% { opacity: 0.2; transform: scale(0.8); }
+      }
+
       .sv-root {
         display: flex;
         height: 720px;
@@ -1751,7 +1826,13 @@ async function renderSettingsView() {
   /* ─────────────── SECTION NAV ─────────────── */
   function setActiveSection(name) {
     document.querySelectorAll('.sv-nav-item').forEach(b => b.classList.toggle('active', b.dataset.section === name));
-    document.querySelectorAll('.sv-section').forEach(s => s.style.display = s.dataset.section === name ? 'block' : 'none');
+    document.querySelectorAll('.sv-section').forEach(s => {
+      if (s.dataset.section === name) {
+        s.style.display = (name === 'support') ? 'flex' : 'block';
+      } else {
+        s.style.display = 'none';
+      }
+    });
   }
   document.querySelectorAll('.sv-nav-item').forEach(btn => btn.addEventListener('click', () => setActiveSection(btn.dataset.section)));
 
@@ -2583,6 +2664,140 @@ async function renderSettingsView() {
   };
 
   loadMembers();
+
+  /* ─────────────── SUPPORT CHAT LOGIC ─────────────── */
+  const supportChatInput = document.getElementById('sv-support-chat-input');
+  const supportChatSend = document.getElementById('sv-support-chat-send');
+  const supportChatMessages = document.getElementById('sv-support-chat-messages');
+
+  async function sendSupportMessage() {
+    const proxyUrl = (window.APP_CONFIG || {}).GEMINI_PROXY_URL;
+    if (!proxyUrl) {
+      showToast('GEMINI_PROXY_URL not configured', 'error');
+      return;
+    }
+
+    const text = supportChatInput.value.trim();
+    if (!text) return;
+
+    supportChatMessages.insertAdjacentHTML('beforeend', `
+      <div style="display: flex; gap: 12px; align-items: flex-end; justify-content: flex-end; animation: slideInRight 0.3s ease-out forwards; opacity: 0; transform: translateX(10px);">
+        <div style="background: linear-gradient(135deg, var(--color-primary), #6366f1); padding: 14px 18px; border-radius: 18px; border-bottom-right-radius: 4px; color: white; font-size: 0.95rem; max-width: 80%; line-height: 1.5; box-shadow: 0 4px 12px rgba(99,102,241,0.2);">
+          ${escH(text)}
+        </div>
+      </div>
+    `);
+    supportChatInput.value = '';
+    supportChatMessages.scrollTop = supportChatMessages.scrollHeight;
+
+    const loadingId = 'loading-' + Date.now();
+    supportChatMessages.insertAdjacentHTML('beforeend', `
+      <div id="${loadingId}" style="display: flex; gap: 12px; align-items: flex-end; animation: slideInLeft 0.3s ease-out forwards; opacity: 0; transform: translateX(-10px);">
+        <div style="width: 32px; height: 32px; border-radius: 10px; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid var(--border-color); padding: 4px; box-sizing: border-box;">
+          <img src="https://i.imgur.com/4pIw8QP.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+        <div style="background: var(--bg-secondary); padding: 14px 18px; border-radius: 18px; border-bottom-left-radius: 4px; border: 1px solid var(--border-color); color: var(--text-muted); font-size: 0.95rem; display: flex; align-items: center; gap: 6px; height: 48px; box-sizing: border-box; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+          <span class="sv-typing-dot" style="width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: blink 1.4s infinite both;"></span>
+          <span class="sv-typing-dot" style="width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: blink 1.4s infinite both; animation-delay: 0.2s;"></span>
+          <span class="sv-typing-dot" style="width: 6px; height: 6px; background: var(--text-muted); border-radius: 50%; animation: blink 1.4s infinite both; animation-delay: 0.4s;"></span>
+        </div>
+      </div>
+    `);
+    supportChatMessages.scrollTop = supportChatMessages.scrollHeight;
+
+    try {
+      let authToken = '';
+      try {
+        if (typeof supabaseClient !== 'undefined') {
+          const { data: { session } } = await supabaseClient.auth.getSession();
+          authToken = session?.access_token || '';
+        }
+      } catch (e) {
+        console.warn('Could not get auth token for support chat', e);
+      }
+
+      const systemPrompt = `You are the SafiTrack CRM Support Assistant, an AI expert built to help users navigate and master SafiTrack.
+
+About SafiTrack:
+SafiTrack is a field sales and operations CRM, specifically tailored for solar sales, technicians, and field teams. 
+Key Features include:
+- Dashboard & Team Dashboard: High-level metrics, leaderboards, and sales funnels.
+- Opportunities & Pipeline: Track deals through various stages of the sales process.
+- People & Companies: CRM database for contacts and businesses.
+- Route Planning & Navigation: Optimize daily field routes and navigate between visits.
+- Log Visit: Quickly log outcomes of door-knocking or client visits.
+- Technician & Solar-Technician: Workflows, forms, and tools specific to site surveys and installations (like the UPS form).
+- Tasks, Notes & Reminders: Personal productivity tools.
+- Reports & Report Engine: Advanced data analytics.
+- Settings: Manage profile, organization, subscription, team invites, and support.
+
+Instructions:
+- Keep your answers concise, practical, and highly friendly.
+- Provide step-by-step guidance when a user asks how to do something.
+- Do not make up features. If a feature doesn't exist in the list above, kindly let them know.
+- Do not use markdown formatting (no bolding, no code blocks) because the chat UI doesn't render it. Use plain text formatting.
+
+User query: ${text}`;
+
+      const response = await fetch(proxyUrl, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+        },
+        body: JSON.stringify({
+          contents: [{
+            role: 'user',
+            parts: [{ text: systemPrompt }]
+          }]
+        })
+      });
+
+      const data = await response.json();
+      document.getElementById(loadingId)?.remove();
+
+      if (!response.ok) {
+        throw new Error(data.message || data.error?.message || data.error || `HTTP ${response.status}`);
+      }
+      
+      if (data.error) throw new Error(data.error.message || 'API Error');
+
+      const reply = data.models ? JSON.stringify(data.models.map(m => m.name), null, 2) : (data.candidates?.[0]?.content?.parts?.[0]?.text || 'I am sorry, I did not understand that.');
+      
+      supportChatMessages.insertAdjacentHTML('beforeend', `
+        <div style="display: flex; gap: 12px; align-items: flex-end; animation: slideInLeft 0.3s ease-out forwards; opacity: 0; transform: translateX(-10px);">
+          <div style="width: 32px; height: 32px; border-radius: 10px; background: var(--bg-primary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border: 1px solid var(--border-color); padding: 4px; box-sizing: border-box;">
+            <img src="https://i.imgur.com/4pIw8QP.png" alt="Logo" style="width: 100%; height: 100%; object-fit: contain;">
+          </div>
+          <div style="background: var(--bg-secondary); padding: 14px 18px; border-radius: 18px; border-bottom-left-radius: 4px; border: 1px solid var(--border-color); color: var(--text-primary); font-size: 0.95rem; max-width: 80%; white-space: pre-wrap; line-height: 1.5; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">${escH(reply)}</div>
+        </div>
+      `);
+      
+      // Auto-scroll after bot replies
+      requestAnimationFrame(() => {
+        supportChatMessages.scrollTo({ top: supportChatMessages.scrollHeight, behavior: 'smooth' });
+      });
+    } catch (err) {
+      console.error('Support Chat Error:', err);
+      document.getElementById(loadingId)?.remove();
+      supportChatMessages.insertAdjacentHTML('beforeend', `
+        <div style="display: flex; gap: 12px; align-items: flex-end; animation: slideInLeft 0.3s ease-out forwards; opacity: 0; transform: translateX(-10px);">
+          <div style="width: 32px; height: 32px; border-radius: 10px; background: var(--color-danger, #ef4444); color: white; display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 2px 8px rgba(239,68,68,0.2);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div style="background: rgba(239,68,68,0.05); padding: 14px 18px; border-radius: 18px; border-bottom-left-radius: 4px; border: 1px solid rgba(239,68,68,0.2); color: var(--color-danger, #ef4444); font-size: 0.95rem; max-width: 80%; line-height: 1.5;">
+            Error: ${escH(err.message || String(err))}
+          </div>
+        </div>
+      `);
+    }
+    supportChatMessages.scrollTop = supportChatMessages.scrollHeight;
+  }
+
+  supportChatSend?.addEventListener('click', sendSupportMessage);
+  supportChatInput?.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') sendSupportMessage();
+  });
 
   const _initSection = state._pendingSettingsSection || 'profile';
   state._pendingSettingsSection = null;

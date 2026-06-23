@@ -35,4 +35,5 @@ Object.assign(window.APP_CONFIG, {
   //   supabase functions deploy groq-proxy
   // Then copy the printed URL here.
   GROQ_PROXY_URL: "https://ndrkncirkekpqjjkasiy.supabase.co/functions/v1/groq-proxy",
+  GEMINI_PROXY_URL: "https://ndrkncirkekpqjjkasiy.supabase.co/functions/v1/gemini-proxy",
 });
