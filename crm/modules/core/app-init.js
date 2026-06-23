@@ -133,8 +133,16 @@ async function initApp() {
     defaultView = 'log-visit';
   }
 
-  // If we have a saved view (and it's not the auth screen), use it. Otherwise use default.
-  const viewToLoad = (savedView && savedView !== 'auth-screen') ? savedView : defaultView;
+  const urlParams = new URLSearchParams(window.location.search);
+  const requestedView = urlParams.get('view');
+
+  // If we have a requested view from URL, use it. Otherwise fallback to saved or default.
+  let viewToLoad = defaultView;
+  if (requestedView) {
+    viewToLoad = requestedView;
+  } else if (savedView && savedView !== 'auth-screen') {
+    viewToLoad = savedView;
+  }
 
   // Load the determined view
   await loadView(viewToLoad);

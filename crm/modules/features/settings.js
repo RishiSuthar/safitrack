@@ -2814,9 +2814,17 @@ ${cleanUIHTML}`;
     if (e.key === 'Enter') sendSupportMessage();
   });
 
-  const _initSection = state._pendingSettingsSection || 'profile';
+  const urlParams = new URLSearchParams(window.location.search);
+  const requestedTab = urlParams.get('tab');
+
+  const _initSection = requestedTab || state._pendingSettingsSection || 'profile';
   state._pendingSettingsSection = null;
   setActiveSection(_initSection);
+
+  // Clean up URL so the query params don't get stuck while navigating
+  if (urlParams.has('view') || urlParams.has('tab')) {
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
 }
 
 
