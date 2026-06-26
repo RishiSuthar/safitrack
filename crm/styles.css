@@ -11908,6 +11908,10 @@ body.is-dragging * {
   border-radius: 2px;
 }
 
+.ai-chat-messages::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
 @keyframes msgIn {
   from { opacity: 0; transform: translateY(5px); }
   to   { opacity: 1; transform: translateY(0); }
@@ -11949,9 +11953,9 @@ body.is-dragging * {
 }
 
 .ai-chat-message.user .ai-chat-bubble {
-  background: var(--bg-tertiary);
+  background: var(--color-primary-bg);
   color: var(--text-primary);
-  border: 1px solid var(--border-color-light);
+  border: 1px solid rgba(var(--color-primary-rgb), 0.15);
 }
 
 .ai-chat-message.ai .ai-chat-bubble {
@@ -12044,7 +12048,14 @@ body.is-dragging * {
   display: flex;
   align-items: center;
   gap: 1px;
-  margin-top: 2px;
+  margin-top: 3px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.ai-chat-message.ai:hover .ai-chat-actions,
+.ai-chat-message.ai:focus-within .ai-chat-actions {
+  opacity: 1;
 }
 
 .ai-chat-action-btn {
@@ -12087,7 +12098,7 @@ body.is-dragging * {
 
 /* ---- Footer ---- */
 .ai-chat-footer {
-  border-top: 1px solid var(--border-color-light);
+  border-top: 1px solid var(--border-color);
   padding: 10px 12px 12px;
   background: var(--bg-primary);
   flex-shrink: 0;
@@ -12279,26 +12290,20 @@ body.is-dragging * {
 
 .ai-chat-typing-dots span {
   display: block;
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
-  background: var(--text-muted);
-  animation: chatDotBounce 1.3s infinite ease-in-out;
+  background: var(--text-secondary);
+  animation: chatDotFade 1.5s infinite ease-in-out;
 }
 
 .ai-chat-typing-dots span:nth-child(1) { animation-delay: 0s; }
-.ai-chat-typing-dots span:nth-child(2) { animation-delay: 0.18s; }
-.ai-chat-typing-dots span:nth-child(3) { animation-delay: 0.36s; }
+.ai-chat-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.ai-chat-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
 
-@keyframes chatDotBounce {
-  0%, 60%, 100% {
-    transform: translateY(0);
-    opacity: 0.35;
-  }
-  30% {
-    transform: translateY(-4px);
-    opacity: 1;
-  }
+@keyframes chatDotFade {
+  0%, 60%, 100% { opacity: 0.2; transform: scale(0.85); }
+  30%            { opacity: 1;   transform: scale(1); }
 }
 
 /* ---- Dark mode overrides ---- */

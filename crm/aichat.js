@@ -8,6 +8,20 @@ let chatState = null;
 // track the last message the user sent so retry can replay it
 let lastUserMessage = '';
 
+// Persistent conversation memory — survives intent resets, cleared on "New chat"
+let conversationHistory = [];
+const MAX_HISTORY = 14; // 7 user turns + 7 AI responses
+
+// Raw CRM data from the last query — lets follow-up questions reference real data
+let lastCRMContext = '';
+
+function addToHistory(role, content) {
+  conversationHistory.push({ role, content });
+  if (conversationHistory.length > MAX_HISTORY) {
+    conversationHistory.splice(0, conversationHistory.length - MAX_HISTORY);
+  }
+}
+
 // fields we want to collect
 const TASK_REQUIRED_FIELDS = ['title', 'description', 'due_date', 'priority', 'assigned_to'];
 const REMINDER_REQUIRED_FIELDS = ['title', 'description', 'reminder_date', 'assigned_to'];
@@ -46,10 +60,11 @@ function initializeAIChat() {
   if (newBtn) newBtn.addEventListener('click', () => {
     const msgs = document.getElementById('ai-chat-messages');
     if (msgs) {
-      // Remove message elements, preserve the empty state node
       Array.from(msgs.children).forEach(el => { if (el.id !== 'ai-chat-empty') el.remove(); });
     }
     resetConversation();
+    conversationHistory = [];
+    lastCRMContext = '';
     document.getElementById('ai-chat-empty')?.classList.remove('hidden');
   });
 
@@ -1171,6 +1186,7 @@ async function fetchCRMSummary() {
 
 async function handleQueryCompanies(text) {
   const context = await fetchCompanyContext(text);
+  lastCRMContext = context;
 
   const messages = [
     { role: 'system', content: `You are Safi AI, a smart CRM assistant. The user is asking about companies in their CRM. Below is the real data from their database. Present it in a clear, friendly, and insightful way. Use **bold** for company names. Use bullet points for lists. If showing numbers, highlight key stats. If they asked about a specific company, focus on that one with a richer summary. Keep it conversational and actionable — point out things they might care about (e.g. companies with no contacts, patterns in types). Max 300 words.` },
@@ -1182,6 +1198,7 @@ async function handleQueryCompanies(text) {
 
 async function handleQueryPeople(text) {
   const context = await fetchPeopleContext(text);
+  lastCRMContext = context;
 
   const messages = [
     { role: 'system', content: `You are Safi AI, a smart CRM assistant. The user is asking about contacts/people in their CRM. Below is the real data from their database. Present it clearly and helpfully. Use **bold** for names. Use bullet points. Highlight useful patterns (e.g. contacts without emails, key decision-makers by title). Keep it conversational and concise. Max 300 words.` },
@@ -1193,6 +1210,7 @@ async function handleQueryPeople(text) {
 
 async function handleQueryOpportunities(text) {
   const context = await fetchOpportunityContext(text);
+  lastCRMContext = context;
 
   const messages = [
     { role: 'system', content: `You are Safi AI, a sharp CRM and sales assistant. The user is asking about their deals/pipeline. Below is the real data. Present pipeline stats clearly, highlight key metrics with **bold**, use bullet points for deal lists. Be insightful — call out stuck deals, overdue actions, biggest opportunities. If they asked about specific deals or stages, focus there. Use the actual numbers. Keep it actionable. Max 350 words.` },
@@ -1204,6 +1222,7 @@ async function handleQueryOpportunities(text) {
 
 async function handleQueryActivity(text) {
   const context = await fetchActivityContext(text);
+  lastCRMContext = context;
 
   const messages = [
     { role: 'system', content: `You are Safi AI, a helpful CRM assistant. The user is asking about recent activity — visits, calls, and notes. Below is the real data. Summarize the activity in a clear, timeline-friendly way. Use **bold** for company and contact names. Group by type if helpful. Highlight patterns (e.g. most visited company, call outcomes). Keep it conversational. Max 300 words.` },
@@ -1222,6 +1241,7 @@ async function handleQueryCompanyDeep(text) {
     const bestCompany = searchResults.companies[0].name;
     const context = await fetchCompanyDeepContext(bestCompany);
     if (!context.startsWith('No company found') && !context.startsWith('Error')) {
+      lastCRMContext = context;
       const messages = [
         { role: 'system', content: `You are Safi AI, a sharp CRM assistant. The user wants a full overview of a specific company. Below is all the CRM data for that company — contacts, deals, visits, calls, tasks. Present it in a well-organized, insightful way. Use **bold** for the company name and key numbers. Use **bold section headers** like **Contacts**, **Pipeline**, **Recent Activity**, **Tasks**. Highlight actionable insights: overdue next steps, open pipeline value, visit frequency, key contacts. Be concise but thorough. Max 500 words.` },
         { role: 'user', content: `User question: "${text}"\n\nFull company data from CRM:\n${context}\n\nGive a comprehensive, insightful company overview.` }
@@ -1246,6 +1266,7 @@ async function handleQueryCompanyDeep(text) {
 
 async function handleQueryTasks(text) {
   const context = await fetchTasksContext(text);
+  lastCRMContext = context;
 
   const messages = [
     { role: 'system', content: `You are Safi AI, a helpful CRM assistant. The user is asking about tasks. Below is the real task data. Present it in a clear, actionable way. Use **bold** for task names. Flag overdue items with urgency. Group by priority if there are many tasks. Be practical and motivating — not just a dry list. Max 300 words.` },
@@ -1257,6 +1278,7 @@ async function handleQueryTasks(text) {
 
 async function handleCRMSummary(text) {
   const context = await fetchCRMSummary();
+  lastCRMContext = context;
 
   const dayOfWeek = new Date().toLocaleDateString('en-US', { weekday: 'long' });
   const dateStr = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
@@ -1658,30 +1680,27 @@ Key rules:
 }
 
 async function generateCasualReply(text) {
-  // Check if the question might benefit from CRM context
   const businessKeywords = /\b(company|companies|deal|deals|pipeline|contact|contacts|client|clients|customer|customers|sales|revenue|target|quota|visit|visits|call|calls|opportunity|opportunities|lead|leads|prospect|report|business|performance|team|rep|reps|task|tasks|reminder)\b/i;
-  let crmContext = '';
+  let freshContext = '';
 
   if (businessKeywords.test(text)) {
     try {
-      // Use smartCRMSearch — finds companies, deals and people by token, no Groq needed
       const searchResults = await smartCRMSearch(text);
-
       if (searchResults.companies.length) {
         const deepCtx = await fetchCompanyDeepContext(searchResults.companies[0].name);
         if (!deepCtx.startsWith('No company found') && !deepCtx.startsWith('Error')) {
-          crmContext = `\n\n[CRM Data for ${searchResults.companies[0].name}:\n${deepCtx}]`;
+          freshContext = `\n\n[CRM Data for ${searchResults.companies[0].name}:\n${deepCtx}]`;
+          lastCRMContext = deepCtx; // keep for follow-ups
         }
       } else if (searchResults.opportunities.length) {
         const opp = searchResults.opportunities[0];
-        crmContext = `\n\n[CRM Match: Opportunity "${opp.name}" — Company: ${opp.company_name || 'N/A'} — Stage: ${opp.stage} — Value: ${opp.value || 'N/A'}]`;
+        freshContext = `\n\n[CRM Match: Opportunity "${opp.name}" — Company: ${opp.company_name || 'N/A'} — Stage: ${opp.stage} — Value: ${opp.value || 'N/A'}]`;
       } else if (searchResults.people.length) {
         const p = searchResults.people[0];
-        crmContext = `\n\n[CRM Match: Contact "${p.name}" — ${p.job_title || 'No title'} — ${p.email || 'No email'}]`;
+        freshContext = `\n\n[CRM Match: Contact "${p.name}" — ${p.job_title || 'No title'} — ${p.email || 'No email'}]`;
       }
-
-      // Fall back to lightweight CRM snapshot if still no entity-specific context
-      if (!crmContext) {
+      // Lightweight snapshot fallback only when no entity found AND no prior context exists
+      if (!freshContext && !lastCRMContext) {
         const [companiesCount, peopleCount, oppsRes] = await Promise.all([
           supabaseClient.from('companies').select('*', { count: 'exact', head: true }),
           supabaseClient.from('people').select('*', { count: 'exact', head: true }),
@@ -1691,18 +1710,28 @@ async function generateCasualReply(text) {
         const openOpps = opps.filter(o => !['closed-won', 'closed-lost', 'won', 'lost'].includes((o.stage || '').toLowerCase()));
         const pipelineValue = openOpps.reduce((s, o) => s + (parseFloat(o.value) || 0), 0);
         const currency = (typeof orgCurrency !== 'undefined' && orgCurrency) || 'USD';
-        crmContext = `\n\n[CRM Context: ${companiesCount.count || 0} companies, ${peopleCount.count || 0} contacts, ${openOpps.length} open deals worth ${currency} ${pipelineValue.toLocaleString()} total pipeline]`;
+        freshContext = `\n\n[CRM Context: ${companiesCount.count || 0} companies, ${peopleCount.count || 0} contacts, ${openOpps.length} open deals worth ${currency} ${pipelineValue.toLocaleString()} total pipeline]`;
       }
-    } catch (e) {
-      // Non-critical, continue without context
-    }
+    } catch (e) { /* non-critical */ }
   }
 
+  // Attach previous CRM data for follow-ups (e.g. "tell me more", "what about their contacts?")
+  const prevContext = (!freshContext && lastCRMContext)
+    ? `\n\n[CRM data from earlier in this conversation:\n${lastCRMContext.substring(0, 3000)}]`
+    : '';
+
+  // Build history-aware message array — exclude the current user turn (last entry) since
+  // it's about to be added below with the enriched context attached
+  const historyMessages = conversationHistory.slice(0, -1).slice(-10)
+    .map(h => ({ role: h.role, content: h.content }));
+
+  const hasContext = !!(freshContext || prevContext);
   const messages = [
-    { role: 'system', content: `You are Safi AI, a warm, smart assistant embedded in a CRM used by sales teams. Talk like a knowledgeable colleague — friendly, natural, and helpful. Use contractions, be conversational, and keep things concise. When listing items use markdown bullet points (- item) or numbered lists. Use **bold** for key terms. Use headings only when the response has clearly distinct sections. Never be stiff or robotic. Show genuine interest in helping.${crmContext ? ' You have access to real CRM data — use it naturally to give specific, accurate answers.' : ''}` },
-    { role: 'user', content: text + crmContext }
+    { role: 'system', content: `You are Safi AI, a warm, smart assistant embedded in a CRM used by sales teams. Talk like a knowledgeable colleague — friendly, natural, and helpful. Use contractions, be conversational, keep things concise. When listing items use markdown bullet points. Use **bold** for key terms. Never be stiff or robotic.${hasContext ? ' You have real CRM data available — answer precisely from it, citing specific names and numbers.' : ''} When answering follow-up questions, use the context of the full conversation above.` },
+    ...historyMessages,
+    { role: 'user', content: text + freshContext + prevContext }
   ];
-  const response = await groqChat(messages, 300, 0.7);
+  const response = await groqChat(messages, 350, 0.7);
   return response.trim();
 }
 
@@ -2129,6 +2158,7 @@ function renderMarkdown(rawText) {
 }
 
 function appendUserMessage(text) {
+  addToHistory('user', text);
   document.getElementById('ai-chat-empty')?.classList.add('hidden');
   const container = document.getElementById('ai-chat-messages');
   const msg = document.createElement('div');
@@ -2153,6 +2183,7 @@ function buildAIMessageActions() {
 }
 
 function appendAIMessage(text) {
+  addToHistory('assistant', text);
   document.getElementById('ai-chat-empty')?.classList.add('hidden');
   const container = document.getElementById('ai-chat-messages');
   const msg = document.createElement('div');
