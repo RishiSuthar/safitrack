@@ -34,23 +34,23 @@ function initializeAIChat() {
   if (navBtn) navBtn.addEventListener('click', openChat);
 
   function openChat() {
-    if (windowEl.classList.contains('active')) {
-      // already open, do nothing
-      return;
-    }
+    if (windowEl.classList.contains('active')) return;
     windowEl.classList.add('active');
     if (!chatState || !chatState.intent) {
       resetConversation();
-      appendAIMessage('Hey! What can I help you with today?');
+      document.getElementById('ai-chat-empty')?.classList.remove('hidden');
     }
   }
   closeBtn.addEventListener('click', () => windowEl.classList.remove('active'));
   const newBtn = document.getElementById('ai-chat-new');
   if (newBtn) newBtn.addEventListener('click', () => {
-    // clear messages and reset state
-    document.getElementById('ai-chat-messages').innerHTML = '';
+    const msgs = document.getElementById('ai-chat-messages');
+    if (msgs) {
+      // Remove message elements, preserve the empty state node
+      Array.from(msgs.children).forEach(el => { if (el.id !== 'ai-chat-empty') el.remove(); });
+    }
     resetConversation();
-    appendAIMessage('Fresh start! What are we working on?');
+    document.getElementById('ai-chat-empty')?.classList.remove('hidden');
   });
 
   sendBtn.addEventListener('click', onUserSubmit);
@@ -72,10 +72,20 @@ function initializeAIChat() {
     }
   });
 
-  // Action button delegation (copy, helpful, not-helpful, retry)
+  // Delegated click handler: suggestion chips + action buttons
   const messagesEl = document.getElementById('ai-chat-messages');
   if (messagesEl) {
     messagesEl.addEventListener('click', async (e) => {
+      // Suggestion chips (empty state)
+      const chip = e.target.closest('.ai-chip');
+      if (chip && chip.dataset.prompt) {
+        const inp = document.getElementById('ai-chat-input');
+        if (inp) { inp.value = chip.dataset.prompt; inp.dispatchEvent(new Event('input')); }
+        onUserSubmit();
+        return;
+      }
+
+      // Action buttons (copy, helpful, not-helpful, retry)
       const btn = e.target.closest('.ai-chat-action-btn');
       if (!btn) return;
       const action = btn.dataset.action;
@@ -2119,6 +2129,7 @@ function renderMarkdown(rawText) {
 }
 
 function appendUserMessage(text) {
+  document.getElementById('ai-chat-empty')?.classList.add('hidden');
   const container = document.getElementById('ai-chat-messages');
   const msg = document.createElement('div');
   msg.className = 'ai-chat-message user';
@@ -2142,6 +2153,7 @@ function buildAIMessageActions() {
 }
 
 function appendAIMessage(text) {
+  document.getElementById('ai-chat-empty')?.classList.add('hidden');
   const container = document.getElementById('ai-chat-messages');
   const msg = document.createElement('div');
   msg.className = 'ai-chat-message ai';

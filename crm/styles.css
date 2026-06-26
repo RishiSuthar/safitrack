@@ -11819,8 +11819,33 @@ body.is-dragging * {
 .ai-chat-header-identity {
   display: flex;
   align-items: center;
+  gap: 8px;
   flex: 1;
   min-width: 0;
+}
+
+/* ---- Live status dot (pulsing green indicator) ---- */
+.ai-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-success);
+  flex-shrink: 0;
+  position: relative;
+}
+.ai-status-dot::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  background: var(--color-success);
+  opacity: 0;
+  animation: statusPulse 3s ease-in-out infinite;
+}
+@keyframes statusPulse {
+  0%   { transform: scale(0.9); opacity: 0.5; }
+  60%  { transform: scale(2.2); opacity: 0; }
+  100% { transform: scale(0.9); opacity: 0; }
 }
 
 .ai-chat-title {
@@ -11883,10 +11908,16 @@ body.is-dragging * {
   border-radius: 2px;
 }
 
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .ai-chat-message {
   display: flex;
   flex-direction: column;
   max-width: 92%;
+  animation: msgIn 0.15s ease forwards;
 }
 
 .ai-chat-message.user {
@@ -12274,6 +12305,62 @@ body.is-dragging * {
 [data-theme="dark"] .ai-chat-bubble code {
   background: rgba(255, 255, 255, 0.07);
   border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* ---- Empty state ---- */
+.ai-chat-empty {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px 48px;
+  gap: 20px;
+}
+.ai-chat-empty.hidden {
+  display: none;
+}
+.ai-chat-empty-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+.ai-chip-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  width: 100%;
+}
+.ai-chip {
+  padding: 9px 11px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+  font-family: inherit;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ai-chip:hover {
+  background: var(--color-primary-bg);
+  border-color: rgba(var(--color-primary-rgb), 0.3);
+  color: var(--color-primary);
+}
+[data-theme="dark"] .ai-chip {
+  background: var(--bg-tertiary);
+  border-color: var(--border-color);
+}
+[data-theme="dark"] .ai-chip:hover {
+  background: var(--color-primary-bg);
 }
 
 [data-theme="dark"] .ai-chat-input-wrap {
