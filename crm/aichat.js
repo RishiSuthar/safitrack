@@ -238,44 +238,40 @@ async function processUserMessage(text) {
 async function findOpportunityForAdvice(text) {
   if (!text || !text.trim()) return null;
   try {
-    // build a loose search pattern from tokens to pull candidates
-    const tokens = text.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().split(/\s+/).filter(Boolean);
-    if (!tokens.length) return null;
-    // query using first token to limit results
-    const { data, error } = await supabaseClient
-      .from('opportunities')
-      .select('*')
-      .ilike('company_name', `%${tokens[0]}%`)
-      .limit(50);
-    if (error) {
-      console.error('supabase advice lookup error', error);
-      return null;
+    // Use all meaningful tokens, not just the first word
+    const tokens = extractMeaningfulTokens(text);
+    const searchTokens = tokens.length
+      ? tokens.slice(0, 4)
+      : text.toLowerCase().replace(/[^a-z0-9\s]/g, ' ').trim().split(/\s+/).filter(t => t.length >= 2).slice(0, 3);
+    if (!searchTokens.length) return null;
+
+    // Search both company_name and name with every token in parallel
+    const searches = searchTokens.map(token =>
+      supabaseClient
+        .from('opportunities')
+        .select('*')
+        .or(`company_name.ilike.%${token}%,name.ilike.%${token}%`)
+        .limit(20)
+    );
+    const results = await Promise.all(searches);
+
+    const seen = new Set();
+    const candidates = [];
+    for (const res of results) {
+      for (const o of (res.data || [])) {
+        if (!seen.has(o.id)) { seen.add(o.id); candidates.push(o); }
+      }
     }
-    if (!data || !data.length) return null;
-    // perform normalization-based matching on returned candidates
-    const normQuery = normalizeForMatching(text);
+    if (!candidates.length) return null;
+
+    // Pick best candidate by token overlap score
     let best = null, bestScore = 0;
-    for (const o of data) {
-      const company = normalizeForMatching(o.company_name || '');
-      const name = normalizeForMatching(o.name || '');
-      if ((company && (company.includes(normQuery) || normQuery.includes(company))) ||
-          (name && (name.includes(normQuery) || normQuery.includes(name)))) {
-        return o;
-      }
-      const tokensSet = new Set(normQuery.split(/\s+/).filter(Boolean));
-      const candidate = company || name;
-      if (candidate) {
-        const candTokens = candidate.split(/\s+/).filter(Boolean);
-        let common = 0;
-        candTokens.forEach(t => { if (tokensSet.has(t)) common++; });
-        const score = candTokens.length > 0 ? common / candTokens.length : 0;
-        if (score > bestScore) {
-          bestScore = score;
-          best = o;
-        }
-      }
+    for (const o of candidates) {
+      const combined = `${o.company_name || ''} ${o.name || ''}`.toLowerCase();
+      const s = searchTokens.reduce((acc, t) => acc + (combined.includes(t) ? 1 : 0), 0);
+      if (s > bestScore) { bestScore = s; best = o; }
     }
-    if (bestScore >= 0.5) return best;
+    return best;
   } catch (e) {
     console.error('findOpportunityForAdvice exception', e);
   }
@@ -477,6 +473,79 @@ async function extractSearchTerms(text) {
     return parsed;
   } catch (e) {
     return { search: text };
+  }
+}
+
+// ------------------------------------------------------------------
+// Smart entity resolution helpers — no API call needed
+// ------------------------------------------------------------------
+
+// Strip stopwords and CRM jargon, return meaningful search tokens
+function extractMeaningfulTokens(text) {
+  const stopwords = new Set([
+    'the','a','an','is','are','was','were','be','been','being','have','has','had',
+    'do','does','did','will','would','could','should','may','might','shall','can',
+    'i','me','my','we','our','you','your','he','him','his','she','her','it','its',
+    'they','them','their','what','which','who','this','that','these','those',
+    'and','but','or','nor','for','yet','so','at','by','in','of','on','to','up',
+    'as','if','not','too','very','just','now','then','here','there','also',
+    // CRM query filler words
+    'tell','give','find','search','show','list','display','get','pull','fetch',
+    'company','companies','deal','deals','opportunity','opportunities','opp','opps',
+    'contact','contacts','client','clients','customer','customers','account','accounts',
+    'information','info','details','overview','summary','status','update','data',
+    'situation','latest','recent','current','know','please','check','look',
+    'rundown','regarding','related','about','everything','anything','something',
+    'how','what','give','see','with','from','into','upon','within','without','through'
+  ]);
+  return text
+    .toLowerCase()
+    .replace(/[\u2018\u2019]/g, '') // smart quotes
+    .replace(/[^a-z0-9\s\-]/g, ' ')
+    .split(/\s+/)
+    .map(t => t.replace(/^-+|-+$/g, ''))
+    .filter(t => t.length >= 2 && !stopwords.has(t));
+}
+
+// CRM-wide parallel search across companies, opportunities and people.
+// Returns ranked { companies, opportunities, people } arrays.
+async function smartCRMSearch(text) {
+  const tokens = extractMeaningfulTokens(text);
+  if (!tokens.length) return { companies: [], opportunities: [], people: [] };
+
+  const searchTokens = tokens.slice(0, 4);
+
+  try {
+    // For each token, fire three parallel queries (company, opp, person)
+    const queries = searchTokens.flatMap(token => [
+      supabaseClient.from('companies').select('id, name, company_type, address').or(`name.ilike.%${token}%`).limit(8),
+      supabaseClient.from('opportunities').select('id, name, company_name, stage, value').or(`name.ilike.%${token}%,company_name.ilike.%${token}%`).limit(8),
+      supabaseClient.from('people').select('id, name, email, job_title').or(`name.ilike.%${token}%`).limit(8)
+    ]);
+    const results = await Promise.all(queries);
+
+    const seenC = new Set(), seenO = new Set(), seenP = new Set();
+    const companies = [], opportunities = [], people = [];
+    for (let i = 0; i < results.length; i++) {
+      const type = i % 3; // 0=company, 1=opp, 2=person
+      for (const r of (results[i].data || [])) {
+        if (type === 0 && !seenC.has(r.id)) { seenC.add(r.id); companies.push(r); }
+        if (type === 1 && !seenO.has(r.id)) { seenO.add(r.id); opportunities.push(r); }
+        if (type === 2 && !seenP.has(r.id)) { seenP.add(r.id); people.push(r); }
+      }
+    }
+
+    // Score by token overlap and sort best-first
+    const score = (rec, fields) => fields.reduce((s, f) =>
+      s + searchTokens.reduce((ss, t) => ss + ((rec[f] || '').toLowerCase().includes(t) ? 1 : 0), 0), 0);
+    companies.sort((a, b) => score(b, ['name']) - score(a, ['name']));
+    opportunities.sort((a, b) => score(b, ['name', 'company_name']) - score(a, ['name', 'company_name']));
+    people.sort((a, b) => score(b, ['name', 'job_title']) - score(a, ['name', 'job_title']));
+
+    return { companies, opportunities, people };
+  } catch (err) {
+    console.error('smartCRMSearch error', err);
+    return { companies: [], opportunities: [], people: [] };
   }
 }
 
@@ -778,6 +847,230 @@ async function fetchActivityContext(text) {
   }
 }
 
+// Fetch all CRM data for a specific company (deep dive)
+async function fetchCompanyDeepContext(companyName) {
+  if (!companyName || !companyName.trim()) return 'No company name provided.';
+
+  try {
+    // Find the company (fuzzy match, best hit)
+    const { data: companies, error: compError } = await supabaseClient
+      .from('companies')
+      .select('id, name, company_type, address, description, domain, company_categories(categories(name))')
+      .ilike('name', `%${companyName.trim()}%`)
+      .limit(3);
+
+    if (compError) throw compError;
+    if (!companies || !companies.length) return `No company found matching "${companyName}".`;
+
+    // Pick best match by scoring token overlap (not just alphabetical first)
+    const qLow = companyName.trim().toLowerCase();
+    const qTokens = extractMeaningfulTokens(companyName).concat([qLow]);
+    let best = companies[0], bestScore = -1;
+    for (const c of companies) {
+      const cLow = c.name.toLowerCase();
+      let s = qTokens.reduce((acc, t) => acc + (cLow.includes(t) ? 1 : 0), 0);
+      if (cLow === qLow) s += 10;
+      else if (cLow.startsWith(qLow)) s += 5;
+      if (s > bestScore) { bestScore = s; best = c; }
+    }
+    const company = best;
+    const companyId = company.id;
+    const canonicalName = company.name;
+    const categories = (company.company_categories || []).map(cc => cc.categories?.name).filter(Boolean).join(', ');
+
+    // Fetch all related data in parallel
+    const [peopleRes, oppsRes, visitsRes, callsRes, tasksRes, remindersRes] = await Promise.all([
+      supabaseClient
+        .from('people')
+        .select('id, name, email, job_title, phone_numbers')
+        .eq('company_id', companyId)
+        .order('name', { ascending: true }),
+      supabaseClient
+        .from('opportunities')
+        .select('id, name, stage, value, probability, next_step, next_step_date, notes, created_at')
+        .ilike('company_name', `%${canonicalName}%`)
+        .order('value', { ascending: false })
+        .limit(20),
+      supabaseClient
+        .from('visits')
+        .select('id, contact_name, visit_type, notes, created_at, user:profiles(first_name, last_name)')
+        .ilike('company_name', `%${canonicalName}%`)
+        .order('created_at', { ascending: false })
+        .limit(12),
+      supabaseClient
+        .from('call_logs')
+        .select('id, direction, outcome, notes, call_at, duration_minutes, people(name), profiles(first_name, last_name)')
+        .ilike('company_name', `%${canonicalName}%`)
+        .order('call_at', { ascending: false })
+        .limit(12),
+      supabaseClient
+        .from('tasks')
+        .select('id, title, status, due_date, priority')
+        .ilike('title', `%${canonicalName}%`)
+        .neq('status', 'completed')
+        .limit(10),
+      supabaseClient
+        .from('reminders')
+        .select('id, title, reminder_date, is_completed')
+        .ilike('title', `%${canonicalName}%`)
+        .eq('is_completed', false)
+        .limit(5)
+    ]);
+
+    const people = peopleRes.data || [];
+    const opps = oppsRes.data || [];
+    const visits = visitsRes.data || [];
+    const calls = callsRes.data || [];
+    const tasks = tasksRes.data || [];
+    const reminders = remindersRes.data || [];
+    const now = new Date();
+    const currency = (typeof orgCurrency !== 'undefined' && orgCurrency) || 'USD';
+
+    const lines = [
+      `Company: ${canonicalName}`,
+      `Type: ${company.company_type || 'N/A'}`,
+      `Location: ${company.address || 'N/A'}`,
+      `Industry: ${categories || 'N/A'}`,
+      company.description ? `Description: ${company.description}` : null,
+    ].filter(Boolean);
+
+    // Contacts
+    lines.push(`\nContacts (${people.length}):`);
+    if (people.length) {
+      people.forEach(p => {
+        const phone = (p.phone_numbers && p.phone_numbers.length) ? p.phone_numbers[0] : 'N/A';
+        lines.push(`  • ${p.name} — ${p.job_title || 'No title'} — ${p.email || 'No email'} — ${phone}`);
+      });
+    } else {
+      lines.push('  No contacts on record');
+    }
+
+    // Deals / Pipeline
+    const openOpps = opps.filter(o => !['closed-won', 'closed-lost', 'won', 'lost'].includes((o.stage || '').toLowerCase()));
+    const wonOpps = opps.filter(o => ['closed-won', 'won'].includes((o.stage || '').toLowerCase()));
+    const totalPipeline = openOpps.reduce((s, o) => s + (parseFloat(o.value) || 0), 0);
+    lines.push(`\nDeals/Opportunities (${opps.length} total — ${openOpps.length} open, ${wonOpps.length} won):`);
+    lines.push(`  Open pipeline value: ${currency} ${totalPipeline.toLocaleString()}`);
+    if (opps.length) {
+      opps.slice(0, 10).forEach(o => {
+        const overdueFlag = o.next_step_date && new Date(o.next_step_date) < now ? ' [OVERDUE NEXT STEP]' : '';
+        lines.push(`  • ${o.name} — ${o.stage} — ${currency} ${(parseFloat(o.value) || 0).toLocaleString()} — Prob: ${o.probability || 0}% — Next: ${o.next_step || 'N/A'}${overdueFlag}`);
+      });
+    } else {
+      lines.push('  No deals on record');
+    }
+
+    // Recent visits
+    lines.push(`\nRecent Visits (${visits.length}):`);
+    if (visits.length) {
+      visits.forEach(v => {
+        const rep = v.user ? `${v.user.first_name || ''} ${v.user.last_name || ''}`.trim() : '';
+        const dateStr = new Date(v.created_at).toLocaleDateString();
+        const notesSnip = v.notes ? ` — "${v.notes.substring(0, 100)}"` : '';
+        lines.push(`  • ${dateStr} — ${v.visit_type || 'visit'} — Contact: ${v.contact_name || 'N/A'}${rep ? ` — Rep: ${rep}` : ''}${notesSnip}`);
+      });
+    } else {
+      lines.push('  No visits on record');
+    }
+
+    // Recent calls
+    lines.push(`\nRecent Calls (${calls.length}):`);
+    if (calls.length) {
+      calls.forEach(c => {
+        const contact = c.people?.name || 'Unknown';
+        const rep = c.profiles ? `${c.profiles.first_name || ''} ${c.profiles.last_name || ''}`.trim() : '';
+        const dateStr = new Date(c.call_at).toLocaleDateString();
+        const notesSnip = c.notes ? ` — "${c.notes.substring(0, 80)}"` : '';
+        lines.push(`  • ${dateStr} — ${c.direction || ''} ${c.outcome || ''} — Contact: ${contact}${rep ? ` — Rep: ${rep}` : ''}${c.duration_minutes ? ` — ${c.duration_minutes}min` : ''}${notesSnip}`);
+      });
+    } else {
+      lines.push('  No calls on record');
+    }
+
+    // Active tasks
+    if (tasks.length) {
+      lines.push(`\nActive Tasks (${tasks.length}):`);
+      tasks.forEach(t => {
+        const overdueFlag = t.due_date && new Date(t.due_date) < now ? ' [OVERDUE]' : '';
+        lines.push(`  • ${t.title} — Priority: ${t.priority || 'medium'} — Due: ${t.due_date ? new Date(t.due_date).toLocaleDateString() : 'N/A'}${overdueFlag}`);
+      });
+    }
+
+    // Active reminders
+    if (reminders.length) {
+      lines.push(`\nActive Reminders (${reminders.length}):`);
+      reminders.forEach(r => {
+        lines.push(`  • ${r.title} — Due: ${r.reminder_date ? new Date(r.reminder_date).toLocaleDateString() : 'N/A'}`);
+      });
+    }
+
+    return lines.join('\n');
+  } catch (err) {
+    console.error('fetchCompanyDeepContext error', err);
+    return 'Error fetching company data.';
+  }
+}
+
+// Fetch tasks data for AI context
+async function fetchTasksContext(text) {
+  const terms = await extractSearchTerms(text);
+  const searchTerm = terms.search || terms.company || terms.person || '';
+
+  try {
+    const now = new Date();
+    const isOverdue = /overdue|past due|late|missed/i.test(text);
+    const isHighPriority = /high.?priority|urgent|important/i.test(text);
+    const isMine = /my tasks?|assigned to me|mine/i.test(text);
+
+    let query = supabaseClient
+      .from('tasks')
+      .select('id, title, description, status, due_date, priority, assigned_to, profiles!tasks_assigned_to_fkey(first_name, last_name)')
+      .neq('status', 'completed')
+      .order('due_date', { ascending: true, nullsFirst: false })
+      .limit(40);
+
+    if (isHighPriority) query = query.eq('priority', 'high');
+    if (isMine && currentUser) query = query.or(`assigned_to.eq.${currentUser.id}`);
+    if (searchTerm && searchTerm.length > 1) query = query.ilike('title', `%${searchTerm}%`);
+
+    const { data: tasks, error } = await query;
+    if (error) throw error;
+
+    const allTasks = tasks || [];
+    const overdueTasks = allTasks.filter(t => t.due_date && new Date(t.due_date) < now);
+    const dueTodayTasks = allTasks.filter(t => {
+      if (!t.due_date) return false;
+      const d = new Date(t.due_date);
+      return d.toDateString() === now.toDateString();
+    });
+    const highPriorityTasks = allTasks.filter(t => t.priority === 'high');
+
+    const display = isOverdue ? overdueTasks : allTasks;
+    const taskLines = display.slice(0, 25).map(t => {
+      const assignee = t.profiles ? `${t.profiles.first_name || ''} ${t.profiles.last_name || ''}`.trim() : 'Unassigned';
+      const overdueFlag = t.due_date && new Date(t.due_date) < now ? ' [OVERDUE]' : '';
+      const dueDate = t.due_date ? new Date(t.due_date).toLocaleDateString() : 'No due date';
+      return `  • ${t.title} — Priority: ${t.priority || 'medium'} — Due: ${dueDate} — Assigned: ${assignee}${overdueFlag}`;
+    });
+
+    const lines = [
+      `Tasks Overview:`,
+      `  Total open: ${allTasks.length}`,
+      `  Overdue: ${overdueTasks.length}`,
+      `  Due today: ${dueTodayTasks.length}`,
+      `  High priority: ${highPriorityTasks.length}`,
+      '',
+      searchTerm ? `Tasks matching "${searchTerm}":` : (isOverdue ? 'Overdue tasks:' : 'All open tasks:'),
+      ...taskLines
+    ];
+
+    return lines.join('\n');
+  } catch (err) {
+    console.error('fetchTasksContext error', err);
+    return 'Error fetching tasks data.';
+  }
+}
+
 // Fetch full CRM summary for AI context
 async function fetchCRMSummary() {
   try {
@@ -910,6 +1203,48 @@ async function handleQueryActivity(text) {
   appendAIMessage(reply);
 }
 
+async function handleQueryCompanyDeep(text) {
+  // Step 1: Run smart CRM-wide search immediately — no Groq round-trip needed
+  const searchResults = await smartCRMSearch(text);
+
+  // Step 2: If we found companies, use the best match
+  if (searchResults.companies.length) {
+    const bestCompany = searchResults.companies[0].name;
+    const context = await fetchCompanyDeepContext(bestCompany);
+    if (!context.startsWith('No company found') && !context.startsWith('Error')) {
+      const messages = [
+        { role: 'system', content: `You are Safi AI, a sharp CRM assistant. The user wants a full overview of a specific company. Below is all the CRM data for that company — contacts, deals, visits, calls, tasks. Present it in a well-organized, insightful way. Use **bold** for the company name and key numbers. Use **bold section headers** like **Contacts**, **Pipeline**, **Recent Activity**, **Tasks**. Highlight actionable insights: overdue next steps, open pipeline value, visit frequency, key contacts. Be concise but thorough. Max 500 words.` },
+        { role: 'user', content: `User question: "${text}"\n\nFull company data from CRM:\n${context}\n\nGive a comprehensive, insightful company overview.` }
+      ];
+      const reply = await groqChat(messages, 650, 0.6);
+      appendAIMessage(reply);
+      return;
+    }
+  }
+
+  // Step 3: No company matched — try opportunities if found
+  if (searchResults.opportunities.length && !searchResults.companies.length) {
+    await handleQueryOpportunities(text);
+    return;
+  }
+
+  // Step 4: Nothing found at all — ask the user
+  appendAIMessage("Which company are you asking about? Just give me the name and I'll pull up everything we have on them.");
+  chatState.intent = 'query_company_deep';
+  chatState.awaitingField = 'company_name';
+}
+
+async function handleQueryTasks(text) {
+  const context = await fetchTasksContext(text);
+
+  const messages = [
+    { role: 'system', content: `You are Safi AI, a helpful CRM assistant. The user is asking about tasks. Below is the real task data. Present it in a clear, actionable way. Use **bold** for task names. Flag overdue items with urgency. Group by priority if there are many tasks. Be practical and motivating — not just a dry list. Max 300 words.` },
+    { role: 'user', content: `User question: "${text}"\n\nTask Data:\n${context}\n\nAnswer based on this real data.` }
+  ];
+  const reply = await groqChat(messages, 400, 0.6);
+  appendAIMessage(reply);
+}
+
 async function handleCRMSummary(text) {
   const context = await fetchCRMSummary();
 
@@ -960,6 +1295,13 @@ async function handleUserMessage(text) {
   if (chatState.intent === 'find_contact' && chatState.awaitingField === 'contact_name') {
     delete chatState.awaitingField;
     await handleFindContact(text);
+    resetConversation();
+    return;
+  }
+
+  if (chatState.intent === 'query_company_deep' && chatState.awaitingField === 'company_name') {
+    delete chatState.awaitingField;
+    await handleQueryCompanyDeep(text);
     resetConversation();
     return;
   }
@@ -1016,6 +1358,16 @@ async function handleUserMessage(text) {
     }
     if (chatState.intent === 'crm_summary') {
       await handleCRMSummary(text);
+      resetConversation();
+      return;
+    }
+    if (chatState.intent === 'query_company_deep') {
+      await handleQueryCompanyDeep(text);
+      resetConversation();
+      return;
+    }
+    if (chatState.intent === 'query_tasks') {
+      await handleQueryTasks(text);
       resetConversation();
       return;
     }
@@ -1272,54 +1624,75 @@ Intents:
 - advise_opportunity: user wants tips, advice, or strategy on how to WIN or progress an EXISTING deal (e.g. "how do I win the Safaricom deal", "help me with this opportunity", "how can I close [company]")
 - today_agenda: user wants to know what they have on for today, their schedule, tasks due today, reminders today (e.g. "what's on my agenda", "what do I have today", "my day", "what's due today")
 - find_contact: user wants to look up a person/contact in the CRM (e.g. "find John", "who is Jane at KCB", "look up David", "search for a contact")
-- query_companies: user is asking ABOUT companies in the CRM — listing, counting, searching, or getting details on one or more companies (e.g. "how many companies do we have", "tell me about KCB", "list our customers", "show me companies in Nairobi", "what companies are we working with")
+- query_company_deep: user wants a detailed/comprehensive overview of ONE specific named company — contacts, deals, visits, call history, tasks (e.g. "tell me about Safaricom", "what's the situation with KCB Bank?", "give me a rundown on ABC Ltd", "how is our relationship with Equity?", "what do we know about Twiga Foods?", "show me everything on [company name]")
+- query_companies: user is asking BROADLY about companies in the CRM — listing multiple, counting, filtering by type/location, or comparing (e.g. "how many companies do we have", "list our customers", "show me companies in Nairobi", "what types of companies do we work with")
 - query_people: user is asking about people/contacts in the CRM — listing, counting, or querying contacts (e.g. "who works at Safaricom", "how many contacts do we have", "show me people without emails", "list contacts at KCB")
 - query_opportunities: user is asking about the deals/pipeline — pipeline summary, deal counts, deal stages, values, stuck deals (e.g. "what's my pipeline looking like", "show me deals over 500K", "which deals are in prospecting", "deals closing this month", "pipeline summary")
 - query_activity: user is asking about recent activity — visits, call logs, notes (e.g. "show me recent visits", "what calls were made this week", "my recent activity", "last visit to Safaricom")
+- query_tasks: user is asking about tasks or to-dos — listing, filtering, overdue tasks (e.g. "what tasks do I have?", "show me overdue tasks", "what's on my to-do list", "high priority tasks", "pending tasks")
 - crm_summary: user wants an overall CRM health check or status update across all data (e.g. "give me a status update", "how's business", "CRM overview", "give me the big picture")
 - none: anything else (greetings, questions, general conversation)
 
 Key rules:
 - If the user says "create", "add", "make", "log", or "new" + opportunity/deal, it is ALWAYS create_opportunity, never advise_opportunity.
-- If the user is asking a QUESTION about companies/people/deals (not creating), use the query_* intents.
+- If the user names ONE specific company and wants detailed info about it (contacts, history, deals), use query_company_deep.
+- If the user asks broadly about companies (listing, counting, filtering), use query_companies.
+- If the user asks about tasks/to-dos/reminders as a list, use query_tasks.
+- If the user asks a QUESTION about companies/people/deals (not creating), use the query_* intents.
 - If the user asks broadly about "the business" or "everything" or "status", use crm_summary.` },
     { role: 'user', content: `User message: "${text}"` }
   ];
   const response = await groqChat(messages, 20, 0);
-  const match = response.match(/create_task|create_reminder|create_opportunity|advise_opportunity|today_agenda|find_contact|query_companies|query_people|query_opportunities|query_activity|crm_summary/);
+  const match = response.match(/create_task|create_reminder|create_opportunity|advise_opportunity|today_agenda|find_contact|query_company_deep|query_companies|query_people|query_opportunities|query_activity|query_tasks|crm_summary/);
   return match ? match[0] : 'none';
 }
 
 async function generateCasualReply(text) {
   // Check if the question might benefit from CRM context
-  const businessKeywords = /\b(company|companies|deal|deals|pipeline|contact|contacts|client|clients|customer|customers|sales|revenue|target|quota|visit|visits|call|calls|opportunity|opportunities|lead|leads|prospect|report|business|performance|team|rep|reps)\b/i;
+  const businessKeywords = /\b(company|companies|deal|deals|pipeline|contact|contacts|client|clients|customer|customers|sales|revenue|target|quota|visit|visits|call|calls|opportunity|opportunities|lead|leads|prospect|report|business|performance|team|rep|reps|task|tasks|reminder)\b/i;
   let crmContext = '';
 
   if (businessKeywords.test(text)) {
     try {
-      // Fetch a lightweight CRM snapshot for context
-      const [companiesCount, peopleCount, oppsRes] = await Promise.all([
-        supabaseClient.from('companies').select('*', { count: 'exact', head: true }),
-        supabaseClient.from('people').select('*', { count: 'exact', head: true }),
-        supabaseClient.from('opportunities').select('id, stage, value').limit(100)
-      ]);
+      // Use smartCRMSearch — finds companies, deals and people by token, no Groq needed
+      const searchResults = await smartCRMSearch(text);
 
-      const opps = oppsRes.data || [];
-      const openOpps = opps.filter(o => !['closed-won', 'closed-lost', 'won', 'lost'].includes((o.stage || '').toLowerCase()));
-      const pipelineValue = openOpps.reduce((s, o) => s + (parseFloat(o.value) || 0), 0);
-      const currency = (typeof orgCurrency !== 'undefined' && orgCurrency) || 'USD';
+      if (searchResults.companies.length) {
+        const deepCtx = await fetchCompanyDeepContext(searchResults.companies[0].name);
+        if (!deepCtx.startsWith('No company found') && !deepCtx.startsWith('Error')) {
+          crmContext = `\n\n[CRM Data for ${searchResults.companies[0].name}:\n${deepCtx}]`;
+        }
+      } else if (searchResults.opportunities.length) {
+        const opp = searchResults.opportunities[0];
+        crmContext = `\n\n[CRM Match: Opportunity "${opp.name}" — Company: ${opp.company_name || 'N/A'} — Stage: ${opp.stage} — Value: ${opp.value || 'N/A'}]`;
+      } else if (searchResults.people.length) {
+        const p = searchResults.people[0];
+        crmContext = `\n\n[CRM Match: Contact "${p.name}" — ${p.job_title || 'No title'} — ${p.email || 'No email'}]`;
+      }
 
-      crmContext = `\n\n[CRM Context: ${companiesCount.count || 0} companies, ${peopleCount.count || 0} contacts, ${openOpps.length} open deals worth ${currency} ${pipelineValue.toLocaleString()} total pipeline]`;
+      // Fall back to lightweight CRM snapshot if still no entity-specific context
+      if (!crmContext) {
+        const [companiesCount, peopleCount, oppsRes] = await Promise.all([
+          supabaseClient.from('companies').select('*', { count: 'exact', head: true }),
+          supabaseClient.from('people').select('*', { count: 'exact', head: true }),
+          supabaseClient.from('opportunities').select('id, stage, value').limit(100)
+        ]);
+        const opps = oppsRes.data || [];
+        const openOpps = opps.filter(o => !['closed-won', 'closed-lost', 'won', 'lost'].includes((o.stage || '').toLowerCase()));
+        const pipelineValue = openOpps.reduce((s, o) => s + (parseFloat(o.value) || 0), 0);
+        const currency = (typeof orgCurrency !== 'undefined' && orgCurrency) || 'USD';
+        crmContext = `\n\n[CRM Context: ${companiesCount.count || 0} companies, ${peopleCount.count || 0} contacts, ${openOpps.length} open deals worth ${currency} ${pipelineValue.toLocaleString()} total pipeline]`;
+      }
     } catch (e) {
       // Non-critical, continue without context
     }
   }
 
   const messages = [
-    { role: 'system', content: `You are Safi AI, a warm, smart assistant embedded in a CRM used by sales teams. Talk like a knowledgeable colleague — friendly, natural, and helpful. Use contractions, be conversational, and keep things concise. When listing items use markdown bullet points (- item) or numbered lists. Use **bold** for key terms. Use headings only when the response has clearly distinct sections. Never be stiff or robotic. Show genuine interest in helping.${crmContext ? ' You have access to the user\'s CRM data — use it naturally if relevant to their question, but don\'t force it.' : ''}` },
+    { role: 'system', content: `You are Safi AI, a warm, smart assistant embedded in a CRM used by sales teams. Talk like a knowledgeable colleague — friendly, natural, and helpful. Use contractions, be conversational, and keep things concise. When listing items use markdown bullet points (- item) or numbered lists. Use **bold** for key terms. Use headings only when the response has clearly distinct sections. Never be stiff or robotic. Show genuine interest in helping.${crmContext ? ' You have access to real CRM data — use it naturally to give specific, accurate answers.' : ''}` },
     { role: 'user', content: text + crmContext }
   ];
-  const response = await groqChat(messages, 250, 0.7);
+  const response = await groqChat(messages, 300, 0.7);
   return response.trim();
 }
 
