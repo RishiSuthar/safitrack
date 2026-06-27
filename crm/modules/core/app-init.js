@@ -86,6 +86,7 @@ async function initApp() {
         .single();
       state.currentOrganization = org || null;
       state.orgCurrency = org?.currency || 'USD';
+      state.isOrgOwner = !!(org && org.owner_id === state.currentUser?.id);
       const orgNameEl = document.getElementById('ws-btn-org-name');
       const orgAvatarEl = document.getElementById('ws-btn-avatar');
       const headerOrgNameEl = document.getElementById('header-org-name');

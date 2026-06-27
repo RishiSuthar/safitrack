@@ -691,6 +691,26 @@ async function renderSettingsView() {
                 </button>
               </div>
             </div>
+
+            ${state.isOrgOwner ? `
+            <div class="sv-danger-divider"></div>
+
+            <div class="sv-danger-field-row sv-danger-field-row--owner">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">
+                  Delete entire organization
+                  <span class="sv-owner-badge">Owner only</span>
+                </div>
+                <div class="sv-field-hint">Permanently deletes this workspace, all members, and every record. This action cannot be undone.</div>
+              </div>
+              <div class="sv-field-control">
+                <button id="delete-org-btn" class="sv-danger-btn sv-danger-btn--filled">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex-shrink:0;"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                  Delete organization
+                </button>
+              </div>
+            </div>
+            ` : ''}
           </div>
         </section>
 
@@ -1055,6 +1075,34 @@ async function renderSettingsView() {
         font-family: inherit;
       }
       .sv-danger-btn:hover { background: rgba(220,38,38,0.1); border-color: #dc2626; }
+      .sv-danger-btn--filled {
+        background: #dc2626;
+        border-color: #dc2626;
+        color: #fff;
+        white-space: nowrap;
+        padding: 0 16px;
+      }
+      .sv-danger-btn--filled:hover { background: #b91c1c; border-color: #b91c1c; }
+      .sv-danger-field-row--owner {
+        background: rgba(220,38,38,0.03);
+        border-radius: 0 0 10px 10px;
+      }
+      [data-theme="dark"] .sv-danger-field-row--owner { background: rgba(220,38,38,0.06); }
+      .sv-owner-badge {
+        display: inline-flex;
+        align-items: center;
+        margin-left: 8px;
+        padding: 1px 7px;
+        border-radius: 100px;
+        font-size: 0.68rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        background: rgba(220,38,38,0.1);
+        color: #dc2626;
+        border: 1px solid rgba(220,38,38,0.25);
+        vertical-align: middle;
+      }
 
       /* ── Role / plan chips ── */
       .sv-role-chip, .sv-plan-chip {
@@ -2034,6 +2082,261 @@ async function renderSettingsView() {
       showToast('Failed to delete account: ' + (e.message || 'Unknown error'), 'error');
     }
   });
+
+  /* ─────────────── DELETE ORGANIZATION (owner only) ─────────────── */
+  document.getElementById('delete-org-btn')?.addEventListener('click', async () => {
+    if (!state.isOrgOwner) {
+      showToast('Only the organization owner can perform this action', 'error');
+      return;
+    }
+
+    const orgName = state.currentOrganization?.name || 'your organization';
+
+    const confirmed = await showDeleteOrgModal(orgName);
+    if (!confirmed) return;
+
+    showToast('Deleting organization… this may take a moment.', 'info');
+
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const accessToken = session?.access_token;
+      if (!accessToken) throw new Error('Not authenticated');
+
+      const supabaseUrl = (window.APP_CONFIG || {}).SUPABASE_URL || '';
+      const res = await fetch(`${supabaseUrl}/functions/v1/delete-organization`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await res.json();
+      if (!res.ok || !result.success) {
+        throw new Error(result.error || 'Deletion failed');
+      }
+
+      showToast('Organization deleted. Goodbye!', 'success');
+      setTimeout(async () => {
+        await supabaseClient.auth.signOut();
+      }, 1500);
+    } catch (e) {
+      console.error('Organization deletion error:', e);
+      showToast('Failed to delete organization: ' + (e.message || 'Unknown error'), 'error');
+    }
+  });
+
+  function showDeleteOrgModal(orgName) {
+    return new Promise((resolve) => {
+      // Remove any existing instance
+      document.getElementById('delete-org-overlay')?.remove();
+
+      const overlay = document.createElement('div');
+      overlay.id = 'delete-org-overlay';
+      overlay.style.cssText = `
+        position:fixed;inset:0;z-index:9999;
+        display:flex;align-items:center;justify-content:center;
+        background:rgba(0,0,0,0.55);backdrop-filter:blur(3px);
+        padding:16px;box-sizing:border-box;
+      `;
+
+      overlay.innerHTML = `
+        <div id="delete-org-modal" style="
+          width:100%;max-width:460px;
+          background:var(--bg-primary);
+          border:1px solid var(--border-color);
+          border-radius:14px;
+          box-shadow:0 24px 60px rgba(0,0,0,0.22);
+          overflow:hidden;
+          font-family:'Manrope',-apple-system,BlinkMacSystemFont,sans-serif;
+          animation:doModalIn 0.18s ease;
+        ">
+
+          <!-- Step 1: Warning -->
+          <div id="dorg-step-1">
+            <div style="padding:24px 24px 0;display:flex;flex-direction:column;align-items:center;text-align:center;">
+              <div style="
+                width:52px;height:52px;border-radius:50%;
+                background:rgba(220,38,38,0.1);
+                border:1.5px solid rgba(220,38,38,0.25);
+                display:flex;align-items:center;justify-content:center;
+                margin-bottom:16px;flex-shrink:0;
+              ">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </div>
+              <div style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-bottom:8px;letter-spacing:-0.01em;">
+                This cannot be undone
+              </div>
+              <div style="font-size:0.875rem;color:var(--text-secondary);line-height:1.6;max-width:340px;">
+                You are about to permanently delete <strong style="color:var(--text-primary);">${escapeHtml(orgName)}</strong> and wipe all of its data from SafiTrack.
+              </div>
+            </div>
+
+            <div style="
+              margin:20px 24px;
+              background:rgba(220,38,38,0.05);
+              border:1px solid rgba(220,38,38,0.18);
+              border-radius:10px;
+              padding:14px 16px;
+            ">
+              <div style="font-size:0.76rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#dc2626;margin-bottom:10px;">What will be permanently deleted</div>
+              <ul style="margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px;">
+                ${[
+                  ['All team members & their accounts', 'users'],
+                  ['Contacts — people & companies', 'book-open'],
+                  ['Sales visits, tasks & reminders', 'check-square'],
+                  ['Opportunities & call logs', 'phone'],
+                  ['Routes, notes & workflows', 'map'],
+                  ['Pending invitations', 'mail'],
+                ].map(([label, _]) => `
+                  <li style="display:flex;align-items:center;gap:8px;font-size:0.84rem;color:var(--text-secondary);">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex-shrink:0;opacity:0.7;">
+                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                    ${label}
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+
+            <div style="
+              display:flex;gap:10px;justify-content:flex-end;
+              padding:16px 24px;border-top:1px solid var(--border-color);
+            ">
+              <button id="dorg-cancel-1" style="
+                height:36px;padding:0 16px;border-radius:6px;
+                border:1px solid var(--border-color);background:var(--bg-secondary);
+                color:var(--text-secondary);font-size:0.875rem;font-weight:600;
+                cursor:pointer;font-family:inherit;
+              ">Cancel</button>
+              <button id="dorg-proceed" style="
+                height:36px;padding:0 16px;border-radius:6px;
+                border:1px solid rgba(220,38,38,0.4);background:rgba(220,38,38,0.08);
+                color:#dc2626;font-size:0.875rem;font-weight:600;
+                cursor:pointer;font-family:inherit;
+              ">I understand, continue →</button>
+            </div>
+          </div>
+
+          <!-- Step 2: Confirm name -->
+          <div id="dorg-step-2" style="display:none;">
+            <div style="padding:24px 24px 0;">
+              <div style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-bottom:6px;letter-spacing:-0.01em;">Confirm deletion</div>
+              <div style="font-size:0.875rem;color:var(--text-secondary);line-height:1.55;">
+                Type <strong style="
+                  color:var(--text-primary);
+                  background:var(--bg-secondary);
+                  border:1px solid var(--border-color);
+                  border-radius:4px;
+                  padding:1px 6px;
+                  font-family:monospace;
+                  font-size:0.82rem;
+                ">${escapeHtml(orgName)}</strong> to confirm.
+              </div>
+
+              <input id="dorg-name-input" type="text" autocomplete="off" spellcheck="false"
+                placeholder="${escapeHtml(orgName)}"
+                style="
+                  display:block;width:100%;box-sizing:border-box;margin-top:16px;
+                  height:40px;padding:0 12px;
+                  border:1.5px solid var(--border-color);border-radius:8px;
+                  background:var(--bg-secondary);color:var(--text-primary);
+                  font-size:0.9rem;font-family:inherit;
+                  outline:none;transition:border-color 0.15s,box-shadow 0.15s;
+                "
+              >
+              <div id="dorg-input-hint" style="margin-top:6px;font-size:0.78rem;color:var(--text-muted);min-height:16px;"></div>
+            </div>
+
+            <div style="
+              display:flex;gap:10px;justify-content:flex-end;
+              padding:16px 24px;margin-top:8px;border-top:1px solid var(--border-color);
+            ">
+              <button id="dorg-cancel-2" style="
+                height:36px;padding:0 16px;border-radius:6px;
+                border:1px solid var(--border-color);background:var(--bg-secondary);
+                color:var(--text-secondary);font-size:0.875rem;font-weight:600;
+                cursor:pointer;font-family:inherit;
+              ">Cancel</button>
+              <button id="dorg-confirm-delete" disabled style="
+                height:36px;padding:0 16px;border-radius:6px;
+                border:1px solid rgba(220,38,38,0.3);background:#dc2626;
+                color:#fff;font-size:0.875rem;font-weight:600;
+                cursor:not-allowed;font-family:inherit;opacity:0.45;
+                display:inline-flex;align-items:center;gap:6px;
+                transition:opacity 0.15s,background 0.15s;
+              ">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;">
+                  <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                  <path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                </svg>
+                Delete organization
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <style>
+          @keyframes doModalIn { from { opacity:0; transform:scale(0.95) translateY(8px); } to { opacity:1; transform:none; } }
+          #dorg-cancel-1:hover, #dorg-cancel-2:hover { background:var(--bg-tertiary,rgba(0,0,0,0.06)) !important; }
+          #dorg-proceed:hover { background:rgba(220,38,38,0.14) !important; }
+          #dorg-confirm-delete:not([disabled]):hover { background:#b91c1c !important; }
+        </style>
+      `;
+
+      document.body.appendChild(overlay);
+
+      const step1 = overlay.querySelector('#dorg-step-1');
+      const step2 = overlay.querySelector('#dorg-step-2');
+      const nameInput = overlay.querySelector('#dorg-name-input');
+      const confirmBtn = overlay.querySelector('#dorg-confirm-delete');
+      const hint = overlay.querySelector('#dorg-input-hint');
+
+      const dismiss = (result) => {
+        overlay.remove();
+        document.removeEventListener('keydown', onKey);
+        resolve(result);
+      };
+
+      overlay.querySelector('#dorg-cancel-1').addEventListener('click', () => dismiss(false));
+      overlay.querySelector('#dorg-cancel-2').addEventListener('click', () => dismiss(false));
+      overlay.addEventListener('click', (e) => { if (e.target === overlay) dismiss(false); });
+
+      overlay.querySelector('#dorg-proceed').addEventListener('click', () => {
+        step1.style.display = 'none';
+        step2.style.display = '';
+        setTimeout(() => nameInput.focus(), 50);
+      });
+
+      nameInput.addEventListener('input', () => {
+        const val = nameInput.value;
+        const match = val.trim() === orgName.trim();
+        confirmBtn.disabled = !match;
+        confirmBtn.style.opacity = match ? '1' : '0.45';
+        confirmBtn.style.cursor = match ? 'pointer' : 'not-allowed';
+        nameInput.style.borderColor = val.length === 0
+          ? 'var(--border-color)'
+          : match ? '#16a34a' : '#dc2626';
+        nameInput.style.boxShadow = val.length === 0
+          ? 'none'
+          : match ? '0 0 0 3px rgba(22,163,74,0.15)' : '0 0 0 3px rgba(220,38,38,0.12)';
+        hint.textContent = val.length > 0 && !match ? 'Name does not match — check capitalization.' : '';
+        hint.style.color = '#dc2626';
+      });
+
+      nameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !confirmBtn.disabled) confirmBtn.click();
+      });
+
+      confirmBtn.addEventListener('click', () => { if (!confirmBtn.disabled) dismiss(true); });
+
+      const onKey = (e) => { if (e.key === 'Escape') dismiss(false); };
+      document.addEventListener('keydown', onKey);
+    });
+  }
 
   /* ─────────────── EXPORT ─────────────── */
   document.getElementById('export-data-btn')?.addEventListener('click', () => showToast('Preparing export…', 'info'));

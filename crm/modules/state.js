@@ -53,6 +53,7 @@ export const state = {
   isManager: false,
   isSalesRep: false,
   isTechnician: false,
+  isOrgOwner: false,
   authBootstrapHandled: false,
   appInitialized: false,
 
