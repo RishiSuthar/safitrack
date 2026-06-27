@@ -1553,6 +1553,28 @@ async function renderSettingsView() {
       .sv-members-table tbody tr:hover .sv-member-remove-btn { opacity: 1; }
       .sv-member-remove-btn:hover { background: rgba(220,38,38,0.08); color: #dc2626; }
       .sv-member-actions-cell { text-align: right; width: 48px; }
+      .sv-role-select {
+        height: 26px;
+        padding: 0 22px 0 8px;
+        border: 1px solid var(--border-color);
+        border-radius: 100px;
+        background: var(--bg-secondary);
+        color: var(--text-primary);
+        font-size: 0.74rem;
+        font-weight: 600;
+        font-family: inherit;
+        cursor: pointer;
+        outline: none;
+        appearance: none;
+        -webkit-appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 6px center;
+        transition: border-color 0.12s, box-shadow 0.12s;
+      }
+      .sv-role-select:hover { border-color: var(--color-primary); }
+      .sv-role-select:focus { border-color: var(--color-primary); box-shadow: 0 0 0 2px var(--color-primary-bg); }
+      .sv-role-select:disabled { opacity: 0.45; cursor: not-allowed; }
 
       /* ── Billing ── */
       .sv-billing-block {
@@ -2879,13 +2901,26 @@ async function renderSettingsView() {
     const roleChip = r => `<span class="sv-role-chip" data-role="${r || 'member'}">${roleLabel(r)}</span>`;
     const nameColor = s => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h % 6; };
 
+    const canEdit = (u) => state.isManager && u.id !== state.currentUser?.id && u.role !== 'manager';
+
     const memberRows = users.map(u => {
       const uFullName = (`${u.first_name || ''} ${u.last_name || ''}`).trim() || u.email || 'Teammate';
       const uInitials = getInitials(uFullName);
       const isMe = u.id === state.currentUser?.id;
-      const actionsHtml = (state.isManager && !isMe)
-        ? `<button class="sv-member-remove-btn" title="Remove member" onclick="if(typeof deleteUser==='function') deleteUser('${u.id}','${uFullName.replace(/'/g, "\\'")}','${u.role || ''}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`
+      const editable = canEdit(u);
+
+      const roleCell = editable
+        ? `<select class="sv-role-select" onchange="window.svChangeMemberRole('${u.id}', this.value, this)">
+            <option value="sales_rep"${u.role === 'sales_rep' ? ' selected' : ''}>Sales Rep</option>
+            <option value="technician"${u.role === 'technician' ? ' selected' : ''}>Technician</option>
+            <option value="manager"${u.role === 'manager' ? ' selected' : ''}>Manager</option>
+           </select>`
+        : roleChip(u.role);
+
+      const actionsHtml = editable
+        ? `<button class="sv-member-remove-btn" title="Remove member" onclick="window.svFullDeleteMember('${u.id}','${uFullName.replace(/'/g, "\\'")}')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>`
         : '';
+
       return `
         <tr>
           <td><div class="sv-member-cell">
@@ -2895,7 +2930,7 @@ async function renderSettingsView() {
               <div class="sv-member-email">${escH(u.email || '')}</div>
             </div>
           </div></td>
-          <td>${roleChip(u.role)}</td>
+          <td>${roleCell}</td>
           <td><span class="sv-status-dot sv-status-dot--active"></span><span class="sv-status-text">Active</span></td>
           <td class="sv-member-actions-cell">${actionsHtml}</td>
         </tr>`;
@@ -2967,6 +3002,66 @@ async function renderSettingsView() {
   };
 
   loadMembers();
+
+  /* ─────────────── MEMBER ROLE CHANGE ─────────────── */
+  window.svChangeMemberRole = async function (userId, newRole, selectEl) {
+    const prevValue = [...selectEl.options].find(o => o.defaultSelected)?.value || selectEl.dataset.prev;
+    selectEl.dataset.prev = prevValue;
+    selectEl.disabled = true;
+
+    const { error } = await supabaseClient
+      .from('profiles')
+      .update({ role: newRole })
+      .eq('id', userId);
+
+    selectEl.disabled = false;
+
+    if (error) {
+      showToast('Failed to change role: ' + error.message, 'error');
+      selectEl.value = prevValue || selectEl.value;
+      return;
+    }
+
+    // Mark new default so reverting works
+    [...selectEl.options].forEach(o => { o.defaultSelected = o.value === newRole; });
+    const label = newRole === 'manager' ? 'Manager' : newRole === 'sales_rep' ? 'Sales Rep' : 'Technician';
+    showToast(`Role updated to ${label}`, 'success');
+  };
+
+  /* ─────────────── FULL MEMBER DELETE ─────────────── */
+  window.svFullDeleteMember = async function (userId, userName) {
+    if (!state.isManager) { showToast('Only managers can remove members', 'error'); return; }
+
+    const confirmed = await showConfirmDialog('Remove member', `Remove ${userName} from the organization? This will permanently delete their account and cannot be undone.`);
+    if (!confirmed) return;
+
+    showToast('Removing member…', 'info');
+
+    try {
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const accessToken = session?.access_token;
+      if (!accessToken) throw new Error('Not authenticated');
+
+      const supabaseUrl = (window.APP_CONFIG || {}).SUPABASE_URL || '';
+      const res = await fetch(`${supabaseUrl}/functions/v1/delete-member`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      const result = await res.json();
+      if (!res.ok || !result.success) throw new Error(result.error || 'Deletion failed');
+
+      showToast(`${userName} removed successfully`, 'success');
+      loadMembers();
+    } catch (e) {
+      console.error('Member deletion error:', e);
+      showToast('Failed to remove member: ' + (e.message || 'Unknown error'), 'error');
+    }
+  };
 
   /* ─────────────── SUPPORT CHAT LOGIC ─────────────── */
   const supportChatInput = document.getElementById('sv-support-chat-input');
