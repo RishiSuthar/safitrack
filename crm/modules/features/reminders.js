@@ -351,7 +351,7 @@ function initReminderActionButtons(reminders, salesReps) {
 
       const { error } = await supabaseClient
         .from('reminders')
-        .update({ is_completed: true, updated_at: new Date().toISOString() })
+        .delete()
         .eq('id', reminderId);
 
       if (error) {
@@ -359,7 +359,7 @@ function initReminderActionButtons(reminders, salesReps) {
         return;
       }
 
-      showToast('Reminder completed successfully', 'success');
+      showToast('Reminder completed and removed', 'success');
       renderRemindersView();
     });
   });
