@@ -480,12 +480,14 @@ async function renderSettingsView() {
               <h2 class="sv-page-title">Members</h2>
               ${state.currentOrganization ? `<p class="sv-page-subtitle">${escH(state.currentOrganization.name)}</p>` : '<p class="sv-page-subtitle">Manage who has access to this workspace.</p>'}
             </div>
-            ${state.isManager ? '<button class="sv-primary-btn" id="invite-member-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;margin-right:6px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Invite member</button>' : ''}
           </div>
 
-          <div class="sv-members-search-bar">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-            <input type="text" placeholder="Search by name or email…" id="sv-member-search">
+          <div class="sv-members-toolbar">
+            <div class="sv-members-search-bar">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+              <input type="text" placeholder="Search by name or email…" id="sv-member-search">
+            </div>
+            ${state.isManager ? '<button class="sv-primary-btn" id="invite-member-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;margin-right:6px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Invite member</button>' : ''}
           </div>
 
           <div class="sv-members-table-wrap">
@@ -1479,6 +1481,12 @@ async function renderSettingsView() {
       .sv-locked-field-btn:hover { background: var(--bg-tertiary, var(--bg-secondary)); color: var(--text-primary); border-color: color-mix(in srgb, var(--border-color) 60%, var(--text-primary)); }
 
       /* ── Members table ── */
+      .sv-members-toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
       .sv-members-search-bar {
         position: relative;
         display: flex;
@@ -1486,7 +1494,7 @@ async function renderSettingsView() {
         border: 1px solid var(--border-color);
         border-radius: 10px;
         background: var(--bg-secondary);
-        margin-bottom: 16px;
+        flex: 1;
         max-width: 360px;
         height: 36px;
       }
