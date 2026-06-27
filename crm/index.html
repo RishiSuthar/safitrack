@@ -885,6 +885,7 @@
 
         <div class="sidebar-footer">
           <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="sidebar-footer-logo">
+          <span class="sidebar-version" id="sidebar-version"></span>
         </div>
       </nav>
     </aside>
@@ -2942,6 +2943,13 @@
 
   <!-- Runtime config (gitignored) — copy config.example.js → config.js and add your keys -->
   <script src="config.js"></script>
+  <script>
+    (function () {
+      const v = (window.APP_CONFIG || {}).VERSION;
+      const el = document.getElementById('sidebar-version');
+      if (el && v) el.textContent = 'v' + v;
+    })();
+  </script>
   <script src="utils.js"></script>
   <script src="auth-cartoons.js"></script>
   <script src="custom-calendar.js"></script>

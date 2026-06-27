@@ -4755,7 +4755,19 @@ body.modal-active {
   border-top: 1px solid var(--border-color);
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
+
+.sidebar-version {
+  font-size: 0.68rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  opacity: 0.55;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+.sidebar.collapsed .sidebar-version { display: none; }
 
 .sidebar-footer-logo {
   height: 24px;
