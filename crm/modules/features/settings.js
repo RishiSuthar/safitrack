@@ -1553,28 +1553,49 @@ async function renderSettingsView() {
       .sv-members-table tbody tr:hover .sv-member-remove-btn { opacity: 1; }
       .sv-member-remove-btn:hover { background: rgba(220,38,38,0.08); color: #dc2626; }
       .sv-member-actions-cell { text-align: right; width: 48px; }
-      .sv-role-select {
-        height: 26px;
-        padding: 0 22px 0 8px;
-        border: 1px solid var(--border-color);
-        border-radius: 100px;
-        background: var(--bg-secondary);
-        color: var(--text-primary);
-        font-size: 0.74rem;
-        font-weight: 600;
-        font-family: inherit;
-        cursor: pointer;
-        outline: none;
-        appearance: none;
-        -webkit-appearance: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 6px center;
-        transition: border-color 0.12s, box-shadow 0.12s;
+      /* ── Role picker (custom, no native select) ── */
+      .sv-role-picker { position: relative; display: inline-block; }
+      .sv-role-chip {
+        display: inline-flex; align-items: center; gap: 5px;
+        height: 26px; padding: 0 8px 0 10px;
+        border-radius: 100px; border: 1.5px solid;
+        font-size: 0.74rem; font-weight: 600; font-family: inherit;
+        cursor: pointer; outline: none; white-space: nowrap; background: transparent;
+        transition: box-shadow 0.12s, opacity 0.12s;
       }
-      .sv-role-select:hover { border-color: var(--color-primary); }
-      .sv-role-select:focus { border-color: var(--color-primary); box-shadow: 0 0 0 2px var(--color-primary-bg); }
-      .sv-role-select:disabled { opacity: 0.45; cursor: not-allowed; }
+      .sv-role-chip:hover { opacity: 0.8; }
+      .sv-role-chip--sales_rep  { color: #2563eb; border-color: rgba(59,130,246,0.45); background: rgba(59,130,246,0.07); }
+      .sv-role-chip--technician { color: #b45309; border-color: rgba(217,119,6,0.45);  background: rgba(245,158,11,0.07); }
+      .sv-role-chip--manager    { color: #6d28d9; border-color: rgba(124,58,237,0.45); background: rgba(139,92,246,0.07); }
+      .sv-role-chip--loading    { opacity: 0.45; pointer-events: none; }
+      .sv-role-chevron { flex-shrink: 0; transition: transform 0.15s; }
+      .sv-role-picker.is-open .sv-role-chevron { transform: rotate(180deg); }
+      .sv-role-dropdown {
+        position: absolute; top: calc(100% + 5px); left: 0; z-index: 200;
+        background: var(--bg-secondary); border: 1px solid var(--border-color);
+        border-radius: 10px; box-shadow: 0 8px 28px rgba(0,0,0,0.13);
+        padding: 4px; min-width: 130px;
+        opacity: 0; transform: translateY(-6px) scale(0.97); pointer-events: none;
+        transition: opacity 0.12s, transform 0.12s;
+      }
+      .sv-role-picker.is-open .sv-role-dropdown {
+        opacity: 1; transform: translateY(0) scale(1); pointer-events: all;
+      }
+      .sv-role-option {
+        display: flex; align-items: center; gap: 8px;
+        width: 100%; padding: 6px 10px;
+        border: none; border-radius: 7px; background: transparent;
+        font-size: 0.78rem; font-weight: 600; font-family: inherit;
+        cursor: pointer; color: var(--text-primary); text-align: left;
+        transition: background 0.1s;
+      }
+      .sv-role-option:hover, .sv-role-option.is-active { background: var(--bg-tertiary); }
+      .sv-role-dot {
+        width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+      }
+      .sv-role-dot--sales_rep  { background: #3b82f6; }
+      .sv-role-dot--technician { background: #f59e0b; }
+      .sv-role-dot--manager    { background: #7c3aed; }
 
       /* ── Billing ── */
       .sv-billing-block {
@@ -2909,12 +2930,25 @@ async function renderSettingsView() {
       const isMe = u.id === state.currentUser?.id;
       const editable = canEdit(u);
 
+      const roleLabel = r => r === 'manager' ? 'Manager' : r === 'sales_rep' ? 'Sales Rep' : 'Technician';
+      const chevronSvg = `<svg class="sv-role-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px;"><path d="M6 9l6 6 6-6"/></svg>`;
       const roleCell = editable
-        ? `<select class="sv-role-select" onchange="window.svChangeMemberRole('${u.id}', this.value, this)">
-            <option value="sales_rep"${u.role === 'sales_rep' ? ' selected' : ''}>Sales Rep</option>
-            <option value="technician"${u.role === 'technician' ? ' selected' : ''}>Technician</option>
-            <option value="manager"${u.role === 'manager' ? ' selected' : ''}>Manager</option>
-           </select>`
+        ? `<div class="sv-role-picker">
+            <button class="sv-role-chip sv-role-chip--${u.role}" onclick="window.svToggleRolePicker(this)">
+              <span>${roleLabel(u.role)}</span>${chevronSvg}
+            </button>
+            <div class="sv-role-dropdown">
+              <button class="sv-role-option${u.role === 'sales_rep' ? ' is-active' : ''}" data-role="sales_rep" onclick="window.svPickRole(this,'${u.id}','sales_rep')">
+                <span class="sv-role-dot sv-role-dot--sales_rep"></span>Sales Rep
+              </button>
+              <button class="sv-role-option${u.role === 'technician' ? ' is-active' : ''}" data-role="technician" onclick="window.svPickRole(this,'${u.id}','technician')">
+                <span class="sv-role-dot sv-role-dot--technician"></span>Technician
+              </button>
+              <button class="sv-role-option${u.role === 'manager' ? ' is-active' : ''}" data-role="manager" onclick="window.svPickRole(this,'${u.id}','manager')">
+                <span class="sv-role-dot sv-role-dot--manager"></span>Manager
+              </button>
+            </div>
+          </div>`
         : roleChip(u.role);
 
       const actionsHtml = editable
@@ -3004,27 +3038,44 @@ async function renderSettingsView() {
   loadMembers();
 
   /* ─────────────── MEMBER ROLE CHANGE ─────────────── */
-  window.svChangeMemberRole = async function (userId, newRole, selectEl) {
-    const prevValue = [...selectEl.options].find(o => o.defaultSelected)?.value || selectEl.dataset.prev;
-    selectEl.dataset.prev = prevValue;
-    selectEl.disabled = true;
+  /* ─────────────── ROLE PICKER (custom dropdown) ─────────────── */
+  if (!window._svRolePickerListenerAdded) {
+    window._svRolePickerListenerAdded = true;
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.sv-role-picker')) {
+        document.querySelectorAll('.sv-role-picker.is-open').forEach(p => p.classList.remove('is-open'));
+      }
+    }, true);
+  }
 
-    const { error } = await supabaseClient
-      .from('profiles')
-      .update({ role: newRole })
-      .eq('id', userId);
+  window.svToggleRolePicker = function (chipBtn) {
+    const picker = chipBtn.closest('.sv-role-picker');
+    const wasOpen = picker.classList.contains('is-open');
+    document.querySelectorAll('.sv-role-picker.is-open').forEach(p => p.classList.remove('is-open'));
+    if (!wasOpen) picker.classList.add('is-open');
+  };
 
-    selectEl.disabled = false;
+  window.svPickRole = async function (optionBtn, userId, newRole) {
+    const picker = optionBtn.closest('.sv-role-picker');
+    picker.classList.remove('is-open');
+    if (!state.isManager) { showToast('Only managers can change roles', 'error'); return; }
 
-    if (error) {
-      showToast('Failed to change role: ' + error.message, 'error');
-      selectEl.value = prevValue || selectEl.value;
-      return;
-    }
+    const chip = picker.querySelector('.sv-role-chip');
+    chip.classList.add('sv-role-chip--loading');
 
-    // Mark new default so reverting works
-    [...selectEl.options].forEach(o => { o.defaultSelected = o.value === newRole; });
+    const { error } = await supabaseClient.from('profiles').update({ role: newRole }).eq('id', userId);
+    chip.classList.remove('sv-role-chip--loading');
+
+    if (error) { showToast('Failed to change role: ' + error.message, 'error'); return; }
+
     const label = newRole === 'manager' ? 'Manager' : newRole === 'sales_rep' ? 'Sales Rep' : 'Technician';
+    // Update chip colour + label
+    chip.className = `sv-role-chip sv-role-chip--${newRole}`;
+    chip.innerHTML = `<span>${label}</span><svg class="sv-role-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:10px;height:10px;flex-shrink:0;"><path d="M6 9l6 6 6-6"/></svg>`;
+    // Reattach toggle handler (innerHTML wipe clears it)
+    chip.onclick = () => window.svToggleRolePicker(chip);
+    // Highlight active option
+    picker.querySelectorAll('.sv-role-option').forEach(o => o.classList.toggle('is-active', o.dataset.role === newRole));
     showToast(`Role updated to ${label}`, 'success');
   };
 
