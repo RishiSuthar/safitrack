@@ -27,7 +27,7 @@ async function renderOpportunityPipelineView() {
     // Managers see all opportunities in their org
     let mQ = supabaseClient
       .from('opportunities')
-      .select(`*, profiles!inner(id, first_name, last_name, email, role)`)
+      .select(`*, profiles!inner(id, first_name, last_name, email, role, avatar_url)`)
       .order('created_at', { ascending: false });
     if (state.currentOrganization?.id) mQ = mQ.eq('organization_id', state.currentOrganization.id);
     const result = await mQ;
@@ -64,7 +64,7 @@ async function renderOpportunityPipelineView() {
     if (newIds.length > 0) {
       const { data: extraOpps } = await supabaseClient
         .from('opportunities')
-        .select('*, profiles!inner(id, first_name, last_name, email, role)')
+        .select('*, profiles!inner(id, first_name, last_name, email, role, avatar_url)')
         .in('id', newIds);
       (extraOpps || []).forEach(opp => {
         // Mark explicitly so isOwnOpportunity stays true even if assignees fail to load
@@ -89,7 +89,7 @@ async function renderOpportunityPipelineView() {
       const uniqueUserIds = [...new Set(assigneeRows.map(a => a.user_id))];
       const { data: profileRows } = await supabaseClient
         .from('profiles')
-        .select('id, first_name, last_name, role')
+        .select('id, first_name, last_name, role, avatar_url')
         .in('id', uniqueUserIds);
       const profilesById = {};
       (profileRows || []).forEach(p => { profilesById[p.id] = p; });
@@ -401,13 +401,13 @@ async function renderOpportunityPipelineView() {
             // Build full team: owner first, then assignees (excluding owner if also tagged)
             const ownerProfile = opp.profiles;
             const ownerEntry = ownerProfile
-              ? [{ user_id: opp.user_id, name: `${ownerProfile.first_name} ${ownerProfile.last_name}` }]
+              ? [{ user_id: opp.user_id, name: `${ownerProfile.first_name} ${ownerProfile.last_name}`, avatar_url: ownerProfile.avatar_url }]
               : [];
             const assigneeEntries = (opp.assignees || [])
               .filter(a => a.user_id !== opp.user_id)
               .map(a => {
                 const p = a.profiles;
-                return { user_id: a.user_id, name: p ? `${p.first_name} ${p.last_name}` : 'Member' };
+                return { user_id: a.user_id, name: p ? `${p.first_name} ${p.last_name}` : 'Member', avatar_url: p?.avatar_url };
               });
             const team = [...ownerEntry, ...assigneeEntries];
             if (team.length === 0) return '';
@@ -415,7 +415,10 @@ async function renderOpportunityPipelineView() {
             const overflow = team.length - 3;
             const bubbles = visible.map((m, i) => {
               const color = getAssigneeColor(m.user_id);
-              return `<div class="opp-assignee-bubble" title="${escapeHtml(m.name)}" style="background:${color};z-index:${10 - i}">${getInitials(m.name)}</div>`;
+              const initialsOrImage = m.avatar_url 
+                ? `<span style="position:relative;z-index:1;display:none;">${getInitials(m.name)}</span><img src="${m.avatar_url}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />` 
+                : getInitials(m.name);
+              return `<div class="opp-assignee-bubble" title="${escapeHtml(m.name)}" style="background:${color};z-index:${10 - i}">${initialsOrImage}</div>`;
             }).join('');
             return `
             <div class="opp-card-assignees">
@@ -1001,7 +1004,7 @@ async function fetchOpportunityAssignees(opportunityId) {
   const userIds = rows.map(r => r.user_id);
   const { data: profileRows } = await supabaseClient
     .from('profiles')
-    .select('id, first_name, last_name, role')
+    .select('id, first_name, last_name, role, avatar_url')
     .in('id', userIds);
   const profilesById = {};
   (profileRows || []).forEach(p => { profilesById[p.id] = p; });
@@ -1011,6 +1014,7 @@ async function fetchOpportunityAssignees(opportunityId) {
     first_name: profilesById[r.user_id]?.first_name || '',
     last_name: profilesById[r.user_id]?.last_name || '',
     role: profilesById[r.user_id]?.role || 'sales_rep',
+    avatar_url: profilesById[r.user_id]?.avatar_url || null,
   }));
 }
 
@@ -1253,9 +1257,13 @@ function openOpportunityViewModal(opportunity) {
       const ownerRole = ownerProfile.role || 'manager';
       const ownerRoleLabel = ownerRole === 'manager' ? 'Manager' : ownerRole === 'technician' ? 'Technician' : 'Sales Rep';
       const ownerColor = getAssigneeColor(opportunity.user_id);
+      const initialsOrImage = ownerProfile.avatar_url 
+        ? `<span style="position:relative;z-index:1;display:none;">${getInitials(ownerName)}</span><img src="${ownerProfile.avatar_url}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />` 
+        : getInitials(ownerName);
+        
       rows += `
         <div class="ov-assignee-row">
-          <div class="ov-assignee-avatar" style="background:${ownerColor}">${getInitials(ownerName)}</div>
+          <div class="ov-assignee-avatar" style="background:${ownerColor}">${initialsOrImage}</div>
           <div class="ov-assignee-info">
             <div class="ov-assignee-name">${escapeHtml(ownerName)}</div>
             <span class="ov-assignee-role-badge role-${ownerRole}">Owner · ${escapeHtml(ownerRoleLabel)}</span>
@@ -1271,9 +1279,13 @@ function openOpportunityViewModal(opportunity) {
       const role = p?.role || 'sales_rep';
       const roleLabel = role === 'manager' ? 'Manager' : role === 'technician' ? 'Technician' : 'Sales Rep';
       const color = getAssigneeColor(a.user_id);
+      const initialsOrImage = p?.avatar_url 
+        ? `<span style="position:relative;z-index:1;display:none;">${getInitials(name)}</span><img src="${p.avatar_url}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />` 
+        : getInitials(name);
+        
       rows += `
         <div class="ov-assignee-row">
-          <div class="ov-assignee-avatar" style="background:${color}">${getInitials(name)}</div>
+          <div class="ov-assignee-avatar" style="background:${color}">${initialsOrImage}</div>
           <div class="ov-assignee-info">
             <div class="ov-assignee-name">${escapeHtml(name)}</div>
             <span class="ov-assignee-role-badge role-${role}">${escapeHtml(roleLabel)}</span>
@@ -1681,7 +1693,7 @@ async function loadOrgTeamMembers() {
   }
   let q = supabaseClient
     .from('profiles')
-    .select('id, first_name, last_name, role, email')
+    .select('id, first_name, last_name, role, email, avatar_url')
     .eq('status', 'active')
     .order('first_name');
   if (state.currentOrganization?.id) q = q.eq('organization_id', state.currentOrganization.id);
@@ -1698,13 +1710,16 @@ function _prependOwnerChip(ownerId, ownerProfile) {
 
   const name = `${ownerProfile.first_name} ${ownerProfile.last_name}`.trim() || 'Owner';
   const color = getAssigneeColor(ownerId);
+  const initialsOrImage = ownerProfile.avatar_url 
+    ? `<span style="position:relative;z-index:1;display:none;">${getInitials(name)}</span><img src="${ownerProfile.avatar_url}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />` 
+    : getInitials(name);
 
   const chip = document.createElement('div');
   chip.className = 'opp-assignee-chip opp-assignee-chip--owner';
   chip.dataset.userId = ownerId;
   chip.dataset.isOwner = 'true';
   chip.innerHTML = `
-    <div class="opp-assignee-chip-avatar" style="background:${color}">${getInitials(name)}</div>
+    <div class="opp-assignee-chip-avatar" style="background:${color}">${initialsOrImage}</div>
     <div class="opp-assignee-chip-info">
       <span class="opp-assignee-chip-name">${escapeHtml(name)}</span>
       <span class="opp-assignee-chip-role">Owner</span>
@@ -1726,9 +1741,12 @@ function _appendAssigneeChip(member) {
   const name = `${member.first_name} ${member.last_name}`.trim() || 'Member';
   const roleLabel = member.role === 'manager' ? 'Manager' : member.role === 'technician' ? 'Technician' : 'Sales Rep';
   const color = getAssigneeColor(member.user_id);
+  const initialsOrImage = member.avatar_url 
+    ? `<span style="position:relative;z-index:1;display:none;">${getInitials(name)}</span><img src="${member.avatar_url}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />` 
+    : getInitials(name);
 
   chip.innerHTML = `
-    <div class="opp-assignee-chip-avatar" style="background:${color}">${getInitials(name)}</div>
+    <div class="opp-assignee-chip-avatar" style="background:${color}">${initialsOrImage}</div>
     <div class="opp-assignee-chip-info">
       <span class="opp-assignee-chip-name">${escapeHtml(name)}</span>
       <span class="opp-assignee-chip-role">${escapeHtml(roleLabel)}</span>
@@ -1782,9 +1800,13 @@ function initAssigneesPicker() {
       const isSelected = state.opportunityAssignees.some(a => a.user_id === m.id);
       const roleLabel = m.role === 'manager' ? 'Manager' : m.role === 'technician' ? 'Technician' : 'Sales Rep';
       const color = getAssigneeColor(m.id);
+      const initialsOrImage = m.avatar_url 
+        ? `<span style="position:relative;z-index:1;display:none;">${getInitials(name)}</span><img src="${m.avatar_url}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />` 
+        : getInitials(name);
+        
       return `
         <div class="opp-assignee-option${isSelected ? ' is-selected' : ''}" data-user-id="${escapeHtml(m.id)}">
-          <div class="opp-assignee-opt-avatar" style="background:${color}">${getInitials(name)}</div>
+          <div class="opp-assignee-opt-avatar" style="background:${color}">${initialsOrImage}</div>
           <div class="opp-assignee-opt-info">
             <div class="opp-assignee-opt-name">${escapeHtml(name)}</div>
             <div class="opp-assignee-opt-role">${escapeHtml(roleLabel)}</div>
@@ -1812,6 +1834,7 @@ function initAssigneesPicker() {
             first_name: member.first_name,
             last_name: member.last_name,
             role: member.role,
+            avatar_url: member.avatar_url,
           };
           state.opportunityAssignees.push(assignee);
           _appendAssigneeChip(assignee);

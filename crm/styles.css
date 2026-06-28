@@ -24103,6 +24103,18 @@ textarea.ups-input {
   color: #fff;
   flex-shrink: 0;
   letter-spacing: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.opp-assignee-chip-avatar img,
+.opp-assignee-opt-avatar img,
+.opp-assignee-bubble img,
+.ov-assignee-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .opp-assignee-chip-info {
@@ -24229,6 +24241,8 @@ textarea.ups-input {
   font-weight: 700;
   color: #fff;
   flex-shrink: 0;
+  overflow: hidden;
+  position: relative;
 }
 
 .opp-assignee-opt-info {
@@ -24303,6 +24317,7 @@ textarea.ups-input {
   cursor: default;
   transition: transform 0.15s;
   flex-shrink: 0;
+  overflow: hidden;
 }
 
 .opp-assignee-bubble:first-child {
@@ -24345,6 +24360,8 @@ textarea.ups-input {
   font-weight: 700;
   color: #fff;
   flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
 }
 
 .ov-assignee-info {
