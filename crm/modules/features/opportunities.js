@@ -52,6 +52,62 @@ async function renderOpportunityPipelineView() {
     return;
   }
 
+  // For sales reps: load extra opportunities where they are an assignee but not the owner.
+  // Do this BEFORE the assignee batch-load so all opp IDs are known upfront.
+  if (!state.isManager) {
+    const { data: myAssignedRows } = await supabaseClient
+      .from('opportunity_assignees')
+      .select('opportunity_id')
+      .eq('user_id', state.currentUser.id);
+    const myAssignedIds = (myAssignedRows || []).map(r => r.opportunity_id);
+    const newIds = myAssignedIds.filter(id => !opportunities.find(o => o.id === id));
+    if (newIds.length > 0) {
+      const { data: extraOpps } = await supabaseClient
+        .from('opportunities')
+        .select('*, profiles!inner(id, first_name, last_name, email, role)')
+        .in('id', newIds);
+      (extraOpps || []).forEach(opp => {
+        // Mark explicitly so isOwnOpportunity stays true even if assignees fail to load
+        opp._isAssignedToMe = true;
+        opportunities.push(opp);
+      });
+    }
+  }
+
+  // Batch-load assignees for ALL opportunities (owned + assigned) in two steps.
+  // Cannot use embedded profiles(...) join because opportunity_assignees.user_id
+  // references auth.users, not profiles — Supabase can't resolve that join.
+  let assigneesByOppId = {};
+  if (opportunities.length > 0) {
+    const allOppIds = opportunities.map(o => o.id);
+    const { data: assigneeRows } = await supabaseClient
+      .from('opportunity_assignees')
+      .select('opportunity_id, user_id')
+      .in('opportunity_id', allOppIds);
+
+    if (assigneeRows && assigneeRows.length > 0) {
+      const uniqueUserIds = [...new Set(assigneeRows.map(a => a.user_id))];
+      const { data: profileRows } = await supabaseClient
+        .from('profiles')
+        .select('id, first_name, last_name, role')
+        .in('id', uniqueUserIds);
+      const profilesById = {};
+      (profileRows || []).forEach(p => { profilesById[p.id] = p; });
+
+      assigneeRows.forEach(a => {
+        if (!assigneesByOppId[a.opportunity_id]) assigneesByOppId[a.opportunity_id] = [];
+        assigneesByOppId[a.opportunity_id].push({
+          opportunity_id: a.opportunity_id,
+          user_id: a.user_id,
+          profiles: profilesById[a.user_id] || null,
+        });
+      });
+    }
+  }
+  opportunities.forEach(opp => {
+    opp.assignees = assigneesByOppId[opp.id] || [];
+  });
+
   // Define pipeline stages - simplified to 4 columns as requested
   const pipelineStages = [
     { id: 'prospecting', title: 'Lead', color: '#3b82f6' },
@@ -217,7 +273,10 @@ async function renderOpportunityPipelineView() {
     stageData.opportunities.forEach(opp => {
       const isOverdue = opp.next_step_date && new Date(opp.next_step_date) < new Date();
       const competitors = opp.competitors ? JSON.parse(opp.competitors) : [];
-      const isOwnOpportunity = !state.isManager || opp.user_id === state.currentUser.id;
+      // Full edit access: owner, explicitly-fetched assignee, or confirmed via assignees list
+      const isAssignee = opp._isAssignedToMe === true
+        || (opp.assignees || []).some(a => a.user_id === state.currentUser.id);
+      const isOwnOpportunity = opp.user_id === state.currentUser.id || isAssignee;
       const stageDays = getStageDays(opp);
 
       // Get user info from joined data
@@ -289,7 +348,7 @@ async function renderOpportunityPipelineView() {
             <div class="opp-company-row">
               <div class="opp-company-avatar">
                 <div class="mention-avatar" style="width:22px;height:22px;font-size:0.6rem;border-radius:5px;flex-shrink:0;">${companyInitials}</div>
-                ${companyLogoUrl ? `<img src="${companyLogoUrl}" class="opp-logo-img" onload="this.style.display='block';this.previousElementSibling.style.display='none'" onerror="this.style.display='none'" />` : ''}
+                ${companyLogoUrl ? `<img src="${companyLogoUrl}" class="opp-logo-img" onload="this.style.display='block';var p=this.previousElementSibling;if(p)p.style.display='none'" onerror="this.style.display='none'" />` : ''}
               </div>
               <span class="opp-company-label">${escapeHtml(opp.company_name || 'No Company')}</span>
             </div>
@@ -337,6 +396,36 @@ async function renderOpportunityPipelineView() {
           ${opp.notes ? `
             <div class="opp-notes">${processedNotes.substring(0, 120)}${processedNotes.length > 120 ? '\u2026' : ''}</div>
           ` : ''}
+
+          ${(() => {
+            // Build full team: owner first, then assignees (excluding owner if also tagged)
+            const ownerProfile = opp.profiles;
+            const ownerEntry = ownerProfile
+              ? [{ user_id: opp.user_id, name: `${ownerProfile.first_name} ${ownerProfile.last_name}` }]
+              : [];
+            const assigneeEntries = (opp.assignees || [])
+              .filter(a => a.user_id !== opp.user_id)
+              .map(a => {
+                const p = a.profiles;
+                return { user_id: a.user_id, name: p ? `${p.first_name} ${p.last_name}` : 'Member' };
+              });
+            const team = [...ownerEntry, ...assigneeEntries];
+            if (team.length === 0) return '';
+            const visible = team.slice(0, 3);
+            const overflow = team.length - 3;
+            const bubbles = visible.map((m, i) => {
+              const color = getAssigneeColor(m.user_id);
+              return `<div class="opp-assignee-bubble" title="${escapeHtml(m.name)}" style="background:${color};z-index:${10 - i}">${getInitials(m.name)}</div>`;
+            }).join('');
+            return `
+            <div class="opp-card-assignees">
+              <span class="opp-card-assignees-label">Team</span>
+              <div class="opp-assignees-stack">
+                ${bubbles}
+                ${overflow > 0 ? `<div class="opp-assignee-bubble opp-assignee-overflow" title="${overflow} more">+${overflow}</div>` : ''}
+              </div>
+            </div>`;
+          })()}
 
           <div class="opp-card-footer">
             <span class="opp-stage-age">
@@ -901,7 +990,31 @@ function initPipelineFilters(opportunities) {
   applyPipelineControls();
 }
 
-function openOpportunityModal(opportunity = null) {
+/** Fetch current assignees for a single opportunity from the DB (two-step, no broken join) */
+async function fetchOpportunityAssignees(opportunityId) {
+  const { data: rows } = await supabaseClient
+    .from('opportunity_assignees')
+    .select('user_id')
+    .eq('opportunity_id', opportunityId);
+  if (!rows || rows.length === 0) return [];
+
+  const userIds = rows.map(r => r.user_id);
+  const { data: profileRows } = await supabaseClient
+    .from('profiles')
+    .select('id, first_name, last_name, role')
+    .in('id', userIds);
+  const profilesById = {};
+  (profileRows || []).forEach(p => { profilesById[p.id] = p; });
+
+  return rows.map(r => ({
+    user_id: r.user_id,
+    first_name: profilesById[r.user_id]?.first_name || '',
+    last_name: profilesById[r.user_id]?.last_name || '',
+    role: profilesById[r.user_id]?.role || 'sales_rep',
+  }));
+}
+
+async function openOpportunityModal(opportunity = null) {
   const modal = document.getElementById('opportunity-modal');
   const modalTitle = document.getElementById('opportunity-modal-title');
   const saveBtn = document.getElementById('save-opportunity-btn');
@@ -936,6 +1049,32 @@ function openOpportunityModal(opportunity = null) {
 
   // Reset mentioned people
   state.mentionedPeople = opportunity && opportunity.mentioned_people ? [...opportunity.mentioned_people] : [];
+
+  // Fetch fresh assignees from DB (or empty for new opportunity)
+  // Always fetches from DB to avoid stale/missing data on edit.
+  state.opportunityAssignees = opportunity
+    ? await fetchOpportunityAssignees(opportunity.id)
+    : [];
+
+  // Reset assignees picker UI
+  const chipsEl = document.getElementById('opp-assignees-chips');
+  if (chipsEl) {
+    chipsEl.innerHTML = '';
+    // When editing: show the owner as a non-removable chip first so the full
+    // team is always visible. Owner is NOT stored in state.opportunityAssignees
+    // (they're tracked via opportunity.user_id), so saving never overwrites them.
+    if (opportunity && opportunity.profiles && opportunity.user_id) {
+      _prependOwnerChip(opportunity.user_id, opportunity.profiles);
+    }
+    // Append tagged assignees (owner excluded from this list)
+    state.opportunityAssignees
+      .filter(a => !opportunity || a.user_id !== opportunity.user_id)
+      .forEach(m => _appendAssigneeChip(m));
+  }
+  const ddEl = document.getElementById('opp-assignees-dropdown');
+  if (ddEl) ddEl.style.display = 'none';
+  const inputEl = document.getElementById('opp-assignees-input');
+  if (inputEl) inputEl.value = '';
 
   // Set modal title
   if (opportunity) {
@@ -1025,7 +1164,7 @@ function openOpportunityViewModal(opportunity) {
     const companyObj = findCompanyForOpportunity(opportunity);
     const resolvedLogoUrl = (companyObj && companyObj.logo_url) || getCompanyLogoUrl(opportunity.company_name || '');
 
-    avatarEl.innerHTML = `<span style="position:relative;z-index:1">${initials}</span>${resolvedLogoUrl ? `<img src="${resolvedLogoUrl}" alt="${escapeHtml(opportunity.company_name || '')}" onload="this.style.display='block';this.previousElementSibling.style.display='none'" onerror="this.style.display='none'" />` : ''}`;
+    avatarEl.innerHTML = `<span style="position:relative;z-index:1">${initials}</span>${resolvedLogoUrl ? `<img src="${resolvedLogoUrl}" alt="${escapeHtml(opportunity.company_name || '')}" onload="this.style.display='block';var p=this.previousElementSibling;if(p)p.style.display='none'" onerror="this.style.display='none'" />` : ''}`;
 
     if (!resolvedLogoUrl) {
       avatarEl.style.background = 'linear-gradient(135deg, var(--color-primary), var(--color-primary-light))';
@@ -1100,10 +1239,57 @@ function openOpportunityViewModal(opportunity) {
   if (orgIdEl) orgIdEl.textContent = opportunity.organization_id || '—';
   if (updatedEl) updatedEl.textContent = opportunity.updated_at ? formatDate(opportunity.updated_at) : formatDate(opportunity.created_at);
 
+  // Assignees
+  const assigneesEl = document.getElementById('opportunity-view-assignees');
+  if (assigneesEl) {
+    const assignees = opportunity.assignees || [];
+    const ownerProfile = opportunity.profiles;
+
+    // Build rows: owner first (always shown), then additional tagged members
+    let rows = '';
+
+    if (ownerProfile) {
+      const ownerName = `${ownerProfile.first_name} ${ownerProfile.last_name}`;
+      const ownerRole = ownerProfile.role || 'manager';
+      const ownerRoleLabel = ownerRole === 'manager' ? 'Manager' : ownerRole === 'technician' ? 'Technician' : 'Sales Rep';
+      const ownerColor = getAssigneeColor(opportunity.user_id);
+      rows += `
+        <div class="ov-assignee-row">
+          <div class="ov-assignee-avatar" style="background:${ownerColor}">${getInitials(ownerName)}</div>
+          <div class="ov-assignee-info">
+            <div class="ov-assignee-name">${escapeHtml(ownerName)}</div>
+            <span class="ov-assignee-role-badge role-${ownerRole}">Owner · ${escapeHtml(ownerRoleLabel)}</span>
+          </div>
+        </div>`;
+    }
+
+    // Additional assignees (skip owner if also tagged to avoid duplication)
+    const extraAssignees = assignees.filter(a => a.user_id !== opportunity.user_id);
+    extraAssignees.forEach(a => {
+      const p = a.profiles;
+      const name = p ? `${p.first_name} ${p.last_name}` : 'Team Member';
+      const role = p?.role || 'sales_rep';
+      const roleLabel = role === 'manager' ? 'Manager' : role === 'technician' ? 'Technician' : 'Sales Rep';
+      const color = getAssigneeColor(a.user_id);
+      rows += `
+        <div class="ov-assignee-row">
+          <div class="ov-assignee-avatar" style="background:${color}">${getInitials(name)}</div>
+          <div class="ov-assignee-info">
+            <div class="ov-assignee-name">${escapeHtml(name)}</div>
+            <span class="ov-assignee-role-badge role-${role}">${escapeHtml(roleLabel)}</span>
+          </div>
+        </div>`;
+    });
+
+    assigneesEl.innerHTML = rows || '<span class="ov-assignees-empty">No team members.</span>';
+  }
+
   // Edit Action
   const editBtn = document.getElementById('opportunity-view-edit-btn');
   if (editBtn) {
-    const canEdit = !state.isManager || opportunity.user_id === state.currentUser.id;
+    const isAssignee = opportunity._isAssignedToMe === true
+      || (opportunity.assignees || []).some(a => a.user_id === state.currentUser.id);
+    const canEdit = opportunity.user_id === state.currentUser.id || isAssignee;
     editBtn.style.display = canEdit ? 'flex' : 'none';
     editBtn.onclick = () => {
       closeModal('opportunity-view-modal');
@@ -1122,6 +1308,9 @@ function openOpportunityViewModal(opportunity) {
 
 
 function initOpportunityModalListeners(opportunity) {
+  // Initialize assignees picker
+  initAssigneesPicker();
+
   // Probability slider
   const probabilitySlider = document.getElementById('opportunity-probability');
   const probabilityDisplay = document.getElementById('probability-display');
@@ -1348,8 +1537,9 @@ function initOpportunityModalListeners(opportunity) {
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
     try {
-      const opportunityData = {
-        user_id: state.currentUser.id,
+      // Fields that are safe to update — user_id is intentionally excluded so
+      // that editing never transfers ownership away from the original creator.
+      const editableFields = {
         name,
         company_name: companyName,
         value,
@@ -1360,25 +1550,39 @@ function initOpportunityModalListeners(opportunity) {
         notes: notes || null,
         competitors: competitors.length > 0 ? JSON.stringify(competitors) : null,
         mentioned_people: state.mentionedPeople,
-        organization_id: state.currentOrganization?.id
       };
 
       let result;
+      let savedOpportunityId;
 
       if (opportunity) {
-        // Update existing opportunity
+        // Update — preserve original owner (user_id stays unchanged)
         result = await supabaseClient
           .from('opportunities')
-          .update(opportunityData)
+          .update(editableFields)
           .eq('id', opportunity.id);
+        savedOpportunityId = opportunity.id;
       } else {
-        // Create new opportunity
+        // Create — set the creator as owner
         result = await supabaseClient
           .from('opportunities')
-          .insert([opportunityData]);
+          .insert([{
+            ...editableFields,
+            user_id: state.currentUser.id,
+            organization_id: state.currentOrganization?.id,
+          }])
+          .select('id')
+          .single();
+        savedOpportunityId = result.data?.id;
       }
 
       if (result.error) throw result.error;
+
+      // Sync assignees — owner chip (data-is-owner) is display-only and not in
+      // state.opportunityAssignees, so ownership is never accidentally re-written.
+      if (savedOpportunityId) {
+        await syncOpportunityAssignees(savedOpportunityId, state.opportunityAssignees);
+      }
 
       showToast(`Opportunity ${opportunity ? 'updated' : 'created'} successfully!`, 'success');
       closeModal('opportunity-modal');
@@ -1450,6 +1654,233 @@ function scheduleNextStepReminder(opportunityName, nextStep, dueDate) {
   localStorage.setItem('opportunityReminders', JSON.stringify(reminders));
 
   refreshDueNotifications({ forcePopup: true });
+}
+
+
+// ── Assignees: helpers ─────────────────────────────────────────────────────────
+
+/** Deterministic color from a user ID string — palette of accessible hues */
+function getAssigneeColor(userId) {
+  const palette = [
+    '#3b82f6', '#8b5cf6', '#ec4899', '#10b981',
+    '#f59e0b', '#06b6d4', '#ef4444', '#84cc16',
+    '#f97316', '#6366f1',
+  ];
+  if (!userId) return palette[0];
+  let hash = 0;
+  for (let i = 0; i < userId.length; i++) {
+    hash = (hash * 31 + userId.charCodeAt(i)) >>> 0;
+  }
+  return palette[hash % palette.length];
+}
+
+/** Fetch (and cache) all active profiles in the current org for the picker */
+async function loadOrgTeamMembers() {
+  if (window._orgTeamMembers && window._orgTeamMembersOrgId === state.currentOrganization?.id) {
+    return window._orgTeamMembers;
+  }
+  let q = supabaseClient
+    .from('profiles')
+    .select('id, first_name, last_name, role, email')
+    .eq('status', 'active')
+    .order('first_name');
+  if (state.currentOrganization?.id) q = q.eq('organization_id', state.currentOrganization.id);
+  const { data } = await q;
+  window._orgTeamMembers = data || [];
+  window._orgTeamMembersOrgId = state.currentOrganization?.id;
+  return window._orgTeamMembers;
+}
+
+/** Prepend a non-removable owner chip to the chips container */
+function _prependOwnerChip(ownerId, ownerProfile) {
+  const chipsEl = document.getElementById('opp-assignees-chips');
+  if (!chipsEl || !ownerProfile) return;
+
+  const name = `${ownerProfile.first_name} ${ownerProfile.last_name}`.trim() || 'Owner';
+  const color = getAssigneeColor(ownerId);
+
+  const chip = document.createElement('div');
+  chip.className = 'opp-assignee-chip opp-assignee-chip--owner';
+  chip.dataset.userId = ownerId;
+  chip.dataset.isOwner = 'true';
+  chip.innerHTML = `
+    <div class="opp-assignee-chip-avatar" style="background:${color}">${getInitials(name)}</div>
+    <div class="opp-assignee-chip-info">
+      <span class="opp-assignee-chip-name">${escapeHtml(name)}</span>
+      <span class="opp-assignee-chip-role">Owner</span>
+    </div>
+    <svg class="opp-owner-chip-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" title="Opportunity owner"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>`;
+
+  chipsEl.insertBefore(chip, chipsEl.firstChild);
+}
+
+/** Append a chip for one assignee to the chips container */
+function _appendAssigneeChip(member) {
+  const chipsEl = document.getElementById('opp-assignees-chips');
+  if (!chipsEl) return;
+
+  const chip = document.createElement('div');
+  chip.className = 'opp-assignee-chip';
+  chip.dataset.userId = member.user_id;
+
+  const name = `${member.first_name} ${member.last_name}`.trim() || 'Member';
+  const roleLabel = member.role === 'manager' ? 'Manager' : member.role === 'technician' ? 'Technician' : 'Sales Rep';
+  const color = getAssigneeColor(member.user_id);
+
+  chip.innerHTML = `
+    <div class="opp-assignee-chip-avatar" style="background:${color}">${getInitials(name)}</div>
+    <div class="opp-assignee-chip-info">
+      <span class="opp-assignee-chip-name">${escapeHtml(name)}</span>
+      <span class="opp-assignee-chip-role">${escapeHtml(roleLabel)}</span>
+    </div>
+    <button class="opp-assignee-chip-remove" title="Remove ${escapeHtml(name)}" type="button">
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>`;
+
+  chip.querySelector('.opp-assignee-chip-remove').addEventListener('click', (e) => {
+    e.stopPropagation();
+    state.opportunityAssignees = state.opportunityAssignees.filter(a => a.user_id !== member.user_id);
+    chip.remove();
+  });
+
+  chipsEl.appendChild(chip);
+}
+
+/** Set up the assignees search/picker inside the opportunity modal */
+function initAssigneesPicker() {
+  const input = document.getElementById('opp-assignees-input');
+  const dropdown = document.getElementById('opp-assignees-dropdown');
+  if (!input || !dropdown) return;
+
+  // Clone input to strip old listeners
+  const freshInput = input.cloneNode(true);
+  input.parentNode.replaceChild(freshInput, input);
+
+  let allMembers = [];
+
+  const renderDropdown = (members) => {
+    const query = freshInput.value.trim().toLowerCase();
+    // Exclude the opportunity owner from the picker — they're shown as a
+    // non-removable chip and are not stored in opportunity_assignees.
+    const ownerChip = document.querySelector('.opp-assignee-chip--owner');
+    const ownerUserId = ownerChip?.dataset.userId;
+
+    const filtered = members.filter(m => {
+      if (m.id === ownerUserId) return false;
+      const name = `${m.first_name} ${m.last_name}`.toLowerCase();
+      return !query || name.includes(query) || (m.email || '').toLowerCase().includes(query);
+    });
+
+    if (filtered.length === 0) {
+      dropdown.innerHTML = `<div class="opp-assignees-empty">No team members found.</div>`;
+      dropdown.style.display = 'block';
+      return;
+    }
+
+    dropdown.innerHTML = filtered.map(m => {
+      const name = `${m.first_name} ${m.last_name}`.trim() || m.email;
+      const isSelected = state.opportunityAssignees.some(a => a.user_id === m.id);
+      const roleLabel = m.role === 'manager' ? 'Manager' : m.role === 'technician' ? 'Technician' : 'Sales Rep';
+      const color = getAssigneeColor(m.id);
+      return `
+        <div class="opp-assignee-option${isSelected ? ' is-selected' : ''}" data-user-id="${escapeHtml(m.id)}">
+          <div class="opp-assignee-opt-avatar" style="background:${color}">${getInitials(name)}</div>
+          <div class="opp-assignee-opt-info">
+            <div class="opp-assignee-opt-name">${escapeHtml(name)}</div>
+            <div class="opp-assignee-opt-role">${escapeHtml(roleLabel)}</div>
+          </div>
+          <svg class="opp-assignee-opt-check" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        </div>`;
+    }).join('');
+
+    dropdown.querySelectorAll('.opp-assignee-option').forEach(opt => {
+      opt.addEventListener('mousedown', (e) => {
+        e.preventDefault();
+        const uid = opt.dataset.userId;
+        const member = allMembers.find(m => m.id === uid);
+        if (!member) return;
+
+        const alreadyIdx = state.opportunityAssignees.findIndex(a => a.user_id === uid);
+        if (alreadyIdx >= 0) {
+          // Deselect — remove chip
+          state.opportunityAssignees.splice(alreadyIdx, 1);
+          document.querySelector(`.opp-assignee-chip[data-user-id="${uid}"]`)?.remove();
+        } else {
+          // Select — add chip
+          const assignee = {
+            user_id: member.id,
+            first_name: member.first_name,
+            last_name: member.last_name,
+            role: member.role,
+          };
+          state.opportunityAssignees.push(assignee);
+          _appendAssigneeChip(assignee);
+        }
+
+        freshInput.value = '';
+        dropdown.style.display = 'none';
+      });
+    });
+
+    dropdown.style.display = 'block';
+  };
+
+  const positionDropdown = () => {
+    const rect = freshInput.getBoundingClientRect();
+    dropdown.style.top    = `${rect.bottom + 4}px`;
+    dropdown.style.left   = `${rect.left}px`;
+    dropdown.style.width  = `${rect.width}px`;
+  };
+
+  freshInput.addEventListener('focus', async () => {
+    if (allMembers.length === 0) allMembers = await loadOrgTeamMembers();
+    positionDropdown();
+    renderDropdown(allMembers);
+  });
+
+  freshInput.addEventListener('input', () => {
+    positionDropdown();
+    renderDropdown(allMembers);
+  });
+
+  freshInput.addEventListener('blur', () => {
+    setTimeout(() => {
+      dropdown.style.display = 'none';
+    }, 150);
+  });
+
+  freshInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      dropdown.style.display = 'none';
+      freshInput.blur();
+    }
+  });
+
+  // Reposition if modal scrolls while dropdown is open
+  document.querySelector('.modal-body')?.addEventListener('scroll', positionDropdown, { passive: true });
+}
+
+/** Delete all existing assignees for an opportunity then insert the new set */
+async function syncOpportunityAssignees(opportunityId, assignees) {
+  await supabaseClient
+    .from('opportunity_assignees')
+    .delete()
+    .eq('opportunity_id', opportunityId);
+
+  if (!assignees || assignees.length === 0) return;
+
+  const rows = assignees.map(a => ({
+    opportunity_id: opportunityId,
+    user_id: a.user_id,
+    organization_id: state.currentOrganization?.id || null,
+    assigned_by: state.currentUser.id,
+  }));
+
+  const { error } = await supabaseClient
+    .from('opportunity_assignees')
+    .insert(rows);
+
+  if (error) console.warn('syncOpportunityAssignees error:', error.message);
 }
 
 

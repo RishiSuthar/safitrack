@@ -65,6 +65,7 @@ export const state = {
   // People / companies
   allPeople: [],
   mentionedPeople: [],
+  opportunityAssignees: [],
   companyCategories: [],
   personPhoneNumbers: [],
   visitTags: [],

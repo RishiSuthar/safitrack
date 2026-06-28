@@ -1445,6 +1445,18 @@
           </div>
 
           <div class="form-field">
+            <label for="opp-assignees-input">Team Members</label>
+            <div class="opp-assignees-picker" id="opp-assignees-picker">
+              <div class="opp-assignees-chips" id="opp-assignees-chips"></div>
+              <div class="opp-assignees-search-wrap">
+                <input type="text" class="opp-assignees-input" id="opp-assignees-input"
+                  placeholder="Tag a sales rep or manager..." autocomplete="off">
+                <div class="opp-assignees-dropdown" id="opp-assignees-dropdown" style="display:none;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-field">
             <label for="opportunity-notes">Notes</label>
             <div class="mention-container">
               <textarea id="opportunity-notes" placeholder="Additional details..." rows="2"></textarea>
@@ -1546,6 +1558,16 @@
 
           <!-- Right Column: Secondary Data -->
           <div class="ov-side-col">
+            <div class="ov-section">
+              <div class="ov-section-title">
+                <i data-lucide="users" style="width:16px;"></i>
+                Team Members
+              </div>
+              <div id="opportunity-view-assignees" class="ov-assignees-list">
+                <span class="ov-assignees-empty">No team members tagged.</span>
+              </div>
+            </div>
+
             <div class="ov-section">
               <div class="ov-section-title">
                 <i data-lucide="shield" style="width:16px;"></i>
