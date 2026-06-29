@@ -365,22 +365,44 @@ function showDuePopup(items) {
     const typeLabel = item.entityType === 'deal' ? 'Deal' : (item.entityType === 'task' ? 'Task' : 'Reminder');
     const dueText = formatDueLabel(item.dueAt);
     return `
-      <button class="due-popup-card ${item.status}" data-view="${item.view}">
+      <div class="due-popup-card ${item.status}" data-view="${item.view}" role="button" tabindex="0">
+        <button type="button" class="due-popup-close" aria-label="Close notification">✕</button>
         <div class="due-popup-head">
           <span class="due-popup-type">${typeLabel}</span>
           <span class="due-popup-time">${dueText}</span>
         </div>
         <div class="due-popup-title">${item.title}</div>
         <div class="due-popup-message">${item.message}</div>
-      </button>
+      </div>
     `;
   }).join('');
 
   container.classList.add('active');
 
   container.onclick = async (e) => {
+    const closeBtn = e.target.closest('.due-popup-close');
+    if (closeBtn) {
+      // Remove only the single card the user closed
+      const card = closeBtn.closest('.due-popup-card');
+      if (card) card.remove();
+      // don't navigate when closing
+      return;
+    }
+
     const card = e.target.closest('.due-popup-card');
     if (!card) return;
+    const view = card.dataset.view;
+    container.classList.remove('active');
+    if (view && view !== state.currentView) {
+      await loadView(view);
+    }
+  };
+
+  container.onkeydown = async (e) => {
+    if (e.key !== 'Enter' && e.key !== ' ') return;
+    const card = e.target.closest('.due-popup-card');
+    if (!card || e.target.closest('.due-popup-close')) return;
+    e.preventDefault();
     const view = card.dataset.view;
     container.classList.remove('active');
     if (view && view !== state.currentView) {

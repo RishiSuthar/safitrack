@@ -66,9 +66,20 @@ function showToast(message, type = 'info', options = {}) {
   toast.innerHTML = `
     <i class="fas ${iconMap[type] || iconMap.info} toast-icon"></i>
     <span class="toast-message">${normalizedMessage}</span>
+    <button class="toast-close" aria-label="Close notification">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
   `;
 
   container.appendChild(toast);
+
+  // Allow manual closing
+  const closeBtn = toast.querySelector('.toast-close');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', () => {
+      toast.remove();
+    });
+  }
 
   const timeoutMs = Number.isFinite(options.duration)
     ? options.duration
