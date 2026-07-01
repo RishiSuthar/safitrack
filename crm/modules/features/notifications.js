@@ -121,6 +121,71 @@ function mapReminderToDueNotification(reminder) {
   };
 }
 
+function computeNextDueDate(startDateStr, recurrenceType, recurrenceInterval) {
+  const start = new Date(startDateStr);
+  if (isNaN(start.getTime())) return null;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (recurrenceType === 'once') {
+    return start >= today ? start : null;
+  }
+
+  const interval = recurrenceInterval || 1;
+  let next = new Date(start);
+
+  // Advance until next >= today
+  let guard = 0;
+  while (next < today && guard++ < 1000) {
+    switch (recurrenceType) {
+      case 'weekly':       next.setDate(next.getDate() + 7); break;
+      case 'bi_weekly':    next.setDate(next.getDate() + 14); break;
+      case 'monthly':      next.setMonth(next.getMonth() + 1); break;
+      case 'quarterly':    next.setMonth(next.getMonth() + 3); break;
+      case 'semi_annual':  next.setMonth(next.getMonth() + 6); break;
+      case 'yearly':       next.setFullYear(next.getFullYear() + 1); break;
+      case 'custom_weeks': next.setDate(next.getDate() + interval * 7); break;
+      default: return null;
+    }
+  }
+
+  return next >= today ? next : null;
+}
+
+function mapContractToDueNotification(contract) {
+  if (contract.status !== 'active') return null;
+  if (!contract.reminder_days?.length) return null;
+
+  const nextDue = computeNextDueDate(contract.start_date, contract.recurrence_type, contract.recurrence_interval);
+  if (!nextDue) return null;
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daysUntil = Math.round((nextDue.getTime() - today.getTime()) / 86400000);
+
+  const shouldNotify = contract.reminder_days.some(d => daysUntil <= d && daysUntil >= 0);
+  if (!shouldNotify) return null;
+
+  const companyName = contract.companies?.name || contract.custom_company_name || 'Contract';
+  const typeLabel = contract.contract_type === 'ups_service'   ? 'UPS Service'
+                  : contract.contract_type === 'solar_service' ? 'Solar Service'
+                  : contract.custom_type_name || 'Service';
+
+  const dueDateStr = nextDue.toLocaleDateString([], { month: 'short', day: 'numeric' });
+
+  return {
+    key: `contract:${contract.id}:${nextDue.toISOString().split('T')[0]}`,
+    id: String(contract.id),
+    entityType: 'contract',
+    view: 'contracts',
+    title: companyName,
+    message: `${typeLabel} due ${dueDateStr}`,
+    dueAt: nextDue,
+    status: getDueStatus(nextDue)
+  };
+}
+
 function mapOpportunityToDueNotification(opportunity) {
   const dueAt = opportunity?.next_step_date ? new Date(opportunity.next_step_date) : null;
   if (!dueAt || Number.isNaN(dueAt.getTime())) return null;
@@ -182,17 +247,26 @@ async function fetchDueNotificationItems() {
   }
   if (state.currentOrganization?.id) opportunitiesQuery = opportunitiesQuery.eq('organization_id', state.currentOrganization.id);
 
-  const [tasksRes, remindersRes, opportunitiesRes] = await Promise.all([
+  let contractsQuery = supabaseClient
+    .from('service_contracts')
+    .select('id, company_id, custom_company_name, contract_type, custom_type_name, start_date, recurrence_type, recurrence_interval, reminder_days, status, companies(name)')
+    .eq('status', 'active')
+    .neq('reminder_days', '{}');
+  if (state.currentOrganization?.id) contractsQuery = contractsQuery.eq('organization_id', state.currentOrganization.id);
+
+  const [tasksRes, remindersRes, opportunitiesRes, contractsRes] = await Promise.all([
     tasksQuery,
     remindersQuery,
-    opportunitiesQuery
+    opportunitiesQuery,
+    contractsQuery
   ]);
 
-  const taskItems = (tasksRes.data || []).map(mapTaskToDueNotification).filter(Boolean);
+  const taskItems     = (tasksRes.data || []).map(mapTaskToDueNotification).filter(Boolean);
   const reminderItems = (remindersRes.data || []).map(mapReminderToDueNotification).filter(Boolean);
-  const dealItems = (opportunitiesRes.data || []).map(mapOpportunityToDueNotification).filter(Boolean);
+  const dealItems     = (opportunitiesRes.data || []).map(mapOpportunityToDueNotification).filter(Boolean);
+  const contractItems = (contractsRes.data || []).map(mapContractToDueNotification).filter(Boolean);
 
-  return [...taskItems, ...reminderItems, ...dealItems]
+  return [...taskItems, ...reminderItems, ...dealItems, ...contractItems]
     .sort((a, b) => a.dueAt.getTime() - b.dueAt.getTime())
     .slice(0, 25);
 }
@@ -269,7 +343,7 @@ function renderDueNotificationsUI() {
     return;
   }
 
-  const TYPE_LABEL = { task: 'Task', reminder: 'Reminder', deal: 'Deal' };
+  const TYPE_LABEL = { task: 'Task', reminder: 'Reminder', deal: 'Deal', contract: 'Contract' };
 
   notificationsList.innerHTML = filteredItems.map(item => {
     const isUnread = !readMap[item.key];
