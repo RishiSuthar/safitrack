@@ -77,7 +77,7 @@ function buildModal(entries) {
         </div>
 
         <div class="cl-footer">
-          <button class="cl-btn-primary" id="cl-dismiss-btn">Got it — let's go</button>
+          <button class="cl-btn-primary" id="cl-dismiss-btn">Got it, let's go</button>
         </div>
       </div>
     </div>`;
