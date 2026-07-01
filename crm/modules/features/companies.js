@@ -67,13 +67,15 @@ async function renderCompaniesView() {
       {
         key: 'name', label: 'Company Name', width: '300px', icon: 'building', sortable: true, readOnly: state.isSalesRep, render: (val, row) => {
           const domain = (row && row.domain) ? row.domain : '';
-          const logoUrl = getCompanyLogoUrl(domain);
+          // Only try favicon for real domains (getCompanyLogoUrl rejects emails & bare words).
+          // row.logo_url is the explicit DB value (already cleaned of old favicon-service URLs).
+          const faviconUrl = row.logo_url || (domain ? getCompanyLogoUrl(domain) : '');
           const initials = getInitials(row.name || '');
           return `
             <div style="display:flex;align-items:center;gap:10px;">
               <div style="width:28px;height:28px;flex-shrink:0;position:relative;">
-                <div class="mention-avatar">${initials}</div>
-                ${logoUrl ? `<img src="${logoUrl}" style="display:none;width:28px;height:28px;object-fit:contain;border-radius:50%;position:absolute;left:0;top:0;" onload="this.style.display='block'; this.previousElementSibling.style.display='none'" onerror="this.style.display='none'" />` : ''}
+                <div class="mention-avatar" style="width:28px;height:28px;font-size:0.65rem;border-radius:50%;">${initials}</div>
+                ${faviconUrl ? `<img src="${faviconUrl}" style="display:none;width:28px;height:28px;object-fit:contain;border-radius:50%;position:absolute;left:0;top:0;" onload="this.style.display='block';this.previousElementSibling.style.display='none'" onerror="this.style.display='none';this.previousElementSibling.style.display=''" />` : ''}
               </div>
               <div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${row.name || '-'}</div>
             </div>

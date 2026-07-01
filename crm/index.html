@@ -1596,6 +1596,66 @@
     </div>
   </div>
 
+  <!-- Manage Pipelines Modal -->
+  <div id="manage-pipelines-modal" class="modal" style="display:none;">
+    <div class="modal-backdrop" onclick="closeModal('manage-pipelines-modal')"></div>
+    <div class="modal-container modal-size-md">
+      <div class="modal-header">
+        <h3>Manage Pipelines</h3>
+        <button class="modal-close" onclick="closeModal('manage-pipelines-modal')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p class="pipeline-mgmt-hint">Create different pipelines for different types of work. All team members can switch between them. Stages are fully customizable.</p>
+        <div id="pipelines-list-container" class="pipelines-list">
+          <div class="pipeline-loading">Loading pipelines…</div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('manage-pipelines-modal')">Close</button>
+        <button class="btn btn-primary" id="create-pipeline-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+          New Pipeline
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pipeline Editor Modal -->
+  <div id="pipeline-editor-modal" class="modal" style="display:none;">
+    <div class="modal-backdrop" onclick="closeModal('pipeline-editor-modal')"></div>
+    <div class="modal-container modal-size-sm">
+      <div class="modal-header">
+        <h3 id="pipeline-editor-title">New Pipeline</h3>
+        <button class="modal-close" onclick="closeModal('pipeline-editor-modal')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-field">
+          <label for="pipeline-name-input">Pipeline Name <span class="required-indicator">(required)</span></label>
+          <input type="text" id="pipeline-name-input" placeholder="e.g., Store Front, Enterprise, Retail" maxlength="60">
+        </div>
+        <div class="form-field">
+          <label>
+            Stages
+            <span style="font-weight:400; font-size:0.78rem; color:var(--text-muted); margin-left:6px;">2–8 stages</span>
+          </label>
+          <div id="pipeline-stages-editor" class="pipeline-stages-editor"></div>
+          <button type="button" class="btn btn-ghost btn-sm" id="add-stage-btn" style="margin-top:10px; gap:6px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+            Add Stage
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="pipeline-editor-cancel-btn">Cancel</button>
+        <button class="btn btn-primary" id="save-pipeline-btn">Save Pipeline</button>
+      </div>
+    </div>
+  </div>
+
 
   <div id="task-modal" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>

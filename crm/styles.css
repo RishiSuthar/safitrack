@@ -10269,6 +10269,242 @@ select {
   margin-bottom: 0.9rem;
 }
 
+/* ── Pipeline Switcher ───────────────────────────────────────── */
+.pipeline-switcher-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.6rem;
+  margin-bottom: 0.25rem;
+}
+
+.pipeline-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.pipeline-tab {
+  height: 30px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--btn-radius);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  font-weight: 550;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.pipeline-tab:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.pipeline-tab.is-active {
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+[data-theme="dark"] .pipeline-tab.is-active {
+  background: var(--bg-tertiary);
+}
+
+.pipeline-manage-btn {
+  flex-shrink: 0;
+  height: 30px;
+  padding: 0 10px;
+  font-size: 0.8rem;
+  gap: 5px;
+  color: var(--text-muted);
+}
+
+.pipeline-manage-btn:hover {
+  color: var(--text-primary);
+}
+
+/* ── Manage Pipelines Modal ──────────────────────────────────── */
+.pipeline-mgmt-hint {
+  font-size: 0.83rem;
+  color: var(--text-muted);
+  margin: 0 0 1rem;
+  line-height: 1.5;
+}
+
+.pipelines-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.pipeline-loading {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  padding: 1rem 0;
+  text-align: center;
+}
+
+.pipeline-empty-hint {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.pipeline-list-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  transition: border-color var(--transition-fast);
+}
+
+.pipeline-list-item:hover {
+  border-color: var(--border-color-light);
+}
+
+[data-theme="dark"] .pipeline-list-item {
+  background: var(--bg-tertiary);
+}
+
+.pipeline-list-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.pipeline-list-item-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+.pipeline-default-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 8px;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+  color: var(--color-primary);
+}
+
+.pipeline-list-item-stages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.pipeline-stage-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-size: 0.72rem;
+  font-weight: 550;
+}
+
+.pipeline-list-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+/* ── Pipeline Editor Modal (Stage rows) ──────────────────────── */
+.pipeline-stages-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stage-editor-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  transition: border-color var(--transition-fast);
+}
+
+.stage-editor-row:hover {
+  border-color: var(--border-color-light);
+}
+
+[data-theme="dark"] .stage-editor-row {
+  background: var(--bg-tertiary);
+}
+
+.stage-color-palette {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.stage-color-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.1s, border-color 0.1s;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.stage-color-dot:hover {
+  transform: scale(1.2);
+}
+
+.stage-color-dot.is-selected {
+  border-color: var(--text-primary);
+  transform: scale(1.15);
+}
+
+.stage-name-input {
+  height: 32px;
+  font-size: 0.85rem;
+}
+
+.stage-remove-btn {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--btn-radius);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.stage-remove-btn:hover {
+  background: color-mix(in srgb, var(--color-danger) 10%, transparent);
+  color: var(--color-danger);
+}
+
 .pipeline-filters {
   display: flex;
   gap: 0.75rem;

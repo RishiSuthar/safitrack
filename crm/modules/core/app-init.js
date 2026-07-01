@@ -313,16 +313,17 @@ async function loadAllCompanies() {
     }
 
     crmDebugLog('loadAllCompanies.loaded', { count: window.allCompaniesData.length });
-    // Ensure each company has a usable logo_url and prefetch images to warm browser cache
+    // Ensure each company has a resolved logo_url in the in-memory cache.
+    // We ONLY trust explicit DB values — we do NOT prefetch or manufacture favicon URLs here
+    // because speculative favicon requests flood the console with 404s.
+    const FAVICON_SERVICE_PATTERNS = ['s2/favicons', 'faviconV2', 't0.gstatic', 't1.gstatic', 't2.gstatic', 't3.gstatic'];
     window.allCompaniesData.forEach(c => {
-      const name = c.name || '';
-      const initials = getInitials(name || '');
-      const domain = c.domain || '';
-      const computed = c.logo_url || (domain ? getCompanyLogoUrl(domain) : null) || `https://ui-avatars.com/api/?name=${encodeURIComponent(name || initials)}&background=ededed&color=444&size=64`;
-      if (!c.logo_url) c.logo_url = computed;
-      try { const img = new Image(); img.src = c.logo_url; } catch (e) { /* ignore */ }
+      // If logo_url was written by old code as a favicon-service URL, clear it so the
+      // render layer falls back to a ui-avatar (no broken-image noise).
+      if (c.logo_url && FAVICON_SERVICE_PATTERNS.some(p => c.logo_url.includes(p))) {
+        c.logo_url = null;
+      }
     });
-    // Log loaded companies and their logo urls for debugging first-load logo issues
     // companies loaded (silent)
     return window.allCompaniesData;
   } catch (e) {

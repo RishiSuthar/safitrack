@@ -99,14 +99,21 @@ function getDeepValue(obj, path) {
 }
 
 // Return a Google S2 favicon URL for a domain (sanitizes input)
+// Returns '' when the input is an email, a bare word, or clearly not a domain.
 function getCompanyLogoUrl(domain) {
   if (!domain) return '';
   try {
     let d = String(domain || '').trim().toLowerCase();
+    // Reject email addresses
+    if (d.includes('@')) return '';
     d = d.replace(/^https?:\/\//, '');
     d = d.replace(/^www\./, '');
-    d = d.split('/')[0];
-    // Use Google's S2 favicon service; request a slightly larger size
+    d = d.split('/')[0].split('?')[0];
+    // Must contain a dot to look like a real domain
+    if (!d.includes('.')) return '';
+    // Skip obviously-invalid TLDs (e.g. bare IP fragments, single chars)
+    const parts = d.split('.');
+    if (parts[parts.length - 1].length < 2) return '';
     return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(d)}&sz=64`;
   } catch (e) {
     return '';

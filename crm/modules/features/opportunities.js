@@ -6,20 +6,114 @@ import { showToast, escapeHtml, getInitials, triggerConfetti } from '../ui/toast
 import { renderSkeletonCards, renderError, getCurrencySymbol } from '../utils/helpers.js';
 import { getCompanyLogoUrl, guessDomainAndFavicon } from '../ui/spreadsheet.js';
 
+// ── Pipeline helpers ──────────────────────────────────────────────────────────
+
+/** Stage color palette for custom pipelines */
+const STAGE_COLORS = ['#3b82f6', '#ec4899', '#10b981', '#ef4444', '#f59e0b', '#8b5cf6', '#06b6d4', '#f97316'];
+
+/** The built-in fallback used when Supabase is unavailable */
+function getDefaultPipeline() {
+  return {
+    id: '__default__',
+    name: 'Sales',
+    is_default: true,
+    stages: [
+      { id: 'prospecting',   title: 'Lead',       color: '#3b82f6' },
+      { id: 'qualification', title: 'In Progress', color: '#ec4899' },
+      { id: 'closed-won',    title: 'Won 🎉',      color: '#10b981' },
+      { id: 'closed-lost',   title: 'Lost',        color: '#ef4444' },
+    ],
+  };
+}
+
+/** Load pipelines from Supabase (cached in state.pipelines). Auto-creates the
+ *  default "Sales" pipeline on first run if none exist. */
+async function loadPipelines() {
+  if (state.pipelines && state.pipelines.length > 0) return state.pipelines;
+
+  let q = supabaseClient.from('pipelines').select('*').order('created_at');
+  if (state.currentOrganization?.id) q = q.eq('organization_id', state.currentOrganization.id);
+  const { data, error } = await q;
+
+  if (error) {
+    console.warn('loadPipelines error:', error.message);
+    return [getDefaultPipeline()];
+  }
+
+  let pipelines = data || [];
+
+  if (pipelines.length === 0 && state.isManager && state.currentOrganization?.id) {
+    // First-time setup: seed the default Sales pipeline
+    const seed = getDefaultPipeline();
+    const { data: created, error: insertErr } = await supabaseClient
+      .from('pipelines')
+      .insert([{
+        name: seed.name,
+        stages: seed.stages,
+        organization_id: state.currentOrganization.id,
+        created_by: state.currentUser?.id,
+        is_default: true,
+      }])
+      .select()
+      .single();
+    if (!insertErr && created) {
+      pipelines = [created];
+    } else {
+      pipelines = [seed]; // offline fallback
+    }
+  } else if (pipelines.length === 0) {
+    pipelines = [getDefaultPipeline()];
+  }
+
+  state.pipelines = pipelines;
+  return pipelines;
+}
+
+/** Returns the pipeline object the user is currently viewing */
+function getActivePipeline(pipelines) {
+  const orgId = state.currentOrganization?.id || '';
+  const savedId = localStorage.getItem(`safi_pipeline_${orgId}`);
+  const found = savedId && pipelines.find(p => p.id === savedId);
+  // If previously active pipeline was deleted, fall back gracefully
+  return found || pipelines[0] || getDefaultPipeline();
+}
+
+/** Persist the active pipeline choice to localStorage */
+function setActivePipeline(pipelineId) {
+  const orgId = state.currentOrganization?.id || '';
+  state.activePipelineId = pipelineId;
+  try { localStorage.setItem(`safi_pipeline_${orgId}`, pipelineId); } catch { /* ignore */ }
+}
+
+/** True if an opportunity belongs to the given pipeline (handles null = default) */
+function oppMatchesPipeline(opp, pipeline) {
+  if (pipeline.is_default) {
+    return !opp.pipeline_id || opp.pipeline_id === pipeline.id;
+  }
+  return opp.pipeline_id === pipeline.id;
+}
+
+/** Update the stage dropdown in the opportunity modal to reflect the active pipeline's stages */
+function updateStageDropdownForPipeline(pipeline, currentValue) {
+  if (!pipeline?.stages?.length) return;
+  const options = pipeline.stages.map(s => ({ value: s.id, label: s.title }));
+  window.updateCrmDropdownOptions?.('opportunity-stage', options, false);
+  const defaultVal = currentValue || pipeline.stages[0]?.id;
+  if (defaultVal) window.setCrmDropdownValue?.('opportunity-stage', defaultVal);
+}
+
 async function renderOpportunityPipelineView() {
   // renderOpportunityPipelineView start (diagnostics removed)
   // Ensure companies cache is ready before rendering opportunities
   if (!Array.isArray(window.allCompaniesData) || window.allCompaniesData.length === 0) {
-    // companies cache empty — loading companies
-    try {
-      await loadAllCompanies();
-      // loadAllCompanies completed
-    } catch (e) {
-      // loadAllCompanies failed (ignored)
-    }
-  } else {
-    // companies cache present
+    try { await loadAllCompanies(); } catch (e) { /* ignored */ }
   }
+
+  // ── Load pipelines & resolve active pipeline ──────────────────────────────
+  const pipelines = await loadPipelines();
+  const activePipeline = getActivePipeline(pipelines);
+  setActivePipeline(activePipeline.id);
+
   let opportunities;
   let error;
 
@@ -108,23 +202,21 @@ async function renderOpportunityPipelineView() {
     opp.assignees = assigneesByOppId[opp.id] || [];
   });
 
-  // Define pipeline stages - simplified to 4 columns as requested
-  const pipelineStages = [
-    { id: 'prospecting', title: 'Lead', color: '#3b82f6' },
-    { id: 'qualification', title: 'In Progress', color: '#ec4899' },
-    { id: 'closed-won', title: 'Won 🎉', color: '#10b981' },
-    { id: 'closed-lost', title: 'Lost', color: '#ef4444' }
-  ];
+  // ── Filter to the active pipeline ────────────────────────────────────────
+  opportunities = opportunities.filter(opp => oppMatchesPipeline(opp, activePipeline));
 
-  // Map old stage values to new ones
-  const stageMapping = {
+  // Define pipeline stages from the active pipeline
+  const pipelineStages = activePipeline.stages || getDefaultPipeline().stages;
+
+  // Map old stage values to new ones (default pipeline only — legacy compat)
+  const stageMapping = activePipeline.is_default ? {
     'prospecting': 'prospecting',
     'qualification': 'qualification',
     'proposal': 'qualification', // Map to In Progress
     'negotiation': 'qualification', // Map to In Progress
     'closed-won': 'closed-won',
     'closed-lost': 'closed-lost'
-  };
+  } : {};
 
   // Apply mapping to opportunities
   opportunities.forEach(opp => {
@@ -166,6 +258,23 @@ async function renderOpportunityPipelineView() {
 
   let html = `
     <div class="pipeline-toolbar" style="flex-direction: column; align-items: stretch; gap: 8px;">
+
+      <div class="pipeline-switcher-row">
+        <div class="pipeline-tabs" id="pipeline-tabs">
+          ${pipelines.map(p => `
+            <button class="pipeline-tab${p.id === activePipeline.id ? ' is-active' : ''}" data-pipeline-id="${escapeHtml(p.id)}">
+              ${escapeHtml(p.name)}
+            </button>
+          `).join('')}
+        </div>
+        ${state.isManager ? `
+          <button class="btn btn-ghost pipeline-manage-btn" id="manage-pipelines-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            Manage
+          </button>
+        ` : ''}
+      </div>
+
       <div class="pipeline-controls pipeline-controls-primary" style="width: 100%;">
         <div class="pipeline-search">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
@@ -286,23 +395,20 @@ async function renderOpportunityPipelineView() {
       // Resolve company object from global cache if available (robust/fuzzy matching)
       const companyObj = findCompanyForOpportunity(opp);
 
-      // Ensure we have a usable logo URL (fallback to favicon or UI Avatars)
+      // Ensure we have a usable logo URL (favicon only for real domains; ui-avatars otherwise)
       const companyInitials = getInitials((companyObj && companyObj.name) ? companyObj.name : (opp.company_name || ''));
       const companyNameResolved = (companyObj && companyObj.name) ? companyObj.name : (opp.company_name || companyInitials);
       const companyDomain = (companyObj && companyObj.domain) ? companyObj.domain : '';
+      const uiAvatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(companyNameResolved)}&background=ededed&color=444&size=64`;
       let companyLogoUrl = '';
       if (companyObj && companyObj.logo_url) {
         companyLogoUrl = companyObj.logo_url;
       } else if (companyDomain) {
-        companyLogoUrl = getCompanyLogoUrl(companyDomain) || `https://ui-avatars.com/api/?name=${encodeURIComponent(companyNameResolved)}&background=ededed&color=444&size=64`;
+        // Only use favicon service for real domain fields (getCompanyLogoUrl rejects emails)
+        companyLogoUrl = getCompanyLogoUrl(companyDomain) || uiAvatarFallback;
       } else {
-        // No matched company and no domain; try guessing a favicon via Google favicon proxy
-        const guessedFavicon = guessDomainAndFavicon(companyNameResolved);
-        if (guessedFavicon) {
-          companyLogoUrl = guessedFavicon;
-        } else {
-          companyLogoUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(companyNameResolved)}&background=ededed&color=444&size=64`;
-        }
+        // No domain — skip speculative guessing, go straight to ui-avatars
+        companyLogoUrl = uiAvatarFallback;
       }
       // Cache computed logo_url for future renders when companyObj present
       if (companyObj && !companyObj.logo_url) companyObj.logo_url = companyLogoUrl;
@@ -476,86 +582,61 @@ async function renderOpportunityPipelineView() {
     initPipelineFilters(opportunities);
   }, 100);
 
-  // After render, ensure opportunity logos are updated to use companies' stored logos.
-  try {
-    // updating opportunity logos from companies table
-    await updateOpportunityLogosAsync();
-    // updateOpportunityLogosAsync completed
-  } catch (e) {
-    // updateOpportunityLogosAsync error (ignored)
-  }
+  // Fire logo upgrades in the background — never await so the kanban is immediately usable.
+  updateOpportunityLogosAsync().catch(() => {});
 }
 
-// Try to update opportunity cards to use company.logo_url from the `companies` table when available.
-async function updateOpportunityLogosAsync() {
-  if (!window.supabaseClient) return;
+// Upgrade opportunity card logos using the in-memory companies cache.
+// Cache-only: avoids Supabase queries and sequential image-loading that blocked the UI.
+// Images are updated via onload/onerror so the browser handles them fully async.
+function updateOpportunityLogosAsync() {
   const cards = Array.from(document.querySelectorAll('.opportunity-card'));
   for (const card of cards) {
-    try {
-      const companyName = card.getAttribute('data-company-name') || '';
-      if (!companyName) continue;
+    const companyName = card.getAttribute('data-company-name') || '';
+    if (!companyName) continue;
 
-      // Find cached company first
-      let company = (Array.isArray(window.allCompaniesData) ? window.allCompaniesData.find(c => normalizeForMatching(c.name) === normalizeForMatching(companyName)) : null);
-      if (!company) {
-        // Query supabase for a matching company by name (case-insensitive, partial match)
-        const { data, error } = await supabaseClient
-          .from('companies')
-          .select('id,name,domain,logo_url')
-          .ilike('name', `%${companyName}%`)
-          .limit(1);
-        if (!error && Array.isArray(data) && data.length > 0) {
-          company = data[0];
-          window.allCompaniesData = window.allCompaniesData || [];
-          // Avoid duplicates
-          if (!window.allCompaniesData.find(c => String(c.id) === String(company.id))) {
-            window.allCompaniesData.push(company);
-          }
-        }
-      }
+    const company = Array.isArray(window.allCompaniesData)
+      ? window.allCompaniesData.find(c => normalizeForMatching(c.name) === normalizeForMatching(companyName))
+      : null;
+    if (!company?.logo_url) continue;
 
-      if (company && company.logo_url) {
-        // Preload the company.logo_url before assigning to DOM to avoid broken images
-        const candidate = company.logo_url;
-        // testing logo for company (silent)
-        const imgEl = card.querySelector('.opp-company-avatar img');
-        const placeholder = card.querySelector('.mention-avatar');
-        try {
-          await new Promise((resolve, reject) => {
-            const tester = new Image();
-            tester.onload = () => resolve(true);
-            tester.onerror = () => reject(new Error('image load failed'));
-            // attempt to load via tester
-            tester.src = candidate;
-            // Add a timeout in case of hanging requests
-            setTimeout(() => reject(new Error('image load timeout')), 3000);
-          });
-          // success — set DOM image
-          if (imgEl) {
-            imgEl.src = candidate;
-            imgEl.style.display = 'block';
-          }
-          if (placeholder) placeholder.style.display = 'none';
-          // loaded logo for company
-        } catch (e) {
-          // logo failed for company, falling back
-          // fallback: try domain favicon if present
-          const domainCandidate = company.domain ? getCompanyLogoUrl(company.domain) : '';
-          const finalFallback = domainCandidate || `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName || company.name)}&background=ededed&color=444&size=64`;
-          if (imgEl) {
-            imgEl.src = finalFallback;
-            imgEl.style.display = 'block';
-          }
-          if (placeholder) placeholder.style.display = 'none';
-        }
-      }
-    } catch (e) {
-      console.warn('updateOpportunityLogosAsync error', e);
-    }
+    const imgEl    = card.querySelector('.opp-company-avatar img');
+    const initials = card.querySelector('.opp-company-avatar .mention-avatar');
+    if (!imgEl) continue;
+
+    // Only update if the src is actually different
+    if (imgEl.src === company.logo_url) continue;
+
+    imgEl.onload = function () {
+      this.style.display = 'block';
+      if (initials) initials.style.display = 'none';
+    };
+    imgEl.onerror = function () {
+      this.style.display = 'none';
+      if (initials) initials.style.display = '';
+    };
+    imgEl.src = company.logo_url;
   }
+  return Promise.resolve();
 }
 
 function initOpportunityEventListeners(opportunities) {
+  // Pipeline tab switcher
+  document.querySelectorAll('.pipeline-tab[data-pipeline-id]').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const pipelineId = tab.dataset.pipelineId;
+      if (pipelineId && pipelineId !== state.activePipelineId) {
+        setActivePipeline(pipelineId);
+        renderOpportunityPipelineView();
+      }
+    });
+  });
+
+  // Manage Pipelines button (managers only)
+  document.getElementById('manage-pipelines-btn')?.addEventListener('click', () => {
+    openManagePipelinesModal();
+  });
+
   // Add opportunity button
   document.getElementById('add-opportunity-btn')?.addEventListener('click', () => {
     openOpportunityModal();
@@ -564,14 +645,11 @@ function initOpportunityEventListeners(opportunities) {
   document.querySelectorAll('.pipeline-inline-add').forEach(btn => {
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const stage = btn.dataset.stage || 'prospecting';
+      const stage = btn.dataset.stage;
       openOpportunityModal();
       setTimeout(() => {
-        const stageField = document.getElementById('opportunity-stage');
-        if (stageField) {
-          stageField.value = stage;
-        }
-      }, 0);
+        if (stage) window.setCrmDropdownValue?.('opportunity-stage', stage);
+      }, 50);
     });
   });
 
@@ -716,16 +794,23 @@ function initPipelineDragAndDrop(opportunities) {
               opportunity.stage = newStage;
               opportunity.updated_at = new Date().toISOString();
 
-              // Map old stage values to new ones for the mappedStage property
-              const stageMapping = {
-                'prospecting': 'prospecting',
-                'qualification': 'qualification',
-                'proposal': 'qualification',
-                'negotiation': 'qualification',
-                'closed-won': 'closed-won',
-                'closed-lost': 'closed-lost'
-              };
-              opportunity.mappedStage = stageMapping[newStage] || newStage;
+              // For default pipeline: keep legacy stage mapping; custom pipelines use stage as-is
+              const activePipeline = (state.pipelines && state.activePipelineId
+                ? state.pipelines.find(p => p.id === state.activePipelineId)
+                : null) || getDefaultPipeline();
+              if (activePipeline.is_default) {
+                const legacyMapping = {
+                  'prospecting': 'prospecting',
+                  'qualification': 'qualification',
+                  'proposal': 'qualification',
+                  'negotiation': 'qualification',
+                  'closed-won': 'closed-won',
+                  'closed-lost': 'closed-lost',
+                };
+                opportunity.mappedStage = legacyMapping[newStage] || newStage;
+              } else {
+                opportunity.mappedStage = newStage;
+              }
             }
 
             const stageAgeEl = evt.item.querySelector('.opp-stage-age');
@@ -1023,18 +1108,21 @@ async function openOpportunityModal(opportunity = null) {
   const modalTitle = document.getElementById('opportunity-modal-title');
   const saveBtn = document.getElementById('save-opportunity-btn');
 
+  // Resolve active pipeline and update stage dropdown before reset
+  const activePipeline = (state.pipelines && state.activePipelineId
+    ? state.pipelines.find(p => p.id === state.activePipelineId)
+    : null) || getDefaultPipeline();
+  const firstStageId = activePipeline.stages?.[0]?.id || 'prospecting';
+
   // Reset form
   document.getElementById('opportunity-name').value = '';
   document.getElementById('opportunity-company').value = '';
   document.getElementById('opportunity-value').value = '';
   document.getElementById('opportunity-probability').value = 50;
   document.getElementById('probability-display').textContent = '50';
-  const stageEl = document.getElementById('opportunity-stage');
-  if (window.setCrmDropdownValue) {
-    window.setCrmDropdownValue(stageEl, 'prospecting');
-  } else {
-    stageEl.value = 'prospecting';
-  }
+
+  // Rebuild stage dropdown for this pipeline's stages
+  updateStageDropdownForPipeline(activePipeline, firstStageId);
   document.getElementById('opportunity-next-step').value = '';
   document.getElementById('opportunity-next-step-date').value = '';
 
@@ -1091,18 +1179,15 @@ async function openOpportunityModal(opportunity = null) {
     document.getElementById('opportunity-probability').value = opportunity.probability || 50;
     document.getElementById('probability-display').textContent = opportunity.probability || 50;
 
-    // Map old stage values to new ones
-    let stageValue = opportunity.stage || 'prospecting';
-    if (opportunity.stage === 'qualification') stageValue = 'qualification'; // Map to In Progress
-    if (opportunity.stage === 'proposal' || opportunity.stage === 'negotiation') stageValue = 'qualification'; // Map to In Progress
-    if (opportunity.stage === 'closed-won') stageValue = 'closed-won'; // Map to Won/Invoiced
-
-    const editStageEl = document.getElementById('opportunity-stage');
-    if (window.setCrmDropdownValue) {
-      window.setCrmDropdownValue(editStageEl, stageValue);
-    } else {
-      editStageEl.value = stageValue;
+    // Resolve stage value — for default pipeline apply legacy mapping, for custom use as-is
+    let stageValue = opportunity.stage || firstStageId;
+    if (activePipeline.is_default) {
+      if (opportunity.stage === 'proposal' || opportunity.stage === 'negotiation') stageValue = 'qualification';
     }
+    // Ensure the stage exists in the active pipeline; fall back to first stage
+    const stageExists = activePipeline.stages?.some(s => s.id === stageValue);
+    if (!stageExists) stageValue = firstStageId;
+    updateStageDropdownForPipeline(activePipeline, stageValue);
 
     document.getElementById('opportunity-next-step').value = opportunity.next_step || '';
     document.getElementById('opportunity-next-step-date').value = opportunity.next_step_date || '';
@@ -1144,12 +1229,11 @@ function openOpportunityViewModal(opportunity) {
 
   // Stage badge
   if (stageEl) {
-    const pipelineStages = [
-      { id: 'prospecting', title: 'Lead', color: '#3b82f6' },
-      { id: 'qualification', title: 'In Progress', color: '#ec4899' },
-      { id: 'closed-won', title: 'Won 🎉', color: '#10b981' },
-      { id: 'closed-lost', title: 'Lost', color: '#ef4444' }
-    ];
+    // Use active pipeline stages (fall back to default for orphaned opps)
+    const viewPipeline = (state.pipelines && state.activePipelineId
+      ? state.pipelines.find(p => p.id === state.activePipelineId)
+      : null) || getDefaultPipeline();
+    const pipelineStages = viewPipeline.stages;
     const stageInfo = pipelineStages.find(s => s.id === opportunity.mappedStage) || pipelineStages[0];
     stageEl.textContent = stageInfo.title;
     stageEl.style.background = `color-mix(in srgb, ${stageInfo.color} 12%, transparent)`;
@@ -1551,6 +1635,11 @@ function initOpportunityModalListeners(opportunity) {
     try {
       // Fields that are safe to update — user_id is intentionally excluded so
       // that editing never transfers ownership away from the original creator.
+      // pipeline_id is NOT updated on edit — the opportunity stays in the pipeline it was created in.
+      const activePipelineId = state.activePipelineId && state.activePipelineId !== '__default__'
+        ? state.activePipelineId
+        : null;
+
       const editableFields = {
         name,
         company_name: companyName,
@@ -1575,13 +1664,14 @@ function initOpportunityModalListeners(opportunity) {
           .eq('id', opportunity.id);
         savedOpportunityId = opportunity.id;
       } else {
-        // Create — set the creator as owner
+        // Create — set the creator as owner and tag the pipeline
         result = await supabaseClient
           .from('opportunities')
           .insert([{
             ...editableFields,
             user_id: state.currentUser.id,
             organization_id: state.currentOrganization?.id,
+            pipeline_id: activePipelineId,
           }])
           .select('id')
           .single();
@@ -1883,6 +1973,326 @@ function initAssigneesPicker() {
   document.querySelector('.modal-body')?.addEventListener('scroll', positionDropdown, { passive: true });
 }
 
+
+// ── Pipeline Management ────────────────────────────────────────────────────────
+
+/** Open the "Manage Pipelines" modal (managers only) */
+async function openManagePipelinesModal() {
+  const modal = document.getElementById('manage-pipelines-modal');
+  if (!modal) return;
+
+  const listContainer = document.getElementById('pipelines-list-container');
+  if (listContainer) listContainer.innerHTML = '<div class="pipeline-loading">Loading pipelines…</div>';
+
+  modal.style.display = 'flex';
+  document.body.classList.add('modal-active');
+
+  // Force a fresh fetch
+  state.pipelines = null;
+  const pipelines = await loadPipelines();
+  renderPipelinesList(pipelines);
+
+  const createBtn = document.getElementById('create-pipeline-btn');
+  if (createBtn) {
+    // Clone to strip previous listeners
+    const fresh = createBtn.cloneNode(true);
+    createBtn.parentNode.replaceChild(fresh, createBtn);
+    fresh.addEventListener('click', () => openPipelineEditorModal(null));
+  }
+}
+
+/** Render the list of pipelines inside the manage modal */
+function renderPipelinesList(pipelines) {
+  const listContainer = document.getElementById('pipelines-list-container');
+  if (!listContainer) return;
+
+  if (!pipelines || pipelines.length === 0) {
+    listContainer.innerHTML = '<p class="pipeline-empty-hint">No pipelines yet. Create one below.</p>';
+    return;
+  }
+
+  listContainer.innerHTML = pipelines.map(p => `
+    <div class="pipeline-list-item" data-pipeline-id="${escapeHtml(p.id)}">
+      <div class="pipeline-list-item-info">
+        <div class="pipeline-list-item-name">
+          ${escapeHtml(p.name)}
+          ${p.is_default ? '<span class="pipeline-default-badge">Default</span>' : ''}
+        </div>
+        <div class="pipeline-list-item-stages">
+          ${(p.stages || []).map(s => `
+            <span class="pipeline-stage-pill" style="background:color-mix(in srgb,${escapeHtml(s.color)} 15%,transparent);color:${escapeHtml(s.color)}">
+              ${escapeHtml(s.title)}
+            </span>
+          `).join('')}
+        </div>
+      </div>
+      <div class="pipeline-list-item-actions">
+        <button class="btn btn-ghost btn-sm pipeline-edit-btn" data-pipeline-id="${escapeHtml(p.id)}" title="Edit pipeline">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
+          Edit
+        </button>
+        ${!p.is_default ? `
+          <button class="btn btn-ghost btn-sm pipeline-delete-btn" data-pipeline-id="${escapeHtml(p.id)}" title="Delete pipeline" style="color:var(--color-danger)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
+            Delete
+          </button>
+        ` : ''}
+      </div>
+    </div>
+  `).join('');
+
+  // Bind edit buttons
+  listContainer.querySelectorAll('.pipeline-edit-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const pipeline = pipelines.find(p => p.id === btn.dataset.pipelineId);
+      if (pipeline) openPipelineEditorModal(pipeline);
+    });
+  });
+
+  // Bind delete buttons
+  listContainer.querySelectorAll('.pipeline-delete-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const pipeline = pipelines.find(p => p.id === btn.dataset.pipelineId);
+      if (!pipeline) return;
+
+      // Count how many opportunities are in this pipeline
+      const { count } = await supabaseClient
+        .from('opportunities')
+        .select('id', { count: 'exact', head: true })
+        .eq('pipeline_id', pipeline.id);
+      const oppCount = count || 0;
+
+      const warningMsg = oppCount > 0
+        ? `Delete "${pipeline.name}"?\n\n⚠️ This will permanently delete ${oppCount} opportunit${oppCount === 1 ? 'y' : 'ies'} in this pipeline. This cannot be undone.`
+        : `Delete "${pipeline.name}"? This cannot be undone.`;
+
+      const confirmed = await showConfirmDialog('Delete Pipeline', warningMsg);
+      if (!confirmed) return;
+
+      // Delete all opportunities in this pipeline first
+      if (oppCount > 0) {
+        const { error: oppErr } = await supabaseClient
+          .from('opportunities')
+          .delete()
+          .eq('pipeline_id', pipeline.id);
+        if (oppErr) { showToast('Error deleting opportunities: ' + oppErr.message, 'error'); return; }
+      }
+
+      const { error } = await supabaseClient.from('pipelines').delete().eq('id', pipeline.id);
+      if (error) { showToast('Error deleting pipeline: ' + error.message, 'error'); return; }
+
+      // If user was on the deleted pipeline, fall back to default
+      if (state.activePipelineId === pipeline.id) {
+        const remaining = pipelines.filter(p => p.id !== pipeline.id);
+        const fallback = remaining.find(p => p.is_default) || remaining[0];
+        if (fallback) setActivePipeline(fallback.id);
+      }
+
+      showToast(`Pipeline deleted${oppCount > 0 ? ` along with ${oppCount} opportunit${oppCount === 1 ? 'y' : 'ies'}` : ''}`, 'success');
+      state.pipelines = null;
+      closeModal('manage-pipelines-modal');
+      renderOpportunityPipelineView();
+    });
+  });
+}
+
+/** Open the pipeline editor modal (create or edit) */
+function openPipelineEditorModal(pipeline) {
+  const modal = document.getElementById('pipeline-editor-modal');
+  if (!modal) return;
+
+  const titleEl = document.getElementById('pipeline-editor-title');
+  if (titleEl) titleEl.textContent = pipeline ? 'Edit Pipeline' : 'New Pipeline';
+
+  const nameInput = document.getElementById('pipeline-name-input');
+  if (nameInput) nameInput.value = pipeline?.name || '';
+
+  // Default stage set for brand-new pipelines
+  const initialStages = pipeline
+    ? [...(pipeline.stages || [])]
+    : [
+        { id: 'stage-' + Date.now() + '-1', title: 'Stage 1', color: '#3b82f6' },
+        { id: 'stage-' + Date.now() + '-2', title: 'Stage 2', color: '#10b981' },
+      ];
+  renderStagesEditor(initialStages);
+
+  // Add-stage button
+  const addStageBtn = document.getElementById('add-stage-btn');
+  if (addStageBtn) {
+    const freshAdd = addStageBtn.cloneNode(true);
+    addStageBtn.parentNode.replaceChild(freshAdd, addStageBtn);
+    freshAdd.addEventListener('click', () => {
+      const current = getStagesFromEditor();
+      if (current.length >= 8) { showToast('Maximum 8 stages per pipeline', 'info'); return; }
+      renderStagesEditor([...current, {
+        id: 'stage-' + Date.now(),
+        title: `Stage ${current.length + 1}`,
+        color: STAGE_COLORS[current.length % STAGE_COLORS.length],
+      }]);
+    });
+  }
+
+  // Cancel button
+  const cancelBtn = document.getElementById('pipeline-editor-cancel-btn');
+  if (cancelBtn) {
+    const freshCancel = cancelBtn.cloneNode(true);
+    cancelBtn.parentNode.replaceChild(freshCancel, cancelBtn);
+    freshCancel.addEventListener('click', () => closeModal('pipeline-editor-modal'));
+  }
+
+  // Save button
+  const saveBtn = document.getElementById('save-pipeline-btn');
+  if (saveBtn) {
+    const freshSave = saveBtn.cloneNode(true);
+    saveBtn.parentNode.replaceChild(freshSave, saveBtn);
+    freshSave.addEventListener('click', async () => {
+      const name = nameInput?.value.trim();
+      if (!name) { showToast('Enter a pipeline name', 'error'); return; }
+
+      const stages = getStagesFromEditor();
+      if (stages.length < 2) { showToast('Add at least 2 stages', 'error'); return; }
+      if (stages.some(s => !s.title.trim())) { showToast('All stages need a name', 'error'); return; }
+
+      freshSave.disabled = true;
+      freshSave.textContent = 'Saving…';
+
+      try {
+        let result;
+        if (pipeline) {
+          // ── Migrate opportunities away from removed stages ──────────────
+          const oldStages = pipeline.stages || [];
+          const removedStages = oldStages.filter(old => !stages.some(s => s.id === old.id));
+
+          for (const removed of removedStages) {
+            // Find the closest preceding stage that still exists; fall back to first new stage
+            const oldIndex = oldStages.findIndex(s => s.id === removed.id);
+            let replacementId = stages[0]?.id;
+            for (let i = oldIndex - 1; i >= 0; i--) {
+              if (stages.some(s => s.id === oldStages[i].id)) {
+                replacementId = oldStages[i].id;
+                break;
+              }
+            }
+            if (!replacementId) continue;
+
+            // For the default pipeline, also catch opps where pipeline_id is NULL
+            let migrateQ = supabaseClient
+              .from('opportunities')
+              .update({ stage: replacementId })
+              .eq('stage', removed.id);
+
+            if (pipeline.is_default) {
+              // Can't use .or() easily without knowing org, so run two queries
+              await supabaseClient
+                .from('opportunities')
+                .update({ stage: replacementId })
+                .eq('stage', removed.id)
+                .is('pipeline_id', null);
+              migrateQ = migrateQ.eq('pipeline_id', pipeline.id);
+            } else {
+              migrateQ = migrateQ.eq('pipeline_id', pipeline.id);
+            }
+            await migrateQ;
+          }
+          // ───────────────────────────────────────────────────────────────
+
+          result = await supabaseClient
+            .from('pipelines')
+            .update({ name, stages })
+            .eq('id', pipeline.id)
+            .select()
+            .single();
+        } else {
+          result = await supabaseClient
+            .from('pipelines')
+            .insert([{
+              name,
+              stages,
+              organization_id: state.currentOrganization?.id,
+              created_by: state.currentUser?.id,
+              is_default: false,
+            }])
+            .select()
+            .single();
+        }
+        if (result.error) throw result.error;
+
+        showToast(`Pipeline ${pipeline ? 'updated' : 'created'}!`, 'success');
+        state.pipelines = null;
+        closeModal('pipeline-editor-modal');
+        closeModal('manage-pipelines-modal');
+        // Re-render the kanban to reflect new pipeline / stage changes immediately
+        renderOpportunityPipelineView();
+      } catch (err) {
+        showToast('Error saving pipeline: ' + err.message, 'error');
+      } finally {
+        freshSave.disabled = false;
+        freshSave.textContent = 'Save Pipeline';
+      }
+    });
+  }
+
+  modal.style.display = 'flex';
+  document.body.classList.add('modal-active');
+}
+
+/** Render the stage rows inside the pipeline editor */
+function renderStagesEditor(stages) {
+  const container = document.getElementById('pipeline-stages-editor');
+  if (!container) return;
+
+  container.innerHTML = stages.map((s, i) => `
+    <div class="stage-editor-row" data-stage-id="${escapeHtml(s.id)}">
+      <div class="stage-color-palette">
+        ${STAGE_COLORS.map(c => `
+          <button type="button"
+            class="stage-color-dot${c === s.color ? ' is-selected' : ''}"
+            data-color="${escapeHtml(c)}"
+            style="background:${escapeHtml(c)}"
+            title="Use ${escapeHtml(c)}"></button>
+        `).join('')}
+      </div>
+      <input type="text" class="stage-name-input form-control" value="${escapeHtml(s.title)}"
+        placeholder="Stage name" maxlength="32" style="flex:1">
+      ${stages.length > 2 ? `
+        <button type="button" class="stage-remove-btn" title="Remove stage">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      ` : ''}
+    </div>
+  `).join('');
+
+  // Color dot selection
+  container.querySelectorAll('.stage-color-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      const row = dot.closest('.stage-editor-row');
+      row.querySelectorAll('.stage-color-dot').forEach(d => d.classList.remove('is-selected'));
+      dot.classList.add('is-selected');
+    });
+  });
+
+  // Remove stage
+  container.querySelectorAll('.stage-remove-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const current = getStagesFromEditor();
+      const id = btn.closest('.stage-editor-row').dataset.stageId;
+      renderStagesEditor(current.filter(s => s.id !== id));
+    });
+  });
+}
+
+/** Read current stages from the editor UI */
+function getStagesFromEditor() {
+  const container = document.getElementById('pipeline-stages-editor');
+  if (!container) return [];
+  return Array.from(container.querySelectorAll('.stage-editor-row')).map(row => ({
+    id: row.dataset.stageId,
+    title: (row.querySelector('.stage-name-input')?.value || '').trim(),
+    color: row.querySelector('.stage-color-dot.is-selected')?.dataset.color || '#3b82f6',
+  }));
+}
+
+
 /** Delete all existing assignees for an opportunity then insert the new set */
 async function syncOpportunityAssignees(opportunityId, assignees) {
   await supabaseClient
@@ -1922,4 +2332,7 @@ export {
   addCompetitor,
   getProbabilityColor,
   scheduleNextStepReminder,
+  loadPipelines,
+  openManagePipelinesModal,
+  openPipelineEditorModal,
 };
