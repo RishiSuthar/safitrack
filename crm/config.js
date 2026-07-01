@@ -1,25 +1,20 @@
 // ============================================================
 // SafiTrack – CRM Configuration
 // ============================================================
-// DO NOT commit this file to source control.
-// It is listed in .gitignore.
-//
-// Copy crm/config.example.js → crm/config.js and fill in
-// your keys.
+// ✅ SAFE TO COMMIT — this file contains only public-safe values.
 //
 // SECURITY NOTES:
-//  • SUPABASE_KEY is the "anon" (public) key — it is safe to
-//    expose in the browser AS LONG AS Row Level Security (RLS)
-//    is enabled on every table in your Supabase project.
+//  • SUPABASE_KEY is the "anon" (public) key — it is designed to
+//    be exposed in the browser. Your Row Level Security (RLS)
+//    policies are what protect the data, not this key.
 //    Add your site domain to Supabase → Auth → URL Configuration
 //    → Allowed Redirect URLs for extra protection.
 //
-//  • GROQ API key is a SECRET and is stored as a Supabase secret
-//    (via `supabase secrets set GROQ_API_KEY=...`).
-//    It never reaches the browser. AI calls are proxied through
-//    supabase/functions/groq-proxy/index.ts.
-//    Only the proxy URL (GROQ_PROXY_URL) is in this file, which
-//    is safe to expose.
+//  • GROQ API key is a SECRET stored as a Supabase edge function
+//    secret (via `supabase secrets set GROQ_API_KEY=...`).
+//    It never reaches the browser. AI calls go through the proxy.
+//
+// For VERSION and CHANGELOG, edit version.js instead.
 // ============================================================
 
 window.APP_CONFIG = window.APP_CONFIG || {};
@@ -36,8 +31,5 @@ Object.assign(window.APP_CONFIG, {
   // Then copy the printed URL here.
   GROQ_PROXY_URL: "https://ndrkncirkekpqjjkasiy.supabase.co/functions/v1/groq-proxy",
   GEMINI_PROXY_URL: "https://ndrkncirkekpqjjkasiy.supabase.co/functions/v1/gemini-proxy",
-
-  // ── App version ───────────────────────────────────────────
-  // Bump this manually when you ship a notable update.
-  VERSION: "1.3.0",
 });
+

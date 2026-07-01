@@ -5,6 +5,7 @@ import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials, triggerConfetti } from '../ui/toast.js';
 import { renderSkeletonCards, formatDate, CURRENCIES, getCurrencySymbol } from '../utils/helpers.js';
 import { loadView } from '../core/navigation.js';
+import { showChangelogModal } from '../ui/changelog.js';
 
 async function renderSettingsView() {
   const dateFormatPref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
@@ -67,6 +68,10 @@ async function renderSettingsView() {
         </button>` : ''}
 
         <div class="sv-nav-section-label" style="margin-top:24px;">Help</div>
+        <button class="sv-nav-item sv-nav-action" id="sv-whats-new-btn">
+          <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          What's New
+        </button>
         <button class="sv-nav-item" data-section="support">
           <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
           Support
@@ -1934,6 +1939,12 @@ async function renderSettingsView() {
     });
   }
   document.querySelectorAll('.sv-nav-item').forEach(btn => btn.addEventListener('click', () => setActiveSection(btn.dataset.section)));
+
+  // "What's New" button opens the changelog modal directly (no section switch)
+  document.getElementById('sv-whats-new-btn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    showChangelogModal(true);
+  });
 
   // Hide manager-only sections from non-managers (billing section)
   if (!state.isManager) {

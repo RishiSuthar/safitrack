@@ -8,6 +8,7 @@ import { startDueNotificationsMonitor } from '../features/notifications.js';
 import { startSafiNudgeRealtime } from '../realtime/nudge.js';
 import { attemptShowPWABanner } from '../ui/pwa.js';
 import { showToast } from '../ui/toast.js';
+import { checkAndShowChangelog } from '../ui/changelog.js';
 
 // ======================
 // APP INITIALIZATION
@@ -157,6 +158,9 @@ async function initApp() {
   // Start sitewide due notifications monitor (tasks, reminders, deals)
   startDueNotificationsMonitor();
   startSafiNudgeRealtime();
+
+  // Show changelog popup if user hasn't seen this version yet
+  checkAndShowChangelog();
 
   // Identify if onboarding should be shown (new user or forced)
   const hasCompletedTour = localStorage.getItem('safitrack_onboarding_completed');
