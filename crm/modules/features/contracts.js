@@ -183,17 +183,15 @@ async function renderContractsView() {
     <div class="contracts-page">
       <!-- Header -->
       <!-- Stats + Add button row -->
-      ${state.isManager ? `
-        <div class="contracts-top-bar">
-          <button class="btn btn-primary" id="contract-add-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M5 12h14"/><path d="M12 5v14"/>
-            </svg>
-            Add Contract
-          </button>
-        </div>
-      ` : ''}
+      <div class="contracts-top-bar">
+        <button class="btn btn-primary" id="contract-add-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"/><path d="M12 5v14"/>
+          </svg>
+          Add Contract
+        </button>
+      </div>
 
       <div class="contracts-stats-row">
         <div class="contracts-stat-card">
@@ -343,12 +341,10 @@ async function renderContractsView() {
   // Initial render with default filter (Active)
   applyFilters();
 
-  // ── Manager: add button ─────────────────────────────────────────
-  if (state.isManager) {
-    document.getElementById('contract-add-btn').addEventListener('click', () => {
-      openContractModal(null, contracts);
-    });
-  }
+  // ── Add button ────────────────────────────────────────────────
+  document.getElementById('contract-add-btn').addEventListener('click', () => {
+    openContractModal(null, contracts);
+  });
 
   // ── Global handlers (inline onclick refs) ─────────────────────
   window._editContract     = (id) => { const c = contracts.find(x => x.id === id); if (c) openContractModal(c, contracts); };
@@ -469,14 +465,15 @@ function showDayDetail(dateKey, contracts) {
               ${c.subdivision ? `<span class="contracts-cal-detail-sub"> · ${escapeHtml(c.subdivision)}</span>` : ''}
               ${c.location ? `<div class="contracts-cal-detail-loc">📍 ${escapeHtml(c.location)}</div>` : ''}
             </div>
-            ${state.isTechnician ? `
-              <button class="btn btn-primary btn-sm contracts-start-btn"
-                      data-contract-id="${c.id}" data-due-date="${dateKey}">
-                Start Service
-              </button>
-            ` : (state.isManager ? `
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              ${state.isTechnician ? `
+                <button class="btn btn-primary btn-sm contracts-start-btn"
+                        data-contract-id="${c.id}" data-due-date="${dateKey}">
+                  Start Service
+                </button>
+              ` : ''}
               <button class="btn btn-secondary btn-sm" onclick="window._editContract('${c.id}')">Edit</button>
-            ` : '')}
+            </div>
           </div>
         `;
       }).join('')}
@@ -529,9 +526,8 @@ function renderCompactCard(c, nextDate) {
             </svg>
             Start Service
           </button>
-        ` : `
-          <button class="btn btn-secondary btn-sm" onclick="window._editContract('${c.id}')">Edit</button>
-        `}
+        ` : ''}
+        <button class="btn btn-secondary btn-sm" onclick="window._editContract('${c.id}')">Edit</button>
       </div>
     </div>
   `;
@@ -555,10 +551,8 @@ function renderContractsList(contracts) {
           </svg>
         </div>
         <h3 class="empty-state-title">No contracts found</h3>
-        <p class="empty-state-description">
-          ${state.isManager ? 'Add your first service contract to get started.' : 'Your manager will add service contracts here.'}
-        </p>
-        ${state.isManager ? `<button class="btn btn-primary" onclick="window._openAddContract()">Add Contract</button>` : ''}
+        <p class="empty-state-description">Add your first service contract to get started.</p>
+        <button class="btn btn-primary" onclick="window._openAddContract()">Add Contract</button>
       </div>
     `;
     return;
@@ -608,33 +602,31 @@ function renderContractsList(contracts) {
                     Start Service
                   </button>
                 ` : ''}
-                ${state.isManager ? `
-                  <button class="btn btn-secondary btn-sm" onclick="window._editContract('${c.id}')" title="Edit contract">
+                <button class="btn btn-secondary btn-sm" onclick="window._editContract('${c.id}')" title="Edit contract">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                  </svg>
+                  Edit
+                </button>
+                <button class="btn btn-sm contracts-archive-btn" title="${c.status === 'archived' ? 'Restore' : 'Archive'}"
+                  onclick="window._archiveContract('${c.id}', '${c.status}')">
+                  ${c.status === 'archived' ? `
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
                       stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      <path d="M3 2v6h6"/><path d="M21 12A9 9 0 0 0 6 5.7L3 8"/>
+                      <path d="M21 22v-6h-6"/><path d="M3 12a9 9 0 0 0 15 6.3l3-2.7"/>
                     </svg>
-                    Edit
-                  </button>
-                  <button class="btn btn-sm contracts-archive-btn" title="${c.status === 'archived' ? 'Restore' : 'Archive'}"
-                    onclick="window._archiveContract('${c.id}', '${c.status}')">
-                    ${c.status === 'archived' ? `
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 2v6h6"/><path d="M21 12A9 9 0 0 0 6 5.7L3 8"/>
-                        <path d="M21 22v-6h-6"/><path d="M3 12a9 9 0 0 0 15 6.3l3-2.7"/>
-                      </svg>
-                    ` : `
-                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
-                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="21 8 21 21 3 21 3 8"/>
-                        <rect x="1" y="3" width="22" height="5"/>
-                        <line x1="10" y1="12" x2="14" y2="12"/>
-                      </svg>
-                    `}
-                  </button>
-                ` : ''}
+                  ` : `
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                      stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="21 8 21 21 3 21 3 8"/>
+                      <rect x="1" y="3" width="22" height="5"/>
+                      <line x1="10" y1="12" x2="14" y2="12"/>
+                    </svg>
+                  `}
+                </button>
               </div>
             </div>
           </div>
