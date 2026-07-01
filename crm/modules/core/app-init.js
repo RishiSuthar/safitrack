@@ -9,6 +9,7 @@ import { startSafiNudgeRealtime } from '../realtime/nudge.js';
 import { attemptShowPWABanner } from '../ui/pwa.js';
 import { showToast } from '../ui/toast.js';
 import { checkAndShowChangelog } from '../ui/changelog.js';
+import { updateWelcomeName, dismissWelcomeScreen } from '../ui/welcome.js';
 
 // ======================
 // APP INITIALIZATION
@@ -76,6 +77,9 @@ async function initApp() {
   state.isTechnician = profile.role === 'technician';
   state.isSalesRep = profile.role === 'sales_rep';
   state.currentUserProfile = profile;
+
+  // Refine the welcome screen name now that we have the real profile.
+  updateWelcomeName(profile.first_name);
 
   // Load organization for this user (used in invite flow, member list, etc.)
   if (profile.organization_id) {
@@ -148,6 +152,9 @@ async function initApp() {
 
   // Load the determined view
   await loadView(viewToLoad);
+
+  // App is ready — signal the welcome screen to fade out.
+  dismissWelcomeScreen();
 
   // Initialize the refresh button
   initRefreshButton();

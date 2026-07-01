@@ -1338,6 +1338,74 @@ body {
   }
 }
 
+/* ===== WELCOME SCREEN ===== */
+/* Full-screen login welcome — Apple-style, zero extra load time. */
+.wlc-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-secondary);
+  opacity: 0;
+  transition: opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+}
+
+.wlc-overlay.wlc-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.wlc-overlay.wlc-fade-out {
+  opacity: 0;
+}
+
+.wlc-content {
+  text-align: center;
+  user-select: none;
+  padding: 0 2rem;
+}
+
+.wlc-greeting {
+  margin: 0 0 0.15em;
+  font-size: clamp(1rem, 2.2vw, 1.35rem);
+  font-weight: 300;
+  letter-spacing: 0.03em;
+  color: var(--text-secondary);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.wlc-name {
+  margin: 0;
+  font-size: clamp(2.5rem, 7.5vw, 5.5rem);
+  font-weight: 200;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  opacity: 0;
+  transform: translateY(14px);
+}
+
+.wlc-overlay.wlc-visible .wlc-greeting {
+  animation: wlc-rise 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+}
+
+.wlc-overlay.wlc-visible .wlc-name {
+  animation: wlc-rise 0.85s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards;
+}
+
+@keyframes wlc-rise {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ===== AUTH SCREEN ===== */
 .auth-screen {
   min-height: 100vh;

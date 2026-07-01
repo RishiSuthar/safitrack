@@ -9,6 +9,7 @@ import { stopDueNotificationsMonitor, markAllDueNotificationsRead, markSingleNot
 import { stopSafiNudgeRealtime } from '../realtime/nudge.js';
 // command-palette.js now self-initializes its own keyboard shortcuts
 import { escapeHtml, showToast } from '../ui/toast.js';
+import { showWelcomeScreen } from '../ui/welcome.js';
 
 function initTheme() {
   const savedTheme = localStorage.getItem('safitrack_theme') || localStorage.getItem('theme') || 'light';
@@ -59,6 +60,16 @@ function initAuth() {
     if (event === 'SIGNED_IN') {
       state.currentUser = session.user;
       loadingScreen.style.display = 'none';
+
+      // Extract first name from OAuth metadata (Google provides given_name/full_name).
+      // The profile DB fetch in initApp() will refine this via updateWelcomeName().
+      const meta = session.user.user_metadata || {};
+      const nameHint = meta.given_name
+        || meta.first_name
+        || (meta.full_name || meta.name || '').split(' ')[0]
+        || '';
+      showWelcomeScreen(nameHint);
+
       initApp();
     } else if (event === 'SIGNED_OUT') {
       stopDueNotificationsMonitor();
