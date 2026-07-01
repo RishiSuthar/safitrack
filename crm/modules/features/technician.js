@@ -138,7 +138,7 @@ async function renderTechnicianLogVisitView() {
 // UPS VISIT FORM — 7-step multi-step mobile-first form
 // ════════════════════════════════════════════════════════════════
 
-function renderUPSVisitForm(existingData = null) {
+function renderUPSVisitForm(existingData = null, contractPrefill = null) {
   document.body.classList.add('ups-form-active');
 
   const techProfile = state.currentUserProfile || {};
@@ -483,14 +483,38 @@ function renderUPSVisitForm(existingData = null) {
     </div>
   `;
 
-  initUPSFormLogic(techName, existingData);
+  initUPSFormLogic(techName, existingData, contractPrefill);
 }
 
 // ════════════════════════════════════════════════════════════════
 // UPS FORM LOGIC — Navigation, validation, toggles, submission
 // ════════════════════════════════════════════════════════════════
 
-function initUPSFormLogic(techName, existingData) {
+function initUPSFormLogic(techName, existingData, contractPrefill) {
+  // Contract prefill (when started from Contracts view)
+  if (contractPrefill) {
+    const siteEl = document.getElementById('ups-site-name');
+    if (siteEl && contractPrefill.siteName) siteEl.value = contractPrefill.siteName;
+
+    // Combine location + subdivision into the location field
+    const locEl = document.getElementById('ups-location');
+    if (locEl) {
+      const parts = [contractPrefill.location, contractPrefill.subdivision].filter(Boolean);
+      if (parts.length) locEl.value = parts.join(' — ');
+    }
+
+    const container = document.querySelector('.ups-form-container');
+    if (container) {
+      const subdivisionLine = contractPrefill.subdivision
+        ? `<span style="font-size:11px;opacity:0.85;"> · ${escapeHtml(contractPrefill.subdivision)}</span>`
+        : '';
+      const banner = document.createElement('div');
+      banner.className = 'contract-service-banner';
+      banner.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><div><strong>Contract Service</strong> · ${escapeHtml(contractPrefill.contractTypeLabel || '')}<div>${escapeHtml(contractPrefill.siteName || '')}${subdivisionLine}${contractPrefill.dueDate ? ' · Due: ' + escapeHtml(contractPrefill.dueDate) : ''}</div></div>`;
+      container.insertBefore(banner, container.firstChild);
+    }
+  }
+
   let currentStep = 0;
   const totalSteps = 7;
   const track = document.getElementById('ups-steps-track');
@@ -515,6 +539,7 @@ function initUPSFormLogic(techName, existingData) {
 
     setVal('ups-site-name', existingData.site_client_name);
     setVal('ups-location', existingData.location_building);
+
     setVal('ups-brand', existingData.ups_brand);
     setVal('ups-serial', existingData.ups_serial_number);
     setVal('ups-model', existingData.ups_model);
@@ -871,7 +896,8 @@ function initUPSFormLogic(techName, existingData) {
         photo_path: existingData?.photo_path || null, // backward compat
         step_photos: stepPhotos,
         signature_data: signatureData,
-        client_signature_data: clientSignatureData
+        client_signature_data: clientSignatureData,
+        contract_id: contractPrefill?.contractId || null
       };
 
       let result;
@@ -1862,9 +1888,16 @@ window._downloadUPSPDF = function (reportId) {
 // Expose for back button in technician view
 window.renderTechnicianActivityView = renderTechnicianActivityView;
 
+// Expose for contract service launch
+function renderUPSVisitFormWithContract(prefill) {
+  renderUPSVisitForm(null, prefill);
+}
+window.renderUPSVisitFormWithContract = renderUPSVisitFormWithContract;
+
 // ── Exports ────────────────────────────────────────────────────
 export {
   renderTechnicianLogVisitView,
   renderTechnicianActivityView,
   renderTechniciansDashboardView,
+  renderUPSVisitFormWithContract,
 };

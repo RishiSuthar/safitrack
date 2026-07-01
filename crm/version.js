@@ -16,9 +16,16 @@
 window.APP_CONFIG = window.APP_CONFIG || {};
 
 Object.assign(window.APP_CONFIG, {
-  VERSION: "2.0.0",
+  VERSION: "2.1.0",
 
   CHANGELOG: [
+      {
+      version: "2.1.0",
+      date: "June 30, 2026",
+      items: [
+        { type: "new",      text: "Added full contracts section" },
+      ],
+    },
     {
       version: "2.0.0",
       date: "June 30, 2026",

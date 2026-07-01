@@ -191,6 +191,9 @@ async function loadView(viewName) {
         viewContainer.innerHTML = renderAccessDenied();
       }
       break;
+    case 'contracts':
+      await window.renderContractsView();
+      break;
     case 'reminders':
       await window.renderRemindersView();
       break;
