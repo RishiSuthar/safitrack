@@ -39,5 +39,5 @@ Object.assign(window.APP_CONFIG, {
 
   // ── App version ───────────────────────────────────────────
   // Bump this manually when you ship a notable update.
-  VERSION: "1.2.1",
+  VERSION: "1.3.0",
 });

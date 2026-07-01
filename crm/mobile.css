@@ -2724,7 +2724,7 @@
 
   .pipeline-search {
     width: 100%;
-    flex: 1 1 100%;
+    flex: 0 0 100%;
     position: relative !important;
     box-sizing: border-box;
     display: flex;
@@ -2745,6 +2745,74 @@
     min-height: 40px;
     box-sizing: border-box;
     padding-left: 2.5rem !important;
+  }
+
+  /* Pipeline toolbar — tighter on mobile */
+  .pipeline-toolbar {
+    padding: 0 !important;
+    gap: 0.5rem !important;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Pipeline switcher row — flatten extra spacing */
+  .pipeline-switcher-row {
+    padding-bottom: 0.4rem;
+    margin-bottom: 0;
+    gap: 4px;
+  }
+
+  /* Pipeline tabs — single scrollable row, no wrapping */
+  .pipeline-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 3px;
+  }
+
+  .pipeline-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .pipeline-tab {
+    flex-shrink: 0;
+    height: 28px;
+    padding: 0 11px;
+    font-size: 0.775rem;
+  }
+
+  /* Manage button — icon only on mobile */
+  .manage-btn-label {
+    display: none;
+  }
+
+  .pipeline-manage-btn {
+    flex-shrink: 0;
+    width: 32px;
+    height: 28px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  /* Controls row — force row layout (overrides older .pipeline-controls column rule),
+     Filters + New Opportunity share a row */
+  .pipeline-controls-primary {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    align-items: center;
+  }
+
+  .crm-filter-toggle-btn {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .pipeline-add-btn {
+    flex: 2;
+    width: auto !important;
+    min-width: 0;
   }
 
   /* Pipeline filters — horizontal scroll */
