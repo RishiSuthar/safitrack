@@ -61,14 +61,19 @@ function initAuth() {
       state.currentUser = session.user;
       loadingScreen.style.display = 'none';
 
-      // Extract first name from OAuth metadata (Google provides given_name/full_name).
-      // The profile DB fetch in initApp() will refine this via updateWelcomeName().
-      const meta = session.user.user_metadata || {};
-      const nameHint = meta.given_name
-        || meta.first_name
-        || (meta.full_name || meta.name || '').split(' ')[0]
-        || '';
-      showWelcomeScreen(nameHint);
+      // Only show the welcome screen on a genuine new login.
+      // SIGNED_IN also fires on silent token refreshes (e.g. tab regains focus),
+      // in which case the app is already initialized — skip the welcome screen.
+      if (!state.appInitialized) {
+        // Extract first name from OAuth metadata (Google provides given_name/full_name).
+        // The profile DB fetch in initApp() will refine this via updateWelcomeName().
+        const meta = session.user.user_metadata || {};
+        const nameHint = meta.given_name
+          || meta.first_name
+          || (meta.full_name || meta.name || '').split(' ')[0]
+          || '';
+        showWelcomeScreen(nameHint);
+      }
 
       initApp();
     } else if (event === 'SIGNED_OUT') {
@@ -76,6 +81,7 @@ function initAuth() {
       stopSafiNudgeRealtime();
       state.currentUser = null;
       state.currentUserProfile = null;
+      state.appInitialized = false;
       mainApp.style.display = 'none';
       authScreen.style.display = 'flex';
 
