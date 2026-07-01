@@ -159,9 +159,6 @@ async function initApp() {
   startDueNotificationsMonitor();
   startSafiNudgeRealtime();
 
-  // Show changelog popup if user hasn't seen this version yet
-  checkAndShowChangelog();
-
   // Identify if onboarding should be shown (new user or forced)
   const hasCompletedTour = localStorage.getItem('safitrack_onboarding_completed');
 
@@ -176,6 +173,12 @@ async function initApp() {
     }
     // No onboarding module, show PWA prompt
     attemptShowPWABanner();
+  }
+
+  // Only show changelog to users who have already completed onboarding.
+  // New users get the welcome tour first — changelog can wait until next login.
+  if (hasCompletedTour) {
+    checkAndShowChangelog();
   }
 
   // Initialize custom calendar for all date/time inputs
