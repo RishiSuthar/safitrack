@@ -1,0 +1,1272 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security & Trust - SafiTrack CRM</title>
+    <meta name="description"
+        content="SafiTrack security practices, compliance certifications, data handling, GDPR, and SOC 2 status. Built for enterprise-grade trust.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://safitrack.netlify.app/pages/security.html">
+    <meta property="og:title" content="Security & Trust — SafiTrack">
+    <meta property="og:description"
+        content="SafiTrack security practices, compliance certifications, data handling, and SOC 2 status.">
+    <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://safitrack.netlify.app/pages/security.html">
+    <meta property="twitter:title" content="Security & Trust — SafiTrack">
+    <meta property="twitter:description"
+        content="SafiTrack security practices, compliance certifications, data handling, and SOC 2 status.">
+    <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
+    <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="../landing.css">
+    <link rel="stylesheet" href="../landing-scroll.css">
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="../config.js"></script>
+    <style>
+        /* ===================================
+           SECURITY PAGE STYLES
+           =================================== */
+
+        .security-hero {
+            padding: 140px 0 64px;
+            text-align: center;
+        }
+
+        .security-hero .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .security-hero .hero-eyebrow .eyebrow-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #16a34a;
+        }
+
+        .security-hero h1 {
+            font-size: clamp(32px, 5vw, 52px);
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            color: var(--text-primary);
+            margin-bottom: 18px;
+        }
+
+        .security-hero .hero-sub {
+            font-size: 18px;
+            color: var(--text-secondary);
+            max-width: 580px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* ===================================
+           TRUST INDICATORS
+           =================================== */
+
+        .trust-bar {
+            padding: 0 0 72px;
+        }
+
+        .trust-bar-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border-color);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .trust-bar-item {
+            background: var(--bg-primary);
+            padding: 36px 24px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .trust-bar-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .trust-bar-icon svg {
+            width: 22px;
+            height: 22px;
+            stroke: var(--text-primary);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .trust-bar-item h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .trust-bar-item p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+
+        .trust-bar-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            margin-top: 4px;
+        }
+
+        .trust-bar-status.active {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        .trust-bar-status.progress {
+            background: #fefce8;
+            color: #a16207;
+        }
+
+        .trust-bar-status .status-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        /* ===================================
+           CONTENT SECTIONS
+           =================================== */
+
+        .sec-section {
+            padding: 64px 0;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sec-section:last-of-type {
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sec-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 64px;
+            align-items: start;
+        }
+
+        .sec-sidebar {
+            position: sticky;
+            top: 100px;
+        }
+
+        .sec-sidebar-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .sec-sidebar-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: var(--text-primary);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .sec-sidebar h2 {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+            margin-bottom: 8px;
+        }
+
+        .sec-sidebar p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .sec-content {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Detail cards */
+        .sec-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 28px;
+            transition: border-color var(--transition-base);
+        }
+
+        .sec-card:hover {
+            border-color: #ccc;
+        }
+
+        .sec-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 10px;
+        }
+
+        .sec-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+        }
+
+        .sec-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.65;
+        }
+
+        .sec-card-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .sec-card-tag.green {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+        .sec-card-tag.blue {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .sec-card-tag.gray {
+            background: var(--bg-tertiary);
+            color: var(--text-muted);
+        }
+
+        .sec-card-detail {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-light);
+        }
+
+        .sec-card-detail ul {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sec-card-detail li {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .sec-card-detail li svg {
+            width: 16px;
+            height: 16px;
+            stroke: var(--text-primary);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* ===================================
+           FAQ SECTION
+           =================================== */
+
+        .sec-faq {
+            padding: 80px 0;
+        }
+
+        .sec-faq h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .sec-faq > .container > p {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+        }
+
+        .faq-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .faq-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 28px;
+            transition: border-color var(--transition-base);
+        }
+
+        .faq-item:hover {
+            border-color: #ccc;
+        }
+
+        .faq-item h3 {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .faq-item p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.65;
+        }
+
+        /* ===================================
+           BOTTOM CTA
+           =================================== */
+
+        .sec-cta {
+            padding: 80px 0;
+            text-align: center;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sec-cta h2 {
+            font-size: clamp(24px, 4vw, 36px);
+            font-weight: 800;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            margin-bottom: 14px;
+        }
+
+        .sec-cta p {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .sec-cta .cta-buttons {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .sec-cta .cta-note {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 14px;
+        }
+
+        /* ===================================
+           RESPONSIVE
+           =================================== */
+
+        @media (max-width: 900px) {
+            .trust-bar-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sec-layout {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+
+            .sec-sidebar {
+                position: static;
+            }
+
+            .faq-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .security-hero {
+                padding: 110px 0 40px;
+            }
+
+            .security-hero .hero-sub {
+                font-size: 16px;
+            }
+
+            .trust-bar-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .sec-cta .cta-buttons {
+                flex-direction: column;
+            }
+
+            .sec-cta .cta-buttons .btn-primary,
+            .sec-cta .cta-buttons .btn-secondary {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="container">
+            <div class="nav-content">
+                <div class="nav-left">
+                    <a href="../index.html" class="logo">
+                        <img src="../assets/icons/transparentMain.png" alt="SafiTrack">
+                    </a>
+
+                    <!-- Desktop Links -->
+                    <div class="nav-links">
+                        <div class="nav-item nav-features">
+                            <a href="#" class="nav-link-toggle">Features
+                                <span class="nav-caret" aria-hidden="true">
+                                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </span>
+                            </a>
+                            <div class="mega-menu" aria-hidden="true">
+                                <div class="mega-content-grid">
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Platform</div>
+                                        <div class="mega-items-grid">
+                                            <a href="features/safi-ai-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path
+                                                            d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Safi AI</div>
+                                                    <div class="mega-desc">AI insights native to your CRM</div>
+                                                </div>
+                                            </a>
+                                            <a href="features/opportunities-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                                        <path d="M2 17l10 5 10-5" />
+                                                        <path d="M2 12l10 5 10-5" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Pipelines</div>
+                                                    <div class="mega-desc">Visual deal tracking & management</div>
+                                                </div>
+                                            </a>
+                                            <a href="features/companies-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+                                                        <path d="M9 22v-4h6v4" />
+                                                        <path d="M8 6h.01" />
+                                                        <path d="M16 6h.01" />
+                                                        <path d="M8 10h.01" />
+                                                        <path d="M16 10h.01" />
+                                                        <path d="M8 14h.01" />
+                                                        <path d="M16 14h.01" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Companies</div>
+                                                    <div class="mega-desc">Complete organization context</div>
+                                                </div>
+                                            </a>
+                                            <a href="features/people-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                                        <circle cx="9" cy="7" r="4" />
+                                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">People</div>
+                                                    <div class="mega-desc">Unified contact management</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Operations</div>
+                                        <div class="mega-items-grid">
+                                            <a href="features/sales-visits-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                                        <circle cx="12" cy="10" r="3" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Sales visits</div>
+                                                    <div class="mega-desc">Field activity & visit logging</div>
+                                                </div>
+                                            </a>
+                                            <a href="features/route-plans-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <circle cx="6" cy="19" r="3" />
+                                                        <path
+                                                            d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
+                                                        <circle cx="18" cy="5" r="3" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Route plans</div>
+                                                    <div class="mega-desc">Optimized field routing</div>
+                                                </div>
+                                            </a>
+                                            <a href="features/technician-visits-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path
+                                                            d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Service visits</div>
+                                                    <div class="mega-desc">Post-sales technician tracking</div>
+                                                </div>
+                                            </a>
+                                            <a href="features/tasks-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="9 11 12 14 22 4" />
+                                                        <path
+                                                            d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Tasks</div>
+                                                    <div class="mega-desc">Operational to-do management</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Insights &amp; Automation</div>
+                                        <div class="mega-items-grid">
+                                            <a href="features/call-logs-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Call Intelligence</div>
+                                                    <div class="mega-desc">Record &amp; analyze meetings</div>
+                                                </div>
+                                            </a>
+                                            <a href="features/notes-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Notes</div>
+                                                    <div class="mega-desc">Native meeting summaries</div>
+                                                </div>
+                                            </a>
+                                            <a href="features/reminders-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Reminders</div>
+                                                    <div class="mega-desc">Smart follow-up alerts</div>
+                                                </div>
+                                            </a>
+                                            <a href="features/reports-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Reports</div>
+                                                    <div class="mega-desc">Custom analytics &amp; dashboards</div>
+                                                </div>
+                                            </a>
+                                            <a href="features/workflows-feature.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Workflows</div>
+                                                    <div class="mega-desc">Automate repetitive tasks</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mega-sidebar">
+                                    <div class="mega-sidebar-header">Get Started</div>
+                                    <ul class="mega-sidebar-list">
+                                        <li><a href="/crm/"><span>Open CRM</span></a></li>
+                                        <li><a href="pricing.html"><span>View Pricing</span></a></li>
+                                        <li><a href="../index.html#pricing"><span>Request Demo</span></a></li>
+                                    </ul>
+                                    <div class="mega-sidebar-footer">
+                                        <p>Trusted by 2,000+ teams</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="nav-item nav-resources">
+                            <a href="#" class="nav-link-toggle">Resources
+                                <span class="nav-caret" aria-hidden="true">
+                                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </span>
+                            </a>
+                            <div class="mega-menu" aria-hidden="true">
+                                <div class="mega-content-grid">
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Insights</div>
+                                        <div class="mega-items-grid">
+                                            <a href="integrations.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                                        <path d="M2 17l10 5 10-5" />
+                                                        <path d="M2 12l10 5 10-5" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Integrations</div>
+                                                    <div class="mega-desc">Connect your stack</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Support</div>
+                                        <div class="mega-items-grid">
+                                            <a href="documentation.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                                                        <path
+                                                            d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Documentation</div>
+                                                    <div class="mega-desc">Guides and tutorials</div>
+                                                </div>
+                                            </a>
+                                            <a href="helpcenter.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <circle cx="12" cy="12" r="10" />
+                                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                                                        <line x1="12" y1="17" x2="12.01" y2="17" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">Help Center</div>
+                                                    <div class="mega-desc">Get support</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+
+                                    <div class="mega-category">
+                                        <div class="mega-category-header">Developers</div>
+                                        <div class="mega-items-grid">
+                                            <a href="apireference.html" class="mega-item">
+                                                <div class="mega-icon">
+                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <polyline points="16 18 22 12 16 6" />
+                                                        <polyline points="8 6 2 12 8 18" />
+                                                    </svg>
+                                                </div>
+                                                <div class="mega-info">
+                                                    <div class="mega-label">API Reference</div>
+                                                    <div class="mega-desc">Build with SafiTrack</div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="mega-sidebar">
+                                    <div class="mega-sidebar-header">More</div>
+                                    <ul class="mega-sidebar-list">
+                                        <li><a href="blog.html"><span>Blog</span></a></li>
+                                        <li><a href="careers.html"><span>Careers</span></a></li>
+                                        <li><a href="status.html"><span>Status</span></a></li>
+                                    </ul>
+                                    <div class="mega-sidebar-footer">
+                                        <p>Always growing</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="pricing.html">Pricing</a>
+                    </div>
+                </div>
+
+                <div class="nav-actions">
+                    <a href="/crm/" class="nav-link-sign-in">Sign in</a>
+                    <a href="pricing.html" class="btn-hero-primary">Start for free</a>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <button class="mobile-menu-btn" aria-label="Toggle Menu">
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-nav-overlay">
+        <button class="mobile-close-btn" aria-label="Close Menu">
+            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+        </button>
+        <div class="mobile-nav-content">
+            <a href="features/mainfeatures.html" class="mobile-link">Features</a>
+            <a href="pricing.html" class="mobile-link">Pricing</a>
+            <hr class="mobile-divider">
+            <a href="/crm/" class="mobile-link">Open App</a>
+            <a href="pricing.html" class="btn-primary btn-block">Get Started</a>
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <section class="security-hero" id="security-top">
+        <div class="container">
+            <div class="hero-eyebrow"><span class="eyebrow-dot"></span> Security &amp; Trust</div>
+            <h1>Your data is our<br>responsibility.</h1>
+            <p class="hero-sub">
+                SafiTrack is built on enterprise-grade infrastructure with security at every layer. Here's how we protect your business.
+            </p>
+        </div>
+    </section>
+
+    <!-- Trust Indicators Bar -->
+    <section class="trust-bar">
+        <div class="container">
+            <div class="trust-bar-grid">
+                <div class="trust-bar-item">
+                    <div class="trust-bar-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                    </div>
+                    <h3>SOC 2 Type II</h3>
+                    <p>Audited security controls</p>
+                    <span class="trust-bar-status progress"><span class="status-dot"></span>In progress</span>
+                </div>
+                <div class="trust-bar-item">
+                    <div class="trust-bar-icon">
+                        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                    </div>
+                    <h3>GDPR Compliant</h3>
+                    <p>Full EU data protection</p>
+                    <span class="trust-bar-status active"><span class="status-dot"></span>Active</span>
+                </div>
+                <div class="trust-bar-item">
+                    <div class="trust-bar-icon">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <h3>AES-256 Encryption</h3>
+                    <p>Data encrypted at rest &amp; in transit</p>
+                    <span class="trust-bar-status active"><span class="status-dot"></span>Active</span>
+                </div>
+                <div class="trust-bar-item">
+                    <div class="trust-bar-icon">
+                        <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <h3>99.9% Uptime SLA</h3>
+                    <p>Enterprise reliability</p>
+                    <span class="trust-bar-status active"><span class="status-dot"></span>Active</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: Data Protection -->
+    <section class="sec-section" id="data-protection">
+        <div class="container">
+            <div class="sec-layout">
+                <div class="sec-sidebar">
+                    <div class="sec-sidebar-icon">
+                        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </div>
+                    <h2>Data Protection</h2>
+                    <p>How we secure your data at every stage — from the moment it enters SafiTrack to long-term storage and backup.</p>
+                </div>
+                <div class="sec-content">
+                    <div class="sec-card">
+                        <div class="sec-card-header">
+                            <h3>Encryption</h3>
+                            <span class="sec-card-tag green">Active</span>
+                        </div>
+                        <p>All data is encrypted using AES-256 at rest and TLS 1.3 in transit. Database connections use certificate-pinned TLS to prevent interception.</p>
+                        <div class="sec-card-detail">
+                            <ul>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    AES-256 encryption for all stored data
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    TLS 1.3 for all data in transit
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Certificate-pinned database connections
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="sec-card">
+                        <div class="sec-card-header">
+                            <h3>Backup &amp; Recovery</h3>
+                            <span class="sec-card-tag green">Active</span>
+                        </div>
+                        <p>Automated daily backups with point-in-time recovery. Backups are stored in geographically separate regions with independent encryption keys.</p>
+                        <div class="sec-card-detail">
+                            <ul>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Daily automated backups
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Point-in-time recovery up to 30 days
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Geo-redundant backup storage
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="sec-card">
+                        <div class="sec-card-header">
+                            <h3>Data Isolation</h3>
+                            <span class="sec-card-tag green">Active</span>
+                        </div>
+                        <p>Each customer's data is logically isolated with strict row-level security policies. No customer can access another customer's records under any circumstance.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: Compliance -->
+    <section class="sec-section" id="compliance">
+        <div class="container">
+            <div class="sec-layout">
+                <div class="sec-sidebar">
+                    <div class="sec-sidebar-icon">
+                        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                    </div>
+                    <h2>Compliance</h2>
+                    <p>SafiTrack is committed to meeting the regulatory and industry standards your business requires.</p>
+                </div>
+                <div class="sec-content">
+                    <div class="sec-card">
+                        <div class="sec-card-header">
+                            <h3>SOC 2 Type II</h3>
+                            <span class="sec-card-tag blue">In progress</span>
+                        </div>
+                        <p>We are actively working toward SOC 2 Type II certification, covering Security, Availability, and Confidentiality trust service criteria. Our internal controls already follow SOC 2 standards.</p>
+                        <div class="sec-card-detail">
+                            <ul>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Internal controls mapped to SOC 2 criteria
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Independent auditor engaged
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Expected completion: Q4 2026
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="sec-card">
+                        <div class="sec-card-header">
+                            <h3>GDPR</h3>
+                            <span class="sec-card-tag green">Compliant</span>
+                        </div>
+                        <p>SafiTrack is fully GDPR compliant. We provide data processing agreements, support data subject access requests, and offer data portability and deletion on demand.</p>
+                        <div class="sec-card-detail">
+                            <ul>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Data Processing Agreements (DPA) available
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Right to access, rectification, and erasure
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Data portability via structured export
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    72-hour breach notification commitment
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="sec-card">
+                        <div class="sec-card-header">
+                            <h3>CCPA</h3>
+                            <span class="sec-card-tag green">Compliant</span>
+                        </div>
+                        <p>For California-based users and customers, SafiTrack complies with CCPA requirements including the right to know, delete, and opt out of data sales. We never sell personal information.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: Infrastructure -->
+    <section class="sec-section" id="infrastructure">
+        <div class="container">
+            <div class="sec-layout">
+                <div class="sec-sidebar">
+                    <div class="sec-sidebar-icon">
+                        <svg viewBox="0 0 24 24"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"/><rect x="2" y="14" width="20" height="8" rx="2" ry="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+                    </div>
+                    <h2>Infrastructure</h2>
+                    <p>SafiTrack runs on modern, battle-tested cloud infrastructure built for reliability and performance.</p>
+                </div>
+                <div class="sec-content">
+                    <div class="sec-card">
+                        <div class="sec-card-header">
+                            <h3>Cloud Hosting</h3>
+                            <span class="sec-card-tag gray">AWS / Supabase</span>
+                        </div>
+                        <p>Our application is hosted on enterprise-grade cloud infrastructure with automatic scaling, multi-zone redundancy, and DDoS protection. Database services run on Supabase with managed PostgreSQL.</p>
+                    </div>
+                    <div class="sec-card">
+                        <div class="sec-card-header">
+                            <h3>Uptime &amp; Monitoring</h3>
+                            <span class="sec-card-tag green">99.9% SLA</span>
+                        </div>
+                        <p>We maintain a 99.9% uptime SLA for all paid plans. Real-time monitoring, automated alerting, and on-call engineering ensure rapid incident response. Check our current status at any time.</p>
+                        <div class="sec-card-detail">
+                            <ul>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    24/7 automated infrastructure monitoring
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Public status page at <a href="status.html" style="color: var(--text-primary); text-decoration: underline;">status.safitrack.com</a>
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Incident postmortems published for major events
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="sec-card">
+                        <div class="sec-card-header">
+                            <h3>Network Security</h3>
+                            <span class="sec-card-tag green">Active</span>
+                        </div>
+                        <p>All API endpoints are protected by rate limiting, WAF rules, and bot detection. Edge network caching and CDN delivery minimize attack surface and improve global performance.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: Access & Authentication -->
+    <section class="sec-section" id="access">
+        <div class="container">
+            <div class="sec-layout">
+                <div class="sec-sidebar">
+                    <div class="sec-sidebar-icon">
+                        <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <h2>Access &amp; Authentication</h2>
+                    <p>Fine-grained access controls and modern authentication to keep the right people in and everyone else out.</p>
+                </div>
+                <div class="sec-content">
+                    <div class="sec-card">
+                        <div class="sec-card-header">
+                            <h3>Authentication</h3>
+                            <span class="sec-card-tag green">Active</span>
+                        </div>
+                        <p>SafiTrack supports email/password authentication with bcrypt hashing, magic link sign-in, and OAuth via Google. Session management uses secure, HttpOnly, SameSite cookies with automatic expiry.</p>
+                        <div class="sec-card-detail">
+                            <ul>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Bcrypt-hashed passwords with salt
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    OAuth 2.0 (Google) single sign-on
+                                </li>
+                                <li>
+                                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+                                    Automatic session timeout and re-authentication
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="sec-card">
+                        <div class="sec-card-header">
+                            <h3>Role-Based Access Control</h3>
+                            <span class="sec-card-tag green">Active</span>
+                        </div>
+                        <p>Granular role-based permissions let you control exactly who can view, edit, or delete data across your organization. Admin, manager, and member roles are enforced at the database level.</p>
+                    </div>
+                    <div class="sec-card">
+                        <div class="sec-card-header">
+                            <h3>Audit Logging</h3>
+                            <span class="sec-card-tag green">Active</span>
+                        </div>
+                        <p>Every significant action — login, record change, export, permission update — is logged with timestamp, user identity, and IP address. Audit logs are immutable and available for admin review.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Section: Responsible AI -->
+    <section class="sec-section" id="ai-practices">
+        <div class="container">
+            <div class="sec-layout">
+                <div class="sec-sidebar">
+                    <div class="sec-sidebar-icon">
+                        <svg viewBox="0 0 24 24"><path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z"/></svg>
+                    </div>
+                    <h2>Responsible AI</h2>
+                    <p>How Safi AI handles your data — with clear boundaries, no training on your data, and transparent practices.</p>
+                </div>
+                <div class="sec-content">
+                    <div class="sec-card">
+                        <div class="sec-card-header">
+                            <h3>Your Data is Not Used for Training</h3>
+                            <span class="sec-card-tag green">Guaranteed</span>
+                        </div>
+                        <p>Safi AI processes your data to deliver insights and recommendations, but your data is never used to train our models or any third-party models. Your business data stays yours.</p>
+                    </div>
+                    <div class="sec-card">
+                        <div class="sec-card-header">
+                            <h3>Data Residency</h3>
+                            <span class="sec-card-tag gray">Configurable</span>
+                        </div>
+                        <p>AI inference runs in the same region as your primary data store. For Enterprise customers, we offer dedicated inference endpoints and configurable data residency to meet regulatory requirements.</p>
+                    </div>
+                    <div class="sec-card">
+                        <div class="sec-card-header">
+                            <h3>Transparency</h3>
+                            <span class="sec-card-tag green">Active</span>
+                        </div>
+                        <p>Every AI-generated insight in SafiTrack is clearly labeled as such. We provide confidence indicators and source attribution so your team always knows the basis for recommendations.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Security FAQ -->
+    <section class="sec-faq" id="security-faq">
+        <div class="container">
+            <h2>Frequently asked questions</h2>
+            <p>Common questions from security and procurement teams.</p>
+            <div class="faq-grid">
+                <div class="faq-item">
+                    <h3>Can you provide a DPA?</h3>
+                    <p>Yes. We provide a GDPR-compliant Data Processing Agreement to all customers. Contact our team at security@safitrack.com to request one.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Where is my data stored?</h3>
+                    <p>Customer data is stored in secure, SOC 2-certified data centers. Primary hosting is in the US with options for EU data residency on Enterprise plans.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Do you support SSO?</h3>
+                    <p>We currently support Google OAuth for single sign-on. SAML-based SSO for Enterprise IdPs (Okta, Azure AD) is on our roadmap for Q1 2027.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>How do you handle data deletion?</h3>
+                    <p>When you delete data or close your account, all records are permanently removed from primary storage within 30 days and from backups within 90 days.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Do you conduct penetration testing?</h3>
+                    <p>Yes. We engage independent third-party security firms for annual penetration tests. Additionally, we run continuous vulnerability scanning on our infrastructure.</p>
+                </div>
+                <div class="faq-item">
+                    <h3>Can I export all my data?</h3>
+                    <p>Absolutely. SafiTrack supports full data export in standard formats (CSV, JSON) at any time. No vendor lock-in — your data is always portable.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bottom CTA -->
+    <section class="sec-cta">
+        <div class="container">
+            <h2>Questions about security?</h2>
+            <p>Our team is happy to walk through our security practices, provide documentation, or complete your vendor security questionnaire.</p>
+            <div class="cta-buttons">
+                <a href="mailto:security@safitrack.com" class="btn-primary btn-lg">Contact Security Team</a>
+                <a href="documentation.html" class="btn-secondary btn-lg">View Documentation</a>
+            </div>
+            <p class="cta-note">We respond to security inquiries within 1 business day</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="footer-logo-wrapper">
+                        <a href="../index.html"><img src="../assets/icons/transparentMain.png" alt="SafiTrack"
+                                class="footer-logo"></a>
+                    </div>
+                </div>
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Product</h4>
+                        <ul>
+                            <li><a href="features/mainfeatures.html">Features</a></li>
+                            <li><a href="pricing.html">Pricing</a></li>
+                            <li><a href="integrations.html">Integrations</a></li>
+                            <li><a href="comparison.html">Compare</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Company</h4>
+                        <ul>
+                            <li><a href="blog.html">Blog</a></li>
+                            <li><a href="careers.html">Careers</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Resources</h4>
+                        <ul>
+                            <li><a href="documentation.html">Documentation</a></li>
+                            <li><a href="helpcenter.html">Help Center</a></li>
+                            <li><a href="apireference.html">API Reference</a></li>
+                            <li><a href="status.html">Status</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4 class="footer-heading">Legal</h4>
+                        <ul>
+                            <li><a href="legal/privacy.html">Privacy Policy</a></li>
+                            <li><a href="legal/terms.html">Terms of Service</a></li>
+                            <li><a href="security.html">Security</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+                <div class="footer-social">
+                    <a href="#" aria-label="Twitter">Twitter</a>
+                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
+                    <a href="#" aria-label="GitHub">GitHub</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../landing.js"></script>
+</body>
+
+</html>
