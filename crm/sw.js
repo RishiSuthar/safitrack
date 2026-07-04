@@ -36,8 +36,7 @@ self.addEventListener('activate', (event) => {
 
 // Network First (fallback to cache) Strategy
 self.addEventListener('fetch', (event) => {
-    if (event.request.method !== 'GET') return;
-
+    if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
     event.respondWith(
         fetch(event.request)
             .then((networkResponse) => {

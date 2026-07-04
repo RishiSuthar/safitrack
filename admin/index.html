@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safitrack | Super Admin</title>
+    <!-- Use Inter font for premium feel -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-icon">S</div>
+                <span>Safitrack Admin</span>
+            </div>
+            <nav class="nav-menu">
+                <a href="#" class="nav-item active">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                    Dashboard
+                </a>
+                <a href="#" class="nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                    Tenants
+                </a>
+                <a href="#" class="nav-item">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    Billing
+                </a>
+                <a href="#" class="nav-item" id="logoutBtn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                    Logout
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <h1>Overview</h1>
+                <div class="user-badge" id="adminUserBadge">Loading...</div>
+            </header>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-state">
+                <div class="spinner"></div>
+                <p>Authenticating Super Admin...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="error-state" style="display: none;">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--error)" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <h2>Access Denied</h2>
+                <p id="errorMessage">You do not have permission to view this page.</p>
+                <button onclick="window.location.href='/crm/index.html'" class="btn-primary">Return to CRM</button>
+            </div>
+
+            <!-- Dashboard Content -->
+            <div id="dashboardContent" class="dashboard-content" style="display: none;">
+                
+                <!-- KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card">
+                        <div class="kpi-title">Total Tenants</div>
+                        <div class="kpi-value" id="kpiTenants">0</div>
+                        <div class="kpi-trend positive">+2 this week</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Monthly Recurring Revenue</div>
+                        <div class="kpi-value" id="kpiMrr">$0</div>
+                        <div class="kpi-trend neutral">Awaiting Stripe</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Total Users</div>
+                        <div class="kpi-value" id="kpiUsers">0</div>
+                        <div class="kpi-trend positive">Active ecosystem</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Data Entities Tracked</div>
+                        <div class="kpi-value" id="kpiData">0</div>
+                        <div class="kpi-trend positive">Companies</div>
+                    </div>
+                </div>
+
+                <!-- Tenants Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Organizations</h2>
+                        <button class="btn-secondary">Export CSV</button>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Owner</th>
+                                <th>Created</th>
+                                <th>Seats</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tenantsTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Load Supabase Script First -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- Config script -->
+    <script src="../crm/config.js"></script>
+    <!-- Admin App script -->
+    <script src="admin.js"></script>
+</body>
+</html>
