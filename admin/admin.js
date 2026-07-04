@@ -19,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    adminUserBadge.textContent = session.user.email;
+    document.getElementById('adminName').textContent = session.user.email;
 
     // Fetch Data from Super Admin API
     try {
@@ -51,13 +51,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('kpiTenants').textContent = data.summary.total_organizations;
         document.getElementById('kpiUsers').textContent = data.summary.total_users;
         document.getElementById('kpiData').textContent = data.summary.total_companies_tracked;
+        if (document.getElementById('kpiAiTokens')) {
+            document.getElementById('kpiAiTokens').textContent = (data.summary.total_ai_tokens || 0).toLocaleString();
+        }
 
         // Render Table
         const tbody = document.getElementById('tenantsTableBody');
         tbody.innerHTML = '';
 
         if (!data.organizations || data.organizations.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">No organizations found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-secondary);">No organizations found.</td></tr>';
             return;
         }
 
@@ -79,13 +82,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             tr.innerHTML = `
                 <td>
-                    <div style="font-weight: 500; color: var(--text-primary);">${org.name}</div>
-                    <div style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">ID: ${org.id.split('-')[0]}...</div>
+                    <div class="custom-checkbox" onclick="this.classList.toggle('checked')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </div>
                 </td>
-                <td>${ownerEmail}</td>
-                <td>${date}</td>
                 <td>
-                    <div id="view-seats-${org.id}" style="display: flex; align-items: center; gap: 8px;">
+                    <div class="user-cell">
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(org.name)}&background=random" alt="org">
+                        <div>
+                            <div style="font-weight: 600; color: var(--text-primary);">${org.name}</div>
+                            <div style="font-size: 12px; color: var(--text-secondary); margin-top: 2px;">ID: ${org.id.split('-')[0]}...</div>
+                        </div>
+                    </div>
+                </td>
+                <td style="color: var(--text-secondary);">${ownerEmail}</td>
+                <td style="color: var(--text-secondary);">${date}</td>
+                <td>
+                    <div id="view-seats-${org.id}" style="display: flex; align-items: center; gap: 8px; color: var(--text-secondary);">
                         <span>Up to ${org.max_members}</span>
                         <button class="btn-small" onclick="toggleEditSeats('${org.id}', true)" style="background: transparent; border: none; text-decoration: underline; padding: 0;">Edit</button>
                     </div>
@@ -95,12 +108,16 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <button class="btn-small" onclick="toggleEditSeats('${org.id}', false)" style="background: transparent; border: 1px solid transparent;">Cancel</button>
                     </div>
                 </td>
-                <td>
-                    <div style="font-weight: 500;">${planName}</div>
-                    <span class="status-badge ${statusClass}" style="margin-top: 4px; display: inline-block;">${statusText}</span>
+                <td style="font-weight: 500; color: var(--primary);">
+                    ${(org.ai_tokens || 0).toLocaleString()}
                 </td>
                 <td>
-                    <button class="btn-small" onclick="viewTenant('${org.id}')">View Details</button>
+                    <span class="status-badge ${statusClass}">${statusText}</span>
+                </td>
+                <td>
+                    <div class="action-menu" onclick="viewTenant('${org.id}')">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                    </div>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -111,7 +128,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         releasesBody.innerHTML = '';
 
         if (!data.changelogs || data.changelogs.length === 0) {
-            releasesBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-secondary);">No releases found.</td></tr>';
+            releasesBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No releases found.</td></tr>';
         } else {
             data.changelogs.forEach(release => {
                 const tr = document.createElement('tr');
@@ -127,9 +144,19 @@ document.addEventListener('DOMContentLoaded', async () => {
                 }).join('');
 
                 tr.innerHTML = `
+                    <td>
+                        <div class="custom-checkbox" onclick="this.classList.toggle('checked')">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                        </div>
+                    </td>
                     <td style="font-weight: 600;">v${release.version}</td>
-                    <td>${release.date_string}</td>
+                    <td style="color: var(--text-secondary);">${release.date_string}</td>
                     <td>${itemsList}</td>
+                    <td>
+                        <div class="action-menu">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+                        </div>
+                    </td>
                 `;
                 releasesBody.appendChild(tr);
             });

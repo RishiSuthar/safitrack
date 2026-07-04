@@ -108,12 +108,35 @@ serve(async (req) => {
 
     if (orgError) throw orgError;
 
+    // Fetch AI Usage Logs
+    const { data: aiUsage, error: aiUsageError } = await supabaseAdmin
+      .from('ai_usage_logs')
+      .select('organization_id, total_tokens');
+    
+    if (aiUsageError && aiUsageError.code !== '42P01') {
+       // Ignore relation doesn't exist error if table hasn't been created yet
+       console.error("aiUsageError", aiUsageError);
+    }
+
+    let total_ai_tokens = 0;
+    const orgTokensMap: Record<string, number> = {};
+
+    if (aiUsage) {
+      aiUsage.forEach((log: any) => {
+        total_ai_tokens += log.total_tokens || 0;
+        if (log.organization_id) {
+          orgTokensMap[log.organization_id] = (orgTokensMap[log.organization_id] || 0) + (log.total_tokens || 0);
+        }
+      });
+    }
+
     // Process organizations to extract the owner profile
     const processedOrgs = organizations?.map(org => {
       const ownerProfile = org.profiles.find((p: any) => p.id === org.owner_id) || org.profiles[0];
       return {
         ...org,
-        profiles: ownerProfile
+        profiles: ownerProfile,
+        ai_tokens: orgTokensMap[org.id] || 0
       }
     });
     
@@ -143,7 +166,8 @@ serve(async (req) => {
       total_organizations: organizations.length,
       total_users: userCount || 0,
       total_companies_tracked: companyCount || 0,
-      mrr: 0 // Placeholder until Stripe is fully wired
+      mrr: 0, // Placeholder until Stripe is fully wired
+      total_ai_tokens
     }
 
     return new Response(

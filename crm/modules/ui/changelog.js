@@ -157,6 +157,8 @@ export function hideChangelogModal() {
   setTimeout(() => modal.remove(), 280);
 }
 
+let isSubscribed = false;
+
 // ─────────────────────────────────────────────────────────────
 // Auto-check on app boot (called from app-init.js)
 // ─────────────────────────────────────────────────────────────
@@ -179,14 +181,17 @@ export async function checkAndShowChangelog() {
   }
 
   // Subscribe to live broadcasts!
-  supabaseClient
-    .channel('public:changelogs')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'changelogs' }, payload => {
-      const newVersion = payload.new.version;
-      const seen = localStorage.getItem(STORAGE_KEY) || '0.0.0';
-      if (isNewer(newVersion, seen)) {
-        showChangelogModal();
-      }
-    })
-    .subscribe();
+  if (!isSubscribed) {
+    isSubscribed = true;
+    supabaseClient
+      .channel('public:changelogs')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'changelogs' }, payload => {
+        const newVersion = payload.new.version;
+        const seen = localStorage.getItem(STORAGE_KEY) || '0.0.0';
+        if (isNewer(newVersion, seen)) {
+          showChangelogModal();
+        }
+      })
+      .subscribe();
+  }
 }
