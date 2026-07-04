@@ -320,3 +320,18 @@ body {
     color: white;
     border-color: var(--primary);
 }
+
+.admin-input {
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.admin-input:focus {
+    outline: none;
+    border-color: var(--primary);
+}

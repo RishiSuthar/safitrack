@@ -17,9 +17,13 @@
                 <span>Safitrack Admin</span>
             </div>
             <nav class="nav-menu">
-                <a href="#" class="nav-item active">
+                <a href="#" class="nav-item active" id="nav-dashboard" onclick="switchTab('dashboard')">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
                     Dashboard
+                </a>
+                <a href="#" class="nav-item" id="nav-releases" onclick="switchTab('releases')">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20"></path><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    Releases
                 </a>
                 <a href="#" class="nav-item">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
@@ -60,8 +64,9 @@
             <!-- Dashboard Content -->
             <div id="dashboardContent" class="dashboard-content" style="display: none;">
                 
-                <!-- KPI Cards -->
-                <div class="kpi-grid">
+                <div id="tab-dashboard">
+                    <!-- KPI Cards -->
+                    <div class="kpi-grid">
                     <div class="kpi-card">
                         <div class="kpi-title">Total Tenants</div>
                         <div class="kpi-value" id="kpiTenants">0</div>
@@ -106,6 +111,58 @@
                         </tbody>
                     </table>
                 </div>
+                </div> <!-- End Tab Dashboard -->
+
+                <div id="tab-releases" style="display: none;">
+                <!-- Broadcast Release Form -->
+                <div class="table-container" style="margin-bottom: 32px; padding: 24px;">
+                    <div style="margin-bottom: 16px;">
+                        <h2 style="font-size: 18px; font-weight: 600; margin-bottom: 4px;">Broadcast New Release</h2>
+                        <p style="color: var(--text-secondary); font-size: 14px;">Publish an announcement directly to all CRM users.</p>
+                    </div>
+                    <div style="display: flex; gap: 16px; margin-bottom: 16px;">
+                        <input type="text" id="releaseVersion" placeholder="Version (e.g. 2.3.0)" class="admin-input" style="width: 150px;" />
+                        <input type="text" id="releaseDate" placeholder="Date (e.g. July 5, 2026)" class="admin-input" style="width: 200px;" />
+                    </div>
+                    
+                    <div id="releaseItemsContainer" style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 16px;">
+                        <!-- dynamic items go here -->
+                        <div class="release-item-row" style="display: flex; gap: 12px; align-items: center;">
+                            <select class="admin-input item-type-select" style="width: 120px;">
+                                <option value="new">New</option>
+                                <option value="improved">Improved</option>
+                                <option value="fixed">Fixed</option>
+                            </select>
+                            <input type="text" placeholder="Description of the feature or fix..." class="admin-input item-text-input" style="flex: 1;" />
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <button class="btn-secondary" onclick="addReleaseItemRow()">+ Add Another Item</button>
+                        <button class="btn-primary" onclick="broadcastRelease()" id="broadcastBtn">Broadcast Release</button>
+                    </div>
+                </div>
+
+                <!-- Release History Table -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Previous Releases</h2>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Version</th>
+                                <th>Date Published</th>
+                                <th>Release Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody id="releasesTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                </div> <!-- End Tab Releases -->
             </div>
         </main>
     </div>

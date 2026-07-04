@@ -71,6 +71,18 @@ serve(async (req) => {
           JSON.stringify({ success: true }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
         )
+      } else if (body.action === 'create_announcement') {
+        const { version, date_string, items } = body.announcement;
+        const { error: insertError } = await supabaseAdmin
+          .from('changelogs')
+          .insert([{ version, date_string, items }])
+        
+        if (insertError) throw insertError
+        
+        return new Response(
+          JSON.stringify({ success: true }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        )
       }
     }
 
@@ -119,6 +131,14 @@ serve(async (req) => {
       
     if (companyCountError) throw companyCountError;
 
+    // Get all changelogs for history
+    const { data: changelogs, error: changelogError } = await supabaseAdmin
+      .from('changelogs')
+      .select('*')
+      .order('created_at', { ascending: false })
+
+    if (changelogError) throw changelogError;
+
     const summary = {
       total_organizations: organizations.length,
       total_users: userCount || 0,
@@ -130,7 +150,8 @@ serve(async (req) => {
       JSON.stringify({ 
         success: true, 
         summary,
-        organizations: processedOrgs
+        organizations: processedOrgs,
+        changelogs
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

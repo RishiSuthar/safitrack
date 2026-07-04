@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 1. Initialize Supabase
     const { SUPABASE_URL, SUPABASE_KEY } = window.APP_CONFIG;
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    window.supabaseClient = supabase;
 
     // Elements
     const loadingState = document.getElementById('loadingState');
@@ -104,7 +105,47 @@ document.addEventListener('DOMContentLoaded', async () => {
             `;
             tbody.appendChild(tr);
         });
+
+        // Render Release History
+        const releasesBody = document.getElementById('releasesTableBody');
+        releasesBody.innerHTML = '';
+
+        if (!data.changelogs || data.changelogs.length === 0) {
+            releasesBody.innerHTML = '<tr><td colspan="3" style="text-align: center; color: var(--text-secondary);">No releases found.</td></tr>';
+        } else {
+            data.changelogs.forEach(release => {
+                const tr = document.createElement('tr');
+                
+                const itemsList = release.items.map(i => {
+                    let badgeColor = '#4299e1'; // new
+                    if (i.type === 'improved') badgeColor = '#48bb78'; // improved
+                    if (i.type === 'fixed') badgeColor = '#f56565'; // fixed
+                    return `<div style="margin-bottom: 4px;">
+                        <span style="font-size: 10px; font-weight: 600; text-transform: uppercase; background: ${badgeColor}20; color: ${badgeColor}; padding: 2px 6px; border-radius: 4px; margin-right: 6px;">${i.type}</span>
+                        <span style="font-size: 13px;">${i.text}</span>
+                    </div>`;
+                }).join('');
+
+                tr.innerHTML = `
+                    <td style="font-weight: 600;">v${release.version}</td>
+                    <td>${release.date_string}</td>
+                    <td>${itemsList}</td>
+                `;
+                releasesBody.appendChild(tr);
+            });
+        }
     }
+
+    // Tab Switching Logic
+    window.switchTab = function(tabId) {
+        // Update Nav Active State
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        document.getElementById('nav-' + tabId).classList.add('active');
+
+        // Toggle Content Sections
+        document.getElementById('tab-dashboard').style.display = tabId === 'dashboard' ? 'block' : 'none';
+        document.getElementById('tab-releases').style.display = tabId === 'releases' ? 'block' : 'none';
+    };
 
     // Toggle Seats Edit Mode
     window.toggleEditSeats = function(orgId, isEditing) {
@@ -156,6 +197,89 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = '../crm/index.html';
     });
 });
+
+window.addReleaseItemRow = function() {
+    const container = document.getElementById('releaseItemsContainer');
+    const div = document.createElement('div');
+    div.className = 'release-item-row';
+    div.style.cssText = 'display: flex; gap: 12px; align-items: center;';
+    div.innerHTML = `
+        <select class="admin-input item-type-select" style="width: 120px;">
+            <option value="new">New</option>
+            <option value="improved">Improved</option>
+            <option value="fixed">Fixed</option>
+        </select>
+        <input type="text" placeholder="Description of the feature or fix..." class="admin-input item-text-input" style="flex: 1;" />
+        <button class="btn-small" onclick="this.parentElement.remove()" style="color: var(--error); border-color: var(--error);">X</button>
+    `;
+    container.appendChild(div);
+};
+
+window.broadcastRelease = async function() {
+    const btn = document.getElementById('broadcastBtn');
+    const version = document.getElementById('releaseVersion').value.trim();
+    const date_string = document.getElementById('releaseDate').value.trim();
+    
+    if (!version || !date_string) {
+        alert("Version and Date are required!");
+        return;
+    }
+
+    const rows = document.querySelectorAll('.release-item-row');
+    const items = [];
+    rows.forEach(row => {
+        const type = row.querySelector('.item-type-select').value;
+        const text = row.querySelector('.item-text-input').value.trim();
+        if (text) {
+            items.push({ type, text });
+        }
+    });
+
+    if (items.length === 0) {
+        alert("Please add at least one valid item description.");
+        return;
+    }
+
+    btn.textContent = "Broadcasting...";
+    btn.disabled = true;
+
+    try {
+        const { data: { session } } = await window.supabaseClient.auth.getSession();
+        const { data, error } = await window.supabaseClient.functions.invoke('super-admin-api', {
+            method: 'POST',
+            body: {
+                action: 'create_announcement',
+                announcement: { version, date_string, items }
+            }
+        });
+
+        if (error) throw error;
+        if (!data.success) throw new Error(data.error || 'Failed to broadcast');
+
+        alert("Release broadcasted successfully! Users will see it on their next login.");
+        
+        // Reset form
+        document.getElementById('releaseVersion').value = '';
+        document.getElementById('releaseDate').value = '';
+        document.getElementById('releaseItemsContainer').innerHTML = `
+            <div class="release-item-row" style="display: flex; gap: 12px; align-items: center;">
+                <select class="admin-input item-type-select" style="width: 120px;">
+                    <option value="new">New</option>
+                    <option value="improved">Improved</option>
+                    <option value="fixed">Fixed</option>
+                </select>
+                <input type="text" placeholder="Description of the feature or fix..." class="admin-input item-text-input" style="flex: 1;" />
+            </div>
+        `;
+
+    } catch (err) {
+        console.error("Broadcast error:", err);
+        alert("Failed to broadcast: " + err.message);
+    } finally {
+        btn.textContent = "Broadcast Release";
+        btn.disabled = false;
+    }
+};
 
 window.viewTenant = function(id) {
     alert("Tenant Details view coming soon! ID: " + id);

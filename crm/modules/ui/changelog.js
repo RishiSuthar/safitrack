@@ -108,16 +108,21 @@ function escapeHtml(str) {
   }[c]));
 }
 
+import { supabaseClient } from '../state.js';
+
 // ─────────────────────────────────────────────────────────────
 // Show / hide
 // ─────────────────────────────────────────────────────────────
-export function showChangelogModal(forceAll = false) {
-  const config    = window.APP_CONFIG || {};
-  const changelog = config.CHANGELOG;
+export async function showChangelogModal(forceAll = false) {
+  const { data: changelog, error } = await supabaseClient
+    .from('changelogs')
+    .select('*')
+    .order('created_at', { ascending: false });
 
-  if (!changelog?.length) return;
+  if (error || !changelog?.length) return;
 
   let entries = changelog;
+  const currentVersion = entries[0].version;
 
   if (!forceAll) {
     const seenVersion = localStorage.getItem(STORAGE_KEY) || '0.0.0';
@@ -127,9 +132,14 @@ export function showChangelogModal(forceAll = false) {
 
   buildModal(entries);
 
+  // Set the current version to the modal so dismiss logic can use it
+  const modal = document.getElementById(MODAL_ID);
+  if (modal) {
+    modal.dataset.currentVersion = currentVersion;
+  }
+
   // Animate in on next frame
   requestAnimationFrame(() => {
-    const modal = document.getElementById(MODAL_ID);
     if (modal) modal.classList.add('cl-visible');
   });
 }
@@ -139,7 +149,7 @@ export function hideChangelogModal() {
   if (!modal) return;
 
   // Mark current version as seen
-  const version = window.APP_CONFIG?.VERSION;
+  const version = modal.dataset.currentVersion;
   if (version) localStorage.setItem(STORAGE_KEY, version);
 
   modal.classList.remove('cl-visible');
@@ -150,13 +160,33 @@ export function hideChangelogModal() {
 // ─────────────────────────────────────────────────────────────
 // Auto-check on app boot (called from app-init.js)
 // ─────────────────────────────────────────────────────────────
-export function checkAndShowChangelog() {
-  const config  = window.APP_CONFIG || {};
-  const current = config.VERSION;
-  const seen    = localStorage.getItem(STORAGE_KEY) || '0.0.0';
+export async function checkAndShowChangelog() {
+  const { data: latestEntry } = await supabaseClient
+    .from('changelogs')
+    .select('version')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .single();
 
-  if (isNewer(current, seen)) {
-    // Slight delay so the app finishes rendering first
-    setTimeout(() => showChangelogModal(), 900);
+  if (latestEntry) {
+    const current = latestEntry.version;
+    const seen    = localStorage.getItem(STORAGE_KEY) || '0.0.0';
+
+    if (isNewer(current, seen)) {
+      // Slight delay so the app finishes rendering first
+      setTimeout(() => showChangelogModal(), 900);
+    }
   }
+
+  // Subscribe to live broadcasts!
+  supabaseClient
+    .channel('public:changelogs')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'changelogs' }, payload => {
+      const newVersion = payload.new.version;
+      const seen = localStorage.getItem(STORAGE_KEY) || '0.0.0';
+      if (isNewer(newVersion, seen)) {
+        showChangelogModal();
+      }
+    })
+    .subscribe();
 }
