@@ -7,6 +7,7 @@ import { renderSkeletonCards, renderError, getLeadScoreBadge } from '../utils/he
 import { renderEditableDataTable, getCompanyLogoUrl, normalizeSearchText, normalizeForMatching, findDuplicateCompanyByName, guessDomainAndFavicon } from '../ui/spreadsheet.js';
 import { geocodeAddressWithOSM, searchNearbyOverpass, renderNearbySuggestions } from '../utils/geo.js';
 import { exportAllCompaniesToCsv, runCompaniesImportFromCsv, downloadCompaniesSampleCsv } from './import-export.js';
+import { renderCustomFieldsForm, collectCustomFieldValues, validateCustomFields, saveCustomFieldValues, fetchCustomFieldValues } from './custom-fields.js';
 
 async function renderCompaniesView() {
   const companiesState = state.tableViewState.companies;
@@ -422,7 +423,7 @@ async function renderCompaniesView() {
 
 
 // Update the openCompanyModal function to use the global data
-function openCompanyModal(company = null) {
+async function openCompanyModal(company = null) {
   const modal = document.getElementById('company-modal');
   const modalTitle = document.getElementById('company-modal-title');
   const saveBtn = document.getElementById('save-company-btn');
@@ -472,6 +473,14 @@ function openCompanyModal(company = null) {
   // Show modal
   modal.style.display = 'flex';
   document.body.classList.add('modal-active');
+
+  // Render custom fields
+  if (company) {
+    const existingValues = await fetchCustomFieldValues('company', company.id);
+    await renderCustomFieldsForm('company', 'company-custom-fields-section', existingValues);
+  } else {
+    await renderCustomFieldsForm('company', 'company-custom-fields-section');
+  }
 
   // Reset manual coords section visibility
   const manualCoordsSection = document.getElementById('manual-coords-section');
@@ -555,6 +564,11 @@ function initCompanyModalListeners(company, viewOnly = false) {
     // Validate required fields (address is optional)
     if (!name || !companyType) {
       showToast('Please enter company name and type', 'error');
+      return;
+    }
+
+    // Validate custom fields
+    if (!validateCustomFields('company', 'company-custom-fields-section')) {
       return;
     }
 
@@ -716,6 +730,12 @@ function initCompanyModalListeners(company, viewOnly = false) {
 
           if (linkError) throw linkError;
         }
+      }
+
+      // Save custom field values
+      const customValues = collectCustomFieldValues('company', 'company-custom-fields-section');
+      if (customValues.length > 0) {
+        await saveCustomFieldValues('company', companyId, customValues);
       }
 
       const shouldAddMore = !company && Boolean(document.getElementById('company-add-more-toggle')?.checked);

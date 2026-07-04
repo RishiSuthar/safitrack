@@ -1278,6 +1278,9 @@
             <input type="number" id="company-radius" value="200" min="50" max="1000">
           </div>
         </div>
+
+        <!-- Custom Fields (dynamically populated by JS) -->
+        <div id="company-custom-fields-section" style="display:none;"></div>
       </div>
       <div class="modal-footer modal-footer-with-option">
         <div class="modal-footer-meta">
@@ -1291,7 +1294,7 @@
           <div id="company-duplicate-warning" class="duplicate-warning hidden"></div>
         </div>
         <div class="modal-footer-actions">
-          <button class="btn btn-secondary" onclick="closeModal('company-modal')">Cancel</button>
+          <button class="btn btn-secondary" id="cancel-company-btn" onclick="closeModal('company-modal')">Cancel</button>
           <button class="btn btn-primary" id="save-company-btn">Save Company</button>
         </div>
       </div>
@@ -1375,6 +1378,9 @@
             </div>
           </div>
         </div>
+
+        <!-- Custom Fields (dynamically populated by JS) -->
+        <div id="person-custom-fields-section" style="display:none;"></div>
       </div>
       <div class="modal-footer modal-footer-with-option">
         <div class="modal-footer-meta">
@@ -1388,7 +1394,7 @@
           <div id="person-duplicate-warning" class="duplicate-warning hidden"></div>
         </div>
         <div class="modal-footer-actions">
-          <button class="btn btn-secondary" onclick="closeModal('person-modal')">Cancel</button>
+          <button class="btn btn-secondary" id="cancel-person-btn" onclick="closeModal('person-modal')">Cancel</button>
           <button class="btn btn-primary" id="save-person-btn">Save Person</button>
         </div>
       </div>
@@ -2154,6 +2160,8 @@
               </div>
             </div>
           </div>
+          <!-- Custom Fields (dynamically populated by JS) -->
+          <div class="record-sidebar-section" id="company-view-custom-fields" style="display:none;"></div>
           <div id="company-view-nearby-controls"></div>
         </aside>
       </div>
@@ -2391,6 +2399,8 @@
               </div>
             </div>
           </div>
+          <!-- Custom Fields (dynamically populated by JS) -->
+          <div class="record-sidebar-section" id="person-view-custom-fields" style="display:none;"></div>
         </aside>
       </div>
 

@@ -5,6 +5,7 @@ import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards, renderError, getCurrencySymbol } from '../utils/helpers.js';
 import { renderEditableDataTable, normalizeSearchText, normalizeForMatching, findDuplicatePersonContact } from '../ui/spreadsheet.js';
+import { renderCustomFieldsForm, collectCustomFieldValues, validateCustomFields, saveCustomFieldValues, fetchCustomFieldValues, renderCustomFieldsDisplay } from './custom-fields.js';
 
 // ======================
 // PEOPLE VIEW
@@ -393,7 +394,7 @@ async function renderPeopleView() {
 
 
 // Update the openPersonModal function to use the global data
-function openPersonModal(person = null) {
+async function openPersonModal(person = null) {
   const modal = document.getElementById('person-modal');
   const modalTitle = document.getElementById('person-modal-title');
   const saveBtn = document.getElementById('save-person-btn');
@@ -463,6 +464,14 @@ function openPersonModal(person = null) {
   // Show modal
   modal.style.display = 'flex';
   document.body.classList.add('modal-active');
+
+  // Render custom fields
+  if (person) {
+    const existingValues = await fetchCustomFieldValues('person', person.id);
+    await renderCustomFieldsForm('person', 'person-custom-fields-section', existingValues);
+  } else {
+    await renderCustomFieldsForm('person', 'person-custom-fields-section');
+  }
 
   // Initialize event listeners
   initPersonModalListeners(person);
@@ -565,6 +574,9 @@ async function openPersonViewModal(personOrId) {
   }
   const titleEl = document.getElementById('person-view-title'); if (titleEl) titleEl.textContent = person.job_title || '—';
   const notesEl = document.getElementById('person-view-notes'); if (notesEl) notesEl.textContent = person.notes || '—';
+
+  // Render custom fields in sidebar
+  renderCustomFieldsDisplay('person', 'person-view-custom-fields', person.id);
 
   // Tab placeholders
   document.getElementById('person-view-opps').innerHTML = '<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="record-empty-title">Loading...</div></div>';
@@ -924,6 +936,11 @@ function initPersonModalListeners(person) {
       return;
     }
 
+    // Validate custom fields
+    if (!validateCustomFields('person', 'person-custom-fields-section')) {
+      return;
+    }
+
     if (!person && updatePersonDuplicateState()) {
       showToast('Potential duplicate person found. Please review before saving.', 'error');
       return;
@@ -971,6 +988,18 @@ function initPersonModalListeners(person) {
       }
 
       if (result.error) throw result.error;
+
+      // Save custom field values
+      const customValues = collectCustomFieldValues('person', 'person-custom-fields-section');
+      let personId;
+      if (person) {
+        personId = person.id;
+      } else if (result.data && result.data.length > 0) {
+        personId = result.data[0].id;
+      }
+      if (customValues.length > 0 && personId) {
+        await saveCustomFieldValues('person', personId, customValues);
+      }
 
       const shouldAddMore = !person && Boolean(document.getElementById('person-add-more-toggle')?.checked);
 

@@ -16,30 +16,37 @@
 window.APP_CONFIG = window.APP_CONFIG || {};
 
 Object.assign(window.APP_CONFIG, {
-  VERSION: "2.1.0",
+  VERSION: "2.2.0",
 
   CHANGELOG: [
-      {
+    {
+      version: "2.2.0",
+      date: "July 4, 2026",
+      items: [
+        { type: "new", text: "Added custom fields for companies and people, now availabe in the settings" },
+      ],
+    },
+    {
       version: "2.1.0",
       date: "June 30, 2026",
       items: [
-        { type: "new",      text: "Added full contracts section" },
+        { type: "new", text: "Added full contracts section" },
       ],
     },
     {
       version: "2.0.0",
       date: "June 30, 2026",
       items: [
-        { type: "new",      text: "Added custom opportunity pipelines with different stages" },
+        { type: "new", text: "Added custom opportunity pipelines with different stages" },
         { type: "improved", text: "Load stacked company icons - faster load time now" },
-        { type: "fixed",    text: "Opportunity view for mobile now fixed the search bar" },
+        { type: "fixed", text: "Opportunity view for mobile now fixed the search bar" },
       ],
     },
     {
       version: "1.9.0",
       date: "June 10, 2026",
       items: [
-        { type: "fixed",    text: "Mobile view for technicians" },
+        { type: "fixed", text: "Mobile view for technicians" },
       ],
     },
   ],

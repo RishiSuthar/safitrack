@@ -4,6 +4,7 @@ import { state, supabaseClient, crmDebugLog, saveViewState } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards, renderError, getCurrencySymbol } from '../utils/helpers.js';
+import { renderCustomFieldsDisplay } from './custom-fields.js';
 
 // ======================
 // PWA LOGIC
@@ -586,6 +587,9 @@ async function openCompanyViewModal(companyOrId) {
       if (domainCard) domainCard.style.display = 'none';
     }
   }
+
+  // Render custom fields in sidebar
+  renderCustomFieldsDisplay('company', 'company-view-custom-fields', company.id);
 
   // Add a SafiFind button that opens a dedicated modal for searching nearby companies
   try {

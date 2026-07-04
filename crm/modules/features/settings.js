@@ -6,6 +6,7 @@ import { showToast, escapeHtml, getInitials, triggerConfetti } from '../ui/toast
 import { renderSkeletonCards, formatDate, CURRENCIES, getCurrencySymbol } from '../utils/helpers.js';
 import { loadView } from '../core/navigation.js';
 import { showChangelogModal } from '../ui/changelog.js';
+import { fetchCustomFieldDefinitions, invalidateCustomFieldCache, generateFieldKey } from './custom-fields.js';
 
 async function renderSettingsView() {
   const dateFormatPref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
@@ -58,6 +59,12 @@ async function renderSettingsView() {
           <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
           Organization
         </button>
+        ${state.isManager ? `
+        <button class="sv-nav-item" data-section="custom-fields">
+          <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>
+          Custom Fields
+        </button>
+        ` : ''}
         <button class="sv-nav-item" data-section="members">
           <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           Members
@@ -581,7 +588,7 @@ async function renderSettingsView() {
           <div class="sv-invoices-block">
             <div class="sv-invoices-header">
               <div class="sv-invoices-title">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:15px;height:15px;"><rect width="20" height="12" x="2" y="6" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>
                 Invoices
               </div>
               <span class="sv-invoices-note">Generated monthly on your billing date</span>
@@ -629,6 +636,30 @@ async function renderSettingsView() {
               </tbody>
             </table>
           </div>
+        </section>
+
+        <!-- ═══════════════════ CUSTOM FIELDS ═══════════════════ -->
+        <section class="sv-section" data-section="custom-fields" data-manager-only="true" style="display:none;">
+          <div class="sv-page-header">
+            <div>
+              <h2 class="sv-page-title">Custom Fields</h2>
+              <p class="sv-page-subtitle">Manage custom properties for companies and people.</p>
+            </div>
+          </div>
+          
+          <div class="cf-mgmt-header">
+            <div class="cf-entity-tabs">
+              <button class="cf-entity-tab active" data-entity="company">Companies</button>
+              <button class="cf-entity-tab" data-entity="person">People</button>
+            </div>
+            <button class="btn btn-primary btn-sm" id="cf-add-field-btn">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Field
+            </button>
+          </div>
+          
+          <div id="cf-form-container" style="display:none;"></div>
+          <div id="cf-list-container"></div>
         </section>
 
         <!-- ═══════════════════ EXPORT ═══════════════════ -->
@@ -3282,7 +3313,332 @@ ${cleanUIHTML}`;
     if (e.key === 'Enter') sendSupportMessage();
   });
 
+  /* ─────────────── CUSTOM FIELDS MANAGEMENT ─────────────── */
+  if (state.isManager) {
+    let currentCfEntity = 'company';
+    let cfDefinitions = [];
+
+    const loadCfList = async () => {
+      document.getElementById('cf-list-container').innerHTML = '<div class="sv-field-group"><div class="sv-field-meta">Loading fields...</div></div>';
+      cfDefinitions = await fetchCustomFieldDefinitions(currentCfEntity);
+      renderCfList();
+    };
+
+    const renderCfList = () => {
+      const container = document.getElementById('cf-list-container');
+      if (!cfDefinitions || cfDefinitions.length === 0) {
+        container.innerHTML = `
+          <div class="cf-empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="12" x="2" y="6" rx="2"/><path d="M12 12h.01"/><path d="M17 12h.01"/><path d="M7 12h.01"/></svg>
+            <h4>No custom fields</h4>
+            <p>Create fields to track specific data for ${currentCfEntity === 'company' ? 'companies' : 'people'}.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const listHtml = cfDefinitions.map((def, idx) => `
+        <div class="cf-field-item" data-id="${def.id}">
+          <div class="cf-field-sort">
+            <button class="cf-sort-up" ${idx === 0 ? 'disabled' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="18 15 12 9 6 15"/></svg></button>
+            <button class="cf-sort-down" ${idx === cfDefinitions.length - 1 ? 'disabled' : ''}><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></button>
+          </div>
+          <div class="cf-field-info">
+            <div class="cf-field-name">${escapeHtml(def.field_name)} ${def.is_required ? '<span style="color:var(--color-danger)">*</span>' : ''}</div>
+            <div class="cf-field-meta">
+              <span class="cf-field-type-badge">${def.field_type}</span>
+              ${def.field_type === 'select' && def.field_options ? `<span class="cf-field-options-preview">${escapeHtml(def.field_options.join(', '))}</span>` : ''}
+              <span style="font-size:0.75rem; color:var(--text-muted);">Key: ${def.field_key}</span>
+            </div>
+          </div>
+          <div class="cf-field-actions">
+            <button class="cf-edit-btn" title="Edit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></button>
+            <button class="cf-delete-btn" title="Delete"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+          </div>
+        </div>
+      `).join('');
+
+      container.innerHTML = `<div class="cf-field-list">${listHtml}</div>`;
+
+      // Wire sort buttons
+      container.querySelectorAll('.cf-sort-up').forEach(btn => {
+        btn.onclick = () => moveCf(btn.closest('.cf-field-item').dataset.id, -1);
+      });
+      container.querySelectorAll('.cf-sort-down').forEach(btn => {
+        btn.onclick = () => moveCf(btn.closest('.cf-field-item').dataset.id, 1);
+      });
+      // Wire action buttons
+      container.querySelectorAll('.cf-edit-btn').forEach(btn => {
+        btn.onclick = () => showCfForm(btn.closest('.cf-field-item').dataset.id);
+      });
+      container.querySelectorAll('.cf-delete-btn').forEach(btn => {
+        btn.onclick = () => deleteCf(btn.closest('.cf-field-item').dataset.id);
+      });
+    };
+
+    const moveCf = async (id, dir) => {
+      const idx = cfDefinitions.findIndex(d => d.id === id);
+      if (idx < 0) return;
+      const newIdx = idx + dir;
+      if (newIdx < 0 || newIdx >= cfDefinitions.length) return;
+
+      // Swap sort_orders in UI
+      const temp = cfDefinitions[idx].sort_order;
+      cfDefinitions[idx].sort_order = cfDefinitions[newIdx].sort_order;
+      cfDefinitions[newIdx].sort_order = temp;
+
+      // Re-sort array
+      cfDefinitions.sort((a, b) => a.sort_order - b.sort_order);
+      renderCfList();
+
+      // Save to db
+      const { error } = await supabaseClient.from('custom_field_definitions').upsert([
+        cfDefinitions[idx],
+        cfDefinitions[newIdx]
+      ]);
+      if (error) {
+        showToast('Error reordering fields', 'error');
+        console.error(error);
+      } else {
+        invalidateCustomFieldCache(currentCfEntity);
+      }
+    };
+
+    const deleteCf = async (id) => {
+      const def = cfDefinitions.find(d => d.id === id);
+      const confirmed = await window.showConfirmDialog('Delete Field', `Are you sure you want to delete the field "${def.field_name}"? This will permanently delete all data associated with this field.`);
+      if (!confirmed) return;
+
+      const { error } = await supabaseClient.from('custom_field_definitions').delete().eq('id', id);
+      if (error) {
+        showToast('Error deleting field', 'error');
+        console.error(error);
+      } else {
+        showToast('Field deleted', 'success');
+        invalidateCustomFieldCache(currentCfEntity);
+        loadCfList();
+      }
+    };
+
+    const showCfForm = (id = null) => {
+      const formContainer = document.getElementById('cf-form-container');
+      const addBtn = document.getElementById('cf-add-field-btn');
+      addBtn.style.display = 'none';
+      formContainer.style.display = 'block';
+
+      let def = { field_name: '', field_type: 'text', is_required: false, field_options: [] };
+      if (id) {
+        const existing = cfDefinitions.find(d => d.id === id);
+        if (existing) def = JSON.parse(JSON.stringify(existing)); // clone
+      }
+
+      formContainer.innerHTML = `
+        <div class="cf-form-card">
+          <h4 style="margin:0 0 16px; font-size:0.95rem; color:var(--text-primary);">${id ? 'Edit' : 'Add'} Field</h4>
+          <div class="cf-form-row">
+            <div class="form-field">
+              <label>Field Name</label>
+              <input type="text" id="cff-name" value="${escapeHtml(def.field_name)}" placeholder="e.g. Annual Revenue">
+            </div>
+            <div class="form-field" style="overflow: visible;">
+              <label>Field Type</label>
+              <div class="crm-dd crm-dd--form" data-dd-id="cff-type">
+                <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="crm-dd-label">${
+                    def.field_type === 'number' ? 'Number' :
+                    def.field_type === 'date' ? 'Date' :
+                    def.field_type === 'select' ? 'Dropdown (Select one)' :
+                    def.field_type === 'checkbox' ? 'Checkbox (Yes/No)' :
+                    def.field_type === 'url' ? 'URL' :
+                    'Text (Short/Single line)'
+                  }</span>
+                  <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+                </button>
+                <div class="crm-dd-panel" role="listbox">
+                  <ul class="crm-dd-list">
+                    <li class="crm-dd-option ${def.field_type === 'text' ? 'is-selected' : ''}" role="option" data-value="text" data-label="Text (Short/Single line)" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Text (Short/Single line)</li>
+                    <li class="crm-dd-option ${def.field_type === 'number' ? 'is-selected' : ''}" role="option" data-value="number" data-label="Number" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Number</li>
+                    <li class="crm-dd-option ${def.field_type === 'date' ? 'is-selected' : ''}" role="option" data-value="date" data-label="Date" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Date</li>
+                    <li class="crm-dd-option ${def.field_type === 'select' ? 'is-selected' : ''}" role="option" data-value="select" data-label="Dropdown (Select one)" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Dropdown (Select one)</li>
+                    <li class="crm-dd-option ${def.field_type === 'checkbox' ? 'is-selected' : ''}" role="option" data-value="checkbox" data-label="Checkbox (Yes/No)" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Checkbox (Yes/No)</li>
+                    <li class="crm-dd-option ${def.field_type === 'url' ? 'is-selected' : ''}" role="option" data-value="url" data-label="URL" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>URL</li>
+                  </ul>
+                </div>
+                <input class="crm-dd-value-input" type="hidden" id="cff-type" value="${escapeHtml(def.field_type)}">
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-field" id="cff-options-field" style="display: ${def.field_type === 'select' ? 'flex' : 'none'};">
+            <label>Dropdown Options</label>
+            <div class="cf-options-input-wrapper" id="cff-options-wrapper">
+              ${(def.field_options || []).map(opt => `
+                <div class="cf-option-chip">
+                  <span>${escapeHtml(opt)}</span>
+                  <button type="button" class="cf-option-chip-remove">&times;</button>
+                </div>
+              `).join('')}
+              <input type="text" class="cf-options-input" id="cff-option-input" placeholder="Type option & press Enter">
+            </div>
+            <div class="field-hint">Press Enter or comma to add an option</div>
+          </div>
+
+          <div class="form-field">
+            <label class="cf-checkbox-label">
+              <span class="ios-toggle">
+                <input type="checkbox" id="cff-required" ${def.is_required ? 'checked' : ''}>
+                <span class="ios-toggle-slider"></span>
+              </span>
+              <span class="cf-checkbox-text">Require this field</span>
+            </label>
+          </div>
+
+          <div class="cf-form-actions">
+            <button class="btn btn-primary btn-sm" id="cff-save-btn">Save Field</button>
+            <button class="btn btn-secondary btn-sm" id="cff-cancel-btn">Cancel</button>
+          </div>
+        </div>
+      `;
+
+      // Type change listener
+      const typeSelect = document.getElementById('cff-type');
+      const optionsField = document.getElementById('cff-options-field');
+      if (typeSelect) {
+        typeSelect.addEventListener('change', () => {
+          optionsField.style.display = typeSelect.value === 'select' ? 'flex' : 'none';
+        });
+      }
+
+      // Options chips behavior
+      let optionsList = def.field_options || [];
+      const renderChips = () => {
+        const wrapper = document.getElementById('cff-options-wrapper');
+        const input = document.getElementById('cff-option-input');
+        wrapper.innerHTML = optionsList.map((opt, i) => `
+          <div class="cf-option-chip">
+            <span>${escapeHtml(opt)}</span>
+            <button type="button" class="cf-option-chip-remove" data-idx="${i}">&times;</button>
+          </div>
+        `).join('') + `<input type="text" class="cf-options-input" id="cff-option-input" placeholder="Type option & press Enter">`;
+        
+        wrapper.querySelectorAll('.cf-option-chip-remove').forEach(btn => {
+          btn.onclick = () => {
+            optionsList.splice(parseInt(btn.dataset.idx, 10), 1);
+            renderChips();
+          };
+        });
+
+        const newInput = document.getElementById('cff-option-input');
+        newInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            const val = newInput.value.trim().replace(/^,|,$/g, '').trim();
+            if (val && !optionsList.includes(val)) {
+              optionsList.push(val);
+              renderChips();
+              setTimeout(() => document.getElementById('cff-option-input').focus(), 10);
+            }
+          }
+        });
+        wrapper.onclick = (e) => { if (e.target === wrapper) newInput.focus(); };
+      };
+      
+      if (typeSelect && typeSelect.value === 'select') {
+        renderChips();
+      } else {
+        // even if hidden, bind the input listener just in case
+        const initInput = document.getElementById('cff-option-input');
+        initInput?.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            const val = initInput.value.trim().replace(/^,|,$/g, '').trim();
+            if (val && !optionsList.includes(val)) {
+              optionsList.push(val);
+              renderChips();
+            }
+          }
+        });
+      }
+
+      document.getElementById('cff-cancel-btn').onclick = () => {
+        formContainer.innerHTML = '';
+        formContainer.style.display = 'none';
+        addBtn.style.display = 'inline-flex';
+      };
+
+      document.getElementById('cff-save-btn').onclick = async () => {
+        const name = document.getElementById('cff-name').value.trim();
+        const type = document.getElementById('cff-type').value;
+        const required = document.getElementById('cff-required').checked;
+        
+        if (!name) return showToast('Field name is required', 'error');
+        if (type === 'select' && optionsList.length === 0) return showToast('Add at least one option', 'error');
+
+        const key = id ? def.field_key : generateFieldKey(name);
+
+        const payload = {
+          organization_id: state.currentOrganization.id,
+          entity_type: currentCfEntity,
+          field_name: name,
+          field_key: key,
+          field_type: type,
+          is_required: required,
+          field_options: type === 'select' ? optionsList : null
+        };
+
+        if (id) {
+          payload.id = id;
+        } else {
+          payload.sort_order = cfDefinitions.length;
+        }
+
+        const { error } = await supabaseClient.from('custom_field_definitions').upsert(payload);
+        if (error) {
+          if (error.code === '23505') showToast('A field with a similar name already exists', 'error');
+          else showToast('Error saving field', 'error');
+          console.error(error);
+        } else {
+          showToast('Field saved', 'success');
+          document.getElementById('cff-cancel-btn').click();
+          invalidateCustomFieldCache(currentCfEntity);
+          loadCfList();
+        }
+      };
+    };
+
+    // Tab clicks
+    document.querySelectorAll('.cf-entity-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.cf-entity-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentCfEntity = tab.dataset.entity;
+        
+        // hide form if open
+        const formContainer = document.getElementById('cf-form-container');
+        if (formContainer) {
+          formContainer.innerHTML = '';
+          formContainer.style.display = 'none';
+          document.getElementById('cf-add-field-btn').style.display = 'inline-flex';
+        }
+
+        loadCfList();
+      });
+    });
+
+    document.getElementById('cf-add-field-btn')?.addEventListener('click', () => showCfForm());
+
+    // Load initial list when settings modal opens
+    document.querySelectorAll('.sv-nav-item[data-section="custom-fields"]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (document.getElementById('cf-list-container').innerHTML === '') {
+          loadCfList();
+        }
+      });
+    });
+  }
+
   const urlParams = new URLSearchParams(window.location.search);
+
   const requestedTab = urlParams.get('tab');
 
   const _initSection = requestedTab || state._pendingSettingsSection || 'profile';
