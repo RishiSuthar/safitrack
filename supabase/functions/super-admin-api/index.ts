@@ -83,6 +83,58 @@ serve(async (req) => {
           JSON.stringify({ success: true }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
         )
+      } else if (body.action === 'get_tenant_details' && body.org_id) {
+        // Fetch org details
+        const { data: org, error: orgError } = await supabaseAdmin
+          .from('organizations')
+          .select('*')
+          .eq('id', body.org_id)
+          .single();
+        if (orgError) throw orgError;
+
+        // Fetch users
+        const { data: users, error: usersError } = await supabaseAdmin
+          .from('profiles')
+          .select('*')
+          .eq('organization_id', body.org_id);
+        if (usersError) throw usersError;
+
+        // Fetch AI usage
+        const { data: aiUsage, error: aiUsageError } = await supabaseAdmin
+          .from('ai_usage_logs')
+          .select('total_tokens')
+          .eq('organization_id', body.org_id);
+        
+        let total_ai_tokens = 0;
+        if (!aiUsageError && aiUsage) {
+          total_ai_tokens = aiUsage.reduce((sum: number, log: any) => sum + (log.total_tokens || 0), 0);
+        }
+
+        // Fetch company count
+        const { count: companyCount } = await supabaseAdmin
+          .from('companies')
+          .select('*', { count: 'exact', head: true })
+          .eq('organization_id', body.org_id);
+        
+        // Fetch opportunity count
+        const { count: oppCount } = await supabaseAdmin
+          .from('opportunities')
+          .select('*', { count: 'exact', head: true })
+          .eq('organization_id', body.org_id);
+
+        return new Response(
+          JSON.stringify({ 
+            success: true, 
+            tenant: org,
+            users: users || [],
+            stats: {
+              total_ai_tokens,
+              company_count: companyCount || 0,
+              opportunity_count: oppCount || 0
+            }
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        )
       }
     }
 

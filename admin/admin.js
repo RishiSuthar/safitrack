@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         tbody.innerHTML = '';
 
         if (!data.organizations || data.organizations.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-secondary);">No organizations found.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-secondary);">No organizations found.</td></tr>';
             return;
         }
 
@@ -72,6 +72,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             // For now, assuming active if they have an owner
             const statusClass = org.owner_id ? 'active' : 'trial';
             const statusText = org.owner_id ? 'Active' : 'Trial';
+
+            tr.style.cursor = 'pointer';
+            tr.onclick = (e) => {
+                if (e.target.closest('button') || e.target.closest('input') || e.target.closest('.custom-checkbox')) return;
+                viewTenant(org.id);
+            };
 
             let planName = 'Free Plan';
             if (org.max_members > 2 && org.max_members <= 20) {
@@ -113,11 +119,6 @@ document.addEventListener('DOMContentLoaded', async () => {
                 </td>
                 <td>
                     <span class="status-badge ${statusClass}">${statusText}</span>
-                </td>
-                <td>
-                    <div class="action-menu" onclick="viewTenant('${org.id}')">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
-                    </div>
                 </td>
             `;
             tbody.appendChild(tr);
@@ -172,6 +173,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Toggle Content Sections
         document.getElementById('tab-dashboard').style.display = tabId === 'dashboard' ? 'block' : 'none';
         document.getElementById('tab-releases').style.display = tabId === 'releases' ? 'block' : 'none';
+        document.getElementById('tab-tenants').style.display = tabId === 'tenants' ? 'block' : 'none';
+        
+        document.getElementById('tenantDetailsView').style.display = 'none';
+        document.getElementById('dashboardContent').style.display = 'block';
     };
 
     // Toggle Seats Edit Mode
@@ -308,6 +313,71 @@ window.broadcastRelease = async function() {
     }
 };
 
-window.viewTenant = function(id) {
-    alert("Tenant Details view coming soon! ID: " + id);
+window.viewTenant = async function(id) {
+    const dashboard = document.getElementById('dashboardContent');
+    const detailsView = document.getElementById('tenantDetailsView');
+    
+    dashboard.style.display = 'none';
+    detailsView.style.display = 'block';
+    
+    document.getElementById('tdName').textContent = 'Loading...';
+    document.getElementById('tdUsersTableBody').innerHTML = '<tr><td colspan="4" style="text-align: center;">Loading users...</td></tr>';
+
+    try {
+        const { data, error } = await window.supabaseClient.functions.invoke('super-admin-api', {
+            method: 'POST',
+            body: { action: 'get_tenant_details', org_id: id }
+        });
+
+        if (error) throw error;
+        if (!data.success) throw new Error(data.error || 'Failed to fetch details');
+
+        document.getElementById('tdName').textContent = data.tenant.name;
+        document.getElementById('tdCreated').textContent = `Created: ${new Date(data.tenant.created_at).toLocaleDateString()}`;
+
+        const owner = data.users.find(u => u.id === data.tenant.owner_id);
+        const ownerEmail = owner ? owner.email : 'No owner';
+        const ownerName = owner ? [owner.first_name, owner.last_name].filter(Boolean).join(' ') : '';
+        const ownerText = ownerName ? `${ownerName} (${ownerEmail})` : ownerEmail;
+        document.getElementById('tdOwner').textContent = `Owner: ${ownerText}`;
+
+        document.getElementById('tdUsersCount').textContent = data.users.length;
+        document.getElementById('tdAiTokens').textContent = (data.stats.total_ai_tokens || 0).toLocaleString();
+        document.getElementById('tdCompanies').textContent = (data.stats.company_count || 0).toLocaleString();
+        document.getElementById('tdOpportunities').textContent = (data.stats.opportunity_count || 0).toLocaleString();
+
+        const tbody = document.getElementById('tdUsersTableBody');
+        tbody.innerHTML = '';
+        if (data.users.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: var(--text-secondary);">No users found.</td></tr>';
+        } else {
+            data.users.forEach(user => {
+                const tr = document.createElement('tr');
+                const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ') || 'No Name';
+                tr.innerHTML = `
+                    <td>
+                        <div class="user-cell">
+                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random" alt="user">
+                            <span style="font-weight: 500;">${fullName}</span>
+                        </div>
+                    </td>
+                    <td style="color: var(--text-secondary);">${user.email}</td>
+                    <td style="text-transform: capitalize;">${user.role || 'Member'}</td>
+                    <td>
+                        <span class="status-badge ${user.status === 'active' ? 'active' : 'trial'}">${user.status || 'active'}</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+    } catch (err) {
+        console.error("View Tenant error:", err);
+        alert("Failed to load tenant details: " + err.message);
+        backToDashboard();
+    }
+}
+
+window.backToDashboard = function() {
+    document.getElementById('tenantDetailsView').style.display = 'none';
+    document.getElementById('dashboardContent').style.display = 'block';
 }

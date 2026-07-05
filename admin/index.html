@@ -37,7 +37,7 @@
                     Admin View
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                 </div>
-                <a href="#" class="nav-item">
+                <a href="#" class="nav-item" id="nav-tenants" onclick="switchTab('tenants')">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
                     Tenants
                 </a>
@@ -130,7 +130,9 @@
                             <div class="kpi-trend positive">Gemini 3.1</div>
                         </div>
                     </div>
+                </div> <!-- End Tab Dashboard -->
 
+                <div id="tab-tenants" style="display: none;">
                     <!-- Tenants Table -->
                     <div class="table-container">
                         <div class="table-header">
@@ -151,7 +153,6 @@
                                     <th>Seats</th>
                                     <th>AI Tokens</th>
                                     <th>Status</th>
-                                    <th>Action</th>
                                 </tr>
                             </thead>
                             <tbody id="tenantsTableBody">
@@ -162,7 +163,7 @@
                             </tbody>
                         </table>
                     </div>
-                </div> <!-- End Tab Dashboard -->
+                </div> <!-- End Tab Tenants -->
 
                 <div id="tab-releases" style="display: none;">
                     <!-- Broadcast Release Form -->
@@ -219,6 +220,61 @@
                         </table>
                     </div>
                 </div> <!-- End Tab Releases -->
+            </div>
+
+            <!-- Tenant Details Content -->
+            <div id="tenantDetailsView" class="dashboard-content" style="display: none;">
+                <button class="btn-secondary" style="margin-bottom: 24px; display: inline-flex; align-items: center; gap: 8px;" onclick="backToDashboard()">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    Back
+                </button>
+
+                <div style="margin-bottom: 32px;">
+                    <h2 id="tdName" style="font-size: 24px; font-weight: 700; margin-bottom: 8px;">Tenant Name</h2>
+                    <div style="display: flex; gap: 16px; color: var(--text-secondary); font-size: 14px;">
+                        <p id="tdCreated">Created: ...</p>
+                        <span>•</span>
+                        <p id="tdOwner">Owner: ...</p>
+                    </div>
+                </div>
+
+                <div class="kpi-grid" style="margin-bottom: 32px;">
+                    <div class="kpi-card">
+                        <div class="kpi-title">Total Users</div>
+                        <div class="kpi-value" id="tdUsersCount">0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">AI Tokens Used</div>
+                        <div class="kpi-value" id="tdAiTokens">0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Total Companies</div>
+                        <div class="kpi-value" id="tdCompanies">0</div>
+                    </div>
+                    <div class="kpi-card">
+                        <div class="kpi-title">Total Opportunities</div>
+                        <div class="kpi-value" id="tdOpportunities">0</div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <div class="table-header">
+                        <h2>Users</h2>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tdUsersTableBody">
+                            <!-- Populated by JS -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </main>
     </div>
