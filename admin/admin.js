@@ -107,8 +107,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                 <td style="color: var(--text-secondary);">${date}</td>
                 <td>
                     <div id="view-seats-${org.id}" style="display: flex; align-items: center; gap: 8px; color: var(--text-secondary);">
-                        <span>Up to ${org.max_members}</span>
-                        <button class="btn-small" onclick="toggleEditSeats('${org.id}', true)" style="background: transparent; border: none; text-decoration: underline; padding: 0;">Edit</button>
+                        <div style="display: flex; flex-direction: column; gap: 2px;">
+                            <span style="font-weight: 500; color: var(--text-primary);">${planName}</span>
+                            <span style="font-size: 12px;">Up to ${org.max_members} seats</span>
+                        </div>
+                        <button class="btn-small" onclick="toggleEditSeats('${org.id}', true)" style="background: transparent; border: none; text-decoration: underline; padding: 0; margin-left: auto;">Edit</button>
                     </div>
                     <div id="edit-seats-${org.id}" style="display: none; align-items: center; gap: 8px;">
                         <input type="number" id="members-${org.id}" value="${org.max_members}" style="width: 60px; padding: 4px; border-radius: 4px; border: 1px solid var(--border); background: var(--bg-base); color: var(--text-primary);" />
