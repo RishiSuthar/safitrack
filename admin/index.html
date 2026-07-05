@@ -37,8 +37,12 @@
                     Admin View
                     <i data-lucide="chevron-down"></i>
                 </div>
+                <a href="#" class="nav-item" id="nav-users" onclick="switchTab('users')">
+                    <i data-lucide="user-check"></i>
+                    Global Users
+                </a>
                 <a href="#" class="nav-item" id="nav-tenants" onclick="switchTab('tenants')">
-                    <i data-lucide="users"></i>
+                    <i data-lucide="building"></i>
                     Tenants
                 </a>
                 <a href="#" class="nav-item">
@@ -127,6 +131,33 @@
                         </div>
                     </div>
                 </div> <!-- End Tab Dashboard -->
+
+                <div id="tab-users" style="display: none;">
+                    <!-- Global Users Table -->
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h2>Global Users</h2>
+                            <div class="topbar-search" style="width: 300px; margin-left: auto;">
+                                <i data-lucide="search"></i>
+                                <input type="text" id="globalUserSearch" placeholder="Search by name or email..." oninput="filterGlobalUsers(this.value)">
+                            </div>
+                        </div>
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Tenant</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="globalUsersTableBody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div> <!-- End Tab Users -->
 
                 <div id="tab-tenants" style="display: none;">
                     <!-- Tenants Table -->

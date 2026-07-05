@@ -135,6 +135,51 @@ serve(async (req) => {
           }),
           { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
         )
+      } else if (body.action === 'get_global_users') {
+        const { data: users, error: usersError } = await supabaseAdmin
+          .from('profiles')
+          .select(`
+            *,
+            organizations:organization_id (
+              name
+            )
+          `)
+          .order('created_at', { ascending: false });
+
+        if (usersError) throw usersError;
+
+        return new Response(
+          JSON.stringify({ success: true, users: users || [] }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        )
+      } else if (body.action === 'toggle_suspend_user') {
+        const status = body.suspend ? 'suspended' : 'active';
+        const banDuration = body.suspend ? '87600h' : 'none';
+
+        const { error: profileError } = await supabaseAdmin
+          .from('profiles')
+          .update({ status })
+          .eq('id', body.user_id);
+        if (profileError) throw profileError;
+
+        const { error: authError } = await supabaseAdmin.auth.admin.updateUserById(
+          body.user_id,
+          { ban_duration: banDuration }
+        );
+        if (authError) throw authError;
+
+        return new Response(
+          JSON.stringify({ success: true, status }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        )
+      } else if (body.action === 'reset_password') {
+        const { error } = await supabaseAdmin.auth.resetPasswordForEmail(body.email);
+        if (error) throw error;
+
+        return new Response(
+          JSON.stringify({ success: true }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        )
       }
     }
 

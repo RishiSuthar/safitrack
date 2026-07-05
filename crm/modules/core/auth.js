@@ -57,7 +57,13 @@ function initAuth() {
     });
 
   supabaseClient.auth.onAuthStateChange((event, session) => {
-    if (event === 'SIGNED_IN') {
+    if (event === 'SIGNED_IN' || event === 'PASSWORD_RECOVERY') {
+      if (event === 'PASSWORD_RECOVERY') {
+        setTimeout(() => {
+          const modal = document.getElementById('change-password-modal');
+          if (modal) modal.style.display = 'flex';
+        }, 500); // Give it a moment for the DOM to settle if needed
+      }
       state.currentUser = session.user;
       loadingScreen.style.display = 'none';
 

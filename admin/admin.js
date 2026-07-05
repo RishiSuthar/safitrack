@@ -46,6 +46,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     function renderDashboard(data) {
         loadingState.style.display = 'none';
         dashboardContent.style.display = 'block';
+        
+        fetchGlobalUsers();
 
         // Set KPIs
         document.getElementById('kpiTenants').textContent = data.summary.total_organizations;
@@ -177,6 +179,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.getElementById('tab-dashboard').style.display = tabId === 'dashboard' ? 'block' : 'none';
         document.getElementById('tab-releases').style.display = tabId === 'releases' ? 'block' : 'none';
         document.getElementById('tab-tenants').style.display = tabId === 'tenants' ? 'block' : 'none';
+        document.getElementById('tab-users').style.display = tabId === 'users' ? 'block' : 'none';
         
         document.getElementById('tenantDetailsView').style.display = 'none';
         document.getElementById('dashboardContent').style.display = 'block';
@@ -384,3 +387,114 @@ window.backToDashboard = function() {
     document.getElementById('tenantDetailsView').style.display = 'none';
     document.getElementById('dashboardContent').style.display = 'block';
 }
+
+// Global Users Logic
+window.allGlobalUsers = [];
+
+window.fetchGlobalUsers = async function() {
+    try {
+        const { data, error } = await window.supabaseClient.functions.invoke('super-admin-api', {
+            method: 'POST',
+            body: { action: 'get_global_users' }
+        });
+
+        if (error) throw error;
+        if (data.success) {
+            window.allGlobalUsers = data.users || [];
+            window.renderGlobalUsers();
+        }
+    } catch (err) {
+        console.error("Error fetching global users:", err);
+    }
+};
+
+window.filterGlobalUsers = function(query) {
+    window.renderGlobalUsers(query);
+};
+
+window.renderGlobalUsers = function(query = '') {
+    const tbody = document.getElementById('globalUsersTableBody');
+    if (!tbody) return;
+
+    tbody.innerHTML = '';
+    
+    const lowerQuery = query.toLowerCase();
+    const filtered = window.allGlobalUsers.filter(u => {
+        const name = (u.first_name + ' ' + u.last_name).toLowerCase();
+        const email = (u.email || '').toLowerCase();
+        return name.includes(lowerQuery) || email.includes(lowerQuery);
+    });
+
+    if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No users found.</td></tr>';
+        return;
+    }
+
+    filtered.forEach(user => {
+        const tr = document.createElement('tr');
+        const fullName = [user.first_name, user.last_name].filter(Boolean).join(' ') || 'No Name';
+        const orgName = user.organizations?.name || 'No Tenant';
+        
+        tr.innerHTML = `
+            <td>
+                <div class="user-cell">
+                    <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=random" alt="user">
+                    <span style="font-weight: 500;">${fullName}</span>
+                </div>
+            </td>
+            <td style="color: var(--text-secondary);">${user.email}</td>
+            <td>${orgName}</td>
+            <td>
+                <span class="status-badge ${user.status === 'active' ? 'active' : 'trial'}">${user.status || 'active'}</span>
+            </td>
+            <td>
+                <button class="btn-small" onclick="resetUserPassword('${user.email}')">Reset PW</button>
+                <button class="btn-small" onclick="toggleUserSuspend('${user.id}', ${user.status !== 'suspended'})" style="color: ${user.status === 'suspended' ? 'var(--text-secondary)' : 'var(--error)'}; border-color: ${user.status === 'suspended' ? 'var(--border)' : 'var(--error)'}; margin-left: 8px;">
+                    ${user.status === 'suspended' ? 'Unsuspend' : 'Suspend'}
+                </button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+};
+
+window.resetUserPassword = async function(email) {
+    if (!confirm(`Are you sure you want to send a password reset email to ${email}?`)) return;
+
+    try {
+        const { data, error } = await window.supabaseClient.functions.invoke('super-admin-api', {
+            method: 'POST',
+            body: { action: 'reset_password', email: email }
+        });
+
+        if (error) throw error;
+        if (!data.success) throw new Error(data.error || 'Failed to send reset email.');
+
+        alert(`Password reset email successfully sent to ${email}.`);
+    } catch (err) {
+        console.error("Reset PW error:", err);
+        alert("Failed to send reset email: " + err.message);
+    }
+};
+
+window.toggleUserSuspend = async function(userId, suspend) {
+    const actionText = suspend ? 'suspend' : 'unsuspend';
+    if (!confirm(`Are you sure you want to ${actionText} this user?`)) return;
+
+    try {
+        const { data, error } = await window.supabaseClient.functions.invoke('super-admin-api', {
+            method: 'POST',
+            body: { action: 'toggle_suspend_user', user_id: userId, suspend: suspend }
+        });
+
+        if (error) throw error;
+        if (!data.success) throw new Error(data.error || 'Failed to update user status.');
+
+        alert(`User successfully ${actionText}ed.`);
+        // Refresh the list
+        window.fetchGlobalUsers();
+    } catch (err) {
+        console.error("Toggle suspend error:", err);
+        alert(`Failed to ${actionText} user: ` + err.message);
+    }
+};
