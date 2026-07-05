@@ -546,6 +546,422 @@ async function runCompaniesImportFromCsv() {
 // Export-to-PDF/Excel/CSV helpers removed along with export modal
 
 
+
+// ============================================================================
+// PEOPLE IMPORT / EXPORT
+// ============================================================================
+
+function openPeopleImportExportModal() {
+  if (state.isSalesRep) {
+    showToast('Sales representatives are not permitted to import or export people', 'error');
+    return;
+  }
+  let modal = document.getElementById('people-transfer-modal');
+
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'people-transfer-modal';
+    modal.className = 'modal';
+    modal.style.display = 'none';
+    modal.innerHTML = `
+      <div class="modal-backdrop" onclick="closeModal('people-transfer-modal')"></div>
+      <div class="modal-container people-transfer-modal-container modal-size-transfer">
+        <div class="modal-header">
+          <h3><i data-lucide="file-up"></i> People Import / Export</h3>
+          <button class="modal-close" onclick="closeModal('people-transfer-modal')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-x-icon lucide-x">
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="modal-body">
+          <div class="form-section">
+            <div class="form-section-header" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
+              <div class="form-section-icon"><i data-lucide="shuffle"></i></div>
+              <div>
+                <div class="form-section-title">Choose Action</div>
+                <div class="form-section-description">Import people from CSV or export all people to CSV</div>
+              </div>
+            </div>
+            <div class="people-transfer-switch" style="margin-top: 1rem;">
+              <button type="button" class="date-range-btn active" id="people-mode-import">Import CSV</button>
+              <button type="button" class="date-range-btn" id="people-mode-export">Export CSV</button>
+            </div>
+          </div>
+
+          <div class="form-section" id="people-import-panel">
+            <div class="form-section-header">
+              <div class="form-section-icon"><i data-lucide="file-input"></i></div>
+              <div>
+                <div class="form-section-title">CSV Format Requirements</div>
+                <div class="form-section-description">Use the required columns and correct data types</div>
+              </div>
+            </div>
+
+            <div class="field-helper" style="margin-top: 0;">
+              <span><strong>Required columns:</strong> name</span>
+            </div>
+            <div class="field-helper" style="margin-top: 0.5rem;">
+              <span><strong>Optional columns:</strong> email, job_title, phone_numbers, company_name</span>
+            </div>
+            <div class="field-helper" style="margin-top: 0.5rem;">
+              <span><strong>Phone numbers format:</strong> separate multiple values with <code>|</code> or <code>;</code></span>
+            </div>
+
+            <div class="btn-group-inline mt-md">
+              <button type="button" class="btn btn-secondary" id="download-people-sample-btn">
+                <i data-lucide="download"></i> Download Sample CSV
+              </button>
+            </div>
+
+            <div class="form-field mt-md">
+              <label for="people-import-file">Upload CSV File</label>
+              <input type="file" id="people-import-file" accept=".csv,text/csv">
+              <div class="field-helper">
+                <span>Maximum recommended size: 5MB. Larger files may take longer to process.</span>
+              </div>
+            </div>
+
+            <div id="people-import-feedback" class="field-helper" style="display:none;"></div>
+            <div id="people-import-errors" style="display:none;"></div>
+
+            <div class="btn-group-end mt-md">
+              <button type="button" class="btn btn-primary" id="run-people-import-btn">
+                <i data-lucide="upload"></i> Import People
+              </button>
+            </div>
+          </div>
+
+          <div class="form-section" id="people-export-panel" style="display:none;">
+            <div class="form-section-header">
+              <div class="form-section-icon"><i data-lucide="file-output"></i></div>
+              <div>
+                <div class="form-section-title">Export All People</div>
+                <div class="form-section-description">Download all people data as CSV</div>
+              </div>
+            </div>
+            <div class="field-helper">
+              <span>This export includes: name, email, job_title, phone_numbers, company_name.</span>
+            </div>
+
+            <div class="btn-group-end mt-md">
+              <button type="button" class="btn btn-primary" id="run-people-export-btn">
+                <i data-lucide="download"></i> Export People CSV
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn btn-secondary" onclick="closeModal('people-transfer-modal')">Close</button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const importBtn = document.getElementById('people-mode-import');
+    const exportBtn = document.getElementById('people-mode-export');
+    const importPanel = document.getElementById('people-import-panel');
+    const exportPanel = document.getElementById('people-export-panel');
+
+    importBtn?.addEventListener('click', () => {
+      importBtn.classList.add('active');
+      exportBtn?.classList.remove('active');
+      if (importPanel) importPanel.style.display = 'block';
+      if (exportPanel) exportPanel.style.display = 'none';
+    });
+
+    exportBtn?.addEventListener('click', () => {
+      exportBtn.classList.add('active');
+      importBtn?.classList.remove('active');
+      if (importPanel) importPanel.style.display = 'none';
+      if (exportPanel) exportPanel.style.display = 'block';
+    });
+
+    document.getElementById('download-people-sample-btn')?.addEventListener('click', downloadPeopleSampleCsv);
+    document.getElementById('run-people-export-btn')?.addEventListener('click', exportAllPeopleToCsv);
+    document.getElementById('run-people-import-btn')?.addEventListener('click', runPeopleImportFromCsv);
+
+    document.getElementById('people-import-file')?.addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      const feedback = document.getElementById('people-import-feedback');
+      if (!feedback) return;
+
+      if (!file) {
+        feedback.style.display = 'none';
+        return;
+      }
+
+      feedback.style.display = 'flex';
+      feedback.style.color = 'var(--text-muted)';
+      feedback.innerHTML = `<span>Selected file: <strong>${file.name}</strong> (${Math.ceil(file.size / 1024)} KB)</span>`;
+    });
+  }
+
+  modal.style.display = 'flex';
+  if (window.lucide) lucide.createIcons();
+};
+
+function downloadPeopleSampleCsv() {
+  const sampleRows = [
+    ['name', 'email', 'job_title', 'phone_numbers', 'company_name'],
+    ['John Doe', 'john.doe@example.com', 'Sales Manager', '+1234567890|+0987654321', 'Acme Corporation'],
+    ['Jane Smith', 'jane.smith@example.com', 'CEO', '+1122334455', 'Northwind Supplies']
+  ];
+
+  downloadCsvFile('people_import_sample.csv', sampleRows);
+  showToast('Sample CSV downloaded', 'success');
+}
+
+function normalizePeopleCsvHeader(header) {
+  const normalized = (header || '').toLowerCase().trim().replace(/\s+/g, '_');
+  const map = {
+    full_name: 'name',
+    person_name: 'name',
+    email_address: 'email',
+    title: 'job_title',
+    company: 'company_name',
+    phones: 'phone_numbers',
+    phone: 'phone_numbers'
+  };
+  return map[normalized] || normalized;
+}
+
+async function exportAllPeopleToCsv() {
+  const exportBtn = document.getElementById('run-people-export-btn');
+  if (exportBtn) {
+    exportBtn.disabled = true;
+    exportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+  }
+
+  try {
+    if (window.allPeoplePromise) await window.allPeoplePromise;
+    const people = window.allPeopleData || [];
+
+    const rows = [
+      ['name', 'email', 'job_title', 'phone_numbers', 'company_name']
+    ];
+
+    (people || []).forEach(person => {
+      const companyName = person.company && person.company.name ? person.company.name : (person.company_name || '');
+      const phones = Array.isArray(person.phone_numbers) ? person.phone_numbers.join('|') : (person.phone_numbers || '');
+      
+      rows.push([
+        person.name || '',
+        person.email || '',
+        person.job_title || '',
+        phones,
+        companyName
+      ]);
+    });
+
+    const stamp = new Date().toISOString().slice(0, 10);
+    downloadCsvFile(`people_export_${stamp}.csv`, rows);
+    showToast(`Exported ${people?.length || 0} people`, 'success');
+  } catch (error) {
+    showToast('Export failed: ' + error.message, 'error');
+  } finally {
+    if (exportBtn) {
+      exportBtn.disabled = false;
+      exportBtn.innerHTML = '<i data-lucide="download"></i> Export People CSV';
+      if (window.lucide) lucide.createIcons();
+    }
+  }
+}
+
+async function runPeopleImportFromCsv() {
+  const fileInput = document.getElementById('people-import-file');
+  const importBtn = document.getElementById('run-people-import-btn');
+  const feedback = document.getElementById('people-import-feedback');
+  const errorListContainer = document.getElementById('people-import-errors');
+  const file = fileInput?.files?.[0];
+
+  if (!file) {
+    showToast('Please choose a CSV file to import', 'error');
+    return;
+  }
+
+  if (importBtn) {
+    importBtn.disabled = true;
+    importBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Importing...';
+  }
+
+  try {
+    if (errorListContainer) {
+      errorListContainer.style.display = 'none';
+      errorListContainer.innerHTML = '';
+    }
+
+    const csvText = await file.text();
+    const rows = parseCsv(csvText);
+
+    if (rows.length < 2) {
+      throw new Error('CSV is empty or missing data rows');
+    }
+
+    const rawHeaders = rows[0].map(normalizePeopleCsvHeader);
+    const requiredHeaders = ['name'];
+    const missingHeaders = requiredHeaders.filter(header => !rawHeaders.includes(header));
+
+    if (missingHeaders.length > 0) {
+      throw new Error(`Missing required columns: ${missingHeaders.join(', ')}`);
+    }
+
+    if (window.allPeoplePromise) await window.allPeoplePromise;
+    if (window.allCompaniesPromise) await window.allCompaniesPromise;
+    
+    const existingPeople = window.allPeopleData || [];
+    const existingCompanies = window.allCompaniesData || [];
+
+    const existingPeopleMap = new Map((existingPeople || []).map(person => [
+      `${(person.name || '').trim().toLowerCase()}::${(person.email || '').trim().toLowerCase()}`,
+      person.id
+    ]));
+    
+    const existingCompaniesMap = new Map((existingCompanies || []).map(company => [
+      (company.name || '').trim().toLowerCase(),
+      company.id
+    ]));
+
+    const errors = [];
+    let created = 0;
+    let updated = 0;
+
+    for (let rowIndex = 1; rowIndex < rows.length; rowIndex++) {
+      const row = rows[rowIndex];
+      const rowData = {};
+
+      rawHeaders.forEach((header, idx) => {
+        rowData[header] = (row[idx] || '').trim();
+      });
+
+      const displayRow = rowIndex + 1;
+
+      if (!rowData.name) {
+        errors.push({ row: displayRow, reason: 'name is required' });
+        continue;
+      }
+
+      let companyId = null;
+      if (rowData.company_name) {
+        companyId = existingCompaniesMap.get(rowData.company_name.toLowerCase());
+        if (!companyId) {
+            // Optional: you could auto-create companies here, but since this is people import, 
+            // it's safer to just log a warning or set it to null. Let's log it to errors but not fail.
+            // Actually, setting to null is fine, but maybe let's fail it so user knows.
+            errors.push({ row: displayRow, reason: `Company not found: ${rowData.company_name}` });
+            continue;
+        }
+      }
+
+      const phoneNumbers = parseCategoriesCell(rowData.phone_numbers || ''); // Reuse parseCategoriesCell for pipe separated strings
+
+      const personPayload = {
+        name: rowData.name,
+        email: rowData.email || null,
+        job_title: rowData.job_title || null,
+        phone_numbers: phoneNumbers.length > 0 ? phoneNumbers : null,
+        company_id: companyId
+      };
+
+      const dedupeKey = `${rowData.name.toLowerCase()}::${(rowData.email || '').toLowerCase()}`;
+      let personId = existingPeopleMap.get(dedupeKey);
+
+      try {
+        if (personId) {
+          const { error: updateError } = await supabaseClient
+            .from('people')
+            .update(personPayload)
+            .eq('id', personId);
+
+          if (updateError) throw updateError;
+          updated++;
+        } else {
+          const { data: inserted, error: insertError } = await supabaseClient
+            .from('people')
+            .insert([{ ...personPayload, created_by: state.currentUser.id, organization_id: state.currentOrganization?.id }])
+            .select('id')
+            .single();
+
+          if (insertError) throw insertError;
+          personId = inserted.id;
+          existingPeopleMap.set(dedupeKey, personId);
+          created++;
+        }
+      } catch (error) {
+        errors.push({ row: displayRow, reason: error.message });
+      }
+    }
+
+    const processed = rows.length - 1;
+    const failed = errors.length;
+
+    if (feedback) {
+      feedback.style.display = 'flex';
+      feedback.style.color = failed > 0 ? 'var(--color-warning)' : 'var(--color-success)';
+      feedback.innerHTML = `<span>Processed ${processed} rows • Created: ${created} • Updated: ${updated} • Failed: ${failed}</span>`;
+    }
+
+    if (errorListContainer && failed > 0) {
+      const errorItemsHtml = errors
+        .map(item => `<li><strong>Row ${item.row}:</strong> ${item.reason}</li>`)
+        .join('');
+
+      errorListContainer.style.display = 'block';
+      errorListContainer.innerHTML = `
+        <div class="companies-import-errors-card">
+          <div class="companies-import-errors-title">Rows with issues</div>
+          <ul class="companies-import-errors-list">${errorItemsHtml}</ul>
+        </div>
+      `;
+    }
+
+    if (failed > 0) {
+      showToast(`Import finished with ${failed} issue(s). Check browser console for row details.`, 'error');
+    } else {
+      showToast(`Import successful. Created ${created}, updated ${updated}.`, 'success');
+    }
+    
+    // Refresh people data
+    const { data: peopleData, error: peopleError } = await supabaseClient
+      .from('people')
+      .select('*')
+      .eq('organization_id', state.currentOrganization.id);
+    if (!peopleError) {
+      window.allPeopleData = peopleData || [];
+    }
+
+    // Trigger re-render of people table (you need a way to tell the UI to refresh.
+    // Usually clicking the 'People' tab again works, or emitting an event.
+    // we can use a custom event or just let the user refresh, but typically window.renderPeopleView might not be exposed.
+    // However, in this app, state changes might auto-render, or we can just leave it to the user.
+    // Let's assume window.renderPeopleView is not exposed globally, wait, is it?
+    // We can dispatch a custom event.
+    if (window.renderPeopleView) {
+      await window.renderPeopleView();
+    }
+    
+  } catch (error) {
+    showToast('Import failed: ' + error.message, 'error');
+    if (feedback) {
+      feedback.style.display = 'flex';
+      feedback.style.color = 'var(--color-danger)';
+      feedback.innerHTML = `<span>${error.message}</span>`;
+    }
+  } finally {
+    if (importBtn) {
+      importBtn.disabled = false;
+      importBtn.innerHTML = '<i data-lucide="upload"></i> Import People';
+      if (window.lucide) lucide.createIcons();
+    }
+  }
+}
+
 // ── Exports ────────────────────────────────────────────────────
 export {
   escapeCsvValue,
@@ -557,4 +973,9 @@ export {
   parseCategoriesCell,
   exportAllCompaniesToCsv,
   runCompaniesImportFromCsv,
+  openPeopleImportExportModal,
+  downloadPeopleSampleCsv,
+  exportAllPeopleToCsv,
+  runPeopleImportFromCsv,
+  normalizePeopleCsvHeader
 };

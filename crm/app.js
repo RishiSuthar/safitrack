@@ -268,8 +268,13 @@ window.parseCsv = lazyLoad('./modules/features/import-export.js', 'parseCsv');
 window.normalizeCompanyCsvHeader = lazyLoad('./modules/features/import-export.js', 'normalizeCompanyCsvHeader');
 window.parseCompanyType = lazyLoad('./modules/features/import-export.js', 'parseCompanyType');
 window.parseCategoriesCell = lazyLoad('./modules/features/import-export.js', 'parseCategoriesCell');
+// Import / Export
 window.exportAllCompaniesToCsv = lazyLoad('./modules/features/import-export.js', 'exportAllCompaniesToCsv');
 window.runCompaniesImportFromCsv = lazyLoad('./modules/features/import-export.js', 'runCompaniesImportFromCsv');
+window.openPeopleImportExportModal = lazyLoad('./modules/features/import-export.js', 'openPeopleImportExportModal');
+window.exportAllPeopleToCsv = lazyLoad('./modules/features/import-export.js', 'exportAllPeopleToCsv');
+window.runPeopleImportFromCsv = lazyLoad('./modules/features/import-export.js', 'runPeopleImportFromCsv');
+window.downloadPeopleSampleCsv = lazyLoad('./modules/features/import-export.js', 'downloadPeopleSampleCsv');
 window.renderTechnicianLogVisitView = lazyLoad('./modules/features/technician.js', 'renderTechnicianLogVisitView');
 window.renderTechnicianActivityView = lazyLoad('./modules/features/technician.js', 'renderTechnicianActivityView');
 window.renderTechniciansDashboardView = lazyLoad('./modules/features/technician.js', 'renderTechniciansDashboardView');

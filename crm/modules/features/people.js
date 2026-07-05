@@ -136,6 +136,13 @@ async function renderPeopleView() {
         </div>
         
         <div class="u-flex-1"></div>
+
+        ${state.isSalesRep ? '' : `
+        <button class="toolbar-btn" id="people-import-export-btn">
+          <i data-lucide="file-up"></i> Import / Export
+        </button>
+        `}
+
         <button class="toolbar-btn toolbar-btn-primary" id="add-person-btn">
           <i data-lucide="plus" class="u-icon-16"></i> New Person
         </button>
@@ -284,6 +291,11 @@ async function renderPeopleView() {
     // Add person button
     document.getElementById('add-person-btn')?.addEventListener('click', () => {
       openPersonModal();
+    });
+
+    // Import / Export button
+    document.getElementById('people-import-export-btn')?.addEventListener('click', () => {
+      if (window.openPeopleImportExportModal) window.openPeopleImportExportModal();
     });
 
     // Edit and delete buttons
