@@ -673,21 +673,23 @@ function openContractModal(existing = null, allContracts = []) {
   const customDayVal = existingReminderDays.find(d => !presetVals.includes(d)) || '';
 
   const modalHTML = `
-    <div class="contracts-modal-overlay" id="contracts-modal-overlay" role="dialog"
+    <div class="modal" id="contracts-modal-overlay" style="display:flex; z-index:9999;" role="dialog"
          aria-modal="true" aria-labelledby="contracts-modal-title">
-      <div class="contracts-modal" id="contracts-modal">
+      <div class="modal-backdrop"></div>
+      <div class="modal-container modal-size-md" id="contracts-modal">
 
-        <div class="contracts-modal-header">
-          <h2 id="contracts-modal-title">${isEdit ? 'Edit Contract' : 'New Service Contract'}</h2>
-          <button class="contracts-modal-close-btn" id="contracts-modal-close" aria-label="Close">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <div class="modal-header">
+          <h3 id="contracts-modal-title">${isEdit ? 'Edit Contract' : 'New Service Contract'}</h3>
+          <button class="modal-close" id="contracts-modal-close" aria-label="Close">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
+              class="lucide lucide-x-icon lucide-x">
               <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
             </svg>
           </button>
         </div>
 
-        <div class="contracts-modal-body">
+        <div class="modal-body contracts-modal-body">
 
           <!-- Company source toggle -->
           <div class="ups-field">
@@ -838,9 +840,11 @@ function openContractModal(existing = null, allContracts = []) {
 
         </div>
 
-        <div class="contracts-modal-footer">
-          ${isEdit ? `<button class="btn btn-danger" id="ctr-delete-btn">Delete</button>` : '<div></div>'}
-          <div style="display:flex;gap:8px;">
+        <div class="modal-footer">
+          <div class="modal-footer-meta">
+            ${isEdit ? `<button class="btn btn-danger" id="ctr-delete-btn">Delete</button>` : '<div></div>'}
+          </div>
+          <div class="modal-footer-actions">
             <button class="btn btn-secondary" id="ctr-cancel-btn">Cancel</button>
             <button class="btn btn-primary" id="ctr-save-btn">
               ${isEdit ? 'Save Changes' : 'Add Contract'}
