@@ -279,43 +279,72 @@ async function executeReport(config) {
   // Resolve relationship filters to ID lists
   const relIds = await resolveRelationshipIds(config.relationships, config.data_source);
 
-  // Build main query
-  let query = supabaseClient
-    .from(source.table)
-    .select(source.defaultSelect)
-    .eq('organization_id', orgId);
+  // Helper to build query for pagination
+  const buildQuery = (relIdsChunk = null) => {
+    let query = supabaseClient
+      .from(source.table)
+      .select(source.defaultSelect)
+      .eq('organization_id', orgId);
 
-  // Sales reps only see their own data (matches the rest of the app)
-  if (state.isSalesRep) {
-    const userId = state.currentUser?.id;
-    if (userId) {
-      if (config.data_source === 'opportunities' || config.data_source === 'visits') {
-        query = query.eq('user_id', userId);
-      } else if (config.data_source === 'tasks') {
-        query = query.or(`assigned_to.eq.${userId},created_by.eq.${userId}`);
+    // Sales reps only see their own data (matches the rest of the app)
+    if (state.isSalesRep) {
+      const userId = state.currentUser?.id;
+      if (userId) {
+        if (config.data_source === 'opportunities' || config.data_source === 'visits') {
+          query = query.eq('user_id', userId);
+        } else if (config.data_source === 'tasks') {
+          query = query.or(`assigned_to.eq.${userId},created_by.eq.${userId}`);
+        }
       }
     }
-  }
 
-  // Apply standard filters
-  if (config.filters?.length) {
-    query = applyFilters(query, config.filters, source);
-  }
-
-  // Apply relationship filter (ID-based)
-  if (relIds !== null) {
-    if (relIds.length === 0) {
-      // No matches — return empty
-      return { rows: [], metrics: {}, groups: [] };
+    // Apply standard filters
+    if (config.filters?.length) {
+      query = applyFilters(query, config.filters, source);
     }
-    query = query.in('id', relIds.slice(0, 1000)); // Supabase IN limit
+
+    // Apply relationship filter (ID-based)
+    if (relIdsChunk !== null) {
+      query = query.in('id', relIdsChunk);
+    }
+
+    return query.order('created_at', { ascending: false });
+  };
+
+  let rows = [];
+  const pageSize = 1000;
+
+  if (relIds !== null && relIds.length === 0) {
+    // No matches — return empty
+    return { rows: [], metrics: {}, groups: [] };
   }
 
-  // Order
-  query = query.order('created_at', { ascending: false }).limit(5000);
+  // If we have relIds, chunk them if > 1000 to bypass Supabase IN limits
+  const relIdChunks = relIds !== null ? [] : [null];
+  if (relIds !== null) {
+    for (let i = 0; i < relIds.length; i += 1000) {
+      relIdChunks.push(relIds.slice(i, i + 1000));
+    }
+  }
 
-  const { data: rows, error } = await query;
-  if (error) throw error;
+  // Paginate through each chunk (or the full dataset if no relIds)
+  for (const chunk of relIdChunks) {
+    let from = 0;
+    while (true) {
+      const { data: pageRows, error } = await buildQuery(chunk).range(from, from + pageSize - 1);
+      if (error) throw error;
+      
+      if (pageRows && pageRows.length > 0) {
+        rows = rows.concat(pageRows);
+      }
+      
+      if (!pageRows || pageRows.length < pageSize) {
+        break;
+      }
+      
+      from += pageSize;
+    }
+  }
 
   // Compute metrics
   const metrics = computeMetrics(rows || [], config.metrics || []);
