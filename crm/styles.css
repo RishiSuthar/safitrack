@@ -23234,13 +23234,15 @@ textarea.ups-input {
 .ups-toggle-btn.selected.toggle-single,
 .ups-toggle-btn.selected.toggle-three,
 .ups-toggle-btn.selected.toggle-rackmount,
-.ups-toggle-btn.selected.toggle-tower {
+.ups-toggle-btn.selected.toggle-tower,
+.ups-toggle-btn.selected.toggle-opt {
   background: #eff6ff;
   color: #1d4ed8;
 }
 
 /* Dark mode toggle adjustments */
 [data-theme="dark"] .ups-toggle-btn.selected:not([class*="toggle-"]) { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
+[data-theme="dark"] .ups-toggle-btn.selected.toggle-opt { background: rgba(59, 130, 246, 0.2); color: #60a5fa; }
 [data-theme="dark"] .ups-toggle-btn.selected.toggle-yes { background: rgba(22, 163, 74, 0.2); color: #4ade80; }
 [data-theme="dark"] .ups-toggle-btn.selected.toggle-no { background: rgba(220, 38, 38, 0.2); color: #f87171; }
 [data-theme="dark"] .ups-toggle-btn.selected.toggle-na { background: rgba(100, 116, 139, 0.2); color: #94a3b8; }
@@ -23428,6 +23430,66 @@ textarea.ups-input {
   font-size: 13px;
   color: var(--text-muted);
   margin: 0;
+}
+
+/* ── Log Visit — new horizontal form cards ─────────────────────────────────── */
+.lv-form-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 14px;
+  padding: 16px 16px 16px 16px;
+  cursor: pointer;
+  transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.lv-form-card:hover {
+  border-color: var(--color-primary, #6366f1);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.1);
+  background: var(--bg-tertiary);
+}
+.lv-form-card:active {
+  transform: scale(0.99);
+}
+.lv-form-card-icon {
+  flex-shrink: 0;
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: var(--color-primary-bg, rgba(99,102,241,0.08));
+  color: var(--color-primary, #6366f1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lv-form-card-body {
+  flex: 1;
+  min-width: 0;
+}
+.lv-form-card-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lv-form-card-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.lv-form-card-chevron {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  opacity: 0.5;
 }
 
 /* ── Section divider ────────────────────────────────────────────────────────── */
@@ -23628,6 +23690,102 @@ textarea.ups-input {
 }
 
 /* ── Signature & Photo Upload ────────────────────────────────────────────────── */
+/* ── Form builder drag-and-drop ─────────────────────────────── */
+.fb-drag-handle {
+  cursor: grab;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 2px;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+}
+.fb-field-card:hover .fb-drag-handle { opacity: 1; }
+.fb-field-card.fb-dragging { opacity: 0.35; }
+.fb-field-card.fb-drag-over {
+  outline: 2px dashed var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ── Group / subfield builder rows ──────────────────────────── */
+.fb-subfields-wrap {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 10px;
+  background: var(--bg-primary);
+  width: 100%;
+  box-sizing: border-box;
+}
+.fb-subfield-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.fb-subfield-card {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 6px;
+  background: var(--bg-secondary);
+}
+.fb-subfield-card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.fb-subfield-card-extra {
+  margin-top: 6px;
+}
+
+/* ── Group field in fill view ────────────────────────────────── */
+.cf-group-field > .ups-field-label {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.cf-group-subfields {
+  border-left: 3px solid var(--color-primary);
+  padding-left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.cf-group-subfields .ups-field { margin-bottom: 10px; }
+.cf-sf-label { font-size: 0.82rem; color: var(--text-muted); }
+
+/* ── Signature pad ──────────────────────────────────────────── */
+.cf-signature-wrap {
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+[data-theme="dark"] .cf-signature-wrap {
+  background: #1e2530;
+}
+.cf-signature-canvas {
+  display: block;
+  width: 100%;
+  height: 150px;
+  cursor: crosshair;
+  touch-action: none;
+}
+.cf-signature-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+.cf-signature-hint {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
 .ups-photo-upload-wrap {
   position: relative;
   width: 100%;
@@ -23722,78 +23880,190 @@ textarea.ups-input {
    UPS REPORT — Print / PDF Styles
    ═══════════════════════════════════════════════════════════════════════════════ */
 @media print {
+  @page {
+    size: A4;
+    margin: 14mm 18mm;
+  }
+
+  body.ups-print-mode {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
   body.ups-print-mode > *:not(.ups-print-target) {
     display: none !important;
   }
-  body.ups-print-mode .ups-print-target,
-  body.ups-print-mode .ups-print-target * {
-    visibility: visible !important;
-  }
-  body.ups-print-mode .ups-print-target {
+
+  .ups-print-target {
+    display: block !important;
     width: 100%;
     background: #fff !important;
     color: #111 !important;
-    font-size: 12px;
-    padding: 24px;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    line-height: 1.6;
+    box-sizing: border-box;
   }
+
+  /* ── Header ────────────────────────────────── */
   .ups-print-header {
     text-align: center;
+    padding-bottom: 12px;
+    margin-bottom: 14px;
     border-bottom: 2px solid #111;
-    padding-bottom: 16px;
-    margin-bottom: 24px;
   }
+
   .ups-print-header h1 {
-    font-size: 22px;
-    margin: 0 0 4px;
+    font-size: 17px;
+    margin: 0 0 3px;
     font-weight: 800;
+    letter-spacing: -0.01em;
   }
+
   .ups-print-header p {
-    font-size: 12px;
-    color: #666;
-    margin: 0;
+    font-size: 10px;
+    color: #555;
+    margin: 1px 0;
   }
-  .ups-print-section {
-    margin-bottom: 16px;
-    page-break-inside: avoid;
-  }
-  .ups-print-section h3 {
+
+  .ups-print-header .ups-print-doc-title {
+    display: block;
     font-size: 13px;
     font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: #333;
-    border-bottom: 1px solid #ccc;
-    padding-bottom: 4px;
-    margin: 0 0 8px;
+    color: #111;
+    margin-top: 10px;
   }
+
+  /* ── Sections ──────────────────────────────── */
+  .ups-print-section {
+    margin-bottom: 0;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+  }
+
+  .ups-print-section:last-of-type {
+    border-bottom: none;
+  }
+
+  .ups-print-section h3 {
+    font-size: 8.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #999;
+    margin: 0 0 6px;
+    padding: 0;
+  }
+
+  /* ── Data grid ─────────────────────────────── */
   .ups-print-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px 20px;
-    font-size: 12px;
+    grid-template-columns: repeat(3, 1fr);
+    column-gap: 16px;
+    row-gap: 2px;
+    font-size: 11px;
   }
+
   .ups-print-field {
     display: flex;
     gap: 4px;
+    align-items: baseline;
+    break-inside: avoid;
+    page-break-inside: avoid;
+    overflow: hidden;
   }
+
   .ups-print-field-label {
-    color: #666;
-    font-weight: 500;
-    min-width: 120px;
+    color: #888;
+    font-weight: 400;
+    white-space: nowrap;
     flex-shrink: 0;
+    min-width: 72px;
+    max-width: 120px;
   }
+
   .ups-print-field-value {
     color: #111;
     font-weight: 600;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    min-width: 0;
   }
+
+  /* ── Photos ────────────────────────────────── */
+  .ups-print-photo-pair {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 10px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .ups-print-photo-single {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .ups-print-photo-caption {
+    font-size: 9px;
+    color: #aaa;
+    margin-bottom: 3px;
+    font-weight: 400;
+  }
+
+  .ups-print-photo-pair img,
+  .ups-print-photo-single img {
+    width: 100%;
+    height: auto;
+    max-height: 180px;
+    object-fit: contain;
+    object-position: left top;
+    display: block;
+  }
+
+  .ups-print-photo-single img {
+    max-width: 280px;
+  }
+
+  /* ── Signatures ────────────────────────────── */
+  .ups-print-sig-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 8px;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .ups-print-sig-caption {
+    font-size: 9px;
+    color: #888;
+    margin-bottom: 4px;
+  }
+
+  .ups-print-sig-row img {
+    max-width: 200px;
+    max-height: 70px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  /* ── Footer ────────────────────────────────── */
   .ups-print-footer {
-    margin-top: 24px;
+    margin-top: 14px;
+    padding-top: 6px;
+    border-top: 1px solid #ddd;
     text-align: center;
-    font-size: 10px;
-    color: #999;
-    border-top: 1px solid #ccc;
-    padding-top: 8px;
+    font-size: 9px;
+    color: #bbb;
   }
+
   /* Hide non-print elements */
   .ups-nav-footer,
   .ups-progress-bar,

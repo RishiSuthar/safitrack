@@ -184,9 +184,21 @@ async function loadView(viewName) {
         viewContainer.innerHTML = renderAccessDenied();
       }
       break;
-    case 'technicians-dashboard':
+    case 'technicians-dashboard': // backward compat — redirect to submissions
+      state.currentView = 'submissions';
+      localStorage.setItem('lastActiveView', 'submissions');
+      updateActiveNav('submissions');
+      /* falls through */
+    case 'submissions':
       if (state.isManager) {
-        await window.renderTechniciansDashboardView();
+        await window.renderSubmissionsView();
+      } else {
+        viewContainer.innerHTML = renderAccessDenied();
+      }
+      break;
+    case 'forms':
+      if (state.isManager) {
+        await window.renderFormsView();
       } else {
         viewContainer.innerHTML = renderAccessDenied();
       }

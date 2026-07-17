@@ -4,6 +4,7 @@ import { state, supabaseClient, crmDebugLog, loadPersistedState as _loadPersiste
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials, handleImageError } from '../ui/toast.js';
 import { renderSkeletonCards, renderError } from '../utils/helpers.js';
+import { getPdfHeader } from './forms.js';
 import './solar-technician.js';
 
 // ════════════════════════════════════════════════════════════════
@@ -79,59 +80,613 @@ function stepPhotoHTML(stepIndex, customLabel) {
 // ════════════════════════════════════════════════════════════════
 async function renderTechnicianLogVisitView() {
   viewContainer.innerHTML = `
-    <div class="page-header" style="text-align:center; padding-top:24px;">
-      <h1 class="page-title">Service Reports</h1>
-      <p class="text-muted" style="margin-bottom:24px;">Select a report type to begin</p>
-    </div>
-
-    <div style="display:flex; flex-direction:column; gap:16px; padding:0 16px; max-width:600px; margin:0 auto;">
-      <div class="ups-visit-card" id="ups-visit-card" tabindex="0" role="button" aria-label="Start UPS Visit Report">
-        <div class="ups-visit-card-icon">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M6 7h11a4 4 0 0 1 0 8H6V7Z"/>
-            <path d="M6 7V3"/>
-            <path d="M6 15v4"/>
-            <path d="M10 7v8"/>
-            <path d="M14 7v8"/>
-          </svg>
-        </div>
-        <div class="ups-visit-card-title">UPS Visit</div>
-        <p class="ups-visit-card-desc">UPS maintenance & inspection report</p>
-      </div>
-
-      <div class="ups-visit-card" id="solar-survey-card" tabindex="0" role="button" aria-label="Start Solar Inverter Survey">
-        <div class="ups-visit-card-icon" style="color: #f59e0b; background: rgba(245, 158, 11, 0.1);">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
-        </div>
-        <div class="ups-visit-card-title">Solar Inverter Survey</div>
-        <p class="ups-visit-card-desc">Site assessment and planning for solar</p>
+    <div style="padding: 28px 20px 12px; max-width: 560px; margin: 0 auto;">
+      <h1 style="font-size: 1.4rem; font-weight: 800; margin: 0 0 4px 0; color: var(--text-primary);">Log a Visit</h1>
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0 0 24px 0;">Choose a form to fill out for this service visit.</p>
+      <div id="custom-forms-section">
+        <div style="text-align:center; padding: 48px 0; color: var(--text-muted); font-size: 0.85rem;">Loading forms…</div>
       </div>
     </div>
   `;
 
-  document.getElementById('ups-visit-card').addEventListener('click', () => {
-    renderUPSVisitForm();
+  // Load active custom forms for this org and render cards
+  if (state.currentOrganization?.id) {
+    try {
+      const { data: customForms } = await supabaseClient
+        .from('custom_forms')
+        .select('id, name, description, fields')
+        .eq('organization_id', state.currentOrganization.id)
+        .eq('is_active', true)
+        .order('name');
+
+      const section = document.getElementById('custom-forms-section');
+      if (section) {
+        if (customForms && customForms.length > 0) {
+          // Count total fields across all sections for each form
+          const fieldCount = (f) => {
+            const fields = f.fields || [];
+            if (fields.length > 0 && Array.isArray(fields[0]?.fields)) {
+              return fields.reduce((sum, sec) => sum + (sec.fields?.length || 0), 0);
+            }
+            return fields.length;
+          };
+
+          section.innerHTML = `<div style="display:flex; flex-direction:column; gap:10px;">` +
+            customForms.map(f => `
+              <div class="lv-form-card" data-custom-form-id="${f.id}" tabindex="0" role="button" aria-label="Start ${escapeHtml(f.name)}">
+                <div class="lv-form-card-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                    <line x1="16" y1="13" x2="8" y2="13"/>
+                    <line x1="16" y1="17" x2="8" y2="17"/>
+                  </svg>
+                </div>
+                <div class="lv-form-card-body">
+                  <div class="lv-form-card-name">${escapeHtml(f.name)}</div>
+                  <div class="lv-form-card-meta">
+                    ${f.description ? escapeHtml(f.description) : `${fieldCount(f)} field${fieldCount(f) !== 1 ? 's' : ''}`}
+                  </div>
+                </div>
+                <svg class="lv-form-card-chevron" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+              </div>
+            `).join('') +
+          `</div>`;
+
+          section.querySelectorAll('[data-custom-form-id]').forEach(card => {
+            const form = customForms.find(f => f.id === card.dataset.customFormId);
+            if (form) {
+              card.addEventListener('click', () => renderCustomFormFillView(form));
+              card.addEventListener('keypress', e => { if (e.key === 'Enter' || e.key === ' ') renderCustomFormFillView(form); });
+            }
+          });
+        } else {
+          section.innerHTML = `
+            <div style="text-align:center; padding:48px 20px; color:var(--text-muted);">
+              <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:12px; opacity:0.4;"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+              <p style="font-size:0.9rem; font-weight:600; margin:0 0 4px 0;">No active forms</p>
+              <p style="font-size:0.8rem; margin:0;">Ask your manager to create and activate a form.</p>
+            </div>
+          `;
+        }
+      }
+    } catch (_e) { /* non-critical — custom forms are optional */ }
+  }
+}
+
+// ════════════════════════════════════════════════════════════════
+// CUSTOM FORM — fill view (technician)
+// ════════════════════════════════════════════════════════════════
+function _customFormFieldHtml(field) {
+  const labelHtml = `<label class="ups-field-label">${escapeHtml(field.label)}${field.required ? ' <span class="ups-required">*</span>' : ''}</label>`;
+  const fieldId = `cf-${field.id}`;
+  switch (field.type) {
+    case 'textarea':
+      return `<div class="ups-field">${labelHtml}<textarea class="ups-input" id="${fieldId}" data-field-id="${field.id}" placeholder="${escapeHtml(field.placeholder || '')}" rows="3"${field.required ? ' data-required="true"' : ''}></textarea></div>`;
+    case 'number':
+      return `<div class="ups-field">${labelHtml}<input type="number" inputmode="decimal" class="ups-input" id="${fieldId}" data-field-id="${field.id}" placeholder="${escapeHtml(field.placeholder || '')}"${field.required ? ' data-required="true"' : ''}></div>`;
+    case 'date':
+      // Text input — custom calendar initialised after render in _renderCustomFormPage
+      return `<div class="ups-field">${labelHtml}<input type="text" class="ups-input" id="${fieldId}" data-field-id="${field.id}" placeholder="Select date" readonly style="cursor:pointer;"${field.required ? ' data-required="true"' : ''}></div>`;
+    case 'select':
+      // CRM dropdown — initialised after render in _renderCustomFormPage
+      return `
+        <div class="ups-field">
+          ${labelHtml}
+          ${window.buildCrmDropdown
+            ? window.buildCrmDropdown({
+                id: fieldId,
+                placeholder: '— select —',
+                options: (field.options || []).map(opt => ({ value: opt, label: opt })),
+                required: !!field.required,
+                variant: 'form'
+              })
+            : `<select class="ups-input" id="${fieldId}"${field.required ? ' data-required="true"' : ''}><option value="">— select —</option>${(field.options || []).map(opt => `<option value="${escapeHtml(opt)}">${escapeHtml(opt)}</option>`).join('')}</select>`}
+        </div>`;
+    case 'selector':
+      // UPS-style toggle buttons — toggle-opt gives them a CSS selected state
+      return `
+        <div class="ups-field">
+          ${labelHtml}
+          <div class="ups-toggle-group" id="cf-sel-${field.id}">
+            ${(field.options || []).map(opt => `<button type="button" class="ups-toggle-btn toggle-opt" data-value="${escapeHtml(opt)}">${escapeHtml(opt)}</button>`).join('')}
+          </div>
+        </div>`;
+    case 'group':
+      // Render subfields under a group label (all field types supported)
+      return `
+        <div class="ups-field cf-group-field">
+          ${labelHtml}
+          <div class="cf-group-subfields">
+            ${(field.subfields || []).map(sf => {
+              const sfId = `cf-${field.id}-sf-${sf.id}`;
+              const sfLabel = `<label class="ups-field-label cf-sf-label">${escapeHtml(sf.label)}${sf.required ? ' <span class="ups-required">*</span>' : ''}</label>`;
+              switch (sf.type) {
+                case 'textarea':
+                  return `<div class="ups-field">${sfLabel}<textarea class="ups-input" id="${sfId}" placeholder="${escapeHtml(sf.placeholder || '')}" rows="2"${sf.required ? ' data-required="true"' : ''}></textarea></div>`;
+                case 'number':
+                  return `<div class="ups-field">${sfLabel}<input type="number" inputmode="decimal" class="ups-input" id="${sfId}" placeholder="${escapeHtml(sf.placeholder || '')}"${sf.required ? ' data-required="true"' : ''}></div>`;
+                case 'date':
+                  return `<div class="ups-field">${sfLabel}<input type="text" class="ups-input" id="${sfId}" placeholder="Select date" readonly style="cursor:pointer;"${sf.required ? ' data-required="true"' : ''}></div>`;
+                case 'select':
+                  return `<div class="ups-field">${sfLabel}${window.buildCrmDropdown
+                    ? window.buildCrmDropdown({ id: sfId, placeholder: '\u2014 select \u2014', options: (sf.options||[]).map(o=>({value:o,label:o})), required: !!sf.required, variant:'form' })
+                    : `<select class="ups-input" id="${sfId}"${sf.required?' data-required="true"':''}><option value="">\u2014 select \u2014</option>${(sf.options||[]).map(o=>`<option value="${escapeHtml(o)}">${escapeHtml(o)}</option>`).join('')}</select>`}</div>`;
+                case 'selector':
+                  return `<div class="ups-field">${sfLabel}<div class="ups-toggle-group" id="cf-sel-${field.id}-sf-${sf.id}">${(sf.options||[]).map(o=>`<button type="button" class="ups-toggle-btn toggle-opt" data-value="${escapeHtml(o)}">${escapeHtml(o)}</button>`).join('')}</div></div>`;
+                case 'photo':
+                  return `<div class="ups-field">${sfLabel}<div class="ups-photo-upload-wrap ups-step-photo-wrap"><input type="file" class="ups-photo-input" id="cf-photo-${field.id}-sf-${sf.id}" accept="image/*"${sf.required?' data-required="true"':''}><div class="ups-photo-preview-box ups-step-photo-box" id="cf-photo-box-${field.id}-sf-${sf.id}"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg><span style="font-size:13px; font-weight:500;">Tap to take photo</span></div><img class="ups-photo-preview-img ups-step-photo-preview" id="cf-photo-preview-${field.id}-sf-${sf.id}" src=""></div></div>`;
+                case 'signature':
+                  return `<div class="ups-field">${sfLabel}<div class="cf-signature-wrap" id="cf-sig-wrap-${field.id}-sf-${sf.id}"><canvas id="cf-canvas-${field.id}-sf-${sf.id}" class="cf-signature-canvas"${sf.required?' data-required="true"':''}></canvas><input type="hidden" id="cf-sig-${field.id}-sf-${sf.id}"><div class="cf-signature-footer"><span class="cf-signature-hint">Sign above</span><button type="button" class="btn btn-secondary btn-sm" onclick="(function(){const c=document.getElementById('cf-canvas-${field.id}-sf-${sf.id}');c.getContext('2d').clearRect(0,0,c.width,c.height);document.getElementById('cf-sig-${field.id}-sf-${sf.id}').value='';})();">Clear</button></div></div></div>`;
+                default:
+                  return `<div class="ups-field">${sfLabel}<input type="text" class="ups-input" id="${sfId}" placeholder="${escapeHtml(sf.placeholder || '')}"${sf.required ? ' data-required="true"' : ''}></div>`;
+              }
+            }).join('')}
+          </div>
+        </div>`;
+    case 'photo': {
+      const existingPath = _cfExistingPhotos[field.id];
+      const existingUrl = existingPath
+        ? (supabaseClient.storage.from('safitrack').getPublicUrl(existingPath).data?.publicUrl || '')
+        : '';
+      return `
+        <div class="ups-field">
+          ${labelHtml}
+          <div class="ups-photo-upload-wrap ups-step-photo-wrap">
+            <input type="file" class="ups-photo-input" id="cf-photo-${field.id}" accept="image/*" data-field-id="${field.id}"${field.required && !existingUrl ? ' data-required="true"' : ''}>
+            <div class="ups-photo-preview-box ups-step-photo-box" id="cf-photo-box-${field.id}" style="${existingUrl ? 'display:none;' : ''}">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+              <span style="font-size:13px; font-weight:500;">Tap to take photo</span>
+            </div>
+            <img class="ups-photo-preview-img ups-step-photo-preview" id="cf-photo-preview-${field.id}" src="${existingUrl}" style="${existingUrl ? 'display:block;' : ''}">
+            ${existingUrl ? `<button type="button" class="btn btn-secondary btn-sm" style="margin-top:6px; font-size:0.75rem;" onclick="document.getElementById('cf-photo-${field.id}').click()">Replace photo</button>` : ''}
+          </div>
+        </div>`; }
+
+    case 'signature':
+      return `
+        <div class="ups-field">
+          ${labelHtml}
+          <div class="cf-signature-wrap" id="cf-sig-wrap-${field.id}">
+            <canvas id="cf-canvas-${field.id}" class="cf-signature-canvas" data-field-id="${field.id}"${field.required ? ' data-required="true"' : ''}></canvas>
+            <input type="hidden" id="cf-sig-${field.id}" data-field-id="${field.id}"${field.required ? ' data-required="true"' : ''}>
+            <div class="cf-signature-footer">
+              <span class="cf-signature-hint">Sign above</span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="(function(){
+                const c=document.getElementById('cf-canvas-${field.id}');
+                c.getContext('2d').clearRect(0,0,c.width,c.height);
+                document.getElementById('cf-sig-${field.id}').value='';
+              })()">Clear</button>
+            </div>
+          </div>
+        </div>`;
+    default: // text
+      return `<div class="ups-field">${labelHtml}<input type="text" class="ups-input" id="${fieldId}" data-field-id="${field.id}" placeholder="${escapeHtml(field.placeholder || '')}"${field.required ? ' data-required="true"' : ''}></div>`;
+  }
+}
+
+// Normalize form.fields to sections format for fill view (handles legacy flat arrays)
+function _normalizeSectionsForFill(fieldsData) {
+  if (!fieldsData || fieldsData.length === 0) return [{ id: 's0', name: '', fields: [] }];
+  if (fieldsData[0] && Array.isArray(fieldsData[0].fields)) return fieldsData;
+  return [{ id: 's0', name: '', fields: fieldsData }];
+}
+
+// Accumulated data across pages — reset each time a form is opened
+let _cfData = {};
+let _cfPhotoFiles = {};
+let _cfEditingSubmissionId = null;  // non-null when editing an existing submission
+let _cfExistingPhotos = {};         // existing storage paths for photo fields
+
+function renderCustomFormFillView(form, existingSubmission = null) {
+  _cfEditingSubmissionId = existingSubmission?.id || null;
+  _cfData = existingSubmission?.data ? { ...existingSubmission.data } : {};
+  _cfPhotoFiles = {};
+  _cfExistingPhotos = existingSubmission?.photos ? { ...existingSubmission.photos } : {};
+  const sections = _normalizeSectionsForFill(form.fields || []);
+  _renderCustomFormPage(form, sections, 0);
+}
+
+function _renderCustomFormPage(form, sections, pageIdx) {
+  const totalPages = sections.length;
+  const section = sections[pageIdx];
+  const isMultiPage = totalPages > 1;
+  const isLastPage = pageIdx === totalPages - 1;
+
+  document.body.classList.add('ups-form-active');
+
+  const progressLabel = isMultiPage
+    ? `<span class="ups-progress-step-text">Step ${pageIdx + 1} of ${totalPages}</span>
+       <span class="ups-progress-section-name">${section.name ? escapeHtml(section.name) : escapeHtml(form.name)}</span>`
+    : `<span class="ups-progress-step-text">${escapeHtml(form.name)}</span>
+       ${form.description ? `<span class="ups-progress-section-name" style="font-size:0.78rem;">${escapeHtml(form.description)}</span>` : ''}`;
+
+  const progressBar = isMultiPage
+    ? `<div class="ups-progress-track"><div class="ups-progress-fill" style="width:${((pageIdx + 1) / totalPages) * 100}%"></div></div>`
+    : '';
+
+  viewContainer.innerHTML = `
+    <div class="ups-form-container">
+      <div class="ups-progress-bar">
+        <div class="ups-progress-label">${progressLabel}</div>
+        ${progressBar}
+      </div>
+
+      <div class="ups-steps-viewport">
+        <div style="padding:16px 16px 40px;">
+          <div id="cf-fields-container">
+            ${(section.fields || []).map(f => _customFormFieldHtml(f)).join('')}
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:8px; padding-top:24px;">
+            ${isMultiPage && pageIdx > 0
+              ? `<button class="btn btn-secondary btn-lg btn-block" id="cf-prev-btn">← Previous</button>` : ''}
+            ${isLastPage
+              ? `<button class="btn btn-primary btn-lg btn-block" id="cf-submit-btn">${_cfEditingSubmissionId ? 'Resubmit Form' : 'Submit Form'}</button>`
+              : `<button class="btn btn-primary btn-lg btn-block" id="cf-next-btn">Next →</button>`}
+            <button class="btn btn-secondary btn-block" id="cf-cancel-btn">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // Wire photo previews for this page's photo fields
+  (section.fields || []).filter(f => f.type === 'photo').forEach(field => {
+    const fileInput = document.getElementById(`cf-photo-${field.id}`);
+    const previewBox = document.getElementById(`cf-photo-box-${field.id}`);
+    const previewImg = document.getElementById(`cf-photo-preview-${field.id}`);
+    if (!fileInput) return;
+    previewBox?.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = e => {
+        if (previewImg) { previewImg.src = e.target.result; previewImg.style.display = 'block'; }
+        if (previewBox) previewBox.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    });
   });
 
-  document.getElementById('solar-survey-card').addEventListener('click', () => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => {
-          window.renderSolarSurveyForm(null, pos.coords.latitude, pos.coords.longitude);
-        },
-        (err) => {
-          console.warn('Geolocation failed or denied', err);
-          showToast('Location not available, proceeding without it', 'info');
-          window.renderSolarSurveyForm(null, null, null);
-        },
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
-      );
+  // Wire selector toggle buttons
+  (section.fields || []).filter(f => f.type === 'selector').forEach(field => {
+    const group = document.getElementById(`cf-sel-${field.id}`);
+    if (!group) return;
+    group.querySelectorAll('.ups-toggle-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('.ups-toggle-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+      });
+    });
+  });
+
+  // Wire signature pads
+  (section.fields || []).filter(f => f.type === 'signature').forEach(field => {
+    const canvas = document.getElementById(`cf-canvas-${field.id}`);
+    const hiddenInput = document.getElementById(`cf-sig-${field.id}`);
+    if (!canvas) return;
+    // Size canvas to its CSS rendered width
+    canvas.width = canvas.offsetWidth || 320;
+    canvas.height = canvas.offsetHeight || 150;
+    const ctx = canvas.getContext('2d');
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-primary') || '#111827';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    let drawing = false;
+    const getPos = e => {
+      const r = canvas.getBoundingClientRect();
+      const src = e.touches ? e.touches[0] : e;
+      return { x: (src.clientX - r.left) * (canvas.width / r.width), y: (src.clientY - r.top) * (canvas.height / r.height) };
+    };
+    const start = e => { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+    const draw  = e => { e.preventDefault(); if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+    const stop  = e => { if (!drawing) return; drawing = false; hiddenInput.value = canvas.toDataURL('image/png'); };
+    canvas.addEventListener('mousedown', start);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup',   stop);
+    canvas.addEventListener('mouseleave', stop);
+    canvas.addEventListener('touchstart', start, { passive: false });
+    canvas.addEventListener('touchmove',  draw,  { passive: false });
+    canvas.addEventListener('touchend',   stop);
+  });
+
+  // Wire group subfield special types (photo, selector, signature, date)
+  (section.fields || []).filter(f => f.type === 'group').forEach(field => {
+    (field.subfields || []).filter(sf => sf.type === 'photo').forEach(sf => {
+      const fileInput = document.getElementById(`cf-photo-${field.id}-sf-${sf.id}`);
+      const previewBox = document.getElementById(`cf-photo-box-${field.id}-sf-${sf.id}`);
+      const previewImg = document.getElementById(`cf-photo-preview-${field.id}-sf-${sf.id}`);
+      if (!fileInput) return;
+      previewBox?.addEventListener('click', () => fileInput.click());
+      fileInput.addEventListener('change', () => {
+        const file = fileInput.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = e => {
+          if (previewImg) { previewImg.src = e.target.result; previewImg.style.display = 'block'; }
+          if (previewBox) previewBox.style.display = 'none';
+        };
+        reader.readAsDataURL(file);
+      });
+    });
+    (field.subfields || []).filter(sf => sf.type === 'selector').forEach(sf => {
+      const grp = document.getElementById(`cf-sel-${field.id}-sf-${sf.id}`);
+      if (!grp) return;
+      grp.querySelectorAll('.ups-toggle-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          grp.querySelectorAll('.ups-toggle-btn').forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+        });
+      });
+    });
+    (field.subfields || []).filter(sf => sf.type === 'signature').forEach(sf => {
+      const canvas = document.getElementById(`cf-canvas-${field.id}-sf-${sf.id}`);
+      const hiddenInput = document.getElementById(`cf-sig-${field.id}-sf-${sf.id}`);
+      if (!canvas) return;
+      canvas.width = canvas.offsetWidth || 320;
+      canvas.height = canvas.offsetHeight || 150;
+      const ctx = canvas.getContext('2d');
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-primary') || '#111827';
+      ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      let sfDrawing = false;
+      const sfGetPos = e => { const r = canvas.getBoundingClientRect(); const src = e.touches ? e.touches[0] : e; return { x: (src.clientX - r.left) * (canvas.width / r.width), y: (src.clientY - r.top) * (canvas.height / r.height) }; };
+      const sfStart = e => { e.preventDefault(); sfDrawing = true; const p = sfGetPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+      const sfDraw  = e => { e.preventDefault(); if (!sfDrawing) return; const p = sfGetPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+      const sfStop  = () => { if (!sfDrawing) return; sfDrawing = false; if (hiddenInput) hiddenInput.value = canvas.toDataURL('image/png'); };
+      canvas.addEventListener('mousedown', sfStart);
+      canvas.addEventListener('mousemove', sfDraw);
+      canvas.addEventListener('mouseup', sfStop);
+      canvas.addEventListener('mouseleave', sfStop);
+      canvas.addEventListener('touchstart', sfStart, { passive: false });
+      canvas.addEventListener('touchmove', sfDraw, { passive: false });
+      canvas.addEventListener('touchend', sfStop);
+    });
+    (field.subfields || []).filter(sf => sf.type === 'date').forEach(sf => {
+      if (window.initCustomCalendar) window.initCustomCalendar(`#cf-${field.id}-sf-${sf.id}`, { type: 'date' });
+    });
+  });
+
+  // Init custom calendars for top-level date fields
+  (section.fields || []).filter(f => f.type === 'date').forEach(field => {
+    if (window.initCustomCalendar) window.initCustomCalendar(`#cf-${field.id}`, { type: 'date' });
+  });
+
+  // Init CRM dropdowns for select fields
+  if (window.initAllCrmDropdowns) {
+    window.initAllCrmDropdowns(document.getElementById('cf-fields-container'));
+  }
+
+  // Restore values entered on a previous visit to this page
+  _cfRestorePageData(section);
+
+  document.getElementById('cf-cancel-btn')?.addEventListener('click', () => {
+    document.body.classList.remove('ups-form-active');
+    _cfData = {};
+    _cfPhotoFiles = {};
+    const wasEditing = !!_cfEditingSubmissionId;
+    _cfEditingSubmissionId = null;
+    _cfExistingPhotos = {};
+    if (wasEditing) renderTechnicianActivityView();
+    else renderTechnicianLogVisitView();
+  });
+
+  if (isMultiPage && pageIdx > 0) {
+    document.getElementById('cf-prev-btn')?.addEventListener('click', () => {
+      const { data, photos } = _cfCollectPageData(section, false);
+      Object.assign(_cfData, data);
+      Object.assign(_cfPhotoFiles, photos);
+      _renderCustomFormPage(form, sections, pageIdx - 1);
+    });
+  }
+
+  if (!isLastPage) {
+    document.getElementById('cf-next-btn')?.addEventListener('click', () => {
+      const { data, photos, error } = _cfCollectPageData(section, true);
+      if (error) { showToast(error, 'error'); return; }
+      Object.assign(_cfData, data);
+      Object.assign(_cfPhotoFiles, photos);
+      _renderCustomFormPage(form, sections, pageIdx + 1);
+    });
+  } else {
+    document.getElementById('cf-submit-btn')?.addEventListener('click', async () => {
+      const { data, photos, error } = _cfCollectPageData(section, true);
+      if (error) { showToast(error, 'error'); return; }
+      Object.assign(_cfData, data);
+      Object.assign(_cfPhotoFiles, photos);
+      await _submitCustomForm(form);
+    });
+  }
+}
+
+function _cfCollectPageData(section, validate) {
+  const data = {};
+  const photos = {};
+  let error = null;
+
+  for (const field of (section.fields || [])) {
+    if (field.type === 'photo') {
+      const fi = document.getElementById(`cf-photo-${field.id}`);
+      if (validate && field.required && (!fi || !fi.files[0]) && !_cfExistingPhotos[field.id]) {
+        error = `Please upload a photo for: ${field.label}`; break;
+      }
+      if (fi && fi.files[0]) photos[field.id] = fi.files[0];
+    } else if (field.type === 'signature') {
+      const sigInput = document.getElementById(`cf-sig-${field.id}`);
+      const val = sigInput?.value || '';
+      if (validate && field.required && !val) {
+        error = `Please provide a signature for: ${field.label}`; break;
+      }
+      data[field.id] = val || null;
+    } else if (field.type === 'group') {
+      const groupData = {};
+      let groupError = null;
+      for (const sf of (field.subfields || [])) {
+        if (sf.type === 'photo') {
+          const fi = document.getElementById(`cf-photo-${field.id}-sf-${sf.id}`);
+          if (validate && sf.required && (!fi || !fi.files[0]) && !_cfExistingPhotos[`${field.id}_sf_${sf.id}`]) { groupError = `Please upload a photo for: ${field.label} → ${sf.label}`; break; }
+          if (fi && fi.files[0]) photos[`${field.id}_sf_${sf.id}`] = fi.files[0];
+        } else if (sf.type === 'signature') {
+          const sigIn = document.getElementById(`cf-sig-${field.id}-sf-${sf.id}`);
+          const val = sigIn?.value || '';
+          if (validate && sf.required && !val) { groupError = `Please provide a signature for: ${field.label} → ${sf.label}`; break; }
+          groupData[sf.id] = val || null;
+        } else if (sf.type === 'selector') {
+          const grp = document.getElementById(`cf-sel-${field.id}-sf-${sf.id}`);
+          const sel = grp?.querySelector('.ups-toggle-btn.selected');
+          if (validate && sf.required && !sel) { groupError = `Please select an option for: ${field.label} → ${sf.label}`; break; }
+          groupData[sf.id] = sel?.dataset.value || null;
+        } else {
+          // text, textarea, number, date, select (CRM dropdown hidden input id = sfId)
+          const el = document.getElementById(`cf-${field.id}-sf-${sf.id}`);
+          const val = (el?.value || '').trim();
+          if (validate && sf.required && !val) { groupError = `Please fill in: ${field.label} → ${sf.label}`; break; }
+          groupData[sf.id] = val || null;
+        }
+      }
+      if (groupError) { error = groupError; break; }
+      data[field.id] = groupData;
+    } else if (field.type === 'selector') {
+      const group = document.getElementById(`cf-sel-${field.id}`);
+      const selected = group?.querySelector('.ups-toggle-btn.selected');
+      if (validate && field.required && !selected) {
+        error = `Please select an option for: ${field.label}`; break;
+      }
+      data[field.id] = selected?.dataset.value || null;
     } else {
-      window.renderSolarSurveyForm(null, null, null);
+      // Handles text, textarea, number, date (custom calendar), select (crm-dropdown hidden input)
+      const el = document.getElementById(`cf-${field.id}`);
+      const val = (el?.value || '').trim();
+      if (validate && field.required && !val) {
+        error = `Please fill in: ${field.label}`;
+        if (el?.type !== 'hidden') el?.focus();
+        break;
+      }
+      data[field.id] = val || null;
     }
-  });
+  }
+  return { data, photos, error };
+}
 
-  if (window.lucide) lucide.createIcons();
+function _cfRestorePageData(section) {
+  for (const field of (section.fields || [])) {
+    const val = _cfData[field.id];
+    if (field.type === 'photo' || val == null) continue;
+    if (field.type === 'signature') {
+      const canvas = document.getElementById(`cf-canvas-${field.id}`);
+      const hiddenInput = document.getElementById(`cf-sig-${field.id}`);
+      if (canvas && val) {
+        if (hiddenInput) hiddenInput.value = val;
+        const img = new Image();
+        img.onload = () => canvas.getContext('2d').drawImage(img, 0, 0);
+        img.src = val;
+      }
+      continue;
+    }
+    if (field.type === 'group') {
+      if (typeof val === 'object' && val) {
+        for (const sf of (field.subfields || [])) {
+          const sfVal = val[sf.id];
+          if (sfVal == null) continue;
+          if (sf.type === 'signature') {
+            const canvas = document.getElementById(`cf-canvas-${field.id}-sf-${sf.id}`);
+            const hiddenIn = document.getElementById(`cf-sig-${field.id}-sf-${sf.id}`);
+            if (canvas && sfVal) {
+              if (hiddenIn) hiddenIn.value = sfVal;
+              const img = new Image();
+              img.onload = () => canvas.getContext('2d').drawImage(img, 0, 0);
+              img.src = sfVal;
+            }
+          } else if (sf.type === 'selector') {
+            const grp = document.getElementById(`cf-sel-${field.id}-sf-${sf.id}`);
+            if (grp) {
+              grp.querySelectorAll('.ups-toggle-btn').forEach(b => b.classList.remove('selected'));
+              grp.querySelector(`.ups-toggle-btn[data-value="${sfVal}"]`)?.classList.add('selected');
+            }
+          } else if (sf.type === 'select' && window.setCrmDropdownValue) {
+            const ddRoot = document.querySelector(`[data-dd-id="cf-${field.id}-sf-${sf.id}"]`);
+            if (ddRoot) window.setCrmDropdownValue(ddRoot, sfVal);
+          } else {
+            const el = document.getElementById(`cf-${field.id}-sf-${sf.id}`);
+            if (el) el.value = sfVal;
+          }
+        }
+      }
+      continue;
+    }
+    if (field.type === 'selector') {
+      const group = document.getElementById(`cf-sel-${field.id}`);
+      if (group) {
+        group.querySelectorAll('.ups-toggle-btn').forEach(b => b.classList.remove('selected'));
+        group.querySelector(`.ups-toggle-btn[data-value="${val}"]`)?.classList.add('selected');
+      }
+    } else if (field.type === 'select' && window.setCrmDropdownValue) {
+      const ddRoot = document.querySelector(`[data-dd-id="cf-${field.id}"]`);
+      if (ddRoot) window.setCrmDropdownValue(ddRoot, val);
+    } else {
+      const el = document.getElementById(`cf-${field.id}`);
+      if (el) el.value = val;
+    }
+  }
+}
+
+async function _submitCustomForm(form) {
+  const techProfile = state.currentUserProfile || {};
+  const techName = `${techProfile.first_name || state.currentUser?.user_metadata?.first_name || ''} ${techProfile.last_name || state.currentUser?.user_metadata?.last_name || ''}`.trim() || state.currentUser?.email || '';
+
+  const btn = document.getElementById('cf-submit-btn');
+  if (btn) { btn.disabled = true; btn.textContent = _cfEditingSubmissionId ? 'Resubmitting…' : 'Submitting…'; }
+
+  try {
+    // Upload any new photos; fall back to existing paths for unchanged ones
+    const uploadedPhotos = { ..._cfExistingPhotos };
+    for (const [fieldId, file] of Object.entries(_cfPhotoFiles)) {
+      let f = file;
+      try { f = await compressImage(file); } catch (_e) { /* keep original */ }
+      const path = `custom-forms/${state.currentOrganization.id}/${form.id}/${Date.now()}_${fieldId}.jpg`;
+      const { error: upErr } = await supabaseClient.storage.from('safitrack').upload(path, f, { upsert: true });
+      if (upErr) throw upErr;
+      uploadedPhotos[fieldId] = path;
+    }
+
+    if (_cfEditingSubmissionId) {
+      // UPDATE existing submission — reset status so manager reviews again
+      const { error } = await supabaseClient.from('form_submissions').update({
+        data: _cfData,
+        photos: uploadedPhotos,
+        manager_approval_status: 'Pending',
+        denial_reason: null,
+        submitted_at: new Date().toISOString(),
+      }).eq('id', _cfEditingSubmissionId);
+      if (error) throw error;
+    } else {
+      // INSERT new submission
+      const { error } = await supabaseClient.from('form_submissions').insert({
+        form_id: form.id,
+        organization_id: state.currentOrganization.id,
+        technician_id: state.currentUser.id,
+        technician_name: techName,
+        data: _cfData,
+        photos: uploadedPhotos,
+        manager_approval_status: 'Pending'
+      });
+      if (error) throw error;
+    }
+
+    const wasEditing = !!_cfEditingSubmissionId;
+    document.body.classList.remove('ups-form-active');
+    _cfData = {};
+    _cfPhotoFiles = {};
+    _cfEditingSubmissionId = null;
+    _cfExistingPhotos = {};
+    showToast(wasEditing ? 'Form resubmitted!' : 'Form submitted successfully!', 'success');
+    renderTechnicianActivityView();
+  } catch (err) {
+    showToast(`Failed to submit: ${err.message}`, 'error');
+    if (btn) { btn.disabled = false; btn.textContent = _cfEditingSubmissionId ? 'Resubmit Form' : 'Submit Form'; }
+  }
 }
 
 // ════════════════════════════════════════════════════════════════
@@ -990,7 +1545,7 @@ function renderSuccessScreen(reportId) {
 async function renderTechnicianActivityView() {
   viewContainer.innerHTML = `<div class="page-header"><h1 class="page-title">My Service Reports</h1></div><div id="ups-activity-list"></div>`;
 
-  const [upsRes, solarRes] = await Promise.all([
+  const [upsRes, solarRes, customRes] = await Promise.all([
     supabaseClient
       .from('ups_maintenance_reports')
       .select('id, site_client_name, overall_system_status, created_at, manager_approval_status, denial_reason')
@@ -1002,6 +1557,12 @@ async function renderTechnicianActivityView() {
       .select('id, company_organization_name, manager_approval_status, created_at, denial_reason')
       .eq('technician_id', state.currentUser.id)
       .order('created_at', { ascending: false })
+      .limit(50),
+    supabaseClient
+      .from('form_submissions')
+      .select('id, submitted_at, manager_approval_status, denial_reason, form_id, custom_forms(name)')
+      .eq('technician_id', state.currentUser.id)
+      .order('submitted_at', { ascending: false })
       .limit(50)
   ]);
 
@@ -1018,8 +1579,14 @@ async function renderTechnicianActivityView() {
 
   const upsReports = (upsRes.data || []).map(r => ({ ...r, _type: 'UPS', titleName: r.site_client_name }));
   const solarReports = (solarRes.data || []).map(r => ({ ...r, _type: 'SOLAR', titleName: r.company_organization_name }));
-  
-  const allReports = [...upsReports, ...solarReports].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  const customReports = (customRes.data || []).map(r => ({
+    ...r,
+    _type: 'CUSTOM',
+    titleName: r.custom_forms?.name || 'Custom Form',
+    created_at: r.submitted_at
+  }));
+
+  const allReports = [...upsReports, ...solarReports, ...customReports].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   if (!allReports || allReports.length === 0) {
     container.innerHTML = `
@@ -1044,7 +1611,7 @@ async function renderTechnicianActivityView() {
           <div class="ups-tech-card-header">
             <div>
               <div class="ups-tech-card-title">
-                ${r._type === 'UPS' ? '<span style="font-size:10px; background:#e0e7ff; color:#4f46e5; padding:2px 6px; border-radius:12px; margin-right:6px; vertical-align:middle;">UPS</span>' : '<span style="font-size:10px; background:#fef3c7; color:#d97706; padding:2px 6px; border-radius:12px; margin-right:6px; vertical-align:middle;">SOLAR</span>'}
+                ${r._type === 'UPS' ? '<span style="font-size:10px; background:#e0e7ff; color:#4f46e5; padding:2px 6px; border-radius:12px; margin-right:6px; vertical-align:middle;">UPS</span>' : r._type === 'CUSTOM' ? '<span style="font-size:10px; background:#d1fae5; color:#065f46; padding:2px 6px; border-radius:12px; margin-right:6px; vertical-align:middle;">FORM</span>' : '<span style="font-size:10px; background:#fef3c7; color:#d97706; padding:2px 6px; border-radius:12px; margin-right:6px; vertical-align:middle;">SOLAR</span>'}
                 ${escapeHtml(r.titleName || 'Unknown Site')}
               </div>
               <div class="ups-tech-card-meta">
@@ -1066,14 +1633,17 @@ async function renderTechnicianActivityView() {
           ` : ''}
 
           <div class="ups-tech-card-actions">
-            <button class="btn btn-secondary btn-sm" onclick="${r._type === 'UPS' ? `window._viewUPSReport('${r.id}', true)` : `window._viewSolarReport('${r.id}', true)`}">
+            <button class="btn btn-secondary btn-sm" onclick="${r._type === 'UPS' ? `window._viewUPSReport('${r.id}', true)` : r._type === 'CUSTOM' ? `window._viewCustomSubmission('${r.id}', true)` : `window._viewSolarReport('${r.id}', true)`}">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
               View
             </button>
-            <button class="btn btn-primary btn-sm" onclick="${r._type === 'UPS' ? `window._editUPSReport('${r.id}')` : `window._editSolarReport('${r.id}')`}">
+            ${r._type !== 'CUSTOM' ? `<button class="btn btn-primary btn-sm" onclick="${r._type === 'UPS' ? `window._editUPSReport('${r.id}')` : `window._editSolarReport('${r.id}')`}">
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
               Edit
-            </button>
+            </button>` : `<button class="btn btn-primary btn-sm" onclick="window._editCustomSubmission('${r.id}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Edit
+            </button>`}
           </div>
         </div>
       `).join('')}
@@ -1111,6 +1681,27 @@ window._editSolarReport = async function(reportId) {
   window.renderSolarSurveyForm(r, r.latitude, r.longitude);
 };
 
+window._editCustomSubmission = async function(submissionId) {
+  const { data: s, error } = await supabaseClient
+    .from('form_submissions')
+    .select('*, custom_forms(id, name, description, fields)')
+    .eq('id', submissionId)
+    .single();
+
+  if (error || !s) {
+    showToast('Failed to load submission for editing', 'error');
+    return;
+  }
+
+  const form = s.custom_forms;
+  if (!form) {
+    showToast('The form template for this submission no longer exists', 'error');
+    return;
+  }
+
+  renderCustomFormFillView(form, s);
+};
+
 // ════════════════════════════════════════════════════════════════
 // MANAGER VIEW — TECHNICIANS DASHBOARD
 // ════════════════════════════════════════════════════════════════
@@ -1120,7 +1711,7 @@ async function renderTechniciansDashboardView() {
     <div class="ups-reports-section" id="ups-reports-section" style="margin-top: 0;">
       <div class="ups-reports-header">
         <h3 class="ups-reports-title">
-          All Reports
+          Submissions
         </h3>
         <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1; justify-content:flex-end; align-items:center;">
           <div class="crm-dd crm-dd--filter" data-dd-id="ups-reports-filter-type" style="width:120px;">
@@ -1133,6 +1724,7 @@ async function renderTechniciansDashboardView() {
                 <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="All Types" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Types</li>
                 <li class="crm-dd-option" role="option" data-value="UPS" data-label="UPS" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>UPS</li>
                 <li class="crm-dd-option" role="option" data-value="SOLAR" data-label="Solar" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Solar</li>
+                <li class="crm-dd-option" role="option" data-value="CUSTOM" data-label="Custom Forms" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Custom Forms</li>
               </ul>
             </div>
             <input class="crm-dd-value-input ups-reports-search" type="hidden" id="ups-reports-filter-type" value="">
@@ -1182,12 +1774,19 @@ async function renderTechniciansDashboardView() {
     .order('created_at', { ascending: false })
     .limit(100);
 
+  let queryCustom = supabaseClient
+    .from('form_submissions')
+    .select('id, technician_name, submitted_at, manager_approval_status, form_id, custom_forms(name)')
+    .order('submitted_at', { ascending: false })
+    .limit(100);
+
   if (state.currentOrganization?.id) {
     queryUPS = queryUPS.eq('organization_id', state.currentOrganization.id);
     querySolar = querySolar.eq('organization_id', state.currentOrganization.id);
+    queryCustom = queryCustom.eq('organization_id', state.currentOrganization.id);
   }
 
-  const [resUPS, resSolar] = await Promise.all([queryUPS, querySolar]);
+  const [resUPS, resSolar, resCustom] = await Promise.all([queryUPS, querySolar, queryCustom]);
 
   if (resUPS.error || resSolar.error) {
     document.getElementById('ups-reports-container').innerHTML = renderError((resUPS.error || resSolar.error).message);
@@ -1196,8 +1795,16 @@ async function renderTechniciansDashboardView() {
 
   const upsReports = (resUPS.data || []).map(r => ({ ...r, _type: 'UPS', titleName: r.site_client_name, techName: r.technician_name }));
   const solarReports = (resSolar.data || []).map(r => ({ ...r, _type: 'SOLAR', titleName: r.company_organization_name, techName: r.survey_done_by }));
+  const customReports = (resCustom.data || []).map(r => ({
+    ...r,
+    _type: 'CUSTOM',
+    _formName: r.custom_forms?.name || 'Custom Form',
+    titleName: r.custom_forms?.name || 'Custom Form',
+    techName: r.technician_name,
+    created_at: r.submitted_at,
+  }));
   
-  const allReports = [...upsReports, ...solarReports].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+  const allReports = [...upsReports, ...solarReports, ...customReports].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   renderReportsTable(allReports, allReports);
 
@@ -1284,10 +1891,10 @@ function renderReportsTable(reports, allReports) {
         </thead>
         <tbody>
           ${reports.map(r => `
-            <tr onclick="${r._type === 'UPS' ? `window._viewUPSReport('${r.id}')` : `window._viewSolarReport('${r.id}')`}">
+            <tr onclick="${r._type === 'UPS' ? `window._viewUPSReport('${r.id}')` : r._type === 'SOLAR' ? `window._viewSolarReport('${r.id}')` : `window._viewCustomSubmission('${r.id}')`}">
               <td>
-                <span style="font-size:11px; font-weight:600; padding:2px 8px; border-radius:12px; ${r._type === 'UPS' ? 'background:#e0e7ff; color:#4f46e5;' : 'background:#fef3c7; color:#d97706;'}">
-                  ${r._type}
+                <span style="font-size:11px; font-weight:600; padding:2px 8px; border-radius:12px; ${r._type === 'UPS' ? 'background:#e0e7ff; color:#4f46e5;' : r._type === 'SOLAR' ? 'background:#fef3c7; color:#d97706;' : 'background:#d1fae5; color:#059669;'}">
+                  ${r._type === 'CUSTOM' ? escapeHtml(r._formName || 'Custom') : r._type}
                 </span>
               </td>
               <td class="ups-report-id-cell">${r.id.substring(0, 8)}…</td>
@@ -1335,7 +1942,9 @@ window._updateReportApproval = async function (type, reportId, status) {
     return;
   }
 
-  const table = type === 'UPS' ? 'ups_maintenance_reports' : 'solar_inverter_surveys';
+  const table = type === 'UPS' ? 'ups_maintenance_reports'
+    : type === 'SOLAR' ? 'solar_inverter_surveys'
+    : 'form_submissions';
 
   try {
     const { data, error } = await supabaseClient
@@ -1360,16 +1969,21 @@ window._updateUPSApproval = function(id, status) { window._updateReportApproval(
 
 
 function renderDenialModal(reportId, type = 'UPS') {
+  const stepNames = type === 'UPS' ? STEP_NAMES
+    : type === 'SOLAR' ? window.SOLAR_STEP_NAMES
+    : null; // CUSTOM forms don't have predefined steps
+
   const modalHTML = `
     <div class="ups-modal-overlay" id="ups-denial-modal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:9999; padding:16px;">
       <div class="ups-modal-content" style="width:100%; max-width:500px; padding:24px; border-radius:12px; background:var(--bg-primary); color:var(--text-primary); box-shadow:0 10px 40px rgba(0,0,0,0.2);">
         <h2 style="margin-top:0; margin-bottom:16px; font-size:20px;">Deny Report</h2>
-        <p style="margin-bottom:16px; color:var(--text-muted); font-size:14px;">Select the sections that need correction and provide a reason for the technician.</p>
+        <p style="margin-bottom:16px; color:var(--text-muted); font-size:14px;">Provide a reason for the technician${stepNames ? ' and select the sections that need correction' : ''}.</p>
         
+        ${stepNames ? `
         <div style="margin-bottom:16px;">
           <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Flagged Sections</label>
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;" id="ups-denial-sections">
-            ${(type === 'UPS' ? STEP_NAMES : window.SOLAR_STEP_NAMES).map(name => `
+            ${stepNames.map(name => `
               <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
                 <input type="checkbox" value="${name}">
                 ${name}
@@ -1377,6 +1991,7 @@ function renderDenialModal(reportId, type = 'UPS') {
             `).join('')}
           </div>
         </div>
+        ` : ''}
 
         <div style="margin-bottom:24px;">
           <label style="display:block; margin-bottom:8px; font-weight:600; font-size:14px;">Reason for Denial</label>
@@ -1394,7 +2009,9 @@ function renderDenialModal(reportId, type = 'UPS') {
 
   document.getElementById('ups-denial-submit').addEventListener('click', async () => {
     const reason = document.getElementById('ups-denial-reason').value.trim();
-    const checked = Array.from(document.querySelectorAll('#ups-denial-sections input:checked')).map(cb => cb.value);
+    const checked = stepNames
+      ? Array.from(document.querySelectorAll('#ups-denial-sections input:checked')).map(cb => cb.value)
+      : [];
     
     if (!reason) {
       showToast('Please provide a reason for denial.', 'error');
@@ -1405,7 +2022,9 @@ function renderDenialModal(reportId, type = 'UPS') {
     btn.disabled = true;
     btn.textContent = 'Submitting...';
 
-    const table = type === 'UPS' ? 'ups_maintenance_reports' : 'solar_inverter_surveys';
+    const table = type === 'UPS' ? 'ups_maintenance_reports'
+      : type === 'SOLAR' ? 'solar_inverter_surveys'
+      : 'form_submissions';
 
     try {
       const { data, error } = await supabaseClient
@@ -1413,7 +2032,8 @@ function renderDenialModal(reportId, type = 'UPS') {
         .update({ 
           manager_approval_status: 'Denied',
           denial_reason: reason,
-          flagged_sections: checked
+          flagged_sections: checked.length ? checked : undefined,
+          flagged_fields: type === 'CUSTOM' ? checked : undefined,
         })
         .eq('id', reportId)
         .select();
@@ -1677,6 +2297,387 @@ window._backToReportsList = function () {
 };
 
 // ════════════════════════════════════════════════════════════════
+// CUSTOM FORM SUBMISSION DETAIL VIEW (Manager)
+// ════════════════════════════════════════════════════════════════
+window._viewCustomSubmission = async function (submissionId, isTechnician = false) {
+  const container = document.getElementById(isTechnician ? 'ups-activity-list' : 'ups-reports-container');
+  if (!container) return;
+  container.innerHTML = `<div class="ups-reports-empty">Loading submission…</div>`;
+
+  const { data: s, error } = await supabaseClient
+    .from('form_submissions')
+    .select('*, custom_forms(name, fields)')
+    .eq('id', submissionId)
+    .single();
+
+  if (error || !s) {
+    container.innerHTML = renderError(error?.message || 'Submission not found');
+    return;
+  }
+
+  const form = s.custom_forms || {};
+  // Normalize sections format (handles both legacy flat and new sectioned fields)
+  const _sections = _normalizeSectionsForFill(form.fields || []);
+  const fields = _sections.flatMap(sec => sec.fields || []);
+  const isMultiPage = _sections.length > 1;
+  const valOrDash = v => (v !== null && v !== undefined && v !== '') ? escapeHtml(String(v)) : '—';
+
+  function renderFieldRow(field) {
+    const value = s.data?.[field.id];
+    const photoPath = s.photos?.[field.id];
+    if (field.type === 'photo' && photoPath) {
+      const { data: urlData } = supabaseClient.storage.from('safitrack').getPublicUrl(photoPath);
+      const imgSrc = urlData?.publicUrl || '';
+      return `<div class="ups-report-field" style="grid-column:1/-1;">
+        <span class="ups-report-field-label">${escapeHtml(field.label)}</span>
+        <img src="${imgSrc}" class="ups-report-photo-thumb" style="cursor:pointer;" onclick="window.open('${imgSrc}','_blank')">
+      </div>`;
+    }
+    if (field.type === 'signature' && value) {
+      return `<div class="ups-report-field" style="grid-column:1/-1;">
+        <span class="ups-report-field-label">${escapeHtml(field.label)}</span>
+        <img src="${value}" style="max-width:320px; width:100%; border:1px solid var(--border-color); border-radius:8px; background:#fff; display:block; margin-top:4px;">
+      </div>`;
+    }
+    if (field.type === 'group') {
+      const groupVal = value;
+      const subRows = (field.subfields || []).map(sf => {
+        const sv = (typeof groupVal === 'object' && groupVal) ? groupVal[sf.id] : null;
+        const sfPhotoPath = s.photos?.[`${field.id}_sf_${sf.id}`];
+        if (sf.type === 'photo' && sfPhotoPath) {
+          const { data: urlData } = supabaseClient.storage.from('safitrack').getPublicUrl(sfPhotoPath);
+          const imgSrc = urlData?.publicUrl || '';
+          return `<div class="ups-report-field" style="grid-column:1/-1;"><span class="ups-report-field-label">${escapeHtml(field.label)} — ${escapeHtml(sf.label)}</span><img src="${imgSrc}" class="ups-report-photo-thumb" style="cursor:pointer;" onclick="window.open('${imgSrc}','_blank')"></div>`;
+        }
+        if (sf.type === 'signature' && sv) {
+          return `<div class="ups-report-field" style="grid-column:1/-1;"><span class="ups-report-field-label">${escapeHtml(field.label)} — ${escapeHtml(sf.label)}</span><img src="${sv}" style="max-width:320px; width:100%; border:1px solid var(--border-color); border-radius:8px; background:#fff; display:block; margin-top:4px;"></div>`;
+        }
+        return `<div class="ups-report-field"><span class="ups-report-field-label">${escapeHtml(field.label)} — ${escapeHtml(sf.label)}</span><span class="ups-report-field-value">${valOrDash(sv)}</span></div>`;
+      }).join('');
+      return subRows || `<div class="ups-report-field"><span class="ups-report-field-label">${escapeHtml(field.label)}</span><span class="ups-report-field-value">—</span></div>`;
+    }
+    return `<div class="ups-report-field">
+      <span class="ups-report-field-label">${escapeHtml(field.label)}</span>
+      <span class="ups-report-field-value">${valOrDash(value)}</span>
+    </div>`;
+  }
+
+  const responseSectionsHtml = isMultiPage
+    ? _sections.map((sec, idx) => {
+        const secTitle = sec.name ? escapeHtml(sec.name) : `Page ${idx + 1}`;
+        const secFieldsHtml = (sec.fields || []).map(renderFieldRow).join('');
+        return secFieldsHtml ? `
+        <div class="ups-report-section">
+          <div class="ups-report-section-title">${secTitle}</div>
+          <div class="ups-report-fields">${secFieldsHtml}</div>
+        </div>` : '';
+      }).join('')
+    : (fields.length > 0 ? `
+        <div class="ups-report-section">
+          <div class="ups-report-section-title">Responses</div>
+          <div class="ups-report-fields">${fields.map(renderFieldRow).join('')}</div>
+        </div>` : '');
+
+  container.innerHTML = `
+    <div class="ups-report-detail">
+      <div class="ups-report-detail-header">
+        <div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <h3 style="margin:0;">${escapeHtml(form.name || 'Custom Form')}</h3>
+            ${s.manager_approval_status && s.manager_approval_status !== 'Pending' ? `
+              <span class="ups-status-badge ${s.manager_approval_status === 'Approved' ? 'ups-status-badge-pass' : 'ups-status-badge-fail'}">
+                ${s.manager_approval_status}
+              </span>` : ''}
+          </div>
+          <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">
+            ID: ${s.id} • ${formatDate(s.submitted_at)}
+          </div>
+        </div>
+        <div class="ups-report-detail-actions">
+          <button class="btn btn-secondary btn-sm" onclick="${isTechnician ? 'window.renderTechnicianActivityView()' : 'window._backToReportsList()'}">← Back</button>
+          <button class="btn btn-primary btn-sm" onclick="window._downloadCustomSubmissionPDF('${s.id}')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download PDF
+          </button>
+        </div>
+      </div>
+      <div class="ups-report-detail-body">
+        <div class="ups-report-section">
+          <div class="ups-report-section-title">Submission Info</div>
+          <div class="ups-report-fields">
+            <div class="ups-report-field"><span class="ups-report-field-label">Technician</span><span class="ups-report-field-value">${escapeHtml(s.technician_name || '—')}</span></div>
+            <div class="ups-report-field"><span class="ups-report-field-label">Submitted</span><span class="ups-report-field-value">${formatDate(s.submitted_at)}</span></div>
+            ${s.denial_reason ? `<div class="ups-report-field" style="grid-column:1/-1;"><span class="ups-report-field-label">Denial Reason</span><span class="ups-report-field-value" style="color:#ef4444;">${escapeHtml(s.denial_reason)}</span></div>` : ''}
+          </div>
+        </div>
+        ${responseSectionsHtml}
+      </div>
+    </div>
+  `;
+
+  // Store submission data for PDF
+  window._currentCustomSubmission = { s, form, fields };
+
+  if (window.lucide) lucide.createIcons();
+};
+
+// ════════════════════════════════════════════════════════════════
+// PDF PRINT HELPER — opens a clean popup so only PDF content prints
+// ════════════════════════════════════════════════════════════════
+window._openPrintWindow = function(bodyHtml, docTitle) {
+  const win = window.open('', '_blank', 'width=900,height=700');
+  if (!win) { showToast('Allow pop-ups for this site to download PDF.', 'error'); return; }
+  const css = [
+    '@page{size:A4;margin:14mm 18mm}',
+    '*{box-sizing:border-box}',
+    'body{font-family:Arial,Helvetica,sans-serif;font-size:11px;line-height:1.6;color:#111;background:#fff;margin:0;padding:0}',
+    '.ups-print-header{text-align:center;padding-bottom:12px;margin-bottom:14px;border-bottom:2px solid #111}',
+    '.ups-print-header h1{font-size:17px;font-weight:800;margin:0 0 3px}',
+    '.ups-print-header p{font-size:10px;color:#555;margin:1px 0}',
+    '.ups-print-doc-title{display:block;font-size:13px;font-weight:700;color:#111;margin-top:10px}',
+    '.ups-print-section{padding:10px 0;border-bottom:1px solid #ddd}',
+    '.ups-print-section:last-of-type{border-bottom:none}',
+    '.ups-print-section h3{font-size:8.5px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:#999;margin:0 0 6px}',
+    '.ups-print-grid{display:grid;grid-template-columns:repeat(3,1fr);column-gap:16px;row-gap:3px}',
+    '.ups-print-field{display:flex;gap:4px;align-items:baseline;break-inside:avoid;overflow:hidden}',
+    '.ups-print-field-label{color:#888;font-weight:400;white-space:nowrap;flex-shrink:0;min-width:72px;max-width:110px}',
+    '.ups-print-field-value{color:#111;font-weight:600;word-break:break-word;overflow-wrap:break-word;min-width:0}',
+    '.ups-print-photo-pair{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px;break-inside:avoid}',
+    '.ups-print-photo-single{grid-column:1/-1;margin-top:8px;break-inside:avoid}',
+    '.ups-print-photo-caption{font-size:9px;color:#aaa;margin-bottom:3px}',
+    '.ups-print-photo-pair img,.ups-print-photo-single img{width:100%;height:auto;max-height:180px;object-fit:contain;object-position:left top;display:block}',
+    '.ups-print-photo-single img{max-width:280px;width:auto}',
+    '.ups-print-sig-row{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px;break-inside:avoid}',
+    '.ups-print-sig-caption{font-size:9px;color:#888;margin-bottom:4px}',
+    '.ups-print-sig-row img{max-width:200px;max-height:70px;width:auto;height:auto;object-fit:contain;display:block}',
+    '.ups-print-footer{margin-top:14px;padding-top:6px;border-top:1px solid #ddd;text-align:center;font-size:9px;color:#bbb}',
+  ].join('\n');
+  win.document.open();
+  win.document.write('<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + docTitle + '</title><style>' + css + '</style></head><body>' + bodyHtml + '</body></html>');
+  win.document.close();
+  win.focus();
+  setTimeout(function() { win.print(); win.close(); }, 400);
+};
+
+// ════════════════════════════════════════════════════════════════
+// CUSTOM FORM PDF DOWNLOAD
+// ════════════════════════════════════════════════════════════════
+
+window._downloadCustomSubmissionPDF = function (submissionId) {
+  const cached = window._currentCustomSubmission;
+  if (!cached || cached.s.id !== submissionId) {
+    showToast('Submission data not available', 'error');
+    return;
+  }
+  const { s, form } = cached;
+  const _sections = _normalizeSectionsForFill(form.fields || []);
+  const isMultiPage = _sections.length > 1;
+  const valOrDash = (v) => (v !== null && v !== undefined && v !== '') ? String(v) : '—';
+  const esc = (v) => String(v || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const formName = (form.name || 'Custom Form').replace(/[^a-zA-Z0-9 ]/g, '_');
+  const dateStr = new Date(s.submitted_at || s.created_at).toISOString().split('T')[0];
+  const approvalStatus = s.manager_approval_status || 'Pending';
+  const statusColor = approvalStatus === 'Approved' ? '#059669' : approvalStatus === 'Denied' ? '#dc2626' : '#d97706';
+  const statusBg   = approvalStatus === 'Approved' ? '#ecfdf5' : approvalStatus === 'Denied' ? '#fef2f2' : '#fffbeb';
+  const orgId = state.currentOrganization?.id;
+  const customHeader = getPdfHeader();
+
+  // ── Field renderer ─────────────────────────────────────────
+  function renderPdfField(field, sData, sPhotos) {
+    const value = sData?.[field.id];
+    const photoPath = sPhotos?.[field.id];
+
+    if (field.type === 'photo' && photoPath) {
+      const { data: urlData } = supabaseClient.storage.from('safitrack').getPublicUrl(photoPath);
+      const imgSrc = urlData?.publicUrl || '';
+      return `<div class="cf-field cf-field-full">
+        <div class="cf-label">${esc(field.label)}</div>
+        <img src="${imgSrc}" class="cf-photo">
+      </div>`;
+    }
+    if (field.type === 'signature' && value) {
+      return `<div class="cf-field cf-field-full">
+        <div class="cf-label">${esc(field.label)}</div>
+        <div class="cf-sig-box"><img src="${value}" class="cf-sig-img"></div>
+      </div>`;
+    }
+    if (field.type === 'group') {
+      const groupVal = value;
+      const subHtml = (field.subfields || []).map(sf => {
+        const sv = (typeof groupVal === 'object' && groupVal) ? groupVal[sf.id] : null;
+        const sfPhotoPath = sPhotos?.[`${field.id}_sf_${sf.id}`];
+        if (sf.type === 'photo' && sfPhotoPath) {
+          const { data: urlData } = supabaseClient.storage.from('safitrack').getPublicUrl(sfPhotoPath);
+          const imgSrc = urlData?.publicUrl || '';
+          return `<div class="cf-field cf-field-full">
+            <div class="cf-label">${esc(field.label)} — ${esc(sf.label)}</div>
+            <img src="${imgSrc}" class="cf-photo">
+          </div>`;
+        }
+        if (sf.type === 'signature' && sv) {
+          return `<div class="cf-field cf-field-full">
+            <div class="cf-label">${esc(field.label)} — ${esc(sf.label)}</div>
+            <div class="cf-sig-box"><img src="${sv}" class="cf-sig-img"></div>
+          </div>`;
+        }
+        return `<div class="cf-field">
+          <div class="cf-label">${esc(field.label)} — ${esc(sf.label)}</div>
+          <div class="cf-value">${esc(valOrDash(sv))}</div>
+        </div>`;
+      }).join('');
+      return subHtml || `<div class="cf-field"><div class="cf-label">${esc(field.label)}</div><div class="cf-value">—</div></div>`;
+    }
+    const isLong = field.type === 'textarea';
+    return `<div class="cf-field${isLong ? ' cf-field-full' : ''}">
+      <div class="cf-label">${esc(field.label)}</div>
+      <div class="cf-value">${esc(valOrDash(value))}</div>
+    </div>`;
+  }
+
+  // ── Build section HTML ─────────────────────────────────────
+  const sectionBlocks = _sections.map((sec, idx) => {
+    const title = isMultiPage
+      ? (sec.name ? esc(sec.name) : `Page ${idx + 1}`)
+      : 'Responses';
+    const fieldsHtml = (sec.fields || []).map(f => renderPdfField(f, s.data, s.photos)).join('');
+    if (!fieldsHtml) return '';
+    return `
+      <div class="cf-section">
+        <div class="cf-section-head">
+          <span class="cf-section-num">${idx + 1}</span>
+          <span class="cf-section-title">${title}</span>
+        </div>
+        <div class="cf-grid">${fieldsHtml}</div>
+      </div>`;
+  }).join('');
+
+  // ── CSS ────────────────────────────────────────────────────
+  const css = `
+    @page { size: A4; margin: 0; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 11px; color: #1a1a2e; background: #fff; }
+
+    /* ── Top bar ── */
+    .cf-topbar { background: #0f2d52; height: 6px; width: 100%; }
+
+    /* ── Page wrapper ── */
+    .cf-page { padding: 28px 36px 24px; }
+
+    /* ── Header ── */
+    .cf-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 18px; border-bottom: 1.5px solid #e0e8f0; margin-bottom: 18px; }
+    .cf-header-left h1 { font-size: 18px; font-weight: 800; color: #0f2d52; letter-spacing: -0.3px; }
+    .cf-header-left p { font-size: 9px; color: #6b7280; margin-top: 3px; line-height: 1.6; }
+    .cf-header-right { text-align: right; }
+    .cf-doc-type { display: inline-block; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #0f2d52; background: #e8f0fb; padding: 3px 10px; border-radius: 100px; margin-bottom: 5px; }
+    .cf-doc-id { font-size: 9px; color: #9ca3af; }
+
+    /* ── Title block ── */
+    .cf-title-block { margin-bottom: 16px; }
+    .cf-form-name { font-size: 20px; font-weight: 800; color: #0f2d52; line-height: 1.2; margin-bottom: 4px; }
+    .cf-form-desc { font-size: 10px; color: #6b7280; }
+
+    /* ── Meta strip ── */
+    .cf-meta { display: flex; gap: 0; background: #f7f9fc; border: 1px solid #e0e8f0; border-radius: 8px; overflow: hidden; margin-bottom: 20px; }
+    .cf-meta-item { flex: 1; padding: 10px 14px; border-right: 1px solid #e0e8f0; }
+    .cf-meta-item:last-child { border-right: none; }
+    .cf-meta-label { font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.07em; color: #9ca3af; margin-bottom: 3px; }
+    .cf-meta-value { font-size: 11px; font-weight: 700; color: #1a1a2e; }
+    .cf-status-pill { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 9px; border-radius: 100px; color: ${statusColor}; background: ${statusBg}; border: 1px solid ${statusColor}40; }
+
+    /* ── Denial reason ── */
+    .cf-denial { background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 8px 12px; margin-bottom: 16px; font-size: 10px; color: #dc2626; }
+    .cf-denial strong { font-weight: 700; }
+
+    /* ── Section ── */
+    .cf-section { margin-bottom: 18px; break-inside: avoid; }
+    .cf-section-head { display: flex; align-items: center; gap: 8px; background: #f0f5ff; border-left: 3px solid #0f2d52; padding: 7px 12px; border-radius: 0 6px 6px 0; margin-bottom: 10px; }
+    .cf-section-num { width: 18px; height: 18px; background: #0f2d52; color: #fff; font-size: 9px; font-weight: 800; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .cf-section-title { font-size: 11px; font-weight: 700; color: #0f2d52; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* ── Field grid ── */
+    .cf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; padding: 0 4px; }
+    .cf-field { background: #fff; border: 1px solid #e8edf3; border-radius: 5px; padding: 8px 10px; break-inside: avoid; }
+    .cf-field-full { grid-column: 1 / -1; }
+    .cf-label { font-size: 8.5px; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 3px; }
+    .cf-value { font-size: 11px; font-weight: 600; color: #1a1a2e; word-break: break-word; line-height: 1.4; }
+
+    /* ── Photo ── */
+    .cf-photo { max-width: 100%; max-height: 200px; object-fit: contain; object-position: left top; display: block; margin-top: 6px; border-radius: 4px; border: 1px solid #e0e8f0; }
+
+    /* ── Signature ── */
+    .cf-sig-box { border: 1px solid #e0e8f0; border-radius: 4px; background: #fafafa; padding: 8px; display: inline-block; margin-top: 4px; }
+    .cf-sig-img { max-width: 220px; max-height: 70px; width: auto; height: auto; object-fit: contain; display: block; }
+
+    /* ── Footer ── */
+    .cf-footer { margin-top: 24px; padding-top: 10px; border-top: 1px solid #e0e8f0; display: flex; justify-content: space-between; align-items: center; }
+    .cf-footer-brand { font-size: 9px; font-weight: 700; color: #0f2d52; }
+    .cf-footer-time { font-size: 8.5px; color: #9ca3af; }
+    .cf-footer-accent { width: 100%; height: 3px; background: linear-gradient(to right, #0f2d52, #3b7dd8); margin-top: 8px; border-radius: 100px; }
+  `;
+
+  // ── Body HTML ──────────────────────────────────────────────
+  const bodyHtml = `
+    <div class="cf-topbar"></div>
+    <div class="cf-page">
+
+      <div class="cf-header">
+        <div class="cf-header-left">
+          ${customHeader
+            ? customHeader.split('\n').map((line, i) => i === 0
+                ? `<h1>${esc(line)}</h1>`
+                : `<p>${esc(line)}</p>`).join('')
+            : '<h1>Form Submission</h1>'}
+        </div>
+        <div class="cf-header-right">
+          <div class="cf-doc-type">Custom Form Submission</div><br>
+          <span class="cf-doc-id">ID: ${esc(s.id)}</span>
+        </div>
+      </div>
+
+      <div class="cf-title-block">
+        <div class="cf-form-name">${esc(form.name || 'Custom Form')}</div>
+        ${form.description ? `<div class="cf-form-desc">${esc(form.description)}</div>` : ''}
+      </div>
+
+      <div class="cf-meta">
+        <div class="cf-meta-item">
+          <div class="cf-meta-label">Technician</div>
+          <div class="cf-meta-value">${esc(valOrDash(s.technician_name))}</div>
+        </div>
+        <div class="cf-meta-item">
+          <div class="cf-meta-label">Submitted</div>
+          <div class="cf-meta-value">${formatDate(s.submitted_at || s.created_at)}</div>
+        </div>
+        <div class="cf-meta-item">
+          <div class="cf-meta-label">Status</div>
+          <div class="cf-meta-value"><span class="cf-status-pill">${esc(approvalStatus)}</span></div>
+        </div>
+      </div>
+
+      ${s.denial_reason ? `<div class="cf-denial"><strong>Denial Reason:</strong> ${esc(s.denial_reason)}</div>` : ''}
+
+      ${sectionBlocks}
+
+      <div class="cf-footer">
+        <span class="cf-footer-brand">${esc(customHeader ? customHeader.split('\n')[0] : 'Form Submission')}</span>
+        <span class="cf-footer-time">Generated ${new Date().toLocaleString()}</span>
+      </div>
+      <div class="cf-footer-accent"></div>
+
+    </div>
+  `;
+
+  // ── Open print window ──────────────────────────────────────
+  const win = window.open('', '_blank', 'width=900,height=700');
+  if (!win) { showToast('Allow pop-ups for this site to download PDF.', 'error'); return; }
+  win.document.open();
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>${esc(form.name || 'Submission')}_${dateStr}</title><style>${css}</style></head><body>${bodyHtml}</body></html>`);
+  win.document.close();
+  win.focus();
+  setTimeout(() => { win.print(); win.close(); }, 500);
+};
+
+// ════════════════════════════════════════════════════════════════
 // PDF DOWNLOAD (via window.print)
 // ════════════════════════════════════════════════════════════════
 
@@ -1713,176 +2714,137 @@ window._downloadUPSPDF = function (reportId) {
     return null;
   }
 
-  function pdfStepPhoto(stepIdx, label = null) {
-    const url = getStepPhotoUrlLocal(r, stepIdx);
+  function pdfPhoto(url, caption) {
     if (!url) return '';
-    return `
-      <div style="margin-top:8px;">
-        <div style="color:#666; font-weight:500; font-size:11px; margin-bottom:4px;">📷 ${label || STEP_NAMES[stepIdx]}:</div>
-        <img src="${url}" style="max-width:200px; max-height:200px; border:1px solid #ccc; border-radius:4px;">
-      </div>
-    `;
+    return `<div class="ups-print-photo-single">
+      <div class="ups-print-photo-caption">${caption}</div>
+      <img src="${url}">
+    </div>`;
   }
 
-  // Create print container
-  const printDiv = document.createElement('div');
-  printDiv.className = 'ups-print-target';
-  printDiv.innerHTML = `
-    <div class="ups-print-header">
-      <h1 style="margin-bottom:8px;">Sangyug Enterprises Limited</h1>
-      <p style="margin:4px 0;">www.sangyug.com</p>
-      <p style="margin:4px 0;">Email : servicecentre@sangyug.com, info@sangyug.com</p>
-      <p style="margin:4px 0;">Phone : 0743 767960 | 0715 177456</p>
-      <p style="margin-top:12px; font-weight:600;">UPS Maintenance Service Report</p>
-      <p style="margin-top:4px;">Report ID: ${r.id} • Date: ${formatDate(r.created_at)}</p>
-    </div>
+  const beforeUrl = getStepPhotoUrlLocal(r, 0);
+  const afterUrl  = getStepPhotoUrlLocal(r, 6);
 
-    <div class="ups-print-section">
-      <h3>Before & After Service Photos</h3>
-      <div style="display:flex; gap:16px; margin-top:12px;">
-        <div style="flex:1;">
-          <strong style="font-size:12px; display:block; margin-bottom:4px;">Before Service</strong>
-          ${pdfStepPhoto(0, 'Before Service')}
-        </div>
-        <div style="flex:1;">
-          <strong style="font-size:12px; display:block; margin-bottom:4px;">After Service</strong>
-          ${pdfStepPhoto(6, 'After Service')}
-        </div>
-      </div>
+  const beforeAfterHtml = (beforeUrl || afterUrl) ? `
+    <div class="ups-print-photo-pair">
+      ${beforeUrl ? `<div><div class="ups-print-photo-caption">Before Service</div><img src="${beforeUrl}"></div>` : '<div></div>'}
+      ${afterUrl  ? `<div><div class="ups-print-photo-caption">After Service</div><img src="${afterUrl}"></div>`  : '<div></div>'}
+    </div>` : '';
+
+  const __printHtml = `
+    <div class="ups-print-header">
+      <h1>Sangyug Enterprises Limited</h1>
+      <p>www.sangyug.com &bull; servicecentre@sangyug.com &bull; 0743 767960</p>
+      <span class="ups-print-doc-title">UPS Maintenance Service Report</span>
+      <p>Report ID: ${r.id} &bull; ${formatDate(r.created_at)}</p>
     </div>
 
     <div class="ups-print-section">
       <h3>Site Information</h3>
       <div class="ups-print-grid">
-        <div class="ups-print-field"><span class="ups-print-field-label">Site / Client:</span><span class="ups-print-field-value">${valOrDash(r.site_client_name)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Location:</span><span class="ups-print-field-value">${valOrDash(r.location_building)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">UPS Brand:</span><span class="ups-print-field-value">${valOrDash(r.ups_brand)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Serial Number:</span><span class="ups-print-field-value">${valOrDash(r.ups_serial_number)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Model:</span><span class="ups-print-field-value">${valOrDash(r.ups_model)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Size (kVA):</span><span class="ups-print-field-value">${valOrDash(r.ups_size_kva)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Phase:</span><span class="ups-print-field-value">${valOrDash(r.phase)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Model Type:</span><span class="ups-print-field-value">${valOrDash(r.model_type)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Runtime:</span><span class="ups-print-field-value">${formatRuntimeHelper(r.total_ups_runtime)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Technician:</span><span class="ups-print-field-value">${valOrDash(r.technician_name)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Site / Client</span><span class="ups-print-field-value">${valOrDash(r.site_client_name)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Location</span><span class="ups-print-field-value">${valOrDash(r.location_building)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Technician</span><span class="ups-print-field-value">${valOrDash(r.technician_name)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">UPS Brand</span><span class="ups-print-field-value">${valOrDash(r.ups_brand)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Serial No.</span><span class="ups-print-field-value">${valOrDash(r.ups_serial_number)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Model</span><span class="ups-print-field-value">${valOrDash(r.ups_model)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Size (kVA)</span><span class="ups-print-field-value">${valOrDash(r.ups_size_kva)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Phase</span><span class="ups-print-field-value">${valOrDash(r.phase)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Model Type</span><span class="ups-print-field-value">${valOrDash(r.model_type)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Runtime</span><span class="ups-print-field-value">${formatRuntimeHelper(r.total_ups_runtime)}</span></div>
+        ${beforeAfterHtml}
       </div>
     </div>
 
     <div class="ups-print-section">
       <h3>Environmental Conditions</h3>
       <div class="ups-print-grid">
-        <div class="ups-print-field"><span class="ups-print-field-label">Room Temp:</span><span class="ups-print-field-value">${valOrDash(r.ambient_room_temperature)} °C</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Humidity:</span><span class="ups-print-field-value">${valOrDash(r.humidity_level)} %</span></div>
-        ${pdfStepPhoto(1)}
+        <div class="ups-print-field"><span class="ups-print-field-label">Room Temp</span><span class="ups-print-field-value">${valOrDash(r.ambient_room_temperature)} °C</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Humidity</span><span class="ups-print-field-value">${valOrDash(r.humidity_level)} %</span></div>
+        ${pdfPhoto(getStepPhotoUrlLocal(r, 1), 'Environmental Photo')}
       </div>
     </div>
 
     <div class="ups-print-section">
       <h3>UPS / Inverter Parameters</h3>
       <div class="ups-print-grid">
-        <div class="ups-print-field"><span class="ups-print-field-label">Operating Mode:</span><span class="ups-print-field-value">${valOrDash(r.operating_mode)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Rectifier DC:</span><span class="ups-print-field-value">${valOrDash(r.rectifier_dc_output_voltage)} VDC</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Inverter Freq:</span><span class="ups-print-field-value">${valOrDash(r.inverter_output_frequency)} Hz</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Load %:</span><span class="ups-print-field-value">${valOrDash(r.load_percentage)} %</span></div>
-        ${pdfStepPhoto(2)}
+        <div class="ups-print-field"><span class="ups-print-field-label">Operating Mode</span><span class="ups-print-field-value">${valOrDash(r.operating_mode)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Rectifier DC</span><span class="ups-print-field-value">${valOrDash(r.rectifier_dc_output_voltage)} VDC</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Inverter Freq</span><span class="ups-print-field-value">${valOrDash(r.inverter_output_frequency)} Hz</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Load</span><span class="ups-print-field-value">${valOrDash(r.load_percentage)} %</span></div>
+        ${pdfPhoto(getStepPhotoUrlLocal(r, 2), 'UPS Parameters Photo')}
       </div>
     </div>
 
     <div class="ups-print-section">
       <h3>Electrical Measurements</h3>
       <div class="ups-print-grid">
-        <div class="ups-print-field"><span class="ups-print-field-label">Input R-N:</span><span class="ups-print-field-value">${valOrDash(r.input_voltage_rn)} V</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Input Y-N:</span><span class="ups-print-field-value">${valOrDash(r.input_voltage_yn)} V</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Input B-N:</span><span class="ups-print-field-value">${valOrDash(r.input_voltage_bn)} V</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Output R-N:</span><span class="ups-print-field-value">${valOrDash(r.output_voltage_rn)} V</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Output Y-N:</span><span class="ups-print-field-value">${valOrDash(r.output_voltage_yn)} V</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Output B-N:</span><span class="ups-print-field-value">${valOrDash(r.output_voltage_bn)} V</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Load Current:</span><span class="ups-print-field-value">${valOrDash(r.output_load_current)} A</span></div>
-        ${pdfStepPhoto(3)}
+        <div class="ups-print-field"><span class="ups-print-field-label">Input R-N</span><span class="ups-print-field-value">${valOrDash(r.input_voltage_rn)} V</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Input Y-N</span><span class="ups-print-field-value">${valOrDash(r.input_voltage_yn)} V</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Input B-N</span><span class="ups-print-field-value">${valOrDash(r.input_voltage_bn)} V</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Output R-N</span><span class="ups-print-field-value">${valOrDash(r.output_voltage_rn)} V</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Output Y-N</span><span class="ups-print-field-value">${valOrDash(r.output_voltage_yn)} V</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Output B-N</span><span class="ups-print-field-value">${valOrDash(r.output_voltage_bn)} V</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Load Current</span><span class="ups-print-field-value">${valOrDash(r.output_load_current)} A</span></div>
+        ${pdfPhoto(getStepPhotoUrlLocal(r, 3), 'Electrical Photo')}
       </div>
     </div>
 
     <div class="ups-print-section">
       <h3>Battery System</h3>
       <div class="ups-print-grid">
-        <div class="ups-print-field"><span class="ups-print-field-label">Brand:</span><span class="ups-print-field-value">${valOrDash(r.battery_brand)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Size:</span><span class="ups-print-field-value">${valOrDash(r.battery_size)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Qty in Series:</span><span class="ups-print-field-value">${valOrDash(r.battery_quantity_series)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Bank Voltage:</span><span class="ups-print-field-value">${valOrDash(r.total_battery_bank_voltage)} VDC</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Charging V:</span><span class="ups-print-field-value">${valOrDash(r.charging_voltage)} VDC</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Surface Temp:</span><span class="ups-print-field-value">${valOrDash(r.battery_surface_temperature)} °C</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Connections Tight:</span><span class="ups-print-field-value">${boolLabel(r.battery_connections_tightened)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Bulging/Leakage:</span><span class="ups-print-field-value">${boolLabel(r.signs_bulging_leakage)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Self-Test:</span><span class="ups-print-field-value">${valOrDash(r.battery_self_test_result)}</span></div>
-        ${pdfStepPhoto(4)}
+        <div class="ups-print-field"><span class="ups-print-field-label">Brand</span><span class="ups-print-field-value">${valOrDash(r.battery_brand)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Size</span><span class="ups-print-field-value">${valOrDash(r.battery_size)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Qty in Series</span><span class="ups-print-field-value">${valOrDash(r.battery_quantity_series)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Bank Voltage</span><span class="ups-print-field-value">${valOrDash(r.total_battery_bank_voltage)} VDC</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Charging V</span><span class="ups-print-field-value">${valOrDash(r.charging_voltage)} VDC</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Surface Temp</span><span class="ups-print-field-value">${valOrDash(r.battery_surface_temperature)} °C</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Connections</span><span class="ups-print-field-value">${boolLabel(r.battery_connections_tightened)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Bulging/Leak</span><span class="ups-print-field-value">${boolLabel(r.signs_bulging_leakage)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Self-Test</span><span class="ups-print-field-value">${valOrDash(r.battery_self_test_result)}</span></div>
+        ${pdfPhoto(getStepPhotoUrlLocal(r, 4), 'Battery Photo')}
       </div>
     </div>
 
     <div class="ups-print-section">
       <h3>Checks &amp; Maintenance</h3>
       <div class="ups-print-grid">
-        <div class="ups-print-field"><span class="ups-print-field-label">Manual Bypass:</span><span class="ups-print-field-value">${valOrDash(r.transfer_manual_bypass)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Load Transfer:</span><span class="ups-print-field-value">${valOrDash(r.load_transfer_test)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Fan Check:</span><span class="ups-print-field-value">${valOrDash(r.cooling_fan_check)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Alarm Cleared:</span><span class="ups-print-field-value">${valOrDash(r.error_alarm_log_cleared)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Interior Clean:</span><span class="ups-print-field-value">${valOrDash(r.unit_interior_cleaned)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Wiring Inspected:</span><span class="ups-print-field-value">${valOrDash(r.internal_wiring_inspected)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Firmware:</span><span class="ups-print-field-value">${valOrDash(r.firmware_version)}</span></div>
-        ${pdfStepPhoto(5)}
+        <div class="ups-print-field"><span class="ups-print-field-label">Manual Bypass</span><span class="ups-print-field-value">${valOrDash(r.transfer_manual_bypass)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Load Transfer</span><span class="ups-print-field-value">${valOrDash(r.load_transfer_test)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Fan Check</span><span class="ups-print-field-value">${valOrDash(r.cooling_fan_check)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Alarm Cleared</span><span class="ups-print-field-value">${valOrDash(r.error_alarm_log_cleared)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Interior Clean</span><span class="ups-print-field-value">${valOrDash(r.unit_interior_cleaned)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Wiring</span><span class="ups-print-field-value">${valOrDash(r.internal_wiring_inspected)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Firmware</span><span class="ups-print-field-value">${valOrDash(r.firmware_version)}</span></div>
+        ${pdfPhoto(getStepPhotoUrlLocal(r, 5), 'Maintenance Photo')}
       </div>
     </div>
 
     <div class="ups-print-section">
       <h3>Conclusion</h3>
       <div class="ups-print-grid">
-        <div class="ups-print-field"><span class="ups-print-field-label">Overall Status:</span><span class="ups-print-field-value" style="font-weight:800;">${valOrDash(r.overall_system_status)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Manager Approval:</span><span class="ups-print-field-value" style="font-weight:800;">${valOrDash(r.manager_approval_status)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Client Engineer:</span><span class="ups-print-field-value">${valOrDash(r.client_engineer_name)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Servicing Engineer:</span><span class="ups-print-field-value">${valOrDash(r.servicing_engineer_name)}</span></div>
-        ${r.notes_remarks ? `<div class="ups-print-field" style="grid-column:1/-1;"><span class="ups-print-field-label">Notes:</span><span class="ups-print-field-value">${valOrDash(r.notes_remarks)}</span></div>` : ''}
-        ${pdfStepPhoto(6)}
+        <div class="ups-print-field"><span class="ups-print-field-label">Overall Status</span><span class="ups-print-field-value" style="font-weight:800;">${valOrDash(r.overall_system_status)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Manager Approval</span><span class="ups-print-field-value" style="font-weight:800;">${valOrDash(r.manager_approval_status)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Client Engineer</span><span class="ups-print-field-value">${valOrDash(r.client_engineer_name)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Servicing Eng.</span><span class="ups-print-field-value">${valOrDash(r.servicing_engineer_name)}</span></div>
+        ${r.notes_remarks ? `<div class="ups-print-field" style="grid-column:1/-1;"><span class="ups-print-field-label">Notes</span><span class="ups-print-field-value">${valOrDash(r.notes_remarks)}</span></div>` : ''}
       </div>
     </div>
 
     ${(r.signature_data || r.client_signature_data) ? `
-    <div class="ups-print-section" style="margin-top:24px;">
+    <div class="ups-print-section">
       <h3>Signatures</h3>
-      <div class="ups-print-grid">
-        ${r.signature_data ? `
-        <div class="ups-print-field" style="flex-direction:column; gap:8px;">
-          <span class="ups-print-field-label">Technician Signature</span>
-          <img src="${r.signature_data}" style="max-width:240px; max-height:100px; border-bottom:1px solid #111;">
-        </div>
-        ` : ''}
-        ${r.client_signature_data ? `
-        <div class="ups-print-field" style="flex-direction:column; gap:8px;">
-          <span class="ups-print-field-label">Client Signature</span>
-          <img src="${r.client_signature_data}" style="max-width:240px; max-height:100px; border-bottom:1px solid #111;">
-        </div>
-        ` : ''}
+      <div class="ups-print-sig-row">
+        ${r.signature_data ? `<div><div class="ups-print-sig-caption">Technician</div><img src="${r.signature_data}"></div>` : ''}
+        ${r.client_signature_data ? `<div><div class="ups-print-sig-caption">Client</div><img src="${r.client_signature_data}"></div>` : ''}
       </div>
-    </div>
-    ` : ''}
+    </div>` : ''}
 
     <div class="ups-print-footer">
-      Sangyug Enterprises Ltd — Generated ${new Date().toLocaleString()}
+      Sangyug Enterprises Ltd &mdash; Generated ${new Date().toLocaleString()}
     </div>
   `;
-
-  document.body.appendChild(printDiv);
-  document.body.classList.add('ups-print-mode');
-
-  const origTitle = document.title;
-  document.title = `UPS_Report_${siteName}_${dateStr}`;
-
-  setTimeout(() => {
-    window.print();
-    // Restore after print
-    setTimeout(() => {
-      document.body.classList.remove('ups-print-mode');
-      printDiv.remove();
-      document.title = origTitle;
-    }, 500);
-  }, 100);
+  window._openPrintWindow(__printHtml, `UPS_Report_${siteName}_${dateStr}`);
 };
 
 // Expose for back button in technician view
@@ -1895,9 +2857,14 @@ function renderUPSVisitFormWithContract(prefill) {
 window.renderUPSVisitFormWithContract = renderUPSVisitFormWithContract;
 
 // ── Exports ────────────────────────────────────────────────────
+// renderSubmissionsView is the canonical name (the old renderTechniciansDashboardView
+// alias is kept for backward compatibility with any direct call sites).
+const renderSubmissionsView = renderTechniciansDashboardView;
+
 export {
   renderTechnicianLogVisitView,
   renderTechnicianActivityView,
   renderTechniciansDashboardView,
+  renderSubmissionsView,
   renderUPSVisitFormWithContract,
 };

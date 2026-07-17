@@ -86,7 +86,7 @@ async function initApp() {
     try {
       const { data: org } = await supabaseClient
         .from('organizations')
-        .select('id, name, owner_id, max_members, currency, logo_url')
+        .select('id, name, owner_id, max_members, currency, logo_url, settings')
         .eq('id', profile.organization_id)
         .single();
       state.currentOrganization = org || null;
@@ -381,6 +381,9 @@ function updateNavigationForRole() {
     // Show dashboard at top of nav for managers
     const dashTopNav = document.getElementById('dashboard-top-nav');
     if (dashTopNav) dashTopNav.style.display = 'flex';
+    // Show the new Technicians manager section
+    const techManagerNav = document.getElementById('technicians-manager-nav-section');
+    if (techManagerNav) techManagerNav.style.display = 'block';
     // Hide log visit for managers in sidebar
     document.querySelectorAll('.sidebar-nav [data-view="log-visit"]').forEach(el => {
       el.style.display = 'none';
@@ -403,6 +406,9 @@ function updateNavigationForRole() {
   } else if (state.isTechnician) {
     // Show technician navigation
     technicianNavSection.style.display = 'block';
+    // Hide technicians-manager section
+    const techManagerNav = document.getElementById('technicians-manager-nav-section');
+    if (techManagerNav) techManagerNav.style.display = 'none';
     // Hide sales rep navigation
     document.querySelectorAll('.sidebar-nav [data-view="log-visit"]').forEach(el => {
       el.style.display = 'none';
@@ -430,6 +436,8 @@ function updateNavigationForRole() {
     // Sales rep view
     managerNavSection.style.display = 'none';
     technicianNavSection.style.display = 'none';
+    const techManagerNav = document.getElementById('technicians-manager-nav-section');
+    if (techManagerNav) techManagerNav.style.display = 'none';
     if (managerBottomNav) managerBottomNav.style.display = 'none';
 
 

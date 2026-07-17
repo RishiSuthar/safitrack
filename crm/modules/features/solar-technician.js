@@ -1075,36 +1075,29 @@ window._downloadSolarPDF = function(reportId) {
   function pdfStepPhoto(stepIdx) {
     const url = getStepPhotoUrlLocal(r, stepIdx);
     if (!url) return '';
-    return `
-      <div style="margin-top:8px; grid-column:1/-1;">
-        <div style="color:#666; font-weight:500; font-size:11px; margin-bottom:4px;">📷 Photo — ${window.SOLAR_STEP_NAMES[stepIdx]}:</div>
-        <img src="${url}" style="max-width:200px; max-height:200px; border:1px solid #ccc; border-radius:4px;">
-      </div>
-    `;
+    return `<div class="ups-print-photo-single" style="grid-column:1/-1;">
+      <div class="ups-print-photo-caption">${window.SOLAR_STEP_NAMES[stepIdx]}</div>
+      <img src="${url}">
+    </div>`;
   }
 
-  const printDiv = document.createElement('div');
-  printDiv.className = 'ups-print-target';
-  printDiv.innerHTML = `
+  const __printHtml = `
     <div class="ups-print-header">
-      <h1 style="margin-bottom:8px;">Sangyug Enterprises Limited</h1>
-      <p style="margin:4px 0;">www.sangyug.com</p>
-      <p style="margin:4px 0;">Email : servicecentre@sangyug.com, info@sangyug.com</p>
-      <p style="margin:4px 0;">Phone : 0743 767960 | 0715 177456</p>
-      <p style="margin-top:12px; font-weight:600;">Solar Inverter Survey</p>
-      <p style="margin-top:4px;">Report ID: ${r.id} • Date: ${formatDate(r.created_at)}</p>
-      ${(r.latitude && r.longitude) ? `<p style="margin-top:4px; font-size:11px; color:#555;">Location: ${r.latitude}, ${r.longitude}</p>` : ''}
+      <h1>Sangyug Enterprises Limited</h1>
+      <p>www.sangyug.com &bull; servicecentre@sangyug.com &bull; 0743 767960</p>
+      <span class="ups-print-doc-title">Solar Inverter Survey</span>
+      <p>Report ID: ${r.id} &bull; ${formatDate(r.created_at)}${(r.latitude && r.longitude) ? ` &bull; ${r.latitude}, ${r.longitude}` : ''}</p>
     </div>
 
     <div class="ups-print-section">
-      <h3>Customer & Site Info</h3>
+      <h3>Customer &amp; Site Info</h3>
       <div class="ups-print-grid">
-        <div class="ups-print-field"><span class="ups-print-field-label">Company:</span><span class="ups-print-field-value">${valOrDash(r.company_organization_name)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Customer:</span><span class="ups-print-field-value">${valOrDash(r.customer_name)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Phone:</span><span class="ups-print-field-value">${valOrDash(r.phone_contact)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Email:</span><span class="ups-print-field-value">${valOrDash(r.email)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Location:</span><span class="ups-print-field-value">${valOrDash(r.location)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Survey By:</span><span class="ups-print-field-value">${valOrDash(r.survey_done_by)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Company</span><span class="ups-print-field-value">${valOrDash(r.company_organization_name)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Customer</span><span class="ups-print-field-value">${valOrDash(r.customer_name)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Phone</span><span class="ups-print-field-value">${valOrDash(r.phone_contact)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Email</span><span class="ups-print-field-value">${valOrDash(r.email)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Location</span><span class="ups-print-field-value">${valOrDash(r.location)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Survey By</span><span class="ups-print-field-value">${valOrDash(r.survey_done_by)}</span></div>
         ${pdfStepPhoto(0)}
       </div>
     </div>
@@ -1112,14 +1105,14 @@ window._downloadSolarPDF = function(reportId) {
     <div class="ups-print-section">
       <h3>Load & Power Requirements</h3>
       <div class="ups-print-grid">
-        <div class="ups-print-field" style="grid-column:1/-1;"><span class="ups-print-field-label">Equipment:</span><span class="ups-print-field-value">${valOrDash(r.equipment_products_used)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Max Load:</span><span class="ups-print-field-value">${valOrDash(r.max_load_backed_up)} W</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Inverter Size:</span><span class="ups-print-field-value">${valOrDash(r.inverter_size_required)} Rooms</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Backup:</span><span class="ups-print-field-value">${valOrDash(r.backup_time_hours)}h ${valOrDash(r.backup_time_minutes)}m</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Batteries:</span><span class="ups-print-field-value">${valOrDash(r.number_of_batteries)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Capacity:</span><span class="ups-print-field-value">${valOrDash(r.battery_capacity_ah)} Ah</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Batt Type:</span><span class="ups-print-field-value">${valOrDash(r.type_of_battery_required)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Priority:</span><span class="ups-print-field-value">${valOrDash(r.priority_mode)}</span></div>
+        <div class="ups-print-field" style="grid-column:1/-1;"><span class="ups-print-field-label">Equipment</span><span class="ups-print-field-value">${valOrDash(r.equipment_products_used)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Max Load</span><span class="ups-print-field-value">${valOrDash(r.max_load_backed_up)} W</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Inverter Size</span><span class="ups-print-field-value">${valOrDash(r.inverter_size_required)} Rooms</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Backup</span><span class="ups-print-field-value">${valOrDash(r.backup_time_hours)}h ${valOrDash(r.backup_time_minutes)}m</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Batteries</span><span class="ups-print-field-value">${valOrDash(r.number_of_batteries)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Capacity</span><span class="ups-print-field-value">${valOrDash(r.battery_capacity_ah)} Ah</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Batt Type</span><span class="ups-print-field-value">${valOrDash(r.type_of_battery_required)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Priority</span><span class="ups-print-field-value">${valOrDash(r.priority_mode)}</span></div>
         ${pdfStepPhoto(1)}
       </div>
     </div>
@@ -1127,101 +1120,76 @@ window._downloadSolarPDF = function(reportId) {
     <div class="ups-print-section">
       <h3>Solar Panel Details</h3>
       <div class="ups-print-grid">
-        <div class="ups-print-field"><span class="ups-print-field-label">Panels:</span><span class="ups-print-field-value">${valOrDash(r.number_of_solar_panels)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Size:</span><span class="ups-print-field-value">${valOrDash(r.solar_panel_size_voc_isc)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Panels/String:</span><span class="ups-print-field-value">${valOrDash(r.panels_per_side_string)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Strings:</span><span class="ups-print-field-value">${valOrDash(r.solar_strings_needed)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">MPPT Range:</span><span class="ups-print-field-value">${valOrDash(r.inverter_mppt_range)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Voc Min:</span><span class="ups-print-field-value">${valOrDash(r.solar_array_voc_min)} VDC</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Voc Max:</span><span class="ups-print-field-value">${valOrDash(r.solar_array_voc_max)} VDC</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Combiner:</span><span class="ups-print-field-value">${boolLabel(r.solar_combiner_box_needed)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">MC4 Pairs:</span><span class="ups-print-field-value">${valOrDash(r.mc4_pairs_needed)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Panels</span><span class="ups-print-field-value">${valOrDash(r.number_of_solar_panels)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Size</span><span class="ups-print-field-value">${valOrDash(r.solar_panel_size_voc_isc)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Panels/String</span><span class="ups-print-field-value">${valOrDash(r.panels_per_side_string)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Strings</span><span class="ups-print-field-value">${valOrDash(r.solar_strings_needed)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">MPPT Range</span><span class="ups-print-field-value">${valOrDash(r.inverter_mppt_range)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Voc Min</span><span class="ups-print-field-value">${valOrDash(r.solar_array_voc_min)} VDC</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Voc Max</span><span class="ups-print-field-value">${valOrDash(r.solar_array_voc_max)} VDC</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Combiner</span><span class="ups-print-field-value">${boolLabel(r.solar_combiner_box_needed)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">MC4 Pairs</span><span class="ups-print-field-value">${valOrDash(r.mc4_pairs_needed)}</span></div>
         ${pdfStepPhoto(2)}
       </div>
     </div>
 
     <div class="ups-print-section">
-      <h3>Site & Installation Conditions</h3>
+      <h3>Site &amp; Installation Conditions</h3>
       <div class="ups-print-grid">
-        <div class="ups-print-field"><span class="ups-print-field-label">Building Type:</span><span class="ups-print-field-value">${valOrDash(r.type_of_house_building)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Roof Type:</span><span class="ups-print-field-value">${valOrDash(r.type_of_roof)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Light Sheets:</span><span class="ups-print-field-value">${boolLabel(r.transparent_light_sheets_present)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Sheet Detail:</span><span class="ups-print-field-value">${valOrDash(r.transparent_light_sheets_details)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Roof Height:</span><span class="ups-print-field-value">${valOrDash(r.height_of_roof_from_ground_m)} m</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Wi-Fi:</span><span class="ups-print-field-value">${boolLabel(r.wifi_availability)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Techs Req:</span><span class="ups-print-field-value">${valOrDash(r.number_of_technicians_required)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Install Days:</span><span class="ups-print-field-value">${valOrDash(r.number_of_working_days_to_install)}</span></div>
-        <div class="ups-print-field" style="grid-column:1/-1;"><span class="ups-print-field-label">Challenge:</span><span class="ups-print-field-value">${valOrDash(r.most_challenging_area)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Building Type</span><span class="ups-print-field-value">${valOrDash(r.type_of_house_building)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Roof Type</span><span class="ups-print-field-value">${valOrDash(r.type_of_roof)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Light Sheets</span><span class="ups-print-field-value">${boolLabel(r.transparent_light_sheets_present)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Sheet Detail</span><span class="ups-print-field-value">${valOrDash(r.transparent_light_sheets_details)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Roof Height</span><span class="ups-print-field-value">${valOrDash(r.height_of_roof_from_ground_m)} m</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Wi-Fi</span><span class="ups-print-field-value">${boolLabel(r.wifi_availability)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Techs Required</span><span class="ups-print-field-value">${valOrDash(r.number_of_technicians_required)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Install Days</span><span class="ups-print-field-value">${valOrDash(r.number_of_working_days_to_install)}</span></div>
+        <div class="ups-print-field" style="grid-column:1/-1;"><span class="ups-print-field-label">Challenge</span><span class="ups-print-field-value">${valOrDash(r.most_challenging_area)}</span></div>
         ${pdfStepPhoto(3)}
       </div>
     </div>
 
     <div class="ups-print-section">
-      <h3>Cable, Mounting & Hardware</h3>
+      <h3>Cable, Mounting &amp; Hardware</h3>
       <div class="ups-print-grid">
-        <div class="ups-print-field"><span class="ups-print-field-label">Batt Cable:</span><span class="ups-print-field-value">${valOrDash(r.battery_cable_length_size)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Dist to CU:</span><span class="ups-print-field-value">${valOrDash(r.distance_from_inverter_to_cu_m)} m</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">AC Cable Size:</span><span class="ups-print-field-value">${valOrDash(r.ac_cable_size)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">AC Len:</span><span class="ups-print-field-value">${valOrDash(r.ac_cable_length_m)} m</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">DC Len:</span><span class="ups-print-field-value">${valOrDash(r.dc_cable_length_solar_m)} m</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">DC Size:</span><span class="ups-print-field-value">${valOrDash(r.dc_cable_size)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Trunkings:</span><span class="ups-print-field-value">${valOrDash(r.number_of_trunkings_size)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Conduits:</span><span class="ups-print-field-value">${valOrDash(r.number_of_conduits_size)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Flex Conduit:</span><span class="ups-print-field-value">${valOrDash(r.flexible_conduit_m)} m</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Silicon Tubes:</span><span class="ups-print-field-value">${valOrDash(r.silicon_tubes_required)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Rope:</span><span class="ups-print-field-value">${boolLabel(r.rope_required)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">End Clamps:</span><span class="ups-print-field-value">${valOrDash(r.end_clamps_solar)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Mid Clamps:</span><span class="ups-print-field-value">${valOrDash(r.mid_clamps_solar)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Center Clamps:</span><span class="ups-print-field-value">${valOrDash(r.center_clamps_solar)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Rails:</span><span class="ups-print-field-value">${valOrDash(r.rails_for_solar_mounting)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">L/Tile Hooks:</span><span class="ups-print-field-value">${valOrDash(r.l_hooks_or_tile_hooks)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Splicing Kit:</span><span class="ups-print-field-value">${boolLabel(r.splicing_kit_for_solar)}</span></div>
-        <div class="ups-print-field" style="grid-column:1/-1;"><span class="ups-print-field-label">Climbing Tools:</span><span class="ups-print-field-value">${valOrDash(r.climbing_tools_required)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Inv Mount:</span><span class="ups-print-field-value">${valOrDash(r.where_to_place_mount_inverter)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">AVS Mount:</span><span class="ups-print-field-value">${valOrDash(r.avs_changeover_mount_location)}</span></div>
-        <div class="ups-print-field"><span class="ups-print-field-label">Solar MCB:</span><span class="ups-print-field-value">${boolLabel(r.solar_mcb_enclosure)}</span></div>
-        ${r.additional_comments ? `<div class="ups-print-field" style="grid-column:1/-1;"><span class="ups-print-field-label">Comments:</span><span class="ups-print-field-value">${valOrDash(r.additional_comments)}</span></div>` : ''}
+        <div class="ups-print-field"><span class="ups-print-field-label">Batt Cable</span><span class="ups-print-field-value">${valOrDash(r.battery_cable_length_size)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Dist to CU</span><span class="ups-print-field-value">${valOrDash(r.distance_from_inverter_to_cu_m)} m</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">AC Cable Size</span><span class="ups-print-field-value">${valOrDash(r.ac_cable_size)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">AC Length</span><span class="ups-print-field-value">${valOrDash(r.ac_cable_length_m)} m</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">DC Length</span><span class="ups-print-field-value">${valOrDash(r.dc_cable_length_solar_m)} m</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">DC Size</span><span class="ups-print-field-value">${valOrDash(r.dc_cable_size)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Trunkings</span><span class="ups-print-field-value">${valOrDash(r.number_of_trunkings_size)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Conduits</span><span class="ups-print-field-value">${valOrDash(r.number_of_conduits_size)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Flex Conduit</span><span class="ups-print-field-value">${valOrDash(r.flexible_conduit_m)} m</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Silicon Tubes</span><span class="ups-print-field-value">${valOrDash(r.silicon_tubes_required)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Rope</span><span class="ups-print-field-value">${boolLabel(r.rope_required)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">End Clamps</span><span class="ups-print-field-value">${valOrDash(r.end_clamps_solar)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Mid Clamps</span><span class="ups-print-field-value">${valOrDash(r.mid_clamps_solar)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Center Clamps</span><span class="ups-print-field-value">${valOrDash(r.center_clamps_solar)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Rails</span><span class="ups-print-field-value">${valOrDash(r.rails_for_solar_mounting)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">L/Tile Hooks</span><span class="ups-print-field-value">${valOrDash(r.l_hooks_or_tile_hooks)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Splicing Kit</span><span class="ups-print-field-value">${boolLabel(r.splicing_kit_for_solar)}</span></div>
+        <div class="ups-print-field" style="grid-column:1/-1;"><span class="ups-print-field-label">Climbing Tools</span><span class="ups-print-field-value">${valOrDash(r.climbing_tools_required)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Inv Mount</span><span class="ups-print-field-value">${valOrDash(r.where_to_place_mount_inverter)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">AVS Mount</span><span class="ups-print-field-value">${valOrDash(r.avs_changeover_mount_location)}</span></div>
+        <div class="ups-print-field"><span class="ups-print-field-label">Solar MCB</span><span class="ups-print-field-value">${boolLabel(r.solar_mcb_enclosure)}</span></div>
+        ${r.additional_comments ? `<div class="ups-print-field" style="grid-column:1/-1;"><span class="ups-print-field-label">Comments</span><span class="ups-print-field-value">${valOrDash(r.additional_comments)}</span></div>` : ''}
         ${pdfStepPhoto(4)}
       </div>
     </div>
 
     ${(r.signature_data || r.client_signature_data) ? `
-    <div class="ups-print-section" style="margin-top:24px;">
+    <div class="ups-print-section">
       <h3>Signatures</h3>
-      <div class="ups-print-grid">
-        ${r.signature_data ? `
-        <div class="ups-print-field" style="flex-direction:column; gap:8px;">
-          <span class="ups-print-field-label">Technician Signature</span>
-          <img src="${r.signature_data}" style="max-width:240px; max-height:100px; border-bottom:1px solid #111;">
-        </div>
-        ` : ''}
-        ${r.client_signature_data ? `
-        <div class="ups-print-field" style="flex-direction:column; gap:8px;">
-          <span class="ups-print-field-label">Client Signature</span>
-          <img src="${r.client_signature_data}" style="max-width:240px; max-height:100px; border-bottom:1px solid #111;">
-        </div>
-        ` : ''}
+      <div class="ups-print-sig-row">
+        ${r.signature_data ? `<div><div class="ups-print-sig-caption">Technician</div><img src="${r.signature_data}"></div>` : ''}
+        ${r.client_signature_data ? `<div><div class="ups-print-sig-caption">Client</div><img src="${r.client_signature_data}"></div>` : ''}
       </div>
-    </div>
-    ` : ''}
+    </div>` : ''}
 
     <div class="ups-print-footer">
-      Sangyug Enterprises Ltd — Generated ${new Date().toLocaleString()}
+      Sangyug Enterprises Ltd &mdash; Generated ${new Date().toLocaleString()}
     </div>
   `;
-
-  document.body.appendChild(printDiv);
-  document.body.classList.add('ups-print-mode');
-
-  const origTitle = document.title;
-  document.title = `Solar_Survey_${companyName}_${dateStr}`;
-
-  setTimeout(() => {
-    window.print();
-    setTimeout(() => {
-      document.body.classList.remove('ups-print-mode');
-      printDiv.remove();
-      document.title = origTitle;
-    }, 500);
-  }, 100);
+  window._openPrintWindow(__printHtml, `Solar_Survey_${companyName}_${dateStr}`);
 };
