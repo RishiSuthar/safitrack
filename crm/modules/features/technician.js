@@ -1714,17 +1714,14 @@ async function renderTechniciansDashboardView() {
           Submissions
         </h3>
         <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1; justify-content:flex-end; align-items:center;">
-          <div class="crm-dd crm-dd--filter" data-dd-id="ups-reports-filter-type" style="width:120px;">
+          <div class="crm-dd crm-dd--filter" data-dd-id="ups-reports-filter-type" id="ups-reports-filter-type-dd" style="width:150px;">
             <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
-              <span class="crm-dd-label">All Types</span>
+              <span class="crm-dd-label">All Forms</span>
               <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
             </button>
             <div class="crm-dd-panel" role="listbox">
-              <ul class="crm-dd-list">
-                <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="All Types" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Types</li>
-                <li class="crm-dd-option" role="option" data-value="UPS" data-label="UPS" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>UPS</li>
-                <li class="crm-dd-option" role="option" data-value="SOLAR" data-label="Solar" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Solar</li>
-                <li class="crm-dd-option" role="option" data-value="CUSTOM" data-label="Custom Forms" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Custom Forms</li>
+              <ul class="crm-dd-list" id="ups-reports-filter-type-list">
+                <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="All Forms" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Forms</li>
               </ul>
             </div>
             <input class="crm-dd-value-input ups-reports-search" type="hidden" id="ups-reports-filter-type" value="">
@@ -1761,7 +1758,11 @@ async function renderTechniciansDashboardView() {
     </div>
   `;
 
-  // Fetch reports
+  let queryForms = supabaseClient
+    .from('custom_forms')
+    .select('id, name')
+    .order('name', { ascending: true });
+
   let queryUPS = supabaseClient
     .from('ups_maintenance_reports')
     .select('id, site_client_name, technician_name, overall_system_status, created_at, manager_approval_status')
@@ -1781,12 +1782,13 @@ async function renderTechniciansDashboardView() {
     .limit(100);
 
   if (state.currentOrganization?.id) {
+    queryForms = queryForms.eq('organization_id', state.currentOrganization.id);
     queryUPS = queryUPS.eq('organization_id', state.currentOrganization.id);
     querySolar = querySolar.eq('organization_id', state.currentOrganization.id);
     queryCustom = queryCustom.eq('organization_id', state.currentOrganization.id);
   }
 
-  const [resUPS, resSolar, resCustom] = await Promise.all([queryUPS, querySolar, queryCustom]);
+  const [resForms, resUPS, resSolar, resCustom] = await Promise.all([queryForms, queryUPS, querySolar, queryCustom]);
 
   if (resUPS.error || resSolar.error) {
     document.getElementById('ups-reports-container').innerHTML = renderError((resUPS.error || resSolar.error).message);
@@ -1807,6 +1809,27 @@ async function renderTechniciansDashboardView() {
   const allReports = [...upsReports, ...solarReports, ...customReports].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
   renderReportsTable(allReports, allReports);
+
+  // Build form filter options dynamically
+  const _checkSvg = `<svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
+  const filterList = document.getElementById('ups-reports-filter-type-list');
+  if (filterList) {
+    const orgForms = resForms.data || [];
+    // Add each custom form as an option
+    orgForms.forEach(form => {
+      const li = document.createElement('li');
+      li.className = 'crm-dd-option';
+      li.setAttribute('role', 'option');
+      li.setAttribute('data-value', form.id);
+      li.setAttribute('data-label', form.name);
+      li.setAttribute('tabindex', '-1');
+      li.innerHTML = `${_checkSvg}${form.name}`;
+      filterList.appendChild(li);
+    });
+    // Re-init the dropdown now that options are populated
+    const ddEl = document.getElementById('ups-reports-filter-type-dd');
+    if (ddEl && window.initCrmDropdown) window.initCrmDropdown(ddEl);
+  }
 
   // Search & Filters
   const searchInput = document.getElementById('ups-reports-search');
@@ -1836,7 +1859,8 @@ async function renderTechniciansDashboardView() {
         r.id.toLowerCase().includes(q) || 
         (r.titleName || '').toLowerCase().includes(q) || 
         (r.techName || '').toLowerCase().includes(q);
-      const matchType = !t || r._type === t;
+      // t is either a form UUID (custom), 'UPS', 'SOLAR', or '' (all)
+      const matchType = !t || r.form_id === t || r._type === t;
       const matchStatus = !s || r.manager_approval_status === s || (!r.manager_approval_status && s === 'Pending');
 
       let matchDate = true;
