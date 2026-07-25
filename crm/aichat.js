@@ -1213,7 +1213,7 @@ async function handleQueryOpportunities(text) {
   lastCRMContext = context;
 
   const messages = [
-    { role: 'system', content: `You are Safi AI, a sharp CRM and sales assistant. The user is asking about their deals/pipeline. Below is the real data. Present pipeline stats clearly, highlight key metrics with **bold**, use bullet points for deal lists. Be insightful — call out stuck deals, overdue actions, biggest opportunities. If they asked about specific deals or stages, focus there. Use the actual numbers. Keep it actionable. Max 350 words.` },
+    { role: 'system', content: `You are Safi AI, a sharp CRM and sales assistant. The user is asking about their deals/pipeline. Below is the real data. Present pipeline stats clearly, highlight key metrics with **bold**, use bullet points for deal lists. Be insightful — call out stuck deals, overdue actions, biggest opportunities. If they asked about specific deals or stages, focus there. Use the actual numbers. Keep it actionable. Don't use |----------|--------- type of characters to make tables, Max 350 words.` },
     { role: 'user', content: `User question: "${text}"\n\nPipeline Data:\n${context}\n\nAnswer the user's question based on this real data.` }
   ];
   const reply = await groqChat(messages, 450, 0.6);

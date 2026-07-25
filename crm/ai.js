@@ -177,13 +177,13 @@ async function generateCompanyDescription(companyName) {
 // ------------------------------------------------------------------
 // Generic Groq helper used by other AI features (intent detection, field extraction, etc.)
 // ------------------------------------------------------------------
-async function groqChat(messages, max_tokens = 150, temperature = 0.3) {
+async function groqChat(messages, max_tokens = 500, temperature = 0.3) {
   const maxAttempts = 3;
   let attempt = 0;
   while (attempt < maxAttempts) {
     try {
       const response = await callGroqProxy({
-          model: 'llama-3.1-8b-instant',
+          model: 'groq/compound',
           messages,
           max_tokens,
           temperature
