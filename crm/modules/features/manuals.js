@@ -28,6 +28,8 @@ function fileCategoryIcon(cat) {
       return `<svg class="mf-file-icon doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="15" y2="17"/></svg>`;
     case 'sheet':
       return `<svg class="mf-file-icon sheet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>`;
+    case 'link':
+      return `<svg class="mf-file-icon link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`;
     default:
       return `<svg class="mf-file-icon generic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`;
   }
@@ -173,11 +175,33 @@ async function renameFile(id, newName) {
   if (error) throw error;
 }
 
-async function deleteFile(fileId, storagePath) {
-  const { error: storageErr } = await supabaseClient.storage.from(BUCKET).remove([storagePath]);
-  if (storageErr) console.warn('[Manuals] Storage delete warning:', storageErr.message);
+async function deleteFile(fileId, storagePath, isLink = false) {
+  if (!isLink) {
+    const { error: storageErr } = await supabaseClient.storage.from(BUCKET).remove([storagePath]);
+    if (storageErr) console.warn('[Manuals] Storage delete warning:', storageErr.message);
+  }
   const { error } = await supabaseClient.from('manual_files').delete().eq('id', fileId);
   if (error) throw error;
+}
+
+async function addLinkToDb(name, url, folderId) {
+  const orgId = state.currentOrganization?.id;
+  const { data, error } = await supabaseClient
+    .from('manual_files')
+    .insert({
+      org_id: orgId,
+      folder_id: folderId || null,
+      name: name.trim(),
+      storage_path: url.trim(),
+      file_type: 'link',
+      file_size: 0,
+      mime_type: 'text/uri-list',
+      created_by: state.currentUser.id,
+    })
+    .select()
+    .single();
+  if (error) throw error;
+  return data;
 }
 
 async function uploadFile(file, folderId) {
@@ -220,7 +244,6 @@ async function getFileUrl(storagePath) {
 // ── Render helpers ─────────────────────────────────────────────────────────────
 
 function renderBreadcrumb() {
-  const canWrite = state.isManager;
   const parts = [{ id: null, name: 'Manuals' }, ...nav.stack];
   const crumbs = parts.map((p, i) => {
     const isLast = i === parts.length - 1;
@@ -228,21 +251,18 @@ function renderBreadcrumb() {
     return `<button class="mf-breadcrumb-btn" data-crumb-index="${i}">${escapeHtml(p.name)}</button>`;
   }).join(`<svg class="mf-breadcrumb-sep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>`);
 
-  const uploadBtn = canWrite ? `
-    <label class="btn btn-primary mf-upload-btn" id="mf-upload-trigger">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      Upload
-      <input type="file" id="mf-file-input" multiple accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.xls,.xlsx,.csv,.odt,.ods" style="display:none">
-    </label>
-    <button class="btn btn-secondary" id="mf-new-folder-btn">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-      New Folder
+  const backBtn = nav.stack.length > 0 ? `
+    <button class="mf-back-btn" id="mf-back-btn" aria-label="Go back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+      Back
     </button>` : '';
 
   return `
     <div class="mf-toolbar">
-      <nav class="mf-breadcrumb">${crumbs}</nav>
-      <div class="mf-toolbar-actions">${uploadBtn}</div>
+      <div class="mf-toolbar-left">
+        ${backBtn}
+        <nav class="mf-breadcrumb">${crumbs}</nav>
+      </div>
     </div>`;
 }
 
@@ -271,21 +291,26 @@ function renderFolderCard(folder) {
 function renderFileCard(file) {
   const canWrite = state.isManager;
   const cat = file.file_type || getFileCategory(file.mime_type, file.name);
+  const isLink = cat === 'link';
   const menu = canWrite ? `
     <div class="mf-item-menu-wrap">
-      <button class="mf-item-menu-btn" data-file-id="${file.id}" data-storage-path="${escapeHtml(file.storage_path)}" aria-label="File options">
+      <button class="mf-item-menu-btn" data-file-id="${file.id}" data-storage-path="${escapeHtml(file.storage_path)}" aria-label="${isLink ? 'Link' : 'File'} options">
         <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/></svg>
       </button>
     </div>` : '';
 
+  const subtitle = isLink
+    ? `<span class="mf-item-date mf-link-badge">External link</span>`
+    : `<span class="mf-item-date">${formatBytes(file.file_size)} · ${formatRelativeDate(file.created_at)}</span>`;
+
   return `
-    <div class="mf-item mf-file" data-file-id="${file.id}" data-storage-path="${escapeHtml(file.storage_path)}" data-file-cat="${cat}" tabindex="0" role="button" aria-label="Open file ${escapeHtml(file.name)}">
+    <div class="mf-item mf-file" data-file-id="${file.id}" data-storage-path="${escapeHtml(file.storage_path)}" data-file-cat="${cat}" tabindex="0" role="button" aria-label="${isLink ? 'Open link' : 'Open file'} ${escapeHtml(file.name)}">
       <div class="mf-item-icon-wrap">
         ${fileCategoryIcon(cat)}
       </div>
       <div class="mf-item-meta">
         <span class="mf-item-name">${escapeHtml(file.name)}</span>
-        <span class="mf-item-date">${formatBytes(file.file_size)} · ${formatRelativeDate(file.created_at)}</span>
+        ${subtitle}
       </div>
       ${menu}
     </div>`;
@@ -500,6 +525,67 @@ function closeNewFolderModal() {
   document.getElementById('mf-folder-modal')?.remove();
 }
 
+// ── Add link modal ─────────────────────────────────────────────────────────────
+
+function openAddLinkModal(onConfirm) {
+  closeAddLinkModal();
+  const modal = document.createElement('div');
+  modal.id = 'mf-link-modal';
+  modal.className = 'mf-link-modal modal';
+  modal.innerHTML = `
+    <div class="modal-backdrop"></div>
+    <div class="modal-container" style="max-width:420px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Link</h3>
+        <button class="modal-close" aria-label="Close">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Display name</label>
+          <input type="text" id="mf-link-name-input" class="form-control" placeholder="e.g. Installation Guide" autocomplete="off" maxlength="255">
+        </div>
+        <div class="form-group">
+          <label class="form-label">URL</label>
+          <input type="url" id="mf-link-url-input" class="form-control" placeholder="https://" autocomplete="off">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="mf-link-cancel">Cancel</button>
+        <button class="btn btn-primary" id="mf-link-confirm">Add Link</button>
+      </div>
+    </div>`;
+
+  document.body.appendChild(modal);
+
+  const nameInput = modal.querySelector('#mf-link-name-input');
+  const urlInput  = modal.querySelector('#mf-link-url-input');
+  nameInput.focus();
+
+  const confirm = async () => {
+    const name = nameInput.value.trim();
+    const url  = urlInput.value.trim();
+    if (!name) { nameInput.focus(); return; }
+    if (!url || !/^https?:\/\//i.test(url)) {
+      showToast('Please enter a valid URL starting with http:// or https://', 'error');
+      urlInput.focus();
+      return;
+    }
+    modal.querySelector('#mf-link-confirm').disabled = true;
+    await onConfirm(name, url);
+    closeAddLinkModal();
+  };
+
+  modal.querySelector('#mf-link-confirm').addEventListener('click', confirm);
+  modal.querySelector('#mf-link-cancel').addEventListener('click', closeAddLinkModal);
+  modal.querySelector('.modal-close').addEventListener('click', closeAddLinkModal);
+  modal.querySelector('.modal-backdrop').addEventListener('click', closeAddLinkModal);
+  [nameInput, urlInput].forEach(inp => inp.addEventListener('keydown', e => { if (e.key === 'Enter') confirm(); }));
+}
+
+function closeAddLinkModal() {
+  document.getElementById('mf-link-modal')?.remove();
+}
+
 // ── Delete confirmation modal ──────────────────────────────────────────────────
 
 function openDeleteModal(label, onConfirm) {
@@ -591,13 +677,17 @@ function attachGridEvents(grid) {
     el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') el.click(); });
   });
 
-  // Open file preview on click
+  // Open file or link on click
   grid.querySelectorAll('.mf-file').forEach(el => {
     el.addEventListener('click', async (e) => {
       if (e.target.closest('.mf-item-menu-btn')) return;
       const storagePath = el.dataset.storagePath;
       const cat = el.dataset.fileCat;
       const name = el.querySelector('.mf-item-name')?.textContent || 'File';
+      if (cat === 'link') {
+        window.open(storagePath, '_blank', 'noopener,noreferrer');
+        return;
+      }
       showUploadProgress('Loading…');
       try {
         const url = await getFileUrl(storagePath);
@@ -682,8 +772,10 @@ function attachGridEvents(grid) {
       const menu = showContextMenu(rect.left, rect.bottom + 4, [
         {
           action: 'open-file',
-          label: 'Open / Preview',
-          icon: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
+          label: cat === 'link' ? 'Open Link' : 'Open / Preview',
+          icon: cat === 'link'
+            ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>`
+            : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`,
         },
         {
           action: 'rename-file',
@@ -701,6 +793,10 @@ function attachGridEvents(grid) {
 
       menu.querySelector('[data-action="open-file"]').addEventListener('click', async () => {
         closeContextMenu();
+        if (cat === 'link') {
+          window.open(storagePath, '_blank', 'noopener,noreferrer');
+          return;
+        }
         showUploadProgress('Loading…');
         try {
           const url = await getFileUrl(storagePath);
@@ -729,8 +825,8 @@ function attachGridEvents(grid) {
         closeContextMenu();
         openDeleteModal(currentName, async () => {
           try {
-            await deleteFile(fileId, storagePath);
-            showToast('File deleted', 'success');
+            await deleteFile(fileId, storagePath, cat === 'link');
+            showToast(cat === 'link' ? 'Link deleted' : 'File deleted', 'success');
             await renderGrid();
           } catch (err) {
             showToast('Delete failed: ' + err.message, 'error');
@@ -742,19 +838,73 @@ function attachGridEvents(grid) {
 }
 
 function attachToolbarEvents() {
-  const canWrite = state.isManager;
-
   // Breadcrumb navigation
   document.querySelectorAll('.mf-breadcrumb-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
       const idx = parseInt(btn.dataset.crumbIndex, 10);
-      // idx 0 = root (Manuals), trim stack to (idx - 1) entries
+      // idx 0 = root, trim stack to (idx - 1) entries
       nav.stack = nav.stack.slice(0, idx);
       await refreshAll();
     });
   });
 
-  if (!canWrite) return;
+  // Back button (shown when inside a subfolder)
+  document.getElementById('mf-back-btn')?.addEventListener('click', async () => {
+    nav.pop();
+    await refreshAll();
+  });
+}
+
+function attachHeaderEvents() {
+  const fileInput = document.getElementById('mf-file-input');
+  if (fileInput) {
+    fileInput.addEventListener('change', async () => {
+      const files = Array.from(fileInput.files);
+      if (!files.length) return;
+      fileInput.value = '';
+
+      let successCount = 0;
+      let failCount = 0;
+
+      for (let i = 0; i < files.length; i++) {
+        const raw = files[i];
+        showUploadProgress(`Uploading ${i + 1} of ${files.length}: ${raw.name}`);
+        updateUploadProgress(`Processing ${raw.name}…`);
+
+        try {
+          let file = raw;
+          if (raw.type.startsWith('image/')) {
+            updateUploadProgress(`Compressing ${raw.name}…`);
+            file = await compressImage(raw);
+          } else if (raw.type === 'application/pdf' || raw.name.toLowerCase().endsWith('.pdf')) {
+            file = await preparePdf(raw);
+          }
+          updateUploadProgress(`Uploading ${raw.name}…`);
+          await uploadFile(file, nav.currentFolderId);
+          successCount++;
+        } catch (err) {
+          failCount++;
+          showToast(`Failed to upload ${raw.name}: ${err.message}`, 'error');
+        }
+      }
+
+      hideUploadProgress();
+      if (successCount) showToast(`${successCount} file${successCount > 1 ? 's' : ''} uploaded`, 'success');
+      await renderGrid();
+    });
+  }
+
+  document.getElementById('mf-add-link-btn')?.addEventListener('click', () => {
+    openAddLinkModal(async (name, url) => {
+      try {
+        await addLinkToDb(name, url, nav.currentFolderId);
+        showToast('Link added', 'success');
+        await renderGrid();
+      } catch (err) {
+        showToast('Could not add link: ' + err.message, 'error');
+      }
+    });
+  });
 
   document.getElementById('mf-new-folder-btn')?.addEventListener('click', () => {
     openNewFolderModal(async (name) => {
@@ -766,51 +916,30 @@ function attachToolbarEvents() {
       }
     });
   });
-
-  const fileInput = document.getElementById('mf-file-input');
-  if (!fileInput) return;
-
-  // Clicking the label triggers file picker — this wires the actual change
-  fileInput.addEventListener('change', async () => {
-    const files = Array.from(fileInput.files);
-    if (!files.length) return;
-    fileInput.value = '';
-
-    let successCount = 0;
-    let failCount = 0;
-
-    for (let i = 0; i < files.length; i++) {
-      const raw = files[i];
-      showUploadProgress(`Uploading ${i + 1} of ${files.length}: ${raw.name}`);
-      updateUploadProgress(`Processing ${raw.name}…`);
-
-      try {
-        let file = raw;
-        if (raw.type.startsWith('image/')) {
-          updateUploadProgress(`Compressing ${raw.name}…`);
-          file = await compressImage(raw);
-        } else if (raw.type === 'application/pdf' || raw.name.toLowerCase().endsWith('.pdf')) {
-          file = await preparePdf(raw);
-        }
-        updateUploadProgress(`Uploading ${raw.name}…`);
-        await uploadFile(file, nav.currentFolderId);
-        successCount++;
-      } catch (err) {
-        failCount++;
-        showToast(`Failed to upload ${raw.name}: ${err.message}`, 'error');
-      }
-    }
-
-    hideUploadProgress();
-    if (successCount) showToast(`${successCount} file${successCount > 1 ? 's' : ''} uploaded`, 'success');
-    await renderGrid();
-  });
 }
 
 // ── Entry point ────────────────────────────────────────────────────────────────
 
 export async function renderManualsView() {
   nav.reset();
+  const canWrite = state.isManager;
+
+  const headerActions = canWrite ? `
+    <div class="mf-header-actions">
+      <label class="btn btn-primary mf-upload-btn" id="mf-upload-trigger">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload
+        <input type="file" id="mf-file-input" multiple accept=".pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.xls,.xlsx,.csv,.odt,.ods" style="display:none">
+      </label>
+      <button class="btn btn-secondary" id="mf-add-link-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        Add Link
+      </button>
+      <button class="btn btn-secondary" id="mf-new-folder-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+        New Folder
+      </button>
+    </div>` : '';
 
   viewContainer.innerHTML = `
     <div class="page-header" style="border-bottom:none;padding-bottom:0;">
@@ -819,6 +948,7 @@ export async function renderManualsView() {
           <h1 class="page-title">Manuals</h1>
           <p class="page-subtitle">Organise and share technical documentation for your team</p>
         </div>
+        ${headerActions}
       </div>
     </div>
     <div class="mf-explorer">
@@ -826,6 +956,7 @@ export async function renderManualsView() {
       <div id="mf-grid" class="mf-grid"></div>
     </div>`;
 
+  attachHeaderEvents();
   attachToolbarEvents();
   await renderGrid();
 }
