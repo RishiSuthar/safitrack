@@ -41,6 +41,17 @@ function _pgHTML(current, total, size) {
   </div>`;
 }
 
+// Waits for all imgs in a container to finish loading (or error/timeout) before revealing
+async function _awaitImages(container) {
+  const imgs = [...container.querySelectorAll('img[src]')].filter(i => i.src && !i.complete);
+  if (!imgs.length) return;
+  const settle = imgs.map(img => new Promise(res => {
+    img.addEventListener('load', res, { once: true });
+    img.addEventListener('error', res, { once: true });
+  }));
+  await Promise.race([Promise.all(settle), new Promise(res => setTimeout(res, 6000))]);
+}
+
 // ════════════════════════════════════════════════════════════════
 // HELPER — format date & compress image
 // ════════════════════════════════════════════════════════════════
@@ -2137,7 +2148,9 @@ function renderDenialModal(reportId, type = 'UPS') {
 window._viewUPSReport = async function (reportId, isTechnician = false) {
   const containerId = isTechnician ? 'ups-activity-list' : 'ups-reports-container';
   const container = document.getElementById(containerId);
-  container.innerHTML = `<div class="ups-reports-empty">Loading report…</div>`;
+  container.style.removeProperty('opacity');
+  container.style.removeProperty('transition');
+  container.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 24px;gap:12px;"><div class="loading-spinner" style="width:32px;height:32px;border-width:3px;margin:0;"></div><span style="font-size:13px;color:var(--text-muted);">Loading…</span></div>`;
 
   const { data: r, error } = await supabaseClient
     .from('ups_maintenance_reports')
@@ -2201,6 +2214,7 @@ window._viewUPSReport = async function (reportId, isTechnician = false) {
     return res.length > 0 ? res.join(' ') : '0 mins';
   };
 
+  container.style.opacity = '0';
   container.innerHTML = `
     <div class="ups-report-detail" id="ups-report-print-target">
       <div class="ups-report-detail-header">
@@ -2370,6 +2384,11 @@ window._viewUPSReport = async function (reportId, isTechnician = false) {
     </div>
   `;
 
+  await _awaitImages(container);
+  container.style.transition = 'opacity 0.2s ease';
+  container.style.opacity = '1';
+  setTimeout(() => { container.style.removeProperty('opacity'); container.style.removeProperty('transition'); }, 250);
+
   // Store current report data for PDF
   window._currentUPSReport = r;
 }
@@ -2384,7 +2403,9 @@ window._backToReportsList = function () {
 window._viewCustomSubmission = async function (submissionId, isTechnician = false) {
   const container = document.getElementById(isTechnician ? 'ups-activity-list' : 'ups-reports-container');
   if (!container) return;
-  container.innerHTML = `<div class="ups-reports-empty">Loading submission…</div>`;
+  container.style.removeProperty('opacity');
+  container.style.removeProperty('transition');
+  container.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 24px;gap:12px;"><div class="loading-spinner" style="width:32px;height:32px;border-width:3px;margin:0;"></div><span style="font-size:13px;color:var(--text-muted);">Loading…</span></div>`;
 
   const { data: s, error } = await supabaseClient
     .from('form_submissions')
@@ -2460,6 +2481,7 @@ window._viewCustomSubmission = async function (submissionId, isTechnician = fals
           <div class="ups-report-fields">${fields.map(renderFieldRow).join('')}</div>
         </div>` : '');
 
+  container.style.opacity = '0';
   container.innerHTML = `
     <div class="ups-report-detail">
       <div class="ups-report-detail-header">
@@ -2496,6 +2518,11 @@ window._viewCustomSubmission = async function (submissionId, isTechnician = fals
       </div>
     </div>
   `;
+
+  await _awaitImages(container);
+  container.style.transition = 'opacity 0.2s ease';
+  container.style.opacity = '1';
+  setTimeout(() => { container.style.removeProperty('opacity'); container.style.removeProperty('transition'); }, 250);
 
   // Store submission data for PDF
   window._currentCustomSubmission = { s, form, fields };
