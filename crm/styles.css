@@ -23657,6 +23657,12 @@ textarea.ups-input {
   font-size: 14px;
 }
 
+/* ── Pagination bar ─────────────────────────────────────────────────────────── */
+/* visits pagination wrapper divs — padding matches list container */
+#visits-cards-pg, #visits-timeline-pg {
+  padding: 0 16px;
+}
+
 /* ── Report detail view ─────────────────────────────────────────────────────── */
 .ups-report-detail {
   background: var(--bg-secondary);

@@ -7,6 +7,40 @@ import { renderSkeletonCards, renderError } from '../utils/helpers.js';
 import { getPdfHeader } from './forms.js';
 import './solar-technician.js';
 
+// ── Submissions pagination state ──────────────────────────────────────────────
+const SUBS_PAGE_SIZE = 20;
+let _submissionsPage = 1;
+let _submissionsFiltered = [];
+
+const _chevL = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>`;
+const _chevR = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
+
+function _pgHTML(current, total, size) {
+  if (total <= size) return '';
+  const totalPages = Math.ceil(total / size);
+  const from = (current - 1) * size + 1;
+  const to = Math.min(current * size, total);
+
+  const visible = new Set([1, totalPages]);
+  for (let i = Math.max(1, current - 2); i <= Math.min(totalPages, current + 2); i++) visible.add(i);
+  const pages = [...visible].sort((a, b) => a - b);
+
+  let btns = '';
+  for (let i = 0; i < pages.length; i++) {
+    if (i > 0 && pages[i] - pages[i - 1] > 1) btns += `<span class="pagination-ellipsis">...</span>`;
+    btns += `<button class="pagination-btn${pages[i] === current ? ' active' : ''}" data-pg="${pages[i]}">${pages[i]}</button>`;
+  }
+
+  return `<div class="pagination-container">
+    <div class="pagination-info">Showing ${from} to ${to} of ${total} records</div>
+    <div class="pagination-controls">
+      <button class="pagination-btn${current === 1 ? ' disabled' : ''}" data-pg="${current - 1}">${_chevL} Previous</button>
+      ${btns}
+      <button class="pagination-btn${current === totalPages ? ' disabled' : ''}" data-pg="${current + 1}">Next ${_chevR}</button>
+    </div>
+  </div>`;
+}
+
 // ════════════════════════════════════════════════════════════════
 // HELPER — format date & compress image
 // ════════════════════════════════════════════════════════════════
@@ -1707,6 +1741,7 @@ window._editCustomSubmission = async function(submissionId) {
 // ════════════════════════════════════════════════════════════════
 
 async function renderTechniciansDashboardView() {
+  _submissionsPage = 1; // reset on every full view load
   viewContainer.innerHTML = `
     <div class="ups-reports-section" id="ups-reports-section" style="margin-top: 0;">
       <div class="ups-reports-header">
@@ -1876,6 +1911,7 @@ async function renderTechniciansDashboardView() {
 
       return matchSearch && matchType && matchStatus && matchDate;
     });
+    _submissionsPage = 1; // reset to first page on any filter change
     renderReportsTable(filtered, allReports);
   };
 
@@ -1893,12 +1929,18 @@ async function renderTechniciansDashboardView() {
 }
 
 function renderReportsTable(reports, allReports) {
+  _submissionsFiltered = reports;
   const container = document.getElementById('ups-reports-container');
 
   if (reports.length === 0) {
     container.innerHTML = `<div class="ups-reports-empty">No reports found.</div>`;
     return;
   }
+
+  const totalPages = Math.ceil(reports.length / SUBS_PAGE_SIZE);
+  _submissionsPage = Math.max(1, Math.min(_submissionsPage, totalPages));
+  const start = (_submissionsPage - 1) * SUBS_PAGE_SIZE;
+  const pageReports = reports.slice(start, start + SUBS_PAGE_SIZE);
 
   container.innerHTML = `
     <div class="ups-reports-table-wrap">
@@ -1914,7 +1956,7 @@ function renderReportsTable(reports, allReports) {
           </tr>
         </thead>
         <tbody>
-          ${reports.map(r => `
+          ${pageReports.map(r => `
             <tr onclick="${r._type === 'UPS' ? `window._viewUPSReport('${r.id}')` : r._type === 'SOLAR' ? `window._viewSolarReport('${r.id}')` : `window._viewCustomSubmission('${r.id}')`}">
               <td>
                 <span style="font-size:11px; font-weight:600; padding:2px 8px; border-radius:12px; ${r._type === 'UPS' ? 'background:#e0e7ff; color:#4f46e5;' : r._type === 'SOLAR' ? 'background:#fef3c7; color:#d97706;' : 'background:#d1fae5; color:#059669;'}">
@@ -1951,9 +1993,25 @@ function renderReportsTable(reports, allReports) {
         </tbody>
       </table>
     </div>
+    ${_pgHTML(_submissionsPage, reports.length, SUBS_PAGE_SIZE)}
   `;
 
   if (window.lucide) lucide.createIcons();
+
+  // Wire pagination via event delegation — runs once per container lifetime
+  if (!container._pgWired) {
+    container._pgWired = true;
+    container.addEventListener('click', e => {
+      const btn = e.target.closest('.pagination-btn');
+      if (!btn || btn.classList.contains('disabled') || btn.classList.contains('active')) return;
+      const pg = parseInt(btn.dataset.pg, 10);
+      if (!isNaN(pg)) {
+        _submissionsPage = pg;
+        renderReportsTable(_submissionsFiltered);
+        container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  }
 }
 
 // ════════════════════════════════════════════════════════════════

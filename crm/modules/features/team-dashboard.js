@@ -8,10 +8,39 @@ import { renderSkeletonCards } from '../utils/helpers.js';
 // VISITS HUB - PREMIUM MANAGER VIEW
 // ======================
 
+const VISITS_PAGE_SIZE = 20;
+
+const _chevL = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>`;
+const _chevR = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>`;
+
+function _pgHTML(current, total, size) {
+  if (total <= size) return '';
+  const totalPages = Math.ceil(total / size);
+  const from = (current - 1) * size + 1;
+  const to = Math.min(current * size, total);
+  const visible = new Set([1, totalPages]);
+  for (let i = Math.max(1, current - 2); i <= Math.min(totalPages, current + 2); i++) visible.add(i);
+  const pages = [...visible].sort((a, b) => a - b);
+  let btns = '';
+  for (let i = 0; i < pages.length; i++) {
+    if (i > 0 && pages[i] - pages[i - 1] > 1) btns += `<span class="pagination-ellipsis">...</span>`;
+    btns += `<button class="pagination-btn${pages[i] === current ? ' active' : ''}" data-pg="${pages[i]}">${pages[i]}</button>`;
+  }
+  return `<div class="pagination-container">
+    <div class="pagination-info">Showing ${from} to ${to} of ${total} records</div>
+    <div class="pagination-controls">
+      <button class="pagination-btn${current === 1 ? ' disabled' : ''}" data-pg="${current - 1}">${_chevL} Previous</button>
+      ${btns}
+      <button class="pagination-btn${current === totalPages ? ' disabled' : ''}" data-pg="${current + 1}">Next ${_chevR}</button>
+    </div>
+  </div>`;
+}
+
 let visitsHubState = {
   visits: [],
   salesReps: [],
   filteredVisits: [],
+  currentPage: 1,
   currentView: (_persisted.teamDashboard && _persisted.teamDashboard.currentView) || 'cards',
   selectedVisitId: null,
   filters: Object.assign({
@@ -239,11 +268,13 @@ async function renderTeamDashboardView() {
           <div class="visits-list-container" id="visits-cards-view">
             ${renderVisitsCards(visitsWithProfiles)}
           </div>
+          <div id="visits-cards-pg"></div>
           
           <!-- Timeline View -->
           <div class="visits-timeline-view" id="visits-timeline-view">
             ${renderVisitsTimeline(visitsWithProfiles)}
           </div>
+          <div id="visits-timeline-pg"></div>
           
           <!-- Map View -->
           <div class="visits-map-view" id="visits-map-view">
@@ -529,6 +560,20 @@ function getRelativeTime(date) {
 }
 
 function initVisitsHub() {
+  // Pagination — delegated from the static pg divs
+  ['visits-cards-pg', 'visits-timeline-pg'].forEach(pgId => {
+    document.getElementById(pgId)?.addEventListener('click', e => {
+      const btn = e.target.closest('.pagination-btn');
+      if (!btn || btn.classList.contains('disabled') || btn.classList.contains('active')) return;
+      const pg = parseInt(btn.dataset.pg, 10);
+      if (!isNaN(pg)) {
+        visitsHubState.currentPage = pg;
+        _renderVisitsPage();
+        document.querySelector('.visits-hub-content')?.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    });
+  });
+
   // Restore filter values in DOM
   const searchInput = document.getElementById('visits-search');
   if (searchInput) {
@@ -665,9 +710,13 @@ function switchVisitsView(view, save = true) {
     btn.classList.toggle('active', btn.dataset.view === view);
   });
 
-  // Update visible container
+  // Update visible containers + paired pagination divs
   document.getElementById('visits-cards-view').style.display = view === 'cards' ? 'block' : 'none';
+  const cardsPg = document.getElementById('visits-cards-pg');
+  if (cardsPg) cardsPg.style.display = view === 'cards' ? 'block' : 'none';
   document.getElementById('visits-timeline-view').classList.toggle('active', view === 'timeline');
+  const timelinePg = document.getElementById('visits-timeline-pg');
+  if (timelinePg) timelinePg.style.display = view === 'timeline' ? 'block' : 'none';
   document.getElementById('visits-map-view').classList.toggle('active', view === 'map');
 
   // Initialize map if needed
@@ -767,13 +816,30 @@ function applyVisitsFilters() {
   }
 
   visitsHubState.filteredVisits = filtered;
+  visitsHubState.currentPage = 1;
 
   // Update count
   document.getElementById('visits-count').textContent = `${filtered.length} visit${filtered.length !== 1 ? 's' : ''}`;
 
-  // Re-render views
-  document.getElementById('visits-cards-view').innerHTML = renderVisitsCards(filtered);
-  document.getElementById('visits-timeline-view').innerHTML = renderVisitsTimeline(filtered);
+  // Re-render views with page 1
+  _renderVisitsPage();
+}
+
+function _renderVisitsPage() {
+  const { filteredVisits, currentPage } = visitsHubState;
+  const totalPages = Math.ceil(filteredVisits.length / VISITS_PAGE_SIZE);
+  const page = Math.max(1, Math.min(currentPage, totalPages || 1));
+  visitsHubState.currentPage = page;
+  const start = (page - 1) * VISITS_PAGE_SIZE;
+  const pageVisits = filteredVisits.slice(start, start + VISITS_PAGE_SIZE);
+
+  document.getElementById('visits-cards-view').innerHTML = renderVisitsCards(pageVisits);
+  document.getElementById('visits-timeline-view').innerHTML = renderVisitsTimeline(pageVisits);
+
+  const cardsPg = document.getElementById('visits-cards-pg');
+  const timelinePg = document.getElementById('visits-timeline-pg');
+  if (cardsPg) cardsPg.innerHTML = _pgHTML(page, filteredVisits.length, VISITS_PAGE_SIZE);
+  if (timelinePg) timelinePg.innerHTML = _pgHTML(page, filteredVisits.length, VISITS_PAGE_SIZE);
 }
 
 function clearAllFilters() {
