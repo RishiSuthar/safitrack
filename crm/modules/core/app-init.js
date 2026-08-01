@@ -3,7 +3,7 @@
 import { state, supabaseClient, crmDebugLog } from '../state.js';
 
 import { authScreen, mainApp } from '../ui/dom.js';
-import { loadView } from './navigation.js';
+import { loadView, initCollapsibleSections } from './navigation.js';
 import { startDueNotificationsMonitor } from '../features/notifications.js';
 import { startSafiNudgeRealtime } from '../realtime/nudge.js';
 import { attemptShowPWABanner } from '../ui/pwa.js';
@@ -122,6 +122,7 @@ async function initApp() {
   // Update UI based on role
   updateUserDisplay(profile);
   updateNavigationForRole();
+  initCollapsibleSections();
 
   // Start loading people and companies non-blockingly, storing the promises globally
   window.allPeoplePromise = loadAllPeople();

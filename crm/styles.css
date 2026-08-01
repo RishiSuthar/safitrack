@@ -4781,7 +4781,9 @@ body.modal-active {
 }
 
 .nav-section-title {
-  display: block;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   font-size: var(--type-xxs);
   font-weight: 550;
   text-transform: uppercase;
@@ -4790,7 +4792,40 @@ body.modal-active {
   padding: 0 var(--space-3);
   margin-bottom: var(--space-1);
   margin-top: var(--space-2);
+  cursor: pointer;
+  user-select: none;
+  background: none;
+  border: none;
+  width: 100%;
+  font-family: inherit;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s;
 }
+.nav-section-title:hover { color: var(--text-secondary); }
+
+.nav-section-chevron {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+  opacity: 0.6;
+}
+.nav-section.collapsed .nav-section-chevron {
+  transform: rotate(-90deg);
+}
+
+/* Grid-row animation for smooth collapse */
+.nav-section-items {
+  display: grid;
+  grid-template-rows: 1fr;
+  overflow: hidden;
+  transition: grid-template-rows 0.2s ease;
+}
+.nav-section.collapsed .nav-section-items {
+  grid-template-rows: 0fr;
+}
+/* single inner child must have min-height:0 for the 0fr row to fully collapse */
+.nav-section-items > div { min-height: 0; overflow: hidden; }
 
 .nav-item {
   display: flex;

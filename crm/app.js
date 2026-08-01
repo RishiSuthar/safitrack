@@ -308,6 +308,7 @@ window.renderWorkflowsView = lazyLoad('./modules/features/workflows.js', 'render
 window.openWorkflowBuilder = lazyLoad('./modules/features/workflows.js', 'openWorkflowBuilder');
 window.closeWorkflowBuilder = lazyLoad('./modules/features/workflows.js', 'closeWorkflowBuilder');
 window.saveWorkflow = lazyLoad('./modules/features/workflows.js', 'saveWorkflow');
+window.renderManualsView = lazyLoad('./modules/features/manuals.js', 'renderManualsView');
 window.deleteWorkflow = lazyLoad('./modules/features/workflows.js', 'deleteWorkflow');
 window.toggleWorkflowActive = lazyLoad('./modules/features/workflows.js', 'toggleWorkflowActive');
 window.openTriggerPicker = lazyLoad('./modules/features/workflows.js', 'openTriggerPicker');

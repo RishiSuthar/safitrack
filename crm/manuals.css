@@ -1,0 +1,444 @@
+/* manuals.css — Manuals file-explorer feature */
+
+/* ── Explorer shell ─────────────────────────────────────────────────────────── */
+.mf-explorer {
+  padding: 0 20px 40px;
+  max-width: 1100px;
+}
+
+/* ── Toolbar / breadcrumb row ────────────────────────────────────────────────── */
+.mf-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0 16px;
+  flex-wrap: wrap;
+}
+
+.mf-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.mf-breadcrumb-btn {
+  background: none;
+  border: none;
+  padding: 4px 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--primary);
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition: background 0.15s;
+}
+.mf-breadcrumb-btn:hover { background: var(--primary-10); }
+
+.mf-breadcrumb-current {
+  padding: 4px 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.mf-breadcrumb-sep {
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.mf-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.mf-upload-btn {
+  cursor: pointer;
+  gap: 6px;
+}
+.mf-upload-btn svg { width: 15px; height: 15px; }
+.btn.btn-secondary svg { width: 15px; height: 15px; }
+
+/* ── Grid ────────────────────────────────────────────────────────────────────── */
+.mf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+/* ── Item card ───────────────────────────────────────────────────────────────── */
+.mf-item {
+  position: relative;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 14px 14px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: border-color 0.15s, background 0.15s;
+  outline: none;
+  user-select: none;
+}
+.mf-item:hover {
+  border-color: var(--primary);
+  background: var(--bg-primary);
+}
+.mf-item:focus-visible {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-10);
+}
+
+.mf-item-icon-wrap {
+  display: flex;
+  align-items: center;
+}
+
+/* ── Folder icon ─────────────────────────────────────────────────────────────── */
+.mf-folder-icon {
+  width: 40px;
+  height: 40px;
+  color: #f5a623;
+}
+[data-theme="dark"] .mf-folder-icon { color: #f0b93d; }
+
+/* ── File icons ──────────────────────────────────────────────────────────────── */
+.mf-file-icon {
+  width: 36px;
+  height: 36px;
+  stroke-width: 1.5;
+}
+.mf-file-icon.pdf   { color: #e53935; }
+.mf-file-icon.img   { color: #43a047; }
+.mf-file-icon.doc   { color: #1e88e5; }
+.mf-file-icon.sheet { color: #00897b; }
+.mf-file-icon.generic { color: var(--text-secondary); }
+
+/* ── Item meta ────────────────────────────────────────────────────────────────── */
+.mf-item-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  flex: 1;
+}
+
+.mf-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.4;
+}
+
+.mf-item-date {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Context menu trigger button ─────────────────────────────────────────────── */
+.mf-item-menu-wrap {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+}
+
+.mf-item-menu-btn {
+  background: none;
+  border: none;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, color 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mf-item-menu-btn svg { width: 16px; height: 16px; }
+.mf-item:hover .mf-item-menu-btn,
+.mf-item-menu-btn:focus { opacity: 1; }
+.mf-item-menu-btn:hover { background: var(--bg-primary); color: var(--text-primary); }
+
+/* ── Context menu popup ──────────────────────────────────────────────────────── */
+.mf-ctx-menu {
+  position: fixed;
+  z-index: 9999;
+  min-width: 172px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.13);
+  padding: 4px;
+  animation: mf-ctx-appear 0.1s ease;
+}
+@keyframes mf-ctx-appear {
+  from { opacity: 0; transform: scale(0.96) translateY(-4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.mf-ctx-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.12s;
+}
+.mf-ctx-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+.mf-ctx-item:hover { background: var(--bg-primary); }
+.mf-ctx-item.danger { color: var(--danger, #e53935); }
+.mf-ctx-item.danger:hover { background: rgba(229, 57, 53, 0.08); }
+
+.mf-ctx-divider {
+  height: 1px;
+  background: var(--border-color-light);
+  margin: 3px 0;
+}
+
+/* ── Inline rename input ──────────────────────────────────────────────────────── */
+.mf-rename-input {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  width: 100%;
+  outline: none;
+}
+
+/* ── Empty state ────────────────────────────────────────────────────────────── */
+.mf-empty {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+.mf-empty svg {
+  width: 52px;
+  height: 52px;
+  opacity: 0.3;
+}
+.mf-empty-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin: 0;
+}
+.mf-empty-hint {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+  text-align: center;
+  max-width: 300px;
+}
+
+/* ── Loading skeleton placeholder ───────────────────────────────────────────── */
+.mf-loading {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+/* ── Upload progress overlay ─────────────────────────────────────────────────── */
+.mf-upload-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mf-upload-box {
+  background: var(--bg-secondary);
+  border-radius: var(--radius-xl);
+  padding: 32px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  min-width: 240px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.25);
+}
+.mf-upload-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: mf-spin 0.7s linear infinite;
+}
+@keyframes mf-spin {
+  to { transform: rotate(360deg); }
+}
+.mf-upload-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin: 0;
+  text-align: center;
+  max-width: 220px;
+}
+
+/* ── File preview modal ──────────────────────────────────────────────────────── */
+.mf-preview-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: flex;
+  align-items: stretch;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.mf-preview-modal.open { opacity: 1; }
+
+.mf-preview-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+}
+
+.mf-preview-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-secondary);
+  width: 100%;
+  max-width: 900px;
+  margin: 20px auto;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.35);
+  transform: translateY(12px);
+  transition: transform 0.2s;
+}
+.mf-preview-modal.open .mf-preview-panel {
+  transform: translateY(0);
+}
+
+.mf-preview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border-color-light);
+  flex-shrink: 0;
+}
+
+.mf-preview-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+}
+
+.mf-preview-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.mf-preview-dl svg { width: 15px; height: 15px; }
+
+.mf-preview-close {
+  background: none;
+  border: none;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  transition: background 0.15s;
+}
+.mf-preview-close svg { width: 18px; height: 18px; }
+.mf-preview-close:hover { background: var(--bg-primary); color: var(--text-primary); }
+
+.mf-preview-body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-primary);
+  min-height: 0;
+}
+
+.mf-preview-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+}
+
+.mf-preview-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.mf-preview-no-preview {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 24px;
+  color: var(--text-muted);
+  text-align: center;
+}
+.mf-preview-no-preview svg { width: 56px; height: 56px; opacity: 0.5; }
+.mf-preview-no-preview p { font-size: 15px; font-weight: 500; color: var(--text-secondary); margin: 0; }
+
+/* ── Mobile tweaks ───────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .mf-explorer { padding: 0 12px 40px; }
+  .mf-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+  .mf-item { padding: 12px 10px 10px; }
+  .mf-toolbar { gap: 8px; }
+  .mf-toolbar-actions { gap: 6px; }
+
+  .mf-preview-panel {
+    margin: 0;
+    border-radius: 0;
+    height: 100%;
+    max-width: 100%;
+  }
+}

@@ -24,6 +24,7 @@ function updateActiveNav(viewName) {
   document.querySelectorAll('[data-view]').forEach(btn => {
     btn.classList.toggle('active', btn.getAttribute('data-view') === viewName);
   });
+  _expandSectionForView(viewName);
   // Update small page label (icon + text) shown to the right of the sidebar
   try {
     const navBtn = document.querySelector(`[data-view="${viewName}"]`);
@@ -103,7 +104,9 @@ async function loadView(viewName) {
 
   // Prevent technicians from accessing certain views
   const blockedForTechnician = ['sales-funnel', 'opportunity-pipeline', 'call-logs', 'companies', 'people'];
-  if (state.isTechnician && blockedForTechnician.includes(viewName)) {
+  // Managers-only views that technicians cannot access
+  const managerOnlyViews = ['submissions', 'forms', 'workflows', 'reports', 'route-planning', 'team-dashboard', 'main-dashboard', 'user-management'];
+  if (state.isTechnician && (blockedForTechnician.includes(viewName) || managerOnlyViews.includes(viewName))) {
     showToast('You do not have permission to access this view', 'error');
     return;
   }
@@ -221,6 +224,9 @@ async function loadView(viewName) {
     case 'workflows':
       await window.renderWorkflowsView();
       break;
+    case 'manuals':
+      await window.renderManualsView();
+      break;
     default:
       viewContainer.innerHTML = renderNotFound();
   }
@@ -229,6 +235,90 @@ async function loadView(viewName) {
   // Always try to initialize Lucide icons after a view switch
   if (window.lucide) {
     setTimeout(() => lucide.createIcons(), 0);
+  }
+}
+
+
+// ── Collapsible nav sections ───────────────────────────────────────────────────
+
+const _NAV_COLLAPSED_KEY = 'safitrack_nav_collapsed';
+
+function _getCollapsed() {
+  try { return new Set(JSON.parse(localStorage.getItem(_NAV_COLLAPSED_KEY) || '[]')); } catch { return new Set(); }
+}
+
+function _saveCollapsed(set) {
+  try { localStorage.setItem(_NAV_COLLAPSED_KEY, JSON.stringify([...set])); } catch {}
+}
+
+export function initCollapsibleSections() {
+  const collapsed = _getCollapsed();
+
+  document.querySelectorAll('.sidebar-nav .nav-section').forEach(section => {
+    const titleEl = section.querySelector(':scope > .nav-section-title');
+    if (!titleEl) return;
+
+    // Capture name before any DOM changes
+    const sectionName = titleEl.textContent.trim().toLowerCase();
+    section.dataset.sectionName = sectionName;
+
+    // Wrap items: outer = grid container (1 row), inner = single grid child
+    const itemsWrap = document.createElement('div');
+    itemsWrap.className = 'nav-section-items';
+    const itemsInner = document.createElement('div');
+    [...section.children]
+      .filter(el => !el.classList.contains('nav-section-title'))
+      .forEach(el => itemsInner.appendChild(el));
+    itemsWrap.appendChild(itemsInner);
+    section.appendChild(itemsWrap);
+
+    // Add chevron SVG to the title
+    const chevron = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    chevron.setAttribute('class', 'nav-section-chevron');
+    chevron.setAttribute('viewBox', '0 0 24 24');
+    chevron.setAttribute('fill', 'none');
+    chevron.setAttribute('stroke', 'currentColor');
+    chevron.setAttribute('stroke-width', '2.5');
+    chevron.setAttribute('stroke-linecap', 'round');
+    chevron.setAttribute('stroke-linejoin', 'round');
+    chevron.setAttribute('aria-hidden', 'true');
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+    poly.setAttribute('points', '6 9 12 15 18 9');
+    chevron.appendChild(poly);
+    titleEl.appendChild(chevron);
+
+    // Apply persisted collapsed state (never collapse a section with the active item)
+    const hasActiveItem = section.querySelector('.nav-item.active');
+    if (collapsed.has(sectionName) && !hasActiveItem) {
+      section.classList.add('collapsed');
+    }
+
+    titleEl.addEventListener('click', () => {
+      const isNowCollapsed = section.classList.toggle('collapsed');
+      const set = _getCollapsed();
+      if (isNowCollapsed) set.add(sectionName);
+      else set.delete(sectionName);
+      _saveCollapsed(set);
+    });
+
+    titleEl.addEventListener('keydown', e => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); titleEl.click(); }
+    });
+  });
+}
+
+// Auto-expand the section containing the newly active nav item
+function _expandSectionForView(viewName) {
+  const btn = document.querySelector(`.sidebar-nav [data-view="${viewName}"]`);
+  if (!btn) return;
+  const section = btn.closest('.nav-section');
+  if (!section || !section.classList.contains('collapsed')) return;
+  section.classList.remove('collapsed');
+  const sectionName = section.dataset.sectionName;
+  if (sectionName) {
+    const set = _getCollapsed();
+    set.delete(sectionName);
+    _saveCollapsed(set);
   }
 }
 
