@@ -13,6 +13,13 @@ function initPWA() {
       navigator.serviceWorker.register('sw.js')
         .catch(err => console.error('SW: Registration failed', err));
     });
+
+    // Handle messages from the service worker (e.g. notification click navigation)
+    navigator.serviceWorker.addEventListener('message', (event) => {
+      if (event.data?.type === 'NAVIGATE' && event.data.view && window.loadView) {
+        window.loadView(event.data.view);
+      }
+    });
   }
 
   const installBtn = document.getElementById('pwa-install-btn');

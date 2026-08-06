@@ -7,6 +7,7 @@ import { renderSkeletonCards, formatDate, CURRENCIES, getCurrencySymbol } from '
 import { loadView } from '../core/navigation.js';
 import { showChangelogModal } from '../ui/changelog.js';
 import { fetchCustomFieldDefinitions, invalidateCustomFieldCache, generateFieldKey } from './custom-fields.js';
+import { notificationStore } from './notifications.js';
 
 async function renderSettingsView() {
   const dateFormatPref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
@@ -2122,8 +2123,7 @@ async function renderSettingsView() {
   /* ─────────────── BROWSER NOTIFS ─────────────── */
   document.getElementById('enable-browser-notifs')?.addEventListener('click', async () => {
     try {
-      const perm = await Notification.requestPermission();
-      showToast(perm === 'granted' ? 'Browser notifications enabled' : 'Browser notifications not enabled', perm === 'granted' ? 'success' : 'warning');
+      await notificationStore.requestBrowserPermission();
     } catch (e) { showToast('Unable to enable notifications', 'error'); }
   });
 

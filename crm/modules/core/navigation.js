@@ -5,7 +5,6 @@ import { state, saveViewState } from '../state.js';
 import { sidebar, sidebarOverlay, viewContainer, pageLabel, pageLabelIcon, pageLabelText } from '../ui/dom.js';
 import { showToast } from '../ui/toast.js';
 import { renderAccessDenied, renderNotFound } from '../utils/helpers.js';
-import { checkDueReminders } from '../features/notifications.js';
 // Feature views are loaded via lazy-load proxy wrappers defined on the global window object.
 
 // ======================
@@ -230,7 +229,8 @@ async function loadView(viewName) {
     default:
       viewContainer.innerHTML = renderNotFound();
   }
-  checkDueReminders();
+  // Notify the notification store that the view changed (triggers a lightweight refresh).
+  document.dispatchEvent(new CustomEvent('safitrack:view-changed', { detail: { view: viewName } }));
 
   // Always try to initialize Lucide icons after a view switch
   if (window.lucide) {

@@ -79,10 +79,8 @@ export const state = {
   // Batch selection
   selectedRecordIds: new Set(),
 
-  // Due notifications
-  dueNotificationsPollId: null,
-  duePopupHideTimers: [],
-  dueNotificationState: { items: [], unreadCount: 0 },
+  // Notification store reference (set by NotificationStore on start)
+  notificationStore: null,
 
   // Safi Nudge real-time
   safiNudgeChannel: null,

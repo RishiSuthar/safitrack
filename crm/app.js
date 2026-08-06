@@ -72,6 +72,9 @@ import {
   getSafiNudgeModal, populateSafiNudgeRecipients, sendSafiNudge,
 } from './modules/realtime/nudge.js';
 
+// ── Notifications ─────────────────────────────────────────────────────────────
+import { notificationStore } from './modules/features/notifications.js';
+
 // ── Features ──────────────────────────────────────────────────────────────────
 
 
@@ -143,6 +146,8 @@ Object.assign(window, {
   initPWA, attemptShowPWABanner, showCompressionProgress, hideCompressionProgress,
   showMentionSuggestions, setActiveMention, insertMentionFromSuggestion,
   startSafiNudgeRealtime, stopSafiNudgeRealtime, sendSafiNudge, populateSafiNudgeRecipients,
+  // Notification store (exposed for debugging; avoid direct window access in app code)
+  notificationStore,
 });
 
 
@@ -186,29 +191,6 @@ window.initOpportunityModalListeners = lazyLoad('./modules/features/opportunitie
 window.addCompetitor = lazyLoad('./modules/features/opportunities.js', 'addCompetitor');
 window.getProbabilityColor = lazyLoad('./modules/features/opportunities.js', 'getProbabilityColor');
 window.scheduleNextStepReminder = lazyLoad('./modules/features/opportunities.js', 'scheduleNextStepReminder');
-window.getNotificationPermission = lazyLoad('./modules/features/notifications.js', 'getNotificationPermission');
-window.requestNotificationPermission = lazyLoad('./modules/features/notifications.js', 'requestNotificationPermission');
-window.readJsonStorage = lazyLoad('./modules/features/notifications.js', 'readJsonStorage');
-window.writeJsonStorage = lazyLoad('./modules/features/notifications.js', 'writeJsonStorage');
-window.formatDueLabel = lazyLoad('./modules/features/notifications.js', 'formatDueLabel');
-window.getDueStatus = lazyLoad('./modules/features/notifications.js', 'getDueStatus');
-window.mapTaskToDueNotification = lazyLoad('./modules/features/notifications.js', 'mapTaskToDueNotification');
-window.mapReminderToDueNotification = lazyLoad('./modules/features/notifications.js', 'mapReminderToDueNotification');
-window.mapOpportunityToDueNotification = lazyLoad('./modules/features/notifications.js', 'mapOpportunityToDueNotification');
-window.fetchDueNotificationItems = lazyLoad('./modules/features/notifications.js', 'fetchDueNotificationItems');
-window.renderDueNotificationsUI = lazyLoad('./modules/features/notifications.js', 'renderDueNotificationsUI');
-window.updateNotificationPermissionCTA = lazyLoad('./modules/features/notifications.js', 'updateNotificationPermissionCTA');
-window.pushDeviceNotification = lazyLoad('./modules/features/notifications.js', 'pushDeviceNotification');
-window.getDuePopupContainer = lazyLoad('./modules/features/notifications.js', 'getDuePopupContainer');
-window.clearDuePopupTimers = lazyLoad('./modules/features/notifications.js', 'clearDuePopupTimers');
-window.showDuePopup = lazyLoad('./modules/features/notifications.js', 'showDuePopup');
-window.notifyForNewDueItems = lazyLoad('./modules/features/notifications.js', 'notifyForNewDueItems');
-window.markAllDueNotificationsRead = lazyLoad('./modules/features/notifications.js', 'markAllDueNotificationsRead');
-window.refreshDueNotifications = lazyLoad('./modules/features/notifications.js', 'refreshDueNotifications');
-window.startDueNotificationsMonitor = lazyLoad('./modules/features/notifications.js', 'startDueNotificationsMonitor');
-window.stopDueNotificationsMonitor = lazyLoad('./modules/features/notifications.js', 'stopDueNotificationsMonitor');
-window.handleDueNotificationVisibility = lazyLoad('./modules/features/notifications.js', 'handleDueNotificationVisibility');
-window.checkDueReminders = lazyLoad('./modules/features/notifications.js', 'checkDueReminders');
 window.renderTeamDashboardView = lazyLoad('./modules/features/team-dashboard.js', 'renderTeamDashboardView');
 window.isToday = lazyLoad('./modules/features/team-dashboard.js', 'isToday');
 window.isThisWeek = lazyLoad('./modules/features/team-dashboard.js', 'isThisWeek');

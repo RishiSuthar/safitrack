@@ -612,41 +612,36 @@
           <span>Ask Safi</span>
         </button>
 
-        <div class="notifications-menu" id="notifications-menu">
-          <button id="notifications-btn" class="header-icon-btn notification-bell-btn" title="Notifications">
+        <div class="notifications-menu" id="notifications-wrapper">
+          <button id="notifications-btn" class="header-icon-btn notification-bell-btn" aria-label="Notifications" aria-expanded="false">
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0M3.124 7.5A8.969 8.969 0 0 1 5.292 3m13.416 0a8.969 8.969 0 0 1 2.168 4.5"/></svg>
             <span class="notification-badge" id="notifications-count" style="display:none;">0</span>
           </button>
-          <div class="notifications-popover" id="notifications-popover">
+          
+          <div class="notifications-popover" id="notifications-panel" role="dialog" aria-label="Notifications">
             <div class="notifications-popover-header">
               <div class="notifications-header-left">
                 <span class="notifications-title">Notifications</span>
-                <span class="notifications-unread-pill" id="notifications-unread-pill" style="display:none;"></span>
+                <span class="notifications-unread-pill" id="notifications-unread-pill" style="display:none;">0</span>
               </div>
-              <button class="notifications-mark-all-btn" id="notifications-mark-all-btn" title="Mark all as read">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+              <button class="notifications-mark-all-btn" id="notifications-mark-all-btn" aria-label="Mark all as read">
                 Mark all read
               </button>
             </div>
-            <div class="notifications-filter-tabs" id="notifications-filter-tabs">
-              <button class="notif-tab active" data-filter="all">All</button>
-              <button class="notif-tab" data-filter="unread">Unread</button>
-              <button class="notif-tab" data-filter="overdue">Overdue</button>
+            
+            <div class="notifications-filter-tabs" id="notifications-filter-tabs" role="tablist" aria-label="Notification filters">
+              <button class="notif-tab active" data-filter="all" role="tab" aria-selected="true">All</button>
+              <button class="notif-tab" data-filter="unread" role="tab" aria-selected="false">Unread</button>
+              <button class="notif-tab" data-filter="overdue" role="tab" aria-selected="false">Overdue</button>
             </div>
-            <div class="notifications-divider"></div>
-            <div class="notifications-list" id="notifications-list">
-              <div class="notifications-empty">
-                <div class="notifications-empty-icon">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
-                </div>
-                <span class="notifications-empty-text">All caught up</span>
-                <span class="notifications-empty-sub">No due alerts right now</span>
-              </div>
+            
+            <div class="notifications-list" id="notifications-list" role="list">
+              <!-- Rendered by notifications.js -->
             </div>
-            <div class="notifications-popover-footer" id="notifications-footer">
-              <button class="notifications-enable-btn" id="enable-notifications-btn" style="display:none;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
-                Enable device alerts
+            
+            <div class="notifications-popover-footer" id="notifications-footer" style="display:none;">
+              <button class="notifications-enable-btn" id="enable-notifications-btn">
+                Enable device notifications
               </button>
             </div>
           </div>

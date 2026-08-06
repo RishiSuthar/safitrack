@@ -31,8 +31,11 @@ export const commandPaletteBtn   = el('sidebar-quick-actions-btn');
 export const commandPalette      = el('quick-actions-modal');
 
 // ── Notification centre ───────────────────────────────────────────────────────
+// Note: most notification DOM elements are queried directly by NotificationStore
+// via getElementById to avoid stale references on dynamic content. Only the
+// outer wrapper and bell button are exported here for use by auth.js close logic.
 export const notificationsBtn        = el('notifications-btn');
-export const notificationsMenu       = el('notifications-menu');
+export const notificationsMenu       = el('notifications-wrapper'); // outer container
 export const notificationsCount      = el('notifications-count');
 export const notificationsList       = el('notifications-list');
 export const notificationsEnableBtn  = el('enable-notifications-btn');

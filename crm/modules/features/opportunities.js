@@ -1755,7 +1755,8 @@ function scheduleNextStepReminder(opportunityName, nextStep, dueDate) {
 
   localStorage.setItem('opportunityReminders', JSON.stringify(reminders));
 
-  refreshDueNotifications({ forcePopup: true });
+  // Dispatch a refresh event so the notification store picks up the new reminder
+  document.dispatchEvent(new CustomEvent('safitrack:notification-refresh', { detail: { forcePopup: true } }));
 }
 
 
