@@ -399,7 +399,6 @@ async function handleLogin(e) {
 }
 
 async function handleLogout() {
-  stopDueNotificationsMonitor();
   stopSafiNudgeRealtime();
   clearViewState();
   state.appInitialized = false;
