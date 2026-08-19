@@ -385,7 +385,7 @@ async function handleTodayAgenda() {
       { role: 'system', content: 'You are Safi AI, a warm CRM assistant. Summarise the user\'s day in a friendly, conversational way. Use **bold** for task/reminder names, bullet points for lists. Keep it punchy — lead with the overall vibe (busy, manageable, clear) then list what\'s on. Mention overdue items with a gentle nudge. Max 200 words.' },
       { role: 'user', content: `Today is ${dayOfWeek}, ${dateStr}. Here is the user's agenda data:\n\n${lines.join('\n')}\n\nGive them a natural, friendly rundown of their day.` }
     ];
-    const reply = await groqChat(messages, 300, 0.7);
+    const reply = await geminiChat(messages, 300, 0.7);
     appendAIMessage(reply);
   } catch (err) {
     console.error('handleTodayAgenda error', err);
@@ -409,7 +409,7 @@ async function handleFindContact(text) {
   ];
   let searchName = '', searchCompany = '';
   try {
-    const raw = await groqChat(extractMsg, 60, 0);
+    const raw = await geminiChat(extractMsg, 60, 0);
     const parsed = JSON.parse(raw.match(/\{[\s\S]*\}/)?.[0] || '{}');
     searchName = (parsed.name || '').trim();
     searchCompany = (parsed.company || '').trim();
@@ -474,7 +474,7 @@ async function handleFindContact(text) {
       { role: 'system', content: 'You are Safi AI, a friendly CRM assistant. Present the contact results in a clean, readable way. Use **bold** for names, show key details in a compact format. If multiple contacts found, list them clearly. If just one, give a slightly richer summary. Keep it conversational — no corporate-speak.' },
       { role: 'user', content: `The user searched for "${searchName}"${searchCompany ? ` at "${searchCompany}"` : ''}. Here are the results:\n\n${contactLines}\n\nPresent this naturally.` }
     ];
-    const reply = await groqChat(messages, 250, 0.6);
+    const reply = await geminiChat(messages, 250, 0.6);
     appendAIMessage(reply);
   } catch (err) {
     console.error('handleFindContact error', err);
@@ -493,7 +493,7 @@ async function extractSearchTerms(text) {
       { role: 'system', content: 'Extract search keywords from the user message. Return strict JSON: {"search": "...", "company": "...", "person": "...", "filter": "..."}. Only include keys you can extract. "search" is the main search term, "company" is a company name if mentioned, "person" is a person name if mentioned, "filter" is any filter like type/stage/status. Return only JSON, no explanation.' },
       { role: 'user', content: text }
     ];
-    const raw = await groqChat(messages, 80, 0);
+    const raw = await geminiChat(messages, 80, 0);
     const parsed = JSON.parse(raw.match(/\{[\s\S]*\}/)?.[0] || '{}');
     return parsed;
   } catch (e) {
@@ -1192,7 +1192,7 @@ async function handleQueryCompanies(text) {
     { role: 'system', content: `You are Safi AI, a smart CRM assistant. The user is asking about companies in their CRM. Below is the real data from their database. Present it in a clear, friendly, and insightful way. Use **bold** for company names. Use bullet points for lists. If showing numbers, highlight key stats. If they asked about a specific company, focus on that one with a richer summary. Keep it conversational and actionable — point out things they might care about (e.g. companies with no contacts, patterns in types). Max 300 words.` },
     { role: 'user', content: `User question: "${text}"\n\nCRM Company Data:\n${context}\n\nAnswer the user's question based on this data.` }
   ];
-  const reply = await groqChat(messages, 400, 0.6);
+  const reply = await geminiChat(messages, 400, 0.6);
   appendAIMessage(reply);
 }
 
@@ -1204,7 +1204,7 @@ async function handleQueryPeople(text) {
     { role: 'system', content: `You are Safi AI, a smart CRM assistant. The user is asking about contacts/people in their CRM. Below is the real data from their database. Present it clearly and helpfully. Use **bold** for names. Use bullet points. Highlight useful patterns (e.g. contacts without emails, key decision-makers by title). Keep it conversational and concise. Max 300 words.` },
     { role: 'user', content: `User question: "${text}"\n\nCRM People Data:\n${context}\n\nAnswer the user's question based on this data.` }
   ];
-  const reply = await groqChat(messages, 400, 0.6);
+  const reply = await geminiChat(messages, 400, 0.6);
   appendAIMessage(reply);
 }
 
@@ -1216,7 +1216,7 @@ async function handleQueryOpportunities(text) {
     { role: 'system', content: `You are Safi AI, a sharp CRM and sales assistant. The user is asking about their deals/pipeline. Below is the real data. Present pipeline stats clearly, highlight key metrics with **bold**, use bullet points for deal lists. Be insightful — call out stuck deals, overdue actions, biggest opportunities. If they asked about specific deals or stages, focus there. Use the actual numbers. Keep it actionable. Don't use |----------|--------- type of characters to make tables, Max 350 words.` },
     { role: 'user', content: `User question: "${text}"\n\nPipeline Data:\n${context}\n\nAnswer the user's question based on this real data.` }
   ];
-  const reply = await groqChat(messages, 450, 0.6);
+  const reply = await geminiChat(messages, 450, 0.6);
   appendAIMessage(reply);
 }
 
@@ -1228,7 +1228,7 @@ async function handleQueryActivity(text) {
     { role: 'system', content: `You are Safi AI, a helpful CRM assistant. The user is asking about recent activity — visits, calls, and notes. Below is the real data. Summarize the activity in a clear, timeline-friendly way. Use **bold** for company and contact names. Group by type if helpful. Highlight patterns (e.g. most visited company, call outcomes). Keep it conversational. Max 300 words.` },
     { role: 'user', content: `User question: "${text}"\n\nActivity Data:\n${context}\n\nAnswer the user's question based on this data.` }
   ];
-  const reply = await groqChat(messages, 400, 0.6);
+  const reply = await geminiChat(messages, 400, 0.6);
   appendAIMessage(reply);
 }
 
@@ -1246,7 +1246,7 @@ async function handleQueryCompanyDeep(text) {
         { role: 'system', content: `You are Safi AI, a sharp CRM assistant. The user wants a full overview of a specific company. Below is all the CRM data for that company — contacts, deals, visits, calls, tasks. Present it in a well-organized, insightful way. Use **bold** for the company name and key numbers. Use **bold section headers** like **Contacts**, **Pipeline**, **Recent Activity**, **Tasks**. Highlight actionable insights: overdue next steps, open pipeline value, visit frequency, key contacts. Be concise but thorough. Max 500 words.` },
         { role: 'user', content: `User question: "${text}"\n\nFull company data from CRM:\n${context}\n\nGive a comprehensive, insightful company overview.` }
       ];
-      const reply = await groqChat(messages, 650, 0.6);
+      const reply = await geminiChat(messages, 650, 0.6);
       appendAIMessage(reply);
       return;
     }
@@ -1272,7 +1272,7 @@ async function handleQueryTasks(text) {
     { role: 'system', content: `You are Safi AI, a helpful CRM assistant. The user is asking about tasks. Below is the real task data. Present it in a clear, actionable way. Use **bold** for task names. Flag overdue items with urgency. Group by priority if there are many tasks. Be practical and motivating — not just a dry list. Max 300 words.` },
     { role: 'user', content: `User question: "${text}"\n\nTask Data:\n${context}\n\nAnswer based on this real data.` }
   ];
-  const reply = await groqChat(messages, 400, 0.6);
+  const reply = await geminiChat(messages, 400, 0.6);
   appendAIMessage(reply);
 }
 
@@ -1287,7 +1287,7 @@ async function handleCRMSummary(text) {
     { role: 'system', content: `You are Safi AI, a sharp and encouraging CRM assistant who acts like a trusted business advisor. The user wants a status update on their CRM/business. Below is the real data. Give a comprehensive but punchy overview. Structure it with clear sections (use **bold** headers). Lead with the overall health/vibe. Highlight wins, flag risks (overdue items, stuck deals). End with 2-3 specific recommended actions. Use bullet points. Be motivating but honest. Max 400 words.` },
     { role: 'user', content: `Today is ${dayOfWeek}, ${dateStr}. Here is the full CRM status:\n\n${context}\n\nGive a comprehensive, actionable CRM status update.` }
   ];
-  const reply = await groqChat(messages, 500, 0.7);
+  const reply = await geminiChat(messages, 500, 0.7);
   appendAIMessage(reply);
 }
 
@@ -1314,7 +1314,7 @@ async function handleAdvice(text) {
     { role: 'system', content: 'You are Safi AI, a sharp and encouraging sales coach inside a CRM. Talk like a trusted advisor who genuinely wants the rep to win the deal. Be direct and practical — no fluff. Use bullet points (- item) for action steps, **bold** for the most important phrases. Keep it punchy and motivating.' },
     { role: 'user', content: `Here's the deal:\nName: ${opp.name}\nCompany: ${opp.company_name}\nStage: ${opp.stage}\nValue: ${opp.value}\nProbability: ${opp.probability}\nNotes: ${opp.notes || 'none'}\n\nGive me 3 clear, specific actions I can take right now to move this deal forward and close it.` }
   ];
-  const reply = await groqChat(messages, 200, 0.7);
+  const reply = await geminiChat(messages, 200, 0.7);
   appendAIMessage(reply);
   resetConversation();
 }
@@ -1674,7 +1674,7 @@ Key rules:
 - If the user asks broadly about "the business" or "everything" or "status", use crm_summary.` },
     { role: 'user', content: `User message: "${text}"` }
   ];
-  const response = await groqChat(messages, 20, 0);
+  const response = await geminiChat(messages, 20, 0);
   const match = response.match(/create_task|create_reminder|create_opportunity|advise_opportunity|today_agenda|find_contact|query_company_deep|query_companies|query_people|query_opportunities|query_activity|query_tasks|crm_summary/);
   return match ? match[0] : 'none';
 }
@@ -1731,7 +1731,7 @@ async function generateCasualReply(text) {
     ...historyMessages,
     { role: 'user', content: text + freshContext + prevContext }
   ];
-  const response = await groqChat(messages, 350, 0.7);
+  const response = await geminiChat(messages, 350, 0.7);
   return response.trim();
 }
 
@@ -1754,7 +1754,7 @@ async function extractFields(text, intent) {
     { role: 'system', content: 'You are a smart extractor that outputs strict JSON.' },
     { role: 'user', content: `${instructions}\n\nUser message: "${text}"` }
   ];
-  const response = await groqChat(messages, 200, 0);
+  const response = await geminiChat(messages, 200, 0);
   try {
     return JSON.parse(response.trim());
   } catch (e) {
@@ -1842,7 +1842,7 @@ Now ask naturally for: ${fieldDesc}.`;
     { role: 'system', content: systemPrompt },
     { role: 'user', content: userPrompt }
   ];
-  const response = await groqChat(messages, 80, 0.85);
+  const response = await geminiChat(messages, 80, 0.85);
   return response.trim().replace(/^["']|["']$/g, '');
 }
 

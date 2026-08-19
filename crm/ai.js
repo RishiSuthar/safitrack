@@ -1,30 +1,30 @@
 // AI calls are proxied through a Supabase Edge Function.
-// The Groq API key lives ONLY in the edge function as a secret — never in the browser.
-// Set GROQ_PROXY_URL in crm/config.js to your deployed function URL:
-//   https://<your-project-ref>.supabase.co/functions/v1/groq-proxy
-const GROQ_PROXY_URL = (window.APP_CONFIG || {}).GROQ_PROXY_URL || '';
+// The Gemini API key lives ONLY in the edge function as a secret — never in the browser.
+// Set GEMINI_PROXY_URL in crm/config.js to your deployed function URL:
+//   https://<your-project-ref>.supabase.co/functions/v1/gemini-proxy
+const GEMINI_PROXY_URL = (window.APP_CONFIG || {}).GEMINI_PROXY_URL || '';
 
 /**
- * Low-level helper: POST a Groq request body to the server-side proxy.
+ * Low-level helper: POST a Gemini request body to the server-side proxy.
  * Attaches the current user's Supabase JWT so the edge function can
- * verify the caller is authenticated before touching the Groq key.
+ * verify the caller is authenticated before touching the Gemini key.
  */
-async function callGroqProxy(payload) {
-  if (!GROQ_PROXY_URL) {
-    throw new Error('[SafiTrack] GROQ_PROXY_URL not set in crm/config.js.');
+async function callGeminiProxy(payload) {
+  if (!GEMINI_PROXY_URL) {
+    throw new Error('[SafiTrack] GEMINI_PROXY_URL not set in crm/config.js.');
   }
 
   let authToken = '';
   try {
     const { data: { session } } = await supabaseClient.auth.getSession();
     authToken = session?.access_token || '';
-  } catch (_) {}
+  } catch (_) { }
 
   if (!authToken) {
     throw new Error('[SafiTrack] User not authenticated — cannot call AI proxy.');
   }
 
-  return fetch(GROQ_PROXY_URL, {
+  return fetch(GEMINI_PROXY_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -34,160 +34,46 @@ async function callGroqProxy(payload) {
   });
 }
 
-// Generate concise visit summary
-async function generateConciseVisitSummary(company, contact, notes) {
-  try {
-    const response = await callGroqProxy({
-        model: 'llama-3.1-8b-instant',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are Safi A.I, a concise assistant. Generate a very concise summary of a sales visit in 2-3 bullet points. Focus on key outcomes and next steps. Use bullet points with * and keep it under 100 words total.'
-          },
-          {
-            role: 'user',
-            content: `Summarize this visit to ${company} with ${contact || 'contact'}:
-            
-            Notes: ${notes.substring(0, 500)}`
-          }
-        ],
-        max_tokens: 150,
-        temperature: 0.3
-    });
+function convertMessagesToGemini(messages) {
+  let systemInstruction = null;
+  const contents = [];
 
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
+  for (const msg of messages) {
+    if (msg.role === 'system') {
+      systemInstruction = { parts: [{ text: msg.content }] };
+    } else {
+      const role = msg.role === 'assistant' ? 'model' : 'user';
+      contents.push({ role, parts: [{ text: msg.content }] });
     }
-
-    const data = await response.json();
-    return data.choices[0].message.content;
-  } catch (error) {
-    console.error('Error generating visit summary:', error);
-    return 'Unable to generate summary.';
   }
-}
 
-// Predictive Lead Scoring
-async function predictLeadScore(company, contact, notes, visitType) {
-  try {
-    const response = await callGroqProxy({
-        model: 'llama-3.1-8b-instant',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are Safi A.I, a sales assistant that predicts lead conversion probability. Analyze the visit details and return ONLY a number between 0-100 representing the lead score. Consider: engagement level, decision-maker access, budget signals, timeline urgency, and pain points mentioned.'
-          },
-          {
-            role: 'user',
-            content: `Analyze this sales visit and predict lead score (0-100):
-            
-            Company: ${company}
-            Contact: ${contact || 'Unknown'}
-            Visit Type: ${visitType}
-            Notes: ${notes.substring(0, 400)}
-            
-            Return only the numeric score.`
-          }
-        ],
-        max_tokens: 10,
-        temperature: 0.2
-    });
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    const scoreText = data.choices[0].message.content.trim();
-    const score = parseInt(scoreText.match(/\d+/)?.[0] || '50');
-    
-    return Math.min(100, Math.max(0, score));
-  } catch (error) {
-    console.error('Error predicting lead score:', error);
-    return 50; // Default score
-  }
-}
-
-// Generate team trends
-async function generateConciseTeamTrends(allNotes) {
-  try {
-    const response = await callGroqProxy({
-        model: 'llama-3.1-8b-instant',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are Safi A.I, a helpful assistant. Generate very concise team insights in 3-4 bullet points. Focus on common patterns, key challenges, and opportunities. Use bullet points with * and keep it under 120 words total.'
-          },
-          {
-            role: 'user',
-            content: `Analyze these field visit notes and provide team insights:
-            
-            Notes: ${allNotes.substring(0, 1000)}`
-          }
-        ],
-        max_tokens: 180,
-        temperature: 0.3
-    });
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return data.choices[0].message.content;
-  } catch (error) {
-    console.error('Error analyzing team trends:', error);
-    return 'Unable to analyze team trends at this time.';
-  }
-}
-
-// Generate a short neutral company description from the company name
-async function generateCompanyDescription(companyName) {
-  try {
-    if (!companyName || !companyName.trim()) return '';
-
-    const response = await callGroqProxy({
-        model: 'llama-3.1-8b-instant',
-        messages: [
-          {
-            role: 'system',
-            content: 'You are Safi A.I, a helpful assistant that writes short, factual and neutral company descriptions based only on the company name. Keep it to 1 short sentence (under 25 words). Do NOT invent unverifiable specifics such as exact products, locations, or financials. If uncertain, use generic phrasing.'
-          },
-          {
-            role: 'user',
-            content: `Write a short, neutral description for this company name: "${companyName}". Keep it concise (1 sentence) and avoid fabricating details.`
-          }
-        ],
-        max_tokens: 80,
-        temperature: 0.6
-    });
-
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-
-    const data = await response.json();
-    return (data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content) ? data.choices[0].message.content.trim() : '';
-  } catch (error) {
-    console.error('Error generating company description:', error);
-    return '';
-  }
+  return { systemInstruction, contents };
 }
 
 // ------------------------------------------------------------------
-// Generic Groq helper used by other AI features (intent detection, field extraction, etc.)
+// Generic Gemini helper used by other AI features (intent detection, field extraction, etc.)
 // ------------------------------------------------------------------
-async function groqChat(messages, max_tokens = 300, temperature = 0.3) {
+async function geminiChat(messages, maxOutputTokens = 300, temperature = 0.3) {
   const maxAttempts = 3;
   let attempt = 0;
+  
+  const { systemInstruction, contents } = convertMessagesToGemini(messages);
+  
+  const payload = {
+    contents,
+    generationConfig: {
+      temperature,
+      maxOutputTokens
+    }
+  };
+  
+  if (systemInstruction) {
+    payload.systemInstruction = systemInstruction;
+  }
+
   while (attempt < maxAttempts) {
     try {
-      const response = await callGroqProxy({
-          model: 'groq/compound',
-          messages,
-          max_tokens,
-          temperature
-      });
+      const response = await callGeminiProxy(payload);
 
       if (!response.ok) {
         const err = new Error(`API error: ${response.status}`);
@@ -201,17 +87,103 @@ async function groqChat(messages, max_tokens = 300, temperature = 0.3) {
       }
 
       const data = await response.json();
-      return data.choices[0].message.content.trim();
+      return (data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts.length > 0) 
+        ? data.candidates[0].content.parts[0].text.trim() 
+        : '';
     } catch (error) {
-      console.error('Error in groqChat:', error);
-      if (error.status === 429 && attempt < maxAttempts - 1) {
-        // Use the server's Retry-After if available, otherwise wait 10s / 20s
-        const wait = error.retryAfter || (10000 * (attempt + 1));
+      console.error('Error in geminiChat:', error);
+      if ((error.status === 429 || error.status === 503) && attempt < maxAttempts - 1) {
+        // Use the server's Retry-After if available, otherwise wait 2s / 4s
+        const wait = error.retryAfter || (2000 * (attempt + 1));
         await new Promise(r => setTimeout(r, wait));
         attempt++;
         continue;
       }
       throw error;
     }
+  }
+}
+
+// Generate concise visit summary
+async function generateConciseVisitSummary(company, contact, notes) {
+  try {
+    const messages = [
+      {
+        role: 'system',
+        content: 'You are Safi A.I, a concise assistant. Generate a very concise summary of a sales visit in 2-3 bullet points. Focus on key outcomes and next steps. Use bullet points with * and keep it under 100 words total.'
+      },
+      {
+        role: 'user',
+        content: `Summarize this visit to ${company} with ${contact || 'contact'}:\n\nNotes: ${notes.substring(0, 500)}`
+      }
+    ];
+    return await geminiChat(messages, 150, 0.3);
+  } catch (error) {
+    console.error('Error generating visit summary:', error);
+    return 'Unable to generate summary.';
+  }
+}
+
+// Predictive Lead Scoring
+async function predictLeadScore(company, contact, notes, visitType) {
+  try {
+    const messages = [
+      {
+        role: 'system',
+        content: 'You are Safi A.I, a sales assistant that predicts lead conversion probability. Analyze the visit details and return ONLY a number between 0-100 representing the lead score. Consider: engagement level, decision-maker access, budget signals, timeline urgency, and pain points mentioned.'
+      },
+      {
+        role: 'user',
+        content: `Analyze this sales visit and predict lead score (0-100):\n\nCompany: ${company}\nContact: ${contact || 'Unknown'}\nVisit Type: ${visitType}\nNotes: ${notes.substring(0, 400)}\n\nReturn only the numeric score.`
+      }
+    ];
+    const resultText = await geminiChat(messages, 10, 0.2);
+    const score = parseInt(resultText.match(/\d+/)?.[0] || '50');
+    return Math.min(100, Math.max(0, score));
+  } catch (error) {
+    console.error('Error predicting lead score:', error);
+    return 50; // Default score
+  }
+}
+
+// Generate team trends
+async function generateConciseTeamTrends(allNotes) {
+  try {
+    const messages = [
+      {
+        role: 'system',
+        content: 'You are Safi A.I, a helpful assistant. Generate very concise team insights in 3-4 bullet points. Focus on common patterns, key challenges, and opportunities. Use bullet points with * and keep it under 120 words total.'
+      },
+      {
+        role: 'user',
+        content: `Analyze these field visit notes and provide team insights:\n\nNotes: ${allNotes.substring(0, 1000)}`
+      }
+    ];
+    return await geminiChat(messages, 180, 0.3);
+  } catch (error) {
+    console.error('Error analyzing team trends:', error);
+    return 'Unable to analyze team trends at this time.';
+  }
+}
+
+// Generate a short neutral company description from the company name
+async function generateCompanyDescription(companyName) {
+  try {
+    if (!companyName || !companyName.trim()) return '';
+
+    const messages = [
+      {
+        role: 'system',
+        content: 'You are Safi A.I, a helpful assistant that writes short, factual and neutral company descriptions based only on the company name. Keep it to 1 short sentence (under 25 words). Do NOT invent unverifiable specifics such as exact products, locations, or financials. If uncertain, use generic phrasing.'
+      },
+      {
+        role: 'user',
+        content: `Write a short, neutral description for this company name: "${companyName}". Keep it concise (1 sentence) and avoid fabricating details.`
+      }
+    ];
+    return await geminiChat(messages, 80, 0.6);
+  } catch (error) {
+    console.error('Error generating company description:', error);
+    return '';
   }
 }

@@ -25,9 +25,13 @@ serve(async (req: Request) => {
       throw new Error('Missing required environment variables');
     }
 
-    const authHeader = req.headers.get('Authorization');
+    const action = req.headers.get('X-AI-Action') || 'general';
+    const body = await req.json().catch(() => ({}));
+    
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${GEMINI_API_KEY}`;
+
     let userId: string | null = null;
-    let orgId: string | null = null;
+    let orgIdPromise: Promise<string | null> = Promise.resolve(null);
 
     if (authHeader) {
       const userClient = createClient(supabaseUrl, anonKey);
@@ -37,50 +41,43 @@ serve(async (req: Request) => {
       if (user) {
         userId = user.id;
         const supabaseAdmin = createClient(supabaseUrl, serviceKey);
-        const { data: profile } = await supabaseAdmin
+        orgIdPromise = supabaseAdmin
           .from('profiles')
           .select('organization_id')
           .eq('id', user.id)
-          .single();
-        
-        if (profile) {
-          orgId = profile.organization_id;
-        }
+          .single()
+          .then(res => res.data?.organization_id || null)
+          .catch(() => null);
       }
     }
 
-    const action = req.headers.get('X-AI-Action') || 'general';
-    const body = await req.json().catch(() => ({}));
-    
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${GEMINI_API_KEY}`;
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(body)
-    });
+    // Call Gemini API and orgId lookup in parallel
+    const [response, orgId] = await Promise.all([
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body)
+      }),
+      orgIdPromise
+    ]);
 
     const data = await response.json();
     
-    // Log AI Usage asynchronously if possible, or await it
+    // Log AI Usage asynchronously (do not await)
     if (userId && data.usageMetadata) {
       const supabaseAdmin = createClient(supabaseUrl, serviceKey);
-      const { error: insertError } = await supabaseAdmin.from('ai_usage_logs').insert([{
+      supabaseAdmin.from('ai_usage_logs').insert([{
         organization_id: orgId || null,
         user_id: userId,
         action: action,
         prompt_tokens: data.usageMetadata.promptTokenCount || 0,
         candidates_tokens: data.usageMetadata.candidatesTokenCount || 0,
         total_tokens: data.usageMetadata.totalTokenCount || 0
-      }]);
-      
-      if (insertError) {
-        console.error("Failed to insert AI usage log:", insertError);
-      }
-    } else {
-      console.warn("Skipping AI usage log. userId:", userId, "orgId:", orgId, "hasUsageMetadata:", !!data.usageMetadata);
+      }]).then(({ error: insertError }) => {
+        if (insertError) console.error("Failed to insert AI usage log:", insertError);
+      });
     }
 
     return json(data, response.status);
