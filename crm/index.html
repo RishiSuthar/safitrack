@@ -803,7 +803,7 @@
 
             <button data-view="call-logs" class="nav-item">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-phone-icon lucide-phone"><path d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384"/></svg>
-              <span>Call Logs</span>
+              <span>Calls</span>
             </button>
           </div>
 
@@ -2078,7 +2078,7 @@
                 <path
                   d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
               </svg>
-              Call Logs
+              Calls
               <span class="record-tab-count" id="company-tab-calls-count">0</span>
             </button>
             <button class="record-tab company-view-tab" data-tab="visits">
@@ -2319,7 +2319,7 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />
               </svg>
-              Call Logs
+              Calls
               <span class="record-tab-count" id="person-tab-calls-count">0</span>
             </button>
             <button class="record-tab person-view-tab" data-tab="visits">
@@ -2412,14 +2412,17 @@
     <div class="modal-backdrop"></div>
     <div class="modal-container">
 
-      <div class="modal-header">
-        <h3 id="call-log-modal-title" style="font-size:1rem;font-weight:600;margin:0;color:var(--text-primary)">Log New Call</h3>
-        <button class="modal-close" onclick="closeModal('call-log-modal')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 6 6 18" /><path d="m6 6 12 12" />
-          </svg>
-        </button>
+      <div class="modal-header" style="flex-direction: column; align-items: flex-start; gap: 12px;">
+        <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+          <h3 id="call-log-modal-title" style="font-size:1.125rem;font-weight:700;margin:0;color:var(--text-primary)">Log Call</h3>
+          <button class="modal-close" onclick="closeModal('call-log-modal')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+          </button>
+        </div>
+        <div class="clm-mode-toggle" style="display: flex; background: var(--bg-secondary); border-radius: 8px; padding: 4px; width: 100%; border: 1px solid var(--border-color);">
+          <button class="clm-mode-btn active" id="clm-mode-log" style="flex: 1; padding: 6px 12px; font-size: 0.875rem; font-weight: 600; border-radius: 6px; border: none; background: var(--bg-primary); color: var(--text-primary); cursor: pointer; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s;">Log Past Call</button>
+          <button class="clm-mode-btn" id="clm-mode-schedule" style="flex: 1; padding: 6px 12px; font-size: 0.875rem; font-weight: 600; border-radius: 6px; border: none; background: transparent; color: var(--text-muted); cursor: pointer; transition: all 0.2s;">Schedule Future</button>
+        </div>
       </div>
 
       <div class="modal-body">
@@ -2464,7 +2467,7 @@
               <input type="hidden" id="call-direction" value="Outbound">
             </div>
             <div class="form-field" style="margin-bottom:0">
-              <label for="call-datetime">Date &amp; Time</label>
+              <label for="call-datetime" id="call-datetime-label">Date &amp; Time</label>
               <input type="datetime-local" id="call-datetime">
             </div>
             <div class="form-field" style="margin-bottom:0">
@@ -2474,7 +2477,7 @@
           </div>
 
           <!-- Outcome -->
-          <div class="form-field" style="margin-bottom:0.875rem">
+          <div class="form-field" id="call-outcome-container" style="margin-bottom:0.875rem">
             <label>Outcome <span class="required-indicator">(required)</span></label>
             <div class="clm-outcome-grid" id="call-outcome-options">
               <label class="clm-outcome-option">

@@ -2281,7 +2281,7 @@ async function renderSettingsView() {
                   ['All team members & their accounts', 'users'],
                   ['Contacts — people & companies', 'book-open'],
                   ['Sales visits, tasks & reminders', 'check-square'],
-                  ['Opportunities & call logs', 'phone'],
+                  ['Opportunities & calls', 'phone'],
                   ['Routes, notes & workflows', 'map'],
                   ['Pending invitations', 'mail'],
                 ].map(([label, _]) => `

@@ -7882,13 +7882,13 @@ select {
 
 /* Direction toggle */
 .clm-direction-group {
-  display: flex;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
+  display: inline-flex;
+  background: var(--bg-primary, #ffffff);
+  border: 1px solid var(--border-color, #E5E7EB);
+  border-radius: 8px;
   overflow: hidden;
-  padding: 3px;
-  gap: 3px;
+  padding: 4px;
+  gap: 4px;
 }
 
 .clm-dir-option {
@@ -7904,36 +7904,31 @@ select {
   align-items: center;
   justify-content: center;
   gap: 0.3rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.8125rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
   font-weight: 500;
-  color: var(--text-muted);
+  color: var(--text-secondary);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  transition: all 0.2s;
   white-space: nowrap;
   user-select: none;
-  border-radius: 7px;
+  border-radius: 6px;
 }
 
 .clm-dir-chip:hover {
   color: var(--text-primary);
-  background: var(--bg-tertiary);
+  background: var(--bg-secondary);
 }
 
 .clm-dir-chip svg {
-  opacity: 0.6;
-  transition: opacity 0.15s;
+  display: none; /* Image doesn't show icon, keeping it cleaner */
 }
 
 .clm-dir-option input:checked+.clm-dir-chip {
   background: var(--color-primary);
   color: #fff;
-  font-weight: 600;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
-}
-
-.clm-dir-option input:checked+.clm-dir-chip svg {
-  opacity: 1;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.1);
 }
 
 .clm-dir-option:not(:last-child) .clm-dir-chip {
@@ -17755,6 +17750,11 @@ button svg {
 .outcome-badge.connected {
   background: #D7F44A;
   color: #1F2A00;
+}
+
+.outcome-badge.scheduled {
+  background: var(--color-primary, #3b82f6);
+  color: #ffffff;
 }
 
 /* Strong indigo – already good */

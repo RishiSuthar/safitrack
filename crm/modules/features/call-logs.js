@@ -1,5 +1,5 @@
 // modules/features/call-logs.js
-// Call logs view, log modal, search, delete.
+// Calls view, log modal, search, delete.
 import { state, supabaseClient, crmDebugLog, saveViewState } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
@@ -186,7 +186,7 @@ async function renderCallLogsView() {
         <div class="cl-empty-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.9 12.72a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
         </div>
-        <div class="cl-empty-title">${isFiltered ? 'No results' : 'No call logs yet'}</div>
+        <div class="cl-empty-title">${isFiltered ? 'No results' : 'No calls yet'}</div>
         <div class="cl-empty-desc">${isFiltered ? 'Try adjusting your search or filters.' : 'Start logging your sales calls to track every conversation.'}</div>
         ${!isFiltered ? `
           <button class="btn btn-primary" id="log-call-btn-empty">
@@ -355,7 +355,7 @@ async function renderCallLogsView() {
 }
 
 async function deleteCallLog(id) {
-  const confirmed = await showConfirmDialog('Delete Call Log', 'Are you sure you want to delete this call log?');
+  const confirmed = await showConfirmDialog('Delete Call', 'Are you sure you want to delete this call?');
   if (!confirmed) return;
 
   try {
@@ -373,7 +373,7 @@ async function deleteCallLog(id) {
 
     // Check if user owns the log
     if (log.user_id !== state.currentUser.id) {
-      showToast('You can only delete your own call logs', 'error');
+      showToast('You can only delete your own calls', 'error');
       return;
     }
 
@@ -460,7 +460,7 @@ function openCallLogViewModal(log) {
 }
 
 /**
- * Company view modal — shows linked opportunities, call logs and recent visits in tabs.
+ * Company view modal — shows linked opportunities, calls and recent visits in tabs.
  * Accepts a company object or company id.
  */
 async function openCompanyViewModal(companyOrId) {
@@ -1035,7 +1035,7 @@ async function openCompanyViewModal(companyOrId) {
   // Render Call Logs tab (premium rows)
   const callsEl = document.getElementById('company-view-calls');
   if (!calls || calls.length === 0) {
-    callsEl.innerHTML = `<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg></div><div class="record-empty-title">No call logs</div><div class="record-empty-desc">No call records found for this company.</div></div>`;
+    callsEl.innerHTML = `<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg></div><div class="record-empty-title">No calls</div><div class="record-empty-desc">No call records found for this company.</div></div>`;
   } else {
     callsEl.innerHTML = calls.map(log => {
       const isInbound = (log.direction || '').toLowerCase() === 'inbound';
@@ -1153,7 +1153,55 @@ function openCallLogModal(log = null) {
   const title = document.getElementById('call-log-modal-title');
   const saveBtn = document.getElementById('save-call-log-btn');
 
-  title.textContent = log ? 'Edit Call Log' : 'Log New Call';
+  title.textContent = log ? 'Edit Call' : 'Log Call';
+
+  const modeLog = document.getElementById('clm-mode-log');
+  const modeSchedule = document.getElementById('clm-mode-schedule');
+  const outcomeContainer = document.getElementById('call-outcome-container');
+  const datetimeLabel = document.getElementById('call-datetime-label');
+  let isScheduling = false;
+
+  const updateMode = (schedule) => {
+    isScheduling = schedule;
+    if (schedule) {
+      modeSchedule.classList.add('active');
+      modeSchedule.style.background = 'var(--color-primary)';
+      modeSchedule.style.color = '#ffffff';
+      modeSchedule.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+      modeLog.classList.remove('active');
+      modeLog.style.background = 'transparent';
+      modeLog.style.color = 'var(--text-muted)';
+      modeLog.style.boxShadow = 'none';
+
+      outcomeContainer.style.display = 'none';
+      datetimeLabel.textContent = 'Scheduled Date & Time';
+      saveBtn.textContent = 'Schedule Call';
+      title.textContent = log ? 'Edit Scheduled Call' : 'Schedule Call';
+    } else {
+      modeLog.classList.add('active');
+      modeLog.style.background = 'var(--color-primary)';
+      modeLog.style.color = '#ffffff';
+      modeLog.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+      modeSchedule.classList.remove('active');
+      modeSchedule.style.background = 'transparent';
+      modeSchedule.style.color = 'var(--text-muted)';
+      modeSchedule.style.boxShadow = 'none';
+
+      outcomeContainer.style.display = 'block';
+      datetimeLabel.textContent = 'Date & Time';
+      saveBtn.textContent = 'Save Call';
+      title.textContent = log ? 'Edit Call' : 'Log Call';
+    }
+  };
+
+  modeLog.onclick = () => updateMode(false);
+  modeSchedule.onclick = () => updateMode(true);
+
+  if (log && log.outcome === 'Scheduled') {
+    updateMode(true);
+  } else {
+    updateMode(false);
+  }
 
   // Reset form
   document.getElementById('call-contact-input').value = log ? (log.people ? log.people.name : log.contact_name) : '';
@@ -1186,7 +1234,7 @@ function openCallLogModal(log = null) {
   // Live Search Handlers
   initCallLogSearch();
 
-  saveBtn.onclick = () => saveCallLog(log?.id);
+  saveBtn.onclick = () => saveCallLog(log?.id, isScheduling);
 }
 
 function initCallLogSearch() {
@@ -1269,7 +1317,7 @@ function initCallLogSearch() {
   handleSearch(companyInput, companyResults, 'companies', 'call-company-id');
 }
 
-async function saveCallLog(logId = null) {
+async function saveCallLog(logId = null, isScheduling = false) {
   const contactName = document.getElementById('call-contact-input').value;
   const contactId = document.getElementById('call-contact-id').value || null;
   const companyName = document.getElementById('call-company-input').value;
@@ -1280,8 +1328,12 @@ async function saveCallLog(logId = null) {
   const notes = document.getElementById('call-notes').value;
   const outcomeEl = document.querySelector('input[name="call-outcome"]:checked');
 
-  if (!contactName || !outcomeEl) {
-    showToast('Contact and Outcome are required', 'error');
+  if (!contactName) {
+    showToast('Contact is required', 'error');
+    return;
+  }
+  if (!isScheduling && !outcomeEl) {
+    showToast('Outcome is required', 'error');
     return;
   }
 
@@ -1294,7 +1346,7 @@ async function saveCallLog(logId = null) {
     direction,
     call_at: new Date(callAt).toISOString(),
     duration_seconds: durationMins ? durationMins * 60 : null,
-    outcome: outcomeEl.value,
+    outcome: isScheduling ? 'Scheduled' : outcomeEl.value,
     notes,
     organization_id: state.currentOrganization?.id
   };
@@ -1309,12 +1361,27 @@ async function saveCallLog(logId = null) {
     res = await supabaseClient.from('call_logs').insert([logData]);
   }
 
+  // Create a reminder if scheduling a new call
+  if (!logId && isScheduling && !res.error) {
+    const reminderData = {
+      title: `Scheduled call with ${contactName}`,
+      description: notes || '',
+      reminder_date: new Date(callAt).toISOString(),
+      is_completed: false,
+      user_id: state.currentUser.id,
+      assigned_to: state.currentUser.id,
+      created_by: state.currentUser.id,
+      organization_id: state.currentOrganization?.id
+    };
+    await supabaseClient.from('reminders').insert([reminderData]);
+  }
+
   saveBtn.disabled = false;
 
   if (res.error) {
-    showToast('Error saving log: ' + res.error.message, 'error');
+    showToast('Error saving call: ' + res.error.message, 'error');
   } else {
-    showToast('Call log saved', 'success');
+    showToast(isScheduling ? 'Call scheduled' : 'Call saved', 'success');
     closeModal('call-log-modal');
     renderCallLogsView();
   }

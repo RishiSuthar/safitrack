@@ -731,7 +731,7 @@ async function openPersonViewModal(personOrId) {
       const personCallsEl = document.getElementById('person-view-calls');
       if (personCallsEl) {
         if (!calls || calls.length === 0) {
-          personCallsEl.innerHTML = `<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg></div><div class="record-empty-title">No call logs</div><div class="record-empty-desc">No call records found for this person.</div></div>`;
+          personCallsEl.innerHTML = `<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg></div><div class="record-empty-title">No calls</div><div class="record-empty-desc">No call records found for this person.</div></div>`;
         } else {
           personCallsEl.innerHTML = calls.map(log => {
             const isInbound = (log.direction || '').toLowerCase() === 'inbound';
