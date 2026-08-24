@@ -385,10 +385,7 @@ function updateNavigationForRole() {
     // Show the new Technicians manager section
     const techManagerNav = document.getElementById('technicians-manager-nav-section');
     if (techManagerNav) techManagerNav.style.display = 'block';
-    // Hide log visit for managers in sidebar
-    document.querySelectorAll('.sidebar-nav [data-view="log-visit"]').forEach(el => {
-      el.style.display = 'none';
-    });
+    // Show log visit for managers in sidebar (removed the hiding logic)
     // Hide my-activity and my-routes for managers
     document.querySelectorAll('.sidebar-nav [data-view="my-activity"]').forEach(el => {
       el.style.display = 'none';

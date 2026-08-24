@@ -1,7 +1,7 @@
 // aichat.js
 // AI Chat Assistant for SafiTrack CRM
 // Provides conversational interface to create tasks, reminders and opportunities.
-// Relies on groq API via ai.js and existing task/reminder/opportunity logic in app.js
+// Relies on gemini API via ai.js and existing task/reminder/opportunity logic in app.js
 
 // conversation state
 let chatState = null;
@@ -355,7 +355,7 @@ async function handleTodayAgenda() {
       return;
     }
 
-    // build a plain-text summary for Groq to narrate
+    // build a plain-text summary for Gemini to narrate
     const lines = [];
     if (tasks.length) {
       lines.push(`Tasks due today (${tasks.length}):`);
@@ -402,7 +402,7 @@ async function handleFindContact(text) {
     return;
   }
 
-  // extract name and optional company hint from the message using Groq
+  // extract name and optional company hint from the message using Gemini
   const extractMsg = [
     { role: 'system', content: 'Extract the person\'s name and optionally a company name from the message. Return strict JSON: {"name": "...", "company": "..."} — omit company key if not mentioned. Return only JSON, no explanation.' },
     { role: 'user', content: text }
@@ -459,7 +459,7 @@ async function handleFindContact(text) {
       return;
     }
 
-    // build contact summary for Groq to narrate
+    // build contact summary for Gemini to narrate
     const contactLines = data.map(p => {
       const parts = [`Name: ${p.name}`];
       if (p.job_title) parts.push(`Title: ${p.job_title}`);
@@ -1233,7 +1233,7 @@ async function handleQueryActivity(text) {
 }
 
 async function handleQueryCompanyDeep(text) {
-  // Step 1: Run smart CRM-wide search immediately — no Groq round-trip needed
+  // Step 1: Run smart CRM-wide search immediately — no AI round-trip needed
   const searchResults = await smartCRMSearch(text);
 
   // Step 2: If we found companies, use the best match
@@ -1642,7 +1642,7 @@ function resetConversation() {
 }
 
 // ------------------------------------------------------------------
-// Groq helpers for understanding
+// Gemini helpers for understanding
 // ------------------------------------------------------------------
 
 async function detectIntent(text) {
@@ -2061,7 +2061,7 @@ async function resolveUserId(name) {
 }
 
 // ------------------------------------------------------------------
-// UI rendering utilities + Markdown renderer – converts Groq markdown responses to safe HTML
+// UI rendering utilities + Markdown renderer – converts Gemini markdown responses to safe HTML
 // ------------------------------------------------------------------
 
 function inlineMarkdown(text) {

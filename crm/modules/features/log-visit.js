@@ -493,6 +493,8 @@ function initLogVisitForm(companies) {
         locationStatus.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Location checked! You are ${distance.toFixed(0)}m from ${window.selectedCompanyData.name}`;
         locationVerified = true;
         window.verifiedDistance = distance;
+        window.capturedLat = userLat;
+        window.capturedLng = userLng;
         submitBtn.disabled = false;
         initVerificationMap(userLat, userLng, window.selectedCompanyData);
 
@@ -591,6 +593,20 @@ function initLogVisitForm(companies) {
         tagsToSave.push(`__distance:${Math.round(window.verifiedDistance)}`);
       }
 
+      // Determine final coordinates and address
+      const finalLat = window.capturedLat || window.selectedCompanyData.latitude;
+      const finalLng = window.capturedLng || window.selectedCompanyData.longitude;
+      let finalAddress = `${finalLat}, ${finalLng}`;
+
+      if (window.capturedLat && window.capturedLng && typeof window.reverseGeocode === 'function') {
+        try {
+          const rev = await window.reverseGeocode(finalLat, finalLng);
+          if (rev) finalAddress = rev;
+        } catch (e) {
+          console.error("Reverse geocoding failed", e);
+        }
+      }
+
       const visitData = {
         user_id: state.currentUser.id,
         company_name: company,
@@ -600,9 +616,9 @@ function initLogVisitForm(companies) {
         ai_summary: aiSummary,
         lead_score: leadScore,
         location_name: window.selectedCompanyData.name,
-        location_address: `${window.selectedCompanyData.latitude}, ${window.selectedCompanyData.longitude}`,
-        latitude: window.selectedCompanyData.latitude,
-        longitude: window.selectedCompanyData.longitude,
+        location_address: finalAddress,
+        latitude: finalLat,
+        longitude: finalLng,
         photo_url: photoUrl,
         travel_time: travelTime ? parseInt(travelTime) : null,
         tags: tagsToSave,
@@ -707,9 +723,26 @@ window.selectCompany = function (companyId) {
 // Allow selecting a custom company entered by the user in the Log Visit form
 // custom company helper removed for sales rep flow; technicians may use their own helper
 
+// ── Helpers ─────────────────────────────────────────────────────
+async function reverseGeocode(lat, lon) {
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+    const data = await response.json();
+    if (data && data.display_name) {
+      const parts = data.display_name.split(', ');
+      return parts.slice(0, 3).join(', '); // e.g., Street, City, State
+    }
+  } catch (error) {
+    console.error('Reverse geocoding error:', error);
+  }
+  return null;
+}
+window.reverseGeocode = reverseGeocode;
+
 // ── Exports ────────────────────────────────────────────────────
 export {
   renderLogVisitView,
   initLogVisitForm,
   geocodeAddress,
+  reverseGeocode,
 };

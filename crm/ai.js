@@ -1,34 +1,20 @@
-// AI calls are proxied through a Supabase Edge Function.
-// The Gemini API key lives ONLY in the edge function as a secret — never in the browser.
-// Set GEMINI_PROXY_URL in crm/config.js to your deployed function URL:
-//   https://<your-project-ref>.supabase.co/functions/v1/gemini-proxy
-const GEMINI_PROXY_URL = (window.APP_CONFIG || {}).GEMINI_PROXY_URL || '';
+// AI calls connect directly to Gemini API
+const GEMINI_API_KEY = (window.APP_CONFIG || {}).GEMINI_API_KEY || '';
 
 /**
- * Low-level helper: POST a Gemini request body to the server-side proxy.
- * Attaches the current user's Supabase JWT so the edge function can
- * verify the caller is authenticated before touching the Gemini key.
+ * Low-level helper: POST a Gemini request body directly to Google API.
  */
-async function callGeminiProxy(payload) {
-  if (!GEMINI_PROXY_URL) {
-    throw new Error('[SafiTrack] GEMINI_PROXY_URL not set in crm/config.js.');
+async function callGeminiAPI(payload) {
+  if (!GEMINI_API_KEY) {
+    throw new Error('[SafiTrack] GEMINI_API_KEY not set in crm/config.js.');
   }
 
-  let authToken = '';
-  try {
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    authToken = session?.access_token || '';
-  } catch (_) { }
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`;
 
-  if (!authToken) {
-    throw new Error('[SafiTrack] User not authenticated — cannot call AI proxy.');
-  }
-
-  return fetch(GEMINI_PROXY_URL, {
+  return fetch(url, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${authToken}`,
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify(payload),
   });
@@ -63,7 +49,7 @@ async function geminiChat(messages, maxOutputTokens = 300, temperature = 0.3) {
     contents,
     generationConfig: {
       temperature,
-      maxOutputTokens
+      maxOutputTokens: maxOutputTokens + 1000
     }
   };
   
@@ -73,7 +59,7 @@ async function geminiChat(messages, maxOutputTokens = 300, temperature = 0.3) {
 
   while (attempt < maxAttempts) {
     try {
-      const response = await callGeminiProxy(payload);
+      const response = await callGeminiAPI(payload);
 
       if (!response.ok) {
         const err = new Error(`API error: ${response.status}`);

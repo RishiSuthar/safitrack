@@ -3170,9 +3170,9 @@ async function renderSettingsView() {
   const supportChatMessages = document.getElementById('sv-support-chat-messages');
 
   async function sendSupportMessage() {
-    const proxyUrl = (window.APP_CONFIG || {}).GEMINI_PROXY_URL;
-    if (!proxyUrl) {
-      showToast('GEMINI_PROXY_URL not configured', 'error');
+    const apiKey = (window.APP_CONFIG || {}).GEMINI_API_KEY;
+    if (!apiKey) {
+      showToast('GEMINI_API_KEY not configured', 'error');
       return;
     }
 
@@ -3247,11 +3247,11 @@ ${JSON.stringify({ role: state.isManager ? 'Manager' : 'User', view: state.curre
 FULL CRM UI STRUCTURE (HTML Snapshot):
 ${cleanUIHTML}`;
 
-      const response = await fetch(proxyUrl, {
+      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          ...(authToken ? { 'Authorization': `Bearer ${authToken}` } : {})
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           system_instruction: {
