@@ -14,10 +14,14 @@ async function callGeminiAPI(payload) {
   });
 
   if (error) {
+    console.error("Functions invoke error:", error);
+    // Extract real status from context if available, otherwise fallback
+    const status = error.context?.status || error.status || 500;
+    
     // Attempt to throw an error object that matches the previous fetch signature
     // so that the caller can handle rate limits smoothly
-    const err = new Error(`API error: ${error.status || 500}`);
-    err.status = error.status || 500;
+    const err = new Error(`API error: ${status}`);
+    err.status = status;
     
     // Fallback parsing of retry headers if passed through, 
     // though Supabase functions might abstract this.
