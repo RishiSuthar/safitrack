@@ -45,7 +45,7 @@ async function renderRemindersView() {
 
   let salesReps = [];
   if (state.isManager) {
-    let repsQ = supabaseClient.from('profiles').select('id, first_name, last_name, email').eq('role', 'sales_rep').order('first_name', { ascending: true });
+    let repsQ = supabaseClient.from('profiles').select('id, first_name, last_name, email').order('first_name', { ascending: true });
     if (state.currentOrganization?.id) repsQ = repsQ.eq('organization_id', state.currentOrganization.id);
     const { data: reps } = await repsQ;
     salesReps = reps || [];
@@ -410,7 +410,7 @@ function openReminderModal(reminder = null, salesReps = []) {
     assignField.style.display = 'block';
     const assignList = document.getElementById('reminder-assign-to-list');
     if (assignList) {
-      let listHtml = `<li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="Select a sales rep" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Select a sales rep</li>`;
+      let listHtml = `<li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="Select a team member" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Select a team member</li>`;
       listHtml += `<li class="crm-dd-option" role="option" data-value="${state.currentUser.id}" data-label="Me" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Me</li>`;
       
       salesReps.forEach(rep => {

@@ -146,6 +146,26 @@ function _closeDropdown(root) {
   const trigger = root.querySelector('.crm-dd-trigger');
   if (trigger) trigger.setAttribute('aria-expanded', 'false');
   if (_openDropdown === root) _openDropdown = null;
+  
+  // Clean up portal panel
+  // Since we might have moved it to the body, let's find it.
+  const panel = document.body.querySelector('.crm-dd-panel.is-open-panel');
+  if (panel && panel._crmDdRoot === root) {
+    panel.classList.remove('is-open-panel');
+    panel.classList.remove('opens-up-panel');
+    // We can move it back to the root to keep DOM tidy
+    root.appendChild(panel);
+    panel.style.position = '';
+    panel.style.top = '';
+    panel.style.bottom = '';
+    panel.style.left = '';
+    panel.style.width = '';
+    panel.style.zIndex = '';
+  } else {
+    // Fallback if it wasn't portaled
+    const localPanel = root.querySelector('.crm-dd-panel');
+    if (localPanel) localPanel.classList.remove('is-open-panel');
+  }
 }
 
 function _openDropdownEl(root) {
@@ -156,21 +176,55 @@ function _openDropdownEl(root) {
   if (trigger) trigger.setAttribute('aria-expanded', 'true');
   _openDropdown = root;
 
-  // Flip up if needed
-  requestAnimationFrame(() => {
-    const panel = root.querySelector('.crm-dd-panel');
-    if (!panel) return;
-    const rect = panel.getBoundingClientRect();
-    const vp   = window.innerHeight;
-    if (rect.bottom > vp - 12) {
-      root.classList.add('opens-up');
-    } else {
-      root.classList.remove('opens-up');
+  // Position panel fixed and append to body to escape overflow containers
+  const panel = root.querySelector('.crm-dd-panel');
+  if (panel) {
+    if (panel.parentElement === root) {
+      // Save a placeholder to put it back later if needed, though we can just keep it in body
+      // Actually, if the dropdown is destroyed, we need to clean it up, but let's just append it.
+      document.body.appendChild(panel);
+      panel._crmDdRoot = root; // Keep reference to original root
     }
-  });
+    
+    // We must manually add the is-open style class since it's no longer inside root
+    panel.classList.add('is-open-panel');
+    
+    requestAnimationFrame(() => {
+      const rect = trigger.getBoundingClientRect();
+      const vp = window.innerHeight;
+      
+      panel.style.position = 'fixed';
+      panel.style.width = `${rect.width}px`;
+      panel.style.left = `${rect.left}px`;
+      panel.style.zIndex = '2147483647'; // Max z-index
+      
+      // Determine if we should flip up
+      const panelHeight = panel.offsetHeight || 200; // rough fallback
+      if (rect.bottom + panelHeight > vp - 12 && rect.top > panelHeight) {
+        root.classList.add('opens-up');
+        panel.classList.add('opens-up-panel');
+        panel.style.top = 'auto';
+        panel.style.bottom = `${vp - rect.top + 4}px`;
+      } else {
+        root.classList.remove('opens-up');
+        panel.classList.remove('opens-up-panel');
+        panel.style.bottom = 'auto';
+        panel.style.top = `${rect.bottom + 4}px`;
+      }
+    });
+  }
 }
 
 /* ─────────────────────── Core init ─────────────────────── */
+
+// Close on scroll globally for portaled panels
+window.addEventListener('scroll', (e) => {
+  // Only close if it's not scrolling the dropdown panel itself
+  if (e.target && e.target.classList && e.target.classList.contains('crm-dd-list')) return;
+  if (_openDropdown) {
+    _closeDropdown(_openDropdown);
+  }
+}, { capture: true, passive: true });
 
 /**
  * Attach all interaction handlers to a single .crm-dd root element.

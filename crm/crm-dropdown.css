@@ -130,11 +130,18 @@
 }
 
 /* Panel is open */
-.crm-dd.is-open .crm-dd-panel {
+.crm-dd.is-open .crm-dd-panel,
+.crm-dd-panel.is-open-panel {
   visibility: visible;
   opacity: 1;
   transform: translateY(0) scale(1);
   pointer-events: auto;
+}
+
+/* Portaled panel overrides */
+.crm-dd-panel.is-open-panel {
+  min-width: auto;
+  max-width: none;
 }
 
 /* ── Scrollable list ── */
@@ -253,14 +260,16 @@
 }
 
 /* ── Panel position: upward if near bottom of viewport ── */
-.crm-dd.opens-up .crm-dd-panel {
+.crm-dd.opens-up .crm-dd-panel,
+.crm-dd-panel.opens-up-panel {
   top: auto;
   bottom: calc(100% + 4px);
   transform-origin: bottom left;
   transform: translateY(4px) scale(0.99);
 }
 
-.crm-dd.opens-up.is-open .crm-dd-panel {
+.crm-dd.opens-up.is-open .crm-dd-panel,
+.crm-dd-panel.opens-up-panel.is-open-panel {
   transform: translateY(0) scale(1);
 }
 

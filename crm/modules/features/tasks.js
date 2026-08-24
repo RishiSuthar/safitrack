@@ -50,7 +50,7 @@ async function renderTasksView() {
   // Fetch sales reps for assignment dropdown (managers only)
   let salesReps = [];
   if (state.isManager) {
-    let repsQ = supabaseClient.from('profiles').select('id, first_name, last_name, email').eq('role', 'sales_rep').order('first_name', { ascending: true });
+    let repsQ = supabaseClient.from('profiles').select('id, first_name, last_name, email').order('first_name', { ascending: true });
     if (state.currentOrganization?.id) repsQ = repsQ.eq('organization_id', state.currentOrganization.id);
     const { data: reps } = await repsQ;
     salesReps = reps || [];
@@ -897,15 +897,23 @@ function openTaskModal(task = null, salesReps = [], initialStatus = 'pending') {
   // Populate sales reps dropdown for managers
   if (state.isManager && salesReps.length > 0) {
     assignField.style.display = 'block';
-    assignSelect.innerHTML = '<option value="">Select a sales rep</option>';
+    const assignList = document.getElementById('task-assign-to-list');
+    if (assignList) {
+      let listHtml = `<li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="Select a team member" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Select a team member</li>`;
+      listHtml += `<li class="crm-dd-option" role="option" data-value="${state.currentUser.id}" data-label="Me" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Me</li>`;
 
-    // Add option for self
-    assignSelect.innerHTML += `<option value="${state.currentUser.id}">Me</option>`;
+      salesReps.forEach(rep => {
+        listHtml += `<li class="crm-dd-option" role="option" data-value="${rep.id}" data-label="${rep.first_name} ${rep.last_name}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${rep.first_name} ${rep.last_name}</li>`;
+      });
+      assignList.innerHTML = listHtml;
+    }
 
-    // Add options for sales reps
-    salesReps.forEach(rep => {
-      assignSelect.innerHTML += `<option value="${rep.id}">${rep.first_name} ${rep.last_name}</option>`;
-    });
+    // Reset value
+    if (window.setCrmDropdownValue) {
+      window.setCrmDropdownValue(assignSelect, '');
+    } else {
+      assignSelect.value = '';
+    }
   } else {
     assignField.style.display = 'none';
   }
@@ -937,7 +945,11 @@ function openTaskModal(task = null, salesReps = [], initialStatus = 'pending') {
     document.getElementById('task-status').value = task.status || 'pending';
 
     if (state.isManager && task.assigned_to) {
-      assignSelect.value = task.assigned_to;
+      if (window.setCrmDropdownValue) {
+        window.setCrmDropdownValue(assignSelect, task.assigned_to);
+      } else {
+        assignSelect.value = task.assigned_to;
+      }
     }
   } else {
     modalTitle.innerHTML = 'New Task';
