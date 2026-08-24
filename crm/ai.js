@@ -5,19 +5,37 @@ const GEMINI_API_KEY = (window.APP_CONFIG || {}).GEMINI_API_KEY || '';
  * Low-level helper: POST a Gemini request body directly to Google API.
  */
 async function callGeminiAPI(payload) {
-  if (!GEMINI_API_KEY) {
-    throw new Error('[SafiTrack] GEMINI_API_KEY not set in crm/config.js.');
+  if (!window.supabaseClient) {
+    throw new Error('[SafiTrack] Supabase client not initialized.');
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`;
-
-  return fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload),
+  const { data, error } = await window.supabaseClient.functions.invoke('gemini-proxy', {
+    body: payload
   });
+
+  if (error) {
+    // Attempt to throw an error object that matches the previous fetch signature
+    // so that the caller can handle rate limits smoothly
+    const err = new Error(`API error: ${error.status || 500}`);
+    err.status = error.status || 500;
+    
+    // Fallback parsing of retry headers if passed through, 
+    // though Supabase functions might abstract this.
+    if (error.context?.headers?.get) {
+      const retryAfter = error.context.headers.get('retry-after');
+      err.retryAfter = retryAfter ? (parseFloat(retryAfter) * 1000) : null;
+    }
+    
+    throw err;
+  }
+
+  // To maintain compatibility with geminiChat, we need to return a Response-like object 
+  // because geminiChat does `await response.json()`
+  return {
+    ok: true,
+    status: 200,
+    json: async () => data
+  };
 }
 
 function convertMessagesToGemini(messages) {

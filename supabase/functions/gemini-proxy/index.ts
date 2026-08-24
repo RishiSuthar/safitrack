@@ -25,10 +25,11 @@ serve(async (req: Request) => {
       throw new Error('Missing required environment variables');
     }
 
+    const authHeader = req.headers.get('Authorization');
     const action = req.headers.get('X-AI-Action') || 'general';
     const body = await req.json().catch(() => ({}));
     
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=${GEMINI_API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${GEMINI_API_KEY}`;
 
     let userId: string | null = null;
     let orgIdPromise: Promise<string | null> = Promise.resolve(null);

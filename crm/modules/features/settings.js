@@ -3170,11 +3170,7 @@ async function renderSettingsView() {
   const supportChatMessages = document.getElementById('sv-support-chat-messages');
 
   async function sendSupportMessage() {
-    const apiKey = (window.APP_CONFIG || {}).GEMINI_API_KEY;
-    if (!apiKey) {
-      showToast('GEMINI_API_KEY not configured', 'error');
-      return;
-    }
+    // API key is securely handled by the backend edge function
 
     const text = supportChatInput.value.trim();
     if (!text) return;
@@ -3247,31 +3243,36 @@ ${JSON.stringify({ role: state.isManager ? 'Manager' : 'User', view: state.curre
 FULL CRM UI STRUCTURE (HTML Snapshot):
 ${cleanUIHTML}`;
 
-      const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
-      const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json'
+      const payload = {
+        system_instruction: {
+          parts: [{ text: systemPrompt }]
         },
-        body: JSON.stringify({
-          system_instruction: {
-            parts: [{ text: systemPrompt }]
-          },
-          contents: [{
-            role: 'user',
-            parts: [{ text: text }]
-          }]
-        })
-      });
+        contents: [{
+          role: 'user',
+          parts: [{ text: text }]
+        }]
+      };
 
-      const data = await response.json();
+      if (!window.supabaseClient) {
+        throw new Error('Supabase client not available');
+      }
+
+      const { data, error } = await window.supabaseClient.functions.invoke('gemini-proxy', {
+        body: payload,
+        headers: {
+          'X-AI-Action': 'support-chat'
+        }
+      });
+      
       document.getElementById(loadingId)?.remove();
 
-      if (!response.ok) {
-        throw new Error(data.message || data.error?.message || data.error || `HTTP ${response.status}`);
+      if (error) {
+        throw new Error(error.message || `API Error: ${error.status || 500}`);
       }
       
-      if (data.error) throw new Error(data.error.message || 'API Error');
+      if (data.error) {
+        throw new Error(data.error.message || 'API Error');
+      }
 
       const reply = data.models ? JSON.stringify(data.models.map(m => m.name), null, 2) : (data.candidates?.[0]?.content?.parts?.[0]?.text || 'I am sorry, I did not understand that.');
       
