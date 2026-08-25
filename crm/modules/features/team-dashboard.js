@@ -398,7 +398,8 @@ function renderVisitsCards(visits) {
     
     const distanceTag = (visit.tags || []).find(t => typeof t === 'string' && t.startsWith('__distance:'));
     const distanceVal = distanceTag ? distanceTag.split(':')[1] : null;
-    const displayTags = (visit.tags || []).filter(t => typeof t !== 'string' || !t.startsWith('__distance:'));
+    const isUnverified = (visit.tags || []).includes('location-unverified');
+    const displayTags = (visit.tags || []).filter(t => typeof t !== 'string' || (!t.startsWith('__distance:') && t !== 'location-unverified'));
 
     return `
       <div class="visit-card-premium" data-visit-id="${visit.id}" data-type="${visit.visit_type || 'new_lead'}" onclick="openVisitDetail('${visit.id}')">
@@ -420,7 +421,8 @@ function renderVisitsCards(visits) {
         <div class="visit-card-meta">
           <span class="visit-card-badge type-${visit.visit_type || 'new_lead'}">${visitTypeLabels[visit.visit_type] || 'Visit'}</span>
           ${visit.lead_score ? `<span class="visit-card-badge ${scoreClass}">${visit.lead_score}% Score</span>` : ''}
-          ${distanceVal != null ? `<span class="visit-card-badge distance"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${distanceVal}m from site</span>` : ''}
+          ${distanceVal != null && !isUnverified ? `<span class="visit-card-badge distance"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${distanceVal}m from site</span>` : ''}
+          ${isUnverified ? `<span class="visit-card-badge distance" style="color: #ef4444; background: #fef2f2;">Location not verified</span>` : ''}
         </div>
         
         ${visit.notes ? `<div class="visit-card-notes">${visit.notes}</div>` : ''}
@@ -431,7 +433,7 @@ function renderVisitsCards(visits) {
             ${displayTags.length > 3 ? `<span class="visit-card-tag">+${displayTags.length - 3}</span>` : ''}
           </div>
           <div class="visit-card-actions">
-            ${visit.latitude && visit.longitude ? `
+            ${visit.latitude && visit.longitude && !isUnverified ? `
               <button class="visit-card-action" onclick="event.stopPropagation(); viewLocationOnMap(${visit.latitude}, ${visit.longitude}, '${visit.company_name}')" title="View on Map">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
               </button>
@@ -890,7 +892,8 @@ window.openVisitDetail = function (visitId) {
   
   const distanceTag = (visit.tags || []).find(t => typeof t === 'string' && t.startsWith('__distance:'));
   const distanceVal = distanceTag ? distanceTag.split(':')[1] : null;
-  const displayTags = (visit.tags || []).filter(t => typeof t !== 'string' || !t.startsWith('__distance:'));
+  const isUnverified = (visit.tags || []).includes('location-unverified');
+  const displayTags = (visit.tags || []).filter(t => typeof t !== 'string' || (!t.startsWith('__distance:') && t !== 'location-unverified'));
 
   const detailBody = document.getElementById('visit-detail-body');
   if (!detailBody) {
@@ -934,7 +937,7 @@ window.openVisitDetail = function (visitId) {
         ` : ''}
         <div class="visit-detail-meta-item">
           <span class="visit-detail-meta-label">Distance from Site</span>
-          <span class="visit-detail-meta-value">${distanceVal != null ? `${distanceVal}m` : 'Unknown'}</span>
+          <span class="visit-detail-meta-value">${isUnverified ? '<span style="color: #ef4444;">Location not verified</span>' : (distanceVal != null ? `${distanceVal}m` : 'Unknown')}</span>
         </div>
       </div>
     </div>
@@ -973,11 +976,19 @@ window.openVisitDetail = function (visitId) {
       </div>
     ` : ''}
     
-    ${visit.latitude && visit.longitude ? `
+    ${visit.latitude && visit.longitude && !isUnverified ? `
       <div class="visit-detail-section">
         <h4 class="visit-detail-section-title">Location</h4>
         <div id="visit-detail-map" style="height: 200px; border-radius: var(--radius-md); overflow: hidden;"></div>
         <p class="text-muted text-center mt-2" style="font-size: 0.75rem;">${visit.latitude.toFixed(6)}, ${visit.longitude.toFixed(6)}</p>
+      </div>
+    ` : ''}
+    ${isUnverified ? `
+      <div class="visit-detail-section">
+        <h4 class="visit-detail-section-title">Location</h4>
+        <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: var(--radius-md); text-align: center; color: #ef4444; font-weight: 500; font-size: 0.875rem;">
+          Location not verified
+        </div>
       </div>
     ` : ''}
   `;
