@@ -11,6 +11,7 @@ import { getDefaultSalesStages, LEGACY_STAGE_TO_CANONICAL } from '../utils/pipel
 
 /** Stage color palette for custom pipelines */
 const STAGE_COLORS = ['#3b82f6', '#ec4899', '#10b981', '#ef4444', '#f59e0b', '#8b5cf6', '#06b6d4', '#f97316'];
+const OPPORTUNITY_STAGE_PAGE_SIZE = 25;
 
 /** The built-in fallback used when Supabase is unavailable */
 function getDefaultPipeline() {
@@ -98,6 +99,39 @@ function updateStageDropdownForPipeline(pipeline, currentValue) {
   if (defaultVal) window.setCrmDropdownValue?.('opportunity-stage', defaultVal);
 }
 
+function buildCompanyLookup(companies) {
+  const safeCompanies = Array.isArray(companies) ? companies : [];
+  const byId = new Map();
+  const byName = new Map();
+
+  safeCompanies.forEach((company) => {
+    if (!company) return;
+    if (company.id != null) byId.set(String(company.id), company);
+    const normalizedName = (window.normalizeForMatching?.(company.name) || String(company.name || '').toLowerCase().trim());
+    if (normalizedName && !byName.has(normalizedName)) byName.set(normalizedName, company);
+  });
+
+  return { byId, byName };
+}
+
+function findCompanyForOpportunityFast(opp, lookup) {
+  if (!opp || !lookup) return null;
+
+  if (opp.company_id != null) {
+    const byId = lookup.byId.get(String(opp.company_id));
+    if (byId) return byId;
+  }
+
+  const normalizedOppName = (window.normalizeForMatching?.(opp.company_name) || String(opp.company_name || '').toLowerCase().trim());
+  if (normalizedOppName) {
+    const byName = lookup.byName.get(normalizedOppName);
+    if (byName) return byName;
+  }
+
+  // Keep existing fuzzy behavior as fallback for edge-case name mismatches.
+  return window.findCompanyForOpportunity?.(opp) || null;
+}
+
 async function renderOpportunityPipelineView() {
   // renderOpportunityPipelineView start (diagnostics removed)
   // Ensure companies cache is ready before rendering opportunities
@@ -105,14 +139,13 @@ async function renderOpportunityPipelineView() {
     try { await loadAllCompanies(); } catch (e) { /* ignored */ }
   }
 
-  // ── Load pipelines & resolve active pipeline ──────────────────────────────
-  const pipelines = await loadPipelines();
-  const activePipeline = getActivePipeline(pipelines);
-  setActivePipeline(activePipeline.id);
+  // ── Load pipelines & opportunities ───────────────────────────────────────
+  const pipelinesPromise = loadPipelines();
 
   let opportunities;
   let error;
 
+  let opportunitiesPromise;
   if (state.isManager) {
     // Managers see all opportunities in their org
     let mQ = supabaseClient
@@ -120,9 +153,7 @@ async function renderOpportunityPipelineView() {
       .select(`*, profiles!inner(id, first_name, last_name, email, role, avatar_url)`)
       .order('created_at', { ascending: false });
     if (state.currentOrganization?.id) mQ = mQ.eq('organization_id', state.currentOrganization.id);
-    const result = await mQ;
-    opportunities = result.data;
-    error = result.error;
+    opportunitiesPromise = mQ;
   } else {
     // Sales reps only see their own opportunities
     let oppQ = supabaseClient
@@ -131,11 +162,14 @@ async function renderOpportunityPipelineView() {
       .eq('user_id', state.currentUser.id)
       .order('created_at', { ascending: false });
     if (state.currentOrganization?.id) oppQ = oppQ.eq('organization_id', state.currentOrganization.id);
-    const result = await oppQ;
-
-    opportunities = result.data;
-    error = result.error;
+    opportunitiesPromise = oppQ;
   }
+
+  const [pipelines, opportunitiesResult] = await Promise.all([pipelinesPromise, opportunitiesPromise]);
+  const activePipeline = getActivePipeline(pipelines);
+  setActivePipeline(activePipeline.id);
+  opportunities = opportunitiesResult.data;
+  error = opportunitiesResult.error;
 
   if (error) {
     viewContainer.innerHTML = renderError(error.message);
@@ -150,7 +184,8 @@ async function renderOpportunityPipelineView() {
       .select('opportunity_id')
       .eq('user_id', state.currentUser.id);
     const myAssignedIds = (myAssignedRows || []).map(r => r.opportunity_id);
-    const newIds = myAssignedIds.filter(id => !opportunities.find(o => o.id === id));
+    const existingOppIds = new Set((opportunities || []).map(o => o.id));
+    const newIds = myAssignedIds.filter(id => !existingOppIds.has(id));
     if (newIds.length > 0) {
       const { data: extraOpps } = await supabaseClient
         .from('opportunities')
@@ -216,17 +251,25 @@ async function renderOpportunityPipelineView() {
     }
   });
 
-  // Group opportunities by stage
+  // Group opportunities by stage in a single pass to avoid repeated array scans.
   const opportunitiesByStage = {};
   pipelineStages.forEach(stage => {
     opportunitiesByStage[stage.id] = {
       ...stage,
-      opportunities: opportunities.filter(opp => opp.mappedStage === stage.id),
-      totalValue: opportunities
-        .filter(opp => opp.mappedStage === stage.id)
-        .reduce((sum, opp) => sum + parseFloat(opp.value || 0), 0)
+      opportunities: [],
+      totalValue: 0,
     };
   });
+  opportunities.forEach((opp) => {
+    const stageBucket = opportunitiesByStage[opp.mappedStage];
+    if (!stageBucket) return;
+    stageBucket.opportunities.push(opp);
+    stageBucket.totalValue += parseFloat(opp.value || 0);
+  });
+
+  const opportunitiesById = new Map(opportunities.map(opp => [opp.id, opp]));
+  const companyLookup = buildCompanyLookup(window.allCompaniesData);
+  const paginationState = {};
 
   const ownerOptions = state.isManager
     ? Array.from(new Map(opportunities.map(opp => {
@@ -356,6 +399,16 @@ async function renderOpportunityPipelineView() {
   // Render pipeline stages
   pipelineStages.forEach(stage => {
     const stageData = opportunitiesByStage[stage.id];
+    const deferredCards = [];
+    let renderedCount = 0;
+
+    paginationState[stage.id] = {
+      pageSize: OPPORTUNITY_STAGE_PAGE_SIZE,
+      rendered: 0,
+      deferredCards,
+      total: stageData.opportunities.length,
+    };
+
     html += `
       <div class="pipeline-stage" data-stage="${stage.id}">
         <div class="pipeline-stage-header">
@@ -369,6 +422,7 @@ async function renderOpportunityPipelineView() {
 
     // Render opportunities in this stage
     stageData.opportunities.forEach(opp => {
+      const shouldRenderNow = renderedCount < OPPORTUNITY_STAGE_PAGE_SIZE;
       const isOverdue = opp.next_step_date && new Date(opp.next_step_date) < new Date();
       const competitors = opp.competitors ? JSON.parse(opp.competitors) : [];
       // Full edit access: owner, explicitly-fetched assignee, or confirmed via assignees list
@@ -382,7 +436,7 @@ async function renderOpportunityPipelineView() {
       const ownerName = user ? `${user.first_name} ${user.last_name}` : 'Unknown';
 
       // Resolve company object from global cache if available (robust/fuzzy matching)
-      const companyObj = findCompanyForOpportunity(opp);
+      const companyObj = findCompanyForOpportunityFast(opp, companyLookup);
 
       // Ensure we have a usable logo URL (favicon only for real domains; ui-avatars otherwise)
       const companyInitials = getInitials((companyObj && companyObj.name) ? companyObj.name : (opp.company_name || ''));
@@ -427,7 +481,7 @@ async function renderOpportunityPipelineView() {
         processedNotes = processedNotes.replace(/@([A-Za-z0-9_\-]+)\b/g, '<span class="mentioned-person">@$1</span>');
       }
 
-      html += `
+      const cardHtml = `
         <div class="opportunity-card ${!isOwnOpportunity ? 'readonly' : ''}"
           data-id="${opp.id}"
           data-company-name="${escapeHtml(opp.company_name || '')}"
@@ -548,10 +602,36 @@ async function renderOpportunityPipelineView() {
           </div>
         </div>
       `;
+
+      if (shouldRenderNow) {
+        html += cardHtml;
+      } else {
+        deferredCards.push(cardHtml);
+      }
+
+      renderedCount += 1;
     });
+
+    paginationState[stage.id].rendered = Math.min(renderedCount, OPPORTUNITY_STAGE_PAGE_SIZE);
 
     html += `
         </div>
+        ${deferredCards.length > 0 ? `
+          <div class="pipeline-load-more-wrap">
+            <button class="btn btn-ghost pipeline-load-more" data-stage-id="${stage.id}">
+              <span class="pipeline-load-more-main">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m5 12 7 7 7-7"/></svg>
+                <span class="pipeline-load-more-label">Load more deals</span>
+              </span>
+              <span class="pipeline-load-more-meta">
+                <span class="pipeline-load-more-count">${Math.min(OPPORTUNITY_STAGE_PAGE_SIZE, deferredCards.length)}</span>
+                <span class="pipeline-load-more-sep">of</span>
+                <span class="pipeline-load-more-remaining">${deferredCards.length}</span>
+                <span class="pipeline-load-more-sep">left</span>
+              </span>
+            </button>
+          </div>
+        ` : ''}
       </div>
     `;
   });
@@ -567,7 +647,7 @@ async function renderOpportunityPipelineView() {
   // Initialize drag and drop with a small delay to ensure DOM is ready
   setTimeout(() => {
     initPipelineDragAndDrop(opportunities);
-    initOpportunityEventListeners(opportunities);
+    initOpportunityEventListeners(opportunitiesById, paginationState);
     initPipelineFilters(opportunities);
   }, 100);
 
@@ -609,9 +689,53 @@ function updateOpportunityLogosAsync() {
   return Promise.resolve();
 }
 
-function initOpportunityEventListeners(opportunities) {
+function initOpportunityEventListeners(opportunitiesOrMap, paginationState = null) {
+  const opportunitiesById = opportunitiesOrMap instanceof Map
+    ? opportunitiesOrMap
+    : new Map((opportunitiesOrMap || []).map(opp => [opp.id, opp]));
+
+  const loadStageCards = (stageId, options = {}) => {
+    if (!paginationState || !stageId) return;
+    const { all = false } = options;
+    const stageState = paginationState[stageId];
+    if (!stageState || !Array.isArray(stageState.deferredCards) || stageState.deferredCards.length === 0) return;
+
+    const stageEl = document.querySelector(`.pipeline-stage[data-stage="${stageId}"]`);
+    const listEl = stageEl?.querySelector('.opportunity-list');
+    const buttonEl = stageEl?.querySelector('.pipeline-load-more');
+    if (!listEl) return;
+
+    const takeCount = all ? stageState.deferredCards.length : Math.min(stageState.pageSize, stageState.deferredCards.length);
+    const htmlChunk = stageState.deferredCards.splice(0, takeCount).join('');
+    if (!htmlChunk) return;
+
+    listEl.insertAdjacentHTML('beforeend', htmlChunk);
+    stageState.rendered += takeCount;
+
+    if (stageState.deferredCards.length === 0) {
+      buttonEl?.closest('.pipeline-load-more-wrap')?.remove();
+    } else if (buttonEl) {
+      const previewCount = Math.min(stageState.pageSize, stageState.deferredCards.length);
+      const countEl = buttonEl.querySelector('.pipeline-load-more-count');
+      const remainingEl = buttonEl.querySelector('.pipeline-load-more-remaining');
+      if (countEl) countEl.textContent = String(previewCount);
+      if (remainingEl) remainingEl.textContent = String(stageState.deferredCards.length);
+    }
+
+    // Bind handlers for newly inserted cards only.
+    initOpportunityEventListeners(opportunitiesById, paginationState);
+  };
+
+  if (paginationState) {
+    window.expandAllOpportunityColumns = () => {
+      Object.keys(paginationState).forEach((stageId) => loadStageCards(stageId, { all: true }));
+    };
+  }
+
   // Pipeline tab switcher
   document.querySelectorAll('.pipeline-tab[data-pipeline-id]').forEach(tab => {
+    if (tab.dataset.boundClick === '1') return;
+    tab.dataset.boundClick = '1';
     tab.addEventListener('click', () => {
       const pipelineId = tab.dataset.pipelineId;
       if (pipelineId && pipelineId !== state.activePipelineId) {
@@ -622,16 +746,36 @@ function initOpportunityEventListeners(opportunities) {
   });
 
   // Manage Pipelines button (managers only)
-  document.getElementById('manage-pipelines-btn')?.addEventListener('click', () => {
-    openManagePipelinesModal();
-  });
+  const managePipelinesBtn = document.getElementById('manage-pipelines-btn');
+  if (managePipelinesBtn && managePipelinesBtn.dataset.boundClick !== '1') {
+    managePipelinesBtn.dataset.boundClick = '1';
+    managePipelinesBtn.addEventListener('click', () => {
+      openManagePipelinesModal();
+    });
+  }
 
   // Add opportunity button
-  document.getElementById('add-opportunity-btn')?.addEventListener('click', () => {
-    openOpportunityModal();
+  const addOpportunityBtn = document.getElementById('add-opportunity-btn');
+  if (addOpportunityBtn && addOpportunityBtn.dataset.boundClick !== '1') {
+    addOpportunityBtn.dataset.boundClick = '1';
+    addOpportunityBtn.addEventListener('click', () => {
+      openOpportunityModal();
+    });
+  }
+
+  document.querySelectorAll('.pipeline-load-more').forEach(btn => {
+    if (btn.dataset.boundClick === '1') return;
+    btn.dataset.boundClick = '1';
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const stageId = btn.getAttribute('data-stage-id');
+      loadStageCards(stageId);
+    });
   });
 
   document.querySelectorAll('.pipeline-inline-add').forEach(btn => {
+    if (btn.dataset.boundClick === '1') return;
+    btn.dataset.boundClick = '1';
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const stage = btn.dataset.stage;
@@ -644,10 +788,12 @@ function initOpportunityEventListeners(opportunities) {
 
   // Edit opportunity buttons
   document.querySelectorAll('.edit-opportunity').forEach(btn => {
+    if (btn.dataset.boundClick === '1') return;
+    btn.dataset.boundClick = '1';
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const opportunityId = btn.dataset.id;
-      const opportunity = opportunities.find(opp => opp.id === opportunityId);
+      const opportunity = opportunitiesById.get(opportunityId);
       if (opportunity) {
         openOpportunityModal(opportunity);
       }
@@ -656,10 +802,12 @@ function initOpportunityEventListeners(opportunities) {
 
   // Delete opportunity buttons
   document.querySelectorAll('.delete-opportunity').forEach(btn => {
+    if (btn.dataset.boundClick === '1') return;
+    btn.dataset.boundClick = '1';
     btn.addEventListener('click', async (e) => {
       e.stopPropagation();
       const opportunityId = btn.dataset.id;
-      const opportunity = opportunities.find(opp => opp.id === opportunityId);
+      const opportunity = opportunitiesById.get(opportunityId);
 
       const confirmed = await showConfirmDialog(
         'Delete Opportunity',
@@ -685,10 +833,12 @@ function initOpportunityEventListeners(opportunities) {
 
   // View opportunity buttons (for managers viewing others' opportunities)
   document.querySelectorAll('.view-opportunity').forEach(btn => {
+    if (btn.dataset.boundClick === '1') return;
+    btn.dataset.boundClick = '1';
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       const opportunityId = btn.dataset.id;
-      const opportunity = opportunities.find(opp => opp.id === opportunityId);
+      const opportunity = opportunitiesById.get(opportunityId);
       if (opportunity) {
         openOpportunityViewModal(opportunity);
       }
@@ -697,9 +847,11 @@ function initOpportunityEventListeners(opportunities) {
 
   // Click on opportunity card to view details
   document.querySelectorAll('.opportunity-card').forEach(card => {
+    if (card.dataset.boundClick === '1') return;
+    card.dataset.boundClick = '1';
     card.addEventListener('click', () => {
       const opportunityId = card.dataset.id;
-      const opportunity = opportunities.find(opp => opp.id === opportunityId);
+      const opportunity = opportunitiesById.get(opportunityId);
       if (opportunity) {
         openOpportunityViewModal(opportunity);
       }
@@ -708,6 +860,8 @@ function initOpportunityEventListeners(opportunities) {
 
   // Make mentioned person spans clickable to open the person view modal
   document.querySelectorAll('.opportunity-card .mentioned-person').forEach(el => {
+    if (el.dataset.boundClick === '1') return;
+    el.dataset.boundClick = '1';
     el.addEventListener('click', (e) => {
       e.stopPropagation();
       const personId = el.dataset.personId;
@@ -906,6 +1060,8 @@ function updatePipelineSummary() {
 }
 
 function initPipelineFilters(opportunities) {
+    const opportunitiesById = new Map((opportunities || []).map(opp => [opp.id, opp]));
+
   const quickFilterSelect = document.getElementById('pipeline-quick-filter');
   const searchInput = document.getElementById('pipeline-search');
   const ownerSelect = document.getElementById('pipeline-owner-filter');
@@ -913,6 +1069,7 @@ function initPipelineFilters(opportunities) {
   const advancedToggle = document.getElementById('pipeline-advanced-toggle');
   const advancedControls = document.getElementById('pipeline-advanced-controls');
   const resetBtn = document.getElementById('pipeline-reset-controls');
+  let expandedForFiltering = false;
 
   // Load persisted state
   const persistedState = _loadPersistedState().pipeline || {};
@@ -968,6 +1125,14 @@ function initPipelineFilters(opportunities) {
     });
 
     const hasFilters = activeFilter !== 'all' || owner !== 'all' || sort !== 'newest' || dateFrom || dateTo || query;
+
+    if (hasFilters && !expandedForFiltering) {
+      window.expandAllOpportunityColumns?.();
+      expandedForFiltering = true;
+    } else if (!hasFilters) {
+      expandedForFiltering = false;
+    }
+
     if (resetBtn) resetBtn.style.display = hasFilters ? 'inline-flex' : 'none';
 
     const dateClearBtn = document.getElementById('pipeline-date-clear');
@@ -976,7 +1141,7 @@ function initPipelineFilters(opportunities) {
     document.querySelectorAll('.opportunity-card').forEach(card => {
       let show = true;
       const oppId = card.dataset.id;
-      const opportunity = opportunities.find(opp => opp.id === oppId);
+      const opportunity = opportunitiesById.get(oppId);
 
       if (activeFilter === 'my-reps') {
         show = opportunity && opportunity.profiles && opportunity.profiles.role === 'sales_rep';

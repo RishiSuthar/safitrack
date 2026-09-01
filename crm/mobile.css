@@ -4639,6 +4639,36 @@
     -webkit-overflow-scrolling: touch;
   }
 
+  .pipeline-load-more-wrap {
+    margin-top: 0.45rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .pipeline-load-more {
+    min-height: 44px;
+    padding: 0.65rem 0.7rem;
+    border-radius: 10px;
+    font-size: 0.78rem;
+  }
+
+  .pipeline-load-more-main {
+    gap: 0.4rem;
+  }
+
+  .pipeline-load-more-main svg {
+    width: 13px;
+    height: 13px;
+  }
+
+  .pipeline-load-more-label {
+    white-space: nowrap;
+  }
+
+  .pipeline-load-more-meta {
+    padding: 0.2rem 0.45rem;
+    font-size: 0.72rem;
+  }
+
   /* Opportunity card */
   .opportunity-card {
     display: flex;
