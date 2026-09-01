@@ -16,7 +16,12 @@ function initPWA() {
 
     // Handle messages from the service worker (e.g. notification click navigation)
     navigator.serviceWorker.addEventListener('message', (event) => {
-      if (event.data?.type === 'NAVIGATE' && event.data.view && window.loadView) {
+      if (event.data?.type !== 'NAVIGATE' || !event.data.view) return;
+      if (window.navigateView) {
+        window.navigateView(event.data.view);
+        return;
+      }
+      if (window.loadView) {
         window.loadView(event.data.view);
       }
     });

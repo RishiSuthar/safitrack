@@ -4,7 +4,7 @@ import { state, supabaseClient } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials, triggerConfetti } from '../ui/toast.js';
 import { renderSkeletonCards, formatDate, CURRENCIES, getCurrencySymbol } from '../utils/helpers.js';
-import { loadView } from '../core/navigation.js';
+import { navigateView } from '../core/router.js';
 import { showChangelogModal } from '../ui/changelog.js';
 import { fetchCustomFieldDefinitions, invalidateCustomFieldCache, generateFieldKey } from './custom-fields.js';
 import { notificationStore } from './notifications.js';
@@ -1952,7 +1952,7 @@ async function renderSettingsView() {
     document.querySelectorAll('.sv-settings-close-btn').forEach(btn => {
       btn.onclick = () => {
         const target = state.previousView || localStorage.getItem('lastActiveView') || 'main-dashboard';
-        loadView(target);
+        navigateView(target);
       };
     });
   }

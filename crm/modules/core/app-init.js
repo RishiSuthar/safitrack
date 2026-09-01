@@ -3,7 +3,8 @@
 import { state, supabaseClient, crmDebugLog } from '../state.js';
 
 import { authScreen, mainApp } from '../ui/dom.js';
-import { loadView, initCollapsibleSections } from './navigation.js';
+import { initCollapsibleSections } from './navigation.js';
+import { loadRouteFromPathOrFallback } from './router.js';
 import { notificationStore } from '../features/notifications.js';
 import { startSafiNudgeRealtime } from '../realtime/nudge.js';
 import { attemptShowPWABanner } from '../ui/pwa.js';
@@ -143,16 +144,9 @@ async function initApp() {
   const urlParams = new URLSearchParams(window.location.search);
   const requestedView = urlParams.get('view');
 
-  // If we have a requested view from URL, use it. Otherwise fallback to saved or default.
-  let viewToLoad = defaultView;
-  if (requestedView) {
-    viewToLoad = requestedView;
-  } else if (savedView && savedView !== 'auth-screen') {
-    viewToLoad = savedView;
-  }
-
-  // Load the determined view
-  await loadView(viewToLoad);
+  // Keep legacy ?view= support, but prioritize pathname routes for SPA navigation.
+  const fallbackView = requestedView || (savedView && savedView !== 'auth-screen' ? savedView : defaultView);
+  await loadRouteFromPathOrFallback(fallbackView);
 
   // App is ready — signal the welcome screen to fade out.
   dismissWelcomeScreen();

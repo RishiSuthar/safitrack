@@ -1,21 +1,21 @@
 // modules/ui/command-palette.js
 // Quick Actions (⌘K / Ctrl+K) and Search Records (/) modals.
 import { state, supabaseClient } from '../state.js';
-import { loadView } from '../core/navigation.js';
+import { navigateView } from '../core/router.js';
 
 // ═══════════════════════════════════════════════════════════════
 //  QUICK ACTIONS  (⌘K / Ctrl+K)
 // ═══════════════════════════════════════════════════════════════
 const quickActions = [
   { id: 'search-records', title: 'Search records', icon: 'search', shortcut: '/', action: () => { closeQuickActions(); openSearchRecords(); } },
-  { id: 'create-task', title: 'Create task', icon: 'check-square', shortcut: 'T', action: () => { closeQuickActions(); loadView('tasks'); setTimeout(() => window.openTaskModal?.(), 200); } },
-  { id: 'create-reminder', title: 'Create reminder', icon: 'bell', shortcut: '', action: () => { closeQuickActions(); loadView('reminders'); setTimeout(() => window.openReminderModal?.(), 200); } },
-  { id: 'create-note', title: 'Create note', icon: 'file-text', shortcut: 'N', action: () => { closeQuickActions(); loadView('notes'); setTimeout(() => window.createNewNoteV2?.(), 200); } },
-  { id: 'log-visit', title: 'Log visit', icon: 'clipboard', shortcut: '', action: () => { closeQuickActions(); loadView('log-visit'); } },
-  { id: 'settings', title: 'Open account settings', icon: 'settings', shortcut: '', action: () => { closeQuickActions(); loadView('settings'); } },
-  { id: 'add-company', title: 'Add Company', icon: 'building', shortcut: '', action: () => { closeQuickActions(); loadView('companies'); setTimeout(() => window.openCompanyModal?.(), 200); } },
-  { id: 'add-person', title: 'Add Person', icon: 'user-plus', shortcut: '', action: () => { closeQuickActions(); loadView('people'); setTimeout(() => window.openPersonModal?.(), 200); } },
-  { id: 'add-deal', title: 'Add Deal', icon: 'dollar-sign', shortcut: '', action: () => { closeQuickActions(); loadView('opportunity-pipeline'); setTimeout(() => window.openOpportunityModal?.(), 200); } },
+  { id: 'create-task', title: 'Create task', icon: 'check-square', shortcut: 'T', action: () => { closeQuickActions(); navigateView('tasks'); setTimeout(() => window.openTaskModal?.(), 200); } },
+  { id: 'create-reminder', title: 'Create reminder', icon: 'bell', shortcut: '', action: () => { closeQuickActions(); navigateView('reminders'); setTimeout(() => window.openReminderModal?.(), 200); } },
+  { id: 'create-note', title: 'Create note', icon: 'file-text', shortcut: 'N', action: () => { closeQuickActions(); navigateView('notes'); setTimeout(() => window.createNewNoteV2?.(), 200); } },
+  { id: 'log-visit', title: 'Log visit', icon: 'clipboard', shortcut: '', action: () => { closeQuickActions(); navigateView('log-visit'); } },
+  { id: 'settings', title: 'Open account settings', icon: 'settings', shortcut: '', action: () => { closeQuickActions(); navigateView('settings'); } },
+  { id: 'add-company', title: 'Add Company', icon: 'building', shortcut: '', action: () => { closeQuickActions(); navigateView('companies'); setTimeout(() => window.openCompanyModal?.(), 200); } },
+  { id: 'add-person', title: 'Add Person', icon: 'user-plus', shortcut: '', action: () => { closeQuickActions(); navigateView('people'); setTimeout(() => window.openPersonModal?.(), 200); } },
+  { id: 'add-deal', title: 'Add Deal', icon: 'dollar-sign', shortcut: '', action: () => { closeQuickActions(); navigateView('opportunity-pipeline'); setTimeout(() => window.openOpportunityModal?.(), 200); } },
   { id: 'toggle-theme', title: 'Toggle Theme', icon: 'moon', shortcut: '', action: () => { closeQuickActions(); window.toggleTheme?.(); } },
   { id: 'sign-out', title: 'Sign Out', icon: 'log-out', shortcut: '', action: () => { closeQuickActions(); window.handleLogout?.(); } },
 ];
@@ -350,10 +350,10 @@ function navigateToRecord(index) {
   if (!r) return;
   closeSearchRecords();
   if (r.type === 'company') {
-    loadView('companies');
+    navigateView('companies');
     setTimeout(() => window.openCompanyViewModal?.(r.data), 200);
   } else {
-    loadView('people');
+    navigateView('people');
     setTimeout(() => window.openPersonViewModal?.(r.data), 200);
   }
 }

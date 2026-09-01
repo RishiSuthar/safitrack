@@ -44,7 +44,7 @@ async function renderMyActivityView() {
         <div class="empty-state" style="flex-direction: column; padding: 40px;">
           <h3 class="empty-state-title" style="margin-bottom: 8px;">No visits yet</h3>
           <p class="empty-state-description" style="margin-bottom: 24px;">Start logging your field visits to see them here.</p>
-          <button class="btn btn-primary" onclick="loadView('log-visit')">
+          <button class="btn btn-primary" onclick="navigateView('log-visit')">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
             Log Your First Visit
           </button>

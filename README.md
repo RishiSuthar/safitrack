@@ -32,6 +32,24 @@ SafiTrack helps businesses manage field agents, routes, locations, and visit log
 - **Hosting:** Netlify
 ---
 
+## Local Development (CRM SPA Routing)
+
+If you refresh a client-side route such as /crm/deals on a plain static server, you may get a 404. This is expected without rewrite rules.
+
+Run the local SPA-aware server from the project root:
+
+```bash
+python3 scripts/spa_server.py 8000
+```
+
+Then open:
+
+- http://localhost:8000/crm/index.html
+- http://localhost:8000/crm/deals
+- http://localhost:8000/crm/contacts
+
+Refresh, bookmarks, and Back/Forward will continue to work for CRM routes.
+
 ## 📸 Screenshots
 
 > Screenshots coming soon.

@@ -95,7 +95,7 @@ async function startRouteNavigation(routeId) {
     let html = `
       <div class="route-navigation">
         <div class="route-navigation-header">
-          <button class="btn btn-ghost" onclick="loadView('my-routes')">
+          <button class="btn btn-ghost" onclick="navigateView('my-routes')">
             <i data-lucide="arrow-left"></i> Back
           </button>
           <h2>${route.name}</h2>
@@ -322,7 +322,11 @@ async function completeRoute(routeId) {
     // await supabaseClient.from('routes').update({ last_completed_at: new Date().toISOString() }).eq('id', routeId);
 
     showToast('Route completed successfully. It will remain available so you can run it again.', 'success');
-    loadView('my-routes');
+    if (window.navigateView) {
+      window.navigateView('my-routes');
+    } else if (window.loadView) {
+      window.loadView('my-routes');
+    }
   } catch (error) {
     console.error('Error completing route:', error);
     showToast('Error completing route: ' + error.message, 'error');

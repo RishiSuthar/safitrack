@@ -1,0 +1,4 @@
+[[redirects]]
+  from = "/crm/*"
+  to = "/crm/index.html"
+  status = 200

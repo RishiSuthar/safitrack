@@ -29,6 +29,7 @@ import {
 } from './modules/core/app-init.js';
 
 import { openSidebar, closeSidebar, updateActiveNav, loadView } from './modules/core/navigation.js';
+import { router, initRouter, navigate, navigateView } from './modules/core/router.js';
 
 // ── UI modules ────────────────────────────────────────────────────────────────
 import {
@@ -124,6 +125,9 @@ import { notificationStore } from './modules/features/notifications.js';
 Object.assign(window, {
   supabaseClient,
   state,
+  router,
+  navigate,
+  navigateView,
   loadView, openSidebar, closeSidebar, updateActiveNav,
   handleLogin, handleLogout, switchAuthPane, handleGoogleAuth,
   handleCompleteGoogleProfile, goToSignupStep, handleSignup,
@@ -334,6 +338,7 @@ STATE_GLOBALS.forEach(key => {
 document.addEventListener('DOMContentLoaded', () => {
   initMobileOptimizations(); // Initialize mobile-specific enhancements
   initMobileNavigation(); // Initialize mobile menu handling
+  initRouter();
   initTheme();
   initAuth();
   initEventListeners();

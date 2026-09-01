@@ -646,7 +646,11 @@ function initLogVisitForm(companies) {
       // Reset mentioned people array for next visit
       state.mentionedPeople = [];
 
-      loadView('my-activity');
+      if (window.navigateView) {
+        window.navigateView('my-activity');
+      } else if (window.loadView) {
+        window.loadView('my-activity');
+      }
     } catch (err) {
       showToast('Failed to save visit: ' + err.message, 'error');
       submitBtn.disabled = false;

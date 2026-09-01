@@ -7,6 +7,28 @@ import { showToast } from '../ui/toast.js';
 import { renderAccessDenied, renderNotFound } from '../utils/helpers.js';
 // Feature views are loaded via lazy-load proxy wrappers defined on the global window object.
 
+const APP_TITLE_SUFFIX = 'SafiTrack CRM';
+
+function _formatViewTitle(viewName) {
+  if (!viewName) return 'Dashboard';
+
+  const overrides = {
+    'opportunity-pipeline': 'Opportunities',
+    'main-dashboard': 'Dashboard',
+    'team-dashboard': 'Visits',
+    'technician-log-visit': 'Log Service Visit',
+    'technician-activity': 'My Service Visits',
+  };
+
+  if (overrides[viewName]) return overrides[viewName];
+  return viewName.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function _setDocumentTitle(viewName, labelText) {
+  const pageTitle = (labelText || _formatViewTitle(viewName)).trim();
+  document.title = pageTitle ? `${pageTitle} | ${APP_TITLE_SUFFIX}` : APP_TITLE_SUFFIX;
+}
+
 // ======================
 
 function openSidebar() {
@@ -64,18 +86,21 @@ function updateActiveNav(viewName) {
       }
       pageLabelText.textContent = textNode;
       pageLabel.style.display = 'flex';
+      _setDocumentTitle(viewName, textNode);
     } else if (pageLabel) {
       pageLabel.style.display = 'none';
+      _setDocumentTitle(viewName);
     }
   } catch (e) {
     // Fail silently if DOM shape is unexpected
+    _setDocumentTitle(viewName);
   }
 }
 
 // ======================
 // VIEW ROUTER
 // ======================
-async function loadView(viewName) {
+async function loadView(viewName, options = {}) {
   // Preserve the previously active view so settings can return the user back.
   if (viewName === 'settings' && state.currentView !== 'settings') {
     state.previousView = state.currentView;
@@ -229,8 +254,15 @@ async function loadView(viewName) {
     default:
       viewContainer.innerHTML = renderNotFound();
   }
+
+  const resolvedView = state.currentView || viewName;
+
+  if (!options.skipRouteSync && window.router?.syncFromView) {
+    window.router.syncFromView(resolvedView);
+  }
+
   // Notify the notification store that the view changed (triggers a lightweight refresh).
-  document.dispatchEvent(new CustomEvent('safitrack:view-changed', { detail: { view: viewName } }));
+  document.dispatchEvent(new CustomEvent('safitrack:view-changed', { detail: { view: resolvedView } }));
 
   // Always try to initialize Lucide icons after a view switch
   if (window.lucide) {

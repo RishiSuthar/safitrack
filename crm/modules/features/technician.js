@@ -1639,7 +1639,7 @@ async function renderTechnicianActivityView() {
         <div class="empty-state">
           <h3 class="empty-state-title">No service reports yet</h3>
           <p class="empty-state-description">Start logging visits to see them here.</p>
-          <button class="btn btn-primary" onclick="loadView('technician-log-visit')">
+          <button class="btn btn-primary" onclick="navigateView('technician-log-visit')">
             <i data-lucide="plus"></i> Log Your First Visit
           </button>
         </div>

@@ -4,7 +4,8 @@ import { state, supabaseClient, APP_BOOT_STARTED_AT, FAST_BOOT_SKIP_MS, LOADER_F
 
 import { loadingScreen, authScreen, mainApp, logoutBtn, mobileMenuToggle, sidebarClose, sidebarOverlay, userAvatarBtn, userMenu, notificationsMenu, safiNudgeLauncher } from '../ui/dom.js';
 import { initApp } from './app-init.js';
-import { loadView, openSidebar, closeSidebar } from './navigation.js';
+import { openSidebar, closeSidebar } from './navigation.js';
+import { navigateView, getAuthPaneFromPath, syncFromAuthPane } from './router.js';
 import { notificationStore } from '../features/notifications.js';
 import { stopSafiNudgeRealtime } from '../realtime/nudge.js';
 // command-palette.js now self-initializes its own keyboard shortcuts
@@ -14,6 +15,12 @@ import { showWelcomeScreen } from '../ui/welcome.js';
 function initTheme() {
   const savedTheme = localStorage.getItem('safitrack_theme') || localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
+}
+
+function setAuthTitle(pane) {
+  const base = 'SafiTrack CRM';
+  const label = pane === 'signup' ? 'Sign Up' : pane === 'verify' ? 'Verify Email' : 'Login';
+  document.title = `${label} | ${base}`;
 }
 
 function initAuth() {
@@ -30,8 +37,18 @@ function initAuth() {
         initApp();
       } else {
         authScreen.style.display = 'flex';
+
+        // Path-based auth routing support, with legacy ?signup=1 fallback.
+        const authPaneFromPath = getAuthPaneFromPath(window.location.pathname);
+        if (authPaneFromPath) {
+          setTimeout(() => switchAuthPane(authPaneFromPath, { skipRouteSync: true }), 0);
+          return;
+        }
+
         if (new URLSearchParams(window.location.search).get('signup') === '1') {
           setTimeout(() => switchAuthPane('signup'), 0);
+        } else {
+          setTimeout(() => switchAuthPane('login'), 0);
         }
       }
     };
@@ -94,7 +111,10 @@ function initAuth() {
       const completePane = document.getElementById('complete-profile-pane');
       if (completePane) completePane.style.display = 'none';
 
-      if (new URLSearchParams(window.location.search).get('signup') === '1') {
+      const authPaneFromPath = getAuthPaneFromPath(window.location.pathname);
+      if (authPaneFromPath) {
+        setTimeout(() => switchAuthPane(authPaneFromPath, { skipRouteSync: true }), 0);
+      } else if (new URLSearchParams(window.location.search).get('signup') === '1') {
         setTimeout(() => switchAuthPane('signup'), 0);
       } else {
         setTimeout(() => switchAuthPane('login'), 0);
@@ -190,7 +210,7 @@ function initEventListeners() {
   document.getElementById('settings-btn')?.addEventListener('click', (e) => {
     e.stopPropagation();
     userMenu?.classList.remove('active');
-    loadView('settings');
+    navigateView('settings');
   });
 
 
@@ -198,7 +218,7 @@ function initEventListeners() {
   document.querySelectorAll('[data-view]').forEach(btn => {
     btn.addEventListener('click', (e) => {
       const view = e.currentTarget.getAttribute('data-view');
-      loadView(view);
+      navigateView(view);
       closeSidebar();
     });
   });
@@ -344,11 +364,11 @@ function initWorkspaceMenu() {
     switch (action) {
       case 'account':
         state._pendingSettingsSection = 'profile';
-        await loadView('settings');
+        await navigateView('settings');
         break;
       case 'workspace':
         state._pendingSettingsSection = 'organization';
-        await loadView('settings');
+        await navigateView('settings');
         break;
       case 'invite':
         openInviteModal();
@@ -407,7 +427,7 @@ async function handleLogout() {
 }
 
 // ── Auth pane switcher ───────────────────────────────────────────────────────
-function switchAuthPane(pane) {
+function switchAuthPane(pane, options = {}) {
   const loginPane = document.getElementById('login-pane');
   const signupPane = document.getElementById('signup-pane');
   const verifyPane = document.getElementById('email-verify-pane');
@@ -418,6 +438,11 @@ function switchAuthPane(pane) {
   signupPane.style.display = pane === 'signup' ? '' : 'none';
   verifyPane.style.display = pane === 'verify' ? '' : 'none';
   if (completePane) completePane.style.display = 'none';
+  setAuthTitle(pane);
+
+  if (!options.skipRouteSync) {
+    syncFromAuthPane(pane);
+  }
 
   // Always restart the wizard from step 1 when the signup pane is shown
   if (pane === 'signup') goToSignupStep(1);

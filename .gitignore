@@ -23,3 +23,6 @@ dist/
 # Supabase CLI local secrets (contains real keys for local dev)
 supabase/.env
 supabase/functions/.env
+
+# Local Netlify folder
+.netlify
