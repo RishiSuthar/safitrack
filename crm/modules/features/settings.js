@@ -31,6 +31,10 @@ async function renderSettingsView() {
   const roleEsc = escH((state.currentUserProfile && state.currentUserProfile.role) ? state.currentUserProfile.role : 'User');
   const initials = ((firstNameEsc ? firstNameEsc[0] : '') + (lastNameEsc ? lastNameEsc[0] : '')).toUpperCase() || (userEmailEsc ? userEmailEsc[0].toUpperCase() : 'U');
   const fullName = [firstNameEsc, lastNameEsc].filter(Boolean).join(' ') || 'Your Name';
+  const orgSettings = state.currentOrganization?.settings || {};
+  const additionalFeatures = orgSettings.additional_features || {};
+  const fareTrackingEnabled = Boolean(additionalFeatures.fare_tracking);
+  const fareApprovalWorkflowEnabled = fareTrackingEnabled && Boolean(additionalFeatures.fare_approval_workflow);
 
   viewContainer.innerHTML = `
     <div class="sv-root">
@@ -59,6 +63,10 @@ async function renderSettingsView() {
         <button class="sv-nav-item" data-section="organization">
           <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
           Organization
+        </button>
+        <button class="sv-nav-item" data-section="additional-features">
+          <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M3 12h18"/><rect x="4" y="4" width="16" height="16" rx="2"/></svg>
+          Additional Features
         </button>
         ${state.isManager ? `
         <button class="sv-nav-item" data-section="custom-fields">
@@ -483,6 +491,58 @@ async function renderSettingsView() {
                 `}
               </div>
             </div>
+          </div>
+
+        </section>
+
+        <!-- ═══════════════════ ADDITIONAL FEATURES ═══════════════════ -->
+        <section class="sv-section" data-section="additional-features" style="display:none;">
+          <div class="sv-page-header">
+            <div>
+              <h2 class="sv-page-title">Additional Features</h2>
+              <p class="sv-page-subtitle">Enable optional modules for this organization.</p>
+            </div>
+          </div>
+
+          <div class="sv-members-toolbar" style="margin-bottom:14px;">
+            <div class="sv-members-search-bar sv-features-search" style="max-width:420px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+              <input type="text" id="sv-feature-search" placeholder="Search additional features..." autocomplete="off">
+              <button type="button" id="sv-feature-search-clear" class="sv-features-search-clear" style="display:none;" aria-label="Clear feature search">Clear</button>
+            </div>
+            <span id="sv-feature-search-count" class="sv-features-search-count">2 features</span>
+          </div>
+
+          <div class="sv-field-group">
+            <div id="sv-features-list" style="display:flex;flex-direction:column;gap:8px;">
+              <div class="sv-feature-card" data-feature-search="fare tracking transport fare visit sales rep manager expense reimbursement">
+                <div>
+                  <div style="font-size:0.9rem;font-weight:600;color:var(--text-primary);">Fare Tracking</div>
+                  <div style="font-size:0.82rem;color:var(--text-muted);margin-top:2px;">Allow reps to log transport fare per visit and make it visible to managers in visit views.</div>
+                </div>
+                <label class="sv-toggle" style="flex-shrink:0;">
+                  <input id="sv-feature-fare-tracking" type="checkbox" ${fareTrackingEnabled ? 'checked' : ''} ${state.isManager ? '' : 'disabled'}>
+                  <span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span>
+                </label>
+              </div>
+
+              <div class="sv-feature-card" data-feature-search="fare approval workflow approve reject manager reimbursement request pending claims">
+                <div>
+                  <div style="font-size:0.9rem;font-weight:600;color:var(--text-primary);">Fare Approval Workflow</div>
+                  <div style="font-size:0.82rem;color:var(--text-muted);margin-top:2px;">Reps submit fare as requests, then managers approve, reject, or adjust the reimbursable amount.</div>
+                  <div style="font-size:0.78rem;color:var(--text-muted);margin-top:6px;">Requires Fare Tracking to be enabled.</div>
+                </div>
+                <label class="sv-toggle" style="flex-shrink:0;">
+                  <input id="sv-feature-fare-approval-workflow" type="checkbox" ${fareApprovalWorkflowEnabled ? 'checked' : ''} ${state.isManager && fareTrackingEnabled ? '' : 'disabled'}>
+                  <span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span>
+                </label>
+              </div>
+
+              <div id="sv-features-empty" class="sv-table-empty" style="display:none;padding:24px;border:1px dashed var(--border-color);border-radius:8px;background:var(--bg-secondary);">
+                No matching features found.
+              </div>
+            </div>
+            <span id="sv-features-status" style="display:block;margin-top:10px;font-size:0.82rem;color:var(--text-muted);">${state.isManager ? '' : 'Only managers can change additional features.'}</span>
           </div>
         </section>
 
@@ -1540,6 +1600,41 @@ async function renderSettingsView() {
       .sv-members-search-bar input { width: 100%; height: 100%; border: none; background: transparent; outline: none; padding: 0 0.75rem 0 2.5rem; font-size: 0.875rem; color: var(--text-primary); font-family: inherit; border-radius: 10px; }
       .sv-members-search-bar input:focus { box-shadow: 0 0 0 3px var(--color-primary-bg); border-color: var(--color-primary); }
       .sv-members-search-bar input::placeholder { color: var(--text-muted); }
+      .sv-features-search { position: relative; }
+      .sv-features-search .sv-features-search-clear {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        border: 1px solid var(--border-color);
+        background: var(--bg-primary);
+        color: var(--text-secondary);
+        border-radius: 5px;
+        font-size: 0.73rem;
+        padding: 2px 7px;
+        line-height: 1.3;
+        cursor: pointer;
+      }
+      .sv-features-search .sv-features-search-clear:hover {
+        color: var(--text-primary);
+        border-color: color-mix(in srgb, var(--border-color) 60%, var(--text-primary));
+      }
+      .sv-features-search input { padding-right: 56px; }
+      .sv-features-search-count {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        white-space: nowrap;
+      }
+      .sv-feature-card {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        background: var(--bg-secondary);
+      }
       .sv-members-table-wrap { border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden; }
       .sv-members-table { width: 100%; border-collapse: collapse; text-align: left; }
       .sv-members-table th { font-size: 0.72rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.07em; padding: 11px 16px; border-bottom: 1px solid var(--border-color); background: var(--bg-secondary); }
@@ -2033,6 +2128,24 @@ async function renderSettingsView() {
   const debounceSave = (sectionId) => {
     clearTimeout(saveTimeout);
     saveTimeout = setTimeout(() => autoSaveSettings(sectionId), 700);
+  };
+
+  const updateOrganizationSettings = async (settingsPatch = {}) => {
+    if (!state.currentOrganization?.id) throw new Error('Organization not loaded');
+    const current = state.currentOrganization?.settings || {};
+    const nextSettings = { ...current, ...settingsPatch };
+    const { data, error } = await supabaseClient
+      .from('organizations')
+      .update({ settings: nextSettings })
+      .eq('id', state.currentOrganization.id)
+      .select('settings')
+      .single();
+
+    if (error) throw error;
+    if (!data) throw new Error('Settings update blocked — check RLS policy.');
+
+    state.currentOrganization.settings = data.settings || nextSettings;
+    return state.currentOrganization.settings;
   };
 
   /* ─────────────── DATE SEGMENT ─────────────── */
@@ -2766,6 +2879,153 @@ async function renderSettingsView() {
   document.getElementById('profile-firstname')?.addEventListener('input', () => debounceSave('profile'));
   document.getElementById('profile-lastname')?.addEventListener('input', () => debounceSave('profile'));
   document.getElementById('pref-email-notifs')?.addEventListener('change', () => autoSaveSettings('preferences'));
+
+  const featureSearchInput = document.getElementById('sv-feature-search');
+  const featureSearchClearBtn = document.getElementById('sv-feature-search-clear');
+  const featureSearchCountEl = document.getElementById('sv-feature-search-count');
+  const featureEmptyEl = document.getElementById('sv-features-empty');
+
+  const filterFeatureCards = () => {
+    const query = (featureSearchInput?.value || '').trim().toLowerCase();
+    const featureCards = Array.from(document.querySelectorAll('#sv-features-list .sv-feature-card'));
+    let visibleCount = 0;
+
+    featureCards.forEach((card) => {
+      const haystack = (card.getAttribute('data-feature-search') || '').toLowerCase();
+      const matches = !query || haystack.includes(query);
+      card.style.display = matches ? 'flex' : 'none';
+      if (matches) visibleCount += 1;
+    });
+
+    if (featureSearchClearBtn) featureSearchClearBtn.style.display = query ? 'inline-flex' : 'none';
+    if (featureSearchCountEl) featureSearchCountEl.textContent = `${visibleCount} feature${visibleCount === 1 ? '' : 's'}`;
+    if (featureEmptyEl) featureEmptyEl.style.display = visibleCount === 0 ? 'block' : 'none';
+  };
+
+  featureSearchInput?.addEventListener('input', filterFeatureCards);
+  featureSearchClearBtn?.addEventListener('click', () => {
+    if (!featureSearchInput) return;
+    featureSearchInput.value = '';
+    filterFeatureCards();
+    featureSearchInput.focus();
+  });
+  filterFeatureCards();
+
+  document.getElementById('sv-feature-fare-tracking')?.addEventListener('change', async (e) => {
+    if (!state.isManager) return;
+
+    const toggle = e.currentTarget;
+    const approvalToggle = document.getElementById('sv-feature-fare-approval-workflow');
+    const statusEl = document.getElementById('sv-features-status');
+    const nextEnabled = Boolean(toggle.checked);
+
+    toggle.disabled = true;
+    if (approvalToggle) approvalToggle.disabled = true;
+    if (statusEl) {
+      statusEl.textContent = 'Saving...';
+      statusEl.style.color = 'var(--text-muted)';
+    }
+
+    try {
+      const currentFeatures = state.currentOrganization?.settings?.additional_features || {};
+      const nextFeatures = {
+        ...currentFeatures,
+        fare_tracking: nextEnabled,
+        fare_approval_workflow: nextEnabled ? Boolean(currentFeatures.fare_approval_workflow) : false,
+      };
+
+      await updateOrganizationSettings({
+        additional_features: nextFeatures,
+      });
+
+      if (approvalToggle) {
+        approvalToggle.checked = Boolean(nextFeatures.fare_approval_workflow);
+        approvalToggle.disabled = !nextEnabled;
+      }
+
+      if (statusEl) {
+        statusEl.textContent = 'Saved';
+        statusEl.style.color = 'var(--color-success, #22c55e)';
+        setTimeout(() => {
+          if (statusEl) {
+            statusEl.textContent = '';
+            statusEl.style.color = 'var(--text-muted)';
+          }
+        }, 1600);
+      }
+      showToast(`Fare tracking ${nextEnabled ? 'enabled' : 'disabled'} for this organization.`, 'success');
+    } catch (err) {
+      console.error(err);
+      toggle.checked = !nextEnabled;
+      if (approvalToggle) {
+        approvalToggle.disabled = !toggle.checked;
+      }
+      if (statusEl) {
+        statusEl.textContent = 'Failed to save';
+        statusEl.style.color = 'var(--color-danger, #ef4444)';
+      }
+      showToast('Failed to update additional features.', 'error');
+    } finally {
+      toggle.disabled = false;
+      if (approvalToggle) approvalToggle.disabled = !toggle.checked;
+    }
+  });
+
+  document.getElementById('sv-feature-fare-approval-workflow')?.addEventListener('change', async (e) => {
+    if (!state.isManager) return;
+
+    const fareToggle = document.getElementById('sv-feature-fare-tracking');
+    if (!fareToggle?.checked) {
+      e.currentTarget.checked = false;
+      showToast('Enable Fare Tracking first.', 'info');
+      return;
+    }
+
+    const toggle = e.currentTarget;
+    const statusEl = document.getElementById('sv-features-status');
+    const nextEnabled = Boolean(toggle.checked);
+
+    toggle.disabled = true;
+    if (fareToggle) fareToggle.disabled = true;
+    if (statusEl) {
+      statusEl.textContent = 'Saving...';
+      statusEl.style.color = 'var(--text-muted)';
+    }
+
+    try {
+      const currentFeatures = state.currentOrganization?.settings?.additional_features || {};
+      await updateOrganizationSettings({
+        additional_features: {
+          ...currentFeatures,
+          fare_tracking: true,
+          fare_approval_workflow: nextEnabled,
+        },
+      });
+
+      if (statusEl) {
+        statusEl.textContent = 'Saved';
+        statusEl.style.color = 'var(--color-success, #22c55e)';
+        setTimeout(() => {
+          if (statusEl) {
+            statusEl.textContent = '';
+            statusEl.style.color = 'var(--text-muted)';
+          }
+        }, 1600);
+      }
+      showToast(`Fare approval workflow ${nextEnabled ? 'enabled' : 'disabled'}.`, 'success');
+    } catch (err) {
+      console.error(err);
+      toggle.checked = !nextEnabled;
+      if (statusEl) {
+        statusEl.textContent = 'Failed to save';
+        statusEl.style.color = 'var(--color-danger, #ef4444)';
+      }
+      showToast('Failed to update additional features.', 'error');
+    } finally {
+      toggle.disabled = false;
+      if (fareToggle) fareToggle.disabled = false;
+    }
+  });
 
   /* ─────────────── IMAGE COMPRESSION HELPER ─────────────── */
   /**

@@ -9,6 +9,9 @@ import { geocodeAddressWithOSM } from '../utils/geo.js';
 
 async function renderLogVisitView() {
   if (window.allCompaniesPromise) await window.allCompaniesPromise;
+  const fareTrackingEnabled = Boolean(state.currentOrganization?.settings?.additional_features?.fare_tracking);
+  const fareApprovalWorkflowEnabled = fareTrackingEnabled && Boolean(state.currentOrganization?.settings?.additional_features?.fare_approval_workflow);
+  const orgCurrencyCode = state.orgCurrency || state.currentOrganization?.currency || 'USD';
   
   // Create a sorted copy of the cached companies
   let companies = [...(window.allCompaniesData || [])];
@@ -95,6 +98,16 @@ async function renderLogVisitView() {
               <label for="travel-time">Travel Time (minutes)</label>
               <input type="number" id="travel-time" placeholder="How long did it take to get here?" min="0" />
             </div>
+
+            ${fareTrackingEnabled ? `
+            <div class="form-field log-visit-row-span">
+              <label for="visit-fare">Fare Used (${orgCurrencyCode})</label>
+              <input type="number" id="visit-fare" placeholder="How much fare was used for this visit?" min="0" step="0.01" inputmode="decimal" />
+              ${fareApprovalWorkflowEnabled
+                ? '<div class="text-muted" style="margin-top:6px;font-size:0.8rem;">Submitted fares will be created as requests for manager approval.</div>'
+                : ''}
+            </div>
+            ` : ''}
           </div>
         </section>
 
@@ -175,6 +188,11 @@ function initLogVisitForm(companies) {
   const contactNameInput = document.getElementById('contact-name');
   const visitTypeSelect = document.getElementById('visit-type');
   const travelTimeInput = document.getElementById('travel-time');
+  const fareInput = document.getElementById('visit-fare');
+  const fareApprovalWorkflowEnabled = Boolean(
+    state.currentOrganization?.settings?.additional_features?.fare_tracking
+    && state.currentOrganization?.settings?.additional_features?.fare_approval_workflow
+  );
   const stepOneEl = document.querySelector('.log-visit-step[data-step="1"]');
   const stepTwoEl = document.querySelector('.log-visit-step[data-step="2"]');
   const stepThreeEl = document.querySelector('.log-visit-step[data-step="3"]');
@@ -210,6 +228,7 @@ function initLogVisitForm(companies) {
     const hasDetails = Boolean(
       (contactNameInput?.value || '').trim() ||
       (travelTimeInput?.value || '').trim() ||
+      (fareInput?.value || '').trim() ||
       (visitTypeSelect?.value || '') !== defaultVisitType
     );
     const hasNotes = Boolean((notesEl?.value || '').trim().length > 0);
@@ -282,6 +301,7 @@ function initLogVisitForm(companies) {
   contactNameInput?.addEventListener('input', updateLogVisitStepState);
   visitTypeSelect?.addEventListener('change', updateLogVisitStepState);
   travelTimeInput?.addEventListener('input', updateLogVisitStepState);
+  fareInput?.addEventListener('input', updateLogVisitStepState);
 
   // Initialize mention system for notes
   notesEl.addEventListener('input', (e) => {
@@ -568,6 +588,7 @@ function initLogVisitForm(companies) {
     const notes = notesEl.value.trim();
     const travelTime = document.getElementById('travel-time').value;
     const photoFile = document.getElementById('visit-photo').files[0];
+    const fareAmountValue = fareInput && fareInput.value !== '' ? Number.parseFloat(fareInput.value) : null;
 
     if (!company || !notes) {
       showToast('Please fill in all required fields', 'error');
@@ -592,13 +613,6 @@ function initLogVisitForm(companies) {
         }
       }
 
-      const aiSummary = typeof generateConciseVisitSummary === 'function'
-        ? await generateConciseVisitSummary(company, contact, notes)
-        : null;
-      const leadScore = typeof predictLeadScore === 'function'
-        ? await predictLeadScore(company, contact, notes, visitType)
-        : null;
-
       const tagsToSave = [...state.visitTags];
       if (typeof window.verifiedDistance !== 'undefined') {
         tagsToSave.push(`__distance:${Math.round(window.verifiedDistance)}`);
@@ -610,16 +624,7 @@ function initLogVisitForm(companies) {
       // Determine final coordinates and address
       const finalLat = window.capturedLat || window.selectedCompanyData.latitude;
       const finalLng = window.capturedLng || window.selectedCompanyData.longitude;
-      let finalAddress = `${finalLat}, ${finalLng}`;
-
-      if (window.capturedLat && window.capturedLng && typeof window.reverseGeocode === 'function') {
-        try {
-          const rev = await window.reverseGeocode(finalLat, finalLng);
-          if (rev) finalAddress = rev;
-        } catch (e) {
-          console.error("Reverse geocoding failed", e);
-        }
-      }
+      const fallbackAddress = `${finalLat}, ${finalLng}`;
 
       const visitData = {
         user_id: state.currentUser.id,
@@ -628,23 +633,59 @@ function initLogVisitForm(companies) {
         contact_name: contact || null,
         visit_type: visitType,
         notes: notes,
-        ai_summary: aiSummary,
-        lead_score: leadScore,
+        ai_summary: null,
+        lead_score: null,
         location_name: window.selectedCompanyData.name,
-        location_address: finalAddress,
+        location_address: fallbackAddress,
         latitude: finalLat,
         longitude: finalLng,
         photo_url: photoUrl,
         travel_time: travelTime ? parseInt(travelTime) : null,
+        fare_amount: fareAmountValue,
+        fare_currency: fareAmountValue !== null ? (state.orgCurrency || state.currentOrganization?.currency || 'USD') : null,
+        fare_status: fareAmountValue !== null && fareApprovalWorkflowEnabled ? 'requested' : null,
+        fare_requested_by: fareAmountValue !== null && fareApprovalWorkflowEnabled ? state.currentUser.id : null,
+        fare_requested_at: fareAmountValue !== null && fareApprovalWorkflowEnabled ? new Date().toISOString() : null,
         tags: tagsToSave,
         mentioned_people: state.mentionedPeople,
         created_at: new Date().toISOString(),
         organization_id: state.currentOrganization?.id
       };
 
-      const { error } = await supabaseClient.from('visits').insert([visitData]);
+      const { error } = await supabaseClient
+        .from('visits')
+        .insert([visitData]);
 
       if (error) throw error;
+
+      let visitId = null;
+      try {
+        let idQuery = supabaseClient
+          .from('visits')
+          .select('id')
+          .eq('user_id', state.currentUser.id)
+          .eq('created_at', visitData.created_at)
+          .order('created_at', { ascending: false })
+          .limit(1);
+        if (state.currentOrganization?.id) {
+          idQuery = idQuery.eq('organization_id', state.currentOrganization.id);
+        }
+        const { data: idRows } = await idQuery;
+        visitId = idRows?.[0]?.id || null;
+      } catch {
+        visitId = null;
+      }
+
+      // Run enrichment in the background so save remains fast and resilient.
+      queueVisitEnrichment({
+        visitId,
+        company,
+        contact,
+        notes,
+        visitType,
+        finalLat,
+        finalLng,
+      });
 
       // If user entered/changed a subsector while logging the visit, sync it back to company.
       // This is best-effort and should not block visit logging.
@@ -678,7 +719,7 @@ function initLogVisitForm(companies) {
 
       showToast('Visit logged successfully!', 'success');
 
-      if (leadScore >= 70 || state.visitTags.includes('high-value')) {
+      if (state.visitTags.includes('high-value')) {
         triggerConfetti();
       }
 
@@ -698,6 +739,54 @@ function initLogVisitForm(companies) {
   });
 
   updateLogVisitStepState();
+}
+
+async function queueVisitEnrichment({ visitId, company, contact, notes, visitType, finalLat, finalLng }) {
+  if (!visitId) return;
+
+  const aiSummaryPromise = (typeof generateConciseVisitSummary === 'function')
+    ? withTimeout(generateConciseVisitSummary(company, contact, notes), 2500)
+    : Promise.resolve(null);
+
+  const leadScorePromise = (typeof predictLeadScore === 'function')
+    ? withTimeout(predictLeadScore(company, contact, notes, visitType), 2500)
+    : Promise.resolve(null);
+
+  const reverseGeocodePromise = (typeof window.reverseGeocode === 'function' && finalLat && finalLng)
+    ? withTimeout(window.reverseGeocode(finalLat, finalLng), 1800)
+    : Promise.resolve(null);
+
+  try {
+    const [aiSummary, leadScore, resolvedAddress] = await Promise.all([
+      aiSummaryPromise,
+      leadScorePromise,
+      reverseGeocodePromise,
+    ]);
+
+    const updates = {};
+    if (typeof aiSummary === 'string' && aiSummary.trim()) updates.ai_summary = aiSummary;
+    if (Number.isFinite(Number(leadScore))) updates.lead_score = Number(leadScore);
+    if (typeof resolvedAddress === 'string' && resolvedAddress.trim()) updates.location_address = resolvedAddress.trim();
+
+    if (Object.keys(updates).length === 0) return;
+
+    await supabaseClient.from('visits').update(updates).eq('id', visitId);
+
+    if (Number.isFinite(Number(updates.lead_score)) && Number(updates.lead_score) >= 70) {
+      triggerConfetti();
+    }
+  } catch (e) {
+    // Best-effort only: enrichment failures should not impact saved visits.
+    console.warn('[SafiTrack] Visit enrichment skipped:', e?.message || e);
+  }
+}
+
+function withTimeout(promise, ms) {
+  const safePromise = Promise.resolve(promise).catch(() => null);
+  return Promise.race([
+    safePromise,
+    new Promise((resolve) => setTimeout(() => resolve(null), ms)),
+  ]);
 }
 
 async function geocodeAddress(address) {
@@ -779,8 +868,17 @@ window.selectCompany = function (companyId) {
 
 // ── Helpers ─────────────────────────────────────────────────────
 async function reverseGeocode(lat, lon) {
+  let timer = null;
   try {
-    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+    const controller = new AbortController();
+    timer = setTimeout(() => controller.abort(), 1800);
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`, {
+      signal: controller.signal,
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+    if (!response.ok) return null;
     const data = await response.json();
     if (data && data.display_name) {
       const parts = data.display_name.split(', ');
@@ -788,6 +886,8 @@ async function reverseGeocode(lat, lon) {
     }
   } catch (error) {
     console.error('Reverse geocoding error:', error);
+  } finally {
+    if (timer) clearTimeout(timer);
   }
   return null;
 }

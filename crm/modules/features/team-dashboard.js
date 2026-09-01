@@ -39,6 +39,7 @@ function _pgHTML(current, total, size) {
 let visitsHubState = {
   visits: [],
   salesReps: [],
+  allProfiles: [],
   filteredVisits: [],
   currentPage: 1,
   currentView: (_persisted.teamDashboard && _persisted.teamDashboard.currentView) || 'cards',
@@ -97,6 +98,7 @@ async function renderTeamDashboardView() {
   // Store in state
   visitsHubState.visits = visitsWithProfiles;
   visitsHubState.salesReps = salesReps;
+  visitsHubState.allProfiles = allProfiles || [];
   visitsHubState.filteredVisits = visitsWithProfiles;
 
   // Calculate stats
@@ -396,6 +398,19 @@ function renderVisitsCards(visits) {
 
     const scoreClass = visit.lead_score >= 70 ? 'score-high' : visit.lead_score >= 40 ? 'score-medium' : 'score-low';
     const visitSubsector = (visit.subsector || '').trim();
+    const fareTrackingEnabled = Boolean(state.currentOrganization?.settings?.additional_features?.fare_tracking);
+    const fareApprovalWorkflowEnabled = fareTrackingEnabled && Boolean(state.currentOrganization?.settings?.additional_features?.fare_approval_workflow);
+    const hasFare = Number.isFinite(Number(visit.fare_amount)) && Number(visit.fare_amount) >= 0;
+    const fareCurrency = visit.fare_currency || state.orgCurrency || state.currentOrganization?.currency || 'USD';
+    const fareValue = hasFare ? Number(visit.fare_amount).toFixed(2) : null;
+    const fareStatusRaw = String(visit.fare_status || (fareApprovalWorkflowEnabled && hasFare ? 'requested' : '')).toLowerCase();
+    const fareStatusLabel = fareStatusRaw === 'approved'
+      ? 'Fare Approved'
+      : fareStatusRaw === 'rejected'
+        ? 'Fare Rejected'
+        : fareStatusRaw === 'requested'
+          ? 'Fare Requested'
+          : '';
     
     const distanceTag = (visit.tags || []).find(t => typeof t === 'string' && t.startsWith('__distance:'));
     const distanceVal = distanceTag ? distanceTag.split(':')[1] : null;
@@ -423,6 +438,8 @@ function renderVisitsCards(visits) {
           <span class="visit-card-badge type-${visit.visit_type || 'new_lead'}">${visitTypeLabels[visit.visit_type] || 'Visit'}</span>
           <span class="visit-card-badge subsector">Subsector: ${escapeHtml(visitSubsector || 'Unassigned')}</span>
           ${visit.lead_score ? `<span class="visit-card-badge ${scoreClass}">${visit.lead_score}% Score</span>` : ''}
+          ${fareTrackingEnabled && fareValue !== null ? `<span class="visit-card-badge">Fare: ${fareCurrency} ${fareValue}</span>` : ''}
+          ${fareApprovalWorkflowEnabled && fareStatusLabel ? `<span class="visit-card-badge">${fareStatusLabel}</span>` : ''}
           ${distanceVal != null && !isUnverified ? `<span class="visit-card-badge distance"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${distanceVal}m from site</span>` : ''}
           ${isUnverified ? `<span class="visit-card-badge distance" style="color: #ef4444; background: #fef2f2;">Location not verified</span>` : ''}
         </div>
@@ -874,6 +891,14 @@ function clearAllFilters() {
   applyVisitsFilters();
 }
 
+function getProfileDisplayNameById(userId) {
+  if (!userId) return 'Unknown';
+  const row = (visitsHubState.allProfiles || []).find(p => String(p.id) === String(userId));
+  if (!row) return 'Unknown';
+  const full = `${row.first_name || ''} ${row.last_name || ''}`.trim();
+  return full || row.email || 'Unknown';
+}
+
 window.openVisitDetail = function (visitId) {
   const visit = visitsHubState.visits.find(v => v.id === visitId || v.id === parseInt(visitId));
   if (!visit) {
@@ -899,6 +924,30 @@ window.openVisitDetail = function (visitId) {
   const distanceVal = distanceTag ? distanceTag.split(':')[1] : null;
   const isUnverified = (visit.tags || []).includes('location-unverified');
   const displayTags = (visit.tags || []).filter(t => typeof t !== 'string' || (!t.startsWith('__distance:') && t !== 'location-unverified'));
+  const fareTrackingEnabled = Boolean(state.currentOrganization?.settings?.additional_features?.fare_tracking);
+  const fareApprovalWorkflowEnabled = fareTrackingEnabled && Boolean(state.currentOrganization?.settings?.additional_features?.fare_approval_workflow);
+  const hasFare = Number.isFinite(Number(visit.fare_amount)) && Number(visit.fare_amount) >= 0;
+  const fareCurrency = visit.fare_currency || state.orgCurrency || state.currentOrganization?.currency || 'USD';
+  const fareStatusRaw = String(visit.fare_status || (fareApprovalWorkflowEnabled && hasFare ? 'requested' : '')).toLowerCase();
+  const fareStatusLabel = fareStatusRaw === 'approved'
+    ? 'Approved'
+    : fareStatusRaw === 'rejected'
+      ? 'Rejected'
+      : fareStatusRaw === 'requested'
+        ? 'Requested'
+        : 'Not submitted';
+  const fareStatusStyle = fareStatusRaw === 'approved'
+    ? 'background:rgba(34,197,94,0.12);color:#15803d;border:1px solid rgba(34,197,94,0.25);'
+    : fareStatusRaw === 'rejected'
+      ? 'background:rgba(239,68,68,0.10);color:#b91c1c;border:1px solid rgba(239,68,68,0.24);'
+      : fareStatusRaw === 'requested'
+        ? 'background:rgba(245,158,11,0.13);color:#b45309;border:1px solid rgba(245,158,11,0.28);'
+        : 'background:var(--bg-secondary);color:var(--text-muted);border:1px solid var(--border-color);';
+  const canManagerDecideFare = state.isManager && fareApprovalWorkflowEnabled && hasFare && (fareStatusRaw === 'requested' || fareStatusRaw === '');
+  const requesterName = visit.fare_requested_by
+    ? getProfileDisplayNameById(visit.fare_requested_by)
+    : (visit.user ? `${visit.user.first_name || ''} ${visit.user.last_name || ''}`.trim() || 'Unknown' : 'Unknown');
+  const reviewerName = visit.fare_reviewed_by ? getProfileDisplayNameById(visit.fare_reviewed_by) : null;
 
   const detailBody = document.getElementById('visit-detail-body');
   if (!detailBody) {
@@ -944,12 +993,87 @@ window.openVisitDetail = function (visitId) {
             <span class="visit-detail-meta-value">${visit.travel_time} minutes</span>
           </div>
         ` : ''}
+        ${fareTrackingEnabled && hasFare ? `
+          <div class="visit-detail-meta-item">
+            <span class="visit-detail-meta-label">Fare Used</span>
+            <span class="visit-detail-meta-value">${fareCurrency} ${Number(visit.fare_amount).toFixed(2)}</span>
+          </div>
+        ` : ''}
+        ${fareTrackingEnabled && fareApprovalWorkflowEnabled && hasFare ? `
+          <div class="visit-detail-meta-item">
+            <span class="visit-detail-meta-label">Fare Status</span>
+            <span class="visit-detail-meta-value"><span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;font-size:0.78rem;font-weight:600;${fareStatusStyle}">${fareStatusLabel}</span></span>
+          </div>
+        ` : ''}
         <div class="visit-detail-meta-item">
           <span class="visit-detail-meta-label">Distance from Site</span>
           <span class="visit-detail-meta-value">${isUnverified ? '<span style="color: #ef4444;">Location not verified</span>' : (distanceVal != null ? `${distanceVal}m` : 'Unknown')}</span>
         </div>
       </div>
     </div>
+
+    ${fareTrackingEnabled && fareApprovalWorkflowEnabled && hasFare ? `
+      <div class="visit-detail-section" style="border:1px solid var(--border-color);border-radius:10px;padding:14px;background:var(--bg-secondary);">
+        <h4 class="visit-detail-section-title" style="margin-bottom:10px;">Fare Approval</h4>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">
+          <div>
+            <div class="visit-detail-meta-label">Requested Amount</div>
+            <div class="visit-detail-meta-value">${fareCurrency} ${Number(visit.fare_amount).toFixed(2)}</div>
+          </div>
+          <div>
+            <div class="visit-detail-meta-label">Requested By</div>
+            <div class="visit-detail-meta-value">${escapeHtml(requesterName)}</div>
+          </div>
+          <div>
+            <div class="visit-detail-meta-label">Requested At</div>
+            <div class="visit-detail-meta-value">${visit.fare_requested_at ? formatDate(visit.fare_requested_at) : dateStr}</div>
+          </div>
+          <div>
+            <div class="visit-detail-meta-label">Decision</div>
+            <div class="visit-detail-meta-value">${fareStatusLabel}</div>
+          </div>
+          <div>
+            <div class="visit-detail-meta-label">Reviewed By</div>
+            <div class="visit-detail-meta-value">${reviewerName ? escapeHtml(reviewerName) : 'Not reviewed yet'}</div>
+          </div>
+          <div>
+            <div class="visit-detail-meta-label">Reviewed At</div>
+            <div class="visit-detail-meta-value">${visit.fare_reviewed_at ? formatDate(visit.fare_reviewed_at) : 'Not reviewed yet'}</div>
+          </div>
+        </div>
+
+        ${fareStatusRaw === 'approved' && Number.isFinite(Number(visit.fare_approved_amount)) ? `
+          <div style="margin-top:12px;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-primary);">
+            <div class="visit-detail-meta-label">Approved Amount</div>
+            <div class="visit-detail-meta-value">${visit.fare_approved_currency || fareCurrency} ${Number(visit.fare_approved_amount).toFixed(2)}</div>
+          </div>
+        ` : ''}
+
+        ${fareStatusRaw === 'rejected' && visit.fare_rejection_reason ? `
+          <div style="margin-top:12px;padding:10px;border:1px solid rgba(239,68,68,0.22);border-radius:8px;background:rgba(239,68,68,0.05);">
+            <div class="visit-detail-meta-label">Rejection Reason</div>
+            <div class="visit-detail-meta-value">${escapeHtml(visit.fare_rejection_reason)}</div>
+          </div>
+        ` : ''}
+
+        ${canManagerDecideFare ? `
+          <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border-color);display:flex;flex-direction:column;gap:10px;">
+            <div>
+              <label for="visit-fare-approval-amount" class="visit-detail-meta-label">Approved Amount (${fareCurrency})</label>
+              <input id="visit-fare-approval-amount" type="number" min="0" step="0.01" value="${Number(visit.fare_amount).toFixed(2)}" class="sv-input" style="max-width:220px;">
+            </div>
+            <div>
+              <label for="visit-fare-reject-reason" class="visit-detail-meta-label">Rejection Reason (required when rejecting)</label>
+              <textarea id="visit-fare-reject-reason" class="sv-input" rows="2" placeholder="Add a short reason for the rep..." style="min-height:72px;resize:vertical;"></textarea>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button type="button" class="btn btn-primary btn-sm" id="visit-fare-approve-btn">Approve Fare</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="visit-fare-reject-btn">Reject Fare</button>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    ` : ''}
     
     ${visit.notes ? `
       <div class="visit-detail-section">
@@ -1017,6 +1141,55 @@ window.openVisitDetail = function (visitId) {
   backdrop.classList.add('open');
   document.body.style.overflow = 'hidden'; // prevent background scroll on mobile
 
+  const approveBtn = document.getElementById('visit-fare-approve-btn');
+  const rejectBtn = document.getElementById('visit-fare-reject-btn');
+  const approvalAmountInput = document.getElementById('visit-fare-approval-amount');
+  const rejectReasonInput = document.getElementById('visit-fare-reject-reason');
+
+  if (approveBtn) {
+    approveBtn.addEventListener('click', async () => {
+      const amount = Number.parseFloat(approvalAmountInput?.value || '');
+      if (!Number.isFinite(amount) || amount < 0) {
+        showToast('Enter a valid approved amount.', 'error');
+        return;
+      }
+
+      const payload = {
+        fare_status: 'approved',
+        fare_approved_amount: amount,
+        fare_approved_currency: visit.fare_currency || state.orgCurrency || state.currentOrganization?.currency || 'USD',
+        fare_reviewed_by: state.currentUser?.id || null,
+        fare_reviewed_at: new Date().toISOString(),
+        fare_rejection_reason: null,
+      };
+
+      const ok = await saveFareDecision(visit.id, payload, 'Fare request approved.');
+      if (ok) openVisitDetail(visit.id);
+    });
+  }
+
+  if (rejectBtn) {
+    rejectBtn.addEventListener('click', async () => {
+      const reason = (rejectReasonInput?.value || '').trim();
+      if (reason.length < 3) {
+        showToast('Add a short rejection reason.', 'error');
+        return;
+      }
+
+      const payload = {
+        fare_status: 'rejected',
+        fare_approved_amount: null,
+        fare_approved_currency: null,
+        fare_reviewed_by: state.currentUser?.id || null,
+        fare_reviewed_at: new Date().toISOString(),
+        fare_rejection_reason: reason,
+      };
+
+      const ok = await saveFareDecision(visit.id, payload, 'Fare request rejected.');
+      if (ok) openVisitDetail(visit.id);
+    });
+  }
+
   // Initialize mini map if coordinates exist
   if (visit.latitude && visit.longitude) {
     setTimeout(() => {
@@ -1031,6 +1204,31 @@ window.openVisitDetail = function (visitId) {
     }, 300);
   }
 };
+
+async function saveFareDecision(visitId, payload, successMessage) {
+  try {
+    let q = supabaseClient.from('visits').update(payload).eq('id', visitId);
+    if (state.currentOrganization?.id) q = q.eq('organization_id', state.currentOrganization.id);
+    const { error } = await q;
+    if (error) throw error;
+
+    visitsHubState.visits = (visitsHubState.visits || []).map(v => {
+      if (String(v.id) !== String(visitId)) return v;
+      return { ...v, ...payload };
+    });
+    visitsHubState.filteredVisits = (visitsHubState.filteredVisits || []).map(v => {
+      if (String(v.id) !== String(visitId)) return v;
+      return { ...v, ...payload };
+    });
+
+    showToast(successMessage, 'success');
+    return true;
+  } catch (err) {
+    console.error(err);
+    showToast('Failed to save fare decision: ' + err.message, 'error');
+    return false;
+  }
+}
 
 function closeVisitDetail() {
   const panel = document.getElementById('visit-detail-panel');
@@ -1195,11 +1393,14 @@ window.exportVisitsToCSV = function () {
     return;
   }
 
-  const headers = ['Date', 'Company', 'Sales Rep', 'Visit Type', 'Contact', 'Lead Score', 'Notes', 'Distance from Site'];
+  const headers = ['Date', 'Company', 'Sales Rep', 'Visit Type', 'Contact', 'Lead Score', 'Fare Amount', 'Fare Currency', 'Fare Status', 'Notes', 'Distance from Site'];
   const pref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
   const rows = visits.map(v => {
     const distTag = (v.tags || []).find(t => typeof t === 'string' && t.startsWith('__distance:'));
     const distVal = distTag ? distTag.split(':')[1] + 'm' : 'Unknown';
+    const fareAmount = Number.isFinite(Number(v.fare_amount)) ? Number(v.fare_amount).toFixed(2) : '';
+    const fareCurrency = v.fare_currency || '';
+    const fareStatus = v.fare_status || '';
     
     return [
       pref === 'MM/DD/YYYY' ? (new Date(v.created_at) instanceof Date ? `${String(new Date(v.created_at).getMonth() + 1).padStart(2, '0')}/${String(new Date(v.created_at).getDate()).padStart(2, '0')}/${new Date(v.created_at).getFullYear()}` : '') : formatDateDDMMYYYY(v.created_at),
@@ -1208,6 +1409,9 @@ window.exportVisitsToCSV = function () {
       v.visit_type || '',
       v.contact_name || '',
       v.lead_score || '',
+      fareAmount,
+      fareCurrency,
+      fareStatus,
       (v.notes || '').replace(/"/g, '""'),
       distVal
     ];
