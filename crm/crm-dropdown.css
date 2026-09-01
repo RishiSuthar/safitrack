@@ -221,6 +221,7 @@
   font-size: 0.875rem;
   background: var(--bg-secondary);
   border: 1px solid var(--border-color);
+  min-width: 168px;
 }
 
 .crm-dd--filter.is-open .crm-dd-trigger {
@@ -231,6 +232,13 @@
 .crm-dd--filter .crm-dd-chevron {
   width: 12px;
   height: 12px;
+}
+
+@media (max-width: 768px) {
+  .crm-dd--filter .crm-dd-trigger {
+    min-width: 132px;
+    max-width: 100%;
+  }
 }
 
 /* ── Form-field variant: full-width, taller ── */

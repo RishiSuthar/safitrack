@@ -127,6 +127,7 @@ function renderVisitCard(visit, showRepName = false) {
   const displayLocation = visit.location_address || visit.location_name;
   const locationHtml = displayLocation ? `<span class="activity-chip"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg> ${escapeHtml(displayLocation)}</span>` : '';
   const travelHtml = visit.travel_time ? `<span class="activity-chip"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ${escapeHtml(String(visit.travel_time))}m travel</span>` : '';
+  const subsectorHtml = `<span class="activity-chip"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg> Subsector: ${escapeHtml(String(visit.subsector || '').trim() || 'Unassigned')}</span>`;
   const typeHtml = `<span class="activity-chip"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg> ${escapeHtml(typeName)}</span>`;
 
   const tagsHtml = visit.tags && Array.isArray(visit.tags) && visit.tags.length > 0 ? `<div class="activity-meta-row" style="margin-top: 8px;">${visit.tags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}</div>` : '';
@@ -156,6 +157,7 @@ function renderVisitCard(visit, showRepName = false) {
         <div class="activity-card-body">
           <div class="activity-meta-row">
             ${typeHtml}
+            ${subsectorHtml}
             ${contactHtml}
             ${locationHtml}
             ${travelHtml}

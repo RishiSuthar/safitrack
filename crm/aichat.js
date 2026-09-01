@@ -1911,11 +1911,13 @@ async function finalizeCreation(intent, fields) {
     }
 
     // try to match company against existing data to normalize its name
+    let matchedCompany = null;
     if (fields.company_name) {
       try {
         if (typeof window.findCompanyForOpportunity === 'function') {
           const match = window.findCompanyForOpportunity({ company_name: fields.company_name });
           if (match && match.name) {
+            matchedCompany = match;
             fields.company_name = match.name; // use canonical casing/spelling
           }
         }
@@ -1935,7 +1937,7 @@ async function finalizeCreation(intent, fields) {
       user_id: currentUser.id,
       name: fields.name,
       company_name: fields.company_name || null,
-      // company_id column not present in schema; we only store name
+      subsector: matchedCompany?.subsector || null,
       value: fields.value != null ? parseFloat(fields.value) : null,
       probability: fields.probability != null ? parseFloat(fields.probability) : null,
       stage: stageVal,

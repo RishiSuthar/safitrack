@@ -395,6 +395,7 @@ function renderVisitsCards(visits) {
     };
 
     const scoreClass = visit.lead_score >= 70 ? 'score-high' : visit.lead_score >= 40 ? 'score-medium' : 'score-low';
+    const visitSubsector = (visit.subsector || '').trim();
     
     const distanceTag = (visit.tags || []).find(t => typeof t === 'string' && t.startsWith('__distance:'));
     const distanceVal = distanceTag ? distanceTag.split(':')[1] : null;
@@ -420,6 +421,7 @@ function renderVisitsCards(visits) {
         
         <div class="visit-card-meta">
           <span class="visit-card-badge type-${visit.visit_type || 'new_lead'}">${visitTypeLabels[visit.visit_type] || 'Visit'}</span>
+          <span class="visit-card-badge subsector">Subsector: ${escapeHtml(visitSubsector || 'Unassigned')}</span>
           ${visit.lead_score ? `<span class="visit-card-badge ${scoreClass}">${visit.lead_score}% Score</span>` : ''}
           ${distanceVal != null && !isUnverified ? `<span class="visit-card-badge distance"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${distanceVal}m from site</span>` : ''}
           ${isUnverified ? `<span class="visit-card-badge distance" style="color: #ef4444; background: #fef2f2;">Location not verified</span>` : ''}
@@ -487,6 +489,9 @@ function renderVisitsTimeline(visits) {
                   <div class="visit-card-company">${visit.company_name || 'Unknown'}</div>
                   <div class="visit-card-rep">${userName} at ${time}</div>
                 </div>
+              </div>
+              <div class="visit-card-meta" style="margin-top: 0.4rem;">
+                <span class="visit-card-badge subsector">Subsector: ${escapeHtml((visit.subsector || '').trim() || 'Unassigned')}</span>
               </div>
               ${visit.notes ? `<div class="visit-card-notes">${visit.notes}</div>` : ''}
             </div>
@@ -916,6 +921,10 @@ window.openVisitDetail = function (visitId) {
         <div class="visit-detail-meta-item">
           <span class="visit-detail-meta-label">Visit Type</span>
           <span class="visit-detail-meta-value">${visitTypeLabels[visit.visit_type] || 'N/A'}</span>
+        </div>
+        <div class="visit-detail-meta-item">
+          <span class="visit-detail-meta-label">Subsector</span>
+          <span class="visit-detail-meta-value">${escapeHtml(String(visit.subsector || '').trim() || 'Unassigned')}</span>
         </div>
         ${visit.contact_name ? `
           <div class="visit-detail-meta-item">

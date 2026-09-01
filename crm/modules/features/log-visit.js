@@ -45,6 +45,11 @@ async function renderLogVisitView() {
             </div>
           </div>
 
+          <div class="form-field">
+            <label for="visit-subsector">Subsector</label>
+            <input type="text" id="visit-subsector" placeholder="Auto-filled from selected company (you can edit)">
+          </div>
+
           <button type="button" id="verify-location" class="btn btn-secondary w-full" disabled>
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin-icon lucide-map-pin"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
             Verify Location
@@ -158,6 +163,7 @@ function initLogVisitForm(companies) {
   const selectedCompanyDiv = document.getElementById('selected-company');
   const selectedCompanyName = document.getElementById('selected-company-name');
   const selectedCompanyAddress = document.getElementById('selected-company-address');
+  const visitSubsectorInput = document.getElementById('visit-subsector');
   // sales rep should select a company from search; no custom company input here
   const notesEl = document.getElementById('notes');
   const charCountEl = document.getElementById('char-count');
@@ -235,6 +241,7 @@ function initLogVisitForm(companies) {
 
     if (window.selectedCompanyData && e.target.value.trim() !== window.selectedCompanyData.name) {
       window.selectedCompanyData = null;
+      if (visitSubsectorInput) visitSubsectorInput.value = '';
       selectedCompanyDiv.style.display = 'none';
       resetLocationVerificationState();
       updateLogVisitStepState();
@@ -555,6 +562,7 @@ function initLogVisitForm(companies) {
     }
 
     const company = companyNameInput.value.trim();
+    const visitSubsector = (visitSubsectorInput?.value || '').trim();
     const contact = document.getElementById('contact-name').value.trim();
     const visitType = document.getElementById('visit-type').value;
     const notes = notesEl.value.trim();
@@ -616,6 +624,7 @@ function initLogVisitForm(companies) {
       const visitData = {
         user_id: state.currentUser.id,
         company_name: company,
+        subsector: visitSubsector || window.selectedCompanyData?.subsector || null,
         contact_name: contact || null,
         visit_type: visitType,
         notes: notes,
@@ -636,6 +645,36 @@ function initLogVisitForm(companies) {
       const { error } = await supabaseClient.from('visits').insert([visitData]);
 
       if (error) throw error;
+
+      // If user entered/changed a subsector while logging the visit, sync it back to company.
+      // This is best-effort and should not block visit logging.
+      if (window.selectedCompanyData?.id && visitSubsector) {
+        const selectedCompanyId = String(window.selectedCompanyData.id);
+        const companiesCache = Array.isArray(window.companiesData) ? window.companiesData : [];
+        const cacheCompany = companiesCache.find(c => String(c.id) === selectedCompanyId) || null;
+        const existingSubsector = String(cacheCompany?.subsector || '').trim();
+
+        if (visitSubsector !== existingSubsector) {
+          let cq = supabaseClient
+            .from('companies')
+            .update({ subsector: visitSubsector })
+            .eq('id', selectedCompanyId);
+
+          if (state.currentOrganization?.id) {
+            cq = cq.eq('organization_id', state.currentOrganization.id);
+          }
+
+          const { error: companySubsectorErr } = await cq;
+          if (!companySubsectorErr) {
+            if (cacheCompany) cacheCompany.subsector = visitSubsector;
+            if (Array.isArray(window.allCompaniesData)) {
+              const allCompany = window.allCompaniesData.find(c => String(c.id) === selectedCompanyId);
+              if (allCompany) allCompany.subsector = visitSubsector;
+            }
+            window.selectedCompanyData.subsector = visitSubsector;
+          }
+        }
+      }
 
       showToast('Visit logged successfully!', 'success');
 
@@ -715,6 +754,7 @@ window.selectCompany = function (companyId) {
   const selectedCompany = {
     id: company.id,
     name: company.name,
+    subsector: company.subsector || null,
     latitude: latitude,
     longitude: longitude,
     radius: parseInt(company.radius) || 200 // Include the radius
@@ -722,6 +762,10 @@ window.selectCompany = function (companyId) {
 
   // Store it in a way that can be accessed by the event listener
   window.selectedCompanyData = selectedCompany;
+  const visitSubsectorInput = document.getElementById('visit-subsector');
+  if (visitSubsectorInput) {
+    visitSubsectorInput.value = selectedCompany.subsector || '';
+  }
 
   // Enable verify location button
   document.getElementById('verify-location').disabled = false;

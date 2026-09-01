@@ -134,6 +134,19 @@ function escHtml(str) {
 /* ─────────────────────── Global open tracker ─────────────────────── */
 let _openDropdown = null;  // currently-open .crm-dd element (or null)
 
+function _getPanel(root) {
+  if (!root) return null;
+  const local = root.querySelector('.crm-dd-panel');
+  if (local) return local;
+  const openPanels = Array.from(document.body.querySelectorAll('.crm-dd-panel.is-open-panel'));
+  return openPanels.find(p => p._crmDdRoot === root) || null;
+}
+
+function _getList(root) {
+  const panel = _getPanel(root);
+  return panel ? panel.querySelector('.crm-dd-list') : null;
+}
+
 function _closeAll(except = null) {
   if (_openDropdown && _openDropdown !== except) {
     _closeDropdown(_openDropdown);
@@ -146,25 +159,20 @@ function _closeDropdown(root) {
   const trigger = root.querySelector('.crm-dd-trigger');
   if (trigger) trigger.setAttribute('aria-expanded', 'false');
   if (_openDropdown === root) _openDropdown = null;
-  
+
   // Clean up portal panel
-  // Since we might have moved it to the body, let's find it.
-  const panel = document.body.querySelector('.crm-dd-panel.is-open-panel');
-  if (panel && panel._crmDdRoot === root) {
+  const panel = _getPanel(root);
+  if (panel) {
     panel.classList.remove('is-open-panel');
     panel.classList.remove('opens-up-panel');
-    // We can move it back to the root to keep DOM tidy
-    root.appendChild(panel);
+    // Move it back to root to preserve expected DOM structure
+    if (panel.parentElement !== root) root.appendChild(panel);
     panel.style.position = '';
     panel.style.top = '';
     panel.style.bottom = '';
     panel.style.left = '';
     panel.style.width = '';
     panel.style.zIndex = '';
-  } else {
-    // Fallback if it wasn't portaled
-    const localPanel = root.querySelector('.crm-dd-panel');
-    if (localPanel) localPanel.classList.remove('is-open-panel');
   }
 }
 
@@ -177,14 +185,12 @@ function _openDropdownEl(root) {
   _openDropdown = root;
 
   // Position panel fixed and append to body to escape overflow containers
-  const panel = root.querySelector('.crm-dd-panel');
+  const panel = _getPanel(root);
   if (panel) {
-    if (panel.parentElement === root) {
-      // Save a placeholder to put it back later if needed, though we can just keep it in body
-      // Actually, if the dropdown is destroyed, we need to clean it up, but let's just append it.
+    if (panel.parentElement !== document.body) {
       document.body.appendChild(panel);
-      panel._crmDdRoot = root; // Keep reference to original root
     }
+    panel._crmDdRoot = root; // Keep reference to original root
     
     // We must manually add the is-open style class since it's no longer inside root
     panel.classList.add('is-open-panel');
@@ -192,11 +198,25 @@ function _openDropdownEl(root) {
     requestAnimationFrame(() => {
       const rect = trigger.getBoundingClientRect();
       const vp = window.innerHeight;
+      const vw = window.innerWidth;
+      const gutter = 8;
+      const maxPanelWidth = Math.max(220, Math.min(420, vw - (gutter * 2)));
+
+      // Measure the widest option so labels are not clipped.
+      const options = Array.from(panel.querySelectorAll('.crm-dd-option'));
+      const widestOption = options.reduce((max, el) => Math.max(max, el.scrollWidth), 0);
+      // Account for panel paddings, check icon spacing, and optional scrollbar.
+      const desiredWidth = Math.max(rect.width, widestOption + 34);
+      const panelWidth = Math.min(maxPanelWidth, desiredWidth);
       
       panel.style.position = 'fixed';
-      panel.style.width = `${rect.width}px`;
-      panel.style.left = `${rect.left}px`;
+      panel.style.width = `${Math.ceil(panelWidth)}px`;
       panel.style.zIndex = '2147483647'; // Max z-index
+
+      const alignRight = root.classList.contains('crm-dd--right');
+      let left = alignRight ? (rect.right - panelWidth) : rect.left;
+      left = Math.max(gutter, Math.min(left, vw - panelWidth - gutter));
+      panel.style.left = `${Math.round(left)}px`;
       
       // Determine if we should flip up
       const panelHeight = panel.offsetHeight || 200; // rough fallback
@@ -235,47 +255,19 @@ window.initCrmDropdown = function initCrmDropdown(root) {
   root._dd_init = true;
 
   const getTrigger = () => root.querySelector('.crm-dd-trigger');
-  const getList    = () => root.querySelector('.crm-dd-list');
-  const getPanel   = () => root.querySelector('.crm-dd-panel');
+  const getList    = () => _getList(root);
+  const getPanel   = () => _getPanel(root);
   const getInput   = () => root.querySelector('.crm-dd-value-input');
 
-  // ── Open / close trigger ──
-  root.addEventListener('click', (e) => {
-    const trigger = e.target.closest('.crm-dd-trigger');
-    if (trigger && !trigger.disabled) {
-      if (root.classList.contains('is-open')) {
-        _closeDropdown(root);
-      } else {
-        _openDropdownEl(root);
-        // Focus first option (or selected)
-        requestAnimationFrame(() => {
-          const list = getList();
-          if (!list) return;
-          const sel = list.querySelector('.crm-dd-option.is-selected') || list.querySelector('.crm-dd-option');
-          if (sel) { sel.tabIndex = 0; sel.focus(); }
-        });
-      }
-    }
-
-    // ── Option click ──
-    const option = e.target.closest('.crm-dd-option');
-    if (option && getList()?.contains(option)) {
-      _selectOption(root, option);
-      _closeDropdown(root);
-      getTrigger()?.focus();
-    }
-  });
-
-  // ── Keyboard navigation ──
-  root.addEventListener('keydown', (e) => {
+  const onKeydown = (e) => {
     const isOpen = root.classList.contains('is-open');
     const trigger = root.querySelector('.crm-dd-trigger');
-    const list    = getList();
+    const list = getList();
     if (!list) return;
 
     const options = Array.from(list.querySelectorAll('.crm-dd-option'));
     const focused = list.querySelector('.crm-dd-option:focus') || list.querySelector('.crm-dd-option.is-focused');
-    const idx     = focused ? options.indexOf(focused) : -1;
+    const idx = focused ? options.indexOf(focused) : -1;
 
     switch (e.key) {
       case 'ArrowDown':
@@ -313,22 +305,27 @@ window.initCrmDropdown = function initCrmDropdown(root) {
       case 'Escape':
       case 'Tab': {
         if (isOpen) {
-          e.key === 'Escape' && e.preventDefault();
+          if (e.key === 'Escape') e.preventDefault();
           _closeDropdown(root);
           trigger?.focus();
         }
         break;
       }
       case 'Home': {
-        if (isOpen && options.length) { e.preventDefault(); _focusOption(options, options[0]); }
+        if (isOpen && options.length) {
+          e.preventDefault();
+          _focusOption(options, options[0]);
+        }
         break;
       }
       case 'End': {
-        if (isOpen && options.length) { e.preventDefault(); _focusOption(options, options[options.length - 1]); }
+        if (isOpen && options.length) {
+          e.preventDefault();
+          _focusOption(options, options[options.length - 1]);
+        }
         break;
       }
       default: {
-        // Type-ahead: jump to first option starting with the pressed key
         if (isOpen && e.key.length === 1) {
           const ch = e.key.toLowerCase();
           const match = options.find(o => (o.dataset.label || '').toLowerCase().startsWith(ch));
@@ -336,10 +333,53 @@ window.initCrmDropdown = function initCrmDropdown(root) {
         }
       }
     }
+  };
+
+  // ── Open / close trigger ──
+  root.addEventListener('click', (e) => {
+    const trigger = e.target.closest('.crm-dd-trigger');
+    if (trigger && !trigger.disabled) {
+      if (root.classList.contains('is-open')) {
+        _closeDropdown(root);
+      } else {
+        _openDropdownEl(root);
+        // Focus first option (or selected)
+        requestAnimationFrame(() => {
+          const list = getList();
+          if (!list) return;
+          const sel = list.querySelector('.crm-dd-option.is-selected') || list.querySelector('.crm-dd-option');
+          if (sel) { sel.tabIndex = 0; sel.focus(); }
+        });
+      }
+    }
+
+    // ── Option click (works when panel is not portaled) ──
+    const option = e.target.closest('.crm-dd-option');
+    if (option && getList()?.contains(option)) {
+      _selectOption(root, option);
+      _closeDropdown(root);
+      getTrigger()?.focus();
+    }
   });
 
+  // ── Keyboard navigation ──
+  root.addEventListener('keydown', onKeydown);
+
   // ── Prevent panel scroll from closing ──
-  getPanel()?.addEventListener('mousedown', (e) => e.preventDefault());
+  const panel = getPanel();
+  if (panel && !panel._dd_panel_init) {
+    panel._dd_panel_init = true;
+    panel.addEventListener('mousedown', (e) => e.preventDefault());
+    panel.addEventListener('click', (e) => {
+      const option = e.target.closest('.crm-dd-option');
+      if (option && getList()?.contains(option)) {
+        _selectOption(root, option);
+        _closeDropdown(root);
+        getTrigger()?.focus();
+      }
+    });
+    panel.addEventListener('keydown', onKeydown);
+  }
 };
 
 function _focusOption(options, target) {
@@ -355,7 +395,7 @@ function _selectOption(root, optEl) {
   const input  = root.querySelector('.crm-dd-value-input');
   const trigger= root.querySelector('.crm-dd-trigger');
   const lblEl  = root.querySelector('.crm-dd-label');
-  const list   = root.querySelector('.crm-dd-list');
+  const list   = _getList(root);
 
   // Update hidden input
   if (input) {
@@ -392,7 +432,7 @@ function _selectOption(root, optEl) {
 window.setCrmDropdownValue = function setCrmDropdownValue(rootOrId, value) {
   const root = _resolveRoot(rootOrId);
   if (!root) return;
-  const list = root.querySelector('.crm-dd-list');
+  const list = _getList(root);
   if (!list) return;
   const opt = list.querySelector(`.crm-dd-option[data-value="${CSS.escape(String(value))}"]`);
   if (opt) {
@@ -424,7 +464,7 @@ window.destroyCrmDropdown = function destroyCrmDropdown(rootOrId) {
 window.updateCrmDropdownOptions = function updateCrmDropdownOptions(rootOrId, options, keepValue = true) {
   const root = _resolveRoot(rootOrId);
   if (!root) return;
-  const list    = root.querySelector('.crm-dd-list');
+  const list    = _getList(root);
   const input   = root.querySelector('.crm-dd-value-input');
   const lblEl   = root.querySelector('.crm-dd-label');
   const trigger = root.querySelector('.crm-dd-trigger');
@@ -473,7 +513,9 @@ window.initAllCrmDropdowns = function initAllCrmDropdowns(root = document) {
 
 /* ─────────────────────── Global close on outside click ─────────────────────── */
 document.addEventListener('click', (e) => {
-  if (_openDropdown && !_openDropdown.contains(e.target)) {
+  if (!_openDropdown) return;
+  const openPanel = _getPanel(_openDropdown);
+  if (!_openDropdown.contains(e.target) && !(openPanel && openPanel.contains(e.target))) {
     _closeDropdown(_openDropdown);
   }
 }, { capture: true });

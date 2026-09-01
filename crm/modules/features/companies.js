@@ -17,7 +17,7 @@ async function renderCompaniesView() {
   state.currentSortKey = companiesState.sortKey || 'name';
   state.currentSortDir = companiesState.sortDir || 'asc';
 
-  const sortableCompanyColumns = ['name', 'address', 'company_type'];
+  const sortableCompanyColumns = ['name', 'address', 'company_type', 'subsector'];
   const safeSortKey = sortableCompanyColumns.includes(state.currentSortKey) ? state.currentSortKey : 'name';
   if (state.currentSortKey !== safeSortKey) {
     state.currentSortKey = safeSortKey;
@@ -95,6 +95,15 @@ async function renderCompaniesView() {
         readOnly: state.isSalesRep,
         options: ['Competitor', 'Customer', 'Distributor', 'Investor', 'Partner', 'Reseller', 'Supplier', 'Vendor', 'Other']
       },
+        {
+          key: 'subsector',
+          label: 'Subsector',
+          width: '180px',
+          icon: 'layers-3',
+          sortable: true,
+          readOnly: state.isSalesRep,
+          render: (val) => val || 'Unassigned'
+        },
       {
         key: 'actions', label: 'Actions', width: '120px', readOnly: true, sortable: false, render: (val, row) => {
           let buttons = `<button class="action-btn view-company" data-id="${row.id}" title="View company"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg></button>`;
@@ -108,7 +117,6 @@ async function renderCompaniesView() {
     ];
 
     let html = `
-
 
       <div class="view-toolbar">
         <div class="search-container u-flex-1 u-maxw-320">
@@ -183,7 +191,7 @@ async function renderCompaniesView() {
       });
     }
 
-    const searchInput = document.getElementById('companies-search');
+        const searchInput = document.getElementById('companies-search');
     if (searchInput) {
       // Remove any existing listeners by cloning and replacing
       const newSearchInput = searchInput.cloneNode(true);
@@ -414,6 +422,7 @@ async function renderCompaniesView() {
     return matchesTokenizedQuery(
       query,
       company.name,
+      company.subsector,
       company.description,
       company.address
     );
@@ -432,6 +441,7 @@ async function openCompanyModal(company = null) {
   // Reset form
   document.getElementById('company-name-input').value = '';
   document.getElementById('company-type').value = '';
+  document.getElementById('company-subsector').value = '';
   document.getElementById('company-description').value = '';
   document.getElementById('company-domain') && (document.getElementById('company-domain').value = '');
   document.getElementById('company-address').value = '';
@@ -452,6 +462,7 @@ async function openCompanyModal(company = null) {
     // Fill form with company data
     document.getElementById('company-name-input').value = company.name || '';
     document.getElementById('company-type').value = company.company_type || '';
+    document.getElementById('company-subsector').value = company.subsector || '';
     document.getElementById('company-description').value = company.description || '';
     document.getElementById('company-domain') && (document.getElementById('company-domain').value = company.domain || '');
     document.getElementById('company-address').value = company.address || '';
@@ -557,6 +568,7 @@ function initCompanyModalListeners(company, viewOnly = false) {
     }
     const name = document.getElementById('company-name-input').value.trim();
     const companyType = document.getElementById('company-type').value.trim();
+    const subsector = document.getElementById('company-subsector').value.trim();
     const description = document.getElementById('company-description').value.trim();
     const address = document.getElementById('company-address').value.trim();
     const radius = parseInt(document.getElementById('company-radius').value);
@@ -629,6 +641,7 @@ function initCompanyModalListeners(company, viewOnly = false) {
       const companyData = {
         name,
         company_type: companyType,
+        subsector: subsector || null,
         description: description || null,
         domain: domain || null,
         address: address,

@@ -410,7 +410,7 @@ async function renderOpportunityPipelineView() {
     };
 
     html += `
-      <div class="pipeline-stage" data-stage="${stage.id}">
+      <div class="pipeline-stage" data-stage="${stage.id}" style="--stage-color: ${stage.color};">
         <div class="pipeline-stage-header">
           <div class="pipeline-stage-title"><span class="pipeline-stage-dot" style="background:${stage.color}"></span>${stage.title}</div>
           <div class="pipeline-stage-count">${stageData.opportunities.length}</div>
@@ -437,6 +437,7 @@ async function renderOpportunityPipelineView() {
 
       // Resolve company object from global cache if available (robust/fuzzy matching)
       const companyObj = findCompanyForOpportunityFast(opp, companyLookup);
+      const subsectorLabel = (opp.subsector || companyObj?.subsector || '').trim() || 'Unassigned';
 
       // Ensure we have a usable logo URL (favicon only for real domains; ui-avatars otherwise)
       const companyInitials = getInitials((companyObj && companyObj.name) ? companyObj.name : (opp.company_name || ''));
@@ -501,17 +502,23 @@ async function renderOpportunityPipelineView() {
               </div>
               <span class="opp-company-label">${escapeHtml(opp.company_name || 'No Company')}</span>
             </div>
-            ${isOwnOpportunity ? `
-              <button class="opp-drag-handle" title="Drag to move" onclick="event.stopPropagation()">
-                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
-              </button>
-            ` : ''}
+            <div class="opp-header-right">
+              <span class="opp-stage-age">
+                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+                ${stageDays}d
+              </span>
+              ${isOwnOpportunity ? `
+                <button class="opp-drag-handle" title="Drag to move" onclick="event.stopPropagation()">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+                </button>
+              ` : ''}
+            </div>
           </div>
 
           <div class="opp-name">${escapeHtml(opp.name)}</div>
 
-          <div class="opp-value-row">
-            <span class="opp-value">${getCurrencySymbol()} ${parseFloat(opp.value || 0).toLocaleString()}</span>
+          <div class="opp-chip-row">
+            <span class="opp-chip opp-chip-subsector">Subsector: ${escapeHtml(subsectorLabel)}</span>
             ${state.isManager && user ? `
               <span class="opp-owner-chip">
                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -520,11 +527,21 @@ async function renderOpportunityPipelineView() {
             ` : ''}
           </div>
 
+          <div class="opp-metrics-grid">
+            <div class="opp-metric-card">
+              <span class="opp-metric-label">Deal Value</span>
+              <span class="opp-value">${getCurrencySymbol()} ${parseFloat(opp.value || 0).toLocaleString()}</span>
+            </div>
+            <div class="opp-metric-card">
+              <span class="opp-metric-label">Win Chance</span>
+              <span class="opp-prob-label">${opp.probability || 0}%</span>
+            </div>
+          </div>
+
           <div class="opp-probability-row">
             <div class="opp-prob-bar">
               <div class="opp-prob-fill" style="width:${opp.probability || 0}%;background:${getProbabilityColor(opp.probability || 0)};"></div>
             </div>
-            <span class="opp-prob-label">${opp.probability || 0}%</span>
           </div>
 
           ${opp.next_step ? `
@@ -580,10 +597,6 @@ async function renderOpportunityPipelineView() {
           })()}
 
           <div class="opp-card-footer">
-            <span class="opp-stage-age">
-              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
-              ${stageDays}d
-            </span>
             <span class="opp-created-date">${formatDate(opp.created_at)}</span>
             <div class="opp-actions-group">
               ${isOwnOpportunity ? `
@@ -1263,6 +1276,7 @@ async function openOpportunityModal(opportunity = null) {
   // Reset form
   document.getElementById('opportunity-name').value = '';
   document.getElementById('opportunity-company').value = '';
+  document.getElementById('opportunity-subsector').value = '';
   document.getElementById('opportunity-value').value = '';
   document.getElementById('opportunity-probability').value = 50;
   document.getElementById('probability-display').textContent = '50';
@@ -1321,6 +1335,9 @@ async function openOpportunityModal(opportunity = null) {
     // Fill form with opportunity data
     document.getElementById('opportunity-name').value = opportunity.name || '';
     document.getElementById('opportunity-company').value = opportunity.company_name || '';
+    const matchedCompany = findCompanyForOpportunityFast(opportunity, buildCompanyLookup(window.allCompaniesData));
+    window.selectedOpportunityCompanyData = matchedCompany || null;
+    document.getElementById('opportunity-subsector').value = opportunity.subsector || matchedCompany?.subsector || '';
     document.getElementById('opportunity-value').value = opportunity.value || '';
     document.getElementById('opportunity-probability').value = opportunity.probability || 50;
     document.getElementById('probability-display').textContent = opportunity.probability || 50;
@@ -1346,6 +1363,7 @@ async function openOpportunityModal(opportunity = null) {
     }
   } else {
     modalTitle.innerHTML = 'New Opportunity';
+    window.selectedOpportunityCompanyData = null;
   }
 
   document.querySelectorAll('#opportunity-modal input, #opportunity-modal select, #opportunity-modal textarea').forEach(el => {
@@ -1386,7 +1404,12 @@ function openOpportunityViewModal(opportunity) {
     stageEl.style.color = stageInfo.color;
   }
 
-  if (companyEl) companyEl.textContent = opportunity.company_name || 'No Company';
+  const companyObj = findCompanyForOpportunity(opportunity);
+  const viewSubsector = (opportunity.subsector || companyObj?.subsector || '').trim() || 'Unassigned';
+  if (companyEl) {
+    const companyName = opportunity.company_name || 'No Company';
+    companyEl.textContent = `${companyName} • ${viewSubsector}`;
+  }
 
   // Avatar (Company initials or Logo)
   if (avatarEl) {
@@ -1567,6 +1590,7 @@ function initOpportunityModalListeners(opportunity) {
 
   // Company search
   const companyInput = document.getElementById('opportunity-company');
+  const subsectorInput = document.getElementById('opportunity-subsector');
   const companySearchResults = document.getElementById('opportunity-company-search-results');
 
   const newCompanyInput = companyInput.cloneNode(true);
@@ -1574,6 +1598,14 @@ function initOpportunityModalListeners(opportunity) {
 
   newCompanyInput.addEventListener('input', async (e) => {
     const query = e.target.value.toLowerCase().trim();
+
+    if (window.selectedOpportunityCompanyData && e.target.value.trim() !== window.selectedOpportunityCompanyData.name) {
+      const selectedSubsector = window.selectedOpportunityCompanyData.subsector || '';
+      window.selectedOpportunityCompanyData = null;
+      if (subsectorInput && subsectorInput.value.trim() === selectedSubsector) {
+        subsectorInput.value = '';
+      }
+    }
 
     if (query.length === 0) {
       companySearchResults.style.display = 'none';
@@ -1614,7 +1646,7 @@ function initOpportunityModalListeners(opportunity) {
             ? `<img src="${logoUrl}" class="opp-suggest-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><span class="opp-suggest-initials" style="display:none">${initials}</span>`
             : `<span class="opp-suggest-initials">${initials}</span>`;
           return `
-          <div class="search-result-item" onclick="selectOpportunityCompany('${escapeHtml(company.name)}')">
+          <div class="search-result-item" onclick="selectOpportunityCompany('${escapeHtml(company.name)}','${escapeHtml(company.id)}')">
             <div class="opp-suggest-avatar">${avatarInner}</div>
             <div>
               <div class="search-result-name">${escapeHtml(company.name)}</div>
@@ -1626,7 +1658,7 @@ function initOpportunityModalListeners(opportunity) {
 
       // Always show option to use custom name if it's different from found companies
       const customNameOption = `
-        <div class="search-result-item" onclick="selectOpportunityCompany('${escapeHtml(e.target.value.trim())}')">
+        <div class="search-result-item" onclick="selectOpportunityCompany('${escapeHtml(e.target.value.trim())}','')">
           <div class="opp-suggest-avatar opp-suggest-avatar--custom">
             <span>+</span>
           </div>
@@ -1756,6 +1788,7 @@ function initOpportunityModalListeners(opportunity) {
   saveBtn.onclick = async () => {
     const name = document.getElementById('opportunity-name').value.trim();
     const companyName = document.getElementById('opportunity-company').value.trim();
+    const formSubsector = document.getElementById('opportunity-subsector').value.trim();
     const value = document.getElementById('opportunity-value').value;
     const probability = document.getElementById('opportunity-probability').value;
     const stage = document.getElementById('opportunity-stage').value;
@@ -1789,6 +1822,7 @@ function initOpportunityModalListeners(opportunity) {
       const editableFields = {
         name,
         company_name: companyName,
+        subsector: formSubsector || window.selectedOpportunityCompanyData?.subsector || null,
         value,
         probability,
         stage,
@@ -1877,8 +1911,24 @@ window.removeCompetitor = function (element) {
   element.parentElement.remove();
 };
 
-window.selectOpportunityCompany = function (name) {
+window.selectOpportunityCompany = function (name, companyId = '') {
   document.getElementById('opportunity-company').value = name;
+  const subsectorInput = document.getElementById('opportunity-subsector');
+  const companies = Array.isArray(window.allCompaniesData) ? window.allCompaniesData : [];
+
+  let selectedCompany = null;
+  if (companyId) {
+    selectedCompany = companies.find(c => String(c.id) === String(companyId)) || null;
+  }
+  if (!selectedCompany) {
+    const normalizedName = window.normalizeForMatching?.(name) || String(name || '').toLowerCase().trim();
+    selectedCompany = companies.find(c => (window.normalizeForMatching?.(c.name) || String(c.name || '').toLowerCase().trim()) === normalizedName) || null;
+  }
+
+  window.selectedOpportunityCompanyData = selectedCompany;
+  if (subsectorInput) {
+    subsectorInput.value = selectedCompany?.subsector || '';
+  }
   document.getElementById('opportunity-company-search-results').style.display = 'none';
 };
 

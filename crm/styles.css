@@ -10963,11 +10963,22 @@ select {
 
 .opportunity-card.readonly {
   opacity: 0.8;
+  border-color: #cfd6e1;
   cursor: default;
 }
 
 .opportunity-card.readonly:hover {
+  border-color: #cfd6e1;
+  box-shadow: none;
   transform: none;
+}
+
+[data-theme="dark"] .opportunity-card.readonly {
+  border-color: #3a4352;
+}
+
+[data-theme="dark"] .opportunity-card.readonly:hover {
+  border-color: #3a4352;
 }
 
 /* Card header: company row + drag handle */
@@ -11279,6 +11290,202 @@ select {
   color: var(--color-danger);
 }
 
+/* ===== OPPORTUNITY CARD REDESIGN (2026-09) ===== */
+
+.opportunity-card {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcfd 100%);
+  border: 1px solid #111;
+  border-radius: 14px;
+  padding: 0.875rem;
+  opacity: 1;
+  box-shadow: 0 3px 12px rgba(16, 24, 40, 0.05), inset 0 0 0 1px rgba(255, 255, 255, 0.65);
+}
+
+[data-theme="dark"] .opportunity-card {
+  background: linear-gradient(180deg, #1f242b 0%, #1a1f25 100%);
+  border-color: #111;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), inset 0 0 0 1px rgba(255, 255, 255, 0.02);
+}
+
+.opportunity-card:hover {
+  border-color: #111;
+  box-shadow: 0 10px 24px rgba(16, 24, 40, 0.11);
+  transform: translateY(-2px);
+}
+
+[data-theme="dark"] .opportunity-card:hover {
+  border-color: #111;
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.45);
+}
+
+.opp-card-header {
+  margin-bottom: 0.55rem;
+}
+
+.opp-header-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.opp-stage-age {
+  padding: 0.2rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+}
+
+[data-theme="dark"] .opp-stage-age {
+  border-color: #394150;
+  background: #242b34;
+  color: #9aa7b5;
+}
+
+.opp-name {
+  font-size: 0.93rem;
+  line-height: 1.45;
+  margin-bottom: 0.6rem;
+}
+
+.opp-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.6rem;
+}
+
+.opp-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.18rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: #111;
+  font-size: 0.67rem;
+  line-height: 1.35;
+}
+
+[data-theme="dark"] .opp-chip {
+  color: #d7dee7;
+  border-color: #394150;
+  background: #242b34;
+}
+
+.opp-owner-chip {
+  margin-left: auto;
+  max-width: 140px;
+}
+
+.opp-metrics-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.45rem;
+  margin-bottom: 0.55rem;
+}
+
+.opp-metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.16rem;
+  padding: 0.42rem 0.48rem;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bg-secondary) 80%, #fff 20%);
+}
+
+[data-theme="dark"] .opp-metric-card {
+  border-color: #394150;
+  background: #232b34;
+}
+
+.opp-metric-label {
+  font-size: 0.64rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.opp-value {
+  font-size: 0.95rem;
+}
+
+.opp-prob-label {
+  min-width: 0;
+  text-align: left;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .opp-prob-label {
+  color: #e6edf3;
+}
+
+.opp-probability-row {
+  margin-bottom: 0.65rem;
+}
+
+.opp-prob-bar {
+  height: 6px;
+}
+
+.opp-next-step {
+  margin-bottom: 0.55rem;
+  padding: 0.45rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--color-info) 28%, var(--border-color) 72%);
+  background: color-mix(in srgb, var(--color-info-bg) 82%, #fff 18%);
+}
+
+.opp-next-step.overdue {
+  border-color: color-mix(in srgb, var(--color-danger) 32%, var(--border-color) 68%);
+}
+
+.opp-notes {
+  padding: 0.48rem 0.55rem;
+  border: 1px dashed var(--border-color);
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--bg-secondary) 86%, #fff 14%);
+}
+
+[data-theme="dark"] .opp-notes {
+  border-color: #384151;
+  background: #222a33;
+}
+
+.opp-card-assignees {
+  margin-top: 0.5rem;
+}
+
+.opp-card-footer {
+  margin-top: 0.58rem;
+  padding-top: 0.58rem;
+  align-items: center;
+}
+
+.opp-created-date {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.opportunity-action-btn {
+  opacity: 1;
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+[data-theme="dark"] .opportunity-action-btn {
+  border-color: #394150;
+  background: #232b34;
+}
+
 /* ===== SORTABLE DRAG STATES ===== */
 
 /* Probability Slider */
@@ -11512,18 +11719,18 @@ body.is-dragging * {
 
 .opportunity-card.readonly {
   opacity: 0.8;
-  border-color: var(--border-color-light);
+  border-color: #cfd6e1;
   cursor: not-allowed !important;
 }
 
 .opportunity-card.readonly:hover {
-  border-color: var(--border-color-light) !important;
+  border-color: #cfd6e1 !important;
   box-shadow: none !important;
   transform: none !important;
 }
 
 .opportunity-card.readonly .opportunity-action-btn {
-  opacity: 0.5;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
@@ -19917,6 +20124,21 @@ button svg {
 .visit-card-badge.verified {
   background: var(--color-success-bg);
   color: var(--color-success);
+}
+
+.visit-card-badge.subsector {
+  background: var(--bg-secondary);
+  color: #111;
+  border: 1px solid var(--border-color);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 550;
+}
+
+[data-theme="dark"] .visit-card-badge.subsector {
+  color: #d7dee7;
+  border-color: #3a4452;
+  background: #242b35;
 }
 
 .visit-card-notes {
