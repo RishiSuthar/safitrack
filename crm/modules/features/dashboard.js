@@ -2,6 +2,7 @@
 import { state, supabaseClient } from '../state.js';
 import { showToast } from '../ui/toast.js';
 import { renderError, getCurrencySymbol } from '../utils/helpers.js';
+import { DEFAULT_SALES_STAGES, normalizeOpportunityStage } from '../utils/pipeline-stages.js';
 
 // ── Helpers ─────────────────────────────────────────────────────
 
@@ -47,26 +48,22 @@ function initials(first, last) {
   return ((first || '')[0] || '') + ((last || '')[0] || '') || '?';
 }
 
-const STAGE_META = [
-  { key: 'prospecting',  label: 'Prospecting',  color: '#3b82f6' },
-  { key: 'qualification', label: 'Qualification', color: '#8b5cf6' },
-  { key: 'proposal',     label: 'Proposal',     color: '#f59e0b' },
-  { key: 'negotiation',  label: 'Negotiation',  color: '#f97316' },
-  { key: 'closed-won',   label: 'Closed Won',   color: '#10b981' },
-  { key: 'closed-lost',  label: 'Closed Lost',  color: '#ef4444' },
-];
-
-function normalizeStage(stage) {
-  const v = String(stage || '').toLowerCase().replace(/_/g, '-');
-  if (v === 'closed-won' || v === 'closed-lost') return v;
-  if (['prospecting', 'qualification', 'proposal', 'negotiation'].includes(v)) return v;
-  return 'prospecting';
-}
+const STAGE_META = DEFAULT_SALES_STAGES.map((s) => ({
+  key: s.id,
+  label: s.title,
+  color: s.color,
+}));
 
 function esc(s) {
   const el = document.createElement('span');
   el.textContent = s || '';
   return el.innerHTML;
+}
+
+function formatVisitType(type) {
+  const raw = String(type || 'visit').trim().toLowerCase();
+  const label = raw.replace(/[_-]+/g, ' ');
+  return label.replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 // ── Data layer ──────────────────────────────────────────────────
@@ -115,7 +112,7 @@ function compute(raw) {
   // Opportunities
   const opps = raw.opps.map(o => ({
     ...o,
-    stage: normalizeStage(o.stage),
+    stage: normalizeOpportunityStage(o.stage),
     val: Number(o.value) || 0,
   }));
 
@@ -226,13 +223,10 @@ function compute(raw) {
     if (vb) vb.visits++;
   });
 
-  // Deals furthest along the pipeline (negotiation first, then proposal)
+  // Deals currently in progress
   const closingSoon = openOpps
-    .filter(o => o.stage === 'negotiation' || o.stage === 'proposal')
-    .sort((a, b) => {
-      const order = { negotiation: 0, proposal: 1 };
-      return (order[a.stage] ?? 2) - (order[b.stage] ?? 2) || b.val - a.val;
-    })
+    .filter(o => o.stage === 'qualification')
+    .sort((a, b) => b.val - a.val)
     .slice(0, 6);
 
   // Reminders
@@ -456,11 +450,11 @@ function buildHTML(m) {
     <!-- Late-Stage Deals -->
     <div class="db-card">
       <div class="db-card-head">
-        <h2 class="db-card-title">Late-Stage Deals</h2>
-        <span class="db-card-sub">Negotiation &amp; Proposal</span>
+        <h2 class="db-card-title">In Progress Deals</h2>
+        <span class="db-card-sub">Qualification stage</span>
       </div>
       ${m.closingSoon.length === 0
-        ? '<div class="db-empty">No deals in negotiation or proposal stage</div>'
+        ? '<div class="db-empty">No deals in the in-progress stage</div>'
         : `<div class="db-close-list">
           ${m.closingSoon.map(o => {
             const stageMeta = STAGE_META.find(s => s.key === o.stage);
@@ -506,7 +500,7 @@ function buildHTML(m) {
               <tr>
                 <td><div class="db-user"><div class="db-avatar-sm">${esc(ini)}</div><span>${esc(name)}</span></div></td>
                 <td>${esc(v.company_name || '—')}</td>
-                <td>${esc(v.visit_type || 'Visit')}</td>
+                <td>${esc(formatVisitType(v.visit_type))}</td>
                 <td>${scoreOk ? `<span class="db-score db-score-${cls}">${score}</span>` : '<span class="db-muted">—</span>'}</td>
                 <td class="db-muted">${relTime(v.created_at)}</td>
               </tr>`;

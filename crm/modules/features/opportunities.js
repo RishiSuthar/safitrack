@@ -5,6 +5,7 @@ import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials, triggerConfetti } from '../ui/toast.js';
 import { renderSkeletonCards, renderError, getCurrencySymbol } from '../utils/helpers.js';
 import { getCompanyLogoUrl, guessDomainAndFavicon } from '../ui/spreadsheet.js';
+import { getDefaultSalesStages, LEGACY_STAGE_TO_CANONICAL } from '../utils/pipeline-stages.js';
 
 // ── Pipeline helpers ──────────────────────────────────────────────────────────
 
@@ -17,12 +18,7 @@ function getDefaultPipeline() {
     id: '__default__',
     name: 'Sales',
     is_default: true,
-    stages: [
-      { id: 'prospecting',   title: 'Lead',       color: '#3b82f6' },
-      { id: 'qualification', title: 'In Progress', color: '#ec4899' },
-      { id: 'closed-won',    title: 'Won 🎉',      color: '#10b981' },
-      { id: 'closed-lost',   title: 'Lost',        color: '#ef4444' },
-    ],
+    stages: getDefaultSalesStages(),
   };
 }
 
@@ -209,14 +205,7 @@ async function renderOpportunityPipelineView() {
   const pipelineStages = activePipeline.stages || getDefaultPipeline().stages;
 
   // Map old stage values to new ones (default pipeline only — legacy compat)
-  const stageMapping = activePipeline.is_default ? {
-    'prospecting': 'prospecting',
-    'qualification': 'qualification',
-    'proposal': 'qualification', // Map to In Progress
-    'negotiation': 'qualification', // Map to In Progress
-    'closed-won': 'closed-won',
-    'closed-lost': 'closed-lost'
-  } : {};
+  const stageMapping = activePipeline.is_default ? LEGACY_STAGE_TO_CANONICAL : {};
 
   // Apply mapping to opportunities
   opportunities.forEach(opp => {
@@ -799,15 +788,7 @@ function initPipelineDragAndDrop(opportunities) {
                 ? state.pipelines.find(p => p.id === state.activePipelineId)
                 : null) || getDefaultPipeline();
               if (activePipeline.is_default) {
-                const legacyMapping = {
-                  'prospecting': 'prospecting',
-                  'qualification': 'qualification',
-                  'proposal': 'qualification',
-                  'negotiation': 'qualification',
-                  'closed-won': 'closed-won',
-                  'closed-lost': 'closed-lost',
-                };
-                opportunity.mappedStage = legacyMapping[newStage] || newStage;
+                opportunity.mappedStage = LEGACY_STAGE_TO_CANONICAL[newStage] || newStage;
               } else {
                 opportunity.mappedStage = newStage;
               }

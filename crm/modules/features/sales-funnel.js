@@ -4,26 +4,44 @@ import { state, supabaseClient } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards, renderError } from '../utils/helpers.js';
+import { DEFAULT_SALES_STAGES, normalizeOpportunityStage } from '../utils/pipeline-stages.js';
+
+function getRelativeTimeSafe(date) {
+  const now = new Date();
+  const d = date instanceof Date ? date : new Date(date);
+  if (isNaN(d.getTime())) return 'Unknown';
+
+  const diff = now - d;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return `${minutes}m ago`;
+  if (hours < 24) return `${hours}h ago`;
+  if (days < 7) return `${days}d ago`;
+  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
 
 async function renderSalesFunnelView() {
-  let visits;
+  let opportunities;
   let error;
 
   if (state.isManager) {
-    // Managers see all visits within their org
-    let mVisitsQ = supabaseClient.from('visits').select('*').order('created_at', { ascending: false });
-    if (state.currentOrganization?.id) mVisitsQ = mVisitsQ.eq('organization_id', state.currentOrganization.id);
-    const result = await mVisitsQ;
-    visits = result.data;
+    // Managers see all opportunities within their org
+    let mOppsQ = supabaseClient.from('opportunities').select('*').order('created_at', { ascending: false });
+    if (state.currentOrganization?.id) mOppsQ = mOppsQ.eq('organization_id', state.currentOrganization.id);
+    const result = await mOppsQ;
+    opportunities = result.data;
     error = result.error;
   } else {
-    // Sales reps see only their own visits
+    // Sales reps see only their own opportunities
     const result = await supabaseClient
-      .from('visits')
+      .from('opportunities')
       .select('*')
       .eq('user_id', state.currentUser.id)
       .order('created_at', { ascending: false });
-    visits = result.data;
+    opportunities = result.data;
     error = result.error;
   }
 
@@ -32,50 +50,61 @@ async function renderSalesFunnelView() {
     return;
   }
 
-  const funnelStages = {
-    new_lead: { title: 'New Leads', icon: 'sparkles', visits: [], color: '#3b82f6', gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' },
-    follow_up: { title: 'Follow-ups', icon: 'refresh', visits: [], color: '#8b5cf6', gradient: 'linear-gradient(135deg, #8b5cf6, #6d28d9)' },
-    demo: { title: 'Product Demos', icon: 'presentation', visits: [], color: '#f59e0b', gradient: 'linear-gradient(135deg, #f59e0b, #d97706)' },
-    closing: { title: 'Closing', icon: 'handshake', visits: [], color: '#10b981', gradient: 'linear-gradient(135deg, #10b981, #059669)' },
-    support: { title: 'Support', icon: 'headset', visits: [], color: '#6b7280', gradient: 'linear-gradient(135deg, #6b7280, #4b5563)' }
+  const stageMetaById = {
+    prospecting: { gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' },
+    qualification: { gradient: 'linear-gradient(135deg, #ec4899, #be185d)' },
+    'closed-won': { gradient: 'linear-gradient(135deg, #10b981, #059669)' },
+    'closed-lost': { gradient: 'linear-gradient(135deg, #ef4444, #dc2626)' },
   };
 
-  visits.forEach(visit => {
-    const type = visit.visit_type || 'new_lead';
-    if (funnelStages[type]) {
-      funnelStages[type].visits.push(visit);
+  const funnelStages = {};
+  DEFAULT_SALES_STAGES.forEach((stage) => {
+    funnelStages[stage.id] = {
+      title: stage.title,
+      opportunities: [],
+      color: stage.color,
+      gradient: stageMetaById[stage.id]?.gradient || `linear-gradient(135deg, ${stage.color}, ${stage.color})`,
+    };
+  });
+
+  (opportunities || []).forEach((opp) => {
+    const stage = normalizeOpportunityStage(opp.stage);
+    if (funnelStages[stage]) {
+      funnelStages[stage].opportunities.push(opp);
     }
   });
 
-  const totalVisits = visits.length;
-  const thisWeekVisits = visits.filter(v => isThisWeek(new Date(v.created_at))).length;
-  const lastWeekVisits = visits.filter(v => isLastWeek(new Date(v.created_at))).length;
-  const weekTrend = lastWeekVisits > 0 ? Math.round(((thisWeekVisits - lastWeekVisits) / lastWeekVisits) * 100) : 100;
+  const totalDeals = (opportunities || []).length;
+  const thisWeekDeals = (opportunities || []).filter(v => isThisWeek(new Date(v.created_at))).length;
+  const lastWeekDeals = (opportunities || []).filter(v => isLastWeek(new Date(v.created_at))).length;
+  const weekTrend = lastWeekDeals > 0 ? Math.round(((thisWeekDeals - lastWeekDeals) / lastWeekDeals) * 100) : (thisWeekDeals > 0 ? 100 : 0);
 
   // Calculate conversion rates
-  const newLeads = funnelStages.new_lead.visits.length;
-  const followUps = funnelStages.follow_up.visits.length;
-  const demos = funnelStages.demo.visits.length;
-  const closings = funnelStages.closing.visits.length;
+  const leads = funnelStages.prospecting.opportunities.length;
+  const inProgress = funnelStages.qualification.opportunities.length;
+  const won = funnelStages['closed-won'].opportunities.length;
+  const lost = funnelStages['closed-lost'].opportunities.length;
+  const closed = won + lost;
 
-  const leadToFollowUp = newLeads > 0 ? Math.round((followUps / newLeads) * 100) : 0;
-  const followUpToDemo = followUps > 0 ? Math.round((demos / followUps) * 100) : 0;
-  const demoToClose = demos > 0 ? Math.round((closings / demos) * 100) : 0;
-  const overallConversion = newLeads > 0 ? Math.round((closings / newLeads) * 100) : 0;
+  const leadToInProgress = leads > 0 ? Math.round((inProgress / leads) * 100) : 0;
+  const inProgressToWon = inProgress > 0 ? Math.round((won / inProgress) * 100) : 0;
+  const inProgressToLost = inProgress > 0 ? Math.round((lost / inProgress) * 100) : 0;
+  const overallConversion = closed > 0 ? Math.round((won / closed) * 100) : 0;
 
   // High priority leads
-  const highPriorityLeads = visits.filter(v => v.lead_score && v.lead_score >= 70).slice(0, 6);
+  const highPriorityLeads = (opportunities || [])
+    .filter((opp) => Number(opp.probability || 0) >= 70 && normalizeOpportunityStage(opp.stage) !== 'closed-lost')
+    .slice(0, 6);
 
   // Recent activity
-  const recentVisits = visits.slice(0, 8);
+  const recentActivity = (opportunities || []).slice(0, 8);
 
   // Stage icons
   const stageIcons = {
-    new_lead: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>',
-    follow_up: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>',
-    demo: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h20"/><path d="M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3"/><path d="m7 21 5-5 5 5"/></svg>',
-    closing: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>',
-    support: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-5Zm0 0a9 9 0 1 1 18 0m0 0v5a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3Z"/></svg>'
+    prospecting: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>',
+    qualification: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>',
+    'closed-won': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+    'closed-lost': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>'
   };
 
   let html = `
@@ -87,8 +116,8 @@ async function renderSalesFunnelView() {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
           </div>
           <div class="funnel-stat-content">
-            <span class="funnel-stat-value">${totalVisits}</span>
-            <span class="funnel-stat-label">Total Visits</span>
+            <span class="funnel-stat-value">${totalDeals}</span>
+            <span class="funnel-stat-label">Total Deals</span>
           </div>
           <div class="funnel-stat-trend ${weekTrend >= 0 ? 'positive' : 'negative'}">
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="${weekTrend >= 0 ? 'M18 15l-6-6-6 6' : 'M6 9l6 6 6-6'}"/></svg>
@@ -121,7 +150,7 @@ async function renderSalesFunnelView() {
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
           </div>
           <div class="funnel-stat-content">
-            <span class="funnel-stat-value">${thisWeekVisits}</span>
+            <span class="funnel-stat-value">${thisWeekDeals}</span>
             <span class="funnel-stat-label">This Week</span>
           </div>
         </div>
@@ -139,8 +168,8 @@ async function renderSalesFunnelView() {
             
             <div class="funnel-visual">
               ${Object.entries(funnelStages).map(([key, stage], index) => {
-    const count = stage.visits.length;
-    const percentage = totalVisits > 0 ? Math.round((count / totalVisits) * 100) : 0;
+    const count = stage.opportunities.length;
+    const percentage = totalDeals > 0 ? Math.round((count / totalDeals) * 100) : 0;
     const width = 100 - (index * 12);
 
     return `
@@ -174,27 +203,27 @@ async function renderSalesFunnelView() {
             
             <div class="conversion-flow">
               <div class="conversion-step">
-                <div class="conversion-step-label">Lead → Follow-up</div>
+                <div class="conversion-step-label">Lead → In Progress</div>
                 <div class="conversion-step-bar">
-                  <div class="conversion-step-fill" style="width: ${leadToFollowUp}%; background: linear-gradient(90deg, #3b82f6, #8b5cf6);"></div>
+                  <div class="conversion-step-fill" style="width: ${leadToInProgress}%; background: linear-gradient(90deg, #3b82f6, #ec4899);"></div>
                 </div>
-                <div class="conversion-step-value">${leadToFollowUp}%</div>
+                <div class="conversion-step-value">${leadToInProgress}%</div>
               </div>
               
               <div class="conversion-step">
-                <div class="conversion-step-label">Follow-up → Demo</div>
+                <div class="conversion-step-label">In Progress → Won</div>
                 <div class="conversion-step-bar">
-                  <div class="conversion-step-fill" style="width: ${followUpToDemo}%; background: linear-gradient(90deg, #8b5cf6, #f59e0b);"></div>
+                  <div class="conversion-step-fill" style="width: ${inProgressToWon}%; background: linear-gradient(90deg, #ec4899, #10b981);"></div>
                 </div>
-                <div class="conversion-step-value">${followUpToDemo}%</div>
+                <div class="conversion-step-value">${inProgressToWon}%</div>
               </div>
               
               <div class="conversion-step">
-                <div class="conversion-step-label">Demo → Close</div>
+                <div class="conversion-step-label">In Progress → Lost</div>
                 <div class="conversion-step-bar">
-                  <div class="conversion-step-fill" style="width: ${demoToClose}%; background: linear-gradient(90deg, #f59e0b, #10b981);"></div>
+                  <div class="conversion-step-fill" style="width: ${inProgressToLost}%; background: linear-gradient(90deg, #ec4899, #ef4444);"></div>
                 </div>
-                <div class="conversion-step-value">${demoToClose}%</div>
+                <div class="conversion-step-value">${inProgressToLost}%</div>
               </div>
             </div>
           </div>
@@ -202,9 +231,9 @@ async function renderSalesFunnelView() {
           <!-- Stage Cards -->
           <div class="funnel-stages-grid">
             ${Object.entries(funnelStages).map(([key, stage]) => {
-    const count = stage.visits.length;
-    const percentage = totalVisits > 0 ? Math.round((count / totalVisits) * 100) : 0;
-    const recentInStage = stage.visits.slice(0, 3);
+    const count = stage.opportunities.length;
+    const percentage = totalDeals > 0 ? Math.round((count / totalDeals) * 100) : 0;
+    const recentInStage = stage.opportunities.slice(0, 3);
 
     return `
                 <div class="funnel-stage-card" style="--stage-color: ${stage.color};">
@@ -214,7 +243,7 @@ async function renderSalesFunnelView() {
                     </div>
                     <div class="funnel-stage-card-info">
                       <h3 class="funnel-stage-card-title">${stage.title}</h3>
-                      <span class="funnel-stage-card-count">${count} visit${count !== 1 ? 's' : ''}</span>
+                      <span class="funnel-stage-card-count">${count} deal${count !== 1 ? 's' : ''}</span>
                     </div>
                     <div class="funnel-stage-card-badge">${percentage}%</div>
                   </div>
@@ -227,8 +256,8 @@ async function renderSalesFunnelView() {
                     <div class="funnel-stage-card-items">
                       ${recentInStage.map(v => `
                         <div class="funnel-stage-item">
-                          <span class="funnel-stage-item-company">${v.company_name || 'Unknown'}</span>
-                          <span class="funnel-stage-item-date">${getRelativeTime(new Date(v.created_at))}</span>
+                          <span class="funnel-stage-item-company">${v.company_name || v.name || 'Unknown'}</span>
+                          <span class="funnel-stage-item-date">${getRelativeTimeSafe(v.updated_at || v.created_at)}</span>
                         </div>
                       `).join('')}
                     </div>
@@ -256,20 +285,20 @@ async function renderSalesFunnelView() {
             <div class="funnel-sidebar-content">
               ${highPriorityLeads.length > 0 ? highPriorityLeads.map(visit => `
                 <div class="hot-lead-item">
-                  <div class="hot-lead-avatar">${getInitials(visit.company_name || 'U')}</div>
+                  <div class="hot-lead-avatar">${getInitials(visit.company_name || visit.name || 'U')}</div>
                   <div class="hot-lead-info">
-                    <span class="hot-lead-company">${visit.company_name || 'Unknown'}</span>
-                    <span class="hot-lead-contact">${visit.contact_name || 'No contact'}</span>
+                    <span class="hot-lead-company">${visit.company_name || visit.name || 'Unknown'}</span>
+                    <span class="hot-lead-contact">${visit.name || 'High probability deal'}</span>
                   </div>
-                  <div class="hot-lead-score ${visit.lead_score >= 80 ? 'score-hot' : 'score-warm'}">
-                    ${visit.lead_score}%
+                  <div class="hot-lead-score ${Number(visit.probability || 0) >= 80 ? 'score-hot' : 'score-warm'}">
+                    ${Number(visit.probability || 0)}%
                   </div>
                 </div>
               `).join('') : `
                 <div class="funnel-sidebar-empty">
                   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
                   <p>No hot leads yet</p>
-                  <span>Leads with 70%+ score appear here</span>
+                  <span>Deals with 70%+ probability appear here</span>
                 </div>
               `}
             </div>
@@ -285,17 +314,18 @@ async function renderSalesFunnelView() {
             </div>
             
             <div class="funnel-activity-timeline">
-              ${recentVisits.map(visit => {
-    const stageColor = funnelStages[visit.visit_type]?.color || '#6b7280';
-    const stageTitle = funnelStages[visit.visit_type]?.title || 'Visit';
+              ${recentActivity.map(visit => {
+    const mappedStage = normalizeOpportunityStage(visit.stage);
+    const stageColor = funnelStages[mappedStage]?.color || '#6b7280';
+    const stageTitle = funnelStages[mappedStage]?.title || 'Deal';
     return `
                   <div class="funnel-activity-item">
                     <div class="funnel-activity-dot" style="background: ${stageColor};"></div>
                     <div class="funnel-activity-content">
-                      <span class="funnel-activity-company">${visit.company_name || 'Unknown'}</span>
+                      <span class="funnel-activity-company">${visit.company_name || visit.name || 'Unknown'}</span>
                       <span class="funnel-activity-meta">
                         <span class="funnel-activity-stage" style="color: ${stageColor};">${stageTitle}</span>
-                        <span class="funnel-activity-time">${getRelativeTime(new Date(visit.created_at))}</span>
+                        <span class="funnel-activity-time">${getRelativeTimeSafe(visit.updated_at || visit.created_at)}</span>
                       </span>
                     </div>
                   </div>
