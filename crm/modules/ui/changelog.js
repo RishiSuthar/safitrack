@@ -11,6 +11,11 @@
 const STORAGE_KEY = 'safitrack_seen_version';
 const MODAL_ID    = 'changelog-modal';
 
+function setSidebarVersion(version) {
+  const el = document.getElementById('sidebar-version');
+  if (el && version) el.textContent = `v${version}`;
+}
+
 // ─────────────────────────────────────────────────────────────
 // Semver comparison helper: returns true if `a` > `b`
 // ─────────────────────────────────────────────────────────────
@@ -163,6 +168,10 @@ let isSubscribed = false;
 // Auto-check on app boot (called from app-init.js)
 // ─────────────────────────────────────────────────────────────
 export async function checkAndShowChangelog() {
+  // Keep sidebar footer version in sync with latest published release.
+  // Fallback to local config when DB is unavailable.
+  setSidebarVersion((window.APP_CONFIG || {}).VERSION);
+
   const { data: latestEntry } = await supabaseClient
     .from('changelogs')
     .select('version')
@@ -172,6 +181,7 @@ export async function checkAndShowChangelog() {
 
   if (latestEntry) {
     const current = latestEntry.version;
+    setSidebarVersion(current);
     const seen    = localStorage.getItem(STORAGE_KEY) || '0.0.0';
 
     if (isNewer(current, seen)) {
@@ -187,6 +197,7 @@ export async function checkAndShowChangelog() {
       .channel('public:changelogs')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'changelogs' }, payload => {
         const newVersion = payload.new.version;
+        setSidebarVersion(newVersion);
         const seen = localStorage.getItem(STORAGE_KEY) || '0.0.0';
         if (isNewer(newVersion, seen)) {
           showChangelogModal();

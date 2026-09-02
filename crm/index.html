@@ -3094,7 +3094,8 @@
   <script src="version.js"></script>
   <script>
     (function () {
-      const v = (window.APP_CONFIG || {}).VERSION;
+      const cfg = window.APP_CONFIG || {};
+      const v = (cfg.CHANGELOG && cfg.CHANGELOG[0] && cfg.CHANGELOG[0].version) || cfg.VERSION;
       const el = document.getElementById('sidebar-version');
       if (el && v) el.textContent = 'v' + v;
     })();
