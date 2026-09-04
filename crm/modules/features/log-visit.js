@@ -602,10 +602,12 @@ function initLogVisitForm(companies) {
       let photoUrl = null;
 
       if (photoFile) {
-        const photoPath = `visit-photos/${state.currentUser.id}/${Date.now()}-${photoFile.name}`;
+        // Compress the image before uploading (max 1024x1024, 70% quality)
+        const compressedFile = await compressImage(photoFile, 1024, 1024, 0.7);
+        const photoPath = `visit-photos/${state.currentUser.id}/${Date.now()}-${compressedFile.name}`;
         const { error: uploadError } = await supabaseClient.storage
           .from('safitrack')
-          .upload(photoPath, photoFile);
+          .upload(photoPath, compressedFile);
 
         if (!uploadError) {
           const { data: urlData } = supabaseClient.storage.from('safitrack').getPublicUrl(photoPath);
@@ -893,6 +895,57 @@ async function reverseGeocode(lat, lon) {
 }
 window.reverseGeocode = reverseGeocode;
 
+async function compressImage(file, maxWidth = 1024, maxHeight = 1024, quality = 0.7) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target.result;
+      img.onload = () => {
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round(height * (maxWidth / width));
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round(width * (maxHeight / height));
+            height = maxHeight;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const compressedFile = new File([blob], file.name.replace(/\\.[^/.]+$/, "") + ".jpg", {
+                type: 'image/jpeg',
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            } else {
+              reject(new Error('Canvas is empty'));
+            }
+          },
+          'image/jpeg',
+          quality
+        );
+      };
+      img.onerror = (err) => reject(err);
+    };
+    reader.onerror = (err) => reject(err);
+  });
+}
 // ── Exports ────────────────────────────────────────────────────
 export {
   renderLogVisitView,
