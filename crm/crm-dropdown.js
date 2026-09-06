@@ -65,6 +65,8 @@ window.buildCrmDropdown = function buildCrmDropdown(config = {}) {
     disabled    = false,
     variant     = 'form',
     className   = '',
+    searchable  = false,
+    searchPlaceholder = 'Search...',
   } = config;
 
   // Determine initial selected value
@@ -94,6 +96,12 @@ window.buildCrmDropdown = function buildCrmDropdown(config = {}) {
     </li>`;
   }).join('');
 
+  const searchBox = searchable ? `
+    <div class="crm-dd-search-wrap">
+      <input type="text" class="crm-dd-search" placeholder="${escHtml(searchPlaceholder)}" autocomplete="off" spellcheck="false">
+    </div>
+  ` : '';
+
   return `
 <div class="crm-dd ${variantCls}${extraCls}"
      data-dd-id="${escHtml(id)}"
@@ -109,6 +117,7 @@ window.buildCrmDropdown = function buildCrmDropdown(config = {}) {
     <span class="crm-dd-chevron">${CHEVRON_SVG}</span>
   </button>
   <div class="crm-dd-panel" role="listbox">
+    ${searchBox}
     <ul class="crm-dd-list">
       ${optionItems || '<li class="crm-dd-empty">No options</li>'}
     </ul>
@@ -231,6 +240,15 @@ function _openDropdownEl(root) {
         panel.style.bottom = 'auto';
         panel.style.top = `${rect.bottom + 4}px`;
       }
+      // If searchable, reset search and focus input
+      const searchInput = panel.querySelector('.crm-dd-search');
+      if (searchInput) {
+        searchInput.value = '';
+        panel.querySelectorAll('.crm-dd-option').forEach(opt => opt.style.display = '');
+        const emptyEl = panel.querySelector('.crm-dd-search-empty');
+        if (emptyEl) emptyEl.style.display = 'none';
+        requestAnimationFrame(() => searchInput.focus());
+      }
     });
   }
 }
@@ -240,7 +258,7 @@ function _openDropdownEl(root) {
 // Close on scroll globally for portaled panels
 window.addEventListener('scroll', (e) => {
   // Only close if it's not scrolling the dropdown panel itself
-  if (e.target && e.target.classList && e.target.classList.contains('crm-dd-list')) return;
+  if (e.target && e.target.classList && (e.target.classList.contains('crm-dd-list') || e.target.classList.contains('crm-dd-panel'))) return;
   if (_openDropdown) {
     _closeDropdown(_openDropdown);
   }
@@ -343,8 +361,10 @@ window.initCrmDropdown = function initCrmDropdown(root) {
         _closeDropdown(root);
       } else {
         _openDropdownEl(root);
-        // Focus first option (or selected)
+        // Focus first option (or selected) if not searchable
         requestAnimationFrame(() => {
+          const panel = getPanel();
+          if (panel?.querySelector('.crm-dd-search')) return;
           const list = getList();
           if (!list) return;
           const sel = list.querySelector('.crm-dd-option.is-selected') || list.querySelector('.crm-dd-option');
@@ -369,8 +389,34 @@ window.initCrmDropdown = function initCrmDropdown(root) {
   const panel = getPanel();
   if (panel && !panel._dd_panel_init) {
     panel._dd_panel_init = true;
-    panel.addEventListener('mousedown', (e) => e.preventDefault());
+    panel.addEventListener('mousedown', (e) => {
+      if (!e.target.closest('.crm-dd-search')) {
+        e.preventDefault();
+      }
+    });
+    panel.addEventListener('input', (e) => {
+      if (e.target.classList.contains('crm-dd-search')) {
+        const q = e.target.value.toLowerCase().trim();
+        const options = Array.from(panel.querySelectorAll('.crm-dd-option'));
+        let visibleCount = 0;
+        options.forEach(opt => {
+          const txt = (opt.dataset.label || opt.textContent || '').toLowerCase();
+          const match = txt.includes(q);
+          opt.style.display = match ? '' : 'none';
+          if (match) visibleCount++;
+        });
+        let emptyEl = panel.querySelector('.crm-dd-search-empty');
+        if (!emptyEl) {
+          emptyEl = document.createElement('li');
+          emptyEl.className = 'crm-dd-empty crm-dd-search-empty';
+          emptyEl.textContent = 'No matching options';
+          panel.querySelector('.crm-dd-list')?.appendChild(emptyEl);
+        }
+        emptyEl.style.display = visibleCount === 0 ? '' : 'none';
+      }
+    });
     panel.addEventListener('click', (e) => {
+      if (e.target.closest('.crm-dd-search')) return;
       const option = e.target.closest('.crm-dd-option');
       if (option && getList()?.contains(option)) {
         _selectOption(root, option);
@@ -378,7 +424,28 @@ window.initCrmDropdown = function initCrmDropdown(root) {
         getTrigger()?.focus();
       }
     });
-    panel.addEventListener('keydown', onKeydown);
+    panel.addEventListener('keydown', (e) => {
+      if (e.target.classList.contains('crm-dd-search')) {
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          _closeDropdown(root);
+          getTrigger()?.focus();
+          return;
+        }
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const firstVisible = Array.from(panel.querySelectorAll('.crm-dd-option')).find(o => o.style.display !== 'none');
+          if (firstVisible) {
+            _selectOption(root, firstVisible);
+            _closeDropdown(root);
+            getTrigger()?.focus();
+          }
+          return;
+        }
+        return;
+      }
+      onKeydown(e);
+    });
   }
 };
 
