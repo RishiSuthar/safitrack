@@ -370,13 +370,98 @@ async function renderSettingsView() {
             <div class="sv-field-row">
               <div class="sv-field-meta">
                 <div class="sv-field-label">Browser push notifications</div>
-                <div class="sv-field-hint">Instant alerts for reminders and @mentions in your browser.</div>
+                <div class="sv-field-hint">Instant alerts for reminders and due dates in your browser or PWA.</div>
               </div>
-              <div class="sv-field-control">
+              <div class="sv-field-control" style="display:flex;align-items:center;gap:8px;">
                 <button id="enable-browser-notifs" class="sv-ghost-btn">
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                  Enable push
+                  ${notificationStore.getBrowserPermission?.() === 'granted' ? 'Enabled' : 'Enable push'}
                 </button>
+              </div>
+            </div>
+
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Audio chime</div>
+                <div class="sv-field-hint">Play a subtle sound when a new alert arrives.</div>
+              </div>
+              <div class="sv-field-control" style="display:flex;align-items:center;gap:12px;">
+                <button type="button" id="test-sound-notif-btn" class="sv-ghost-btn" style="height:28px;font-size:12px;padding:0 8px;">
+                  Test sound
+                </button>
+                <label class="sv-toggle">
+                  <input id="pref-sound-notifs" type="checkbox" ${notificationStore.preferences?.soundEnabled ? 'checked' : ''}>
+                  <span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="sv-field-group" style="margin-top:20px;">
+            <div class="sv-nav-section-label" style="margin-bottom:12px;">Alert Categories</div>
+
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Tasks & Deadlines</div>
+                <div class="sv-field-hint">Upcoming, due today, and overdue task deadlines.</div>
+              </div>
+              <div class="sv-field-control">
+                <label class="sv-toggle">
+                  <input id="pref-notif-tasks" type="checkbox" ${notificationStore.preferences?.notifyTasks !== false ? 'checked' : ''}>
+                  <span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Reminders</div>
+                <div class="sv-field-hint">Scheduled customer reminders and follow-up alerts.</div>
+              </div>
+              <div class="sv-field-control">
+                <label class="sv-toggle">
+                  <input id="pref-notif-reminders" type="checkbox" ${notificationStore.preferences?.notifyReminders !== false ? 'checked' : ''}>
+                  <span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Opportunities & Deals</div>
+                <div class="sv-field-hint">Next step dates and stage changes on high-value deals.</div>
+              </div>
+              <div class="sv-field-control">
+                <label class="sv-toggle">
+                  <input id="pref-notif-deals" type="checkbox" ${notificationStore.preferences?.notifyDeals !== false ? 'checked' : ''}>
+                  <span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Service Contracts</div>
+                <div class="sv-field-hint">Contract renewal deadlines and recurring service visits.</div>
+              </div>
+              <div class="sv-field-control">
+                <label class="sv-toggle">
+                  <input id="pref-notif-contracts" type="checkbox" ${notificationStore.preferences?.notifyContracts !== false ? 'checked' : ''}>
+                  <span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="sv-field-row">
+              <div class="sv-field-meta">
+                <div class="sv-field-label">Teammate Nudges</div>
+                <div class="sv-field-hint">Real-time alerts when colleagues send you a SafiNudge.</div>
+              </div>
+              <div class="sv-field-control">
+                <label class="sv-toggle">
+                  <input id="pref-notif-nudges" type="checkbox" ${notificationStore.preferences?.notifyNudges !== false ? 'checked' : ''}>
+                  <span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span>
+                </label>
               </div>
             </div>
           </div>
@@ -2233,11 +2318,46 @@ async function renderSettingsView() {
     try { window.openChangePasswordModal(); } catch (e) { console.error(e); }
   });
 
-  /* ─────────────── BROWSER NOTIFS ─────────────── */
-  document.getElementById('enable-browser-notifs')?.addEventListener('click', async () => {
+  /* ─────────────── NOTIFICATION PREFERENCES ─────────────── */
+  const enableBrowserBtn = document.getElementById('enable-browser-notifs');
+  enableBrowserBtn?.addEventListener('click', async () => {
     try {
-      await notificationStore.requestBrowserPermission();
-    } catch (e) { showToast('Unable to enable notifications', 'error'); }
+      const res = await notificationStore.requestBrowserPermission();
+      if (res === 'granted' && enableBrowserBtn) {
+        enableBrowserBtn.textContent = 'Enabled';
+        notificationStore.updatePreferences({ browserPushEnabled: true });
+      }
+    } catch (e) {
+      showToast('Unable to enable notifications', 'error');
+    }
+  });
+
+  document.getElementById('test-sound-notif-btn')?.addEventListener('click', () => {
+    notificationStore.playChime?.('subtle');
+  });
+
+  document.getElementById('pref-sound-notifs')?.addEventListener('change', (e) => {
+    notificationStore.updatePreferences({ soundEnabled: e.target.checked });
+  });
+
+  document.getElementById('pref-notif-tasks')?.addEventListener('change', (e) => {
+    notificationStore.updatePreferences({ notifyTasks: e.target.checked });
+  });
+
+  document.getElementById('pref-notif-reminders')?.addEventListener('change', (e) => {
+    notificationStore.updatePreferences({ notifyReminders: e.target.checked });
+  });
+
+  document.getElementById('pref-notif-deals')?.addEventListener('change', (e) => {
+    notificationStore.updatePreferences({ notifyDeals: e.target.checked });
+  });
+
+  document.getElementById('pref-notif-contracts')?.addEventListener('change', (e) => {
+    notificationStore.updatePreferences({ notifyContracts: e.target.checked });
+  });
+
+  document.getElementById('pref-notif-nudges')?.addEventListener('change', (e) => {
+    notificationStore.updatePreferences({ notifyNudges: e.target.checked });
   });
 
   /* ─────────────── DELETE ACCOUNT ─────────────── */

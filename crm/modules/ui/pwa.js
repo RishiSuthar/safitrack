@@ -15,14 +15,27 @@ function initPWA() {
     });
 
     // Handle messages from the service worker (e.g. notification click navigation)
-    navigator.serviceWorker.addEventListener('message', (event) => {
+    navigator.serviceWorker.addEventListener('message', async (event) => {
       if (event.data?.type !== 'NAVIGATE' || !event.data.view) return;
+      const { view, entityId, entityType } = event.data;
+
       if (window.navigateView) {
-        window.navigateView(event.data.view);
-        return;
+        await window.navigateView(view);
+      } else if (window.loadView) {
+        await window.loadView(view);
       }
-      if (window.loadView) {
-        window.loadView(event.data.view);
+
+      // Deep linking to entity modal if applicable
+      if (entityId) {
+        setTimeout(() => {
+          if (entityType === 'task' && window.openTaskModal && window.allTasksData) {
+            const task = window.allTasksData.find(t => String(t.id) === String(entityId));
+            if (task) window.openTaskModal(task, window.salesRepsData || []);
+          } else if (entityType === 'reminder' && window.openReminderModal && window.allRemindersData) {
+            const rem = window.allRemindersData.find(r => String(r.id) === String(entityId));
+            if (rem) window.openReminderModal(rem, window.salesRepsData || []);
+          }
+        }, 300);
       }
     });
   }

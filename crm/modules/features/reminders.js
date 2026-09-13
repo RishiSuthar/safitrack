@@ -360,6 +360,7 @@ function initReminderActionButtons(reminders, salesReps) {
       }
 
       showToast('Reminder completed and removed', 'success');
+      document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'reminders', action: 'complete', id: reminderId } }));
       renderRemindersView();
     });
   });
@@ -388,6 +389,7 @@ function initReminderActionButtons(reminders, salesReps) {
       }
 
       showToast('Reminder deleted successfully', 'success');
+      document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'reminders', action: 'delete', id: reminderId } }));
       renderRemindersView();
     });
   });
@@ -528,6 +530,7 @@ function initReminderModalListeners(reminder) {
 
       showToast(`Reminder ${reminder ? 'updated' : 'created'} successfully!`, 'success');
       closeModal('reminder-modal');
+      document.dispatchEvent(new CustomEvent('safitrack:notification-refresh'));
       renderRemindersView();
     } catch (error) {
       showToast(`Error ${reminder ? 'updating' : 'creating'} reminder: ${error.message}`, 'error');

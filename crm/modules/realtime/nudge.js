@@ -2,6 +2,7 @@
 // Safi Nudge real-time messaging via Supabase channels.
 import { state, supabaseClient, SAFI_NUDGE_EVENT, SAFI_NUDGE_CHANNEL, SAFI_NUDGE_BOT_GIF } from '../state.js';
 import { escapeHtml, showToast, getInitials } from '../ui/toast.js';
+import { notificationService } from '../notifications/index.js';
 
 
 function clearSafiNudgeTimers() {
@@ -103,6 +104,11 @@ function handleIncomingSafiNudge(payload) {
   if (String(payload.fromUserId || '') === String(state.currentUser.id)) return;
 
   queueSafiNudge(payload);
+  try {
+    notificationService.addNudgeNotification(payload);
+  } catch (err) {
+    console.error('[Nudge] Failed to record in notifications:', err);
+  }
 }
 
 function stopSafiNudgeRealtime() {

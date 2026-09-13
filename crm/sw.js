@@ -88,7 +88,12 @@ self.addEventListener('notificationclick', (event) => {
                 if (client.url.includes('/crm') && 'focus' in client) {
                     client.focus();
                     if (targetView) {
-                        client.postMessage({ type: 'NAVIGATE', view: targetView });
+                        client.postMessage({
+                            type: 'NAVIGATE',
+                            view: targetView,
+                            entityId: event.notification?.data?.entityId,
+                            entityType: event.notification?.data?.entityType,
+                        });
                     }
                     return;
                 }

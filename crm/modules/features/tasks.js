@@ -341,6 +341,7 @@ function initKanbanBoard(tasks, salesReps) {
             // Update DOM attributes
             evt.item.dataset.status = newStatus;
             showInlineSuccess(evt.item);
+            document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: newStatus === 'completed' ? 'complete' : 'update', id: taskId } }));
 
             // If the card has a status badge/text that needs updating, we can do it here
             // But currently the column implies status. 
@@ -673,6 +674,7 @@ window.deleteTask = async function (taskId) {
   } else {
     showToast('Task deleted successfully', 'success');
     document.getElementById('task-detail-modal').classList.remove('active');
+    document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: 'delete', id: taskId } }));
     renderTasksView();
   }
 };
@@ -847,6 +849,7 @@ function initTaskActionButtons(tasks, salesReps) {
       }
 
       showToast('Task completed successfully', 'success');
+      document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: 'complete', id: taskId } }));
       renderTasksView();
     });
   });
@@ -1023,6 +1026,7 @@ function initTaskModalListeners(task) {
 
       showToast(`Task ${task ? 'updated' : 'created'} successfully!`, 'success');
       closeModal('task-modal');
+      document.dispatchEvent(new CustomEvent('safitrack:notification-refresh'));
       renderTasksView();
     } catch (error) {
       showToast(`Error ${task ? 'updating' : 'creating'} task: ${error.message}`, 'error');
