@@ -2550,32 +2550,20 @@
       <div id="ai-chat-empty" class="ai-chat-empty">
         <p class="ai-chat-empty-title">What do you need?</p>
         <div class="ai-chip-grid">
-          <button class="ai-chip" data-prompt="What's on my agenda today?">Today's agenda</button>
+          <button class="ai-chip" data-prompt="What should I focus on today?">Focus today</button>
           <button class="ai-chip" data-prompt="Give me a CRM status update">CRM overview</button>
           <button class="ai-chip" data-prompt="Show me my pipeline">Pipeline</button>
-          <button class="ai-chip" data-prompt="Create a task">Create task</button>
-          <button class="ai-chip" data-prompt="Show me recent activity">Recent activity</button>
-          <button class="ai-chip" data-prompt="Add an opportunity">Add opportunity</button>
+          <button class="ai-chip" data-prompt="Which opportunities need attention?">Needs attention</button>
+          <button class="ai-chip" data-prompt="What tasks do I have today?">Tasks today</button>
+          <button class="ai-chip" data-prompt="Summarize my recent activity">Recent activity</button>
         </div>
       </div>
     </div>
     <div class="ai-chat-footer">
       <div id="ai-prompts-menu" class="ai-prompts-menu" hidden>
         <div class="ai-prompts-list">
-          <button class="ai-prompt-item" data-prompt="What's on my agenda today?" data-label="Today's agenda">
-            <i class="ai-prompt-icon fas fa-calendar-day"></i><span>Today's agenda</span>
-          </button>
-          <button class="ai-prompt-item" data-prompt="Give me sales advice for my current pipeline" data-label="Sales advice">
-            <i class="ai-prompt-icon fas fa-lightbulb"></i><span>Sales advice</span>
-          </button>
-          <button class="ai-prompt-item" data-prompt="Create a task" data-label="Create a task">
-            <i class="ai-prompt-icon fas fa-square-check"></i><span>Create a task</span>
-          </button>
-          <button class="ai-prompt-item" data-prompt="Create a reminder" data-label="Create a reminder">
-            <i class="ai-prompt-icon fas fa-bell"></i><span>Create a reminder</span>
-          </button>
-          <button class="ai-prompt-item" data-prompt="Add an opportunity" data-label="Add opportunity">
-            <i class="ai-prompt-icon fas fa-bullseye"></i><span>Add opportunity</span>
+          <button class="ai-prompt-item" data-prompt="What should I focus on today?" data-label="What should I focus on today?">
+            <i class="ai-prompt-icon fas fa-crosshairs"></i><span>Focus today</span>
           </button>
           <button class="ai-prompt-item" data-prompt="Give me a CRM status update" data-label="CRM status update">
             <i class="ai-prompt-icon fas fa-chart-line"></i><span>CRM status update</span>
@@ -2583,14 +2571,35 @@
           <button class="ai-prompt-item" data-prompt="Show me my pipeline summary" data-label="Pipeline summary">
             <i class="ai-prompt-icon fas fa-funnel-dollar"></i><span>Pipeline summary</span>
           </button>
-          <button class="ai-prompt-item" data-prompt="How many companies do we have?" data-label="Company overview">
-            <i class="ai-prompt-icon fas fa-building"></i><span>Company overview</span>
+          <button class="ai-prompt-item" data-prompt="Which opportunities need attention?" data-label="Opportunities needing attention">
+            <i class="ai-prompt-icon fas fa-exclamation-triangle"></i><span>Deals needing attention</span>
           </button>
-          <button class="ai-prompt-item" data-prompt="Show me our contacts" data-label="Contact list">
-            <i class="ai-prompt-icon fas fa-address-book"></i><span>Contact list</span>
+          <button class="ai-prompt-item" data-prompt="What are my biggest opportunities?" data-label="Biggest opportunities">
+            <i class="ai-prompt-icon fas fa-trophy"></i><span>Biggest opportunities</span>
+          </button>
+          <button class="ai-prompt-item" data-prompt="What tasks do I have today?" data-label="Tasks due today">
+            <i class="ai-prompt-icon fas fa-square-check"></i><span>Tasks due today</span>
+          </button>
+          <button class="ai-prompt-item" data-prompt="What tasks are overdue?" data-label="Overdue tasks">
+            <i class="ai-prompt-icon fas fa-clock"></i><span>Overdue tasks</span>
+          </button>
+          <button class="ai-prompt-item" data-prompt="What reminders do I have coming up?" data-label="Upcoming reminders">
+            <i class="ai-prompt-icon fas fa-bell"></i><span>Upcoming reminders</span>
+          </button>
+          <button class="ai-prompt-item" data-prompt="What visits did I complete this week?" data-label="Visits completed this week">
+            <i class="ai-prompt-icon fas fa-map-pin"></i><span>Visits this week</span>
+          </button>
+          <button class="ai-prompt-item" data-prompt="How many calls did I make this week?" data-label="Calls made this week">
+            <i class="ai-prompt-icon fas fa-phone"></i><span>Calls this week</span>
           </button>
           <button class="ai-prompt-item" data-prompt="Summarize my recent activity" data-label="Recent activity">
             <i class="ai-prompt-icon fas fa-clock-rotate-left"></i><span>Recent activity</span>
+          </button>
+          <button class="ai-prompt-item" data-prompt="How did I perform this month?" data-label="Monthly performance">
+            <i class="ai-prompt-icon fas fa-chart-pie"></i><span>Monthly performance</span>
+          </button>
+          <button class="ai-prompt-item" data-prompt="What workflows are currently active?" data-label="Active workflows">
+            <i class="ai-prompt-icon fas fa-diagram-project"></i><span>Active workflows</span>
           </button>
           <p class="ai-prompts-empty" hidden>No matching prompts</p>
         </div>
@@ -3084,7 +3093,7 @@
   <script src="crm-dropdown.js"></script>
   <script type="module" src="app.js"></script>
   <!-- AI chat assistant logic loaded last to ensure supabaseClient and app globals are available -->
-  <script src="aichat.js"></script>
+  <script src="aichat.js?v=2.3.1"></script>
   <script src="onboarding.js"></script>
   <div id="bottom-action-bar" class="bottom-action-bar">
     <div class="bab-content">

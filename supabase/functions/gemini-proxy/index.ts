@@ -29,7 +29,14 @@ serve(async (req: Request) => {
     const action = req.headers.get('X-AI-Action') || 'general';
     const body = await req.json().catch(() => ({}));
     
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    if (body.listModels) {
+      const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}`);
+      const listData = await listRes.json();
+      return json(listData, listRes.status);
+    }
+    const requestedModel = req.headers.get('X-Gemini-Model') || body.model || 'gemini-2.5-flash';
+    // Remove custom model property if present in body before forwarding to Gemini
+    const { model: _omittedModel, ...geminiPayload } = body;
 
     let userId: string | null = null;
     let orgIdPromise: Promise<string | null> = Promise.resolve(null);
@@ -52,19 +59,50 @@ serve(async (req: Request) => {
       }
     }
 
-    // Call Gemini API and orgId lookup in parallel
-    const [response, orgId] = await Promise.all([
-      fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body)
-      }),
-      orgIdPromise
-    ]);
+    // Attempt Gemini call with candidate models (verified on API)
+    const candidateModels = [
+      requestedModel,
+      'gemini-2.5-flash',
+      'gemini-2.5-flash-lite',
+      'gemini-3.5-flash',
+      'gemini-3.5-flash-lite',
+      'gemini-3.7-flash',
+      'gemini-3.8-flash',
+      'gemini-3.6-flash',
+      'gemini-flash-latest'
+    ].filter((m, idx, arr) => arr.indexOf(m) === idx);
 
-    const data = await response.json();
+    let response: Response | null = null;
+    let data: any = null;
+
+    const errorsList: any[] = [];
+    for (const model of candidateModels) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}`;
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(geminiPayload)
+        });
+        const resData = await res.json();
+        if (res.ok && !resData.error) {
+          response = res;
+          data = resData;
+          break;
+        } else {
+          errorsList.push({ model, status: res.status, error: resData.error || resData });
+        }
+      } catch (fetchErr: any) {
+        errorsList.push({ model, fetchError: fetchErr.message || String(fetchErr) });
+      }
+    }
+
+    const orgId = await orgIdPromise;
+    if (!response || !data) {
+      return json({ error: 'All Gemini model endpoints failed', details: errorsList }, 502);
+    }
     
     // Log AI Usage asynchronously (do not await)
     if (userId && data.usageMetadata) {
