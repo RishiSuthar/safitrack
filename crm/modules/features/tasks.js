@@ -207,10 +207,11 @@ async function renderTasksView() {
     </div>
   `;
 
-  // Add Task Modal Container
+  // Add Task Modal Container (Unified Attio Redesign)
   html += `
-    <div class="task-detail-modal" id="task-detail-modal">
-      <div class="task-detail-container" id="task-detail-content">
+    <div class="modal record-view-modal" id="task-detail-modal" style="display:none;">
+      <div class="modal-backdrop" onclick="window.closeTaskDetail()"></div>
+      <div class="record-modal-panel" id="task-detail-content">
         <!-- Content will be populated dynamically -->
       </div>
     </div>
@@ -553,6 +554,7 @@ function updateColumnCounts() {
 function showTaskDetail(task, salesReps) {
   const modal = document.getElementById('task-detail-modal');
   const content = document.getElementById('task-detail-content');
+  if (!modal || !content) return;
 
   const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== 'completed';
 
@@ -568,17 +570,18 @@ function showTaskDetail(task, salesReps) {
     assigneeInitials = 'Me';
   }
 
-  // Assigned By (visible to sales reps when a manager assigned them the task)
+  // Assigned By (visible when a manager assigned the task)
   let assignedByHtml = '';
+  let assignerName = '';
   if (task.created_by !== state.currentUser.id && task.created_by_profile) {
-    const assignerName = `${task.created_by_profile.first_name} ${task.created_by_profile.last_name}`;
+    assignerName = `${task.created_by_profile.first_name} ${task.created_by_profile.last_name}`;
     const assignerInitials = (task.created_by_profile.first_name?.[0] || '') + (task.created_by_profile.last_name?.[0] || '');
     assignedByHtml = `
-      <div class="tdv-person">
-        <div class="tdv-avatar tdv-avatar-purple">${escapeHtml(assignerInitials)}</div>
-        <div class="tdv-person-info">
-          <div class="tdv-person-label">Assigned By</div>
-          <div class="tdv-person-name">${escapeHtml(assignerName)}</div>
+      <div class="record-field-card">
+        <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+        <div class="rfc-body">
+          <div class="rfc-label">Assigned By</div>
+          <div class="rfc-value">${escapeHtml(assignerName)}</div>
         </div>
       </div>`;
   }
@@ -588,105 +591,198 @@ function showTaskDetail(task, salesReps) {
 
   // Status config
   const statusMap = {
-    pending:     { label: 'To Do',       cls: 'tdv-status-pending',     dot: '<span class="task-status-dot dot-pending"></span>' },
-    in_progress: { label: 'In Progress', cls: 'tdv-status-in_progress', dot: '<span class="task-status-dot dot-in_progress"></span>' },
-    completed:   { label: 'Done',        cls: 'tdv-status-completed',   dot: '<span class="task-status-dot dot-completed"></span>' },
+    pending:     { label: 'To Do',       cls: 'tdv-status-pending',     color: '#f59e0b' },
+    in_progress: { label: 'In Progress', cls: 'tdv-status-in_progress', color: 'var(--color-primary)' },
+    completed:   { label: 'Done',        cls: 'tdv-status-completed',   color: '#10b981' },
   };
   const sc = statusMap[task.status] || statusMap.pending;
 
   // Priority config
   const priorityMap = {
-    high:   { label: 'High Priority',   cls: 'tdv-pill-priority-high',   dot: '<span class="task-status-dot dot-high"></span>' },
-    medium: { label: 'Medium Priority', cls: 'tdv-pill-priority-medium', dot: '<span class="task-status-dot dot-medium"></span>' },
-    low:    { label: 'Low Priority',    cls: 'tdv-pill-priority-low',    dot: '<span class="task-status-dot dot-low"></span>' },
+    high:   { label: 'High Priority',   cls: 'tdv-pill-priority-high',   color: '#ef4444' },
+    medium: { label: 'Medium Priority', cls: 'tdv-pill-priority-medium', color: '#f59e0b' },
+    low:    { label: 'Low Priority',    cls: 'tdv-pill-priority-low',    color: '#6b7280' },
   };
   const pc = priorityMap[task.priority] || priorityMap.medium;
 
-  // Due date pill
-  let duePillHtml;
-  if (task.due_date) {
-    const cls = isOverdue ? 'tdv-pill-overdue' : 'tdv-pill-due';
-    const label = (isOverdue ? 'Overdue · ' : '') + formatDate(task.due_date);
-    duePillHtml = `
-      <span class="tdv-pill ${cls}">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-        ${label}
-      </span>`;
-  } else {
-    duePillHtml = `<span class="tdv-pill tdv-pill-nodate">No due date</span>`;
-  }
+  // Due date text & pill
+  const dueDateText = task.due_date ? formatDate(task.due_date) : 'No due date';
 
   content.innerHTML = `
-    <div class="tdv-header">
-      <div class="tdv-header-top">
-        <div class="tdv-badges-group">
-          <span class="tdv-status-badge ${sc.cls}">${sc.dot} ${sc.label}</span>
-          <span class="tdv-pill ${pc.cls}">${pc.dot} ${pc.label}</span>
-          ${duePillHtml}
+    <!-- Hero Section -->
+    <div class="record-hero" id="task-view-hero">
+      <div class="record-hero-avatar" style="background:${task.status === 'completed' ? '#10b981' : pc.color};">
+        ${task.status === 'completed' 
+          ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>`
+          : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="4"/><path d="m9 12 2 2 4-4"/></svg>`
+        }
+      </div>
+      <div class="record-hero-info">
+        <div class="record-hero-name-row">
+          <h2 class="record-hero-name" style="${task.status === 'completed' ? 'text-decoration:line-through; opacity:0.8;' : ''}">${escapeHtml(task.title)}</h2>
+          <span class="record-hero-type-badge ${sc.cls}">${sc.label}</span>
+          <span class="record-hero-type-badge ${pc.cls}">${pc.label}</span>
         </div>
-        <button class="modal-close" onclick="document.getElementById('task-detail-modal').classList.remove('active')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-          </svg>
+        <div class="record-hero-meta-row" style="margin-top: 4px;">
+          <span class="record-hero-cat-chip" style="${isOverdue ? 'color:#ef4444; border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.08);' : ''}">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+            ${isOverdue ? 'Overdue · ' : ''}${dueDateText}
+          </span>
+          <span class="record-hero-subtitle" style="margin-left: 6px;">
+            Assigned to <strong>${escapeHtml(assigneeName)}</strong>
+          </span>
+        </div>
+      </div>
+      <div class="record-hero-actions">
+        ${canEditDetails ? `
+          <button class="record-hero-edit-btn" id="task-view-edit-btn" onclick="editTask('${task.id}')" title="Edit task" aria-label="Edit task">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="record-hero-edit-btn" onclick="deleteTask('${task.id}')" title="Delete task" aria-label="Delete task" style="color:var(--color-danger); border-color:rgba(239,68,68,0.3);">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          </button>
+        ` : ''}
+        <button class="modal-close" onclick="window.closeTaskDetail()" title="Close">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
       </div>
-      <h2 class="tdv-title">${escapeHtml(task.title)}</h2>
     </div>
-    <div class="tdv-body">
-      ${task.description ? `
-        <div class="tdv-section">
-          <div class="tdv-section-label">Description</div>
-          <div class="tdv-desc">${escapeHtml(task.description)}</div>
-        </div>
-      ` : ''}
 
-      <div class="tdv-section">
-        <div class="tdv-section-label">People</div>
-        <div class="tdv-people">
-          <div class="tdv-person">
-            <div class="tdv-avatar tdv-avatar-blue">${escapeHtml(assigneeInitials)}</div>
-            <div class="tdv-person-info">
-              <div class="tdv-person-label">Assigned To</div>
-              <div class="tdv-person-name">${escapeHtml(assigneeName)}</div>
+    <!-- Stats Bar -->
+    <div class="record-stats-bar">
+      <div class="record-stat-item">
+        <div class="record-stat-value record-stat-value--primary">${sc.label}</div>
+        <div class="record-stat-label">Status</div>
+      </div>
+      <div class="record-stat-item">
+        <div class="record-stat-value">${(task.priority || 'medium').toUpperCase()}</div>
+        <div class="record-stat-label">Priority</div>
+      </div>
+      <div class="record-stat-item">
+        <div class="record-stat-value" style="${isOverdue ? 'color:#ef4444;' : ''}">${dueDateText}</div>
+        <div class="record-stat-label">Due Date</div>
+      </div>
+      <div class="record-stat-item">
+        <div class="record-stat-value">${escapeHtml(assigneeName)}</div>
+        <div class="record-stat-label">Assignee</div>
+      </div>
+    </div>
+
+    <!-- Body: Main Content + Sidebar -->
+    <div class="record-body">
+      <div class="record-main">
+        <div class="record-tabs">
+          <button class="record-tab active">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            Task Details &amp; Actions
+          </button>
+        </div>
+        <div class="record-tab-panels">
+          <div class="record-tab-panel">
+            <!-- Quick Action Toggle -->
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:var(--bg-primary); border:1px solid var(--border-color); border-radius:10px; margin-bottom:18px;">
+              <div>
+                <div style="font-size:0.875rem; font-weight:700; color:var(--text-primary);">Status: ${sc.label}</div>
+                <div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">${task.status === 'completed' ? 'This task has been completed.' : 'Click to mark this task complete.'}</div>
+              </div>
+              <button class="btn btn-sm ${task.status === 'completed' ? 'btn-secondary' : 'btn-primary'}" onclick="window.toggleTaskCompleteFromDetail('${task.id}', '${task.status === 'completed' ? 'pending' : 'completed'}')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px;"><path d="M20 6 9 17l-5-5"/></svg>
+                ${task.status === 'completed' ? 'Mark Incomplete' : 'Mark as Done'}
+              </button>
+            </div>
+
+            <div class="record-sidebar-title" style="margin-bottom:8px;">Description</div>
+            <div class="ov-notes-container" style="font-size:0.92rem; line-height:1.7; min-height:140px;">
+              ${task.description ? escapeHtml(task.description) : '<span class="text-muted" style="font-style:italic;">No description provided for this task.</span>'}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <aside class="record-sidebar">
+        <div class="record-sidebar-section">
+          <div class="record-sidebar-title">People</div>
+          <div class="record-field-card">
+            <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg></div>
+            <div class="rfc-body">
+              <div class="rfc-label">Assigned To</div>
+              <div class="rfc-value">${escapeHtml(assigneeName)}</div>
             </div>
           </div>
           ${assignedByHtml}
         </div>
-      </div>
-    </div>
-    <div class="tdv-footer">
-      ${canEditDetails ? `
-        <button class="tdv-edit-btn" onclick="editTask('${task.id}')">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
-          Edit
-        </button>
-        <button class="tdv-delete-btn" onclick="deleteTask('${task.id}')" title="Delete task">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-        </button>
-      ` : `
-        <div class="tdv-lock-notice">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-          Only the task creator can edit or delete this task.
+
+        <div class="record-sidebar-section">
+          <div class="record-sidebar-title">Task Info</div>
+          <div class="record-field-card">
+            <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+            <div class="rfc-body">
+              <div class="rfc-label">Due Date</div>
+              <div class="rfc-value">${dueDateText}</div>
+            </div>
+          </div>
+          <div class="record-field-card">
+            <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg></div>
+            <div class="rfc-body">
+              <div class="rfc-label">Priority</div>
+              <div class="rfc-value" style="text-transform:capitalize;">${escapeHtml(task.priority || 'medium')}</div>
+            </div>
+          </div>
         </div>
-      `}
+
+        <div class="record-sidebar-section">
+          <div class="record-sidebar-title">Record Info</div>
+          <div class="ov-meta-item">
+            <span class="ov-meta-label">Task ID</span>
+            <span class="ov-meta-value rfc-mono">${escapeHtml(task.id || '—')}</span>
+          </div>
+          <div class="ov-meta-item">
+            <span class="ov-meta-label">Created</span>
+            <span class="ov-meta-value">${formatDate(task.created_at)}</span>
+          </div>
+        </div>
+      </aside>
     </div>
   `;
 
-  modal.classList.add('active');
+  modal.style.display = 'flex';
+  document.body.classList.add('modal-active');
 
   modal.onclick = (e) => {
-    if (e.target === modal) modal.classList.remove('active');
+    if (e.target === modal || e.target.classList.contains('modal-backdrop')) {
+      window.closeTaskDetail();
+    }
   };
 }
 
 // Global functions for task actions
+window.closeTaskDetail = function () {
+  const modal = document.getElementById('task-detail-modal');
+  if (modal) modal.style.display = 'none';
+  document.body.classList.remove('modal-active');
+};
+
+window.toggleTaskCompleteFromDetail = async function (taskId, newStatus) {
+  const { error } = await supabaseClient
+    .from('tasks')
+    .update({ status: newStatus, updated_at: new Date().toISOString() })
+    .eq('id', taskId);
+
+  if (error) {
+    showToast('Error updating task: ' + error.message, 'error');
+    return;
+  }
+
+  showToast(newStatus === 'completed' ? 'Task marked as done' : 'Task marked as to-do', 'success');
+  window.closeTaskDetail();
+  document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: 'update', id: taskId } }));
+  renderTasksView();
+};
+
 window.editTask = function (taskId) {
-  document.getElementById('task-detail-modal').classList.remove('active');
-  // This will call the existing openTaskModal function
+  window.closeTaskDetail();
   const task = window.allTasksData?.find(t => t.id === taskId);
   if (task) {
-    // Use globally stored sales reps
     openTaskModal(task, window.salesRepsData || []);
   }
 };
@@ -704,7 +800,7 @@ window.deleteTask = async function (taskId) {
     showToast('Error deleting task', 'error');
   } else {
     showToast('Task deleted successfully', 'success');
-    document.getElementById('task-detail-modal').classList.remove('active');
+    window.closeTaskDetail();
     document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: 'delete', id: taskId } }));
     renderTasksView();
   }

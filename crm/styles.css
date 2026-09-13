@@ -7178,7 +7178,7 @@ select {
 .modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(0, 0, 0, 0.45);
   animation: backdrop-fade-in var(--transition-slow) ease;
 }
 
@@ -17353,7 +17353,6 @@ button svg {
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(2px);
   display: none;
   align-items: center;
   justify-content: center;
@@ -22108,7 +22107,10 @@ button svg {
 }
 
 #company-view-edit-btn,
-#person-view-edit-btn {
+#person-view-edit-btn,
+#opportunity-view-edit-btn,
+#clv2-edit-btn,
+#task-view-edit-btn {
   width: 32px;
   height: 32px;
   padding: 0;
@@ -22132,7 +22134,10 @@ button svg {
 }
 
 #company-view-edit-btn:hover,
-#person-view-edit-btn:hover {
+#person-view-edit-btn:hover,
+#opportunity-view-edit-btn:hover,
+#clv2-edit-btn:hover,
+#task-view-edit-btn:hover {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: #fff;
@@ -22897,93 +22902,6 @@ button svg {
 /* ==========================================================================
    OPPORTUNITY VIEW MODAL (Compact Dashboard Redesign)
    ========================================================================== */
-
-#opportunity-view-modal .record-modal-panel {
-  width: min(840px, 94vw);
-  height: auto;
-  min-height: 540px;
-  max-height: 90vh;
-  display: flex;
-  flex-direction: column;
-}
-
-#opportunity-view-modal .record-hero {
-  padding: 14px 24px;
-  background: var(--bg-primary);
-  border-bottom: 1px solid var(--border-color);
-}
-
-#opportunity-view-modal .record-hero-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 10px;
-  font-size: 1.1rem;
-}
-
-#opportunity-view-modal .record-body {
-  padding: 0;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  background: var(--bg-secondary);
-}
-
-/* Highlights Row */
-.ov-highlights {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--border-color);
-  border-bottom: 1px solid var(--border-color);
-  flex-shrink: 0;
-}
-
-.ov-highlight-card {
-  background: var(--bg-secondary);
-  padding: 14px 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.ov-highlight-label {
-  font-size: 0.65rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-muted);
-}
-
-.ov-highlight-value {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-/* Two-Column Content Grid */
-.ov-content-grid {
-  display: grid;
-  grid-template-columns: 1.6fr 1fr;
-  flex: 1;
-  min-height: 0;
-}
-
-.ov-main-col {
-  padding: 20px 24px;
-  border-right: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.ov-side-col {
-  padding: 20px 24px;
-  background: rgba(0, 0, 0, 0.02);
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
 
 [data-theme="dark"] .ov-side-col {
   background: rgba(255, 255, 255, 0.02);

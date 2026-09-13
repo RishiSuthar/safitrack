@@ -117,7 +117,7 @@ function buildCompanyLookup(companies) {
 function findCompanyForOpportunityFast(opp, lookup) {
   if (!opp || !lookup) return null;
 
-  if (opp.company_id != null) {
+  if (opp.company_id != null && String(opp.company_id).trim() !== '') {
     const byId = lookup.byId.get(String(opp.company_id));
     if (byId) return byId;
   }
@@ -128,8 +128,8 @@ function findCompanyForOpportunityFast(opp, lookup) {
     if (byName) return byName;
   }
 
-  // Keep existing fuzzy behavior as fallback for edge-case name mismatches.
-  return window.findCompanyForOpportunity?.(opp) || null;
+  // Strict match only: if not in CRM by id or exact name, do not match random companies
+  return null;
 }
 
 async function renderOpportunityPipelineView() {
@@ -1383,17 +1383,21 @@ function openOpportunityViewModal(opportunity) {
   const modal = document.getElementById('opportunity-view-modal');
   if (!modal) return;
 
+  const companyObj = findCompanyForOpportunity(opportunity);
+  const isCrmCompany = Boolean(companyObj && companyObj.id);
+
   // Hero info
   const titleEl = document.getElementById('opportunity-view-title');
   const stageEl = document.getElementById('opportunity-view-stage-badge');
-  const companyEl = document.getElementById('opportunity-view-company');
+  const companyNameEl = document.getElementById('opportunity-view-company-name');
+  const companyLinkEl = document.getElementById('opportunity-view-company-link');
+  const metaChipsEl = document.getElementById('opportunity-view-meta-chips');
   const avatarEl = document.getElementById('opportunity-view-avatar');
 
   if (titleEl) titleEl.textContent = opportunity.name || 'Untitled Opportunity';
 
   // Stage badge
   if (stageEl) {
-    // Use active pipeline stages (fall back to default for orphaned opps)
     const viewPipeline = (state.pipelines && state.activePipelineId
       ? state.pipelines.find(p => p.id === state.activePipelineId)
       : null) || getDefaultPipeline();
@@ -1402,58 +1406,97 @@ function openOpportunityViewModal(opportunity) {
     stageEl.textContent = stageInfo.title;
     stageEl.style.background = `color-mix(in srgb, ${stageInfo.color} 12%, transparent)`;
     stageEl.style.color = stageInfo.color;
+    stageEl.style.borderColor = `color-mix(in srgb, ${stageInfo.color} 25%, transparent)`;
   }
 
-  const companyObj = findCompanyForOpportunity(opportunity);
-  const viewSubsector = (opportunity.subsector || companyObj?.subsector || '').trim() || 'Unassigned';
-  if (companyEl) {
-    const companyName = opportunity.company_name || 'No Company';
-    companyEl.textContent = `${companyName} • ${viewSubsector}`;
+  const companyName = opportunity.company_name || (isCrmCompany ? companyObj.name : 'No Company');
+  if (companyNameEl) {
+    if (!isCrmCompany && opportunity.company_name) {
+      companyNameEl.innerHTML = `${escapeHtml(companyName)} <span style="font-size:0.72rem; color:var(--text-muted); font-weight:500; opacity:0.85;">(Custom)</span>`;
+    } else {
+      companyNameEl.textContent = companyName;
+    }
+  }
+
+  if (companyLinkEl) {
+    if (isCrmCompany) {
+      companyLinkEl.style.pointerEvents = 'auto';
+      companyLinkEl.style.cursor = 'pointer';
+      companyLinkEl.style.opacity = '1';
+      companyLinkEl.style.color = 'var(--color-primary)';
+      companyLinkEl.style.background = 'color-mix(in srgb, var(--color-primary) 8%, transparent)';
+      companyLinkEl.style.borderColor = 'color-mix(in srgb, var(--color-primary) 20%, transparent)';
+      companyLinkEl.setAttribute('title', `View company: ${companyName}`);
+      companyLinkEl.onclick = (e) => {
+        e.preventDefault();
+        closeModal('opportunity-view-modal');
+        setTimeout(() => openCompanyViewModal(companyObj.id), 120);
+      };
+    } else {
+      companyLinkEl.style.pointerEvents = 'none';
+      companyLinkEl.style.cursor = 'default';
+      companyLinkEl.style.opacity = '0.85';
+      companyLinkEl.style.color = 'var(--text-secondary)';
+      companyLinkEl.style.background = 'var(--bg-tertiary, rgba(255, 255, 255, 0.05))';
+      companyLinkEl.style.borderColor = 'var(--border-color, rgba(255, 255, 255, 0.1))';
+      companyLinkEl.setAttribute('title', opportunity.company_name ? `${opportunity.company_name} (Custom company, not in CRM)` : 'No company');
+      companyLinkEl.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+      };
+    }
+  }
+
+  const viewSubsector = (opportunity.subsector || (isCrmCompany ? companyObj?.subsector : '') || '').trim();
+  if (metaChipsEl) {
+    metaChipsEl.innerHTML = viewSubsector ? `<span class="record-hero-cat-chip">${escapeHtml(viewSubsector)}</span>` : '';
   }
 
   // Avatar (Company initials or Logo)
   if (avatarEl) {
-    const initials = getInitials(opportunity.company_name || 'U');
+    const initials = getInitials(companyName || 'O');
     avatarEl.textContent = initials;
-    avatarEl.className = 'record-hero-avatar'; // Reset
-
-    // Check if we have a company logo
-    const companyObj = findCompanyForOpportunity(opportunity);
-    const resolvedLogoUrl = (companyObj && companyObj.logo_url) || getCompanyLogoUrl(opportunity.company_name || '');
-
-    avatarEl.innerHTML = `<span style="position:relative;z-index:1">${initials}</span>${resolvedLogoUrl ? `<img src="${resolvedLogoUrl}" alt="${escapeHtml(opportunity.company_name || '')}" onload="this.style.display='block';var p=this.previousElementSibling;if(p)p.style.display='none'" onerror="this.style.display='none'" />` : ''}`;
-
+    avatarEl.className = 'record-hero-avatar';
+    const resolvedLogoUrl = isCrmCompany ? ((companyObj && companyObj.logo_url) || (companyObj && companyObj.domain ? getCompanyLogoUrl(companyObj.domain) : '')) : '';
+    avatarEl.innerHTML = `<span style="position:relative;z-index:1">${initials}</span>${resolvedLogoUrl ? `<img src="${resolvedLogoUrl}" alt="${escapeHtml(companyName)}" onload="this.style.display='block';var p=this.previousElementSibling;if(p)p.style.display='none'" onerror="this.style.display='none'" />` : ''}`;
     if (!resolvedLogoUrl) {
       avatarEl.style.background = 'linear-gradient(135deg, var(--color-primary), var(--color-primary-light))';
     }
   }
 
-  // Details
+  // Stats Bar (Deal Value, Win Probability, Expected Value, Pipeline Age)
   const valueEl = document.getElementById('opportunity-view-value');
   const probEl = document.getElementById('opportunity-view-probability');
-  const createdEl = document.getElementById('opportunity-view-created');
-  const ownerEl = document.getElementById('opportunity-view-owner');
+  const weightedEl = document.getElementById('opportunity-view-weighted');
+  const stageAgeEl = document.getElementById('opportunity-view-stage-age');
 
-  if (valueEl) valueEl.textContent = `${getCurrencySymbol()} ${parseFloat(opportunity.value || 0).toLocaleString()}`;
-  if (probEl) probEl.innerHTML = `<span style="color:${getProbabilityColor(opportunity.probability || 0)}; font-weight:700;">${opportunity.probability || 0}%</span>`;
-  if (createdEl) createdEl.textContent = formatDate(opportunity.created_at);
-  if (ownerEl) {
-    const ownerName = opportunity.profiles ? `${opportunity.profiles.first_name} ${opportunity.profiles.last_name}` : 'Unknown';
-    ownerEl.textContent = ownerName;
+  const valNum = parseFloat(opportunity.value || 0);
+  const probNum = parseFloat(opportunity.probability || 0);
+  const weightedNum = Math.round(valNum * (probNum / 100));
+
+  if (valueEl) valueEl.textContent = `${getCurrencySymbol()} ${valNum.toLocaleString()}`;
+  if (probEl) probEl.innerHTML = `<span style="color:${getProbabilityColor(probNum)}; font-weight:800;">${probNum}%</span>`;
+  if (weightedEl) weightedEl.textContent = `${getCurrencySymbol()} ${weightedNum.toLocaleString()}`;
+  if (stageAgeEl) {
+    const created = opportunity.created_at ? new Date(opportunity.created_at) : null;
+    if (created && !isNaN(created.getTime())) {
+      const days = Math.max(0, Math.floor((Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)));
+      stageAgeEl.textContent = days === 0 ? 'Today' : `${days}d in pipeline`;
+    } else {
+      stageAgeEl.textContent = '—';
+    }
   }
 
-  // Timeline
+  // Next Step Action Item
   const nextStepEl = document.getElementById('opportunity-view-next-step');
   const dueDateEl = document.getElementById('opportunity-view-next-step-date');
-
   if (nextStepEl) nextStepEl.textContent = opportunity.next_step || 'No next step scheduled';
   if (dueDateEl) dueDateEl.textContent = (opportunity.next_step_date && opportunity.next_step_date !== 'None') ? formatDate(opportunity.next_step_date) : 'No due date';
 
-  // Notes
+  // Notes & Mentions
   const notesEl = document.getElementById('opportunity-view-notes');
   if (notesEl) {
     let notesHtml = escapeHtml(opportunity.notes || '');
-    // Process mentions
     if (opportunity.mentioned_people && Array.isArray(opportunity.mentioned_people)) {
       opportunity.mentioned_people.forEach(person => {
         if (!person || !person.name) return;
@@ -1466,43 +1509,166 @@ function openOpportunityViewModal(opportunity) {
     }
     notesEl.innerHTML = notesHtml || '<div class="text-muted" style="font-size:0.85rem; opacity:0.6;">No internal notes added to this deal.</div>';
 
-    // Attach click handlers to mentions
     notesEl.querySelectorAll('.mentioned-person').forEach(el => {
       el.addEventListener('click', (e) => {
         e.stopPropagation();
         const pid = el.dataset.personId;
         const pname = el.dataset.personName || el.textContent.replace(/^@/, '').trim();
-        if (pid) return openPersonViewModal(pid);
-        const p = state.allPeople.find(p => String(p.name).trim().toLowerCase() === String(pname).toLowerCase());
-        if (p) openPersonViewModal(p);
+        closeModal('opportunity-view-modal');
+        if (pid) return setTimeout(() => openPersonViewModal(pid), 120);
+        const p = (window.allPeopleData || state.allPeople || []).find(p => String(p.name).trim().toLowerCase() === String(pname).toLowerCase());
+        if (p) setTimeout(() => openPersonViewModal(p), 120);
       });
     });
   }
 
-  // Competitors
+  // Activity Tab (Call logs & Visits)
+  const activityPanel = document.getElementById('opp-panel-activity');
+  const activityCountEl = document.getElementById('opp-tab-activity-count');
+  const relatedCalls = Array.isArray(window.allCallLogsData)
+    ? window.allCallLogsData.filter(c => 
+        (isCrmCompany && String(c.company_id) === String(companyObj.id)) ||
+        (!isCrmCompany && opportunity.company_name && c.company_name && c.company_name.trim().toLowerCase() === opportunity.company_name.trim().toLowerCase())
+      )
+    : [];
+
+  if (activityCountEl) activityCountEl.textContent = String(relatedCalls.length);
+  if (activityPanel) {
+    if (relatedCalls.length === 0) {
+      activityPanel.innerHTML = '<div class="text-muted" style="text-align:center; padding:32px 16px; font-size:0.88rem;">No call logs or recorded activity for this company yet.</div>';
+    } else {
+      activityPanel.innerHTML = relatedCalls.map(c => `
+        <div class="record-opp-card" style="cursor:pointer;" onclick="closeModal('opportunity-view-modal'); setTimeout(() => openCallLogViewModal(${JSON.stringify(c).replace(/"/g, '&quot;')}), 120)">
+          <div class="record-opp-card-stage" style="background:${c.direction === 'Inbound' ? '#10b981' : '#3b82f6'};"></div>
+          <div class="record-opp-card-body">
+            <div class="record-opp-card-name">${escapeHtml(c.contact_name || c.people?.name || 'Call Log')} · <span style="font-weight:500; font-size:0.8rem; color:var(--text-muted);">${formatDateWithTime(c.call_at)}</span></div>
+            <div class="record-opp-card-meta">
+              <span class="stage-pill">${escapeHtml(c.outcome || 'Logged')}</span>
+              <span>${c.duration_seconds ? Math.round(c.duration_seconds / 60) + ' min' : '—'}</span>
+              <span>${escapeHtml(c.profiles ? c.profiles.first_name + ' ' + c.profiles.last_name : '')}</span>
+            </div>
+            ${c.notes ? `<div style="font-size:0.82rem; color:var(--text-secondary); margin-top:4px;">${escapeHtml(c.notes.slice(0, 100))}${c.notes.length > 100 ? '…' : ''}</div>` : ''}
+          </div>
+          <button class="btn btn-sm btn-ghost" style="flex-shrink:0;">View</button>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Tasks Tab
+  const tasksPanel = document.getElementById('opp-panel-tasks');
+  const tasksCountEl = document.getElementById('opp-tab-tasks-count');
+  const relatedTasks = Array.isArray(window.allTasksData)
+    ? window.allTasksData.filter(t => 
+        (t.opportunity_id && String(t.opportunity_id) === String(opportunity.id)) ||
+        (isCrmCompany && t.company_id && String(t.company_id) === String(companyObj.id))
+      )
+    : [];
+
+  if (tasksCountEl) tasksCountEl.textContent = String(relatedTasks.length);
+  if (tasksPanel) {
+    if (relatedTasks.length === 0) {
+      tasksPanel.innerHTML = '<div class="text-muted" style="text-align:center; padding:32px 16px; font-size:0.88rem;">No tasks scheduled for this opportunity.</div>';
+    } else {
+      tasksPanel.innerHTML = relatedTasks.map(t => `
+        <div class="record-opp-card" style="cursor:pointer;" onclick="closeModal('opportunity-view-modal'); setTimeout(() => { const sReps = window.salesRepsData || []; showTaskDetail(${JSON.stringify(t).replace(/"/g, '&quot;')}, sReps); }, 120)">
+          <div class="record-opp-card-stage" style="background:${t.status === 'completed' ? '#10b981' : t.priority === 'high' ? '#ef4444' : '#f59e0b'};"></div>
+          <div class="record-opp-card-body">
+            <div class="record-opp-card-name" style="${t.status === 'completed' ? 'text-decoration:line-through; opacity:0.7;' : ''}">${escapeHtml(t.title)}</div>
+            <div class="record-opp-card-meta">
+              <span class="stage-pill">${escapeHtml(t.status || 'pending')}</span>
+              ${t.due_date ? `<span>Due: ${formatDate(t.due_date)}</span>` : '<span>No due date</span>'}
+              <span style="text-transform:capitalize;">${escapeHtml(t.priority || 'medium')} priority</span>
+            </div>
+          </div>
+          <button class="btn btn-sm btn-ghost" style="flex-shrink:0;">View</button>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Wire Tab switching
+  const tabs = modal.querySelectorAll('.opp-view-tab');
+  tabs.forEach(tab => {
+    tab.onclick = () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const tabKey = tab.dataset.tab;
+      const pOverview = document.getElementById('opp-panel-overview');
+      const pActivity = document.getElementById('opp-panel-activity');
+      const pTasks = document.getElementById('opp-panel-tasks');
+      if (pOverview) pOverview.style.display = tabKey === 'overview' ? 'block' : 'none';
+      if (pActivity) pActivity.style.display = tabKey === 'activity' ? 'block' : 'none';
+      if (pTasks) pTasks.style.display = tabKey === 'tasks' ? 'block' : 'none';
+    };
+  });
+  // Reset active tab to overview
+  const defaultTab = modal.querySelector('.opp-view-tab[data-tab="overview"]');
+  if (defaultTab) defaultTab.click();
+
+  // Sidebar: Company field
+  const sidebarCompanyEl = document.getElementById('opportunity-sidebar-company');
+  if (sidebarCompanyEl) {
+    if (isCrmCompany) {
+      sidebarCompanyEl.innerHTML = `<a href="#" style="color:var(--color-primary); font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">${escapeHtml(companyName)} <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`;
+      sidebarCompanyEl.querySelector('a')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeModal('opportunity-view-modal');
+        setTimeout(() => openCompanyViewModal(companyObj.id), 120);
+      });
+    } else {
+      sidebarCompanyEl.innerHTML = `<span style="color:var(--text-primary); font-weight:500;">${escapeHtml(companyName)}</span>${opportunity.company_name ? ' <span style="font-size:0.72rem; color:var(--text-muted); background:var(--bg-tertiary, rgba(255,255,255,0.06)); padding:2px 6px; border-radius:4px; font-weight:500; border:1px solid var(--border-color, rgba(255,255,255,0.08));">Custom</span>' : ''}`;
+    }
+  }
+
+  // Sidebar: Contact person field
+  const sidebarContactEl = document.getElementById('opportunity-sidebar-contact');
+  if (sidebarContactEl) {
+    const primaryPerson = (opportunity.mentioned_people && opportunity.mentioned_people[0]) ||
+      (isCrmCompany && Array.isArray(window.allPeopleData) && window.allPeopleData.find(p => String(p.company_id) === String(companyObj.id)));
+
+    if (primaryPerson) {
+      sidebarContactEl.innerHTML = `<a href="#" style="color:var(--color-primary); font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">${escapeHtml(primaryPerson.name)} <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`;
+      sidebarContactEl.querySelector('a')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeModal('opportunity-view-modal');
+        setTimeout(() => openPersonViewModal(primaryPerson.id || primaryPerson), 120);
+      });
+    } else {
+      sidebarContactEl.textContent = 'None assigned';
+    }
+  }
+
+  // Sidebar: Target Close Date
+  const sidebarCloseEl = document.getElementById('opportunity-sidebar-close-date');
+  if (sidebarCloseEl) {
+    sidebarCloseEl.textContent = (opportunity.next_step_date && opportunity.next_step_date !== 'None') ? formatDate(opportunity.next_step_date) : 'No date set';
+  }
+
+  // Sidebar: Competitors
   const competitorsEl = document.getElementById('opportunity-view-competitors');
   if (competitorsEl) {
     const competitors = opportunity.competitors ? (typeof opportunity.competitors === 'string' ? JSON.parse(opportunity.competitors) : opportunity.competitors) : [];
     if (competitors.length > 0) {
-      competitorsEl.innerHTML = competitors.map(c => `<span class="ov-comp-tag">${escapeHtml(c)}</span>`).join('');
+      competitorsEl.innerHTML = `<div class="ov-competitors-list">${competitors.map(c => `<span class="ov-comp-tag">${escapeHtml(c)}</span>`).join('')}</div>`;
     } else {
-      competitorsEl.innerHTML = '<span class="text-muted" style="font-size:0.8rem;">No competitors identified</span>';
+      competitorsEl.innerHTML = '<span class="text-muted" style="font-size:0.8rem;">None identified</span>';
     }
   }
 
-  // Metadata
+  // Sidebar: Metadata
   const orgIdEl = document.getElementById('opportunity-view-org-id');
   const updatedEl = document.getElementById('opportunity-view-updated');
+  const createdEl = document.getElementById('opportunity-view-created');
   if (orgIdEl) orgIdEl.textContent = opportunity.organization_id || '—';
+  if (createdEl) createdEl.textContent = formatDate(opportunity.created_at);
   if (updatedEl) updatedEl.textContent = opportunity.updated_at ? formatDate(opportunity.updated_at) : formatDate(opportunity.created_at);
 
-  // Assignees
+  // Sidebar: Assignees
   const assigneesEl = document.getElementById('opportunity-view-assignees');
   if (assigneesEl) {
     const assignees = opportunity.assignees || [];
     const ownerProfile = opportunity.profiles;
-
-    // Build rows: owner first (always shown), then additional tagged members
     let rows = '';
 
     if (ownerProfile) {
@@ -1524,7 +1690,6 @@ function openOpportunityViewModal(opportunity) {
         </div>`;
     }
 
-    // Additional assignees (skip owner if also tagged to avoid duplication)
     const extraAssignees = assignees.filter(a => a.user_id !== opportunity.user_id);
     extraAssignees.forEach(a => {
       const p = a.profiles;
@@ -1565,7 +1730,6 @@ function openOpportunityViewModal(opportunity) {
   // Show modal
   modal.style.display = 'flex';
   document.body.classList.add('modal-active');
-
   if (window.lucide) lucide.createIcons();
 }
 

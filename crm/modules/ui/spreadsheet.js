@@ -141,76 +141,24 @@ function normalizeForMatching(value) {
 }
 
 function findCompanyForOpportunity(opp) {
-  if (!Array.isArray(window.allCompaniesData)) return null;
+  if (!opp || !Array.isArray(window.allCompaniesData)) return null;
 
   // Try id match first
-  if (opp.company_id) {
+  if (opp.company_id != null && String(opp.company_id).trim() !== '') {
     const byId = window.allCompaniesData.find(c => String(c.id) === String(opp.company_id));
     if (byId) return byId;
   }
 
   const oppName = opp.company_name || '';
+  if (!oppName.trim()) return null;
+
   const normOpp = normalizeForMatching(oppName);
   if (!normOpp) return null;
 
-  // Exact normalized match
-  let found = window.allCompaniesData.find(c => normalizeForMatching(c.name) === normOpp);
-  if (found) return found;
-
-  // token subset check: every word the user supplied appears in candidate name.
-  // also handle fused tokens like "nextgen" matching "next gen" or "next-gen".
-  const oppTokens = new Set(normOpp.split(/\s+/).filter(Boolean));
-  if (oppTokens.size > 0) {
-    found = window.allCompaniesData.find(c => {
-      const n = normalizeForMatching(c.name);
-      if (!n) return false;
-      const tokens = n.split(/\s+/).filter(Boolean);
-      // helper to test one user token against candidate tokens
-      const tokenMatches = (userTok) => {
-        if (tokens.includes(userTok)) return true;
-        // check if userTok equals concatenation of all tokens
-        const joined = tokens.join('');
-        if (userTok === joined) return true;
-        // also check if userTok contains the joined string (e.g. extra chars?)
-        if (joined && userTok.includes(joined)) return true;
-        // try splitting userTok into parts roughly equal to candidate tokens;
-        // e.g. userTok="nextgen" and tokens=['next','gen']
-        if (tokens.length > 1) {
-          const recombined = tokens.join('');
-          if (userTok === recombined) return true;
-        }
-        return false;
-      };
-      return [...oppTokens].every(t => tokenMatches(t));
-    });
-    if (found) return found;
-  }
-
-  // Inclusion match (company name contained in opportunity name or vice versa)
-  found = window.allCompaniesData.find(c => {
-    const n = normalizeForMatching(c.name);
-    return n && (normOpp.includes(n) || n.includes(normOpp));
-  });
-  if (found) return found;
-
-  // Token overlap fuzzy match: require at least half tokens overlap
-  let best = null;
-  let bestScore = 0;
-  window.allCompaniesData.forEach(c => {
-    const n = normalizeForMatching(c.name);
-    if (!n) return;
-    const tokens = n.split(/\s+/).filter(Boolean);
-    let common = 0;
-    tokens.forEach(t => { if (oppTokens.has(t)) common++; });
-    const score = tokens.length > 0 ? (common / tokens.length) : 0;
-    if (score > bestScore) {
-      bestScore = score;
-      best = c;
-    }
-  });
-  if (bestScore >= 0.5) return best;
-
-  return null;
+  // Exact normalized match only (e.g. "Acme Inc." === "Acme Inc")
+  // Do NOT perform token-subset, inclusion, or fuzzy overlap matching,
+  // because opportunities can have custom/temporary companies that are not in the CRM.
+  return window.allCompaniesData.find(c => normalizeForMatching(c.name) === normOpp) || null;
 }
 
 function slugifyForDomain(name) {

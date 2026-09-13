@@ -1506,11 +1506,11 @@
       </div>
     </div>
   </div>
-  <!-- Opportunity View Modal - Premium Redesign -->
+  <!-- Opportunity View Modal - Unified Attio Redesign -->
   <div id="opportunity-view-modal" class="modal record-view-modal" style="display:none;">
     <div class="modal-backdrop" onclick="closeModal('opportunity-view-modal')"></div>
     <div class="record-modal-panel">
-      <!-- Compact Hero -->
+      <!-- Hero Section -->
       <div class="record-hero" id="opportunity-view-hero">
         <div class="record-hero-avatar" id="opportunity-view-avatar"></div>
         <div class="record-hero-info">
@@ -1518,24 +1518,27 @@
             <h2 class="record-hero-name" id="opportunity-view-title">Opportunity Name</h2>
             <span class="record-hero-type-badge" id="opportunity-view-stage-badge">Stage</span>
           </div>
-          <div class="record-hero-meta-row" style="margin-top: 2px;">
-            <span id="opportunity-view-company"
-              style="font-weight: 600; font-size: 0.85rem; color: var(--text-muted);">Company Name</span>
+          <div class="record-hero-meta-row" style="margin-top: 4px;">
+            <span class="record-hero-domain" id="opportunity-view-company-wrapper">
+              <a href="#" id="opportunity-view-company-link" style="display:inline-flex;align-items:center;gap:5px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+                <span id="opportunity-view-company-name">Company Name</span>
+              </a>
+            </span>
+            <div class="record-hero-cats" id="opportunity-view-meta-chips"></div>
           </div>
         </div>
         <div class="record-hero-actions">
-          <button class="modal-close" id="opportunity-view-edit-btn" title="Edit opportunity">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-square-pen">
+          <button class="record-hero-edit-btn" id="opportunity-view-edit-btn" title="Edit opportunity" aria-label="Edit opportunity">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
               <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
             </svg>
           </button>
           <button class="modal-close" onclick="closeModal('opportunity-view-modal')" title="Close">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-              class="lucide lucide-x-icon lucide-x">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
               <path d="M18 6 6 18" />
               <path d="m6 6 12 12" />
             </svg>
@@ -1543,90 +1546,124 @@
         </div>
       </div>
 
-      <div class="record-body">
-        <!-- Highlights Row -->
-        <div class="ov-highlights">
-          <div class="ov-highlight-card">
-            <div class="ov-highlight-label">Value</div>
-            <div class="ov-highlight-value" id="opportunity-view-value">—</div>
-          </div>
-          <div class="ov-highlight-card">
-            <div class="ov-highlight-label">Probability</div>
-            <div class="ov-highlight-value" id="opportunity-view-probability">—</div>
-          </div>
-          <div class="ov-highlight-card">
-            <div class="ov-highlight-label">Date Created</div>
-            <div class="ov-highlight-value" id="opportunity-view-created">—</div>
-          </div>
-          <div class="ov-highlight-card">
-            <div class="ov-highlight-label">Owner</div>
-            <div class="ov-highlight-value" id="opportunity-view-owner">—</div>
-          </div>
+      <!-- Stats Bar -->
+      <div class="record-stats-bar" id="opportunity-view-stats">
+        <div class="record-stat-item">
+          <div class="record-stat-value record-stat-value--primary" id="opportunity-view-value">—</div>
+          <div class="record-stat-label">Deal Value</div>
         </div>
+        <div class="record-stat-item">
+          <div class="record-stat-value" id="opportunity-view-probability">—</div>
+          <div class="record-stat-label">Win Probability</div>
+        </div>
+        <div class="record-stat-item">
+          <div class="record-stat-value" id="opportunity-view-weighted">—</div>
+          <div class="record-stat-label">Expected Value</div>
+        </div>
+        <div class="record-stat-item">
+          <div class="record-stat-value" id="opportunity-view-stage-age">—</div>
+          <div class="record-stat-label">Pipeline Age</div>
+        </div>
+      </div>
 
-        <!-- Main Content Area -->
-        <div class="ov-content-grid">
-          <!-- Left Column: Primary Data -->
-          <div class="ov-main-col">
-            <div class="ov-section">
-              <div class="ov-section-title">
-                <i data-lucide="calendar-clock" style="width:16px;"></i>
-                Next Step
-              </div>
-              <div class="ov-next-step-box">
+      <!-- Body Layout: Tabs on left, Sidebar on right -->
+      <div class="record-body">
+        <div class="record-main">
+          <div class="record-tabs">
+            <button class="record-tab opp-view-tab active" data-tab="overview">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              Notes &amp; Next Steps
+            </button>
+            <button class="record-tab opp-view-tab" data-tab="activity">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Activity &amp; Calls
+              <span class="record-tab-count" id="opp-tab-activity-count">0</span>
+            </button>
+            <button class="record-tab opp-view-tab" data-tab="tasks">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+              Tasks
+              <span class="record-tab-count" id="opp-tab-tasks-count">0</span>
+            </button>
+          </div>
+
+          <div class="record-tab-panels">
+            <!-- Tab 1: Overview & Notes -->
+            <div id="opp-panel-overview" class="record-tab-panel">
+              <div class="ov-next-step-box" style="margin-bottom: 16px;">
                 <div class="ov-next-step-header">
-                  <span class="ov-next-step-label">ACTION ITEM</span>
-                  <span class="ov-next-step-date" id="opportunity-view-next-step-date">—</span>
+                  <span class="ov-next-step-label">NEXT STEP / ACTION ITEM</span>
+                  <span class="ov-next-step-date" id="opportunity-view-next-step-date">No due date</span>
                 </div>
-                <div class="ov-next-step-content" id="opportunity-view-next-step">—</div>
+                <div class="ov-next-step-content" id="opportunity-view-next-step">No next step scheduled</div>
               </div>
-            </div>
 
-            <div class="ov-section">
-              <div class="ov-section-title">
-                <i data-lucide="file-text" style="width:16px;"></i>
-                Internal Notes
-              </div>
+              <div class="record-sidebar-title" style="margin-bottom: 8px;">Internal Notes</div>
               <div class="ov-notes-container" id="opportunity-view-notes"></div>
             </div>
-          </div>
 
-          <!-- Right Column: Secondary Data -->
-          <div class="ov-side-col">
-            <div class="ov-section">
-              <div class="ov-section-title">
-                <i data-lucide="users" style="width:16px;"></i>
-                Team Members
-              </div>
-              <div id="opportunity-view-assignees" class="ov-assignees-list">
-                <span class="ov-assignees-empty">No team members tagged.</span>
-              </div>
-            </div>
+            <!-- Tab 2: Activity & Touchpoints -->
+            <div id="opp-panel-activity" class="record-tab-panel" style="display:none;"></div>
 
-            <div class="ov-section">
-              <div class="ov-section-title">
-                <i data-lucide="shield" style="width:16px;"></i>
-                Competitors
-              </div>
-              <div class="ov-competitors-list" id="opportunity-view-competitors"></div>
-            </div>
-
-            <div class="ov-section">
-              <div class="ov-section-title">
-                <i data-lucide="info" style="width:16px;"></i>
-                Record Info
-              </div>
-              <div class="ov-meta-item">
-                <span class="ov-meta-label">Org ID</span>
-                <span class="ov-meta-value" id="opportunity-view-org-id">—</span>
-              </div>
-              <div class="ov-meta-item">
-                <span class="ov-meta-label">Last Modified</span>
-                <span class="ov-meta-value" id="opportunity-view-updated">—</span>
-              </div>
-            </div>
+            <!-- Tab 3: Tasks -->
+            <div id="opp-panel-tasks" class="record-tab-panel" style="display:none;"></div>
           </div>
         </div>
+
+        <!-- Right: Sidebar details -->
+        <aside class="record-sidebar">
+          <div class="record-sidebar-section">
+            <div class="record-sidebar-title">Deal Details</div>
+            <div class="record-field-card">
+              <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg></div>
+              <div class="rfc-body">
+                <div class="rfc-label">Company</div>
+                <div class="rfc-value" id="opportunity-sidebar-company">—</div>
+              </div>
+            </div>
+            <div class="record-field-card">
+              <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg></div>
+              <div class="rfc-body">
+                <div class="rfc-label">Primary Contact</div>
+                <div class="rfc-value" id="opportunity-sidebar-contact">—</div>
+              </div>
+            </div>
+            <div class="record-field-card">
+              <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
+              <div class="rfc-body">
+                <div class="rfc-label">Target Close Date</div>
+                <div class="rfc-value" id="opportunity-sidebar-close-date">—</div>
+              </div>
+            </div>
+            <div class="record-field-card">
+              <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+              <div class="rfc-body">
+                <div class="rfc-label">Competitors</div>
+                <div class="rfc-value" id="opportunity-view-competitors">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="record-sidebar-section">
+            <div class="record-sidebar-title">Team</div>
+            <div id="opportunity-view-assignees" class="ov-assignees-list"></div>
+          </div>
+
+          <div class="record-sidebar-section">
+            <div class="record-sidebar-title">Record Info</div>
+            <div class="ov-meta-item">
+              <span class="ov-meta-label">Org ID</span>
+              <span class="ov-meta-value rfc-mono" id="opportunity-view-org-id">—</span>
+            </div>
+            <div class="ov-meta-item">
+              <span class="ov-meta-label">Created</span>
+              <span class="ov-meta-value" id="opportunity-view-created">—</span>
+            </div>
+            <div class="ov-meta-item">
+              <span class="ov-meta-label">Last Modified</span>
+              <span class="ov-meta-value" id="opportunity-view-updated">—</span>
+            </div>
+          </div>
+        </aside>
       </div>
     </div>
   </div>
@@ -1917,63 +1954,125 @@
     </div>
   </div>
 
-  <div id="call-log-view-modal" class="modal" style="display:none;">
+  <!-- Call Log View Modal - Unified Attio Redesign -->
+  <div id="call-log-view-modal" class="modal record-view-modal" style="display:none;">
     <div class="modal-backdrop" onclick="closeModal('call-log-view-modal')"></div>
-    <div class="modal-container clv2-container">
-
-      <div class="modal-header">
-        <h3 style="font-size:1rem;font-weight:600;margin:0;color:var(--text-primary)">Call Details</h3>
-        <button class="modal-close" onclick="closeModal('call-log-view-modal')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 6 6 18" /><path d="m6 6 12 12" />
-          </svg>
-        </button>
+    <div class="record-modal-panel">
+      <!-- Hero Section -->
+      <div class="record-hero record-hero--call" id="call-log-view-hero">
+        <div class="record-hero-avatar record-hero-avatar--person" id="clv2-avatar">
+          <!-- Contact Initials or Icon -->
+        </div>
+        <div class="record-hero-info">
+          <div class="record-hero-name-row">
+            <h2 class="record-hero-name" id="view-call-contact">Call Details</h2>
+            <span class="record-hero-type-badge" id="view-call-outcome">Outcome</span>
+            <span class="record-hero-type-badge" id="view-call-direction" style="background:var(--bg-tertiary);border-color:var(--border-color);color:var(--text-secondary);">Direction</span>
+          </div>
+          <div class="record-hero-meta-row" style="margin-top: 4px;">
+            <span class="record-hero-domain" id="call-log-view-company-wrapper">
+              <a href="#" id="view-call-company-link" style="display:inline-flex;align-items:center;gap:5px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg>
+                <span id="view-call-company">Company Name</span>
+              </a>
+            </span>
+            <span class="record-hero-subtitle" id="view-call-contact-sub" style="display:none;"></span>
+          </div>
+        </div>
+        <div class="record-hero-actions">
+          <button class="record-hero-edit-btn" id="clv2-edit-btn" title="Edit call log" aria-label="Edit call log" style="display:none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+          </button>
+          <button class="modal-close" onclick="closeModal('call-log-view-modal')" title="Close">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 6 6 18" />
+              <path d="m6 6 12 12" />
+            </svg>
+          </button>
+        </div>
       </div>
 
-      <!-- Hero: avatar + contact name + company + badges -->
-      <div class="clv2-hero">
-        <div class="clv2-avatar" id="clv2-avatar">?</div>
-        <div class="clv2-hero-info">
-          <div class="clv2-name" id="view-call-contact">—</div>
-          <div class="clv2-company" id="view-call-company">—</div>
+      <!-- Stats Bar -->
+      <div class="record-stats-bar" id="call-log-view-stats">
+        <div class="record-stat-item">
+          <div class="record-stat-value record-stat-value--primary" id="view-call-duration">—</div>
+          <div class="record-stat-label">Duration</div>
         </div>
-        <div class="clv2-badges">
-          <span id="view-call-outcome" class="outcome-badge"></span>
-          <span id="view-call-direction" class="direction-badge"></span>
+        <div class="record-stat-item">
+          <div class="record-stat-value" id="view-call-datetime">—</div>
+          <div class="record-stat-label">Date &amp; Time</div>
         </div>
-      </div>
-
-      <!-- Detail cells -->
-      <div class="clv2-grid">
-        <div class="clv2-cell">
-          <span class="clv2-cell-label">Date &amp; Time</span>
-          <span class="clv2-cell-value" id="view-call-datetime">—</span>
+        <div class="record-stat-item">
+          <div class="record-stat-value" id="view-call-direction-stat">—</div>
+          <div class="record-stat-label">Direction</div>
         </div>
-        <div class="clv2-cell">
-          <span class="clv2-cell-label">Duration</span>
-          <span class="clv2-cell-value" id="view-call-duration">—</span>
-        </div>
-        <div class="clv2-cell">
-          <span class="clv2-cell-label">Representative</span>
-          <span class="clv2-cell-value" id="view-call-rep">—</span>
+        <div class="record-stat-item">
+          <div class="record-stat-value" id="view-call-rep">—</div>
+          <div class="record-stat-label">Representative</div>
         </div>
       </div>
 
-      <!-- Notes -->
-      <div class="clv2-notes">
-        <div class="clv2-notes-label">Notes</div>
-        <div class="clv2-notes-body" id="view-call-notes">—</div>
-      </div>
+      <!-- Body: Main (notes) + Sidebar (details) -->
+      <div class="record-body">
+        <div class="record-main">
+          <div class="record-tabs">
+            <button class="record-tab call-view-tab active" data-tab="notes">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+              Call Notes &amp; Summary
+            </button>
+          </div>
 
-      <div class="modal-footer clv2-footer">
-        <button class="btn btn-ghost" onclick="closeModal('call-log-view-modal')">Close</button>
-        <button class="btn btn-secondary" id="clv2-edit-btn" style="display:none">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg>
-          Edit
-        </button>
-      </div>
+          <div class="record-tab-panels">
+            <div id="call-panel-notes" class="record-tab-panel">
+              <div class="record-sidebar-title" style="margin-bottom: 8px;">Transcript &amp; Notes</div>
+              <div class="ov-notes-container" id="view-call-notes" style="font-size:0.92rem; line-height:1.7; min-height:160px;">—</div>
+            </div>
+          </div>
+        </div>
 
+        <aside class="record-sidebar">
+          <div class="record-sidebar-section">
+            <div class="record-sidebar-title">Contact &amp; Account</div>
+            <div class="record-field-card">
+              <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg></div>
+              <div class="rfc-body">
+                <div class="rfc-label">Contact Person</div>
+                <div class="rfc-value" id="call-sidebar-contact">—</div>
+              </div>
+            </div>
+            <div class="record-field-card">
+              <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg></div>
+              <div class="rfc-body">
+                <div class="rfc-label">Company</div>
+                <div class="rfc-value" id="call-sidebar-company">—</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="record-sidebar-section">
+            <div class="record-sidebar-title">Call Details</div>
+            <div class="record-field-card">
+              <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-11.63-19A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg></div>
+              <div class="rfc-body">
+                <div class="rfc-label">Outcome</div>
+                <div class="rfc-value" id="call-sidebar-outcome">—</div>
+              </div>
+            </div>
+            <div class="record-field-card">
+              <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
+              <div class="rfc-body">
+                <div class="rfc-label">Representative</div>
+                <div class="rfc-value" id="call-sidebar-rep">—</div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
   </div>
 

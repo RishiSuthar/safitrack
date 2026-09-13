@@ -402,52 +402,129 @@ function openCallLogViewModal(log) {
     return;
   }
 
-  const contactName = log.people ? log.people.name : log.contact_name;
-  const companyName = log.companies ? log.companies.name : log.company_name;
+  const contactName = log.people ? log.people.name : (log.contact_name || 'Unknown Contact');
+  const companyName = log.companies ? log.companies.name : (log.company_name || 'No Company');
+  const companyId = log.company_id || (log.companies && log.companies.id) || null;
+  const personId = log.person_id || log.people_id || (log.people && log.people.id) || null;
   const repName = log.profiles ? `${log.profiles.first_name} ${log.profiles.last_name}` : 'Unknown';
 
   // Avatar initials
   const avatarEl = document.getElementById('clv2-avatar');
-  if (avatarEl) avatarEl.textContent = getInitials(contactName || '?');
+  if (avatarEl) {
+    const initials = getInitials(contactName || '?');
+    avatarEl.innerHTML = `<span style="position:relative;z-index:1">${initials}</span>`;
+  }
 
-  // Hero
-  document.getElementById('view-call-contact').textContent = contactName || '—';
-  document.getElementById('view-call-company').textContent = companyName || '—';
+  // Hero Title & Badges
+  const contactTitleEl = document.getElementById('view-call-contact');
+  if (contactTitleEl) contactTitleEl.textContent = contactName;
 
   // Direction badge
   const dirEl = document.getElementById('view-call-direction');
-  dirEl.textContent = log.direction;
-  dirEl.className = `direction-badge ${log.direction === 'Inbound' ? 'inbound' : 'outbound'}`;
+  if (dirEl) {
+    dirEl.textContent = log.direction || 'Call';
+    dirEl.className = `record-hero-type-badge ${log.direction === 'Inbound' ? 'inbound' : 'outbound'}`;
+    dirEl.style.background = log.direction === 'Inbound' ? 'rgba(16, 185, 129, 0.12)' : 'rgba(59, 130, 246, 0.12)';
+    dirEl.style.color = log.direction === 'Inbound' ? '#10b981' : '#3b82f6';
+    dirEl.style.borderColor = log.direction === 'Inbound' ? 'rgba(16, 185, 129, 0.25)' : 'rgba(59, 130, 246, 0.25)';
+  }
 
   // Outcome badge
   const outcomeEl = document.getElementById('view-call-outcome');
-  const outcomeClass = (log.outcome || '').toLowerCase().replace(/\s+/g, '-');
-  outcomeEl.textContent = log.outcome;
-  outcomeEl.className = `outcome-badge ${outcomeClass}`;
+  if (outcomeEl) {
+    const outcomeClass = (log.outcome || '').toLowerCase().replace(/\s+/g, '-');
+    outcomeEl.textContent = log.outcome || 'Logged';
+    outcomeEl.className = `record-hero-type-badge outcome-${outcomeClass}`;
+  }
 
-  // Detail cells
-  document.getElementById('view-call-datetime').textContent = formatDateWithTime(log.call_at);
+  // Company Link
+  const companyEl = document.getElementById('view-call-company');
+  const companyLinkEl = document.getElementById('view-call-company-link');
+  if (companyEl) companyEl.textContent = companyName;
+  if (companyLinkEl) {
+    if (companyId) {
+      companyLinkEl.style.pointerEvents = 'auto';
+      companyLinkEl.style.opacity = '1';
+      companyLinkEl.onclick = (e) => {
+        e.preventDefault();
+        closeModal('call-log-view-modal');
+        setTimeout(() => openCompanyViewModal(companyId), 120);
+      };
+    } else {
+      companyLinkEl.style.pointerEvents = 'none';
+      companyLinkEl.style.opacity = '0.7';
+      companyLinkEl.onclick = null;
+    }
+  }
 
+  // Stats Bar
   const durSecs = log.duration_seconds || 0;
   const durText = durSecs >= 3600
     ? `${Math.floor(durSecs / 3600)}h ${Math.floor((durSecs % 3600) / 60)}m`
     : durSecs >= 60 ? `${Math.floor(durSecs / 60)} min`
-    : durSecs > 0 ? '< 1 min' : '—';
-  document.getElementById('view-call-duration').textContent = durText;
+    : durSecs > 0 ? '< 1 min' : '0 min';
+  const durEl = document.getElementById('view-call-duration');
+  if (durEl) durEl.textContent = durText;
 
-  document.getElementById('view-call-rep').textContent = repName;
+  const dtEl = document.getElementById('view-call-datetime');
+  if (dtEl) dtEl.textContent = formatDateWithTime(log.call_at);
+
+  const dirStatEl = document.getElementById('view-call-direction-stat');
+  if (dirStatEl) dirStatEl.textContent = log.direction || '—';
+
+  const repEl = document.getElementById('view-call-rep');
+  if (repEl) repEl.textContent = repName;
 
   // Notes
   const notesEl = document.getElementById('view-call-notes');
-  notesEl.textContent = log.notes || 'No notes recorded.';
-  notesEl.style.fontStyle = log.notes ? 'normal' : 'italic';
-  notesEl.style.color = log.notes ? '' : 'var(--text-muted)';
+  if (notesEl) {
+    notesEl.textContent = log.notes || 'No notes recorded for this call.';
+    notesEl.style.fontStyle = log.notes ? 'normal' : 'italic';
+    notesEl.style.color = log.notes ? 'var(--text-primary)' : 'var(--text-muted)';
+  }
+
+  // Sidebar: Contact Person
+  const sidebarContactEl = document.getElementById('call-sidebar-contact');
+  if (sidebarContactEl) {
+    if (personId) {
+      sidebarContactEl.innerHTML = `<a href="#" style="color:var(--color-primary); font-weight:600; text-decoration:none;">${escapeHtml(contactName)} ↗</a>`;
+      sidebarContactEl.querySelector('a')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeModal('call-log-view-modal');
+        setTimeout(() => openPersonViewModal(personId), 120);
+      });
+    } else {
+      sidebarContactEl.textContent = contactName;
+    }
+  }
+
+  // Sidebar: Company
+  const sidebarCompanyEl = document.getElementById('call-sidebar-company');
+  if (sidebarCompanyEl) {
+    if (companyId) {
+      sidebarCompanyEl.innerHTML = `<a href="#" style="color:var(--color-primary); font-weight:600; text-decoration:none;">${escapeHtml(companyName)} ↗</a>`;
+      sidebarCompanyEl.querySelector('a')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeModal('call-log-view-modal');
+        setTimeout(() => openCompanyViewModal(companyId), 120);
+      });
+    } else {
+      sidebarCompanyEl.textContent = companyName;
+    }
+  }
+
+  // Sidebar: Outcome & Rep
+  const sidebarOutcomeEl = document.getElementById('call-sidebar-outcome');
+  if (sidebarOutcomeEl) sidebarOutcomeEl.textContent = log.outcome || '—';
+
+  const sidebarRepEl = document.getElementById('call-sidebar-rep');
+  if (sidebarRepEl) sidebarRepEl.textContent = repName;
 
   // Edit button
   const editBtn = document.getElementById('clv2-edit-btn');
   if (editBtn) {
     const canEdit = !state.isManager || log.user_id === state.currentUser.id;
-    editBtn.style.display = canEdit ? '' : 'none';
+    editBtn.style.display = canEdit ? 'inline-flex' : 'none';
     if (canEdit) {
       editBtn.onclick = () => {
         closeModal('call-log-view-modal');
@@ -457,6 +534,8 @@ function openCallLogViewModal(log) {
   }
 
   modal.style.display = 'flex';
+  document.body.classList.add('modal-active');
+  if (window.lucide) lucide.createIcons();
 }
 
 /**
