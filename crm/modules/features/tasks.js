@@ -5,6 +5,30 @@ import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards, renderError, getLeadScoreBadge } from '../utils/helpers.js';
 
+function renderKanbanEmptyState(status, isVisible = true) {
+  let iconSvg, text, subtext;
+  if (status === 'pending' || status === 'todo') {
+    iconSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`;
+    text = 'No tasks to do';
+    subtext = 'Drag tasks here or click + to add';
+  } else if (status === 'in_progress') {
+    iconSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
+    text = 'Nothing in progress';
+    subtext = 'Active work lands here';
+  } else {
+    iconSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
+    text = 'No completed tasks';
+    subtext = 'Finished tasks appear here';
+  }
+
+  return `
+    <div class="kanban-empty-state" style="display: ${isVisible ? 'flex' : 'none'};">
+      <div class="kanban-empty-icon">${iconSvg}</div>
+      <div class="kanban-empty-text">${text}</div>
+      <div class="kanban-empty-subtext">${subtext}</div>
+    </div>`;
+}
+
 async function renderTasksView() {
   // Fetch tasks based on user role
   let tasks;
@@ -58,130 +82,126 @@ async function renderTasksView() {
   // Store globally for editTask access
   window.salesRepsData = salesReps;
 
-  let html = `
-
-    <div class="tasks-kanban-header">
-      <div class="tasks-search-bar">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-        <input type="text" id="task-search-input" placeholder="Search tasks...">
-      </div>
-      <div class="tasks-header-actions">
-        <button class="btn btn-primary" id="add-task-btn">
-          <i data-lucide="plus" class="u-icon-16"></i> New Task
-        </button>
-      </div>
-    </div>
-
-    <div class="crm-filter-bar" style="margin-bottom: 12px; flex-wrap: wrap;">
-        <button class="crm-filter-pill active" data-task-filter-priority="all">All Priorities</button>
-        <button class="crm-filter-pill" data-task-filter-priority="high">🔴 High</button>
-        <button class="crm-filter-pill" data-task-filter-priority="medium">🟡 Medium</button>
-        <button class="crm-filter-pill" data-task-filter-priority="low">🔵 Low</button>
-
-        <span class="crm-filter-divider"></span>
-
-        <div class="crm-date-range">
-          <span class="crm-date-range-label">Due:</span>
-          <input type="date" class="crm-date-input" id="task-filter-date-from" placeholder="From">
-          <span class="crm-date-range-label">to</span>
-          <input type="date" class="crm-date-input" id="task-filter-date-to" placeholder="To">
-          <button class="crm-filter-clear" id="task-date-clear" style="display:none; padding:4px 8px; font-size:0.75rem;">✕ Clear dates</button>
-        </div>
-
-        ${state.isManager ? `
-          <span class="crm-filter-divider"></span>
-          <div class="crm-dd crm-dd--filter crm-dd--right" data-dd-id="task-filter-assignee">
-            <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
-              <span class="crm-dd-label">All Assignees</span>
-              <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-            </button>
-            <div class="crm-dd-panel" role="listbox">
-              <ul class="crm-dd-list">
-                <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="all" data-label="All Assignees" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Assignees</li>
-                <li class="crm-dd-option" role="option" data-value="${state.currentUser.id}" data-label="Me" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Me</li>
-                ${salesReps.map(rep => `<li class="crm-dd-option" role="option" data-value="${rep.id}" data-label="${rep.first_name} ${rep.last_name}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${rep.first_name} ${rep.last_name}</li>`).join('')}
-              </ul>
-            </div>
-            <input class="crm-dd-value-input" type="hidden" id="task-filter-assignee" value="all">
-          </div>
-        ` : ''}
-
-        <button class="crm-filter-clear" id="task-filter-clear" style="display:none;">✕ Clear</button>
-      </div>
-  `;
-
-
-  // Always render Kanban
   // Group tasks by status
   const todoTasks = tasks.filter(t => t.status === 'pending');
   const inProgressTasks = tasks.filter(t => t.status === 'in_progress');
   const doneTasks = tasks.filter(t => t.status === 'completed');
 
-  html += `
-    <div class="tasks-kanban-container">
-      <!-- To Do Column -->
-      <div class="kanban-column" data-status="pending">
-        <div class="kanban-column-header">
-          <div class="kanban-column-title">
-            <div class="kanban-column-icon todo">📋</div>
-            <span>To Do</span>
-            <span class="kanban-column-count">${todoTasks.length} Tasks</span>
+  let html = `
+    <div class="crm-page-shell tasks-page-shell">
+      <div class="tasks-toolbar-wrapper">
+        <div class="tasks-toolbar-left">
+          <div class="tasks-search-bar">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="task-search-input" placeholder="Search tasks...">
           </div>
-          <button class="kanban-add-btn" data-status="pending">
-            <i class="fas fa-plus"></i>
-          </button>
+
+          <div class="tasks-priority-segmented">
+            <button class="tasks-segmented-btn active" data-task-filter-priority="all">All</button>
+            <button class="tasks-segmented-btn" data-task-filter-priority="high">
+              <span class="task-status-dot dot-high"></span> High
+            </button>
+            <button class="tasks-segmented-btn" data-task-filter-priority="medium">
+              <span class="task-status-dot dot-medium"></span> Medium
+            </button>
+            <button class="tasks-segmented-btn" data-task-filter-priority="low">
+              <span class="task-status-dot dot-low"></span> Low
+            </button>
+          </div>
         </div>
-        <div class="kanban-cards-container" id="kanban-todo">
-          ${todoTasks.length === 0 ? `
-            <div class="kanban-empty-state">
-              <div class="kanban-empty-icon">📝</div>
-              <div class="kanban-empty-text">No tasks</div>
+
+        <div class="tasks-toolbar-right">
+          <div class="tasks-date-range">
+            <span class="tasks-date-range-label">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              Due:
+            </span>
+            <input type="date" class="crm-date-input" id="task-filter-date-from" placeholder="From">
+            <span class="tasks-date-range-sep">to</span>
+            <input type="date" class="crm-date-input" id="task-filter-date-to" placeholder="To">
+            <button class="crm-filter-clear" id="task-date-clear" style="display:none;">✕ Clear</button>
+          </div>
+
+          ${state.isManager ? `
+            <div class="crm-dd crm-dd--filter crm-dd--right tasks-assignee-dd" data-dd-id="task-filter-assignee">
+              <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span class="crm-dd-label">All Assignees</span>
+                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+              </button>
+              <div class="crm-dd-panel" role="listbox">
+                <ul class="crm-dd-list">
+                  <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="all" data-label="All Assignees" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Assignees</li>
+                  <li class="crm-dd-option" role="option" data-value="${state.currentUser.id}" data-label="Me" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Me</li>
+                  ${salesReps.map(rep => `<li class="crm-dd-option" role="option" data-value="${rep.id}" data-label="${escapeHtml(rep.first_name + ' ' + rep.last_name)}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${escapeHtml(rep.first_name + ' ' + rep.last_name)}</li>`).join('')}
+                </ul>
+              </div>
+              <input class="crm-dd-value-input" type="hidden" id="task-filter-assignee" value="all">
             </div>
-          ` : todoTasks.map(task => renderKanbanTaskCard(task, state.isManager)).join('')}
+          ` : ''}
+
+          <button class="crm-filter-clear" id="task-filter-clear" style="display:none;">✕ Clear</button>
+
+          <button class="btn btn-primary tasks-add-btn" id="add-task-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            <span>New Task</span>
+          </button>
         </div>
       </div>
 
-      <!-- In Progress Column -->
-      <div class="kanban-column" data-status="in_progress">
-        <div class="kanban-column-header">
-          <div class="kanban-column-title">
-            <div class="kanban-column-icon in-progress">🔄</div>
-            <span>In Progress</span>
-            <span class="kanban-column-count">${inProgressTasks.length} Tasks</span>
-          </div>
-          <button class="kanban-add-btn" data-status="in_progress">
-            <i class="fas fa-plus"></i>
-          </button>
-        </div>
-        <div class="kanban-cards-container" id="kanban-in-progress">
-          ${inProgressTasks.length === 0 ? `
-            <div class="kanban-empty-state">
-              <div class="kanban-empty-icon">⚙️</div>
-              <div class="kanban-empty-text">No tasks</div>
+      <div class="tasks-kanban-container">
+        <!-- To Do Column -->
+        <div class="kanban-column" data-status="pending">
+          <div class="kanban-column-header">
+            <div class="kanban-column-title">
+              <span class="kanban-stage-dot stage-pending"></span>
+              <span>To Do</span>
+              <span class="kanban-column-count">${todoTasks.length}</span>
             </div>
-          ` : inProgressTasks.map(task => renderKanbanTaskCard(task, state.isManager)).join('')}
+            <button class="kanban-add-btn" data-status="pending" title="Add task to To Do">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+          <div class="kanban-cards-container" id="kanban-todo">
+            ${todoTasks.map(task => renderKanbanTaskCard(task, state.isManager)).join('')}
+            ${renderKanbanEmptyState('pending', todoTasks.length === 0)}
+          </div>
         </div>
-      </div>
 
-      <!-- Done Column -->
-      <div class="kanban-column" data-status="completed">
-        <div class="kanban-column-header">
-          <div class="kanban-column-title">
-            <div class="kanban-column-icon done">✅</div>
-            <span>Done</span>
-            <span class="kanban-column-count">${doneTasks.length} Tasks</span>
-          </div>
-          <button class="kanban-add-btn" data-status="completed">
-            <i class="fas fa-plus"></i>
-          </button>
-        </div>
-        <div class="kanban-cards-container" id="kanban-completed">
-          ${doneTasks.length === 0 ? `
-            <div class="kanban-empty-state">
-              <div class="kanban-empty-icon">🎉</div>
-              <div class="kanban-empty-text">No tasks</div>
+        <!-- In Progress Column -->
+        <div class="kanban-column" data-status="in_progress">
+          <div class="kanban-column-header">
+            <div class="kanban-column-title">
+              <span class="kanban-stage-dot stage-in_progress"></span>
+              <span>In Progress</span>
+              <span class="kanban-column-count">${inProgressTasks.length}</span>
             </div>
-          ` : doneTasks.map(task => renderKanbanTaskCard(task, state.isManager)).join('')}
+            <button class="kanban-add-btn" data-status="in_progress" title="Add task to In Progress">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+          <div class="kanban-cards-container" id="kanban-in-progress">
+            ${inProgressTasks.map(task => renderKanbanTaskCard(task, state.isManager)).join('')}
+            ${renderKanbanEmptyState('in_progress', inProgressTasks.length === 0)}
+          </div>
+        </div>
+
+        <!-- Done Column -->
+        <div class="kanban-column" data-status="completed">
+          <div class="kanban-column-header">
+            <div class="kanban-column-title">
+              <span class="kanban-stage-dot stage-completed"></span>
+              <span>Done</span>
+              <span class="kanban-column-count">${doneTasks.length}</span>
+            </div>
+            <button class="kanban-add-btn" data-status="completed" title="Add task to Done">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+            </button>
+          </div>
+          <div class="kanban-cards-container" id="kanban-completed">
+            ${doneTasks.map(task => renderKanbanTaskCard(task, state.isManager)).join('')}
+            ${renderKanbanEmptyState('completed', doneTasks.length === 0)}
+          </div>
         </div>
       </div>
     </div>
@@ -200,6 +220,7 @@ async function renderTasksView() {
 
   // Initialize functionality
   initKanbanBoard(tasks, salesReps);
+  updateColumnCounts();
 
   // Common listeners setup (Search, Add Task)
   // ... (Listeners are set up below in existing code)
@@ -209,52 +230,53 @@ function renderKanbanTaskCard(task, isManager) {
   const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== 'completed';
 
   // Robust Assignee Logic
-  let assigneeHtml = '<span style="font-size:0.75rem; color:var(--text-muted);">Unassigned</span>';
+  let assigneeHtml = '<span class="task-card-unassigned">Unassigned</span>';
   let assigneeName = 'Unassigned';
 
   if (task.assigned_to_profile) {
     assigneeName = `${task.assigned_to_profile.first_name} ${task.assigned_to_profile.last_name}`;
     const initials = (task.assigned_to_profile.first_name?.[0] || '') + (task.assigned_to_profile.last_name?.[0] || '');
     assigneeHtml = `
-            <div class="task-card-assignee">
-              ${initials}
-            </div>
-            <span class="task-card-assignee-name">${task.assigned_to_profile.first_name}</span>
-      `;
+      <div class="task-card-assignee" title="${escapeHtml(assigneeName)}">
+        ${escapeHtml(initials)}
+      </div>
+      <span class="task-card-assignee-name">${escapeHtml(task.assigned_to_profile.first_name)}</span>
+    `;
   } else if (task.assigned_to === state.currentUser.id) {
     assigneeName = 'Me';
     assigneeHtml = `
-            <div class="task-card-assignee" style="background:var(--color-primary); color: white;">
-              Me
-            </div>
-            <span class="task-card-assignee-name">Me</span>
-      `;
+      <div class="task-card-assignee is-me" title="Assigned to Me">
+        Me
+      </div>
+      <span class="task-card-assignee-name">Me</span>
+    `;
   }
 
+  const priorityClass = task.priority || 'medium';
+  const priorityLabel = priorityClass.charAt(0).toUpperCase() + priorityClass.slice(1);
+
   return `
-    <div class="kanban-task-card" data-task-id="${task.id}" data-status="${task.status}">
+    <div class="kanban-task-card priority-${priorityClass}" data-task-id="${task.id}" data-status="${task.status}">
       <div class="task-card-header">
-        <div class="task-card-title">${task.title}</div>
-        <!-- Menu hidden/removed per design -->
-      </div>
-      ${task.description ? `
-        <div class="task-card-description">${task.description}</div>
-      ` : ''}
-      <div class="task-card-tags">
-        ${task.priority ? `
-          <span class="task-tag priority-${task.priority}">
-            ${task.priority === 'high' ? '🔴' : task.priority === 'medium' ? '🟡' : '🔵'}
-            ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
+        <div class="task-card-tags">
+          <span class="task-tag priority-${priorityClass}">
+            <span class="task-status-dot dot-${priorityClass}"></span>
+            ${priorityLabel}
           </span>
-        ` : ''}
+        </div>
       </div>
+      <div class="task-card-title">${escapeHtml(task.title)}</div>
+      ${task.description ? `
+        <div class="task-card-description">${escapeHtml(task.description)}</div>
+      ` : ''}
       <div class="task-card-footer">
-        <div class="task-card-due-date ${isOverdue ? 'overdue' : ''}">
-          <i class="fas fa-calendar"></i>
-          ${task.due_date ? formatDate(task.due_date) : 'No date'}
+        <div class="task-card-due-date ${isOverdue ? 'overdue' : (!task.due_date ? 'no-date' : '')}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+          <span>${task.due_date ? formatDate(task.due_date) : 'No due date'}</span>
+          ${isOverdue ? '<span class="task-overdue-badge">Overdue</span>' : ''}
         </div>
         <div class="task-card-meta">
-          <div class="task-card-assignee-wrapper" title="${assigneeName}">
+          <div class="task-card-assignee-wrapper" title="${escapeHtml(assigneeName)}">
             ${assigneeHtml}
           </div>
         </div>
@@ -278,6 +300,9 @@ function initKanbanBoard(tasks, salesReps) {
 
     new Sortable(container, {
       group: 'kanban',
+      draggable: '.kanban-task-card',
+      filter: '.kanban-empty-state',
+      preventOnFilter: false,
       animation: 120,
       easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
       delayOnTouchOnly: true,
@@ -288,28 +313,10 @@ function initKanbanBoard(tasks, salesReps) {
       onStart: function () {
         document.body.classList.add('is-dragging');
       },
-      onAdd: function (evt) {
-        // Remove empty state if present
-        const emptyState = evt.to.querySelector('.kanban-empty-state');
-        if (emptyState) {
-          emptyState.remove();
-        }
+      onAdd: function () {
         updateColumnCounts();
       },
-      onRemove: function (evt) {
-        // Add empty state if column becomes empty
-        if (evt.from.querySelectorAll('.kanban-task-card').length === 0) {
-          let icon, text;
-          if (evt.from.id === 'kanban-todo') { icon = '📝'; text = 'No tasks'; }
-          else if (evt.from.id === 'kanban-in-progress') { icon = '⚙️'; text = 'No tasks'; }
-          else { icon = '🎉'; text = 'No tasks'; }
-
-          evt.from.innerHTML = `
-            <div class="kanban-empty-state">
-              <div class="kanban-empty-icon">${icon}</div>
-              <div class="kanban-empty-text">${text}</div>
-            </div>`;
-        }
+      onRemove: function () {
         updateColumnCounts();
       },
       onEnd: async function (evt) {
@@ -505,15 +512,42 @@ function initKanbanBoard(tasks, salesReps) {
 }
 
 function updateColumnCounts() {
-  const columns = {
-    'pending': document.querySelectorAll('#kanban-todo .kanban-task-card').length,
-    'in_progress': document.querySelectorAll('#kanban-in-progress .kanban-task-card').length,
-    'completed': document.querySelectorAll('#kanban-completed .kanban-task-card').length
-  };
+  const colConfigs = [
+    { id: 'kanban-todo', status: 'pending' },
+    { id: 'kanban-in-progress', status: 'in_progress' },
+    { id: 'kanban-completed', status: 'completed' }
+  ];
 
-  document.querySelector('[data-status="pending"] .kanban-column-count').textContent = `${columns.pending} Tasks`;
-  document.querySelector('[data-status="in_progress"] .kanban-column-count').textContent = `${columns.in_progress} Tasks`;
-  document.querySelector('[data-status="completed"] .kanban-column-count').textContent = `${columns.completed} Tasks`;
+  let totalVisible = 0;
+  const counts = {};
+
+  colConfigs.forEach(({ id, status }) => {
+    const container = document.getElementById(id);
+    if (!container) return;
+
+    const visibleCards = container.querySelectorAll('.kanban-task-card:not([style*="display: none"])');
+    counts[status] = visibleCards.length;
+    totalVisible += visibleCards.length;
+
+    const countBadge = document.querySelector(`[data-status="${status}"] .kanban-column-count`);
+    if (countBadge) countBadge.textContent = visibleCards.length;
+
+    const emptyState = container.querySelector('.kanban-empty-state');
+    if (emptyState) {
+      emptyState.style.display = visibleCards.length === 0 ? 'flex' : 'none';
+    }
+  });
+
+  // Header stats summary
+  const statTotal = document.getElementById('task-stat-total');
+  const statPending = document.getElementById('task-stat-pending');
+  const statProgress = document.getElementById('task-stat-progress');
+  const statDone = document.getElementById('task-stat-done');
+
+  if (statTotal) statTotal.textContent = `${totalVisible} ${totalVisible === 1 ? 'task' : 'tasks'}`;
+  if (statPending) statPending.textContent = `${counts.pending || 0} to do`;
+  if (statProgress) statProgress.textContent = `${counts.in_progress || 0} in progress`;
+  if (statDone) statDone.textContent = `${counts.completed || 0} done`;
 }
 
 function showTaskDetail(task, salesReps) {
@@ -527,7 +561,8 @@ function showTaskDetail(task, salesReps) {
   let assigneeInitials = '—';
   if (task.assigned_to_profile) {
     assigneeName = `${task.assigned_to_profile.first_name} ${task.assigned_to_profile.last_name}`;
-    assigneeInitials = (task.assigned_to_profile.first_name?.[0] || '') + (task.assigned_to_profile.last_name?.[0] || '');
+    const initials = (task.assigned_to_profile.first_name?.[0] || '') + (task.assigned_to_profile.last_name?.[0] || '');
+    assigneeInitials = initials;
   } else if (task.assigned_to === state.currentUser.id) {
     assigneeName = 'Me';
     assigneeInitials = 'Me';
@@ -540,10 +575,10 @@ function showTaskDetail(task, salesReps) {
     const assignerInitials = (task.created_by_profile.first_name?.[0] || '') + (task.created_by_profile.last_name?.[0] || '');
     assignedByHtml = `
       <div class="tdv-person">
-        <div class="tdv-avatar tdv-avatar-purple">${assignerInitials}</div>
+        <div class="tdv-avatar tdv-avatar-purple">${escapeHtml(assignerInitials)}</div>
         <div class="tdv-person-info">
           <div class="tdv-person-label">Assigned By</div>
-          <div class="tdv-person-name">${assignerName}</div>
+          <div class="tdv-person-name">${escapeHtml(assignerName)}</div>
         </div>
       </div>`;
   }
@@ -553,17 +588,17 @@ function showTaskDetail(task, salesReps) {
 
   // Status config
   const statusMap = {
-    pending:     { label: 'To Do',       icon: '📋', cls: 'tdv-status-pending' },
-    in_progress: { label: 'In Progress', icon: '🔄', cls: 'tdv-status-in_progress' },
-    completed:   { label: 'Done',        icon: '✅', cls: 'tdv-status-completed' },
+    pending:     { label: 'To Do',       cls: 'tdv-status-pending',     dot: '<span class="task-status-dot dot-pending"></span>' },
+    in_progress: { label: 'In Progress', cls: 'tdv-status-in_progress', dot: '<span class="task-status-dot dot-in_progress"></span>' },
+    completed:   { label: 'Done',        cls: 'tdv-status-completed',   dot: '<span class="task-status-dot dot-completed"></span>' },
   };
   const sc = statusMap[task.status] || statusMap.pending;
 
   // Priority config
   const priorityMap = {
-    high:   { label: 'High',   icon: '🔴', cls: 'tdv-pill-priority-high' },
-    medium: { label: 'Medium', icon: '🟡', cls: 'tdv-pill-priority-medium' },
-    low:    { label: 'Low',    icon: '🔵', cls: 'tdv-pill-priority-low' },
+    high:   { label: 'High Priority',   cls: 'tdv-pill-priority-high',   dot: '<span class="task-status-dot dot-high"></span>' },
+    medium: { label: 'Medium Priority', cls: 'tdv-pill-priority-medium', dot: '<span class="task-status-dot dot-medium"></span>' },
+    low:    { label: 'Low Priority',    cls: 'tdv-pill-priority-low',    dot: '<span class="task-status-dot dot-low"></span>' },
   };
   const pc = priorityMap[task.priority] || priorityMap.medium;
 
@@ -574,38 +609,35 @@ function showTaskDetail(task, salesReps) {
     const label = (isOverdue ? 'Overdue · ' : '') + formatDate(task.due_date);
     duePillHtml = `
       <span class="tdv-pill ${cls}">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
         ${label}
       </span>`;
   } else {
     duePillHtml = `<span class="tdv-pill tdv-pill-nodate">No due date</span>`;
   }
 
-  // Priority border class on header
-  const priorityBorderCls = task.priority ? `tdv-priority-${task.priority}` : 'tdv-priority-medium';
-
   content.innerHTML = `
-    <div class="tdv-header ${priorityBorderCls}">
-      <div class="tdv-header-row">
-        <span class="tdv-status-badge ${sc.cls}">${sc.icon} ${sc.label}</span>
+    <div class="tdv-header">
+      <div class="tdv-header-top">
+        <div class="tdv-badges-group">
+          <span class="tdv-status-badge ${sc.cls}">${sc.dot} ${sc.label}</span>
+          <span class="tdv-pill ${pc.cls}">${pc.dot} ${pc.label}</span>
+          ${duePillHtml}
+        </div>
         <button class="modal-close" onclick="document.getElementById('task-detail-modal').classList.remove('active')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
           </svg>
         </button>
       </div>
-      <h2 class="tdv-title">${task.title}</h2>
-      <div class="tdv-pills">
-        <span class="tdv-pill ${pc.cls}">${pc.icon} ${pc.label} Priority</span>
-        ${duePillHtml}
-      </div>
+      <h2 class="tdv-title">${escapeHtml(task.title)}</h2>
     </div>
     <div class="tdv-body">
       ${task.description ? `
         <div class="tdv-section">
           <div class="tdv-section-label">Description</div>
-          <div class="tdv-desc">${task.description}</div>
+          <div class="tdv-desc">${escapeHtml(task.description)}</div>
         </div>
       ` : ''}
 
@@ -613,29 +645,28 @@ function showTaskDetail(task, salesReps) {
         <div class="tdv-section-label">People</div>
         <div class="tdv-people">
           <div class="tdv-person">
-            <div class="tdv-avatar tdv-avatar-blue">${assigneeInitials}</div>
+            <div class="tdv-avatar tdv-avatar-blue">${escapeHtml(assigneeInitials)}</div>
             <div class="tdv-person-info">
               <div class="tdv-person-label">Assigned To</div>
-              <div class="tdv-person-name">${assigneeName}</div>
+              <div class="tdv-person-name">${escapeHtml(assigneeName)}</div>
             </div>
           </div>
           ${assignedByHtml}
         </div>
       </div>
-
     </div>
     <div class="tdv-footer">
       ${canEditDetails ? `
         <button class="tdv-edit-btn" onclick="editTask('${task.id}')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
           Edit
         </button>
         <button class="tdv-delete-btn" onclick="deleteTask('${task.id}')" title="Delete task">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
         </button>
       ` : `
         <div class="tdv-lock-notice">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           Only the task creator can edit or delete this task.
         </div>
       `}
