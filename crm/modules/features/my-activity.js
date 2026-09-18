@@ -328,7 +328,17 @@ function renderVisitCard(visit, showRepName = false, profileById = {}) {
 
   const iconSvg = getVisitIcon(visit.visit_type);
 
-  // Note: lead score badge is removed from here for cleaner UI, but could be added back if needed
+  const scoreVal = Number.isFinite(Number(visit.lead_score)) ? Number(visit.lead_score) : null;
+  const scoreChipStyle = scoreVal === null ? ''
+    : scoreVal >= 70 ? 'background:rgba(34,197,94,0.12);color:#15803d;border-color:rgba(34,197,94,0.3);'
+    : scoreVal >= 40 ? 'background:rgba(245,158,11,0.12);color:#b45309;border-color:rgba(245,158,11,0.3);'
+    : 'background:rgba(107,114,128,0.10);color:var(--text-muted);';
+  const scoreHtml = scoreVal !== null
+    ? `<span class="myact-chip" style="${scoreChipStyle}font-weight:700;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        <span class="myact-chip-text">${scoreVal}% Lead Score</span>
+      </span>`
+    : '';
 
   return `
     <div class="myact-card ${typeClass}" data-id="${escapeHtml(String(visit.id || ''))}">
@@ -347,6 +357,7 @@ function renderVisitCard(visit, showRepName = false, profileById = {}) {
             ${contactHtml}
             ${locationHtml}
             ${travelHtml}
+            ${scoreHtml}
           </div>
 
           <p class="myact-notes">${processedNotes}</p>

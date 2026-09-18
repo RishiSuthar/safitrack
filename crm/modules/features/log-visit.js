@@ -654,29 +654,15 @@ function initLogVisitForm(companies) {
         organization_id: state.currentOrganization?.id
       };
 
-      const { error } = await supabaseClient
+      const { data: insertedVisit, error } = await supabaseClient
         .from('visits')
-        .insert([visitData]);
+        .insert([visitData])
+        .select('id')
+        .single();
 
       if (error) throw error;
 
-      let visitId = null;
-      try {
-        let idQuery = supabaseClient
-          .from('visits')
-          .select('id')
-          .eq('user_id', state.currentUser.id)
-          .eq('created_at', visitData.created_at)
-          .order('created_at', { ascending: false })
-          .limit(1);
-        if (state.currentOrganization?.id) {
-          idQuery = idQuery.eq('organization_id', state.currentOrganization.id);
-        }
-        const { data: idRows } = await idQuery;
-        visitId = idRows?.[0]?.id || null;
-      } catch {
-        visitId = null;
-      }
+      const visitId = insertedVisit?.id || null;
 
       // Run enrichment in the background so save remains fast and resilient.
       queueVisitEnrichment({
@@ -746,40 +732,38 @@ function initLogVisitForm(companies) {
 async function queueVisitEnrichment({ visitId, company, contact, notes, visitType, finalLat, finalLng }) {
   if (!visitId) return;
 
-  const aiSummaryPromise = (typeof generateConciseVisitSummary === 'function')
-    ? withTimeout(generateConciseVisitSummary(company, contact, notes), 2500)
-    : Promise.resolve(null);
-
-  const leadScorePromise = (typeof predictLeadScore === 'function')
-    ? withTimeout(predictLeadScore(company, contact, notes, visitType), 2500)
-    : Promise.resolve(null);
-
-  const reverseGeocodePromise = (typeof window.reverseGeocode === 'function' && finalLat && finalLng)
-    ? withTimeout(window.reverseGeocode(finalLat, finalLng), 1800)
-    : Promise.resolve(null);
-
-  try {
-    const [aiSummary, leadScore, resolvedAddress] = await Promise.all([
-      aiSummaryPromise,
-      leadScorePromise,
-      reverseGeocodePromise,
-    ]);
-
-    const updates = {};
-    if (typeof aiSummary === 'string' && aiSummary.trim()) updates.ai_summary = aiSummary;
-    if (Number.isFinite(Number(leadScore))) updates.lead_score = Number(leadScore);
-    if (typeof resolvedAddress === 'string' && resolvedAddress.trim()) updates.location_address = resolvedAddress.trim();
-
-    if (Object.keys(updates).length === 0) return;
-
-    await supabaseClient.from('visits').update(updates).eq('id', visitId);
-
-    if (Number.isFinite(Number(updates.lead_score)) && Number(updates.lead_score) >= 70) {
+  supabaseClient.functions.invoke('enrich-visit', {
+    body: { visitId, company, contact, notes, visitType }
+  }).then(({ data }) => {
+    if (!data?.ok) return;
+    // Trigger confetti for high-scoring leads
+    if (Number.isFinite(data.leadScore) && data.leadScore >= 70) {
       triggerConfetti();
     }
-  } catch (e) {
-    // Best-effort only: enrichment failures should not impact saved visits.
-    console.warn('[SafiTrack] Visit enrichment skipped:', e?.message || e);
+    // Refresh the current view so the AI summary + lead score appear on the visit card
+    if (window.navigateView) {
+      window.navigateView('my-activity');
+    } else if (window.loadView) {
+      window.loadView('my-activity');
+    }
+  }).catch((err) => {
+    console.warn('[SafiTrack] enrich-visit invoke failed:', err);
+  });
+
+  // ── Reverse geocode (location_address) stays client-side ─────────────────────
+  if (typeof window.reverseGeocode === 'function' && finalLat && finalLng) {
+    withTimeout(window.reverseGeocode(finalLat, finalLng), 1800)
+      .then(resolvedAddress => {
+        if (typeof resolvedAddress === 'string' && resolvedAddress.trim()) {
+          supabaseClient.from('visits')
+            .update({ location_address: resolvedAddress.trim() })
+            .eq('id', visitId)
+            .then(({ error: geoErr }) => {
+              if (geoErr) console.warn('[SafiTrack] Geocode update failed:', geoErr.message);
+            });
+        }
+      })
+      .catch(() => {});
   }
 }
 
@@ -790,6 +774,7 @@ function withTimeout(promise, ms) {
     new Promise((resolve) => setTimeout(() => resolve(null), ms)),
   ]);
 }
+
 
 async function geocodeAddress(address) {
   try {
