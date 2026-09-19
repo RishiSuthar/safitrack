@@ -2268,15 +2268,16 @@ function triggerCurrentTabExport() {
     ], opportunities);
   } else if (_activeTab === 'field') {
     exportTableToCsv('field_visits_report', [
-      { key: 'company_name', label: 'Company Name' },
-      { key: 'contact_name', label: 'Contact Name' },
-      { key: 'visit_type', label: 'Visit Type' },
-      { key: 'lead_score', label: 'Lead Score' },
-      { key: 'travel_time', label: 'Travel Time (mins)' },
-      { key: 'fare_amount', label: 'Fare Amount' },
-      { key: 'user_id', label: 'Agent', get: r => getProfileName(profiles, r.user_id) },
-      { key: 'location_name', label: 'Location' },
-      { key: 'created_at', label: 'Date' },
+      { key: 'created_at', label: 'Date', get: r => fmtDate(r.created_at) },
+      { key: 'company_name', label: 'Company Name', get: r => r.company_name || '—' },
+      { key: 'contact_name', label: 'Contact Name', get: r => r.contact_name || '—' },
+      { key: 'visit_type', label: 'Visit Type', get: r => (r.visit_type || 'visit').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) },
+      { key: 'user_id', label: 'Salesperson', get: r => getProfileName(profiles, r.user_id) },
+      { key: 'location_name', label: 'Location', get: r => r.location_name || '—' },
+      { key: 'lead_score', label: 'Lead Score', get: r => r.lead_score ?? '—' },
+      { key: 'travel_time', label: 'Travel Time (mins)', get: r => r.travel_time ?? '—' },
+      { key: 'fare_amount', label: 'Fare Amount', get: r => r.fare_amount ?? '—' },
+      { key: 'notes', label: 'Notes', get: r => (r.notes || '').replace(/[\r\n]+/g, ' ').trim() },
     ], visits);
   } else if (_activeTab === 'comms') {
     exportTableToCsv('call_logs_report', [
