@@ -161,6 +161,11 @@ async function initApp() {
   notificationStore.start();
   startSafiNudgeRealtime();
 
+  // Start workflow automation engine (listens for CRM events via Realtime)
+  if (state.isManager && window.initWorkflowEngine) {
+    try { window.initWorkflowEngine(); } catch (e) { console.error('[SafiTrack] Workflow engine init failed:', e); }
+  }
+
   // Identify if onboarding should be shown (new user or forced)
   const hasCompletedTour = localStorage.getItem('safitrack_onboarding_completed');
 
