@@ -2249,57 +2249,371 @@ function loadSavedReportPreset(index) {
   renderBuilderTab();
 }
 
-// ── Tab CSV Export Handler ───────────────────────────────────────────────────
+// ── Tab Export Handler ───────────────────────────────────────────────────────
 
 function triggerCurrentTabExport() {
   const data = getFilteredData();
   const { opportunities, visits, callLogs, tasks, companies, people, profiles } = data;
+  const sym = getCurrencySymbol();
+  const XLSX = window.XLSX;
+
+  if (!XLSX) {
+    showToast('Excel library not loaded yet, try again in a moment', 'warning');
+    return;
+  }
 
   if (_activeTab === 'executive' || _activeTab === 'sales') {
-    exportTableToCsv('opportunities_report', [
-      { key: 'name', label: 'Opportunity Name' },
-      { key: 'company_name', label: 'Company Name' },
-      { key: 'next_step', label: 'Next Step', get: r => r.next_step || 'None' },
-      { key: 'stage', label: 'Stage', get: r => STAGE_CONFIG[normalizeStage(r.stage)]?.label || 'Lead' },
-      { key: 'value', label: 'Value ($)' },
-      { key: 'probability', label: 'Probability (%)' },
-      { key: 'user_id', label: 'Owner', get: r => getProfileName(profiles, r.user_id) },
-      { key: 'created_at', label: 'Created At' },
-    ], opportunities);
+    exportOpportunitiesXlsx(opportunities, profiles, sym, XLSX);
   } else if (_activeTab === 'field') {
-    exportTableToCsv('field_visits_report', [
-      { key: 'created_at', label: 'Date', get: r => fmtDate(r.created_at) },
-      { key: 'company_name', label: 'Company Name', get: r => r.company_name || '—' },
-      { key: 'contact_name', label: 'Contact Name', get: r => r.contact_name || '—' },
-      { key: 'visit_type', label: 'Visit Type', get: r => (r.visit_type || 'visit').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) },
-      { key: 'user_id', label: 'Salesperson', get: r => getProfileName(profiles, r.user_id) },
-      { key: 'location_name', label: 'Location', get: r => r.location_name || '—' },
-      { key: 'lead_score', label: 'Lead Score', get: r => r.lead_score ?? '—' },
-      { key: 'travel_time', label: 'Travel Time (mins)', get: r => r.travel_time ?? '—' },
-      { key: 'fare_amount', label: 'Fare Amount', get: r => r.fare_amount ?? '—' },
-      { key: 'notes', label: 'Notes', get: r => (r.notes || '').replace(/[\r\n]+/g, ' ').trim() },
-    ], visits);
+    exportFieldVisitsXlsx(visits, profiles, sym, XLSX);
   } else if (_activeTab === 'comms') {
-    exportTableToCsv('call_logs_report', [
-      { key: 'user_id', label: 'Caller', get: r => getProfileName(profiles, r.user_id) },
-      { key: 'contact_name', label: 'Contact', get: r => r.contact_name || getPersonName(people, r.contact_id) },
-      { key: 'company_name', label: 'Company', get: r => r.company_name || getCompanyName(companies, r.company_id) },
-      { key: 'direction', label: 'Direction' },
-      { key: 'outcome', label: 'Outcome' },
-      { key: 'duration_seconds', label: 'Duration (sec)' },
-      { key: 'notes', label: 'Notes' },
-      { key: 'created_at', label: 'Date', get: r => r.call_at || r.created_at },
-    ], callLogs);
+    exportCallLogsXlsx(callLogs, profiles, companies, people, XLSX);
   } else if (_activeTab === 'builder') {
     const activeRows = data[_builderConfig.dataset] || [];
-    exportTableToCsv(`${_builderConfig.dataset}_custom_report`, [
-      { key: 'id', label: 'ID' },
-      { key: 'name', label: 'Name', get: r => r.name || r.title || r.company_name || 'Record' },
-      { key: 'created_at', label: 'Created' },
-    ], activeRows);
+    exportBuilderXlsx(activeRows, _builderConfig.dataset, XLSX);
   }
 }
 
+// ── Shared Excel Utilities ────────────────────────────────────────────────────
+
+// Applies a uniform header style to a row range in a sheet
+function xlsxApplyHeaderStyle(ws, row, cols) {
+  cols.forEach(c => {
+    const ref = `${c}${row}`;
+    if (!ws[ref]) return;
+    ws[ref].s = {
+      font: { bold: true, color: { rgb: 'FFFFFF' }, sz: 11 },
+      fill: { fgColor: { rgb: '2F5FD0' } },
+      alignment: { horizontal: 'center', vertical: 'center', wrapText: false },
+      border: {
+        bottom: { style: 'thin', color: { rgb: 'FFFFFF' } },
+        right:  { style: 'thin', color: { rgb: 'FFFFFF' } },
+      },
+    };
+  });
+}
+
+// Style a KPI label cell (left col)
+function xlsxKpiLabel(ws, ref, label) {
+  ws[ref] = { v: label, t: 's', s: { font: { bold: true, sz: 10, color: { rgb: '64748B' } }, alignment: { horizontal: 'left' } } };
+}
+
+// Style a KPI value cell (right col)
+function xlsxKpiValue(ws, ref, value) {
+  ws[ref] = { v: value, t: typeof value === 'number' ? 'n' : 's', s: { font: { bold: true, sz: 14, color: { rgb: '0F172A' } }, alignment: { horizontal: 'left' } } };
+}
+
+// Section title row
+function xlsxSectionTitle(ws, ref, title) {
+  ws[ref] = { v: title, t: 's', s: { font: { bold: true, sz: 11, color: { rgb: '334155' } }, fill: { fgColor: { rgb: 'F1F5F9' } }, alignment: { horizontal: 'left' } } };
+}
+
+function downloadXlsx(wb, filename, XLSX) {
+  const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+  const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `${filename}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
+}
+
+// ── Opportunities / Sales Excel Export ───────────────────────────────────────
+
+function exportOpportunitiesXlsx(opportunities, profiles, sym, XLSX) {
+  if (!opportunities || !opportunities.length) {
+    showToast('No opportunities to export', 'warning');
+    return;
+  }
+
+  const wb = XLSX.utils.book_new();
+
+  // ── Summary Sheet ──────────────────────────────────────────────────────────
+  const total = opportunities.length;
+  const won   = opportunities.filter(o => normalizeStage(o.stage) === 'won');
+  const lost  = opportunities.filter(o => normalizeStage(o.stage) === 'lost');
+  const inProgress = opportunities.filter(o => normalizeStage(o.stage) === 'in-progress');
+  const totalValue = opportunities.reduce((s, o) => s + (parseFloat(o.value) || 0), 0);
+  const wonValue   = won.reduce((s, o) => s + (parseFloat(o.value) || 0), 0);
+  const avgProb    = total ? (opportunities.reduce((s, o) => s + (parseFloat(o.probability) || 0), 0) / total).toFixed(1) : 0;
+
+  // by owner
+  const ownerMap = {};
+  opportunities.forEach(o => {
+    const name = getProfileName(profiles, o.user_id);
+    if (!ownerMap[name]) ownerMap[name] = { total: 0, won: 0, value: 0 };
+    ownerMap[name].total++;
+    if (normalizeStage(o.stage) === 'won') ownerMap[name].won++;
+    ownerMap[name].value += parseFloat(o.value) || 0;
+  });
+
+  const summaryData = [
+    ['SafiTrack CRM — Opportunities Report', ''],
+    ['Exported', new Date().toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })],
+    ['', ''],
+    ['KPI SUMMARY', ''],
+    ['Total Opportunities', total],
+    ['Total Pipeline Value', `${sym}${totalValue.toLocaleString()}`],
+    ['Won Value', `${sym}${wonValue.toLocaleString()}`],
+    ['Won', won.length],
+    ['Lost', lost.length],
+    ['In Progress', inProgress.length],
+    ['Avg Probability', `${avgProb}%`],
+    ['', ''],
+    ['BREAKDOWN BY OWNER', ''],
+    ['Salesperson', 'Total', 'Won', 'Pipeline Value'],
+    ...Object.entries(ownerMap).sort((a, b) => b[1].total - a[1].total).map(([name, s]) => [
+      name, s.total, s.won, `${sym}${s.value.toLocaleString()}`
+    ]),
+    ['', ''],
+    ['BREAKDOWN BY STAGE', ''],
+    ['Stage', 'Count'],
+    ...Object.entries(
+      opportunities.reduce((acc, o) => {
+        const s = STAGE_CONFIG[normalizeStage(o.stage)]?.label || 'Lead';
+        acc[s] = (acc[s] || 0) + 1;
+        return acc;
+      }, {})
+    ).map(([s, c]) => [s, c]),
+  ];
+
+  const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+  wsSummary['!cols'] = [{ wch: 30 }, { wch: 22 }, { wch: 10 }, { wch: 20 }];
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+  // ── Data Sheet ─────────────────────────────────────────────────────────────
+  const headers = ['Date', 'Opportunity Name', 'Company', 'Stage', 'Owner', 'Value', 'Probability (%)', 'Next Step'];
+  const rows = opportunities.map(o => [
+    fmtDate(o.created_at),
+    o.name || '—',
+    o.company_name || '—',
+    STAGE_CONFIG[normalizeStage(o.stage)]?.label || 'Lead',
+    getProfileName(profiles, o.user_id),
+    parseFloat(o.value) || 0,
+    parseFloat(o.probability) || 0,
+    o.next_step || '—',
+  ]);
+
+  const wsData = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  wsData['!cols'] = [{ wch: 14 }, { wch: 28 }, { wch: 24 }, { wch: 14 }, { wch: 20 }, { wch: 14 }, { wch: 16 }, { wch: 30 }];
+  XLSX.utils.book_append_sheet(wb, wsData, 'Data');
+
+  downloadXlsx(wb, 'opportunities_report', XLSX);
+  showToast(`Exported ${total} opportunities to Excel`, 'success');
+}
+
+// ── Field Visits Excel Export ─────────────────────────────────────────────────
+
+function exportFieldVisitsXlsx(visits, profiles, sym, XLSX) {
+  if (!visits || !visits.length) {
+    showToast('No field visits to export', 'warning');
+    return;
+  }
+
+  const wb = XLSX.utils.book_new();
+
+  // ── Stats ─────────────────────────────────────────────────────────────────
+  const total = visits.length;
+  const scores = visits.map(v => parseFloat(v.lead_score)).filter(n => !isNaN(n) && n > 0);
+  const avgScore = scores.length ? (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(1) : '—';
+  const totalTravel = visits.reduce((s, v) => s + (parseInt(v.travel_time) || 0), 0);
+  const totalFare   = visits.reduce((s, v) => s + (parseFloat(v.fare_amount) || 0), 0);
+
+  const typeMap = {};
+  visits.forEach(v => {
+    const t = (v.visit_type || 'visit').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    typeMap[t] = (typeMap[t] || 0) + 1;
+  });
+
+  const repMap = {};
+  visits.forEach(v => {
+    const name = getProfileName(profiles, v.user_id);
+    if (!repMap[name]) repMap[name] = 0;
+    repMap[name]++;
+  });
+  const topRep = Object.entries(repMap).sort((a, b) => b[1] - a[1])[0];
+
+  // ── Summary Sheet ─────────────────────────────────────────────────────────
+  const summaryData = [
+    ['SafiTrack CRM — Field Operations Report', ''],
+    ['Exported', new Date().toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })],
+    ['', ''],
+    ['KPI SUMMARY', ''],
+    ['Total Visits', total],
+    ['Avg Lead Score', avgScore],
+    ['Total Travel Time', `${totalTravel} mins`],
+    ['Total Fare Cost', `${sym}${totalFare.toLocaleString()}`],
+    ['Top Salesperson', topRep ? `${topRep[0]} (${topRep[1]} visits)` : '—'],
+    ['', ''],
+    ['VISITS BY TYPE', ''],
+    ['Type', 'Count'],
+    ...Object.entries(typeMap).sort((a, b) => b[1] - a[1]).map(([t, c]) => [t, c]),
+    ['', ''],
+    ['VISITS BY SALESPERSON', ''],
+    ['Salesperson', 'Visits'],
+    ...Object.entries(repMap).sort((a, b) => b[1] - a[1]).map(([name, c]) => [name, c]),
+  ];
+
+  const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+  wsSummary['!cols'] = [{ wch: 30 }, { wch: 24 }];
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+  // ── Data Sheet ────────────────────────────────────────────────────────────
+  const headers = ['Date', 'Company', 'Contact', 'Visit Type', 'Salesperson', 'Location', 'Lead Score', 'Travel (mins)', 'Fare', 'Notes'];
+  const rows = visits.map(v => [
+    fmtDate(v.created_at),
+    v.company_name || '—',
+    v.contact_name || '—',
+    (v.visit_type || 'visit').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()),
+    getProfileName(profiles, v.user_id),
+    v.location_name || '—',
+    v.lead_score != null ? parseFloat(v.lead_score) : '—',
+    v.travel_time != null ? parseInt(v.travel_time) : '—',
+    v.fare_amount != null ? parseFloat(v.fare_amount) : '—',
+    (v.notes || '').replace(/[\r\n]+/g, ' ').trim(),
+  ]);
+
+  const wsData = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  wsData['!cols'] = [{ wch: 14 }, { wch: 26 }, { wch: 20 }, { wch: 16 }, { wch: 20 }, { wch: 22 }, { wch: 12 }, { wch: 14 }, { wch: 12 }, { wch: 40 }];
+  XLSX.utils.book_append_sheet(wb, wsData, 'Data');
+
+  downloadXlsx(wb, 'field_visits_report', XLSX);
+  showToast(`Exported ${total} visits to Excel`, 'success');
+}
+
+// ── Call Logs Excel Export ────────────────────────────────────────────────────
+
+function exportCallLogsXlsx(callLogs, profiles, companies, people, XLSX) {
+  if (!callLogs || !callLogs.length) {
+    showToast('No call logs to export', 'warning');
+    return;
+  }
+
+  const wb = XLSX.utils.book_new();
+
+  // ── Stats ─────────────────────────────────────────────────────────────────
+  const total      = callLogs.length;
+  const outbound   = callLogs.filter(c => (c.direction || '').toLowerCase() === 'outbound').length;
+  const inbound    = callLogs.filter(c => (c.direction || '').toLowerCase() === 'inbound').length;
+  const connected  = callLogs.filter(c => (c.outcome || '').toLowerCase() === 'connected').length;
+  const connRate   = total ? Math.round((connected / total) * 100) : 0;
+  const totalSecs  = callLogs.reduce((s, c) => s + (parseInt(c.duration_seconds) || 0), 0);
+  const avgSecs    = total ? Math.round(totalSecs / total) : 0;
+
+  const callerMap = {};
+  callLogs.forEach(c => {
+    const name = getProfileName(profiles, c.user_id);
+    if (!callerMap[name]) callerMap[name] = { total: 0, connected: 0, secs: 0 };
+    callerMap[name].total++;
+    if ((c.outcome || '').toLowerCase() === 'connected') callerMap[name].connected++;
+    callerMap[name].secs += parseInt(c.duration_seconds) || 0;
+  });
+
+  const outcomeMap = {};
+  callLogs.forEach(c => {
+    const o = (c.outcome || 'Unknown').charAt(0).toUpperCase() + (c.outcome || 'unknown').slice(1);
+    outcomeMap[o] = (outcomeMap[o] || 0) + 1;
+  });
+
+  // ── Summary Sheet ─────────────────────────────────────────────────────────
+  const summaryData = [
+    ['SafiTrack CRM — Communications Report', ''],
+    ['Exported', new Date().toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })],
+    ['', ''],
+    ['KPI SUMMARY', ''],
+    ['Total Calls Logged', total],
+    ['Outbound Calls', outbound],
+    ['Inbound Calls', inbound],
+    ['Connected Calls', connected],
+    ['Connection Rate', `${connRate}%`],
+    ['Total Duration', `${Math.round(totalSecs / 60)} mins`],
+    ['Avg Call Duration', `${avgSecs}s`],
+    ['', ''],
+    ['BREAKDOWN BY SALESPERSON', ''],
+    ['Salesperson', 'Total Calls', 'Connected', 'Total Duration (mins)'],
+    ...Object.entries(callerMap).sort((a, b) => b[1].total - a[1].total).map(([name, s]) => [
+      name, s.total, s.connected, Math.round(s.secs / 60)
+    ]),
+    ['', ''],
+    ['BREAKDOWN BY OUTCOME', ''],
+    ['Outcome', 'Count'],
+    ...Object.entries(outcomeMap).sort((a, b) => b[1] - a[1]).map(([o, c]) => [o, c]),
+  ];
+
+  const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+  wsSummary['!cols'] = [{ wch: 30 }, { wch: 20 }, { wch: 12 }, { wch: 22 }];
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+  // ── Data Sheet ────────────────────────────────────────────────────────────
+  const headers = ['Date', 'Salesperson', 'Contact', 'Company', 'Direction', 'Outcome', 'Duration (secs)', 'Notes'];
+  const rows = callLogs.map(c => [
+    fmtDate(c.call_at || c.created_at),
+    getProfileName(profiles, c.user_id),
+    c.contact_name || getPersonName(people, c.contact_id) || '—',
+    c.company_name || getCompanyName(companies, c.company_id) || '—',
+    c.direction ? c.direction.charAt(0).toUpperCase() + c.direction.slice(1) : '—',
+    c.outcome   ? c.outcome.charAt(0).toUpperCase()   + c.outcome.slice(1)   : '—',
+    parseInt(c.duration_seconds) || 0,
+    (c.notes || '').replace(/[\r\n]+/g, ' ').trim(),
+  ]);
+
+  const wsData = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+  wsData['!cols'] = [{ wch: 14 }, { wch: 20 }, { wch: 22 }, { wch: 24 }, { wch: 12 }, { wch: 14 }, { wch: 16 }, { wch: 40 }];
+  XLSX.utils.book_append_sheet(wb, wsData, 'Data');
+
+  downloadXlsx(wb, 'call_logs_report', XLSX);
+  showToast(`Exported ${total} call logs to Excel`, 'success');
+}
+
+// ── Builder / Custom Dataset Excel Export ────────────────────────────────────
+
+function exportBuilderXlsx(rows, dataset, XLSX) {
+  if (!rows || !rows.length) {
+    showToast('No records to export', 'warning');
+    return;
+  }
+
+  const wb = XLSX.utils.book_new();
+
+  // ── Summary Sheet ─────────────────────────────────────────────────────────
+  const summaryData = [
+    ['SafiTrack CRM — Custom Report', ''],
+    ['Dataset', dataset.charAt(0).toUpperCase() + dataset.slice(1)],
+    ['Exported', new Date().toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })],
+    ['', ''],
+    ['KPI SUMMARY', ''],
+    ['Total Records', rows.length],
+  ];
+
+  const wsSummary = XLSX.utils.aoa_to_sheet(summaryData);
+  wsSummary['!cols'] = [{ wch: 24 }, { wch: 20 }];
+  XLSX.utils.book_append_sheet(wb, wsSummary, 'Summary');
+
+  // ── Data Sheet — use all keys from first row ───────────────────────────────
+  const firstRow = rows[0];
+  const keys = Object.keys(firstRow).filter(k => !['id', 'organization_id'].includes(k));
+  const headers = keys.map(k => k.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()));
+  const dataRows = rows.map(r => keys.map(k => {
+    const v = r[k];
+    if (v === null || v === undefined) return '—';
+    if (typeof v === 'string' && v.match(/^\d{4}-\d{2}-\d{2}/)) return fmtDate(v);
+    return v;
+  }));
+
+  const wsData = XLSX.utils.aoa_to_sheet([headers, ...dataRows]);
+  wsData['!cols'] = keys.map(() => ({ wch: 18 }));
+  XLSX.utils.book_append_sheet(wb, wsData, 'Data');
+
+  downloadXlsx(wb, `${dataset}_custom_report`, XLSX);
+  showToast(`Exported ${rows.length} records to Excel`, 'success');
+}
+
+
+
+
+  
 // ── Global Public Helpers ────────────────────────────────────────────────────
 
 export function openReportBuilder() {
