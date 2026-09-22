@@ -73,9 +73,9 @@ async function handleBatchDelete() {
 
     // Refresh view
     if (state.currentView === 'companies') {
-      renderCompaniesView();
+      if (typeof window.renderCompaniesView === 'function') await window.renderCompaniesView();
     } else if (state.currentView === 'people') {
-      renderPeopleView();
+      if (typeof window.renderPeopleView === 'function') await window.renderPeopleView();
     }
   } catch (e) {
     console.error(e);

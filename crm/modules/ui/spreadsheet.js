@@ -17,38 +17,50 @@ function renderEditableDataTable(data, columns, tableId, supabaseTable) {
         <thead>
       <tr>
         ${columns.map(col => {
-    const colKey = col.label.trim().startsWith('<input') ? '_selection' : col.key;
-    const columnWidth = getSavedWidth(colKey) || col.width || defaultColumnWidth;
-    const isSortable = col.sortable !== false;
-    const sortIcon = isSortable
-      ? `<i data-lucide="${state.currentSortKey === col.key ? (state.currentSortDir === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}" 
-                 style="width: 12px; height: 12px; opacity: ${state.currentSortKey === col.key ? 1 : 0.3};"></i>`
-      : '';
-    // Selection column: render checkbox directly, no flex wrapper
-    if (col.label.trim().startsWith('<input')) {
-      return `
-          <th style="width: ${columnWidth}; max-width: ${columnWidth}; position: relative;" 
-              data-col-key="_selection"
-              class="sortable-header th-selection">
-            ${col.label}
-            ${isMobileView ? '' : '<div class="resize-handle" onmousedown="initResize(event, this)"></div>'}
-          </th>
-        `;
-    }
-    return `
-          <th style="width: ${columnWidth}; max-width: ${columnWidth}; position: relative; cursor: ${isSortable ? 'pointer' : 'default'};" 
-              data-col-key="${col.key}"
-              ${isSortable ? `onclick="handleHeaderSort('${col.key}', true)"` : ''}
-              class="sortable-header ${isSortable && state.currentSortKey === col.key ? 'active-sort' : ''}">
-            <div style="display: flex; align-items: center; gap: 8px; overflow: hidden; min-width: 0;">
-              ${col.icon ? `<i data-lucide="${col.icon}" style="width: 14px; height: 14px; opacity: 0.6;"></i>` : ''}
-              <span style="flex: 1; overflow: hidden; text-overflow: ellipsis;">${col.label}</span>
-              ${sortIcon}
-            </div>
-            ${isMobileView ? '' : '<div class="resize-handle" onmousedown="initResize(event, this)"></div>'}
-          </th>
-        `;
-  }).join('')}
+          const isSelectionCol = col.key === 'selection' || (col.label && (col.label.includes('selection-checkbox') || col.label.includes('custom-chk-container')));
+          const isActionsCol = col.key === 'actions';
+          const colKey = isSelectionCol ? '_selection' : col.key;
+          let columnWidth = isSelectionCol ? '44px' : (isActionsCol ? '96px' : (getSavedWidth(colKey) || col.width || defaultColumnWidth));
+          if (isActionsCol) columnWidth = '96px';
+          const isSortable = col.sortable !== false && !isSelectionCol && !isActionsCol;
+          const isCurrentSort = isSortable && state.currentSortKey === col.key;
+          const sortIcon = isSortable
+            ? `<i data-lucide="${isCurrentSort ? (state.currentSortDir === 'asc' ? 'chevron-up' : 'chevron-down') : 'chevrons-up-down'}" 
+                   class="sort-icon ${isCurrentSort ? 'sort-icon-active' : 'sort-icon-inactive'}"></i>`
+            : '';
+          // Selection column: render checkbox directly, no flex wrapper
+          if (isSelectionCol) {
+            return `
+              <th style="width: 44px; max-width: 44px; min-width: 44px; position: relative;" 
+                  data-col-key="_selection"
+                  class="sortable-header th-selection">
+                ${col.label}
+              </th>
+            `;
+          }
+          if (isActionsCol) {
+            return `
+              <th style="width: 96px; max-width: 96px; min-width: 96px; position: relative; text-align: center;" 
+                  data-col-key="actions"
+                  class="th-actions">
+                <span class="header-label">${col.label}</span>
+              </th>
+            `;
+          }
+          return `
+            <th style="width: ${columnWidth}; max-width: ${columnWidth}; position: relative; cursor: ${isSortable ? 'pointer' : 'default'};" 
+                data-col-key="${col.key}"
+                ${isSortable ? `onclick="handleHeaderSort('${col.key}', true)"` : ''}
+                class="sortable-header ${isCurrentSort ? 'active-sort' : ''}">
+              <div class="sort-header-inner">
+                ${col.icon ? `<i data-lucide="${col.icon}" class="header-icon"></i>` : ''}
+                <span class="header-label">${col.label}</span>
+                ${sortIcon}
+              </div>
+              ${isMobileView ? '' : '<div class="resize-handle" onmousedown="initResize(event, this)"></div>'}
+            </th>
+          `;
+        }).join('')}
       </tr>
     </thead>
         <tbody>
@@ -65,11 +77,14 @@ function renderEditableDataTable(data, columns, tableId, supabaseTable) {
         const isReadOnly = col.readOnly ? 'true' : 'false';
         const type = col.type || 'text';
         const options = JSON.stringify(col.options || []);
-        const cellColKey = col.label && col.label.trim().startsWith('<input') ? '_selection' : col.key;
-        const columnWidth = getSavedWidth(cellColKey) || col.width || defaultColumnWidth;
+        const isSelectionCol = col.key === 'selection' || (col.label && (col.label.includes('selection-checkbox') || col.label.includes('custom-chk-container')));
+        const isActionsCol = col.key === 'actions';
+        const cellColKey = isSelectionCol ? '_selection' : col.key;
+        let columnWidth = isSelectionCol ? '44px' : (isActionsCol ? '96px' : (getSavedWidth(cellColKey) || col.width || defaultColumnWidth));
+        if (isActionsCol) columnWidth = '96px';
 
-        html += `<td class="spreadsheet-cell-wrapper" style="width: ${columnWidth}; max-width: ${columnWidth};">
-          <div class="spreadsheet-cell"
+        html += `<td class="spreadsheet-cell-wrapper ${isActionsCol ? 'td-actions' : ''}" style="width: ${columnWidth}; max-width: ${columnWidth}; min-width: ${columnWidth};">
+          <div class="spreadsheet-cell ${isActionsCol ? 'cell-actions' : ''}"
                data-row-id="${row.id}"
                data-column="${col.key}"
                data-read-only="${isReadOnly}"
@@ -510,29 +525,41 @@ function handleHeaderSort(key, isSortable = true) {
     state.currentSortDir = 'asc';
   }
 
-  // Persist sort intent to the active view's state
+  // Persist sort intent to the active view's state and reset page to 1
   if (state.currentView === 'companies') {
     state.tableViewState.companies.sortKey = state.currentSortKey;
     state.tableViewState.companies.sortDir = state.currentSortDir;
+    state.tableViewState.companies.currentPage = 1;
     saveViewState({ companies: state.tableViewState.companies });
   } else if (state.currentView === 'people') {
     state.tableViewState.people.sortKey = state.currentSortKey;
     state.tableViewState.people.sortDir = state.currentSortDir;
+    state.tableViewState.people.currentPage = 1;
     saveViewState({ people: state.tableViewState.people });
   }
 
   refreshCurrentView();
 }
 
-function refreshCurrentView() {
-  const activeNavItem = document.querySelector('.nav-item.active');
-  const view = activeNavItem ? activeNavItem.dataset.view : '';
+async function refreshCurrentView() {
+  const activeNavItem = document.querySelector('.nav-item.active, [data-view].active');
+  const view = state.currentView || (activeNavItem ? activeNavItem.getAttribute('data-view') : '') || (document.getElementById('companies-spreadsheet') ? 'companies' : (document.getElementById('people-spreadsheet') ? 'people' : ''));
 
   if (view === 'companies') {
-    renderCompaniesView();
+    if (typeof window.renderCompaniesView === 'function') {
+      await window.renderCompaniesView();
+    }
   } else if (view === 'people') {
-    renderPeopleView();
+    if (typeof window.renderPeopleView === 'function') {
+      await window.renderPeopleView();
+    }
   }
+}
+
+// Ensure these functions are globally available for inline onclick handlers
+if (typeof window !== 'undefined') {
+  window.handleHeaderSort = handleHeaderSort;
+  window.refreshCurrentView = refreshCurrentView;
 }
 
 // ======================

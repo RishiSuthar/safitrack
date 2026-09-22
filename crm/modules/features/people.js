@@ -19,7 +19,7 @@ async function renderPeopleView() {
   state.currentSortKey = peopleState.sortKey || 'name';
   state.currentSortDir = peopleState.sortDir || 'asc';
 
-  const sortablePeopleColumns = ['name', 'email', 'job_title', 'phone_numbers'];
+  const sortablePeopleColumns = ['name', 'email', 'company.name', 'job_title', 'phone_numbers'];
   const safeSortKey = sortablePeopleColumns.includes(state.currentSortKey) ? state.currentSortKey : 'name';
   if (state.currentSortKey !== safeSortKey) {
     state.currentSortKey = safeSortKey;
@@ -53,12 +53,18 @@ async function renderPeopleView() {
 
   // Sort people in memory
   window.allPeopleData.sort((a, b) => {
-    let valA = a[safeSortKey] || '';
-    let valB = b[safeSortKey] || '';
+    let valA, valB;
+    if (safeSortKey === 'company.name') {
+      valA = a.company?.name || '';
+      valB = b.company?.name || '';
+    } else {
+      valA = a[safeSortKey] || '';
+      valB = b[safeSortKey] || '';
+    }
     if (Array.isArray(valA)) valA = valA.length; // for phone_numbers
     if (Array.isArray(valB)) valB = valB.length;
-    if (typeof valA === 'string') valA = valA.toLowerCase();
-    if (typeof valB === 'string') valB = valB.toLowerCase();
+    if (typeof valA === 'string') valA = valA.toLowerCase().trim();
+    if (typeof valB === 'string') valB = valB.toLowerCase().trim();
     if (valA < valB) return state.currentSortDir === 'asc' ? -1 : 1;
     if (valA > valB) return state.currentSortDir === 'asc' ? 1 : -1;
     return 0;
@@ -97,29 +103,31 @@ async function renderPeopleView() {
     const columns = [
       {
         key: 'selection',
-        label: '<input type="checkbox" class="selection-checkbox" id="people-select-all">',
-        width: '50px',
+        label: '<label class="custom-chk-container" title="Select all"><input type="checkbox" class="selection-checkbox" id="people-select-all"><span class="custom-chk-visual"></span></label>',
+        width: '44px',
         readOnly: true,
         sortable: false,
-        render: (val, row) => `<input type="checkbox" class="selection-checkbox row-select" data-id="${row.id}" ${state.selectedRecordIds.has(row.id) ? 'checked' : ''}>`
+        render: (val, row) => `<label class="custom-chk-container"><input type="checkbox" class="selection-checkbox row-select" data-id="${row.id}" ${state.selectedRecordIds.has(row.id) ? 'checked' : ''}><span class="custom-chk-visual"></span></label>`
       },
       {
         key: 'name', label: 'Name', width: '210px', icon: 'user', sortable: true, render: (val) => `
-        <div style="display: flex; align-items: center; gap: 8px;">
-          <div class="mention-avatar" style="width: 24px; height: 24px; font-size: 0.75rem;">${getInitials(val)}</div>
-          <span>${val}</span>
+        <div style="display: flex; align-items: center; gap: 8px; min-width: 0;">
+          <div class="company-badge-icon" style="border-radius: 50%;">
+            <span class="company-badge-fallback">${getInitials(val || '')}</span>
+          </div>
+          <span class="company-title-text">${escapeHtml(val || '-')}</span>
         </div>
       `},
-      { key: 'email', label: 'Email', width: '250px', icon: 'mail', sortable: true },
-      { key: 'company.name', label: 'Company', width: '160px', icon: 'building', readOnly: true, sortable: false, render: (val, row) => row.company ? row.company.name : 'No company' },
-      { key: 'job_title', label: 'Job Title', width: '150px', icon: 'briefcase', sortable: true },
-      { key: 'phone_numbers', label: 'Phone', width: '150px', icon: 'phone', sortable: true, render: (phones) => phones && Array.isArray(phones) ? phones.join(', ') : (phones || 'N/A') },
+      { key: 'email', label: 'Email', width: '240px', icon: 'mail', sortable: true, render: (val) => val ? escapeHtml(val) : '<span class="cell-empty">-</span>' },
+      { key: 'company.name', label: 'Company', width: '170px', icon: 'building-2', readOnly: true, sortable: true, render: (val, row) => row.company ? escapeHtml(row.company.name) : '<span class="cell-empty">No company</span>' },
+      { key: 'job_title', label: 'Job Title', width: '150px', icon: 'briefcase', sortable: true, render: (val) => val ? escapeHtml(val) : '<span class="cell-empty">-</span>' },
+      { key: 'phone_numbers', label: 'Phone', width: '150px', icon: 'phone', sortable: true, render: (phones) => phones && Array.isArray(phones) && phones.length ? escapeHtml(phones.join(', ')) : '<span class="cell-empty">N/A</span>' },
       {
-        key: 'actions', label: 'Actions', width: '140px', readOnly: true, sortable: false, render: (val, row) => `
+        key: 'actions', label: 'Actions', width: '96px', readOnly: true, sortable: false, render: (val, row) => `
         <div class="table-actions">
-          <button class="action-btn view-person" data-id="${row.id}" title="View person"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg></button>
+          <button class="action-btn view-person" data-id="${row.id}" title="View person"><i data-lucide="eye"></i></button>
           <button class="action-btn edit-person" data-id="${row.id}" title="Edit person"><i data-lucide="square-pen"></i></button>
-          <button class="action-btn delete-person" data-id="${row.id}" title="Delete person"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg></button>
+          <button class="action-btn delete-person" data-id="${row.id}" title="Delete person"><i data-lucide="trash-2"></i></button>
         </div>
       `},
     ];

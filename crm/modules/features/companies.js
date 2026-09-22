@@ -17,7 +17,7 @@ async function renderCompaniesView() {
   state.currentSortKey = companiesState.sortKey || 'name';
   state.currentSortDir = companiesState.sortDir || 'asc';
 
-  const sortableCompanyColumns = ['name', 'address', 'company_type', 'subsector'];
+  const sortableCompanyColumns = ['name', 'industry', 'address', 'company_type', 'subsector'];
   const safeSortKey = sortableCompanyColumns.includes(state.currentSortKey) ? state.currentSortKey : 'name';
   if (state.currentSortKey !== safeSortKey) {
     state.currentSortKey = safeSortKey;
@@ -32,12 +32,18 @@ async function renderCompaniesView() {
   // Use the cached data
   let companies = window.allCompaniesData || [];
 
-  // Sort data in memory since we are not querying the database
+  // Sort data in memory across all sortable columns
   companies.sort((a, b) => {
-    let valA = a[safeSortKey] || '';
-    let valB = b[safeSortKey] || '';
-    if (typeof valA === 'string') valA = valA.toLowerCase();
-    if (typeof valB === 'string') valB = valB.toLowerCase();
+    let valA, valB;
+    if (safeSortKey === 'industry') {
+      valA = a.industry || a.company_categories?.map(c => c.categories?.name).join(', ') || '';
+      valB = b.industry || b.company_categories?.map(c => c.categories?.name).join(', ') || '';
+    } else {
+      valA = a[safeSortKey] || '';
+      valB = b[safeSortKey] || '';
+    }
+    if (typeof valA === 'string') valA = valA.toLowerCase().trim();
+    if (typeof valB === 'string') valB = valB.toLowerCase().trim();
     if (valA < valB) return state.currentSortDir === 'asc' ? -1 : 1;
     if (valA > valB) return state.currentSortDir === 'asc' ? 1 : -1;
     return 0;
@@ -59,57 +65,87 @@ async function renderCompaniesView() {
     const columns = [
       {
         key: 'selection',
-        label: '<input type="checkbox" class="selection-checkbox" id="companies-select-all">',
-        width: '50px',
+        label: '<label class="custom-chk-container" title="Select all"><input type="checkbox" class="selection-checkbox" id="companies-select-all"><span class="custom-chk-visual"></span></label>',
+        width: '44px',
         readOnly: true,
         sortable: false,
-        render: (val, row) => `<input type="checkbox" class="selection-checkbox row-select" data-id="${row.id}" ${state.selectedRecordIds.has(row.id) ? 'checked' : ''}>`
+        render: (val, row) => `<label class="custom-chk-container"><input type="checkbox" class="selection-checkbox row-select" data-id="${row.id}" ${state.selectedRecordIds.has(row.id) ? 'checked' : ''}><span class="custom-chk-visual"></span></label>`
       },
       {
-        key: 'name', label: 'Company Name', width: '300px', icon: 'building', sortable: true, readOnly: state.isSalesRep, render: (val, row) => {
+        key: 'name', label: 'Company Name', width: '250px', icon: 'building-2', sortable: true, readOnly: state.isSalesRep, render: (val, row) => {
           const domain = (row && row.domain) ? row.domain : '';
-          // Only try favicon for real domains (getCompanyLogoUrl rejects emails & bare words).
-          // row.logo_url is the explicit DB value (already cleaned of old favicon-service URLs).
-          const faviconUrl = row.logo_url || (domain ? getCompanyLogoUrl(domain) : '');
+          const faviconUrl = row.logo_url || (domain ? getCompanyLogoUrl(domain) : guessDomainAndFavicon(row.name));
           const initials = getInitials(row.name || '');
+          const nameEscaped = escapeHtml(row.name || '-');
           return `
-            <div style="display:flex;align-items:center;gap:10px;">
-              <div style="width:28px;height:28px;flex-shrink:0;position:relative;">
-                <div class="mention-avatar" style="width:28px;height:28px;font-size:0.65rem;border-radius:50%;">${initials}</div>
-                ${faviconUrl ? `<img src="${faviconUrl}" style="display:none;width:28px;height:28px;object-fit:contain;border-radius:50%;position:absolute;left:0;top:0;" onload="this.style.display='block';this.previousElementSibling.style.display='none'" onerror="this.style.display='none';this.previousElementSibling.style.display=''" />` : ''}
+            <div class="company-cell-name">
+              <div class="company-badge-icon">
+                ${faviconUrl ? `<img src="${faviconUrl}" class="company-badge-img" onload="this.style.display='block';if(this.nextElementSibling)this.nextElementSibling.style.display='none'" onerror="this.remove()" />` : ''}
+                <div class="company-badge-fallback">
+                  <span>${initials}</span>
+                </div>
               </div>
-              <div style="overflow:hidden;white-space:nowrap;text-overflow:ellipsis;">${row.name || '-'}</div>
+              <span class="company-title-text" title="${nameEscaped}">${nameEscaped}</span>
             </div>
           `;
         }
       },
-      { key: 'industry', label: 'Industry', width: '150px', readOnly: true, icon: 'briefcase', sortable: false, render: (val, row) => val || row.company_categories?.map(c => c.categories.name).join(', ') || 'N/A' },
-      { key: 'address', label: 'Location', width: '190px', icon: 'map-pin', readOnly: state.isSalesRep },
+      {
+        key: 'industry',
+        label: 'Industry',
+        width: '130px',
+        readOnly: true,
+        icon: 'briefcase',
+        sortable: true,
+        render: (val, row) => {
+          const text = val || row.company_categories?.map(c => c.categories?.name).join(', ');
+          return text ? escapeHtml(text) : '<span class="cell-empty">N/A</span>';
+        }
+      },
+      {
+        key: 'address',
+        label: 'Location',
+        width: '170px',
+        icon: 'map-pin',
+        sortable: true,
+        readOnly: state.isSalesRep,
+        render: (val) => val && val.trim() ? escapeHtml(val) : '<span class="cell-empty">-</span>'
+      },
       {
         key: 'company_type',
         label: 'Type',
-        width: '120px',
+        width: '110px',
         icon: 'tag',
         sortable: true,
         type: 'select',
         readOnly: state.isSalesRep,
-        options: ['Competitor', 'Customer', 'Distributor', 'Investor', 'Partner', 'Reseller', 'Supplier', 'Vendor', 'Other']
+        options: ['Competitor', 'Customer', 'Distributor', 'Investor', 'Partner', 'Reseller', 'Supplier', 'Vendor', 'Other'],
+        render: (val) => {
+          if (!val || !val.trim() || val === '-') return '<span class="cell-empty">-</span>';
+          const pillClass = 'company-type-' + val.toLowerCase().replace(/[^a-z0-9]/g, '-');
+          return `<span class="company-type-pill ${pillClass}">${escapeHtml(val)}</span>`;
+        }
       },
-        {
-          key: 'subsector',
-          label: 'Subsector',
-          width: '180px',
-          icon: 'layers-3',
-          sortable: true,
-          readOnly: state.isSalesRep,
-          render: (val) => val || 'Unassigned'
-        },
       {
-        key: 'actions', label: 'Actions', width: '120px', readOnly: true, sortable: false, render: (val, row) => {
-          let buttons = `<button class="action-btn view-company" data-id="${row.id}" title="View company"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg></button>`;
+        key: 'subsector',
+        label: 'Subsector',
+        width: '130px',
+        icon: 'layers-3',
+        sortable: true,
+        readOnly: state.isSalesRep,
+        render: (val) => val && val.trim() && val !== 'Unassigned' ? escapeHtml(val) : '<span class="cell-empty">Unassigned</span>'
+      },
+      {
+        key: 'actions',
+        label: 'Actions',
+        width: '96px',
+        readOnly: true,
+        sortable: false,
+        render: (val, row) => {
+          let buttons = `<button class="action-btn view-company" data-id="${row.id}" title="View company"><i data-lucide="eye"></i></button>`;
           if (allowEditDelete) {
             buttons += `<button class="action-btn edit-company" data-id="${row.id}" title="Edit company"><i data-lucide="square-pen"></i></button>`;
-            buttons += `<button class="action-btn delete-company" data-id="${row.id}" title="Delete company"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg></button>`;
+            buttons += `<button class="action-btn delete-company" data-id="${row.id}" title="Delete company"><i data-lucide="trash-2"></i></button>`;
           }
           return `<div class="table-actions">${buttons}</div>`;
         }

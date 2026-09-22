@@ -2,15 +2,28 @@
 
 :root {
     --cell-padding-x: 10px;
-    --cell-padding-y: 8px;
-    --spreadsheet-bg: var(--bg-primary);
-    --spreadsheet-border: var(--border-color);
-    --cell-hover: var(--bg-tertiary);
+    --cell-padding-y: 0px;
+    --spreadsheet-bg: var(--bg-primary, #ffffff);
+    --spreadsheet-border: #e2e8f0;
+    --spreadsheet-header-bg: #f8fafc;
+    --spreadsheet-header-color: #334155;
+    --spreadsheet-cell-color: #0f172a;
+    --cell-hover: #f1f5f9;
     --cell-active: var(--bg-secondary);
     --editing-bg: var(--bg-secondary);
     --editing-shadow: 0 0 0 2px var(--color-primary);
-    --row-zebra: color-mix(in srgb, var(--bg-secondary) 72%, transparent);
-    --row-hover: color-mix(in srgb, var(--color-primary-bg) 35%, var(--bg-tertiary));
+    --row-zebra: transparent;
+    --row-hover: #f8fafc;
+}
+
+[data-theme="dark"] {
+    --spreadsheet-bg: #14171c;
+    --spreadsheet-border: #2a313d;
+    --spreadsheet-header-bg: #1a1e24;
+    --spreadsheet-header-color: #e2e8f0;
+    --spreadsheet-cell-color: #f8fafc;
+    --row-hover: rgba(255, 255, 255, 0.04);
+    --row-zebra: transparent;
 }
 
 /* Minimalist Header and Toolbar */
@@ -27,27 +40,36 @@
 .table-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
-    justify-content: flex-end;
-    padding-right: 12px;
+    gap: 4px;
+    justify-content: center;
+    padding: 0 4px;
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
 }
 
 .action-btn {
-    width: 28px;
-    height: 28px;
-    display: flex;
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    max-width: 26px;
+    min-height: 26px;
+    max-height: 26px;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-radius: var(--radius-sm);
+    border-radius: 4px;
     background: transparent;
     border: none;
-    color: var(--text-muted);
+    color: #64748b;
     cursor: pointer;
+    padding: 0;
+    flex-shrink: 0;
     transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
 }
 
 .action-btn:hover {
-    background: var(--bg-tertiary);
+    background: #f1f5f9;
     color: var(--color-primary);
 }
 
@@ -57,13 +79,16 @@
 
 .action-btn.delete-company:hover,
 .action-btn.delete-person:hover {
-    color: var(--color-error);
-    background: var(--color-error-bg);
+    color: #ef4444;
+    background: #fee2e2;
 }
 
-.action-btn svg {
-    width: 16px;
-    height: 16px;
+.action-btn svg,
+.action-btn i {
+    width: 14px !important;
+    height: 14px !important;
+    min-width: 14px !important;
+    min-height: 14px !important;
 }
 
 .view-breadcrumb {
@@ -285,8 +310,9 @@
     border-collapse: separate;
     border-spacing: 0;
     table-layout: fixed;
-    font-size: 0.9375rem;
-    /* Increased font size for better readability */
+    font-size: 0.875rem;
+    line-height: 1.4;
+    border-left: 1px solid var(--spreadsheet-border);
 }
 
 /* Full-bleed layout for minimalist views */
@@ -299,13 +325,27 @@
     padding: 0 !important;
 }
 
+.spreadsheet-table thead tr {
+    height: 38px;
+}
+
+.spreadsheet-table tbody tr {
+    height: 40px;
+    background: var(--spreadsheet-bg);
+}
+
 .spreadsheet-table th {
     position: sticky;
     top: 0;
-    background: linear-gradient(to bottom, var(--bg-secondary), var(--bg-primary));
-    color: var(--text-primary);
+    height: 38px;
+    min-height: 38px;
+    max-height: 38px;
+    background: var(--spreadsheet-header-bg);
+    color: var(--spreadsheet-header-color);
+    font-size: 0.8125rem;
     font-weight: 600;
-    padding: 8px 10px;
+    letter-spacing: -0.01em;
+    padding: 0 12px;
     text-align: left;
     border-bottom: 1px solid var(--spreadsheet-border);
     border-right: 1px solid var(--spreadsheet-border);
@@ -313,9 +353,68 @@
     white-space: nowrap;
     user-select: none;
     max-width: 100%;
-    /* Avoid blowout */
     overflow: hidden;
-    box-shadow: inset 0 -1px 0 var(--spreadsheet-border);
+    box-shadow: none;
+    box-sizing: border-box;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.spreadsheet-table th.sortable-header {
+    cursor: pointer;
+}
+
+.spreadsheet-table th.sortable-header:hover {
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
+}
+
+.spreadsheet-table th.sortable-header.active-sort {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+.sort-header-inner {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow: hidden;
+    min-width: 0;
+    height: 100%;
+}
+
+.sort-header-inner .header-icon {
+    width: 14px;
+    height: 14px;
+    opacity: 0.65;
+    flex-shrink: 0;
+}
+
+.sort-header-inner .header-label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.sort-header-inner .sort-icon {
+    width: 13px;
+    height: 13px;
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+.sort-icon-active {
+    color: var(--color-primary);
+    opacity: 1 !important;
+}
+
+.sort-icon-inactive {
+    opacity: 0.25;
+    transition: opacity 0.15s ease;
+}
+
+.sortable-header:hover .sort-icon-inactive {
+    opacity: 0.75;
 }
 
 /* Resize Handle */
@@ -337,13 +436,14 @@
 }
 
 .spreadsheet-table td {
+    height: 40px;
     padding: 0;
     border-bottom: 1px solid var(--spreadsheet-border);
     border-right: 1px solid var(--spreadsheet-border);
     position: relative;
-    transition: background var(--transition-fast);
+    transition: background 0.1s ease;
     overflow: hidden;
-    /* Ensure content doesn't bleed out during resize */
+    box-sizing: border-box;
 }
 
 .spreadsheet-table td.spreadsheet-cell-wrapper.editing-cell {
@@ -351,30 +451,32 @@
     z-index: 25;
 }
 
-.spreadsheet-table tr:hover td {
-    background: var(--row-hover);
+.spreadsheet-table tbody tr:hover td {
+    background: var(--row-hover) !important;
 }
 
-.spreadsheet-table tbody tr:nth-child(even) td {
-    background: var(--row-zebra);
+.spreadsheet-table tbody tr td {
+    background: var(--spreadsheet-bg, #ffffff);
 }
 
 /* Cell Content */
 .spreadsheet-cell {
-    padding: 8px 10px;
-    min-height: 36px;
+    padding: 0 12px;
+    height: 40px;
+    min-height: 40px;
+    max-height: 40px;
     display: flex;
     align-items: center;
     cursor: pointer;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: var(--text-primary);
-    /* Fix light mode text color */
-    font-weight: 500;
+    color: var(--spreadsheet-cell-color);
+    font-weight: 450;
+    font-size: 0.875rem;
     min-width: 0;
     max-width: 100%;
-    /* Ensure it doesn't overflow parent */
+    box-sizing: border-box;
 }
 
 .spreadsheet-cell span {
@@ -384,27 +486,420 @@
 }
 
 .spreadsheet-cell:hover {
-    background: var(--row-hover);
+    background: transparent;
 }
 
-/* Keep action column visible during horizontal scroll */
-.spreadsheet-table th:last-child,
-.spreadsheet-table td:last-child {
-    position: sticky;
-    right: 0;
-    z-index: 11;
-    background: var(--bg-primary);
-    box-shadow: -8px 0 12px -10px rgba(15, 23, 42, 0.25);
+/* Company Badge / Favicon row element */
+.company-cell-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    width: 100%;
 }
 
+.company-badge-icon {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    min-height: 22px;
+    border-radius: 4px;
+    background: var(--bg-secondary, #f8fafc);
+    border: 1px solid var(--border-color, #cbd5e1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    flex-shrink: 0;
+    position: relative;
+}
+
+.company-badge-img {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    border-radius: 2px;
+    position: absolute;
+    top: 1px;
+    left: 1px;
+}
+
+.company-badge-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #475569;
+    font-size: 9.5px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+}
+
+.company-badge-fallback svg {
+    width: 13px;
+    height: 13px;
+    color: #475569;
+}
+
+.company-title-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--spreadsheet-cell-color, #0f172a);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+[data-theme="dark"] .company-badge-icon {
+    background: #1e2227;
+    border-color: rgba(255, 255, 255, 0.15);
+    color: #cbd5e1;
+}
+
+/* Company Type Pills */
+.company-type-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 2.5px 8px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+    line-height: 1.35;
+    white-space: nowrap;
+}
+
+.company-type-customer {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-color: #dbeafe;
+}
+
+.company-type-competitor {
+    background: #fef2f2;
+    color: #b91c1c;
+    border-color: #fee2e2;
+}
+
+.company-type-partner,
+.company-type-reseller,
+.company-type-distributor {
+    background: #f0fdf4;
+    color: #15803d;
+    border-color: #dcfce7;
+}
+
+.company-type-vendor,
+.company-type-supplier {
+    background: #faf5ff;
+    color: #7e22ce;
+    border-color: #f3e8ff;
+}
+
+[data-theme="dark"] .company-type-pill {
+    background: #1e2227;
+    color: #e2e8f0;
+    border-color: #334155;
+}
+
+[data-theme="dark"] .company-type-customer {
+    background: rgba(37, 99, 235, 0.15);
+    color: #93c5fd;
+    border-color: rgba(37, 99, 235, 0.3);
+}
+
+[data-theme="dark"] .company-type-competitor {
+    background: rgba(239, 68, 68, 0.15);
+    color: #fca5a5;
+    border-color: rgba(239, 68, 68, 0.3);
+}
+
+/* Empty / Muted placeholder styling - High contrast readable slate */
+.cell-empty {
+    color: #64748b;
+    font-size: 0.875rem;
+    font-weight: 400;
+}
+
+/* Selection header and cells - Exactly 44px fixed width */
+.spreadsheet-table th.th-selection {
+    width: 44px !important;
+    max-width: 44px !important;
+    min-width: 44px !important;
+    padding: 0 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+    cursor: default !important;
+}
+
+.spreadsheet-table td:has(.custom-chk-container),
+.spreadsheet-table td:has(.selection-checkbox),
+.spreadsheet-cell-wrapper:has(.custom-chk-container),
+.spreadsheet-cell-wrapper:has(.selection-checkbox) {
+    width: 44px !important;
+    max-width: 44px !important;
+    min-width: 44px !important;
+    padding: 0 !important;
+    text-align: center !important;
+    vertical-align: middle !important;
+}
+
+.spreadsheet-cell:has(.custom-chk-container),
+.spreadsheet-cell:has(.selection-checkbox) {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 100% !important;
+    height: 100% !important;
+    padding: 0 !important;
+}
+
+/* Redesigned Custom Checkbox Component from Scratch */
+.custom-chk-container {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    max-width: 20px !important;
+    min-height: 20px !important;
+    max-height: 20px !important;
+    position: relative !important;
+    cursor: pointer !important;
+    margin: 0 auto !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    flex-shrink: 0 !important;
+    vertical-align: middle !important;
+    line-height: 1 !important;
+}
+
+.custom-chk-container input[type="checkbox"],
+.custom-chk-container input.selection-checkbox {
+    position: absolute !important;
+    opacity: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    cursor: pointer !important;
+    z-index: 2 !important;
+    left: 0 !important;
+    top: 0 !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+.custom-chk-visual {
+    width: 15px !important;
+    height: 15px !important;
+    min-width: 15px !important;
+    max-width: 15px !important;
+    min-height: 15px !important;
+    max-height: 15px !important;
+    border: 1.5px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    pointer-events: none !important;
+    transition: all 0.15s ease !important;
+    position: relative !important;
+}
+
+.custom-chk-container:hover .custom-chk-visual {
+    border-color: #94a3b8 !important;
+    background: #f8fafc !important;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1) !important;
+}
+
+.custom-chk-container input:checked + .custom-chk-visual {
+    background: var(--color-primary, #2563eb) !important;
+    border-color: var(--color-primary, #2563eb) !important;
+}
+
+/* Crisp clean checkmark for row selection */
+.custom-chk-container input.row-select:checked + .custom-chk-visual::after {
+    content: '' !important;
+    display: block !important;
+    width: 4px !important;
+    height: 8px !important;
+    border: solid #ffffff !important;
+    border-width: 0 2px 2px 0 !important;
+    transform: rotate(45deg) translate(-0.5px, -0.5px) !important;
+    box-sizing: border-box !important;
+}
+
+/* Crisp horizontal minus bar for header select-all */
+.custom-chk-container input#companies-select-all:checked + .custom-chk-visual::after,
+.custom-chk-container input#people-select-all:checked + .custom-chk-visual::after {
+    content: '' !important;
+    display: block !important;
+    width: 8px !important;
+    height: 2px !important;
+    background: #ffffff !important;
+    border-radius: 1px !important;
+    box-sizing: border-box !important;
+}
+
+[data-theme="dark"] .custom-chk-visual {
+    background: #1e2227 !important;
+    border-color: #475569 !important;
+}
+
+[data-theme="dark"] .custom-chk-container:hover .custom-chk-visual {
+    border-color: #64748b !important;
+    background: #283039 !important;
+}
+
+[data-theme="dark"] .custom-chk-container input:checked + .custom-chk-visual {
+    background: var(--color-primary, #2563eb) !important;
+    border-color: var(--color-primary, #2563eb) !important;
+}
+
+/* Keep action column visible, fixed at 96px width, and 100% opaque white background */
+.spreadsheet-table th.th-actions,
 .spreadsheet-table th:last-child {
-    z-index: 12;
-    background: linear-gradient(to bottom, var(--bg-secondary), var(--bg-primary));
+    width: 96px !important;
+    min-width: 96px !important;
+    max-width: 96px !important;
+    position: sticky !important;
+    right: 0 !important;
+    z-index: 25 !important;
+    background: var(--spreadsheet-header-bg, #f8fafc) !important;
+    background-color: var(--spreadsheet-header-bg, #f8fafc) !important;
+    border-left: 1px solid var(--spreadsheet-border) !important;
+    box-shadow: -8px 0 12px -6px rgba(15, 23, 42, 0.15) !important;
+    text-align: center !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
 }
 
-.spreadsheet-table tr:hover td:last-child,
-.spreadsheet-table tbody tr:nth-child(even) td:last-child {
-    background: var(--bg-primary);
+.spreadsheet-table td.td-actions,
+.spreadsheet-table td:last-child,
+.spreadsheet-table tbody tr td.td-actions,
+.spreadsheet-table tbody tr td:last-child,
+.spreadsheet-table tbody tr:nth-child(even) td.td-actions,
+.spreadsheet-table tbody tr:nth-child(even) td:last-child,
+.spreadsheet-table tbody tr:nth-child(odd) td.td-actions,
+.spreadsheet-table tbody tr:nth-child(odd) td:last-child {
+    width: 96px !important;
+    min-width: 96px !important;
+    max-width: 96px !important;
+    position: sticky !important;
+    right: 0 !important;
+    z-index: 20 !important;
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    border-left: 1px solid var(--spreadsheet-border) !important;
+    box-shadow: -8px 0 12px -6px rgba(15, 23, 42, 0.15) !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
+    overflow: visible !important;
+}
+
+.spreadsheet-table tbody tr:hover td.td-actions,
+.spreadsheet-table tbody tr:hover td:last-child,
+.spreadsheet-table tbody tr:hover td.td-actions .spreadsheet-cell,
+.spreadsheet-table tbody tr:hover td:last-child .spreadsheet-cell {
+    background: var(--row-hover, #f8fafc) !important;
+    background-color: var(--row-hover, #f8fafc) !important;
+}
+
+[data-theme="dark"] .spreadsheet-table th.th-actions,
+[data-theme="dark"] .spreadsheet-table th:last-child {
+    background: var(--spreadsheet-header-bg, #1a1e24) !important;
+    background-color: var(--spreadsheet-header-bg, #1a1e24) !important;
+}
+
+[data-theme="dark"] .spreadsheet-table td.td-actions,
+[data-theme="dark"] .spreadsheet-table td:last-child,
+[data-theme="dark"] .spreadsheet-table tbody tr td.td-actions,
+[data-theme="dark"] .spreadsheet-table tbody tr td:last-child,
+[data-theme="dark"] .spreadsheet-table tbody tr:nth-child(even) td.td-actions,
+[data-theme="dark"] .spreadsheet-table tbody tr:nth-child(even) td:last-child,
+[data-theme="dark"] .spreadsheet-table tbody tr:nth-child(odd) td.td-actions,
+[data-theme="dark"] .spreadsheet-table tbody tr:nth-child(odd) td:last-child {
+    background: #14171c !important;
+    background-color: #14171c !important;
+}
+
+[data-theme="dark"] .spreadsheet-table tbody tr:hover td.td-actions,
+[data-theme="dark"] .spreadsheet-table tbody tr:hover td:last-child,
+[data-theme="dark"] .spreadsheet-table tbody tr:hover td.td-actions .spreadsheet-cell,
+[data-theme="dark"] .spreadsheet-table tbody tr:hover td:last-child .spreadsheet-cell {
+    background: var(--row-hover, rgba(255, 255, 255, 0.04)) !important;
+    background-color: var(--row-hover, rgba(255, 255, 255, 0.04)) !important;
+}
+
+.cell-actions {
+    padding: 0 !important;
+    justify-content: center !important;
+    cursor: default !important;
+    overflow: visible !important;
+    background: transparent !important;
+}
+
+.table-actions {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 4px !important;
+    width: 100% !important;
+    height: 100% !important;
+    padding: 0 4px !important;
+    box-sizing: border-box !important;
+    background: transparent !important;
+    flex-wrap: nowrap !important;
+}
+
+.table-actions .action-btn {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    max-width: 26px !important;
+    min-height: 26px !important;
+    max-height: 26px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 4px !important;
+    background: transparent !important;
+    border: none !important;
+    color: #64748b !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    flex-shrink: 0 !important;
+    transition: background-color var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+
+.table-actions .action-btn:hover {
+    background: #f1f5f9 !important;
+    color: var(--color-primary) !important;
+}
+
+.table-actions .action-btn:active {
+    transform: translateY(var(--motion-distance-press));
+}
+
+.table-actions .action-btn.delete-company:hover,
+.table-actions .action-btn.delete-person:hover {
+    color: #ef4444 !important;
+    background: #fee2e2 !important;
+}
+
+.table-actions .action-btn svg,
+.table-actions .action-btn i {
+    width: 14px !important;
+    height: 14px !important;
+    min-width: 14px !important;
+    min-height: 14px !important;
 }
 
 /* Editing State */
@@ -416,10 +911,10 @@
     overflow: visible;
 }
 
-.spreadsheet-cell input,
+.spreadsheet-cell input:not([type="checkbox"]),
 .spreadsheet-cell select {
     width: 100%;
-    height: 40px;
+    height: 32px;
     padding: 0 var(--cell-padding-x);
     border: none;
     background: transparent;
@@ -503,8 +998,7 @@
 
 @media (max-width: 767px) {
     .view-header-minimal,
-    .view-toolbar,
-    .table-actions {
+    .view-toolbar {
         flex-wrap: wrap;
         gap: 0.5rem;
         padding-left: 0.75rem;
@@ -535,7 +1029,7 @@
     .spreadsheet-table th,
     .spreadsheet-cell {
         font-size: 0.85rem;
-        padding: 8px 10px;
+        padding: 0 10px;
     }
 
     .resize-handle {
@@ -544,12 +1038,6 @@
 
     .spreadsheet-cell .spreadsheet-inline-editor {
         min-width: max(100%, 220px);
-    }
-
-    .spreadsheet-table th:last-child,
-    .spreadsheet-table td:last-child {
-        position: static;
-        box-shadow: none;
     }
 }
 
