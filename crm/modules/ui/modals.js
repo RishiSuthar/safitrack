@@ -17,6 +17,18 @@ window.closeModal = function (modalId) {
     });
   }
 
+  // If closing company modal, ensure categories dropdown is dismissed
+  if (modalId === 'company-modal' || !modalId) {
+    if (typeof window.closeCategoriesDropdown === 'function') {
+      window.closeCategoriesDropdown();
+    } else {
+      const catDropdown = document.getElementById('categories-dropdown');
+      if (catDropdown) catDropdown.style.display = 'none';
+      const chevron = document.querySelector('.categories-chevron');
+      if (chevron) chevron.classList.remove('is-open');
+    }
+  }
+
   // Remove active class if no other modals are visible
   const visibleModals = Array.from(document.querySelectorAll('.modal')).filter(m => m.style.display !== 'none');
   if (visibleModals.length === 0) {

@@ -98,7 +98,14 @@ async function renderCompaniesView() {
         icon: 'briefcase',
         sortable: true,
         render: (val, row) => {
-          const text = val || row.company_categories?.map(c => c.categories?.name).join(', ');
+          const cats = row.company_categories?.map(c => c.categories?.name).filter(Boolean) || [];
+          if (cats.length > 0) {
+            const first = cats[0];
+            const colorClass = getCategoryColorClass(first);
+            const extra = cats.length > 1 ? ` <span style="opacity: 0.7; font-size: 0.7rem; font-weight: 500;">+${cats.length - 1}</span>` : '';
+            return `<span class="category-tag ${colorClass}" style="font-size: 0.75rem; padding: 1.5px 7px; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><span class="category-color-dot"></span><span>${escapeHtml(first)}</span>${extra}</span>`;
+          }
+          const text = val;
           return text ? escapeHtml(text) : '<span class="cell-empty">N/A</span>';
         }
       },
@@ -486,8 +493,9 @@ async function openCompanyModal(company = null) {
   document.getElementById('company-radius').value = '200';
 
   // Clear categories
-  document.getElementById('categories-container').innerHTML = '<input type="text" class="categories-input" id="categories-input" placeholder="Add category...">';
   state.companyCategories = [];
+  renderCategories();
+  closeCategoriesDropdown();
 
   // Set modal title and show manual coordinates section
   const salesRepViewOnly = company && state.isSalesRep;
@@ -509,7 +517,8 @@ async function openCompanyModal(company = null) {
     // Fill categories
     if (company.company_categories && company.company_categories.length > 0) {
       company.company_categories.forEach(c => {
-        addCategory(c.categories.name);
+        const catName = c.categories?.name || c.name;
+        if (catName) addCategory(catName);
       });
     }
   } else {
@@ -578,15 +587,6 @@ function initCompanyModalListeners(company, viewOnly = false) {
 
     return Boolean(duplicate);
   }
-
-  // Categories input
-  categoriesInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && categoriesInput.value.trim()) {
-      e.preventDefault();
-      addCategory(categoriesInput.value.trim());
-      categoriesInput.value = '';
-    }
-  });
 
   if (companyNameInput) {
     companyNameInput.addEventListener('input', updateCompanyDuplicateState);
@@ -726,16 +726,15 @@ function initCompanyModalListeners(company, viewOnly = false) {
 
       }
 
-      // Handle categories - ONLY if there are categories to process
-      if (state.companyCategories && state.companyCategories.length > 0) {
-        // Delete existing categories ONLY if editing an existing company
-        if (company) {
-          await supabaseClient
-            .from('company_categories')
-            .delete()
-            .eq('company_id', companyId);
-        }
+      // Handle categories
+      if (company) {
+        await supabaseClient
+          .from('company_categories')
+          .delete()
+          .eq('company_id', companyId);
+      }
 
+      if (state.companyCategories && state.companyCategories.length > 0) {
         // Add categories
         for (const categoryName of state.companyCategories) {
           // First, ensure all categories exist
@@ -781,6 +780,14 @@ function initCompanyModalListeners(company, viewOnly = false) {
         }
       }
 
+      // Update cached company_categories in memory so UI reflects immediately
+      const cachedCompany = window.allCompaniesData?.find(c => c.id === companyId);
+      if (cachedCompany) {
+        cachedCompany.company_categories = (state.companyCategories || []).map(name => ({
+          categories: { name }
+        }));
+      }
+
       // Save custom field values
       const customValues = collectCustomFieldValues('company', 'company-custom-fields-section');
       if (customValues.length > 0) {
@@ -811,9 +818,190 @@ function initCompanyModalListeners(company, viewOnly = false) {
   };
 }
 
+// Standard curated categories list for companies
+export const COMPANY_CATEGORY_OPTIONS = [
+  "3D Printing",
+  "Accounting",
+  "Aerospace & Defense",
+  "Agriculture",
+  "Airlines",
+  "Alternative Medicine",
+  "Animation",
+  "Apparel & Footwear",
+  "Architecture",
+  "Arts",
+  "Arts & Crafts",
+  "Asset Management",
+  "Audio",
+  "Automation",
+  "Automotive",
+  "B2B",
+  "B2C",
+  "Banking & Mortgages",
+  "Beverages",
+  "Biotechnology",
+  "Broadcasting",
+  "Building Materials",
+  "Business Supplies",
+  "Chemicals",
+  "Civil Engineering",
+  "Cloud Services",
+  "Communications",
+  "Computer Hardware",
+  "Construction",
+  "Construction Contractors & Services",
+  "Consulting & Professional Services",
+  "Consumer Discretionary",
+  "Consumer Electronics",
+  "Consumer Goods",
+  "Consumer Staples",
+  "Convenience Stores",
+  "Corporate & Business",
+  "Cosmetics",
+  "Department Stores",
+  "Design",
+  "E-commerce",
+  "E-Commerce & Marketplaces",
+  "E-Learning",
+  "Education",
+  "Electrical",
+  "Energy",
+  "Energy & Utilities",
+  "Enterprise",
+  "Entertainment & Recreation",
+  "Events",
+  "Eyewear",
+  "Facilities",
+  "Family Services",
+  "Finance",
+  "Financial Services",
+  "Fine Art",
+  "Firearms",
+  "Fishery",
+  "FMCG (Fast-Moving Consumer Goods)",
+  "Food",
+  "Food Production",
+  "Forums",
+  "Fundraising",
+  "Gambling & Casinos",
+  "Government",
+  "Grocery & Supermarkets",
+  "Grocery Stores",
+  "Ground Transportation",
+  "Health & Wellness",
+  "Health Care",
+  "Higher Education",
+  "Home & Furniture",
+  "Home Improvement",
+  "Human Resources",
+  "Hypermarkets",
+  "Import & Export",
+  "Industrials & Manufacturing",
+  "Information Technology & Services",
+  "Insurance",
+  "International Relations",
+  "International Trade",
+  "Internet",
+  "Investment",
+  "Investment Banking",
+  "Investment Management",
+  "ISP",
+  "Jewelry Watches & Luxury Goods",
+  "Judiciary",
+  "Law Enforcement",
+  "Legal Services",
+  "Libraries",
+  "Machinery",
+  "Maritime",
+  "Market Research",
+  "Marketing & Advertising",
+  "Marketplace",
+  "Mechanical Engineering",
+  "Media",
+  "Medicine",
+  "Military",
+  "Mining & Metals",
+  "Mobile",
+  "Movies & TV",
+  "Museums",
+  "Music",
+  "Nanotechnology",
+  "Networking",
+  "Non-Profit & Philanthropy",
+  "Oil & Gas",
+  "Outsourcing",
+  "Packaging & Containers",
+  "Paper Goods",
+  "Payments",
+  "Performing Arts",
+  "Pharmaceuticals",
+  "Pharmacy",
+  "Photography",
+  "Plastics",
+  "Plumbing",
+  "Political Organization",
+  "Pornography",
+  "Primary & Secondary Education",
+  "Printing",
+  "Public Relations",
+  "Publishing",
+  "Ranching",
+  "Real Estate",
+  "Religion",
+  "Renewables & Environment",
+  "Restaurants",
+  "Retail",
+  "SAAS",
+  "Sanitization Services",
+  "Scientific & Academic Research",
+  "Security",
+  "Services",
+  "Shipbuilding",
+  "Shipping & Logistics",
+  "Society",
+  "Sporting Goods",
+  "Sports & Fitness",
+  "Stores",
+  "Supermarket",
+  "Supermarkets",
+  "Talent Agencies",
+  "Technology",
+  "Telecommunications",
+  "Textiles",
+  "Tobacco",
+  "Tools",
+  "Translation",
+  "Transportation",
+  "Travel & Leisure",
+  "Utilities",
+  "Venture Capital",
+  "Veterinary",
+  "Video Games",
+  "Warehousing",
+  "Web Services & Apps",
+  "Wholesale"
+];
+
+// Deterministic color assignment for categories
+export function getCategoryColorClass(name) {
+  if (!name) return 'cat-color-0';
+  let hash = 0;
+  const str = String(name).trim();
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash << 5) - hash + str.charCodeAt(i);
+    hash |= 0;
+  }
+  const colorIndex = Math.abs(hash) % 16;
+  return `cat-color-${colorIndex}`;
+}
+
 function addCategory(name) {
-  if (!state.companyCategories.includes(name)) {
-    state.companyCategories.push(name);
+  const trimmed = (name || '').trim();
+  const matched = COMPANY_CATEGORY_OPTIONS.find(opt => opt.toLowerCase() === trimmed.toLowerCase());
+  if (!matched) return; // Strict: only choose from allowed options
+
+  if (!state.companyCategories.includes(matched)) {
+    state.companyCategories.push(matched);
     renderCategories();
   }
 }
@@ -823,31 +1011,283 @@ function removeCategory(name) {
   renderCategories();
 }
 
+function toggleCategory(name) {
+  const trimmed = (name || '').trim();
+  const matched = COMPANY_CATEGORY_OPTIONS.find(opt => opt.toLowerCase() === trimmed.toLowerCase());
+  if (!matched) return;
+
+  if (state.companyCategories.includes(matched)) {
+    removeCategory(matched);
+  } else {
+    addCategory(matched);
+  }
+}
+
+function closeCategoriesDropdown() {
+  const dropdown = document.getElementById('categories-dropdown');
+  if (dropdown) {
+    dropdown.style.display = 'none';
+  }
+  const chevron = document.querySelector('.categories-chevron');
+  if (chevron) {
+    chevron.classList.remove('is-open');
+  }
+}
+
+function openCategoriesDropdown(filterQuery = '') {
+  renderCategoriesDropdown(filterQuery);
+  const chevron = document.querySelector('.categories-chevron');
+  if (chevron) {
+    chevron.classList.add('is-open');
+  }
+}
+
+function toggleCategoriesDropdown() {
+  const dropdown = document.getElementById('categories-dropdown');
+  if (!dropdown) return;
+  const isVisible = dropdown.style.display !== 'none' && dropdown.style.display !== '';
+  if (isVisible) {
+    closeCategoriesDropdown();
+  } else {
+    const input = document.getElementById('categories-input');
+    openCategoriesDropdown(input ? input.value : '');
+    if (input) input.focus();
+  }
+}
+
+function renderCategoriesDropdown(filterQuery = '') {
+  const dropdown = document.getElementById('categories-dropdown');
+  if (!dropdown) return;
+
+  const query = (filterQuery || '').trim().toLowerCase();
+  const filtered = COMPANY_CATEGORY_OPTIONS.filter(opt =>
+    !query || opt.toLowerCase().includes(query)
+  );
+
+  let itemsHtml = '';
+  if (filtered.length === 0) {
+    itemsHtml = '<div class="category-dropdown-empty">No matching categories found</div>';
+  } else {
+    itemsHtml = filtered.map(opt => {
+      const isSelected = state.companyCategories.includes(opt);
+      const colorClass = getCategoryColorClass(opt);
+      return `
+        <div class="category-dropdown-item ${colorClass} ${isSelected ? 'is-selected' : ''}" data-category="${escapeHtml(opt)}">
+          <span class="category-color-dot"></span>
+          <span class="category-name">${escapeHtml(opt)}</span>
+          ${isSelected ? '<span class="category-check">✓</span>' : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  dropdown.innerHTML = `
+    <div class="category-dropdown-list">
+      ${itemsHtml}
+    </div>
+    <div class="category-dropdown-footer">
+      <span class="category-dropdown-meta">${filtered.length} ${filtered.length === 1 ? 'category' : 'categories'}</span>
+      <button type="button" class="category-dropdown-close-btn" id="category-dropdown-close-btn">Done</button>
+    </div>
+  `;
+  dropdown.style.display = 'flex';
+
+  const chevron = document.querySelector('.categories-chevron');
+  if (chevron) {
+    chevron.classList.add('is-open');
+  }
+
+  // Handle item selection: closes dropdown immediately upon picking
+  dropdown.querySelectorAll('.category-dropdown-item').forEach(item => {
+    const handleSelect = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const cat = item.dataset.category;
+      closeCategoriesDropdown();
+      if (cat) {
+        if (!state.companyCategories.includes(cat)) {
+          addCategory(cat);
+        }
+        const input = document.getElementById('categories-input');
+        if (input) {
+          input.value = '';
+          input.blur();
+        }
+      }
+    };
+    item.addEventListener('mousedown', handleSelect);
+    item.addEventListener('touchstart', handleSelect, { passive: false });
+  });
+
+  // Handle Done button
+  const doneBtn = dropdown.querySelector('#category-dropdown-close-btn');
+  if (doneBtn) {
+    const handleDone = (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeCategoriesDropdown();
+      const input = document.getElementById('categories-input');
+      if (input) input.blur();
+    };
+    doneBtn.addEventListener('mousedown', handleDone);
+    doneBtn.addEventListener('click', handleDone);
+    doneBtn.addEventListener('touchstart', handleDone, { passive: false });
+  }
+}
+
 function renderCategories() {
   const container = document.getElementById('categories-container');
   if (!container) return;
 
-  const categoriesHTML = state.companyCategories.map(category => `
-    <span class="category-tag">
-      ${category}
-      <button class="tag-remove" onclick="removeCategory('${category}')">×</button>
+  const tagsHTML = state.companyCategories.map(cat => {
+    const colorClass = getCategoryColorClass(cat);
+    return `
+      <span class="category-tag ${colorClass}">
+        <span class="category-color-dot"></span>
+        <span>${escapeHtml(cat)}</span>
+        <button type="button" class="tag-remove" data-cat="${escapeHtml(cat)}" title="Remove ${escapeHtml(cat)}">×</button>
+      </span>
+    `;
+  }).join('');
+
+  const placeholder = state.companyCategories.length > 0 ? 'Add more...' : 'Select categories...';
+
+  container.innerHTML = `
+    ${tagsHTML}
+    <input type="text" class="categories-input" id="categories-input" placeholder="${placeholder}" autocomplete="off">
+    <span class="categories-chevron" id="categories-chevron-btn" title="Toggle category list">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
     </span>
-  `).join('');
+  `;
 
-  container.innerHTML = categoriesHTML + `<input type="text" class="categories-input" id="categories-input" placeholder="Add category...">`;
-
-  const newInput = document.getElementById('categories-input');
-  newInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && newInput.value.trim()) {
+  // Attach remove buttons
+  container.querySelectorAll('.tag-remove').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
       e.preventDefault();
-      addCategory(newInput.value.trim());
-      newInput.value = '';
-    }
+      const cat = btn.dataset.cat;
+      if (cat) {
+        removeCategory(cat);
+      }
+    });
+    btn.addEventListener('mousedown', (e) => {
+      e.stopPropagation();
+    });
   });
+
+  // Attach chevron click handler for explicit open/close toggle
+  const chevron = container.querySelector('#categories-chevron-btn');
+  if (chevron) {
+    chevron.addEventListener('click', (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      toggleCategoriesDropdown();
+    });
+    chevron.addEventListener('mousedown', (e) => {
+      e.stopPropagation();
+      e.preventDefault(); // prevent blur before click
+    });
+  }
+
+  // Clicking container opens dropdown and focuses input if not open
+  container.onclick = (e) => {
+    if (e.target.closest('.tag-remove') || e.target.closest('.categories-chevron')) {
+      return;
+    }
+    const input = document.getElementById('categories-input');
+    const dropdown = document.getElementById('categories-dropdown');
+    const isVisible = dropdown && dropdown.style.display !== 'none' && dropdown.style.display !== '';
+
+    if (input) {
+      input.focus();
+      if (!isVisible) {
+        openCategoriesDropdown(input.value);
+      }
+    }
+  };
+
+  const input = document.getElementById('categories-input');
+  if (input) {
+    input.addEventListener('focus', () => {
+      openCategoriesDropdown(input.value);
+    });
+
+    input.addEventListener('input', () => {
+      openCategoriesDropdown(input.value);
+    });
+
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        const query = input.value.trim().toLowerCase();
+        if (!query) {
+          closeCategoriesDropdown();
+          return;
+        }
+        const exactMatch = COMPANY_CATEGORY_OPTIONS.find(opt => opt.toLowerCase() === query);
+        const firstFiltered = COMPANY_CATEGORY_OPTIONS.find(opt => opt.toLowerCase().includes(query));
+        const match = exactMatch || firstFiltered;
+        if (match) {
+          addCategory(match);
+          input.value = '';
+          closeCategoriesDropdown();
+        }
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        e.stopPropagation();
+        closeCategoriesDropdown();
+        input.blur();
+      } else if (e.key === 'Backspace' && !input.value && state.companyCategories.length > 0) {
+        removeCategory(state.companyCategories[state.companyCategories.length - 1]);
+      }
+    });
+
+    input.addEventListener('blur', () => {
+      // Delay so clicks inside dropdown can process before closing
+      setTimeout(() => {
+        const active = document.activeElement;
+        const wrapper = document.querySelector('.categories-field-wrapper');
+        if (!wrapper || !wrapper.contains(active)) {
+          closeCategoriesDropdown();
+        }
+      }, 180);
+    });
+  }
+
+  // Update chevron state if dropdown is currently visible
+  const dropdown = document.getElementById('categories-dropdown');
+  const isDropdownVisible = dropdown && dropdown.style.display !== 'none' && dropdown.style.display !== '';
+  if (chevron && isDropdownVisible) {
+    chevron.classList.add('is-open');
+  }
 }
 
-// ======================
+// Global outside click & pointer listeners to close category dropdown (using capture to bypass stopPropagation)
+function handleOutsideCategoryDropdown(e) {
+  const wrapper = document.querySelector('.categories-field-wrapper');
+  const dropdown = document.getElementById('categories-dropdown');
+  if (dropdown && dropdown.style.display !== 'none' && dropdown.style.display !== '') {
+    if (wrapper && !wrapper.contains(e.target)) {
+      closeCategoriesDropdown();
+    }
+  }
+}
 
+document.addEventListener('mousedown', handleOutsideCategoryDropdown, true);
+document.addEventListener('touchstart', handleOutsideCategoryDropdown, { passive: true, capture: true });
+document.addEventListener('click', handleOutsideCategoryDropdown, true);
+
+// Window global attachments for inline onclicks or external lazy loaders
+if (typeof window !== 'undefined') {
+  window.addCategory = addCategory;
+  window.removeCategory = removeCategory;
+  window.toggleCategory = toggleCategory;
+  window.getCategoryColorClass = getCategoryColorClass;
+  window.renderCategories = renderCategories;
+  window.closeCategoriesDropdown = closeCategoriesDropdown;
+  window.openCategoriesDropdown = openCategoriesDropdown;
+  window.toggleCategoriesDropdown = toggleCategoriesDropdown;
+}
 
 // ── Exports ────────────────────────────────────────────────────
 export {
@@ -856,5 +1296,11 @@ export {
   initCompanyModalListeners,
   addCategory,
   removeCategory,
+  toggleCategory,
   renderCategories,
+  renderCategoriesDropdown,
+  closeCategoriesDropdown,
+  openCategoriesDropdown,
+  toggleCategoriesDropdown,
 };
+

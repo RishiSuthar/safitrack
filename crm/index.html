@@ -1211,25 +1211,15 @@
             <input type="text" id="company-domain" placeholder="e.g., example.com">
           </div>
 
-          <div class="form-field">
-            <label>Categories</label>
+          <div class="form-field categories-field-wrapper" style="position: relative;">
+            <label for="categories-input">Categories</label>
             <div class="categories-input-container" id="categories-container">
-              <input type="text" class="categories-input" id="categories-input" placeholder="Add category...">
+              <input type="text" class="categories-input" id="categories-input" placeholder="Select categories..." autocomplete="off">
+              <span class="categories-chevron">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              </span>
             </div>
-            <div class="category-suggestions">
-              <button type="button" class="tag-suggestion" onclick="addCategory('Supermarket')">Supermarket</button>
-              <button type="button" class="tag-suggestion" onclick="addCategory('Retail')">Retail</button>
-              <button type="button" class="tag-suggestion" onclick="addCategory('Education')">Education</button>
-              <button type="button" class="tag-suggestion" onclick="addCategory('Medical')">Medical</button>
-              <button type="button" class="tag-suggestion" onclick="addCategory('Manufacturing')">Manufacturing</button>
-              <button type="button" class="tag-suggestion" onclick="addCategory('Hotels')">Hotels</button>
-              <button type="button" class="tag-suggestion"
-                onclick="addCategory('Telecommunications')">Telecommunications</button>
-              <button type="button" class="tag-suggestion"
-                onclick="addCategory('Government & Public Sector')">Government & Public Sector</button>
-              <button type="button" class="tag-suggestion" onclick="addCategory('Food & Beverage')">Food &
-                Beverage</button>
-            </div>
+            <div class="categories-dropdown" id="categories-dropdown" style="display: none;"></div>
           </div>
         </div>
 
