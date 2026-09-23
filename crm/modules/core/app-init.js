@@ -166,19 +166,35 @@ async function initApp() {
     try { window.initWorkflowEngine(); } catch (e) { console.error('[SafiTrack] Workflow engine init failed:', e); }
   }
 
-  // Identify if onboarding should be shown (new user or forced)
+  // Identify if onboarding should be shown (new user, invited user, or test mode)
   const hasCompletedTour = localStorage.getItem('safitrack_onboarding_completed');
 
-  // Initialize onboarding system
+  // Initialize modern onboarding system
   if (window.onboarding) {
-    window.onboarding.init(profile.role);
-    if (!hasCompletedTour) {
-      setTimeout(() => window.onboarding.start(), 2000);
+    const isManagerRole = state.isOrgOwner || profile.role === 'manager';
+    const effectiveRole = isManagerRole ? 'manager' : (profile.role || 'sales_rep');
+    window.onboarding.init(effectiveRole);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const testOnboarding = urlParams.get('onboarding') || urlParams.get('test_onboarding');
+
+    if (testOnboarding) {
+      let roleToTest = effectiveRole;
+      let modeToTest = 'full';
+      if (testOnboarding === 'manager') roleToTest = 'manager';
+      else if (testOnboarding === 'rep' || testOnboarding === 'sales_rep') roleToTest = 'sales_rep';
+      else if (testOnboarding === 'tech' || testOnboarding === 'technician') roleToTest = 'technician';
+      else if (testOnboarding === 'tour' || testOnboarding === 'card') modeToTest = 'tour';
+      else if (testOnboarding === 'invite' || testOnboarding === 'invites') modeToTest = 'invite';
+      else if (testOnboarding === 'interactive' || testOnboarding === 'walkthrough') modeToTest = 'interactive';
+
+      setTimeout(() => window.onboarding.start(roleToTest, { isTest: true, mode: modeToTest }), 800);
+    } else if (!hasCompletedTour) {
+      setTimeout(() => window.onboarding.start(effectiveRole), 1200);
     } else {
-      // If already done, try showing PWA prompt
       attemptShowPWABanner();
     }
-    // No onboarding module, show PWA prompt
+  } else {
     attemptShowPWABanner();
   }
 

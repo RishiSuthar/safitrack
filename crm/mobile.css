@@ -6497,40 +6497,68 @@
 }
 
 /* ──────────────────────────────────────────────────────────────
-   52. ONBOARDING BUBBLE — Mobile sizing
+   52. BLACK & WHITE ONBOARDING & CRM TOUR — Mobile adjustments
    ────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .onboarding-bubble {
-    width: min(88vw, 320px) !important;
-    padding: 1.125rem !important;
-    border-radius: var(--radius-xl) !important;
-    max-height: 50vh;
+  .safi-modal-overlay {
+    padding: 12px;
+  }
+
+  .safi-card-modal {
+    max-width: 100%;
+    max-height: 90vh;
     overflow-y: auto;
+    border-radius: 18px;
   }
 
-  .onboarding-bubble .ob-title-group {
-    gap: 0.5rem;
-    margin-bottom: 0.625rem;
+  .safi-card-media {
+    height: 190px;
   }
 
-  .onboarding-bubble .ob-icon {
+  .safi-card-content {
+    padding: 20px 18px 16px;
+  }
+
+  .safi-card-title {
     font-size: 1.25rem;
   }
 
-  .onboarding-bubble #ob-text {
-    font-size: 0.875rem;
-    line-height: 1.5;
+  .safi-card-text {
+    font-size: 0.85rem;
   }
 
-  .onboarding-bubble-footer {
+  .safi-invite-row {
+    grid-template-columns: 1fr 125px 32px;
+  }
+
+  .safi-invite-input {
+    font-size: 0.8rem;
+    padding: 8px 10px;
+  }
+
+  .safi-role-chip {
+    padding: 0 6px;
+    font-size: 0.72rem;
+    gap: 4px;
+    height: 34px;
+  }
+
+  .safi-crm-spotlight-card {
+    left: 12px !important;
+    right: 12px !important;
+    bottom: 74px !important;
+    top: auto !important;
+    width: calc(100vw - 24px) !important;
+    max-width: 100% !important;
+  }
+
+  .safi-tour-test-widget {
+    bottom: 74px;
+    left: 10px;
+    right: 10px;
+    border-radius: 12px;
     flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .onboarding-bubble-footer .btn {
-    min-height: 40px;
-    flex: 1;
-    justify-content: center;
+    padding: 8px 12px;
   }
 }
 
