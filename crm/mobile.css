@@ -558,7 +558,8 @@
   .pipeline-filters {
     flex-wrap: nowrap;
   }
-  .pipeline-add-btn {
+  .pipeline-add-btn,
+  .tasks-add-btn {
     width: 100%;
   }
   .pipeline-stage-header {
@@ -2819,7 +2820,8 @@
     min-width: 0;
   }
 
-  .pipeline-add-btn {
+  .pipeline-add-btn,
+  .tasks-add-btn {
     flex: 2;
     width: auto !important;
     min-width: 0;
@@ -4560,8 +4562,9 @@
     border-color: var(--color-primary);
   }
 
-  /* Add opportunity button */
-  .pipeline-add-btn {
+  /* Add opportunity & add task buttons */
+  .pipeline-add-btn,
+  .tasks-add-btn {
     width: 100%;
     height: 44px;
     border-radius: var(--radius-md);

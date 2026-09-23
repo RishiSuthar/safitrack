@@ -142,9 +142,8 @@ async function renderTasksView() {
 
           <button class="crm-filter-clear" id="task-filter-clear" style="display:none;">✕ Clear</button>
 
-          <button class="btn btn-primary tasks-add-btn" id="add-task-btn">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-            <span>New Task</span>
+          <button class="btn btn-primary pipeline-add-btn tasks-add-btn" id="add-task-btn">
+            <i data-lucide="plus" class="u-icon-16"></i> New Task
           </button>
         </div>
       </div>
@@ -218,6 +217,10 @@ async function renderTasksView() {
   `;
 
   viewContainer.innerHTML = html;
+
+  if (window.lucide) {
+    lucide.createIcons();
+  }
 
   // Initialize functionality
   initKanbanBoard(tasks, salesReps);

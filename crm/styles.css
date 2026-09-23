@@ -17282,14 +17282,8 @@ button svg {
 }
 
 .tasks-toolbar-right .tasks-add-btn {
-  height: 32px;
-  padding: 0 0.875rem;
-  font-size: 0.78rem;
-  font-weight: 600;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  border-radius: var(--radius-md);
+  margin-left: auto;
+  flex: 0 0 auto;
   white-space: nowrap;
 }
 
