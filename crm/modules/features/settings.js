@@ -83,11 +83,7 @@ async function renderSettingsView() {
           Billing
         </button>` : ''}
 
-        <div class="sv-nav-section-label" style="margin-top:24px;">Help &amp; Learning</div>
-        <button class="sv-nav-item sv-nav-action" id="sv-onboarding-tours-btn">
-          <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/><circle cx="12" cy="12" r="3"/></svg>
-          Onboarding Tours
-        </button>
+        <div class="sv-nav-section-label" style="margin-top:24px;">Help</div>
         <button class="sv-nav-item sv-nav-action" id="sv-whats-new-btn">
           <svg class="sv-nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
           What's New
@@ -581,29 +577,6 @@ async function renderSettingsView() {
               </div>
             </div>
 
-            <!-- Onboarding & Interactive Tours Card -->
-            <div class="sv-card" style="margin-top: 24px;">
-              <div class="sv-card-header">
-                <div>
-                  <h3 class="sv-card-title">Onboarding &amp; Interactive Tours</h3>
-                  <p class="sv-card-subtitle">Preview and test the user onboarding experiences for different roles without needing new accounts.</p>
-                </div>
-              </div>
-              <div class="sv-card-body" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
-                <button type="button" class="sv-secondary-btn" id="sv-test-manager-ob-btn" style="display: inline-flex; align-items: center; gap: 6px;">
-                  <i class="fas fa-user-shield" style="color: #3b82f6;"></i> Preview Manager Flow
-                </button>
-                <button type="button" class="sv-secondary-btn" id="sv-test-rep-ob-btn" style="display: inline-flex; align-items: center; gap: 6px;">
-                  <i class="fas fa-briefcase" style="color: #10b981;"></i> Preview Sales Rep Flow
-                </button>
-                <button type="button" class="sv-secondary-btn" id="sv-test-tech-ob-btn" style="display: inline-flex; align-items: center; gap: 6px;">
-                  <i class="fas fa-tools" style="color: #f59e0b;"></i> Preview Technician Flow
-                </button>
-                <button type="button" class="sv-ghost-btn" id="sv-reset-ob-flag-btn" style="color: #ef4444; font-size: 0.85rem; margin-left: auto;">
-                  <i class="fas fa-redo-alt"></i> Reset Status
-                </button>
-              </div>
-            </div>
           </div>
 
         </section>
@@ -2180,15 +2153,6 @@ async function renderSettingsView() {
   }
   document.querySelectorAll('.sv-nav-item').forEach(btn => btn.addEventListener('click', () => setActiveSection(btn.dataset.section)));
 
-  // "Onboarding Tours" button opens the Onboarding Preview & Testing Hub
-  document.getElementById('sv-onboarding-tours-btn')?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    if (window.onboarding?.openTestHub) {
-      window.onboarding.openTestHub();
-    } else if (window.onboarding?.start) {
-      window.onboarding.start(state.isManager ? 'manager' : (state.currentUserProfile?.role || 'sales_rep'), { isTest: true });
-    }
-  });
 
   // "What's New" button opens the changelog modal directly (no section switch)
   document.getElementById('sv-whats-new-btn')?.addEventListener('click', (e) => {
@@ -2988,19 +2952,6 @@ async function renderSettingsView() {
     }
   });
 
-  /* ─────────────── ONBOARDING PREVIEW BUTTONS ─────────────── */
-  document.getElementById('sv-test-manager-ob-btn')?.addEventListener('click', () => {
-    window.onboarding?.start('manager', { isTest: true });
-  });
-  document.getElementById('sv-test-rep-ob-btn')?.addEventListener('click', () => {
-    window.onboarding?.start('sales_rep', { isTest: true });
-  });
-  document.getElementById('sv-test-tech-ob-btn')?.addEventListener('click', () => {
-    window.onboarding?.start('technician', { isTest: true });
-  });
-  document.getElementById('sv-reset-ob-flag-btn')?.addEventListener('click', () => {
-    window.onboarding?.reset();
-  });
 
   /* ─────────────── CURRENCY AUTO-SAVE ─────────────── */
   document.getElementById('sv-currency-select')?.addEventListener('change', async () => {

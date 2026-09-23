@@ -11,7 +11,6 @@ class SafiOnboardingManager {
     this.currentView = null; // 'invite' | 'tour' | 'interactive'
     this.overlay = null;
     this.modalCard = null;
-    this.testWidget = null;
     this.spotlightCard = null;
     this.currentTargetEl = null;
     this.tourStepIndex = 0;
@@ -149,10 +148,6 @@ class SafiOnboardingManager {
 
     this.ensureOverlayDom();
 
-    if (this.isTest) {
-      this.renderTestWidget();
-    }
-
     if (!this.isTest) {
       localStorage.setItem('safitrack_onboarding_completed', 'true');
     }
@@ -189,9 +184,6 @@ class SafiOnboardingManager {
     }
   }
 
-  openTestHub() {
-    this.start('manager', { isTest: true });
-  }
 
   reset() {
     localStorage.removeItem('safitrack_onboarding_completed');
@@ -241,10 +233,6 @@ class SafiOnboardingManager {
     this.isActive = false;
     this.closeOverlay();
     this.stopInteractiveTour();
-    if (this.testWidget && !this.isTest) {
-      this.testWidget.remove();
-      this.testWidget = null;
-    }
   }
 
   // ═════════════════════════════════════════════════════════════════════════
@@ -1032,62 +1020,6 @@ class SafiOnboardingManager {
     }
   }
 
-  // ═════════════════════════════════════════════════════════════════════════
-  // DISCREET TESTING CONTROLLER (With Plan Limit Simulation Buttons)
-  // ═════════════════════════════════════════════════════════════════════════
-  renderTestWidget() {
-    if (this.testWidget) return;
-
-    this.testWidget = document.createElement('div');
-    this.testWidget.className = 'safi-tour-test-widget';
-    this.testWidget.id = 'safi-tour-test-widget';
-
-    this.testWidget.innerHTML = `
-      <span style="font-weight: 700; font-size: 0.68rem; letter-spacing: 0.05em; opacity: 0.8;">TOUR DEV:</span>
-      <button type="button" class="safi-tour-test-btn" data-test="manager" title="Manager Full Flow">Manager</button>
-      <button type="button" class="safi-tour-test-btn" data-test="rep" title="Sales Rep Flow">Sales Rep</button>
-      <button type="button" class="safi-tour-test-btn" data-test="tech" title="Technician Flow">Technician</button>
-      <button type="button" class="safi-tour-test-btn" data-test="tour" title="Direct GIF Tour Card">GIF Card</button>
-      <button type="button" class="safi-tour-test-btn" data-test="interactive" title="Direct CRM Spotlight Tour">Interactive Tour</button>
-      <span style="opacity:0.35;margin:0 1px;">|</span>
-      <span style="font-size:0.68rem;opacity:0.75;">Plan:</span>
-      <button type="button" class="safi-tour-test-btn" data-plan="2" title="Simulate Free Plan (2 seats total)">Free (2)</button>
-      <button type="button" class="safi-tour-test-btn" data-plan="20" title="Simulate Core Plan (20 seats total)">Core (20)</button>
-      <button type="button" class="safi-tour-test-btn" data-plan="999" title="Simulate Pro Plan (unlimited)">Pro (∞)</button>
-      <span style="opacity:0.35;margin:0 1px;">|</span>
-      <button type="button" class="safi-tour-test-btn" data-test="reset" title="Clear LocalStorage State">Reset</button>
-      <button type="button" class="safi-tour-test-btn" id="safi-test-widget-close" style="opacity: 0.6; padding: 2px 5px;" title="Close Widget">×</button>
-    `;
-
-    document.body.appendChild(this.testWidget);
-
-    this.testWidget.querySelectorAll('.safi-tour-test-btn[data-test]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const scenario = e.target.getAttribute('data-test');
-        if (scenario === 'reset') {
-          this.reset();
-        } else {
-          this.test(scenario);
-        }
-      });
-    });
-
-    this.testWidget.querySelectorAll('.safi-tour-test-btn[data-plan]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        const seats = parseInt(e.target.getAttribute('data-plan'), 10);
-        this.setPlan(seats);
-        if (window.showToast) {
-          const name = seats <= 2 ? 'Free Plan (max 2 members)' : seats <= 20 ? 'Core Plan (max 20 members)' : 'Pro Plan (Unlimited)';
-          window.showToast(`[Dev Mode] Switched to ${name}`, 'info');
-        }
-      });
-    });
-
-    this.testWidget.querySelector('#safi-test-widget-close')?.addEventListener('click', () => {
-      this.testWidget.remove();
-      this.testWidget = null;
-    });
-  }
 
   // ── Global Event Handlers ────────────────────────────────────────────────
   handleResize() {

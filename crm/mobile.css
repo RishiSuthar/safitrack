@@ -6551,15 +6551,6 @@
     width: calc(100vw - 24px) !important;
     max-width: 100% !important;
   }
-
-  .safi-tour-test-widget {
-    bottom: 74px;
-    left: 10px;
-    right: 10px;
-    border-radius: 12px;
-    flex-wrap: wrap;
-    padding: 8px 12px;
-  }
 }
 
 /* ──────────────────────────────────────────────────────────────

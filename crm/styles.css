@@ -19200,57 +19200,6 @@ button svg {
   box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.2) !important;
 }
 
-/* ── Discreet Testing Controller Pill ────────────────────────────── */
-.safi-tour-test-widget {
-  position: fixed;
-  bottom: 20px;
-  left: 20px;
-  z-index: 10080;
-  background: #09090b;
-  color: #ffffff;
-  border-radius: 999px;
-  padding: 6px 14px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  user-select: none;
-}
-
-[data-theme="dark"] .safi-tour-test-widget {
-  background: #ffffff;
-  color: #09090b;
-  border-color: rgba(0, 0, 0, 0.15);
-}
-
-.safi-tour-test-btn {
-  background: rgba(255, 255, 255, 0.15);
-  border: none;
-  color: inherit;
-  padding: 2px 7px;
-  border-radius: 4px;
-  font-size: 0.72rem;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-[data-theme="dark"] .safi-tour-test-btn {
-  background: rgba(0, 0, 0, 0.08);
-}
-
-.safi-tour-test-btn.active {
-  background: #ffffff;
-  color: #09090b;
-}
-
-[data-theme="dark"] .safi-tour-test-btn.active {
-  background: #09090b;
-  color: #ffffff;
-}
-
 @media (max-width: 600px) {
   .safi-card-modal {
     border-radius: 16px;

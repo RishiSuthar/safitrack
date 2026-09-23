@@ -200,25 +200,10 @@ function initEventListeners() {
 
   // Command palette keyboard shortcuts are now handled in command-palette.js module
 
-  // Help Guide & Onboarding Hub
+  // Help Guide
   document.getElementById('help-guide-btn')?.addEventListener('click', () => {
     userMenu?.classList.remove('active');
-    if (window.onboarding) {
-      if (window.onboarding.openTestHub) {
-        window.onboarding.openTestHub();
-      } else {
-        window.onboarding.start();
-      }
-    }
-  });
-
-  document.getElementById('preview-onboarding-btn')?.addEventListener('click', () => {
-    userMenu?.classList.remove('active');
-    if (window.onboarding?.openTestHub) {
-      window.onboarding.openTestHub();
-    } else if (window.onboarding?.start) {
-      window.onboarding.start(state.isManager ? 'manager' : (state.currentUserProfile?.role || 'sales_rep'), { isTest: true });
-    }
+    if (window.onboarding) window.onboarding.start();
   });
 
   // Settings
