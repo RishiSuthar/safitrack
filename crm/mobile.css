@@ -4709,13 +4709,7 @@
   }
 
   .opportunity-card.readonly {
-    cursor: default;
-    opacity: 0.8;
-    border-color: #cfd6e1;
-  }
-
-  [data-theme="dark"] .opportunity-card.readonly {
-    border-color: #3a4352;
+    cursor: pointer;
   }
 
   /* Opportunity card header - company info */

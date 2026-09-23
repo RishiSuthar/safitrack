@@ -251,6 +251,13 @@ async function renderOpportunityPipelineView() {
     }
   });
 
+  // Sort opportunities so the most recently updated or moved ones appear at the top of their stage column
+  opportunities.sort((a, b) => {
+    const aTime = new Date(a.updated_at || a.created_at || 0).getTime();
+    const bTime = new Date(b.updated_at || b.created_at || 0).getTime();
+    return bTime - aTime;
+  });
+
   // Group opportunities by stage in a single pass to avoid repeated array scans.
   const opportunitiesByStage = {};
   pipelineStages.forEach(stage => {
@@ -433,7 +440,7 @@ async function renderOpportunityPipelineView() {
 
       // Get user info from joined data
       const user = opp.profiles;
-      const ownerName = user ? `${user.first_name} ${user.last_name}` : 'Unknown';
+      const ownerName = user ? [user.first_name, user.last_name].filter(Boolean).join(' ') || 'Teammate' : 'Unassigned';
 
       // Resolve company object from global cache if available (robust/fuzzy matching)
       const companyObj = findCompanyForOpportunityFast(opp, companyLookup);
@@ -483,7 +490,7 @@ async function renderOpportunityPipelineView() {
       }
 
       const cardHtml = `
-        <div class="opportunity-card ${!isOwnOpportunity ? 'readonly' : ''}"
+        <div class="opportunity-card ${isOwnOpportunity ? 'is-mine' : 'readonly'}"
           data-id="${opp.id}"
           data-company-name="${escapeHtml(opp.company_name || '')}"
           data-user-id="${opp.user_id}"
@@ -491,8 +498,10 @@ async function renderOpportunityPipelineView() {
           data-value="${parseFloat(opp.value || 0)}"
           data-probability="${parseInt(opp.probability || 0, 10)}"
           data-created-ts="${new Date(opp.created_at).getTime() || 0}"
+          data-updated-ts="${new Date(opp.updated_at || opp.created_at).getTime() || 0}"
           data-next-step-ts="${opp.next_step_date ? new Date(opp.next_step_date).getTime() : ''}"
-          draggable="${isOwnOpportunity}">
+          draggable="${isOwnOpportunity}"
+          title="${!isOwnOpportunity ? 'Click to view details (managed by ' + escapeHtml(ownerName) + ')' : 'Click to view details or drag to move'}">
 
           <div class="opp-card-header">
             <div class="opp-company-row">
@@ -519,12 +528,6 @@ async function renderOpportunityPipelineView() {
 
           <div class="opp-chip-row">
             <span class="opp-chip opp-chip-subsector">Subsector: ${escapeHtml(subsectorLabel)}</span>
-            ${state.isManager && user ? `
-              <span class="opp-owner-chip">
-                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                ${escapeHtml(ownerName)}
-              </span>
-            ` : ''}
           </div>
 
           <div class="opp-metrics-grid">
@@ -567,13 +570,13 @@ async function renderOpportunityPipelineView() {
             // Build full team: owner first, then assignees (excluding owner if also tagged)
             const ownerProfile = opp.profiles;
             const ownerEntry = ownerProfile
-              ? [{ user_id: opp.user_id, name: `${ownerProfile.first_name} ${ownerProfile.last_name}`, avatar_url: ownerProfile.avatar_url }]
+              ? [{ user_id: opp.user_id, name: [ownerProfile.first_name, ownerProfile.last_name].filter(Boolean).join(' ') || 'Owner', avatar_url: ownerProfile.avatar_url }]
               : [];
             const assigneeEntries = (opp.assignees || [])
               .filter(a => a.user_id !== opp.user_id)
               .map(a => {
                 const p = a.profiles;
-                return { user_id: a.user_id, name: p ? `${p.first_name} ${p.last_name}` : 'Member', avatar_url: p?.avatar_url };
+                return { user_id: a.user_id, name: p ? ([p.first_name, p.last_name].filter(Boolean).join(' ') || 'Member') : 'Member', avatar_url: p?.avatar_url };
               });
             const team = [...ownerEntry, ...assigneeEntries];
             if (team.length === 0) return '';
@@ -600,10 +603,10 @@ async function renderOpportunityPipelineView() {
             <span class="opp-created-date">${formatDate(opp.created_at)}</span>
             <div class="opp-actions-group">
               ${isOwnOpportunity ? `
-                <button class="opportunity-action-btn edit-opportunity" data-id="${opp.id}" title="Edit">
+                <button class="opportunity-action-btn edit-opportunity" data-id="${opp.id}" title="Edit deal">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
                 </button>
-                <button class="opportunity-action-btn delete-opportunity" data-id="${opp.id}" title="Delete">
+                <button class="opportunity-action-btn delete-opportunity" data-id="${opp.id}" title="Delete deal">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
                 </button>
               ` : `
@@ -925,11 +928,28 @@ function initPipelineDragAndDrop(opportunities) {
       onEnd: function (evt) {
         document.body.classList.remove('is-dragging');
         evt.item.classList.remove('dragging');
+        // If moved to a different tab/stage, ensure it stays at the top
+        if (evt.to && evt.from && evt.to !== evt.from && evt.item) {
+          evt.item.style.transform = '';
+          evt.to.prepend(evt.item);
+        }
       },
       onAdd: async function (evt) {
         const opportunityId = evt.item.dataset.id;
         const newStage = evt.to.closest('.pipeline-stage').dataset.stage;
         const oldStage = evt.from.closest('.pipeline-stage').dataset.stage;
+
+        // Ensure moved card goes directly to the top of the destination tab/stage column
+        if (evt.to && evt.item) {
+          evt.item.style.transform = '';
+          evt.to.prepend(evt.item);
+          evt.item.dataset.updatedTs = String(Date.now());
+          requestAnimationFrame(() => {
+            if (evt.to && evt.item && evt.to.firstElementChild !== evt.item) {
+              evt.to.prepend(evt.item);
+            }
+          });
+        }
 
         // Only update if stage changed
         if (newStage !== oldStage) {
@@ -1116,7 +1136,9 @@ function initPipelineFilters(opportunities) {
     if (sort === 'value-asc') return aValue - bValue;
     if (sort === 'probability-desc') return bProb - aProb;
     if (sort === 'next-step') return aNext - bNext;
-    return bCreated - aCreated;
+    const aActivity = Number(a.dataset.updatedTs || aCreated);
+    const bActivity = Number(b.dataset.updatedTs || bCreated);
+    return bActivity - aActivity;
   };
 
   const applyPipelineControls = () => {
@@ -1995,6 +2017,7 @@ function initOpportunityModalListeners(opportunity) {
         notes: notes || null,
         competitors: competitors.length > 0 ? JSON.stringify(competitors) : null,
         mentioned_people: state.mentionedPeople,
+        updated_at: new Date().toISOString(),
       };
 
       let result;
