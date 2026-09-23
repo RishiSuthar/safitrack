@@ -2500,7 +2500,7 @@ async function renderSettingsView() {
       overlay.style.cssText = `
         position:fixed;inset:0;z-index:9999;
         display:flex;align-items:center;justify-content:center;
-        background:rgba(0,0,0,0.55);backdrop-filter:blur(3px);
+        background:rgba(0,0,0,0.04);backdrop-filter:none;-webkit-backdrop-filter:none;
         padding:16px;box-sizing:border-box;
       `;
 

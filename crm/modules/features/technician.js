@@ -2067,8 +2067,8 @@ function renderDenialModal(reportId, type = 'UPS') {
     : null; // CUSTOM forms don't have predefined steps
 
   const modalHTML = `
-    <div class="ups-modal-overlay" id="ups-denial-modal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); display:flex; align-items:center; justify-content:center; z-index:9999; padding:16px;">
-      <div class="ups-modal-content" style="width:100%; max-width:500px; padding:24px; border-radius:12px; background:var(--bg-primary); color:var(--text-primary); box-shadow:0 10px 40px rgba(0,0,0,0.2);">
+    <div class="ups-modal-overlay" id="ups-denial-modal" style="position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.04); display:flex; align-items:center; justify-content:center; z-index:9999; padding:16px;">
+      <div class="ups-modal-content" style="width:100%; max-width:500px; padding:24px; border-radius:14px; background:var(--bg-primary); color:var(--text-primary); border:1px solid var(--border-color); box-shadow:0 24px 64px -12px rgba(0,0,0,0.22);">
         <h2 style="margin-top:0; margin-bottom:16px; font-size:20px;">Deny Report</h2>
         <p style="margin-bottom:16px; color:var(--text-muted); font-size:14px;">Provide a reason for the technician${stepNames ? ' and select the sections that need correction' : ''}.</p>
         

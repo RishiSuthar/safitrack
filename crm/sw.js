@@ -1,4 +1,4 @@
-const CACHE_NAME = 'safitrack-crm-v9';
+const CACHE_NAME = 'safitrack-crm-v10';
 const ASSETS = [
     '/crm/',
     '/crm/index.html',

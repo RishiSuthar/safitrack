@@ -6605,7 +6605,9 @@ select {
 .qa-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.18);
+  background: rgba(0, 0, 0, 0.04);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .qa-container {
@@ -6811,7 +6813,9 @@ select {
 .sr-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.18);
+  background: rgba(0, 0, 0, 0.04);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 .sr-container {
@@ -7178,7 +7182,9 @@ select {
 .modal-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
+  background: rgba(0, 0, 0, 0.04);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   animation: backdrop-fade-in var(--transition-slow) ease;
 }
 
@@ -7201,7 +7207,7 @@ select {
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   overflow: hidden;
   animation: modal-slide-up 0.3s var(--motion-ease-emphasized);
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.06);
   border: 1px solid var(--border-color);
 }
 
@@ -7892,7 +7898,11 @@ select {
   max-width: min(560px, 94vw) !important;
   border-radius: var(--radius-xl);
   border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-xl);
+  box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+
+[data-theme="dark"] :is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .modal-container {
+  box-shadow: 0 28px 70px -12px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
 :is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .modal-header {
@@ -8198,8 +8208,7 @@ select {
   bottom: 0;
   z-index: 2;
   padding: 0.9rem 1.5rem;
-  background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
-  backdrop-filter: blur(10px);
+  background: var(--bg-primary);
   border-top: 1px solid var(--border-color);
 }
 
@@ -8593,8 +8602,7 @@ select {
   bottom: 0;
   z-index: 2;
   padding: 0.9rem 1.5rem;
-  background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
-  backdrop-filter: blur(10px);
+  background: var(--bg-primary);
   border-top: 1px solid var(--border-color);
 }
 
@@ -12366,7 +12374,9 @@ body.is-dragging * {
 
 /* Backdrop: soften so dialog reads as primary focus */
 #safifind-modal .modal-backdrop {
-  background: rgba(15, 20, 30, 0.35);
+  background: rgba(0, 0, 0, 0.04);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* Container: centered on wide screens, keeps bottom-sheet feel on small */
@@ -15283,7 +15293,9 @@ button svg {
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.04);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -21972,7 +21984,9 @@ button svg {
 .visit-detail-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.04);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   z-index: calc(var(--z-modal) - 1);
   opacity: 0;
   visibility: hidden;
@@ -24694,8 +24708,9 @@ button svg {
 .wf-panel-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.3);
-  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.04);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   z-index: var(--z-modal-backdrop);
   opacity: 0;
   transition: opacity var(--transition-slow);
@@ -27112,9 +27127,9 @@ textarea.ups-input {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.04);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
   padding: 16px;
   opacity: 0;
   transition: opacity 0.25s ease;
