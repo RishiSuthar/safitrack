@@ -206,10 +206,20 @@ function renderHeader(m) {
     <header class="db-head sf-head">
       <div class="db-head-actions">
         ${state.isManager && reps.length ? `
-          <select class="sf-select" data-owner aria-label="Deal owner">
-            <option value="all">All reps</option>
-            ${reps.map((p) => `<option value="${esc(p.id)}"${p.id === ui.owner ? ' selected' : ''}>${esc(fullName(p))}</option>`).join('')}
-          </select>` : ''}
+          <div class="sf-owner" data-owner>
+            ${window.buildCrmDropdown({
+              id: 'sf-owner-filter',
+              variant: 'filter',
+              className: 'crm-dd--right',
+              value: ui.owner,
+              searchable: reps.length > 8,
+              searchPlaceholder: 'Search reps...',
+              options: [
+                { value: 'all', label: 'All reps' },
+                ...reps.map((p) => ({ value: p.id, label: fullName(p) })),
+              ],
+            })}
+          </div>` : ''}
         <div class="db-seg" role="group" aria-label="Deals created in">
           ${PERIODS.map((p) => `<button type="button" class="db-seg-btn${p.key === m.period.key ? ' is-active' : ''}" data-period="${p.key}" aria-pressed="${p.key === m.period.key}" title="Deals created in ${p.name}">${p.label}</button>`).join('')}
         </div>
@@ -477,11 +487,15 @@ function bindEvents(root) {
     if (nav) navigateView(nav.dataset.nav);
   });
 
+  // The site dropdown fires 'change' on its hidden input.
   root.addEventListener('change', (e) => {
-    if (!e.target.matches('[data-owner]')) return;
-    ui.owner = e.target.value;
-    mount(root);
-    root.querySelector('[data-owner]')?.focus();
+    if (!e.target.closest('[data-owner]')) return;
+    ui.owner = e.target.value || 'all';
+    // Let the dropdown finish closing before the header is re-rendered.
+    setTimeout(() => {
+      mount(root);
+      root.querySelector('[data-owner] .crm-dd-trigger')?.focus();
+    });
   });
 }
 

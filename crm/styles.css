@@ -18189,24 +18189,17 @@ button svg {
   justify-content: flex-end;
   margin-bottom: 16px;
 }
-.sf-select {
+.sf-owner { display: flex; }
+/* Match the period switch next to it */
+.sf-owner .crm-dd--filter .crm-dd-trigger {
   height: 32px;
-  max-width: 200px;
-  padding: 0 30px 0 10px;
-  border: 1px solid var(--border-color);
+  min-width: 160px;
+  max-width: 220px;
   border-radius: 8px;
-  background: var(--bg-secondary) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236e7681' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
-  appearance: none;
-  font: inherit;
   font-size: var(--type-xs);
   font-weight: 600;
   color: var(--text-primary);
-  text-overflow: ellipsis;
-  cursor: pointer;
-  transition: border-color var(--transition-fast);
 }
-.sf-select:hover { border-color: color-mix(in srgb, var(--border-color) 55%, var(--text-muted)); }
-.sf-select:focus-visible { outline: 2px solid var(--color-primary); outline-offset: -1px; }
 
 /* ── KPI strip ── */
 .sf-kpis {
@@ -18387,7 +18380,8 @@ button svg {
     flex-direction: column;
     align-items: stretch;
   }
-  .sf-select { max-width: none; }
+  .sf-owner .crm-dd,
+  .sf-owner .crm-dd--filter .crm-dd-trigger { width: 100%; max-width: none; }
   .sf-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-bottom: 12px; }
   .sf-kpi { padding: 12px 14px; }
   .sf-kpi:nth-child(2n) { border-right: 0; }
