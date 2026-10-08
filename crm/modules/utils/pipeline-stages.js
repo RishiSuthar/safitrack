@@ -4,7 +4,7 @@
 export const DEFAULT_SALES_STAGES = [
   { id: 'prospecting', title: 'Lead', color: '#3b82f6' },
   { id: 'qualification', title: 'In Progress', color: '#ec4899' },
-  { id: 'closed-won', title: 'Won 🎉', color: '#10b981' },
+  { id: 'closed-won', title: 'Won', color: '#10b981' },
   { id: 'closed-lost', title: 'Lost', color: '#ef4444' },
 ];
 
