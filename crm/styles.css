@@ -10578,53 +10578,6 @@ select {
   color: var(--text-muted);
 }
 
-/* Totals row above the board */
-.pipeline-totals {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 0.75rem;
-  margin: 0.25rem 0 1rem;
-}
-
-.pipeline-total {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  min-width: 0;
-  padding: 0.7rem 0.85rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-}
-
-[data-theme="dark"] .pipeline-total {
-  background: #161b22;
-  border-color: #2d343e;
-}
-
-.pipeline-total-label {
-  font-size: 0.68rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-}
-
-.pipeline-total-value {
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.pipeline-total-sub {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
 .pipeline-stages {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

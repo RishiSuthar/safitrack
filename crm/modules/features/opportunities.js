@@ -618,10 +618,6 @@ async function renderOpportunityPipelineView({ preserveView = false } = {}) {
     { value: 'next-step', label: 'Sort: Next Step Due' },
   ];
 
-  const closedRangeLabel = closedRange === 'recent' ? `last ${CLOSED_RECENT_DAYS} days` : 'all time';
-  const wonStage = pipelineStages.find(s => getStageOutcome(s.id) === 'won');
-  const lostStage = pipelineStages.find(s => getStageOutcome(s.id) === 'lost');
-
   let html = `
     <div class="pipeline-toolbar" style="flex-direction: column; align-items: stretch; gap: 8px;">
 
@@ -689,33 +685,6 @@ async function renderOpportunityPipelineView({ preserveView = false } = {}) {
           <button class="crm-filter-clear" id="pipeline-reset-controls" style="display:none;">✕ Clear</button>
         </div>
       </div>
-    </div>
-
-    <div class="pipeline-totals" id="pipeline-totals">
-      <div class="pipeline-total">
-        <span class="pipeline-total-label">Open pipeline</span>
-        <span class="pipeline-total-value" data-total="open-value"></span>
-        <span class="pipeline-total-sub" data-total="open-count"></span>
-      </div>
-      <div class="pipeline-total">
-        <span class="pipeline-total-label">Weighted forecast</span>
-        <span class="pipeline-total-value" data-total="weighted"></span>
-        <span class="pipeline-total-sub">Open value × win chance</span>
-      </div>
-      ${wonStage ? `
-        <div class="pipeline-total">
-          <span class="pipeline-total-label">Won</span>
-          <span class="pipeline-total-value" data-total="won-value"></span>
-          <span class="pipeline-total-sub" data-total="won-count" data-range="${escapeHtml(closedRangeLabel)}"></span>
-        </div>
-      ` : ''}
-      ${wonStage && lostStage ? `
-        <div class="pipeline-total">
-          <span class="pipeline-total-label">Win rate</span>
-          <span class="pipeline-total-value" data-total="win-rate"></span>
-          <span class="pipeline-total-sub" data-total="win-rate-sub"></span>
-        </div>
-      ` : ''}
     </div>
 
     <div class="pipeline-stages">
@@ -1056,54 +1025,6 @@ function updatePipelineStageCounts() {
     if (weightedEl) weightedEl.textContent = isOpenStage && deals.length > 0 ? `${formatMoney(weighted)} weighted` : '';
     stageEl.classList.toggle('is-empty', deals.length === 0);
   });
-
-  updatePipelineSummary();
-}
-
-/** Fill the totals row above the board from the deals currently shown. */
-function updatePipelineSummary() {
-  const totalsEl = document.getElementById('pipeline-totals');
-  if (!totalsEl) return;
-
-  let openCount = 0;
-  let openValue = 0;
-  let weighted = 0;
-  let wonCount = 0;
-  let wonValue = 0;
-  let lostCount = 0;
-
-  document.querySelectorAll('.pipeline-stage').forEach(stageEl => {
-    const outcome = getStageOutcome(stageEl.dataset.stage);
-    getStageDeals(stageEl).forEach(opp => {
-      const value = dealValue(opp);
-      if (outcome === 'won') {
-        wonCount++;
-        wonValue += value;
-      } else if (outcome === 'lost') {
-        lostCount++;
-      } else {
-        openCount++;
-        openValue += value;
-        weighted += value * dealProbability(opp) / 100;
-      }
-    });
-  });
-
-  const set = (key, text) => {
-    const el = totalsEl.querySelector(`[data-total="${key}"]`);
-    if (el) el.textContent = text;
-  };
-  const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
-  const closedCount = wonCount + lostCount;
-  const range = totalsEl.querySelector('[data-total="won-count"]')?.dataset.range || '';
-
-  set('open-value', formatMoney(openValue));
-  set('open-count', plural(openCount, 'open deal'));
-  set('weighted', formatMoney(weighted));
-  set('won-value', formatMoney(wonValue));
-  set('won-count', `${plural(wonCount, 'deal')} · ${range}`);
-  set('win-rate', closedCount > 0 ? `${Math.round((wonCount / closedCount) * 100)}%` : '—');
-  set('win-rate-sub', closedCount > 0 ? `${wonCount} of ${plural(closedCount, 'closed deal')}` : 'No closed deals yet');
 }
 
 function initPipelineFilters() {
@@ -2809,7 +2730,6 @@ export {
   initOpportunityEventListeners,
   initPipelineDragAndDrop,
   updatePipelineStageCounts,
-  updatePipelineSummary,
   initPipelineFilters,
   openOpportunityModal,
   openOpportunityViewModal,

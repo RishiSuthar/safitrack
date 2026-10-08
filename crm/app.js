@@ -190,7 +190,6 @@ window.updateOpportunityLogosAsync = lazyLoad('./modules/features/opportunities.
 window.initOpportunityEventListeners = lazyLoad('./modules/features/opportunities.js', 'initOpportunityEventListeners');
 window.initPipelineDragAndDrop = lazyLoad('./modules/features/opportunities.js', 'initPipelineDragAndDrop');
 window.updatePipelineStageCounts = lazyLoad('./modules/features/opportunities.js', 'updatePipelineStageCounts');
-window.updatePipelineSummary = lazyLoad('./modules/features/opportunities.js', 'updatePipelineSummary');
 window.initPipelineFilters = lazyLoad('./modules/features/opportunities.js', 'initPipelineFilters');
 window.openOpportunityModal = lazyLoad('./modules/features/opportunities.js', 'openOpportunityModal');
 window.openOpportunityViewModal = lazyLoad('./modules/features/opportunities.js', 'openOpportunityViewModal');
