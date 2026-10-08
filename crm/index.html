@@ -1549,20 +1549,20 @@
       <!-- Stats Bar -->
       <div class="record-stats-bar" id="opportunity-view-stats">
         <div class="record-stat-item">
-          <div class="record-stat-value record-stat-value--primary" id="opportunity-view-value">—</div>
-          <div class="record-stat-label">Deal Value</div>
+          <div class="record-stat-value" id="opportunity-view-value">—</div>
+          <div class="record-stat-label">Value</div>
         </div>
-        <div class="record-stat-item">
+        <div class="record-stat-item opp-view-open-stat">
           <div class="record-stat-value" id="opportunity-view-probability">—</div>
-          <div class="record-stat-label">Win Probability</div>
+          <div class="record-stat-label">Win chance</div>
         </div>
-        <div class="record-stat-item">
+        <div class="record-stat-item opp-view-open-stat">
           <div class="record-stat-value" id="opportunity-view-weighted">—</div>
-          <div class="record-stat-label">Expected Value</div>
+          <div class="record-stat-label">Weighted value</div>
         </div>
         <div class="record-stat-item">
           <div class="record-stat-value" id="opportunity-view-stage-age">—</div>
-          <div class="record-stat-label">Pipeline Age</div>
+          <div class="record-stat-label">In this stage</div>
         </div>
       </div>
 
@@ -1589,9 +1589,9 @@
           <div class="record-tab-panels">
             <!-- Tab 1: Overview & Notes -->
             <div id="opp-panel-overview" class="record-tab-panel">
-              <div class="ov-next-step-box" style="margin-bottom: 16px;">
+              <div class="ov-next-step-box" id="opportunity-view-next-step-box" style="margin-bottom: 16px;">
                 <div class="ov-next-step-header">
-                  <span class="ov-next-step-label">NEXT STEP / ACTION ITEM</span>
+                  <span class="ov-next-step-label">Next step</span>
                   <span class="ov-next-step-date" id="opportunity-view-next-step-date">No due date</span>
                 </div>
                 <div class="ov-next-step-content" id="opportunity-view-next-step">No next step scheduled</div>
@@ -1614,24 +1614,10 @@
           <div class="record-sidebar-section">
             <div class="record-sidebar-title">Deal Details</div>
             <div class="record-field-card">
-              <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/></svg></div>
-              <div class="rfc-body">
-                <div class="rfc-label">Company</div>
-                <div class="rfc-value" id="opportunity-sidebar-company">—</div>
-              </div>
-            </div>
-            <div class="record-field-card">
               <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg></div>
               <div class="rfc-body">
-                <div class="rfc-label">Primary Contact</div>
+                <div class="rfc-label">Primary contact</div>
                 <div class="rfc-value" id="opportunity-sidebar-contact">—</div>
-              </div>
-            </div>
-            <div class="record-field-card">
-              <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-              <div class="rfc-body">
-                <div class="rfc-label">In Current Stage</div>
-                <div class="rfc-value" id="opportunity-sidebar-stage-age">—</div>
               </div>
             </div>
             <div class="record-field-card">
@@ -1651,15 +1637,11 @@
           <div class="record-sidebar-section">
             <div class="record-sidebar-title">Record Info</div>
             <div class="ov-meta-item">
-              <span class="ov-meta-label">Org ID</span>
-              <span class="ov-meta-value rfc-mono" id="opportunity-view-org-id">—</span>
-            </div>
-            <div class="ov-meta-item">
               <span class="ov-meta-label">Created</span>
               <span class="ov-meta-value" id="opportunity-view-created">—</span>
             </div>
             <div class="ov-meta-item">
-              <span class="ov-meta-label">Last Modified</span>
+              <span class="ov-meta-label">Last updated</span>
               <span class="ov-meta-value" id="opportunity-view-updated">—</span>
             </div>
           </div>

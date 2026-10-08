@@ -23082,6 +23082,192 @@ button svg {
   border: 1px solid var(--border-color);
 }
 
+/* ── Opportunity view: quieter header, stats and next step ───────── */
+/* Scoped by id: the record-* classes are shared with other record views. */
+#opportunity-view-modal .record-hero-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 11px;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+[data-theme="dark"] #opportunity-view-modal .record-hero-avatar {
+  background: #2a303a;
+}
+
+#opportunity-view-modal .record-hero-avatar .opp-avatar-initials {
+  font-size: inherit;
+}
+
+#opportunity-view-modal .record-hero-avatar img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  background: #ffffff;
+}
+
+#opportunity-view-modal .record-hero-name {
+  font-size: 1.3rem;
+  font-weight: 700;
+  max-width: 100%;
+}
+
+#opportunity-view-modal .record-hero-type-badge {
+  gap: 6px;
+  padding: 2px 9px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border-color: var(--border-color);
+}
+
+#opportunity-view-modal .record-hero-type-badge::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--stage-color, var(--text-muted));
+}
+
+#opportunity-view-modal .record-hero-domain a {
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  pointer-events: none;
+}
+
+#opportunity-view-modal .record-hero-domain {
+  min-width: 0;
+  max-width: 100%;
+}
+
+#opportunity-view-modal .record-hero-domain a {
+  max-width: 100%;
+}
+
+#opportunity-view-modal #opportunity-view-company-name {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#opportunity-view-modal .record-hero-domain a.is-link {
+  color: var(--color-primary);
+  pointer-events: auto;
+}
+
+#opportunity-view-modal .record-hero-domain a:hover {
+  background: none;
+  transform: none;
+  text-decoration: underline;
+}
+
+#opportunity-view-modal .record-stat-item {
+  align-items: flex-start;
+  padding: 12px 20px;
+}
+
+#opportunity-view-modal .record-stat-item:hover {
+  background: var(--bg-primary);
+}
+
+#opportunity-view-modal .record-stat-item[hidden] {
+  display: none;
+}
+
+#opportunity-view-modal .record-stat-label {
+  order: -1;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+#opportunity-view-modal .record-stat-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+#opportunity-view-modal .record-stat-value.is-stale {
+  color: var(--color-warning);
+}
+
+#opportunity-view-modal .ov-next-step-box {
+  background: var(--bg-primary);
+  border-color: var(--border-color);
+}
+
+#opportunity-view-modal .ov-next-step-header {
+  align-items: baseline;
+}
+
+#opportunity-view-modal .ov-next-step-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+#opportunity-view-modal .ov-next-step-date {
+  padding: 0;
+  background: none;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+#opportunity-view-modal .ov-next-step-box.is-due-today .ov-next-step-date {
+  color: var(--color-warning);
+  font-weight: 600;
+}
+
+#opportunity-view-modal .ov-next-step-box.is-overdue .ov-next-step-date {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+#opportunity-view-modal .ov-next-step-box.is-empty .ov-next-step-content {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.opp-view-link {
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.opp-view-link:hover {
+  text-decoration: underline;
+}
+
+.opp-view-empty {
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  #opportunity-view-modal .record-hero-name {
+    font-size: 1.15rem;
+  }
+
+  #opportunity-view-modal .record-stat-item {
+    padding: 10px 16px;
+  }
+}
+
 .ov-competitors-list {
   display: flex;
   flex-wrap: wrap;

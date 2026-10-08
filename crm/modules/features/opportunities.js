@@ -1321,111 +1321,76 @@ function openOpportunityViewModal(opportunity) {
   const companyObj = findCompanyForOpportunity(opportunity);
   const isCrmCompany = Boolean(companyObj && companyObj.id);
 
-  // Hero info
-  const titleEl = document.getElementById('opportunity-view-title');
+  const viewPipeline = getCachedActivePipeline();
+  const pipelineStages = getPipelineStages(viewPipeline);
+  const stageId = opportunity.mappedStage || resolveStageId(opportunity.stage, pipelineStages, viewPipeline.is_default);
+  const stageInfo = pipelineStages.find(s => s.id === stageId) || pipelineStages[0];
+  const isClosed = Boolean(getStageOutcome(stageId));
+  const companyName = opportunity.company_name || companyObj?.name || '';
+
+  // Header: logo, deal name, stage, company · subsector
+  document.getElementById('opportunity-view-title').textContent = opportunity.name || 'Untitled deal';
+
   const stageEl = document.getElementById('opportunity-view-stage-badge');
-  const companyNameEl = document.getElementById('opportunity-view-company-name');
-  const companyLinkEl = document.getElementById('opportunity-view-company-link');
-  const metaChipsEl = document.getElementById('opportunity-view-meta-chips');
-  const avatarEl = document.getElementById('opportunity-view-avatar');
-
-  if (titleEl) titleEl.textContent = opportunity.name || 'Untitled Opportunity';
-
-  // Stage badge
   if (stageEl) {
-    const viewPipeline = getCachedActivePipeline();
-    const pipelineStages = getPipelineStages(viewPipeline);
-    const stageId = opportunity.mappedStage || resolveStageId(opportunity.stage, pipelineStages, viewPipeline.is_default);
-    const stageInfo = pipelineStages.find(s => s.id === stageId) || pipelineStages[0];
     stageEl.textContent = plainStageTitle(stageInfo.title);
-    stageEl.style.background = `color-mix(in srgb, ${stageInfo.color} 12%, transparent)`;
-    stageEl.style.color = stageInfo.color;
-    stageEl.style.borderColor = `color-mix(in srgb, ${stageInfo.color} 25%, transparent)`;
+    stageEl.style.setProperty('--stage-color', stageInfo.color || '#94a3b8');
   }
 
-  const companyName = opportunity.company_name || (isCrmCompany ? companyObj.name : 'No Company');
-  if (companyNameEl) {
-    if (!isCrmCompany && opportunity.company_name) {
-      companyNameEl.innerHTML = `${escapeHtml(companyName)} <span style="font-size:0.72rem; color:var(--text-muted); font-weight:500; opacity:0.85;">(Custom)</span>`;
-    } else {
-      companyNameEl.textContent = companyName;
-    }
-  }
-
-  if (companyLinkEl) {
-    if (isCrmCompany) {
-      companyLinkEl.style.pointerEvents = 'auto';
-      companyLinkEl.style.cursor = 'pointer';
-      companyLinkEl.style.opacity = '1';
-      companyLinkEl.style.color = 'var(--color-primary)';
-      companyLinkEl.style.background = 'color-mix(in srgb, var(--color-primary) 8%, transparent)';
-      companyLinkEl.style.borderColor = 'color-mix(in srgb, var(--color-primary) 20%, transparent)';
-      companyLinkEl.setAttribute('title', `View company: ${companyName}`);
-      companyLinkEl.onclick = (e) => {
-        e.preventDefault();
-        closeModal('opportunity-view-modal');
-        setTimeout(() => openCompanyViewModal(companyObj.id), 120);
-      };
-    } else {
-      companyLinkEl.style.pointerEvents = 'none';
-      companyLinkEl.style.cursor = 'default';
-      companyLinkEl.style.opacity = '0.85';
-      companyLinkEl.style.color = 'var(--text-secondary)';
-      companyLinkEl.style.background = 'var(--bg-tertiary, rgba(255, 255, 255, 0.05))';
-      companyLinkEl.style.borderColor = 'var(--border-color, rgba(255, 255, 255, 0.1))';
-      companyLinkEl.setAttribute('title', opportunity.company_name ? `${opportunity.company_name} (Custom company, not in CRM)` : 'No company');
-      companyLinkEl.onclick = (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-      };
-    }
-  }
-
-  const viewSubsector = (opportunity.subsector || (isCrmCompany ? companyObj?.subsector : '') || '').trim();
-  if (metaChipsEl) {
-    metaChipsEl.innerHTML = viewSubsector ? `<span class="record-hero-cat-chip">${escapeHtml(viewSubsector)}</span>` : '';
-  }
-
-  // Avatar (Company initials or Logo)
+  const avatarEl = document.getElementById('opportunity-view-avatar');
   if (avatarEl) {
-    const initials = getInitials(companyName || 'O');
-    avatarEl.textContent = initials;
-    avatarEl.className = 'record-hero-avatar';
-    const resolvedLogoUrl = isCrmCompany ? ((companyObj && companyObj.logo_url) || (companyObj && companyObj.domain ? getCompanyLogoUrl(companyObj.domain) : '')) : '';
-    avatarEl.innerHTML = `<span style="position:relative;z-index:1">${initials}</span>${resolvedLogoUrl ? `<img src="${resolvedLogoUrl}" alt="${escapeHtml(companyName)}" onload="this.style.display='block';var p=this.previousElementSibling;if(p)p.style.display='none'" onerror="this.style.display='none'" />` : ''}`;
-    if (!resolvedLogoUrl) {
-      avatarEl.style.background = 'linear-gradient(135deg, var(--color-primary), var(--color-primary-light))';
-    }
+    const logoUrl = getOpportunityLogoUrl(companyObj);
+    avatarEl.removeAttribute('style');
+    avatarEl.innerHTML = `
+      <span class="opp-avatar-initials">${escapeHtml(getInitials(companyName || opportunity.name || '?'))}</span>
+      ${logoUrl ? `<img src="${escapeHtml(logoUrl)}" alt="" onload="this.previousElementSibling.style.visibility='hidden'" onerror="this.remove()" />` : ''}`;
   }
 
-  // Stats Bar (Deal Value, Win Probability, Expected Value, Pipeline Age)
-  const valueEl = document.getElementById('opportunity-view-value');
-  const probEl = document.getElementById('opportunity-view-probability');
-  const weightedEl = document.getElementById('opportunity-view-weighted');
+  const companyLinkEl = document.getElementById('opportunity-view-company-link');
+  document.getElementById('opportunity-view-company-name').textContent = companyName || 'No company';
+  if (companyLinkEl) {
+    // Only companies in the CRM have a page to open
+    companyLinkEl.classList.toggle('is-link', isCrmCompany);
+    companyLinkEl.title = isCrmCompany ? `Open ${companyName}` : companyName;
+    companyLinkEl.onclick = (e) => {
+      e.preventDefault();
+      if (!isCrmCompany) return;
+      closeModal('opportunity-view-modal');
+      setTimeout(() => openCompanyViewModal(companyObj.id), 120);
+    };
+  }
+
+  const subsector = (opportunity.subsector || companyObj?.subsector || '').trim();
+  const metaChipsEl = document.getElementById('opportunity-view-meta-chips');
+  if (metaChipsEl) {
+    metaChipsEl.innerHTML = subsector ? `<span class="record-hero-cat-chip">${escapeHtml(subsector)}</span>` : '';
+  }
+
+  // Stats: value, win chance and weighted value (open deals only), days in stage
+  const value = dealValue(opportunity);
+  const probability = dealProbability(opportunity);
+  document.getElementById('opportunity-view-value').textContent = formatCurrency(value);
+  document.getElementById('opportunity-view-probability').textContent = `${probability}%`;
+  document.getElementById('opportunity-view-weighted').textContent = formatMoney(value * probability / 100);
+  modal.querySelectorAll('.opp-view-open-stat').forEach(el => { el.hidden = isClosed; });
+
   const stageAgeEl = document.getElementById('opportunity-view-stage-age');
-
-  const valNum = parseFloat(opportunity.value || 0);
-  const probNum = parseFloat(opportunity.probability || 0);
-  const weightedNum = Math.round(valNum * (probNum / 100));
-
-  if (valueEl) valueEl.textContent = `${getCurrencySymbol()} ${valNum.toLocaleString()}`;
-  if (probEl) probEl.innerHTML = `<span style="color:${getProbabilityColor(probNum)}; font-weight:800;">${probNum}%</span>`;
-  if (weightedEl) weightedEl.textContent = `${getCurrencySymbol()} ${weightedNum.toLocaleString()}`;
   if (stageAgeEl) {
-    const created = opportunity.created_at ? new Date(opportunity.created_at) : null;
-    if (created && !isNaN(created.getTime())) {
-      const days = Math.max(0, Math.floor((Date.now() - created.getTime()) / (1000 * 60 * 60 * 24)));
-      stageAgeEl.textContent = days === 0 ? 'Today' : `${days}d in pipeline`;
-    } else {
-      stageAgeEl.textContent = '—';
-    }
+    const days = daysSince(getStageEnteredAt(opportunity));
+    stageAgeEl.textContent = days === 0 ? 'Today' : `${days} day${days === 1 ? '' : 's'}`;
+    stageAgeEl.classList.toggle('is-stale', !isClosed && days >= STALE_STAGE_DAYS);
   }
 
-  // Next Step Action Item
-  const nextStepEl = document.getElementById('opportunity-view-next-step');
-  const dueDateEl = document.getElementById('opportunity-view-next-step-date');
-  if (nextStepEl) nextStepEl.textContent = opportunity.next_step || 'No next step scheduled';
-  if (dueDateEl) dueDateEl.textContent = formatDueDate(opportunity.next_step_date) || 'No due date';
+  // Next step
+  const nextStepBox = document.getElementById('opportunity-view-next-step-box');
+  const dueStatus = getDueStatus(opportunity.next_step_date);
+  if (nextStepBox) {
+    nextStepBox.classList.toggle('is-overdue', dueStatus === 'overdue');
+    nextStepBox.classList.toggle('is-due-today', dueStatus === 'today');
+    nextStepBox.classList.toggle('is-empty', !opportunity.next_step);
+  }
+  document.getElementById('opportunity-view-next-step').textContent = opportunity.next_step || 'No next step yet';
+  document.getElementById('opportunity-view-next-step-date').textContent = formatDueDate(opportunity.next_step_date) || 'No due date';
 
   // Notes & Mentions
   const notesEl = document.getElementById('opportunity-view-notes');
@@ -1541,113 +1506,63 @@ function openOpportunityViewModal(opportunity) {
   const defaultTab = modal.querySelector('.opp-view-tab[data-tab="overview"]');
   if (defaultTab) defaultTab.click();
 
-  // Sidebar: Company field
-  const sidebarCompanyEl = document.getElementById('opportunity-sidebar-company');
-  if (sidebarCompanyEl) {
-    if (isCrmCompany) {
-      sidebarCompanyEl.innerHTML = `<a href="#" style="color:var(--color-primary); font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">${escapeHtml(companyName)} <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`;
-      sidebarCompanyEl.querySelector('a')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        closeModal('opportunity-view-modal');
-        setTimeout(() => openCompanyViewModal(companyObj.id), 120);
-      });
-    } else {
-      sidebarCompanyEl.innerHTML = `<span style="color:var(--text-primary); font-weight:500;">${escapeHtml(companyName)}</span>${opportunity.company_name ? ' <span style="font-size:0.72rem; color:var(--text-muted); background:var(--bg-tertiary, rgba(255,255,255,0.06)); padding:2px 6px; border-radius:4px; font-weight:500; border:1px solid var(--border-color, rgba(255,255,255,0.08));">Custom</span>' : ''}`;
-    }
-  }
-
-  // Sidebar: Contact person field
+  // Sidebar: primary contact
   const sidebarContactEl = document.getElementById('opportunity-sidebar-contact');
   if (sidebarContactEl) {
     const primaryPerson = (opportunity.mentioned_people && opportunity.mentioned_people[0]) ||
       (isCrmCompany && Array.isArray(window.allPeopleData) && window.allPeopleData.find(p => String(p.company_id) === String(companyObj.id)));
 
     if (primaryPerson) {
-      sidebarContactEl.innerHTML = `<a href="#" style="color:var(--color-primary); font-weight:600; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">${escapeHtml(primaryPerson.name)} <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`;
-      sidebarContactEl.querySelector('a')?.addEventListener('click', (e) => {
+      sidebarContactEl.innerHTML = `<a href="#" class="opp-view-link">${escapeHtml(primaryPerson.name)}</a>`;
+      sidebarContactEl.querySelector('a').addEventListener('click', (e) => {
         e.preventDefault();
         closeModal('opportunity-view-modal');
         setTimeout(() => openPersonViewModal(primaryPerson.id || primaryPerson), 120);
       });
     } else {
-      sidebarContactEl.textContent = 'None assigned';
+      sidebarContactEl.innerHTML = '<span class="opp-view-empty">None</span>';
     }
   }
 
-  // Sidebar: time in the current stage
-  const sidebarStageAgeEl = document.getElementById('opportunity-sidebar-stage-age');
-  if (sidebarStageAgeEl) {
-    const days = daysSince(getStageEnteredAt(opportunity));
-    sidebarStageAgeEl.textContent = days === 0 ? 'Since today' : `${days} day${days === 1 ? '' : 's'}`;
-  }
-
-  // Sidebar: Competitors
+  // Sidebar: competitors
   const competitorsEl = document.getElementById('opportunity-view-competitors');
   if (competitorsEl) {
     const competitors = parseCompetitors(opportunity.competitors);
-    if (competitors.length > 0) {
-      competitorsEl.innerHTML = `<div class="ov-competitors-list">${competitors.map(c => `<span class="ov-comp-tag">${escapeHtml(c)}</span>`).join('')}</div>`;
-    } else {
-      competitorsEl.innerHTML = '<span class="text-muted" style="font-size:0.8rem;">None identified</span>';
-    }
+    competitorsEl.innerHTML = competitors.length > 0
+      ? `<div class="ov-competitors-list">${competitors.map(c => `<span class="ov-comp-tag">${escapeHtml(c)}</span>`).join('')}</div>`
+      : '<span class="opp-view-empty">None</span>';
   }
 
-  // Sidebar: Metadata
-  const orgIdEl = document.getElementById('opportunity-view-org-id');
-  const updatedEl = document.getElementById('opportunity-view-updated');
-  const createdEl = document.getElementById('opportunity-view-created');
-  if (orgIdEl) orgIdEl.textContent = opportunity.organization_id || '—';
-  if (createdEl) createdEl.textContent = formatDate(opportunity.created_at);
-  if (updatedEl) updatedEl.textContent = opportunity.updated_at ? formatDate(opportunity.updated_at) : formatDate(opportunity.created_at);
+  // Sidebar: record info
+  const createdDays = daysSince(opportunity.created_at);
+  document.getElementById('opportunity-view-created').textContent =
+    `${formatDate(opportunity.created_at)}${createdDays > 6 ? ` · ${createdDays} days ago` : ''}`;
+  document.getElementById('opportunity-view-updated').textContent = formatDate(opportunity.updated_at || opportunity.created_at);
 
-  // Sidebar: Assignees
+  // Sidebar: owner first, then tagged teammates
   const assigneesEl = document.getElementById('opportunity-view-assignees');
   if (assigneesEl) {
-    const assignees = opportunity.assignees || [];
-    const ownerProfile = opportunity.profiles;
-    let rows = '';
-
-    if (ownerProfile) {
-      const ownerName = `${ownerProfile.first_name} ${ownerProfile.last_name}`;
-      const ownerRole = ownerProfile.role || 'manager';
-      const ownerRoleLabel = ownerRole === 'manager' ? 'Manager' : ownerRole === 'technician' ? 'Technician' : 'Sales Rep';
-      const ownerColor = getAssigneeColor(opportunity.user_id);
-      const initialsOrImage = ownerProfile.avatar_url 
-        ? `<span style="position:relative;z-index:1;display:none;">${getInitials(ownerName)}</span><img src="${ownerProfile.avatar_url}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />` 
-        : getInitials(ownerName);
-        
-      rows += `
-        <div class="ov-assignee-row">
-          <div class="ov-assignee-avatar" style="background:${ownerColor}">${initialsOrImage}</div>
-          <div class="ov-assignee-info">
-            <div class="ov-assignee-name">${escapeHtml(ownerName)}</div>
-            <span class="ov-assignee-role-badge role-${ownerRole}">Owner · ${escapeHtml(ownerRoleLabel)}</span>
-          </div>
-        </div>`;
+    const roleLabel = (role) => (role === 'manager' ? 'Manager' : role === 'technician' ? 'Technician' : 'Sales Rep');
+    const members = [];
+    if (opportunity.profiles) {
+      members.push({ user_id: opportunity.user_id, profile: opportunity.profiles, isOwner: true });
     }
+    (opportunity.assignees || [])
+      .filter(a => a.user_id !== opportunity.user_id)
+      .forEach(a => members.push({ user_id: a.user_id, profile: a.profiles, isOwner: false }));
 
-    const extraAssignees = assignees.filter(a => a.user_id !== opportunity.user_id);
-    extraAssignees.forEach(a => {
-      const p = a.profiles;
-      const name = p ? `${p.first_name} ${p.last_name}` : 'Team Member';
-      const role = p?.role || 'sales_rep';
-      const roleLabel = role === 'manager' ? 'Manager' : role === 'technician' ? 'Technician' : 'Sales Rep';
-      const color = getAssigneeColor(a.user_id);
-      const initialsOrImage = p?.avatar_url 
-        ? `<span style="position:relative;z-index:1;display:none;">${getInitials(name)}</span><img src="${p.avatar_url}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />` 
-        : getInitials(name);
-        
-      rows += `
+    assigneesEl.innerHTML = members.map(({ user_id, profile, isOwner }) => {
+      const name = fullName(profile) || 'Team member';
+      const role = profile?.role || 'sales_rep';
+      return `
         <div class="ov-assignee-row">
-          <div class="ov-assignee-avatar" style="background:${color}">${initialsOrImage}</div>
+          <div class="ov-assignee-avatar" style="background:${getAssigneeColor(user_id)}">${renderAvatarContent(name, profile?.avatar_url)}</div>
           <div class="ov-assignee-info">
             <div class="ov-assignee-name">${escapeHtml(name)}</div>
-            <span class="ov-assignee-role-badge role-${role}">${escapeHtml(roleLabel)}</span>
+            <span class="ov-assignee-role-badge role-${escapeHtml(role)}">${isOwner ? 'Owner · ' : ''}${escapeHtml(roleLabel(role))}</span>
           </div>
         </div>`;
-    });
-
-    assigneesEl.innerHTML = rows || '<span class="ov-assignees-empty">No team members.</span>';
+    }).join('') || '<span class="ov-assignees-empty">No team members.</span>';
   }
 
   // Edit Action
@@ -2172,7 +2087,7 @@ function _prependOwnerChip(ownerId, ownerProfile) {
   const chipsEl = document.getElementById('opp-assignees-chips');
   if (!chipsEl || !ownerProfile) return;
 
-  const name = `${ownerProfile.first_name} ${ownerProfile.last_name}`.trim() || 'Owner';
+  const name = fullName(ownerProfile) || 'Owner';
   const color = getAssigneeColor(ownerId);
   const initialsOrImage = ownerProfile.avatar_url 
     ? `<span style="position:relative;z-index:1;display:none;">${getInitials(name)}</span><img src="${ownerProfile.avatar_url}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />` 
@@ -2202,7 +2117,7 @@ function _appendAssigneeChip(member) {
   chip.className = 'opp-assignee-chip';
   chip.dataset.userId = member.user_id;
 
-  const name = `${member.first_name} ${member.last_name}`.trim() || 'Member';
+  const name = fullName(member) || 'Member';
   const roleLabel = member.role === 'manager' ? 'Manager' : member.role === 'technician' ? 'Technician' : 'Sales Rep';
   const color = getAssigneeColor(member.user_id);
   const initialsOrImage = member.avatar_url 
@@ -2249,7 +2164,7 @@ function initAssigneesPicker(signal) {
 
     const filtered = members.filter(m => {
       if (m.id === ownerUserId) return false;
-      const name = `${m.first_name} ${m.last_name}`.toLowerCase();
+      const name = fullName(m).toLowerCase();
       return !query || name.includes(query) || (m.email || '').toLowerCase().includes(query);
     });
 
@@ -2260,7 +2175,7 @@ function initAssigneesPicker(signal) {
     }
 
     dropdown.innerHTML = filtered.map(m => {
-      const name = `${m.first_name} ${m.last_name}`.trim() || m.email;
+      const name = fullName(m) || m.email;
       const isSelected = state.opportunityAssignees.some(a => a.user_id === m.id);
       const roleLabel = m.role === 'manager' ? 'Manager' : m.role === 'technician' ? 'Technician' : 'Sales Rep';
       const color = getAssigneeColor(m.id);
