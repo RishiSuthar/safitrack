@@ -21324,256 +21324,192 @@ button svg {
   background: var(--text-muted);
 }
 
-/* ===== VISIT CARD - PREMIUM ===== */
+/* ===== VISIT CARD ===== */
 .visit-card-premium {
-  background: var(--bg-primary);
+  background: var(--bg-secondary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  margin-bottom: 0.875rem;
+  padding: 14px 16px;
+  margin-bottom: 8px;
   cursor: pointer;
-  transition: all var(--transition-base);
-  position: relative;
+  transition: border-color var(--transition-fast), background-color var(--transition-fast);
 }
 
 .visit-card-premium:hover {
-  border-color: var(--color-primary);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  border-color: color-mix(in srgb, var(--border-color) 55%, var(--text-muted));
 }
 
 .visit-card-premium.selected {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-bg);
+  box-shadow: 0 0 0 1px var(--color-primary);
 }
 
-.visit-card-premium::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 1rem;
-  bottom: 1rem;
-  width: 3px;
-  background: var(--visit-type-color, var(--color-primary));
-  border-radius: 0 2px 2px 0;
-  opacity: 0;
-  transition: opacity var(--transition-fast);
+.visit-card-premium:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
 }
 
-.visit-card-premium:hover::before,
-.visit-card-premium.selected::before {
-  opacity: 1;
-}
+.visit-card-premium[data-type="new_lead"] { --visit-type-color: #3b82f6; }
+.visit-card-premium[data-type="follow_up"] { --visit-type-color: #8b5cf6; }
+.visit-card-premium[data-type="demo"] { --visit-type-color: #f59e0b; }
+.visit-card-premium[data-type="closing"] { --visit-type-color: #10b981; }
+.visit-card-premium[data-type="support"] { --visit-type-color: #6b7280; }
 
-.visit-card-premium[data-type="new_lead"] {
-  --visit-type-color: #3b82f6;
-}
-
-.visit-card-premium[data-type="follow_up"] {
-  --visit-type-color: #8b5cf6;
-}
-
-.visit-card-premium[data-type="demo"] {
-  --visit-type-color: #f59e0b;
-}
-
-.visit-card-premium[data-type="closing"] {
-  --visit-type-color: #10b981;
-}
-
-.visit-card-premium[data-type="support"] {
-  --visit-type-color: #6b7280;
-}
-
-.visit-card-top {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 0.875rem;
+.visit-card-layout {
+  display: grid;
+  grid-template-columns: 32px minmax(0, 1fr);
+  column-gap: 12px;
 }
 
 .visit-card-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
-  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.6875rem;
   font-weight: 600;
-  font-size: 0.9375rem;
+  letter-spacing: 0.02em;
   flex-shrink: 0;
 }
 
-.visit-card-main {
-  flex: 1;
+.visit-card-body {
   min-width: 0;
 }
 
+.visit-card-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
 .visit-card-company {
-  font-size: 1.125rem;
+  font-size: 0.9375rem;
   font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: -0.005em;
   color: var(--text-primary);
-  margin-bottom: 0.25rem;
+  min-width: 0;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.visit-card-rep {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  font-size: 0.9375rem;
-  color: var(--text-secondary);
-}
-
-.visit-card-rep svg {
-  color: var(--text-muted);
-}
-
 .visit-card-time {
-  font-size: 0.875rem;
+  flex-shrink: 0;
+  font-size: 0.75rem;
   color: var(--text-muted);
-  text-align: right;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
 
-.visit-card-time-relative {
-  font-weight: 550;
-  font-size: 0.9375rem;
-  color: var(--text-secondary);
-}
-
-.visit-card-meta {
+.visit-card-sub {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.75rem;
-}
-
-.visit-card-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.3rem 0.75rem;
-  border-radius: var(--radius-full);
+  align-items: baseline;
+  column-gap: 6px;
+  margin-top: 2px;
   font-size: 0.8125rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.visit-card-badge.type-new_lead {
-  background: rgba(59, 130, 246, 0.12);
-  color: #3b82f6;
-}
-
-.visit-card-badge.type-follow_up {
-  background: rgba(139, 92, 246, 0.12);
-  color: #8b5cf6;
-}
-
-.visit-card-badge.type-demo {
-  background: rgba(245, 158, 11, 0.12);
-  color: #f59e0b;
-}
-
-.visit-card-badge.type-closing {
-  background: rgba(16, 185, 129, 0.12);
-  color: #10b981;
-}
-
-.visit-card-badge.type-support {
-  background: rgba(107, 114, 128, 0.12);
-  color: #6b7280;
-}
-
-.visit-card-badge.score-high {
-  background: var(--color-success-bg);
-  color: var(--color-success);
-}
-
-.visit-card-badge.score-medium {
-  background: var(--color-warning-bg);
-  color: var(--color-warning);
-}
-
-.visit-card-badge.score-low {
-  background: var(--bg-tertiary);
+  line-height: 1.45;
   color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
-.visit-card-badge.verified {
-  background: var(--color-success-bg);
-  color: var(--color-success);
+.visit-card-sub .is-danger {
+  color: var(--color-danger);
 }
 
-.visit-card-badge.subsector {
-  background: var(--bg-secondary);
-  color: #111;
-  border: 1px solid var(--border-color);
-  text-transform: none;
-  letter-spacing: 0;
-  font-weight: 550;
-}
-
-[data-theme="dark"] .visit-card-badge.subsector {
-  color: #d7dee7;
-  border-color: #3a4452;
-  background: #242b35;
+.visit-card-sep {
+  opacity: 0.6;
 }
 
 .visit-card-notes {
-  font-size: 1rem;
+  margin: 8px 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
   color: var(--text-secondary);
-  line-height: 1.6;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
+  -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  margin-bottom: 0.75rem;
+  overflow-wrap: anywhere;
 }
 
 .visit-card-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 0.75rem;
-  border-top: 1px solid var(--border-color-light);
+  gap: 12px;
+  margin-top: 10px;
+  min-height: 24px;
 }
 
 .visit-card-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.375rem;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
 }
 
 .visit-card-tag {
-  padding: 0.25rem 0.5rem;
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
+  padding: 1px 6px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xs);
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.visit-card-fare {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 6px;
   font-size: 0.8125rem;
-  font-weight: 550;
-  border-radius: var(--radius-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.visit-card-fare-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+.visit-card-fare.fare-requested .visit-card-fare-dot { background: var(--color-warning); }
+.visit-card-fare.fare-approved .visit-card-fare-dot { background: var(--color-success); }
+.visit-card-fare.fare-rejected .visit-card-fare-dot { background: var(--color-danger); }
+
+.visit-card-fare-amount {
+  color: var(--text-muted);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+
+.visit-card-fare-amount::before {
+  content: '·';
+  margin-right: 6px;
+  opacity: 0.6;
 }
 
 .visit-card-actions {
   display: flex;
-  gap: 0.25rem;
-  opacity: 0;
-  transition: opacity var(--transition-fast);
-}
-
-.visit-card-premium:hover .visit-card-actions {
-  opacity: 1;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
 .visit-card-action {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -21582,12 +21518,161 @@ button svg {
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  opacity: 0;
+  transition: opacity var(--transition-fast), background-color var(--transition-fast), color var(--transition-fast);
+}
+
+.visit-card-premium:hover .visit-card-action,
+.visit-card-action:focus-visible {
+  opacity: 1;
 }
 
 .visit-card-action:hover {
-  background: var(--bg-tertiary);
-  color: var(--color-primary);
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.visit-card-review {
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.visit-card-review:hover {
+  background: var(--bg-hover);
+  border-color: color-mix(in srgb, var(--border-color) 55%, var(--text-muted));
+}
+
+/* Timeline view still uses the stacked card layout */
+.visit-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.visit-card-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.visit-card-rep {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.visit-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.visit-card-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xs);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ===== VISIT DETAIL: FARE APPROVAL ===== */
+.visit-fare-card {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+}
+
+.visit-fare-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.visit-fare-card-head .visit-detail-section-title {
+  margin-bottom: 0;
+}
+
+.visit-fare-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.visit-fare-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--text-muted);
+}
+
+.visit-fare-status.fare-requested .visit-fare-status-dot { background: var(--color-warning); }
+.visit-fare-status.fare-approved .visit-fare-status-dot { background: var(--color-success); }
+.visit-fare-status.fare-rejected .visit-fare-status-dot { background: var(--color-danger); }
+
+.visit-detail-meta-sub {
+  display: block;
+  margin-top: 2px;
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.visit-fare-reason {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+}
+
+.visit-fare-form {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.visit-fare-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.visit-fare-field input {
+  max-width: 180px;
+  font-variant-numeric: tabular-nums;
+}
+
+.visit-fare-field textarea {
+  min-height: 64px;
+  resize: vertical;
+}
+
+.visit-fare-hint {
+  color: var(--text-muted);
+}
+
+.visit-fare-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 /* ===== ACTIVITY SIDEBAR ===== */
