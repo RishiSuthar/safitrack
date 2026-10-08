@@ -11632,6 +11632,12 @@ body.is-dragging * {
   color: var(--text-primary);
 }
 
+/* Managers can delete deals they don't own; keep the danger hover */
+.opportunity-card.readonly .delete-opportunity:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
 
 .sidebar-attribution {
   margin-top: auto;
@@ -22653,6 +22659,7 @@ button svg {
 #company-view-edit-btn,
 #person-view-edit-btn,
 #opportunity-view-edit-btn,
+#opportunity-view-delete-btn,
 #clv2-edit-btn,
 #task-view-edit-btn {
   width: 32px;
@@ -22684,6 +22691,12 @@ button svg {
 #task-view-edit-btn:hover {
   background: var(--color-primary);
   border-color: var(--color-primary);
+  color: #fff;
+}
+
+#opportunity-view-delete-btn:hover {
+  background: var(--color-danger);
+  border-color: var(--color-danger);
   color: #fff;
 }
 
