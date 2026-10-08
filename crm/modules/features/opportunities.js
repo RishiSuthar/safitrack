@@ -12,6 +12,9 @@ import { getDefaultSalesStages, LEGACY_STAGE_TO_CANONICAL } from '../utils/pipel
 /** Stage color palette for custom pipelines */
 const STAGE_COLORS = ['#3b82f6', '#ec4899', '#10b981', '#ef4444', '#f59e0b', '#8b5cf6', '#06b6d4', '#f97316'];
 const OPPORTUNITY_STAGE_PAGE_SIZE = 25;
+// Per-stage "Load more" state of the board currently on screen. Column
+// headers count these not-yet-rendered deals too.
+let boardPagination = null;
 
 /** The built-in fallback used when Supabase is unavailable */
 function getDefaultPipeline() {
@@ -277,6 +280,7 @@ async function renderOpportunityPipelineView() {
   const opportunitiesById = new Map(opportunities.map(opp => [opp.id, opp]));
   const companyLookup = buildCompanyLookup(window.allCompaniesData);
   const paginationState = {};
+  boardPagination = paginationState;
 
   const ownerOptions = state.isManager
     ? Array.from(new Map(opportunities.map(opp => {
@@ -407,12 +411,14 @@ async function renderOpportunityPipelineView() {
   pipelineStages.forEach(stage => {
     const stageData = opportunitiesByStage[stage.id];
     const deferredCards = [];
+    const deferredValues = [];
     let renderedCount = 0;
 
     paginationState[stage.id] = {
       pageSize: OPPORTUNITY_STAGE_PAGE_SIZE,
       rendered: 0,
       deferredCards,
+      deferredValues,
       total: stageData.opportunities.length,
     };
 
@@ -422,7 +428,7 @@ async function renderOpportunityPipelineView() {
           <div class="pipeline-stage-title"><span class="pipeline-stage-dot" style="background:${stage.color}"></span>${stage.title}</div>
           <div class="pipeline-stage-count">${stageData.opportunities.length}</div>
         </div>
-        <div class="pipeline-stage-value">${getCurrencySymbol()} ${stageData.totalValue.toLocaleString()}</div>
+        <div class="pipeline-stage-value" data-total="${stageData.totalValue}">${getCurrencySymbol()} ${stageData.totalValue.toLocaleString()}</div>
         <button class="pipeline-inline-add" data-stage="${stage.id}">+ New</button>
         <div class="opportunity-list" id="opportunities-${stage.id}">
     `;
@@ -606,14 +612,16 @@ async function renderOpportunityPipelineView() {
                 <button class="opportunity-action-btn edit-opportunity" data-id="${opp.id}" title="Edit deal">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
                 </button>
-                <button class="opportunity-action-btn delete-opportunity" data-id="${opp.id}" title="Delete deal">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
-                </button>
               ` : `
                 <button class="opportunity-action-btn view-opportunity" data-id="${opp.id}" title="View">
                   <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
                 </button>
               `}
+              ${isOwnOpportunity || state.isManager ? `
+                <button class="opportunity-action-btn delete-opportunity" data-id="${opp.id}" title="Delete deal">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
+                </button>
+              ` : ''}
             </div>
           </div>
         </div>
@@ -623,6 +631,7 @@ async function renderOpportunityPipelineView() {
         html += cardHtml;
       } else {
         deferredCards.push(cardHtml);
+        deferredValues.push(parseFloat(opp.value || 0));
       }
 
       renderedCount += 1;
@@ -723,6 +732,7 @@ function initOpportunityEventListeners(opportunitiesOrMap, paginationState = nul
 
     const takeCount = all ? stageState.deferredCards.length : Math.min(stageState.pageSize, stageState.deferredCards.length);
     const htmlChunk = stageState.deferredCards.splice(0, takeCount).join('');
+    stageState.deferredValues?.splice(0, takeCount);
     if (!htmlChunk) return;
 
     listEl.insertAdjacentHTML('beforeend', htmlChunk);
@@ -820,30 +830,9 @@ function initOpportunityEventListeners(opportunitiesOrMap, paginationState = nul
   document.querySelectorAll('.delete-opportunity').forEach(btn => {
     if (btn.dataset.boundClick === '1') return;
     btn.dataset.boundClick = '1';
-    btn.addEventListener('click', async (e) => {
+    btn.addEventListener('click', (e) => {
       e.stopPropagation();
-      const opportunityId = btn.dataset.id;
-      const opportunity = opportunitiesById.get(opportunityId);
-
-      const confirmed = await showConfirmDialog(
-        'Delete Opportunity',
-        `Are you sure you want to delete ${opportunity.name}?`
-      );
-
-      if (!confirmed) return;
-
-      const { error } = await supabaseClient
-        .from('opportunities')
-        .delete()
-        .eq('id', opportunityId);
-
-      if (error) {
-        showToast('Error deleting opportunity: ' + error.message, 'error');
-        return;
-      }
-
-      showToast('Opportunity deleted successfully', 'success');
-      renderOpportunityPipelineView();
+      deleteOpportunity(opportunitiesById.get(btn.dataset.id));
     });
   });
 
@@ -1006,7 +995,11 @@ function updatePipelineStageCounts() {
   document.querySelectorAll('.pipeline-stage').forEach(stage => {
     const stageId = stage.dataset.stage;
     const opportunities = stage.querySelectorAll('.opportunity-card:not([style*="display: none"])');
-    const count = opportunities.length;
+    // Deals still behind "Load more" aren't in the DOM yet but belong in the
+    // header. (Filtering expands every column first, so none are pending then.)
+    const pending = boardPagination?.[stageId];
+    const pendingValues = pending?.deferredValues || [];
+    const count = opportunities.length + (pending?.deferredCards?.length || 0);
 
     // Update count badge
     const countBadge = stage.querySelector('.pipeline-stage-count');
@@ -1015,7 +1008,7 @@ function updatePipelineStageCounts() {
     }
 
     // Calculate and update total value
-    let totalValue = 0;
+    let totalValue = pendingValues.reduce((sum, v) => sum + v, 0);
     opportunities.forEach(card => {
       const valueText = card.querySelector('.opp-value')?.textContent;
       if (valueText) {
@@ -1025,6 +1018,7 @@ function updatePipelineStageCounts() {
 
     const valueElement = stage.querySelector('.pipeline-stage-value');
     if (valueElement) {
+      valueElement.dataset.total = String(totalValue);
       valueElement.textContent = `${getCurrencySymbol()} ${totalValue.toLocaleString()}`;
     }
   });
@@ -1749,10 +1743,86 @@ function openOpportunityViewModal(opportunity) {
     };
   }
 
+  // Delete Action
+  const deleteBtn = document.getElementById('opportunity-view-delete-btn');
+  if (deleteBtn) {
+    deleteBtn.style.display = canDeleteOpportunity(opportunity) ? 'flex' : 'none';
+    deleteBtn.onclick = async () => {
+      if (await deleteOpportunity(opportunity)) closeModal('opportunity-view-modal');
+    };
+  }
+
   // Show modal
   modal.style.display = 'flex';
   document.body.classList.add('modal-active');
   if (window.lucide) lucide.createIcons();
+}
+
+/** Owners and tagged assignees can delete their deals; managers can delete any deal in the org. */
+function canDeleteOpportunity(opportunity) {
+  if (!opportunity) return false;
+  if (state.isManager) return true;
+  const isAssignee = opportunity._isAssignedToMe === true
+    || (opportunity.assignees || []).some(a => a.user_id === state.currentUser.id);
+  return opportunity.user_id === state.currentUser.id || isAssignee;
+}
+
+/** Confirm, delete and refresh the pipeline. Resolves true when the deal was deleted. */
+async function deleteOpportunity(opportunity) {
+  if (!canDeleteOpportunity(opportunity)) return false;
+
+  const owner = opportunity.profiles;
+  const ownerName = owner ? [owner.first_name, owner.last_name].filter(Boolean).join(' ') : '';
+  const message = opportunity.user_id !== state.currentUser.id && ownerName
+    ? `Are you sure you want to delete ${opportunity.name}? This deal belongs to ${ownerName}.`
+    : `Are you sure you want to delete ${opportunity.name}?`;
+
+  const confirmed = await showConfirmDialog('Delete Opportunity', message);
+  if (!confirmed) return false;
+
+  const { data, error } = await supabaseClient
+    .from('opportunities')
+    .delete()
+    .eq('id', opportunity.id)
+    .select('id');
+
+  if (error) {
+    showToast('Error deleting opportunity: ' + error.message, 'error');
+    return false;
+  }
+  // Row-level security skips rows it won't delete instead of returning an error.
+  if (!data || data.length === 0) {
+    showToast("This deal couldn't be deleted. You may not have permission.", 'error');
+    return false;
+  }
+
+  showToast('Opportunity deleted successfully', 'success');
+  // Remove just this card so columns the user expanded with "Load more"
+  // stay expanded; fall back to a full render if it isn't on the board.
+  if (!removeOpportunityCard(opportunity.id)) renderOpportunityPipelineView();
+  return true;
+}
+
+/** Take a deleted deal off the board and adjust its column's count and total. */
+function removeOpportunityCard(opportunityId) {
+  const card = document.querySelector(`.opportunity-card[data-id="${CSS.escape(String(opportunityId))}"]`);
+  if (!card) return false;
+
+  const stageEl = card.closest('.pipeline-stage');
+  const value = Number(card.dataset.value || 0);
+  card.remove();
+  if (!stageEl) return true;
+
+  const countEl = stageEl.querySelector('.pipeline-stage-count');
+  if (countEl) countEl.textContent = String(Math.max(0, (parseInt(countEl.textContent, 10) || 0) - 1));
+
+  const valueEl = stageEl.querySelector('.pipeline-stage-value');
+  if (valueEl) {
+    const total = Math.max(0, (Number(valueEl.dataset.total) || 0) - value);
+    valueEl.dataset.total = String(total);
+    valueEl.textContent = `${getCurrencySymbol()} ${total.toLocaleString()}`;
+  }
+  return true;
 }
 
 

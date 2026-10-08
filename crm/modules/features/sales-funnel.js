@@ -1,346 +1,521 @@
 // modules/features/sales-funnel.js
-// Sales funnel / pipeline analytics view.
+// Sales funnel: how deals created in a period moved through the pipeline,
+// plus the open deals most likely to close and the ones that have stalled.
+//
+// There is no stage history, so the funnel is built from each deal's current
+// stage. Stages are ordered Lead → In Progress → Won, so a deal that is In
+// Progress or Won has reached In Progress. Lost deals can't be placed: the
+// stage they were lost from isn't recorded.
 import { state, supabaseClient } from '../state.js';
-import { viewContainer } from '../ui/dom.js';
-import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
-import { renderSkeletonCards, renderError } from '../utils/helpers.js';
-import { DEFAULT_SALES_STAGES, normalizeOpportunityStage } from '../utils/pipeline-stages.js';
+import { renderError } from '../utils/helpers.js';
+import { normalizeOpportunityStage } from '../utils/pipeline-stages.js';
+import { navigateView } from '../core/router.js';
+import {
+  DAY, OPEN_STAGES, STAGE_META,
+  esc, money, moneyFull, fullName, initialsOf, plural,
+  parseDate, addDays, startOfDay, calendarDaysFrom,
+  readStoredChoice, storeChoice, fetchAllRows,
+} from '../utils/analytics.js';
 
-function getRelativeTimeSafe(date) {
-  const now = new Date();
-  const d = date instanceof Date ? date : new Date(date);
-  if (isNaN(d.getTime())) return 'Unknown';
+// ── Constants ───────────────────────────────────────────────────
 
-  const diff = now - d;
-  const minutes = Math.floor(diff / 60000);
-  const hours = Math.floor(diff / 3600000);
-  const days = Math.floor(diff / 86400000);
+const PERIODS = [
+  { key: '30d', label: '30D', days: 30, name: 'the last 30 days' },
+  { key: '90d', label: '90D', days: 90, name: 'the last 90 days' },
+  { key: '12m', label: '12M', days: 365, name: 'the last 12 months' },
+  { key: 'all', label: 'All', days: null, name: 'all time' },
+];
+const PERIOD_STORAGE_KEY = 'safitrack_funnel_period';
+const STALLED_DAYS = 14;
+const STAGE_ORDER = ['closed-won', 'qualification', 'prospecting', 'closed-lost'];
 
-  if (minutes < 1) return 'Just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (days < 7) return `${days}d ago`;
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+const ICONS = {
+  arrow: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
+  down: '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
+};
+
+function icon(name, size = 14) {
+  return `<svg class="db-icon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]}</svg>`;
 }
 
-async function renderSalesFunnelView() {
-  let opportunities;
-  let error;
+function pct(part, whole) {
+  return whole > 0 ? (part / whole) * 100 : null;
+}
 
-  if (state.isManager) {
-    // Managers see all opportunities within their org
-    let mOppsQ = supabaseClient.from('opportunities').select('*').order('created_at', { ascending: false });
-    if (state.currentOrganization?.id) mOppsQ = mOppsQ.eq('organization_id', state.currentOrganization.id);
-    const result = await mOppsQ;
-    opportunities = result.data;
-    error = result.error;
-  } else {
-    // Sales reps see only their own opportunities
-    const result = await supabaseClient
-      .from('opportunities')
-      .select('*')
-      .eq('user_id', state.currentUser.id)
-      .order('created_at', { ascending: false });
-    opportunities = result.data;
-    error = result.error;
-  }
+function fmtPct(v) {
+  return v == null ? '—' : `${Math.round(v)}%`;
+}
 
-  if (error) {
-    viewContainer.innerHTML = renderError(error.message);
-    return;
-  }
+function avg(arr) {
+  return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+}
 
-  const stageMetaById = {
-    prospecting: { gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' },
-    qualification: { gradient: 'linear-gradient(135deg, #ec4899, #be185d)' },
-    'closed-won': { gradient: 'linear-gradient(135deg, #10b981, #059669)' },
-    'closed-lost': { gradient: 'linear-gradient(135deg, #ef4444, #dc2626)' },
+const sumValue = (list) => list.reduce((s, o) => s + o.val, 0);
+
+// ── Module state ────────────────────────────────────────────────
+
+const ui = {
+  period: readStoredChoice(PERIOD_STORAGE_KEY, PERIODS.map((p) => p.key), '90d'),
+  owner: 'all',
+  data: null,
+};
+
+// ── Data ────────────────────────────────────────────────────────
+
+async function fetchFunnelData() {
+  const columns = 'id, name, company_name, value, probability, stage, user_id, created_at, updated_at';
+  const orgId = state.currentOrganization?.id;
+
+  const oppsQuery = () => {
+    let q = supabaseClient.from('opportunities').select(columns).order('created_at', { ascending: false });
+    // Managers see the whole org; reps see their own deals.
+    if (state.isManager) {
+      if (orgId) q = q.eq('organization_id', orgId);
+    } else {
+      q = q.eq('user_id', state.currentUser.id);
+    }
+    return q;
   };
 
-  const funnelStages = {};
-  DEFAULT_SALES_STAGES.forEach((stage) => {
-    funnelStages[stage.id] = {
-      title: stage.title,
-      opportunities: [],
-      color: stage.color,
-      gradient: stageMetaById[stage.id]?.gradient || `linear-gradient(135deg, ${stage.color}, ${stage.color})`,
+  const [opps, profilesRes] = await Promise.all([
+    fetchAllRows(oppsQuery),
+    state.isManager && orgId
+      ? supabaseClient.from('profiles').select('id, first_name, last_name, role').eq('organization_id', orgId)
+      : Promise.resolve({ data: [] }),
+  ]);
+  if (profilesRes.error) throw new Error(profilesRes.error.message);
+
+  return {
+    opps: opps.map((o) => ({
+      ...o,
+      stage: normalizeOpportunityStage(o.stage),
+      val: Number(o.value) || 0,
+      prob: Math.min(Math.max(Number(o.probability) || 0, 0), 100),
+      createdAt: parseDate(o.created_at),
+      // No dedicated close/stage-change timestamp; the last update is the
+      // same proxy the pipeline view uses.
+      touchedAt: parseDate(o.updated_at) || parseDate(o.created_at),
+    })),
+    profileMap: new Map((profilesRes.data || []).map((p) => [p.id, p])),
+  };
+}
+
+// ── Model ───────────────────────────────────────────────────────
+
+function summarise(cohort) {
+  const by = (stage) => cohort.filter((o) => o.stage === stage);
+  const lead = by('prospecting');
+  const progress = by('qualification');
+  const won = by('closed-won');
+  const lost = by('closed-lost');
+  const reached = [...progress, ...won];
+  return {
+    created: cohort, lead, progress, won, lost, reached,
+    winRate: pct(won.length, won.length + lost.length),
+    leadToWon: pct(won.length, cohort.length),
+  };
+}
+
+function buildModel(data) {
+  const period = PERIODS.find((p) => p.key === ui.period) || PERIODS[1];
+  const now = new Date();
+  const since = period.days ? addDays(startOfDay(now), -(period.days - 1)) : null;
+
+  const owned = ui.owner === 'all' ? data.opps : data.opps.filter((o) => o.user_id === ui.owner);
+  const cohort = owned.filter((o) => o.createdAt && (!since || o.createdAt >= since));
+  const s = summarise(cohort);
+
+  const daysToWin = s.won
+    .filter((o) => o.createdAt && o.touchedAt)
+    .map((o) => Math.max(0, (o.touchedAt - o.createdAt) / DAY));
+
+  const stages = STAGE_ORDER.map((key) => {
+    const list = cohort.filter((o) => o.stage === key);
+    return {
+      key, ...STAGE_META[key],
+      count: list.length,
+      value: sumValue(list),
+      share: pct(list.length, cohort.length),
     };
   });
 
-  (opportunities || []).forEach((opp) => {
-    const stage = normalizeOpportunityStage(opp.stage);
-    if (funnelStages[stage]) {
-      funnelStages[stage].opportunities.push(opp);
-    }
-  });
+  // Conversion by rep — only meaningful for managers looking at everyone.
+  let reps = [];
+  if (state.isManager && ui.owner === 'all') {
+    const groups = new Map();
+    cohort.forEach((o) => {
+      if (!groups.has(o.user_id)) groups.set(o.user_id, []);
+      groups.get(o.user_id).push(o);
+    });
+    reps = [...groups.entries()]
+      .map(([id, list]) => {
+        const r = summarise(list);
+        const p = data.profileMap.get(id);
+        return {
+          id,
+          name: p ? fullName(p) : 'Unassigned',
+          initials: p ? initialsOf(p) : '?',
+          created: list.length,
+          reachedRate: pct(r.reached.length, list.length),
+          won: r.won.length,
+          winRate: r.winRate,
+          wonValue: sumValue(r.won),
+        };
+      })
+      .sort((a, b) => b.wonValue - a.wonValue || b.created - a.created || a.name.localeCompare(b.name));
+  }
 
-  const totalDeals = (opportunities || []).length;
-  const thisWeekDeals = (opportunities || []).filter(v => isThisWeek(new Date(v.created_at))).length;
-  const lastWeekDeals = (opportunities || []).filter(v => isLastWeek(new Date(v.created_at))).length;
-  const weekTrend = lastWeekDeals > 0 ? Math.round(((thisWeekDeals - lastWeekDeals) / lastWeekDeals) * 100) : (thisWeekDeals > 0 ? 100 : 0);
-
-  // Calculate conversion rates
-  const leads = funnelStages.prospecting.opportunities.length;
-  const inProgress = funnelStages.qualification.opportunities.length;
-  const won = funnelStages['closed-won'].opportunities.length;
-  const lost = funnelStages['closed-lost'].opportunities.length;
-  const closed = won + lost;
-
-  const leadToInProgress = leads > 0 ? Math.round((inProgress / leads) * 100) : 0;
-  const inProgressToWon = inProgress > 0 ? Math.round((won / inProgress) * 100) : 0;
-  const inProgressToLost = inProgress > 0 ? Math.round((lost / inProgress) * 100) : 0;
-  const overallConversion = closed > 0 ? Math.round((won / closed) * 100) : 0;
-
-  // High priority leads
-  const highPriorityLeads = (opportunities || [])
-    .filter((opp) => Number(opp.probability || 0) >= 70 && normalizeOpportunityStage(opp.stage) !== 'closed-lost')
+  // Open deals right now, regardless of when they were created.
+  const open = owned.filter((o) => OPEN_STAGES.includes(o.stage));
+  const hasProbabilities = open.some((o) => o.prob > 0);
+  const likely = [...open]
+    .sort((a, b) => (hasProbabilities ? b.val * b.prob - a.val * a.prob : 0) || b.val - a.val)
     .slice(0, 6);
+  const stalled = open
+    .map((o) => ({ ...o, idle: o.touchedAt ? calendarDaysFrom(o.touchedAt, now) : 0 }))
+    .filter((o) => o.idle >= STALLED_DAYS)
+    .sort((a, b) => b.idle - a.idle);
 
-  // Recent activity
-  const recentActivity = (opportunities || []).slice(0, 8);
-
-  // Stage icons
-  const stageIcons = {
-    prospecting: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/></svg>',
-    qualification: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></svg>',
-    'closed-won': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
-    'closed-lost': '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="m15 9-6 6"/><path d="m9 9 6 6"/></svg>'
+  return {
+    period, now, s, stages, reps, likely, stalled, hasProbabilities,
+    openCount: open.length,
+    avgWon: s.won.length ? sumValue(s.won) / s.won.length : null,
+    daysToWin: avg(daysToWin),
+    profileMap: data.profileMap,
   };
-
-  let html = `
-    <div class="funnel-hub">
-      <!-- Hero Stats -->
-      <div class="funnel-hero">
-        <div class="funnel-hero-stat">
-          <div class="funnel-stat-icon" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.15), rgba(59, 130, 246, 0.05)); color: #3b82f6;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-          </div>
-          <div class="funnel-stat-content">
-            <span class="funnel-stat-value">${totalDeals}</span>
-            <span class="funnel-stat-label">Total Deals</span>
-          </div>
-          <div class="funnel-stat-trend ${weekTrend >= 0 ? 'positive' : 'negative'}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="${weekTrend >= 0 ? 'M18 15l-6-6-6 6' : 'M6 9l6 6 6-6'}"/></svg>
-            ${Math.abs(weekTrend)}%
-          </div>
-        </div>
-
-        <div class="funnel-hero-stat">
-          <div class="funnel-stat-icon" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05)); color: #10b981;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          </div>
-          <div class="funnel-stat-content">
-            <span class="funnel-stat-value">${overallConversion}%</span>
-            <span class="funnel-stat-label">Conversion Rate</span>
-          </div>
-        </div>
-
-        <div class="funnel-hero-stat">
-          <div class="funnel-stat-icon" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05)); color: #f59e0b;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-          </div>
-          <div class="funnel-stat-content">
-            <span class="funnel-stat-value">${highPriorityLeads.length}</span>
-            <span class="funnel-stat-label">Hot Leads</span>
-          </div>
-        </div>
-
-        <div class="funnel-hero-stat">
-          <div class="funnel-stat-icon" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(139, 92, 246, 0.05)); color: #8b5cf6;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
-          </div>
-          <div class="funnel-stat-content">
-            <span class="funnel-stat-value">${thisWeekDeals}</span>
-            <span class="funnel-stat-label">This Week</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="funnel-main-grid">
-        <!-- Main Funnel Section -->
-        <div class="funnel-main-content">
-          <!-- Visual Funnel -->
-          <div class="funnel-visual-section">
-            <h2 class="funnel-section-title">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
-              Sales Pipeline
-            </h2>
-            
-            <div class="funnel-visual">
-              ${Object.entries(funnelStages).map(([key, stage], index) => {
-    const count = stage.opportunities.length;
-    const percentage = totalDeals > 0 ? Math.round((count / totalDeals) * 100) : 0;
-    const width = 100 - (index * 12);
-
-    return `
-                  <div class="funnel-level" style="--funnel-width: ${width}%; --funnel-color: ${stage.color};">
-                    <div class="funnel-level-bar">
-                      <div class="funnel-level-fill" style="background: ${stage.gradient};"></div>
-                      <div class="funnel-level-content">
-                        <span class="funnel-level-icon">${stageIcons[key]}</span>
-                        <span class="funnel-level-title">${stage.title}</span>
-                        <span class="funnel-level-count">${count}</span>
-                        <span class="funnel-level-percent">${percentage}%</span>
-                      </div>
-                    </div>
-                    ${index < 4 ? `
-                      <div class="funnel-connector">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="m19 12-7 7-7-7"/></svg>
-                      </div>
-                    ` : ''}
-                  </div>
-                `;
-  }).join('')}
-            </div>
-          </div>
-
-          <!-- Conversion Flow -->
-          <div class="funnel-conversion-section">
-            <h2 class="funnel-section-title">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></svg>
-              Conversion Flow
-            </h2>
-            
-            <div class="conversion-flow">
-              <div class="conversion-step">
-                <div class="conversion-step-label">Lead → In Progress</div>
-                <div class="conversion-step-bar">
-                  <div class="conversion-step-fill" style="width: ${leadToInProgress}%; background: linear-gradient(90deg, #3b82f6, #ec4899);"></div>
-                </div>
-                <div class="conversion-step-value">${leadToInProgress}%</div>
-              </div>
-              
-              <div class="conversion-step">
-                <div class="conversion-step-label">In Progress → Won</div>
-                <div class="conversion-step-bar">
-                  <div class="conversion-step-fill" style="width: ${inProgressToWon}%; background: linear-gradient(90deg, #ec4899, #10b981);"></div>
-                </div>
-                <div class="conversion-step-value">${inProgressToWon}%</div>
-              </div>
-              
-              <div class="conversion-step">
-                <div class="conversion-step-label">In Progress → Lost</div>
-                <div class="conversion-step-bar">
-                  <div class="conversion-step-fill" style="width: ${inProgressToLost}%; background: linear-gradient(90deg, #ec4899, #ef4444);"></div>
-                </div>
-                <div class="conversion-step-value">${inProgressToLost}%</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Stage Cards -->
-          <div class="funnel-stages-grid">
-            ${Object.entries(funnelStages).map(([key, stage]) => {
-    const count = stage.opportunities.length;
-    const percentage = totalDeals > 0 ? Math.round((count / totalDeals) * 100) : 0;
-    const recentInStage = stage.opportunities.slice(0, 3);
-
-    return `
-                <div class="funnel-stage-card" style="--stage-color: ${stage.color};">
-                  <div class="funnel-stage-card-header">
-                    <div class="funnel-stage-card-icon" style="background: ${stage.gradient};">
-                      ${stageIcons[key]}
-                    </div>
-                    <div class="funnel-stage-card-info">
-                      <h3 class="funnel-stage-card-title">${stage.title}</h3>
-                      <span class="funnel-stage-card-count">${count} deal${count !== 1 ? 's' : ''}</span>
-                    </div>
-                    <div class="funnel-stage-card-badge">${percentage}%</div>
-                  </div>
-                  
-                  <div class="funnel-stage-card-progress">
-                    <div class="funnel-stage-card-progress-fill" style="width: ${percentage}%; background: ${stage.gradient};"></div>
-                  </div>
-                  
-                  ${recentInStage.length > 0 ? `
-                    <div class="funnel-stage-card-items">
-                      ${recentInStage.map(v => `
-                        <div class="funnel-stage-item">
-                          <span class="funnel-stage-item-company">${v.company_name || v.name || 'Unknown'}</span>
-                          <span class="funnel-stage-item-date">${getRelativeTimeSafe(v.updated_at || v.created_at)}</span>
-                        </div>
-                      `).join('')}
-                    </div>
-                  ` : `
-                    <div class="funnel-stage-card-empty">No visits in this stage</div>
-                  `}
-                </div>
-              `;
-  }).join('')}
-          </div>
-        </div>
-
-        <!-- Sidebar -->
-        <div class="funnel-sidebar">
-          <!-- Hot Leads -->
-          <div class="funnel-sidebar-card">
-            <div class="funnel-sidebar-header">
-              <h3 class="funnel-sidebar-title">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
-                Hot Leads
-              </h3>
-              <span class="funnel-sidebar-badge">${highPriorityLeads.length}</span>
-            </div>
-            
-            <div class="funnel-sidebar-content">
-              ${highPriorityLeads.length > 0 ? highPriorityLeads.map(visit => `
-                <div class="hot-lead-item">
-                  <div class="hot-lead-avatar">${getInitials(visit.company_name || visit.name || 'U')}</div>
-                  <div class="hot-lead-info">
-                    <span class="hot-lead-company">${visit.company_name || visit.name || 'Unknown'}</span>
-                    <span class="hot-lead-contact">${visit.name || 'High probability deal'}</span>
-                  </div>
-                  <div class="hot-lead-score ${Number(visit.probability || 0) >= 80 ? 'score-hot' : 'score-warm'}">
-                    ${Number(visit.probability || 0)}%
-                  </div>
-                </div>
-              `).join('') : `
-                <div class="funnel-sidebar-empty">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
-                  <p>No hot leads yet</p>
-                  <span>Deals with 70%+ probability appear here</span>
-                </div>
-              `}
-            </div>
-          </div>
-
-          <!-- Recent Activity -->
-          <div class="funnel-sidebar-card">
-            <div class="funnel-sidebar-header">
-              <h3 class="funnel-sidebar-title">
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"/><circle cx="12" cy="12" r="10"/></svg>
-                Recent Activity
-              </h3>
-            </div>
-            
-            <div class="funnel-activity-timeline">
-              ${recentActivity.map(visit => {
-    const mappedStage = normalizeOpportunityStage(visit.stage);
-    const stageColor = funnelStages[mappedStage]?.color || '#6b7280';
-    const stageTitle = funnelStages[mappedStage]?.title || 'Deal';
-    return `
-                  <div class="funnel-activity-item">
-                    <div class="funnel-activity-dot" style="background: ${stageColor};"></div>
-                    <div class="funnel-activity-content">
-                      <span class="funnel-activity-company">${visit.company_name || visit.name || 'Unknown'}</span>
-                      <span class="funnel-activity-meta">
-                        <span class="funnel-activity-stage" style="color: ${stageColor};">${stageTitle}</span>
-                        <span class="funnel-activity-time">${getRelativeTimeSafe(visit.updated_at || visit.created_at)}</span>
-                      </span>
-                    </div>
-                  </div>
-                `;
-  }).join('')}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-
-  viewContainer.innerHTML = html;
 }
 
+// ── Render ──────────────────────────────────────────────────────
+
+function cardHead(title, sub, link) {
+  return `
+    <div class="db-card-head">
+      <div class="db-card-heading">
+        <h2 class="db-card-title">${title}</h2>
+        ${sub ? `<span class="db-card-sub">${sub}</span>` : ''}
+      </div>
+      ${link ? `<button type="button" class="db-link" data-nav="${link.view}">${link.label}${icon('arrow', 13)}</button>` : ''}
+    </div>`;
+}
+
+function renderHeader(m) {
+  const reps = [...m.profileMap.values()]
+    .filter((p) => p.role === 'sales_rep' || p.role === 'manager')
+    .sort((a, b) => fullName(a).localeCompare(fullName(b)));
+  return `
+    <header class="db-head sf-head">
+      <div class="db-head-actions">
+        ${state.isManager && reps.length ? `
+          <div class="sf-owner" data-owner>
+            ${window.buildCrmDropdown({
+              id: 'sf-owner-filter',
+              variant: 'filter',
+              className: 'crm-dd--right',
+              value: ui.owner,
+              searchable: reps.length > 8,
+              searchPlaceholder: 'Search reps...',
+              options: [
+                { value: 'all', label: 'All reps' },
+                ...reps.map((p) => ({ value: p.id, label: fullName(p) })),
+              ],
+            })}
+          </div>` : ''}
+        <div class="db-seg" role="group" aria-label="Deals created in">
+          ${PERIODS.map((p) => `<button type="button" class="db-seg-btn${p.key === m.period.key ? ' is-active' : ''}" data-period="${p.key}" aria-pressed="${p.key === m.period.key}" title="Deals created in ${p.name}">${p.label}</button>`).join('')}
+        </div>
+      </div>
+    </header>`;
+}
+
+function renderKpis(m) {
+  const { s } = m;
+  const cells = [
+    { label: 'Deals created', value: s.created.length.toLocaleString(), note: money(sumValue(s.created)) },
+    { label: 'Lead → Won', value: fmtPct(s.leadToWon), note: `${plural(s.won.length, 'deal')} won` },
+    { label: 'Win rate', value: fmtPct(s.winRate), note: s.won.length + s.lost.length ? `${s.won.length} won · ${s.lost.length} lost` : 'No deals closed' },
+    { label: 'Avg. days to win', value: m.daysToWin != null ? Math.round(m.daysToWin).toLocaleString() : '—', note: m.avgWon != null ? `Avg. won deal ${money(m.avgWon)}` : 'No deals won' },
+  ];
+  return `
+    <section class="db-card sf-kpis" aria-label="Summary">
+      ${cells.map((c) => `
+        <div class="sf-kpi">
+          <span class="db-tab-label">${c.label}</span>
+          <span class="db-tab-value">${c.value}</span>
+          <span class="db-tab-note">${esc(c.note)}</span>
+        </div>`).join('')}
+    </section>`;
+}
+
+function renderFunnel(m) {
+  const { s } = m;
+  const total = s.created.length;
+  const steps = [
+    { key: 'created', label: 'Created', list: s.created, color: STAGE_META.prospecting.color },
+    { key: 'reached', label: `Reached ${STAGE_META.qualification.label}`, list: s.reached, color: STAGE_META.qualification.color },
+    { key: 'won', label: STAGE_META['closed-won'].label, list: s.won, color: STAGE_META['closed-won'].color },
+  ];
+  const drops = [
+    {
+      rate: pct(s.reached.length, total),
+      verb: `moved to ${STAGE_META.qualification.label}`,
+      rest: [
+        s.lead.length ? `${s.lead.length} still in ${STAGE_META.prospecting.label}` : '',
+        s.lost.length ? `${s.lost.length} lost` : '',
+      ],
+    },
+    {
+      rate: pct(s.won.length, s.reached.length),
+      verb: 'won',
+      rest: [s.progress.length ? `${s.progress.length} still ${STAGE_META.qualification.label}` : ''],
+    },
+  ];
+
+  if (!total) {
+    return `
+      <section class="db-card sf-funnel">
+        ${cardHead('Funnel')}
+        <div class="db-empty">
+          <p class="db-empty-title">No deals created in ${esc(m.period.name)}</p>
+          <p class="db-empty-text">Pick a longer period, or add deals from the pipeline.</p>
+        </div>
+      </section>`;
+  }
+
+  return `
+    <section class="db-card sf-funnel">
+      ${cardHead('Funnel', `${plural(total, 'deal')} created in ${esc(m.period.name)}`, { view: 'opportunity-pipeline', label: 'Pipeline' })}
+      <ol class="sf-steps">
+        ${steps.map((st, i) => {
+          const share = pct(st.list.length, total) || 0;
+          const drop = drops[i];
+          return `
+          <li class="sf-step">
+            <div class="sf-step-line">
+              <span class="sf-step-label">${esc(st.label)}</span>
+              <span class="sf-step-figs">
+                <span class="db-strong">${st.list.length.toLocaleString()}</span>
+                <span class="db-faint" title="${moneyFull(sumValue(st.list))}">${money(sumValue(st.list))}</span>
+              </span>
+            </div>
+            <div class="sf-track" role="img" aria-label="${esc(st.label)}: ${Math.round(share)}% of created deals">
+              <span class="sf-bar" style="width:${st.list.length ? Math.max(share, 1) : 0}%;background:${st.color}"></span>
+            </div>
+            ${drop ? `
+              <div class="sf-drop">
+                ${icon('down', 13)}
+                <span><strong>${fmtPct(drop.rate)}</strong> ${drop.verb}</span>
+                ${drop.rest.filter(Boolean).map((t) => `<span class="db-faint">· ${esc(t)}</span>`).join('')}
+              </div>` : ''}
+          </li>`;
+        }).join('')}
+      </ol>
+      <p class="sf-footnote">Based on each deal's current stage. Lost deals only count as created, since the stage they were lost from isn't recorded. Recent deals may still be moving through.</p>
+    </section>`;
+}
+
+function renderStages(m) {
+  const total = m.s.created.length;
+  return `
+    <section class="db-card sf-stages">
+      ${cardHead('Where they are now')}
+      ${total ? `
+        <div class="sf-stack" role="img" aria-label="${m.stages.map((st) => `${st.label} ${Math.round(st.share || 0)}%`).join(', ')}">
+          ${m.stages.filter((st) => st.count).map((st) => `<span style="flex:${st.count};background:${st.color}" title="${esc(st.label)}: ${st.count}"></span>`).join('')}
+        </div>
+        <ul class="sf-legend">
+          ${m.stages.map((st) => `
+            <li class="sf-legend-row">
+              <span class="db-stage"><span class="db-dot" style="background:${st.color}"></span>${esc(st.label)}</span>
+              <span class="sf-legend-figs">
+                <span class="db-faint">${fmtPct(st.share)}</span>
+                <span class="sf-legend-count">${st.count.toLocaleString()}</span>
+                <span class="db-strong" title="${moneyFull(st.value)}">${money(st.value)}</span>
+              </span>
+            </li>`).join('')}
+        </ul>
+        <dl class="db-stats">
+          <div class="db-stat">
+            <dt>Still open</dt>
+            <dd>${(m.s.lead.length + m.s.progress.length).toLocaleString()} <span class="db-faint">· ${money(sumValue([...m.s.lead, ...m.s.progress]))}</span></dd>
+          </div>
+          <div class="db-stat">
+            <dt>Avg. deal size</dt>
+            <dd>${money(sumValue(m.s.created) / total)}</dd>
+          </div>
+        </dl>` : `
+        <div class="db-empty">
+          <p class="db-empty-text">Nothing to break down yet.</p>
+        </div>`}
+    </section>`;
+}
+
+function renderReps(m) {
+  if (!state.isManager || ui.owner !== 'all') return '';
+  return `
+    <section class="db-card sf-reps">
+      ${cardHead('Conversion by rep', `Deals created in ${esc(m.period.name)}`)}
+      ${m.reps.length === 0 ? `
+        <div class="db-empty"><p class="db-empty-text">No deals created in this period.</p></div>` : `
+        <div class="db-table-wrap">
+          <table class="db-table">
+            <thead>
+              <tr>
+                <th>Rep</th>
+                <th class="db-num">Created</th>
+                <th class="db-num sf-col-reached" title="Share of created deals now In Progress or Won">Reached ${esc(STAGE_META.qualification.label)}</th>
+                <th class="db-num">Won</th>
+                <th class="db-num sf-col-winrate" title="Won ÷ (won + lost)">Win rate</th>
+                <th class="db-num sf-col-value">Won value</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${m.reps.map((r) => `
+                <tr>
+                  <td><span class="db-person"><span class="db-avatar" aria-hidden="true">${esc(r.initials)}</span><span class="db-cell-title">${esc(r.name)}</span></span></td>
+                  <td class="db-num">${r.created}</td>
+                  <td class="db-num sf-col-reached">
+                    <span class="db-bar-cell">
+                      <span class="db-minibar"><span style="width:${r.reachedRate || 0}%"></span></span>
+                      <span class="sf-rate">${fmtPct(r.reachedRate)}</span>
+                    </span>
+                  </td>
+                  <td class="db-num">${r.won || '<span class="db-faint">0</span>'}</td>
+                  <td class="db-num sf-col-winrate">${r.winRate == null ? '<span class="db-faint">—</span>' : fmtPct(r.winRate)}</td>
+                  <td class="db-num db-strong sf-col-value">${r.wonValue ? money(r.wonValue) : '<span class="db-faint">—</span>'}</td>
+                </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>`}
+    </section>`;
+}
+
+function dealRow(o, right, m) {
+  const owner = m.profileMap.get(o.user_id);
+  const stage = STAGE_META[o.stage];
+  const meta = [o.company_name, state.isManager && owner ? fullName(owner) : ''].filter(Boolean).join(' · ');
+  return `
+    <li>
+      <button type="button" class="db-row" data-nav="opportunity-pipeline">
+        <span class="db-dot" style="background:${stage.color}" title="${esc(stage.label)}"></span>
+        <span class="db-row-main">
+          <span class="db-row-title">${esc(o.name || 'Untitled deal')}</span>
+          ${meta ? `<span class="db-row-meta">${esc(meta)}</span>` : ''}
+        </span>
+        ${right}
+      </button>
+    </li>`;
+}
+
+function renderOpenDeals(m) {
+  const likely = m.likely.length === 0
+    ? '<div class="db-empty"><p class="db-empty-text">No open deals.</p></div>'
+    : `<ul class="db-list">${m.likely.map((o) => dealRow(o, `
+        <span class="sf-row-figs">
+          <span class="db-strong">${money(o.val)}</span>
+          ${m.hasProbabilities ? `<span class="db-faint">${o.prob}%</span>` : ''}
+        </span>`, m)).join('')}</ul>`;
+
+  const stalled = m.stalled.length === 0
+    ? `<div class="db-empty"><p class="db-empty-title">Nothing stalled</p><p class="db-empty-text">Open deals with no updates for ${STALLED_DAYS}+ days show up here.</p></div>`
+    : `<ul class="db-list">${m.stalled.slice(0, 6).map((o) => dealRow(o, `
+        <span class="sf-row-figs">
+          <span class="db-strong">${money(o.val)}</span>
+          <span class="db-tone-warn">${o.idle}d idle</span>
+        </span>`, m)).join('')}</ul>
+       ${m.stalled.length > 6 ? `<p class="db-more">+${m.stalled.length - 6} more</p>` : ''}`;
+
+  return `
+    <div class="sf-section-head">
+      <h2 class="sf-section-title">Open deals right now</h2>
+      <span class="db-card-sub">${plural(m.openCount, 'deal')} in ${esc(STAGE_META.prospecting.label)} or ${esc(STAGE_META.qualification.label)}, any age</span>
+    </div>
+    <div class="sf-pair">
+      <section class="db-card">
+        ${cardHead('Most likely to close', m.hasProbabilities ? 'Value × win probability' : 'By value · set win probability to rank by likelihood')}
+        ${likely}
+      </section>
+      <section class="db-card">
+        ${cardHead('Stalled', m.stalled.length ? `<span class="db-count sf-count-warn">${m.stalled.length}</span>` : '')}
+        ${stalled}
+      </section>
+    </div>`;
+}
+
+function renderPage(m) {
+  return `
+    <div class="db sf">
+      ${renderHeader(m)}
+      ${renderKpis(m)}
+      <div class="sf-grid">
+        ${renderFunnel(m)}
+        ${renderStages(m)}
+      </div>
+      ${renderReps(m)}
+      ${renderOpenDeals(m)}
+    </div>`;
+}
+
+function renderSkeleton() {
+  const block = (cls) => `<div class="db-skel ${cls}"></div>`;
+  return `
+    <div class="db sf" aria-busy="true">
+      <div class="db-card sf-kpis">${block('sf-skel-kpis')}</div>
+      <div class="sf-grid">
+        <div class="db-card">${block('db-skel-list')}</div>
+        <div class="db-card">${block('db-skel-list')}</div>
+      </div>
+    </div>`;
+}
+
+// ── Mount & events ──────────────────────────────────────────────
+
+function mount(root) {
+  root.innerHTML = renderPage(buildModel(ui.data));
+}
+
+function bindEvents(root) {
+  root.addEventListener('click', (e) => {
+    const periodBtn = e.target.closest('[data-period]');
+    if (periodBtn) {
+      if (periodBtn.dataset.period === ui.period) return;
+      ui.period = periodBtn.dataset.period;
+      storeChoice(PERIOD_STORAGE_KEY, ui.period);
+      mount(root);
+      return;
+    }
+    const nav = e.target.closest('[data-nav]');
+    if (nav) navigateView(nav.dataset.nav);
+  });
+
+  // The site dropdown fires 'change' on its hidden input.
+  root.addEventListener('change', (e) => {
+    if (!e.target.closest('[data-owner]')) return;
+    ui.owner = e.target.value || 'all';
+    // Let the dropdown finish closing before the header is re-rendered.
+    setTimeout(() => {
+      mount(root);
+      root.querySelector('[data-owner] .crm-dd-trigger')?.focus();
+    });
+  });
+}
+
+async function renderSalesFunnelView() {
+  const viewContainer = document.getElementById('view-container');
+  // Own root per render so delegated listeners go away with the view.
+  viewContainer.innerHTML = '<div class="db-root"></div>';
+  const root = viewContainer.firstElementChild;
+  root.innerHTML = renderSkeleton();
+  ui.owner = 'all';
+  bindEvents(root);
+
+  try {
+    ui.data = await fetchFunnelData();
+    mount(root);
+  } catch (err) {
+    console.error('Sales funnel error:', err);
+    root.innerHTML = renderError('Failed to load sales funnel: ' + err.message);
+  }
+}
 
 // ── Exports ────────────────────────────────────────────────────
 export {
