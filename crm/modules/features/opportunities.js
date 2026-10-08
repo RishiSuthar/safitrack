@@ -3,7 +3,7 @@
 import { state, supabaseClient, loadPersistedState as _loadPersistedState, saveViewState } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials, triggerConfetti } from '../ui/toast.js';
-import { renderError, getCurrencySymbol, formatCurrency } from '../utils/helpers.js';
+import { renderError, formatCurrency } from '../utils/helpers.js';
 import { getCompanyLogoUrl } from '../ui/spreadsheet.js';
 import { getDefaultSalesStages, LEGACY_STAGE_TO_CANONICAL } from '../utils/pipeline-stages.js';
 
