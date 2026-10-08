@@ -382,84 +382,106 @@ function renderVisitsCards(visits) {
     `;
   }
 
+  const fareTrackingEnabled = Boolean(state.currentOrganization?.settings?.additional_features?.fare_tracking);
+  const fareApprovalWorkflowEnabled = fareTrackingEnabled && Boolean(state.currentOrganization?.settings?.additional_features?.fare_approval_workflow);
+
+  const visitTypeLabels = {
+    'new_lead': 'New Lead',
+    'follow_up': 'Follow-up',
+    'demo': 'Demo',
+    'closing': 'Closing',
+    'support': 'Support'
+  };
+
+  const pinIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>`;
+  const fareIcons = {
+    requested: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`,
+    approved: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
+    rejected: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`,
+  };
+
   return visits.map(visit => {
     const userName = visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : 'Unknown';
     const initials = getInitials(userName);
     const relativeTime = getRelativeTime(new Date(visit.created_at));
     const dateStr = formatDate(visit.created_at);
-
-    const visitTypeLabels = {
-      'new_lead': 'New Lead',
-      'follow_up': 'Follow-up',
-      'demo': 'Demo',
-      'closing': 'Closing',
-      'support': 'Support'
-    };
+    const visitType = visit.visit_type || 'new_lead';
+    const visitTypeLabel = visitTypeLabels[visit.visit_type] || 'Visit';
+    const companyName = visit.company_name || 'Unknown Company';
 
     const scoreClass = visit.lead_score >= 70 ? 'score-high' : visit.lead_score >= 40 ? 'score-medium' : 'score-low';
     const visitSubsector = (visit.subsector || '').trim();
-    const fareTrackingEnabled = Boolean(state.currentOrganization?.settings?.additional_features?.fare_tracking);
-    const fareApprovalWorkflowEnabled = fareTrackingEnabled && Boolean(state.currentOrganization?.settings?.additional_features?.fare_approval_workflow);
     const hasFare = Number.isFinite(Number(visit.fare_amount)) && Number(visit.fare_amount) >= 0;
     const fareCurrency = visit.fare_currency || state.orgCurrency || state.currentOrganization?.currency || 'USD';
-    const fareValue = hasFare ? Number(visit.fare_amount).toFixed(2) : null;
-    const fareStatusRaw = String(visit.fare_status || (fareApprovalWorkflowEnabled && hasFare ? 'requested' : '')).toLowerCase();
-    const fareStatusLabel = fareStatusRaw === 'approved'
-      ? 'Fare Approved'
-      : fareStatusRaw === 'rejected'
-        ? 'Fare Rejected'
-        : fareStatusRaw === 'requested'
-          ? 'Fare Requested'
-          : '';
-    
+    const fareStatusRaw = fareApprovalWorkflowEnabled
+      ? String(visit.fare_status || (hasFare ? 'requested' : '')).toLowerCase()
+      : '';
+    const fareAmount = fareStatusRaw === 'approved' && Number.isFinite(Number(visit.fare_approved_amount))
+      ? `${visit.fare_approved_currency || fareCurrency} ${Number(visit.fare_approved_amount).toFixed(2)}`
+      : `${fareCurrency} ${hasFare ? Number(visit.fare_amount).toFixed(2) : ''}`;
+    const fareStatusLabel = { approved: 'Fare approved', rejected: 'Fare rejected', requested: 'Fare requested' }[fareStatusRaw] || 'Fare';
+    const fareTone = fareIcons[fareStatusRaw] ? fareStatusRaw : 'neutral';
+    const canReviewFare = state.isManager && fareStatusRaw === 'requested' && hasFare;
+
     const distanceTag = (visit.tags || []).find(t => typeof t === 'string' && t.startsWith('__distance:'));
     const distanceVal = distanceTag ? distanceTag.split(':')[1] : null;
     const isUnverified = (visit.tags || []).includes('location-unverified');
-    const displayTags = (visit.tags || []).filter(t => typeof t !== 'string' || (!t.startsWith('__distance:') && t !== 'location-unverified'));
+    // Drop internal tags and any tag that just repeats the visit type (e.g. "follow-up").
+    const normalizeTag = (t) => String(t).toLowerCase().replace(/[^a-z0-9]/g, '');
+    const typeKeys = new Set([normalizeTag(visitType), normalizeTag(visitTypeLabel)]);
+    const displayTags = (visit.tags || []).filter(t => typeof t !== 'string'
+      || (!t.startsWith('__distance:') && t !== 'location-unverified' && !typeKeys.has(normalizeTag(t))));
+
+    const subItems = [
+      `<span class="visit-card-sub-item">${escapeHtml(userName)}</span>`,
+      isUnverified
+        ? `<span class="visit-card-sub-item is-warning">${pinIcon} Location not verified</span>`
+        : distanceVal != null ? `<span class="visit-card-sub-item">${pinIcon} ${escapeHtml(distanceVal)}m from site</span>` : '',
+      visit.lead_score ? `<span class="visit-card-sub-item ${scoreClass}">${visit.lead_score}% lead score</span>` : '',
+      visitSubsector ? `<span class="visit-card-sub-item">${escapeHtml(visitSubsector)}</span>` : '',
+    ].filter(Boolean).join('<span class="visit-card-sub-sep" aria-hidden="true">·</span>');
+
+    const farePill = fareTrackingEnabled && hasFare
+      ? `<span class="visit-card-fare fare-${fareTone}">${fareIcons[fareTone] || ''} ${fareStatusLabel} · ${escapeHtml(fareAmount)}</span>`
+      : '';
+    const tagsHtml = displayTags.slice(0, 3).map(tag => `<span class="visit-card-tag">${escapeHtml(tag)}</span>`).join('')
+      + (displayTags.length > 3 ? `<span class="visit-card-tag">+${displayTags.length - 3}</span>` : '');
+    const hasFooterContent = Boolean(farePill || tagsHtml || canReviewFare);
 
     return `
-      <div class="visit-card-premium" data-visit-id="${visit.id}" data-type="${visit.visit_type || 'new_lead'}" onclick="openVisitDetail('${visit.id}')">
+      <div class="visit-card-premium" data-visit-id="${visit.id}" data-type="${escapeHtml(visitType)}" ${fareStatusRaw ? `data-fare="${escapeHtml(fareStatusRaw)}"` : ''} onclick="openVisitDetail('${visit.id}')">
         <div class="visit-card-top">
-          <div class="visit-card-avatar">${initials}</div>
+          <div class="visit-card-avatar">${escapeHtml(initials)}</div>
           <div class="visit-card-main">
-            <div class="visit-card-company">${visit.company_name || 'Unknown Company'}</div>
-            <div class="visit-card-rep">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-              ${userName}
+            <div class="visit-card-title-row">
+              <div class="visit-card-company" title="${escapeHtml(companyName)}">${escapeHtml(softenCaps(companyName))}</div>
+              <span class="visit-card-type type-${escapeHtml(visitType)}"><span class="visit-card-type-dot"></span>${visitTypeLabel}</span>
             </div>
+            <div class="visit-card-sub">${subItems}</div>
           </div>
-          <div class="visit-card-time">
-            <div class="visit-card-time-relative">${relativeTime}</div>
-            <div>${dateStr}</div>
-          </div>
+          <div class="visit-card-time" title="${escapeHtml(dateStr)}">${relativeTime}</div>
         </div>
-        
-        <div class="visit-card-meta">
-          <span class="visit-card-badge type-${visit.visit_type || 'new_lead'}">${visitTypeLabels[visit.visit_type] || 'Visit'}</span>
-          <span class="visit-card-badge subsector">Subsector: ${escapeHtml(visitSubsector || 'Unassigned')}</span>
-          ${visit.lead_score ? `<span class="visit-card-badge ${scoreClass}">${visit.lead_score}% Score</span>` : ''}
-          ${fareTrackingEnabled && fareValue !== null ? `<span class="visit-card-badge">Fare: ${fareCurrency} ${fareValue}</span>` : ''}
-          ${fareApprovalWorkflowEnabled && fareStatusLabel ? `<span class="visit-card-badge">${fareStatusLabel}</span>` : ''}
-          ${distanceVal != null && !isUnverified ? `<span class="visit-card-badge distance"><svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg> ${distanceVal}m from site</span>` : ''}
-          ${isUnverified ? `<span class="visit-card-badge distance" style="color: #ef4444; background: #fef2f2;">Location not verified</span>` : ''}
-        </div>
-        
-        ${visit.notes ? `<div class="visit-card-notes">${visit.notes}</div>` : ''}
-        
-        <div class="visit-card-footer">
-          <div class="visit-card-tags">
-            ${displayTags.slice(0, 3).map(tag => `<span class="visit-card-tag">${tag}</span>`).join('')}
-            ${displayTags.length > 3 ? `<span class="visit-card-tag">+${displayTags.length - 3}</span>` : ''}
-          </div>
+
+        ${visit.notes ? `<div class="visit-card-notes">${escapeHtml(softenCaps(visit.notes, 'sentence'))}</div>` : ''}
+
+        <div class="visit-card-footer${hasFooterContent ? '' : ' is-compact'}">
+          ${hasFooterContent ? `<div class="visit-card-tags">${farePill}${tagsHtml}</div>` : ''}
           <div class="visit-card-actions">
             ${visit.latitude && visit.longitude && !isUnverified ? `
-              <button class="visit-card-action" onclick="event.stopPropagation(); viewLocationOnMap(${visit.latitude}, ${visit.longitude}, '${visit.company_name}')" title="View on Map">
+              <button class="visit-card-action" onclick="event.stopPropagation(); viewLocationOnMap(${visit.latitude}, ${visit.longitude}, ${escapeHtml(JSON.stringify(companyName))})" title="View on Map">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
               </button>
             ` : ''}
-            <button class="visit-card-action" onclick="event.stopPropagation(); openVisitDetail('${visit.id}')" title="View Details">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-            </button>
+            ${canReviewFare ? `
+              <button class="visit-card-review" onclick="event.stopPropagation(); openVisitDetail('${visit.id}')">
+                Review fare
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            ` : `
+              <button class="visit-card-action" onclick="event.stopPropagation(); openVisitDetail('${visit.id}')" title="View Details">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+              </button>
+            `}
           </div>
         </div>
       </div>
@@ -581,6 +603,24 @@ function getRelativeTime(date) {
   if (hours < 24) return `${hours}h ago`;
   if (days < 7) return `${days}d ago`;
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+// Reps often type company names and notes in ALL CAPS. Soften for display only;
+// stored data is untouched and mixed-case text is left exactly as typed.
+function softenCaps(text, mode = 'title') {
+  const str = String(text || '').trim();
+  if (!str || /[a-z]/.test(str) || !/[A-Z]{2}/.test(str)) return str;
+  const lower = str.toLowerCase();
+  if (mode === 'sentence') {
+    return lower.replace(/(^|[.!?]\s+)([a-z])/g, (_, p, c) => p + c.toUpperCase());
+  }
+  return lower.replace(/(^|[\s(\-/&])([a-z])/g, (_, p, c) => p + c.toUpperCase());
+}
+
+function formatShortDateTime(value) {
+  const d = new Date(value);
+  if (Number.isNaN(d.getTime())) return '';
+  return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 }
 
 function initVisitsHub() {
@@ -936,13 +976,6 @@ window.openVisitDetail = function (visitId) {
       : fareStatusRaw === 'requested'
         ? 'Requested'
         : 'Not submitted';
-  const fareStatusStyle = fareStatusRaw === 'approved'
-    ? 'background:rgba(34,197,94,0.12);color:#15803d;border:1px solid rgba(34,197,94,0.25);'
-    : fareStatusRaw === 'rejected'
-      ? 'background:rgba(239,68,68,0.10);color:#b91c1c;border:1px solid rgba(239,68,68,0.24);'
-      : fareStatusRaw === 'requested'
-        ? 'background:rgba(245,158,11,0.13);color:#b45309;border:1px solid rgba(245,158,11,0.28);'
-        : 'background:var(--bg-secondary);color:var(--text-muted);border:1px solid var(--border-color);';
   const canManagerDecideFare = state.isManager && fareApprovalWorkflowEnabled && hasFare && (fareStatusRaw === 'requested' || fareStatusRaw === '');
   const requesterName = visit.fare_requested_by
     ? getProfileDisplayNameById(visit.fare_requested_by)
@@ -954,31 +987,96 @@ window.openVisitDetail = function (visitId) {
     console.error('Detail body element not found!');
     return;
   }
+  const showFareSection = fareTrackingEnabled && fareApprovalWorkflowEnabled && hasFare;
+  const fareStatusPill = `<span class="visit-fare-status fare-${fareStatusRaw || 'none'}">${fareStatusLabel}</span>`;
+  const fareSection = showFareSection ? `
+      <div class="visit-detail-section visit-fare-card${canManagerDecideFare ? ' is-pending' : ''}">
+        <div class="visit-fare-card-head">
+          <h4 class="visit-detail-section-title">Fare Approval</h4>
+          ${fareStatusPill}
+        </div>
+        <div class="visit-detail-meta-grid">
+          <div class="visit-detail-meta-item">
+            <span class="visit-detail-meta-label">Requested Amount</span>
+            <span class="visit-detail-meta-value">${escapeHtml(fareCurrency)} ${Number(visit.fare_amount).toFixed(2)}</span>
+          </div>
+          <div class="visit-detail-meta-item">
+            <span class="visit-detail-meta-label">Requested By</span>
+            <span class="visit-detail-meta-value">${escapeHtml(requesterName)}</span>
+          </div>
+          <div class="visit-detail-meta-item">
+            <span class="visit-detail-meta-label">Requested At</span>
+            <span class="visit-detail-meta-value">${formatShortDateTime(visit.fare_requested_at || visit.created_at)}</span>
+          </div>
+          ${reviewerName || visit.fare_reviewed_at ? `
+            <div class="visit-detail-meta-item">
+              <span class="visit-detail-meta-label">Reviewed</span>
+              <span class="visit-detail-meta-value">${reviewerName ? escapeHtml(reviewerName) : '—'}${visit.fare_reviewed_at ? `<span class="visit-detail-meta-sub">${formatShortDateTime(visit.fare_reviewed_at)}</span>` : ''}</span>
+            </div>
+          ` : ''}
+          ${fareStatusRaw === 'approved' && Number.isFinite(Number(visit.fare_approved_amount)) ? `
+            <div class="visit-detail-meta-item">
+              <span class="visit-detail-meta-label">Approved Amount</span>
+              <span class="visit-detail-meta-value">${escapeHtml(visit.fare_approved_currency || fareCurrency)} ${Number(visit.fare_approved_amount).toFixed(2)}</span>
+            </div>
+          ` : ''}
+        </div>
+
+        ${fareStatusRaw === 'rejected' && visit.fare_rejection_reason ? `
+          <div class="visit-fare-reason">
+            <div class="visit-detail-meta-label">Rejection Reason</div>
+            <div class="visit-detail-meta-value">${escapeHtml(visit.fare_rejection_reason)}</div>
+          </div>
+        ` : ''}
+
+        ${canManagerDecideFare ? `
+          <div class="visit-fare-form">
+            <div class="visit-fare-field">
+              <label for="visit-fare-approval-amount" class="visit-detail-meta-label">Approved amount (${escapeHtml(fareCurrency)})</label>
+              <input id="visit-fare-approval-amount" type="number" min="0" step="0.01" value="${Number(visit.fare_amount).toFixed(2)}" class="sv-input">
+            </div>
+            <div class="visit-fare-field">
+              <label for="visit-fare-reject-reason" class="visit-detail-meta-label">Reason <span class="visit-fare-hint">(required to reject)</span></label>
+              <textarea id="visit-fare-reject-reason" class="sv-input" rows="2" placeholder="Add a short reason for the rep..."></textarea>
+            </div>
+            <div class="visit-fare-actions">
+              <button type="button" class="btn btn-sm visit-fare-reject" id="visit-fare-reject-btn">Reject</button>
+              <button type="button" class="btn btn-primary btn-sm" id="visit-fare-approve-btn">Approve fare</button>
+            </div>
+          </div>
+        ` : ''}
+      </div>
+    ` : '';
+
   detailBody.innerHTML = `
     <div class="visit-detail-section">
-      <div class="visit-detail-company">${visit.company_name || 'Unknown Company'}</div>
+      <div class="visit-detail-company">${escapeHtml(softenCaps(visit.company_name || 'Unknown Company'))}</div>
       <p class="text-muted">${dateStr}</p>
     </div>
-    
+
+    ${canManagerDecideFare ? fareSection : ''}
+
     <div class="visit-detail-section">
       <h4 class="visit-detail-section-title">Visit Information</h4>
       <div class="visit-detail-meta-grid">
         <div class="visit-detail-meta-item">
           <span class="visit-detail-meta-label">Sales Rep</span>
-          <span class="visit-detail-meta-value">${userName}</span>
+          <span class="visit-detail-meta-value">${escapeHtml(userName)}</span>
         </div>
         <div class="visit-detail-meta-item">
           <span class="visit-detail-meta-label">Visit Type</span>
           <span class="visit-detail-meta-value">${visitTypeLabels[visit.visit_type] || 'N/A'}</span>
         </div>
-        <div class="visit-detail-meta-item">
-          <span class="visit-detail-meta-label">Subsector</span>
-          <span class="visit-detail-meta-value">${escapeHtml(String(visit.subsector || '').trim() || 'Unassigned')}</span>
-        </div>
+        ${String(visit.subsector || '').trim() ? `
+          <div class="visit-detail-meta-item">
+            <span class="visit-detail-meta-label">Subsector</span>
+            <span class="visit-detail-meta-value">${escapeHtml(String(visit.subsector).trim())}</span>
+          </div>
+        ` : ''}
         ${visit.contact_name ? `
           <div class="visit-detail-meta-item">
             <span class="visit-detail-meta-label">Contact Person</span>
-            <span class="visit-detail-meta-value">${visit.contact_name}</span>
+            <span class="visit-detail-meta-value">${escapeHtml(softenCaps(visit.contact_name))}</span>
           </div>
         ` : ''}
         ${visit.lead_score ? `
@@ -990,98 +1088,31 @@ window.openVisitDetail = function (visitId) {
         ${visit.travel_time ? `
           <div class="visit-detail-meta-item">
             <span class="visit-detail-meta-label">Travel Time</span>
-            <span class="visit-detail-meta-value">${visit.travel_time} minutes</span>
+            <span class="visit-detail-meta-value">${escapeHtml(visit.travel_time)} minutes</span>
           </div>
         ` : ''}
-        ${fareTrackingEnabled && hasFare ? `
+        ${fareTrackingEnabled && hasFare && !showFareSection ? `
           <div class="visit-detail-meta-item">
             <span class="visit-detail-meta-label">Fare Used</span>
-            <span class="visit-detail-meta-value">${fareCurrency} ${Number(visit.fare_amount).toFixed(2)}</span>
-          </div>
-        ` : ''}
-        ${fareTrackingEnabled && fareApprovalWorkflowEnabled && hasFare ? `
-          <div class="visit-detail-meta-item">
-            <span class="visit-detail-meta-label">Fare Status</span>
-            <span class="visit-detail-meta-value"><span style="display:inline-flex;align-items:center;gap:6px;padding:2px 8px;border-radius:999px;font-size:0.78rem;font-weight:600;${fareStatusStyle}">${fareStatusLabel}</span></span>
+            <span class="visit-detail-meta-value">${escapeHtml(fareCurrency)} ${Number(visit.fare_amount).toFixed(2)}</span>
           </div>
         ` : ''}
         <div class="visit-detail-meta-item">
           <span class="visit-detail-meta-label">Distance from Site</span>
-          <span class="visit-detail-meta-value">${isUnverified ? '<span style="color: #ef4444;">Location not verified</span>' : (distanceVal != null ? `${distanceVal}m` : 'Unknown')}</span>
+          <span class="visit-detail-meta-value">${isUnverified ? '<span style="color: #ef4444;">Location not verified</span>' : (distanceVal != null ? `${escapeHtml(distanceVal)}m` : 'Unknown')}</span>
         </div>
       </div>
     </div>
 
-    ${fareTrackingEnabled && fareApprovalWorkflowEnabled && hasFare ? `
-      <div class="visit-detail-section" style="border:1px solid var(--border-color);border-radius:10px;padding:14px;background:var(--bg-secondary);">
-        <h4 class="visit-detail-section-title" style="margin-bottom:10px;">Fare Approval</h4>
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;">
-          <div>
-            <div class="visit-detail-meta-label">Requested Amount</div>
-            <div class="visit-detail-meta-value">${fareCurrency} ${Number(visit.fare_amount).toFixed(2)}</div>
-          </div>
-          <div>
-            <div class="visit-detail-meta-label">Requested By</div>
-            <div class="visit-detail-meta-value">${escapeHtml(requesterName)}</div>
-          </div>
-          <div>
-            <div class="visit-detail-meta-label">Requested At</div>
-            <div class="visit-detail-meta-value">${visit.fare_requested_at ? formatDate(visit.fare_requested_at) : dateStr}</div>
-          </div>
-          <div>
-            <div class="visit-detail-meta-label">Decision</div>
-            <div class="visit-detail-meta-value">${fareStatusLabel}</div>
-          </div>
-          <div>
-            <div class="visit-detail-meta-label">Reviewed By</div>
-            <div class="visit-detail-meta-value">${reviewerName ? escapeHtml(reviewerName) : 'Not reviewed yet'}</div>
-          </div>
-          <div>
-            <div class="visit-detail-meta-label">Reviewed At</div>
-            <div class="visit-detail-meta-value">${visit.fare_reviewed_at ? formatDate(visit.fare_reviewed_at) : 'Not reviewed yet'}</div>
-          </div>
-        </div>
-
-        ${fareStatusRaw === 'approved' && Number.isFinite(Number(visit.fare_approved_amount)) ? `
-          <div style="margin-top:12px;padding:10px;border:1px solid var(--border-color);border-radius:8px;background:var(--bg-primary);">
-            <div class="visit-detail-meta-label">Approved Amount</div>
-            <div class="visit-detail-meta-value">${visit.fare_approved_currency || fareCurrency} ${Number(visit.fare_approved_amount).toFixed(2)}</div>
-          </div>
-        ` : ''}
-
-        ${fareStatusRaw === 'rejected' && visit.fare_rejection_reason ? `
-          <div style="margin-top:12px;padding:10px;border:1px solid rgba(239,68,68,0.22);border-radius:8px;background:rgba(239,68,68,0.05);">
-            <div class="visit-detail-meta-label">Rejection Reason</div>
-            <div class="visit-detail-meta-value">${escapeHtml(visit.fare_rejection_reason)}</div>
-          </div>
-        ` : ''}
-
-        ${canManagerDecideFare ? `
-          <div style="margin-top:14px;padding-top:12px;border-top:1px dashed var(--border-color);display:flex;flex-direction:column;gap:10px;">
-            <div>
-              <label for="visit-fare-approval-amount" class="visit-detail-meta-label">Approved Amount (${fareCurrency})</label>
-              <input id="visit-fare-approval-amount" type="number" min="0" step="0.01" value="${Number(visit.fare_amount).toFixed(2)}" class="sv-input" style="max-width:220px;">
-            </div>
-            <div>
-              <label for="visit-fare-reject-reason" class="visit-detail-meta-label">Rejection Reason (required when rejecting)</label>
-              <textarea id="visit-fare-reject-reason" class="sv-input" rows="2" placeholder="Add a short reason for the rep..." style="min-height:72px;resize:vertical;"></textarea>
-            </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button type="button" class="btn btn-primary btn-sm" id="visit-fare-approve-btn">Approve Fare</button>
-              <button type="button" class="btn btn-secondary btn-sm" id="visit-fare-reject-btn">Reject Fare</button>
-            </div>
-          </div>
-        ` : ''}
-      </div>
-    ` : ''}
-    
     ${visit.notes ? `
       <div class="visit-detail-section">
         <h4 class="visit-detail-section-title">Notes</h4>
-        <div class="visit-detail-notes">${visit.notes}</div>
+        <div class="visit-detail-notes">${escapeHtml(softenCaps(visit.notes, 'sentence'))}</div>
       </div>
     ` : ''}
-    
+
+    ${canManagerDecideFare ? '' : fareSection}
+
     ${visit.ai_summary ? `
       <div class="visit-detail-section">
         <h4 class="visit-detail-section-title">AI Summary</h4>
@@ -1090,16 +1121,16 @@ window.openVisitDetail = function (visitId) {
         </div>
       </div>
     ` : ''}
-    
+
     ${displayTags.length > 0 ? `
       <div class="visit-detail-section">
         <h4 class="visit-detail-section-title">Tags</h4>
         <div class="visit-card-tags" style="gap: 0.5rem;">
-          ${displayTags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+          ${displayTags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
         </div>
       </div>
     ` : ''}
-    
+
     ${visit.photo_url ? `
       <div class="visit-detail-section">
         <h4 class="visit-detail-section-title">Photo</h4>
