@@ -18185,11 +18185,9 @@ button svg {
 
 .sf { max-width: 1200px; }
 
-.sf-sub {
-  margin: 2px 0 0;
-  font-size: var(--type-sm);
-  font-weight: 500;
-  color: var(--text-muted);
+.sf-head {
+  justify-content: flex-end;
+  margin-bottom: 16px;
 }
 .sf-select {
   height: 32px;

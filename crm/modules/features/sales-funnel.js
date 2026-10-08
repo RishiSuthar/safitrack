@@ -203,11 +203,7 @@ function renderHeader(m) {
     .filter((p) => p.role === 'sales_rep' || p.role === 'manager')
     .sort((a, b) => fullName(a).localeCompare(fullName(b)));
   return `
-    <header class="db-head">
-      <div class="db-head-text">
-        <h1 class="db-title">Sales funnel</h1>
-        <p class="sf-sub">How deals created in ${esc(m.period.name)} have moved through the pipeline</p>
-      </div>
+    <header class="db-head sf-head">
       <div class="db-head-actions">
         ${state.isManager && reps.length ? `
           <select class="sf-select" data-owner aria-label="Deal owner">
@@ -277,7 +273,7 @@ function renderFunnel(m) {
 
   return `
     <section class="db-card sf-funnel">
-      ${cardHead('Funnel', plural(total, 'deal'), { view: 'opportunity-pipeline', label: 'Pipeline' })}
+      ${cardHead('Funnel', `${plural(total, 'deal')} created in ${esc(m.period.name)}`, { view: 'opportunity-pipeline', label: 'Pipeline' })}
       <ol class="sf-steps">
         ${steps.map((st, i) => {
           const share = pct(st.list.length, total) || 0;
@@ -453,7 +449,6 @@ function renderSkeleton() {
   const block = (cls) => `<div class="db-skel ${cls}"></div>`;
   return `
     <div class="db sf" aria-busy="true">
-      <header class="db-head"><div class="db-head-text">${block('db-skel-title')}</div></header>
       <div class="db-card sf-kpis">${block('sf-skel-kpis')}</div>
       <div class="sf-grid">
         <div class="db-card">${block('db-skel-list')}</div>
