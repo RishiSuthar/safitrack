@@ -2,13 +2,18 @@
 // Manager dashboard: period metrics vs. the previous period, an attention
 // queue, open deals, pipeline health, team activity and recent visits.
 import { state, supabaseClient } from '../state.js';
-import { renderError, getCurrencySymbol } from '../utils/helpers.js';
-import { DEFAULT_SALES_STAGES, normalizeOpportunityStage } from '../utils/pipeline-stages.js';
+import { renderError } from '../utils/helpers.js';
+import { normalizeOpportunityStage } from '../utils/pipeline-stages.js';
 import { navigateView } from '../core/router.js';
+import {
+  DAY, OPEN_STAGES, STAGE_META,
+  esc, compactNumber, money, moneyFull, fullName, initialsOf, plural,
+  parseDate, startOfDay, addDays, calendarDaysFrom, relTime, shortDate,
+  readStoredChoice, storeChoice, fetchAllRows,
+} from '../utils/analytics.js';
 
 // ── Constants ───────────────────────────────────────────────────
 
-const DAY = 86400000;
 const PERIODS = [
   { key: '7d', label: '7D', days: 7, name: '7 days' },
   { key: '30d', label: '30D', days: 30, name: '30 days' },
@@ -20,12 +25,6 @@ const INACTIVE_REP_DAYS = 7;
 // Visits are fetched for two full periods of the longest range so every
 // period can be compared with the one before it.
 const VISIT_LOOKBACK_DAYS = PERIODS[PERIODS.length - 1].days * 2;
-
-const OPEN_STAGES = ['prospecting', 'qualification'];
-const STAGE_META = Object.fromEntries(DEFAULT_SALES_STAGES.map((s) => [s.id, {
-  label: s.title.replace(/[\p{Extended_Pictographic}‍️]/gu, '').trim(),
-  color: s.color,
-}]));
 
 const METRICS = [
   { key: 'revenue', label: 'Revenue won', kind: 'money' },
@@ -51,48 +50,14 @@ function icon(name, size = 14) {
 // ── Module state ────────────────────────────────────────────────
 
 const ui = {
-  period: readStoredPeriod(),
+  period: readStoredChoice(PERIOD_STORAGE_KEY, PERIODS.map((p) => p.key), '30d'),
   metric: 'revenue',
   raw: null,
   model: null,
   resizeObserver: null,
 };
 
-function readStoredPeriod() {
-  try {
-    const v = localStorage.getItem(PERIOD_STORAGE_KEY);
-    if (PERIODS.some((p) => p.key === v)) return v;
-  } catch { /* storage unavailable */ }
-  return '30d';
-}
-
-function storePeriod(key) {
-  try { localStorage.setItem(PERIOD_STORAGE_KEY, key); } catch { /* storage unavailable */ }
-}
-
 // ── Formatting ──────────────────────────────────────────────────
-
-function esc(s) {
-  return String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-}
-
-function compactNumber(n) {
-  const abs = Math.abs(n);
-  const trim = (x) => x.toFixed(1).replace(/\.0$/, '');
-  if (abs >= 1e9) return `${trim(n / 1e9)}B`;
-  if (abs >= 1e6) return `${trim(n / 1e6)}M`;
-  if (abs >= 1e4) return `${Math.round(n / 1e3)}K`;
-  if (abs >= 1e3) return `${trim(n / 1e3)}K`;
-  return `${Math.round(n)}`;
-}
-
-function money(n) {
-  return `${getCurrencySymbol()} ${compactNumber(n || 0)}`;
-}
-
-function moneyFull(n) {
-  return `${getCurrencySymbol()} ${Math.round(n || 0).toLocaleString()}`;
-}
 
 function formatMetric(kind, v, { full = false } = {}) {
   if (v == null || Number.isNaN(v)) return '—';
@@ -101,66 +66,11 @@ function formatMetric(kind, v, { full = false } = {}) {
   return Math.round(v).toLocaleString();
 }
 
-function fullName(p) {
-  if (!p) return 'Unknown';
-  return `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Unknown';
-}
-
-function initialsOf(p) {
-  if (!p) return '?';
-  return (((p.first_name || '')[0] || '') + ((p.last_name || '')[0] || '')).toUpperCase() || '?';
-}
-
-function plural(n, word) {
-  return `${n} ${word}${n === 1 ? '' : 's'}`;
-}
-
 function titleCase(s) {
   return String(s || '').replace(/[_-]+/g, ' ').trim().replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 // ── Dates ───────────────────────────────────────────────────────
-
-// Plain YYYY-MM-DD values are calendar dates; parse them as local midnight so
-// they don't drift a day in timezones behind UTC.
-function parseDate(value) {
-  if (!value) return null;
-  if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) {
-    const [y, m, d] = value.split('-').map(Number);
-    return new Date(y, m - 1, d);
-  }
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? null : d;
-}
-
-function startOfDay(d) {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate());
-}
-
-function addDays(d, n) {
-  return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
-}
-
-function calendarDaysFrom(from, to) {
-  return Math.round((startOfDay(to) - startOfDay(from)) / DAY);
-}
-
-function relTime(date, now) {
-  if (!date) return '—';
-  const mins = Math.floor((now - date) / 60000);
-  if (mins < 1) return 'Just now';
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = calendarDaysFrom(date, now);
-  if (days <= 1) return 'Yesterday';
-  if (days < 7) return `${days}d ago`;
-  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-}
-
-function shortDate(d) {
-  return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-}
 
 function greeting(now) {
   const h = now.getHours();
@@ -170,18 +80,6 @@ function greeting(now) {
 }
 
 // ── Data layer ──────────────────────────────────────────────────
-
-// PostgREST caps responses (1000 rows by default), so page through results.
-async function fetchAllRows(buildQuery, { pageSize = 1000, maxRows = 20000 } = {}) {
-  const rows = [];
-  for (let from = 0; from < maxRows; from += pageSize) {
-    const { data, error } = await buildQuery().range(from, from + pageSize - 1);
-    if (error) throw new Error(error.message);
-    rows.push(...(data || []));
-    if (!data || data.length < pageSize) break;
-  }
-  return rows;
-}
 
 async function fetchDashboardData() {
   const orgId = state.currentOrganization?.id || '00000000-0000-0000-0000-000000000000';
@@ -904,7 +802,7 @@ function bindEvents(container) {
     if (periodBtn) {
       if (periodBtn.dataset.period === ui.period) return;
       ui.period = periodBtn.dataset.period;
-      storePeriod(ui.period);
+      storeChoice(PERIOD_STORAGE_KEY, ui.period);
       mount(container);
       return;
     }
