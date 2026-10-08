@@ -186,7 +186,6 @@ window.renderMyActivityView = lazyLoad('./modules/features/my-activity.js', 'ren
 window.renderVisitCard = lazyLoad('./modules/features/my-activity.js', 'renderVisitCard');
 window.renderSalesFunnelView = lazyLoad('./modules/features/sales-funnel.js', 'renderSalesFunnelView');
 window.renderOpportunityPipelineView = lazyLoad('./modules/features/opportunities.js', 'renderOpportunityPipelineView');
-window.updateOpportunityLogosAsync = lazyLoad('./modules/features/opportunities.js', 'updateOpportunityLogosAsync');
 window.initOpportunityEventListeners = lazyLoad('./modules/features/opportunities.js', 'initOpportunityEventListeners');
 window.initPipelineDragAndDrop = lazyLoad('./modules/features/opportunities.js', 'initPipelineDragAndDrop');
 window.updatePipelineStageCounts = lazyLoad('./modules/features/opportunities.js', 'updatePipelineStageCounts');

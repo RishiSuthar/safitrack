@@ -15,6 +15,8 @@ const OPPORTUNITY_STAGE_PAGE_SIZE = 25;
 const DAY_MS = 24 * 60 * 60 * 1000;
 // Won/Lost columns only show deals closed this recently unless the user picks "All time".
 const CLOSED_RECENT_DAYS = 90;
+// Open deals this long in one stage are flagged as possibly stuck.
+const STALE_STAGE_DAYS = 30;
 const DEFAULT_SORT = 'recent';
 // Owner filter value for deals whose owner was removed
 const NO_OWNER = '__none__';
@@ -303,14 +305,28 @@ function renderAvatarContent(name, avatarUrl) {
   return `<span style="position:relative;z-index:1;display:none;">${escapeHtml(getInitials(name))}</span><img src="${escapeHtml(avatarUrl)}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />`;
 }
 
-function getOpportunityLogoUrl(company, companyName) {
+/** A real logo for the deal's company, or '' to fall back to initials */
+function getOpportunityLogoUrl(company) {
   if (company?.logo_url) return company.logo_url;
   // Only use favicon service for real domain fields (getCompanyLogoUrl rejects emails)
-  const fromDomain = company?.domain ? getCompanyLogoUrl(company.domain) : '';
-  const logoUrl = fromDomain || `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=ededed&color=444&size=64`;
-  // Cache computed logo_url for future renders
-  if (company) company.logo_url = logoUrl;
-  return logoUrl;
+  return company?.domain ? getCompanyLogoUrl(company.domain) : '';
+}
+
+const COMPANY_SUFFIXES = /\b(ltd|limited|inc|incorporated|co|company|plc|llc|llp)\b/g;
+
+function normalizeCompanyName(value) {
+  return String(value || '').toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(COMPANY_SUFFIXES, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** Deals are often named after their company ("Invmer ltd" at INVMER LTD); don't repeat it. */
+function dealNameRepeatsCompany(dealName, companyName) {
+  const deal = normalizeCompanyName(dealName);
+  const company = normalizeCompanyName(companyName);
+  return Boolean(deal && company && deal.startsWith(company));
 }
 
 /** Deals in the top 20% by value count as "High Value" */
@@ -363,20 +379,25 @@ function renderOpportunityCard(opp, companyLookup) {
   const isClosed = Boolean(getStageOutcome(opp.mappedStage));
   const company = findCompanyForOpportunityFast(opp, companyLookup);
   const companyName = company?.name || opp.company_name || '';
-  const companyInitials = getInitials(companyName);
-  const logoUrl = getOpportunityLogoUrl(company, companyName || companyInitials);
+  const logoUrl = getOpportunityLogoUrl(company);
   const subsector = (opp.subsector || company?.subsector || '').trim();
   const probability = dealProbability(opp);
   const stageDays = daysSince(getStageEnteredAt(opp));
+  const isStale = !isClosed && stageDays >= STALE_STAGE_DAYS;
   const dueStatus = getDueStatus(opp.next_step_date);
+
+  const subtitle = [
+    companyName && !dealNameRepeatsCompany(opp.name, companyName) ? companyName : '',
+    subsector,
+  ].filter(Boolean);
 
   let nextStepHtml = '';
   if (opp.next_step || opp.next_step_date) {
     const dueLabel = formatDueDate(opp.next_step_date);
     nextStepHtml = `
-      <div class="opp-next-step${dueStatus ? ` ${dueStatus === 'overdue' ? 'overdue' : 'due-today'}` : ''}">
-        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="opp-step-icon"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 12 2 2 4-4"/></svg>
-        <span class="opp-step-text">${escapeHtml(opp.next_step || 'Next step')}</span>
+      <div class="opp-next-step${dueStatus ? ` is-${dueStatus === 'overdue' ? 'overdue' : 'due-today'}` : ''}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="opp-step-icon" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="3"/><path d="m9 12 2 2 4-4"/></svg>
+        <span class="opp-step-text">${escapeHtml(opp.next_step || 'Follow-up')}</span>
         ${dueLabel ? `<time class="opp-step-date">${escapeHtml(dueLabel)}</time>` : ''}
       </div>`;
   }
@@ -393,7 +414,7 @@ function renderOpportunityCard(opp, companyLookup) {
   }
 
   return `
-    <div class="opportunity-card ${canEdit ? 'is-mine' : 'readonly'}"
+    <div class="opportunity-card ${canEdit ? 'is-mine' : 'readonly'}${isStale ? ' is-stale' : ''}"
       data-id="${escapeHtml(opp.id)}"
       data-owner-id="${escapeHtml(opp.user_id || '')}"
       data-value="${dealValue(opp)}"
@@ -403,42 +424,25 @@ function renderOpportunityCard(opp, companyLookup) {
       data-next-step-ts="${toLocalDay(opp.next_step_date)?.getTime() ?? ''}"
       title="${canEdit ? 'Click to open, drag to move' : 'Click to open'}">
 
-      <div class="opp-card-header">
-        <div class="opp-company-row">
-          <div class="opp-company-avatar">
-            <div class="mention-avatar" style="width:22px;height:22px;font-size:0.6rem;border-radius:5px;flex-shrink:0;">${escapeHtml(companyInitials)}</div>
-            <img src="${escapeHtml(logoUrl)}" class="opp-logo-img" alt="" onload="this.style.display='block';var p=this.previousElementSibling;if(p)p.style.display='none'" onerror="this.style.display='none'" />
-          </div>
-          <span class="opp-company-label">${escapeHtml(opp.company_name || 'No company')}</span>
+      <div class="opp-card-head">
+        <span class="opp-avatar" aria-hidden="true">
+          <span class="opp-avatar-initials">${escapeHtml(getInitials(companyName || opp.name || '?'))}</span>
+          ${logoUrl ? `<img src="${escapeHtml(logoUrl)}" alt="" onload="this.previousElementSibling.style.visibility='hidden'" onerror="this.remove()" />` : ''}
+        </span>
+        <div class="opp-card-titles">
+          <div class="opp-name">${escapeHtml(opp.name || 'Untitled deal')}</div>
+          ${subtitle.length ? `<div class="opp-company">${subtitle.map(escapeHtml).join('<span class="opp-dot">·</span>')}</div>` : ''}
         </div>
-        <div class="opp-header-right">
-          <span class="opp-stage-age" title="Days in this stage">
-            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
-            <span class="opp-stage-age-days">${stageDays}d</span>
-          </span>
-          ${canEdit ? `
-            <button class="opp-drag-handle" title="Drag to move" onclick="event.stopPropagation()">
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
-            </button>
-          ` : ''}
-        </div>
+        <span class="opp-stage-age" title="${stageDays} day${stageDays === 1 ? '' : 's'} in this stage${isStale ? ', may be stuck' : ''}">${stageDays}d</span>
       </div>
-
-      <div class="opp-name">${escapeHtml(opp.name || 'Untitled deal')}</div>
 
       <div class="opp-value-row">
         <span class="opp-value">${formatCurrency(dealValue(opp))}</span>
-        <span class="opp-prob-label" title="Win chance" style="color:${getProbabilityColor(probability)}"${isClosed ? ' hidden' : ''}>${probability}%</span>
+        <span class="opp-prob-label" title="Win chance"${isClosed ? ' hidden' : ''}>${probability}%</span>
+        ${teamHtml}
       </div>
 
       ${nextStepHtml}
-
-      ${subsector || teamHtml ? `
-        <div class="opp-card-footer">
-          ${subsector ? `<span class="opp-chip" title="Subsector">${escapeHtml(subsector)}</span>` : ''}
-          ${teamHtml}
-        </div>
-      ` : ''}
     </div>
   `;
 }
@@ -738,37 +742,6 @@ async function renderOpportunityPipelineView({ preserveView = false } = {}) {
     initOpportunityEventListeners();
     initPipelineFilters();
   }, 100);
-
-  // Fire logo upgrades in the background — never await so the kanban is immediately usable.
-  updateOpportunityLogosAsync().catch(() => {});
-}
-
-// Upgrade opportunity card logos using the in-memory companies cache.
-// Cache-only: avoids Supabase queries and sequential image-loading that blocked the UI.
-// Images are updated via onload/onerror so the browser handles them fully async.
-function updateOpportunityLogosAsync() {
-  const companyLookup = buildCompanyLookup(window.allCompaniesData);
-  document.querySelectorAll('.opportunity-card').forEach(card => {
-    const opp = board?.opportunitiesById.get(card.dataset.id);
-    const company = opp && findCompanyForOpportunityFast(opp, companyLookup);
-    if (!company?.logo_url) return;
-
-    const imgEl = card.querySelector('.opp-company-avatar img');
-    const initials = card.querySelector('.opp-company-avatar .mention-avatar');
-    // Only update if the src is actually different
-    if (!imgEl || imgEl.src === company.logo_url) return;
-
-    imgEl.onload = function () {
-      this.style.display = 'block';
-      if (initials) initials.style.display = 'none';
-    };
-    imgEl.onerror = function () {
-      this.style.display = 'none';
-      if (initials) initials.style.display = '';
-    };
-    imgEl.src = company.logo_url;
-  });
-  return Promise.resolve();
 }
 
 // ── Load more / view preservation ─────────────────────────────────────────────
@@ -973,12 +946,15 @@ function initPipelineDragAndDrop() {
               // Win chance means nothing once a deal is closed
               probEl.hidden = Boolean(outcome);
               probEl.textContent = `${dealProbability(opportunity)}%`;
-              probEl.style.color = getProbabilityColor(dealProbability(opportunity));
             }
           }
           card.dataset.updatedTs = String(Date.now());
-          const stageDaysEl = card.querySelector('.opp-stage-age-days');
-          if (stageDaysEl) stageDaysEl.textContent = '0d';
+          card.classList.remove('is-stale');
+          const stageAgeEl = card.querySelector('.opp-stage-age');
+          if (stageAgeEl) {
+            stageAgeEl.textContent = '0d';
+            stageAgeEl.title = '0 days in this stage';
+          }
 
           showInlineSuccess(card);
           if (outcome === 'won') {
@@ -2726,7 +2702,6 @@ async function syncOpportunityAssignees(opportunityId, assignees) {
 // ── Exports ────────────────────────────────────────────────────
 export {
   renderOpportunityPipelineView,
-  updateOpportunityLogosAsync,
   initOpportunityEventListeners,
   initPipelineDragAndDrop,
   updatePipelineStageCounts,
