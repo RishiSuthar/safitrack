@@ -393,13 +393,6 @@ function renderVisitsCards(visits) {
     'support': 'Support'
   };
 
-  const pinIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>`;
-  const fareIcons = {
-    requested: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`,
-    approved: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
-    rejected: `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>`,
-  };
-
   return visits.map(visit => {
     const userName = visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : 'Unknown';
     const initials = getInitials(userName);
@@ -409,7 +402,6 @@ function renderVisitsCards(visits) {
     const visitTypeLabel = visitTypeLabels[visit.visit_type] || 'Visit';
     const companyName = visit.company_name || 'Unknown Company';
 
-    const scoreClass = visit.lead_score >= 70 ? 'score-high' : visit.lead_score >= 40 ? 'score-medium' : 'score-low';
     const visitSubsector = (visit.subsector || '').trim();
     const hasFare = Number.isFinite(Number(visit.fare_amount)) && Number(visit.fare_amount) >= 0;
     const fareCurrency = visit.fare_currency || state.orgCurrency || state.currentOrganization?.currency || 'USD';
@@ -419,8 +411,8 @@ function renderVisitsCards(visits) {
     const fareAmount = fareStatusRaw === 'approved' && Number.isFinite(Number(visit.fare_approved_amount))
       ? `${visit.fare_approved_currency || fareCurrency} ${Number(visit.fare_approved_amount).toFixed(2)}`
       : `${fareCurrency} ${hasFare ? Number(visit.fare_amount).toFixed(2) : ''}`;
-    const fareStatusLabel = { approved: 'Fare approved', rejected: 'Fare rejected', requested: 'Fare requested' }[fareStatusRaw] || 'Fare';
-    const fareTone = fareIcons[fareStatusRaw] ? fareStatusRaw : 'neutral';
+    const fareStatusLabel = { approved: 'Fare approved', rejected: 'Fare rejected', requested: 'Fare pending' }[fareStatusRaw] || 'Fare';
+    const fareTone = ['approved', 'rejected', 'requested'].includes(fareStatusRaw) ? fareStatusRaw : 'neutral';
     const canReviewFare = state.isManager && fareStatusRaw === 'requested' && hasFare;
 
     const distanceTag = (visit.tags || []).find(t => typeof t === 'string' && t.startsWith('__distance:'));
@@ -432,56 +424,47 @@ function renderVisitsCards(visits) {
     const displayTags = (visit.tags || []).filter(t => typeof t !== 'string'
       || (!t.startsWith('__distance:') && t !== 'location-unverified' && !typeKeys.has(normalizeTag(t))));
 
-    const subItems = [
-      `<span class="visit-card-sub-item">${escapeHtml(userName)}</span>`,
+    const metaItems = [
+      escapeHtml(userName),
+      visitTypeLabel,
       isUnverified
-        ? `<span class="visit-card-sub-item is-warning">${pinIcon} Location not verified</span>`
-        : distanceVal != null ? `<span class="visit-card-sub-item">${pinIcon} ${escapeHtml(distanceVal)}m from site</span>` : '',
-      visit.lead_score ? `<span class="visit-card-sub-item ${scoreClass}">${visit.lead_score}% lead score</span>` : '',
-      visitSubsector ? `<span class="visit-card-sub-item">${escapeHtml(visitSubsector)}</span>` : '',
-    ].filter(Boolean).join('<span class="visit-card-sub-sep" aria-hidden="true">·</span>');
+        ? '<span class="is-danger">Location not verified</span>'
+        : distanceVal != null ? `${escapeHtml(distanceVal)} m from site` : '',
+      visit.lead_score ? `Lead score ${visit.lead_score}%` : '',
+      visitSubsector ? escapeHtml(visitSubsector) : '',
+    ].filter(Boolean);
 
-    const farePill = fareTrackingEnabled && hasFare
-      ? `<span class="visit-card-fare fare-${fareTone}">${fareIcons[fareTone] || ''} ${fareStatusLabel} · ${escapeHtml(fareAmount)}</span>`
+    const fareStatus = fareTrackingEnabled && hasFare
+      ? `<span class="visit-card-fare fare-${fareTone}">${fareTone === 'neutral' ? '' : '<span class="visit-card-fare-dot"></span>'}${fareStatusLabel}<span class="visit-card-fare-amount">${escapeHtml(fareAmount)}</span></span>`
       : '';
     const tagsHtml = displayTags.slice(0, 3).map(tag => `<span class="visit-card-tag">${escapeHtml(tag)}</span>`).join('')
       + (displayTags.length > 3 ? `<span class="visit-card-tag">+${displayTags.length - 3}</span>` : '');
-    const hasFooterContent = Boolean(farePill || tagsHtml || canReviewFare);
+    const showMapAction = visit.latitude && visit.longitude && !isUnverified;
 
     return `
-      <div class="visit-card-premium" data-visit-id="${visit.id}" data-type="${escapeHtml(visitType)}" ${fareStatusRaw ? `data-fare="${escapeHtml(fareStatusRaw)}"` : ''} onclick="openVisitDetail('${visit.id}')">
-        <div class="visit-card-top">
-          <div class="visit-card-avatar">${escapeHtml(initials)}</div>
-          <div class="visit-card-main">
-            <div class="visit-card-title-row">
+      <div class="visit-card-premium" data-visit-id="${visit.id}" data-type="${escapeHtml(visitType)}" onclick="openVisitDetail('${visit.id}')">
+        <div class="visit-card-layout">
+          <div class="visit-card-avatar" aria-hidden="true">${escapeHtml(initials)}</div>
+          <div class="visit-card-body">
+            <div class="visit-card-head">
               <div class="visit-card-company" title="${escapeHtml(companyName)}">${escapeHtml(softenCaps(companyName))}</div>
-              <span class="visit-card-type type-${escapeHtml(visitType)}"><span class="visit-card-type-dot"></span>${visitTypeLabel}</span>
+              <time class="visit-card-time" datetime="${escapeHtml(visit.created_at)}" title="${escapeHtml(dateStr)}">${relativeTime}</time>
             </div>
-            <div class="visit-card-sub">${subItems}</div>
-          </div>
-          <div class="visit-card-time" title="${escapeHtml(dateStr)}">${relativeTime}</div>
-        </div>
-
-        ${visit.notes ? `<div class="visit-card-notes">${escapeHtml(softenCaps(visit.notes, 'sentence'))}</div>` : ''}
-
-        <div class="visit-card-footer${hasFooterContent ? '' : ' is-compact'}">
-          ${hasFooterContent ? `<div class="visit-card-tags">${farePill}${tagsHtml}</div>` : ''}
-          <div class="visit-card-actions">
-            ${visit.latitude && visit.longitude && !isUnverified ? `
-              <button class="visit-card-action" onclick="event.stopPropagation(); viewLocationOnMap(${visit.latitude}, ${visit.longitude}, ${escapeHtml(JSON.stringify(companyName))})" title="View on Map">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
-              </button>
+            <div class="visit-card-sub">${metaItems.join('<span class="visit-card-sep" aria-hidden="true">·</span>')}</div>
+            ${visit.notes ? `<p class="visit-card-notes">${escapeHtml(softenCaps(visit.notes, 'sentence'))}</p>` : ''}
+            ${fareStatus || tagsHtml || canReviewFare || showMapAction ? `
+              <div class="visit-card-footer">
+                <div class="visit-card-tags">${fareStatus}${tagsHtml}</div>
+                <div class="visit-card-actions">
+                  ${showMapAction ? `
+                    <button type="button" class="visit-card-action" onclick="event.stopPropagation(); viewLocationOnMap(${visit.latitude}, ${visit.longitude}, ${escapeHtml(JSON.stringify(companyName))})" title="View on map" aria-label="View on map">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+                    </button>
+                  ` : ''}
+                  ${canReviewFare ? `<button type="button" class="visit-card-review" onclick="event.stopPropagation(); openVisitDetail('${visit.id}')">Review</button>` : ''}
+                </div>
+              </div>
             ` : ''}
-            ${canReviewFare ? `
-              <button class="visit-card-review" onclick="event.stopPropagation(); openVisitDetail('${visit.id}')">
-                Review fare
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-              </button>
-            ` : `
-              <button class="visit-card-action" onclick="event.stopPropagation(); openVisitDetail('${visit.id}')" title="View Details">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-              </button>
-            `}
           </div>
         </div>
       </div>
@@ -974,7 +957,7 @@ window.openVisitDetail = function (visitId) {
     : fareStatusRaw === 'rejected'
       ? 'Rejected'
       : fareStatusRaw === 'requested'
-        ? 'Requested'
+        ? 'Pending'
         : 'Not submitted';
   const canManagerDecideFare = state.isManager && fareApprovalWorkflowEnabled && hasFare && (fareStatusRaw === 'requested' || fareStatusRaw === '');
   const requesterName = visit.fare_requested_by
@@ -988,9 +971,9 @@ window.openVisitDetail = function (visitId) {
     return;
   }
   const showFareSection = fareTrackingEnabled && fareApprovalWorkflowEnabled && hasFare;
-  const fareStatusPill = `<span class="visit-fare-status fare-${fareStatusRaw || 'none'}">${fareStatusLabel}</span>`;
+  const fareStatusPill = `<span class="visit-fare-status fare-${fareStatusRaw || 'none'}"><span class="visit-fare-status-dot"></span>${fareStatusLabel}</span>`;
   const fareSection = showFareSection ? `
-      <div class="visit-detail-section visit-fare-card${canManagerDecideFare ? ' is-pending' : ''}">
+      <div class="visit-detail-section visit-fare-card">
         <div class="visit-fare-card-head">
           <h4 class="visit-detail-section-title">Fare Approval</h4>
           ${fareStatusPill}
@@ -1036,11 +1019,11 @@ window.openVisitDetail = function (visitId) {
               <input id="visit-fare-approval-amount" type="number" min="0" step="0.01" value="${Number(visit.fare_amount).toFixed(2)}" class="sv-input">
             </div>
             <div class="visit-fare-field">
-              <label for="visit-fare-reject-reason" class="visit-detail-meta-label">Reason <span class="visit-fare-hint">(required to reject)</span></label>
+              <label for="visit-fare-reject-reason" class="visit-detail-meta-label">Note to rep <span class="visit-fare-hint">· required to reject</span></label>
               <textarea id="visit-fare-reject-reason" class="sv-input" rows="2" placeholder="Add a short reason for the rep..."></textarea>
             </div>
             <div class="visit-fare-actions">
-              <button type="button" class="btn btn-sm visit-fare-reject" id="visit-fare-reject-btn">Reject</button>
+              <button type="button" class="btn btn-secondary btn-sm" id="visit-fare-reject-btn">Reject</button>
               <button type="button" class="btn btn-primary btn-sm" id="visit-fare-approve-btn">Approve fare</button>
             </div>
           </div>
