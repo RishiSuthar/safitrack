@@ -3,8 +3,8 @@
 import { state, supabaseClient, loadPersistedState as _loadPersistedState, saveViewState } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials, triggerConfetti } from '../ui/toast.js';
-import { renderSkeletonCards, renderError, getCurrencySymbol } from '../utils/helpers.js';
-import { getCompanyLogoUrl, guessDomainAndFavicon } from '../ui/spreadsheet.js';
+import { renderError, getCurrencySymbol, formatCurrency } from '../utils/helpers.js';
+import { getCompanyLogoUrl } from '../ui/spreadsheet.js';
 import { getDefaultSalesStages, LEGACY_STAGE_TO_CANONICAL } from '../utils/pipeline-stages.js';
 
 // ── Pipeline helpers ──────────────────────────────────────────────────────────
@@ -12,9 +12,22 @@ import { getDefaultSalesStages, LEGACY_STAGE_TO_CANONICAL } from '../utils/pipel
 /** Stage color palette for custom pipelines */
 const STAGE_COLORS = ['#3b82f6', '#ec4899', '#10b981', '#ef4444', '#f59e0b', '#8b5cf6', '#06b6d4', '#f97316'];
 const OPPORTUNITY_STAGE_PAGE_SIZE = 25;
-// Per-stage "Load more" state of the board currently on screen. Column
-// headers count these not-yet-rendered deals too.
-let boardPagination = null;
+const DAY_MS = 24 * 60 * 60 * 1000;
+// Won/Lost columns only show deals closed this recently unless the user picks "All time".
+const CLOSED_RECENT_DAYS = 90;
+const DEFAULT_SORT = 'recent';
+// Owner filter value for deals whose owner was removed
+const NO_OWNER = '__none__';
+const OPPORTUNITY_SELECT = '*, profiles(id, first_name, last_name, email, role, avatar_url)';
+
+// The board currently on screen: deals by id, per-stage "Load more" state and
+// the search text for each deal. Column headers and totals count deals that are
+// still behind "Load more" too.
+let board = null;
+
+// Listeners the opportunity form adds outside its own (re-cloned) inputs.
+// Aborted every time the form opens so they don't pile up.
+let opportunityModalListeners = null;
 
 /** The built-in fallback used when Supabase is unavailable */
 function getDefaultPipeline() {
@@ -78,6 +91,18 @@ function getActivePipeline(pipelines) {
   return found || pipelines[0] || getDefaultPipeline();
 }
 
+/** The active pipeline from the cache, without fetching */
+function getCachedActivePipeline() {
+  return (state.pipelines && state.activePipelineId
+    ? state.pipelines.find(p => p.id === state.activePipelineId)
+    : null) || getDefaultPipeline();
+}
+
+/** Stages of a pipeline, falling back to the default set if it has none */
+function getPipelineStages(pipeline) {
+  return pipeline?.stages?.length ? pipeline.stages : getDefaultSalesStages();
+}
+
 /** Persist the active pipeline choice to localStorage */
 function setActivePipeline(pipelineId) {
   const orgId = state.currentOrganization?.id || '';
@@ -93,12 +118,39 @@ function oppMatchesPipeline(opp, pipeline) {
   return opp.pipeline_id === pipeline.id;
 }
 
+/**
+ * The column a deal belongs in. Legacy stage names (proposal, Closed_Won, ...)
+ * are mapped on the default pipeline; anything else that doesn't match a stage
+ * lands in the first column rather than disappearing from the board.
+ */
+function resolveStageId(rawStage, stages, isDefaultPipeline) {
+  if (stages.some(s => s.id === rawStage)) return rawStage;
+  if (isDefaultPipeline) {
+    const key = String(rawStage || '').trim().toLowerCase().replace(/[_\s]+/g, '-');
+    const mapped = LEGACY_STAGE_TO_CANONICAL[key];
+    if (mapped && stages.some(s => s.id === mapped)) return mapped;
+  }
+  return stages[0]?.id;
+}
+
+/** 'won' / 'lost' for the closing stages, null for open ones */
+function getStageOutcome(stageId) {
+  if (stageId === 'closed-won') return 'won';
+  if (stageId === 'closed-lost') return 'lost';
+  return null;
+}
+
+/** Stage titles can carry decoration (e.g. "Won 🎉"); the board shows them plain. */
+function plainStageTitle(title) {
+  return String(title || '').replace(/[\p{Extended_Pictographic}‍️]/gu, '').trim();
+}
+
 /** Update the stage dropdown in the opportunity modal to reflect the active pipeline's stages */
 function updateStageDropdownForPipeline(pipeline, currentValue) {
-  if (!pipeline?.stages?.length) return;
-  const options = pipeline.stages.map(s => ({ value: s.id, label: s.title }));
+  const stages = getPipelineStages(pipeline);
+  const options = stages.map(s => ({ value: s.id, label: plainStageTitle(s.title) }));
   window.updateCrmDropdownOptions?.('opportunity-stage', options, false);
-  const defaultVal = currentValue || pipeline.stages[0]?.id;
+  const defaultVal = currentValue || stages[0]?.id;
   if (defaultVal) window.setCrmDropdownValue?.('opportunity-stage', defaultVal);
 }
 
@@ -135,49 +187,315 @@ function findCompanyForOpportunityFast(opp, lookup) {
   return null;
 }
 
-async function renderOpportunityPipelineView() {
-  // renderOpportunityPipelineView start (diagnostics removed)
+// ── Deal helpers ──────────────────────────────────────────────────────────────
+
+function escapeRegExp(value) {
+  return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function fullName(profile) {
+  return profile ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') : '';
+}
+
+function dealValue(opp) {
+  return parseFloat(opp?.value) || 0;
+}
+
+function dealProbability(opp) {
+  const p = parseInt(opp?.probability, 10);
+  return Number.isNaN(p) ? 0 : Math.min(100, Math.max(0, p));
+}
+
+/** Totals are shown rounded; card values keep their decimals. */
+function formatMoney(amount) {
+  return formatCurrency(Math.round(amount));
+}
+
+/** Competitors are stored as a JSON string; a malformed value must not break the board. */
+function parseCompetitors(raw) {
+  if (Array.isArray(raw)) return raw.filter(Boolean).map(String);
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter(Boolean).map(String) : [];
+  } catch {
+    return [];
+  }
+}
+
+/** A date-only value ("2026-10-08") as local midnight. new Date() would read it as UTC. */
+function toLocalDay(value) {
+  if (!value) return null;
+  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value));
+  const day = match ? new Date(+match[1], +match[2] - 1, +match[3]) : new Date(value);
+  if (Number.isNaN(day.getTime())) return null;
+  day.setHours(0, 0, 0, 0);
+  return day;
+}
+
+/** 'overdue', 'today' or null for a next-step due date */
+function getDueStatus(dateValue) {
+  const due = toLocalDay(dateValue);
+  if (!due) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  if (due < today) return 'overdue';
+  if (due.getTime() === today.getTime()) return 'today';
+  return null;
+}
+
+/** Next-step due date relative to today: "Today", "Tomorrow", "Yesterday", else "12 Oct".
+ *  (The shared formatDate treats every date as past, so future steps read "3 days ago".) */
+function formatDueDate(dateValue) {
+  const due = toLocalDay(dateValue);
+  if (!due) return '';
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const days = Math.round((due - today) / DAY_MS);
+  if (days === 0) return 'Today';
+  if (days === 1) return 'Tomorrow';
+  if (days === -1) return 'Yesterday';
+  return due.toLocaleDateString(undefined, {
+    day: 'numeric',
+    month: 'short',
+    ...(due.getFullYear() !== today.getFullYear() ? { year: 'numeric' } : {}),
+  });
+}
+
+/** When the deal entered its current stage. stage_changed_at is kept by a DB trigger;
+ *  older databases without that column fall back to the last update. */
+function getStageEnteredAt(opp) {
+  return opp.stage_changed_at || opp.updated_at || opp.created_at;
+}
+
+function daysSince(value) {
+  const time = value ? new Date(value).getTime() : NaN;
+  if (Number.isNaN(time)) return 0;
+  return Math.max(0, Math.floor((Date.now() - time) / DAY_MS));
+}
+
+function isAssignedToMe(opp) {
+  return opp._isAssignedToMe === true
+    || (opp.assignees || []).some(a => a.user_id === state.currentUser.id);
+}
+
+/** Owners and tagged assignees can edit their deals; managers can edit any deal in the org. */
+function canEditOpportunity(opp) {
+  if (!opp) return false;
+  return state.isManager || opp.user_id === state.currentUser.id || isAssignedToMe(opp);
+}
+
+/** Owner first, then tagged assignees (excluding the owner if also tagged) */
+function getOpportunityTeam(opp) {
+  const team = [];
+  if (opp.profiles) {
+    team.push({ user_id: opp.user_id, name: fullName(opp.profiles) || 'Owner', avatar_url: opp.profiles.avatar_url });
+  }
+  (opp.assignees || [])
+    .filter(a => a.user_id !== opp.user_id)
+    .forEach(a => team.push({ user_id: a.user_id, name: fullName(a.profiles) || 'Member', avatar_url: a.profiles?.avatar_url }));
+  return team;
+}
+
+/** Initials with an optional photo on top that hides itself if it fails to load */
+function renderAvatarContent(name, avatarUrl) {
+  if (!avatarUrl) return escapeHtml(getInitials(name));
+  return `<span style="position:relative;z-index:1;display:none;">${escapeHtml(getInitials(name))}</span><img src="${escapeHtml(avatarUrl)}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />`;
+}
+
+function getOpportunityLogoUrl(company, companyName) {
+  if (company?.logo_url) return company.logo_url;
+  // Only use favicon service for real domain fields (getCompanyLogoUrl rejects emails)
+  const fromDomain = company?.domain ? getCompanyLogoUrl(company.domain) : '';
+  const logoUrl = fromDomain || `https://ui-avatars.com/api/?name=${encodeURIComponent(companyName)}&background=ededed&color=444&size=64`;
+  // Cache computed logo_url for future renders
+  if (company) company.logo_url = logoUrl;
+  return logoUrl;
+}
+
+/** Deals in the top 20% by value count as "High Value" */
+function getHighValueThreshold(opportunities) {
+  const values = opportunities.map(dealValue).filter(v => v > 0).sort((a, b) => b - a);
+  if (values.length === 0) return Infinity;
+  return values[Math.max(0, Math.ceil(values.length * 0.2) - 1)];
+}
+
+function buildSearchText(opp, company) {
+  return [
+    opp.name,
+    opp.company_name,
+    company?.name,
+    opp.subsector || company?.subsector,
+    opp.notes,
+    opp.next_step,
+    ...parseCompetitors(opp.competitors),
+    ...getOpportunityTeam(opp).map(m => m.name),
+  ].filter(Boolean).join(' ').toLowerCase();
+}
+
+// ── Board markup ──────────────────────────────────────────────────────────────
+
+const CHECK_ICON = '<svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+const CHEVRON_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>';
+
+function renderFilterDropdown(id, options, selectedValue) {
+  const selected = options.find(o => o.value === selectedValue) || options[0];
+  return `
+    <div class="crm-dd crm-dd--filter" data-dd-id="${id}">
+      <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+        <span class="crm-dd-label">${escapeHtml(selected.label)}</span>
+        <span class="crm-dd-chevron">${CHEVRON_ICON}</span>
+      </button>
+      <div class="crm-dd-panel" role="listbox">
+        <ul class="crm-dd-list">
+          ${options.map(o => {
+            const isSelected = o.value === selected.value;
+            return `<li class="crm-dd-option${isSelected ? ' is-selected' : ''}" role="option"${isSelected ? ' aria-selected="true"' : ''} data-value="${escapeHtml(o.value)}" data-label="${escapeHtml(o.label)}" tabindex="-1">${CHECK_ICON}${escapeHtml(o.label)}</li>`;
+          }).join('')}
+        </ul>
+      </div>
+      <input class="crm-dd-value-input" type="hidden" id="${id}" value="${escapeHtml(selected.value)}">
+    </div>`;
+}
+
+function renderOpportunityCard(opp, companyLookup) {
+  const canEdit = canEditOpportunity(opp);
+  const isClosed = Boolean(getStageOutcome(opp.mappedStage));
+  const company = findCompanyForOpportunityFast(opp, companyLookup);
+  const companyName = company?.name || opp.company_name || '';
+  const companyInitials = getInitials(companyName);
+  const logoUrl = getOpportunityLogoUrl(company, companyName || companyInitials);
+  const subsector = (opp.subsector || company?.subsector || '').trim();
+  const probability = dealProbability(opp);
+  const stageDays = daysSince(getStageEnteredAt(opp));
+  const dueStatus = getDueStatus(opp.next_step_date);
+
+  let nextStepHtml = '';
+  if (opp.next_step || opp.next_step_date) {
+    const dueLabel = formatDueDate(opp.next_step_date);
+    nextStepHtml = `
+      <div class="opp-next-step${dueStatus ? ` ${dueStatus === 'overdue' ? 'overdue' : 'due-today'}` : ''}">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="opp-step-icon"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 12 2 2 4-4"/></svg>
+        <span class="opp-step-text">${escapeHtml(opp.next_step || 'Next step')}</span>
+        ${dueLabel ? `<time class="opp-step-date">${escapeHtml(dueLabel)}</time>` : ''}
+      </div>`;
+  }
+
+  const team = getOpportunityTeam(opp);
+  let teamHtml = '';
+  if (team.length > 0) {
+    const overflow = team.length - 3;
+    teamHtml = `
+      <div class="opp-assignees-stack">
+        ${team.slice(0, 3).map((m, i) => `<div class="opp-assignee-bubble" title="${escapeHtml(m.name)}" style="background:${getAssigneeColor(m.user_id)};z-index:${10 - i}">${renderAvatarContent(m.name, m.avatar_url)}</div>`).join('')}
+        ${overflow > 0 ? `<div class="opp-assignee-bubble opp-assignee-overflow" title="${overflow} more">+${overflow}</div>` : ''}
+      </div>`;
+  }
+
+  return `
+    <div class="opportunity-card ${canEdit ? 'is-mine' : 'readonly'}"
+      data-id="${escapeHtml(opp.id)}"
+      data-owner-id="${escapeHtml(opp.user_id || '')}"
+      data-value="${dealValue(opp)}"
+      data-probability="${probability}"
+      data-created-ts="${new Date(opp.created_at).getTime() || 0}"
+      data-updated-ts="${new Date(opp.updated_at || opp.created_at).getTime() || 0}"
+      data-next-step-ts="${toLocalDay(opp.next_step_date)?.getTime() ?? ''}"
+      title="${canEdit ? 'Click to open, drag to move' : 'Click to open'}">
+
+      <div class="opp-card-header">
+        <div class="opp-company-row">
+          <div class="opp-company-avatar">
+            <div class="mention-avatar" style="width:22px;height:22px;font-size:0.6rem;border-radius:5px;flex-shrink:0;">${escapeHtml(companyInitials)}</div>
+            <img src="${escapeHtml(logoUrl)}" class="opp-logo-img" alt="" onload="this.style.display='block';var p=this.previousElementSibling;if(p)p.style.display='none'" onerror="this.style.display='none'" />
+          </div>
+          <span class="opp-company-label">${escapeHtml(opp.company_name || 'No company')}</span>
+        </div>
+        <div class="opp-header-right">
+          <span class="opp-stage-age" title="Days in this stage">
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
+            <span class="opp-stage-age-days">${stageDays}d</span>
+          </span>
+          ${canEdit ? `
+            <button class="opp-drag-handle" title="Drag to move" onclick="event.stopPropagation()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
+            </button>
+          ` : ''}
+        </div>
+      </div>
+
+      <div class="opp-name">${escapeHtml(opp.name || 'Untitled deal')}</div>
+
+      <div class="opp-value-row">
+        <span class="opp-value">${formatCurrency(dealValue(opp))}</span>
+        <span class="opp-prob-label" title="Win chance" style="color:${getProbabilityColor(probability)}"${isClosed ? ' hidden' : ''}>${probability}%</span>
+      </div>
+
+      ${nextStepHtml}
+
+      ${subsector || teamHtml ? `
+        <div class="opp-card-footer">
+          ${subsector ? `<span class="opp-chip" title="Subsector">${escapeHtml(subsector)}</span>` : ''}
+          ${teamHtml}
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function renderLoadMoreButton(stageId, remaining) {
+  return `
+    <div class="pipeline-load-more-wrap">
+      <button class="btn btn-ghost pipeline-load-more" data-stage-id="${escapeHtml(stageId)}">
+        <span class="pipeline-load-more-main">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m5 12 7 7 7-7"/></svg>
+          <span class="pipeline-load-more-label">Load more deals</span>
+        </span>
+        <span class="pipeline-load-more-meta">
+          <span class="pipeline-load-more-count">${Math.min(OPPORTUNITY_STAGE_PAGE_SIZE, remaining)}</span>
+          <span class="pipeline-load-more-sep">of</span>
+          <span class="pipeline-load-more-remaining">${remaining}</span>
+          <span class="pipeline-load-more-sep">left</span>
+        </span>
+      </button>
+    </div>`;
+}
+
+// ── Board render ──────────────────────────────────────────────────────────────
+
+/**
+ * Render the kanban for the active pipeline.
+ * preserveView keeps "Load more" expansions and scroll positions, for re-renders
+ * after the user saves or deletes something on the same pipeline.
+ */
+async function renderOpportunityPipelineView({ preserveView = false } = {}) {
+  const savedView = preserveView ? captureBoardView() : null;
+
   // Ensure companies cache is ready before rendering opportunities
   if (!Array.isArray(window.allCompaniesData) || window.allCompaniesData.length === 0) {
     try { await loadAllCompanies(); } catch (e) { /* ignored */ }
   }
 
   // ── Load pipelines & opportunities ───────────────────────────────────────
-  const pipelinesPromise = loadPipelines();
+  // profiles is a left join: deals whose owner was removed (user_id set to
+  // null) or whose profile the viewer can't read must still show up.
+  let opportunitiesQuery = supabaseClient
+    .from('opportunities')
+    .select(OPPORTUNITY_SELECT)
+    .order('created_at', { ascending: false });
+  // Managers see all opportunities in their org; sales reps only their own
+  if (!state.isManager) opportunitiesQuery = opportunitiesQuery.eq('user_id', state.currentUser.id);
+  if (state.currentOrganization?.id) opportunitiesQuery = opportunitiesQuery.eq('organization_id', state.currentOrganization.id);
 
-  let opportunities;
-  let error;
-
-  let opportunitiesPromise;
-  if (state.isManager) {
-    // Managers see all opportunities in their org
-    let mQ = supabaseClient
-      .from('opportunities')
-      .select(`*, profiles!inner(id, first_name, last_name, email, role, avatar_url)`)
-      .order('created_at', { ascending: false });
-    if (state.currentOrganization?.id) mQ = mQ.eq('organization_id', state.currentOrganization.id);
-    opportunitiesPromise = mQ;
-  } else {
-    // Sales reps only see their own opportunities
-    let oppQ = supabaseClient
-      .from('opportunities')
-      .select('*')
-      .eq('user_id', state.currentUser.id)
-      .order('created_at', { ascending: false });
-    if (state.currentOrganization?.id) oppQ = oppQ.eq('organization_id', state.currentOrganization.id);
-    opportunitiesPromise = oppQ;
-  }
-
-  const [pipelines, opportunitiesResult] = await Promise.all([pipelinesPromise, opportunitiesPromise]);
+  const [pipelines, opportunitiesResult] = await Promise.all([loadPipelines(), opportunitiesQuery]);
   const activePipeline = getActivePipeline(pipelines);
   setActivePipeline(activePipeline.id);
-  opportunities = opportunitiesResult.data;
-  error = opportunitiesResult.error;
 
-  if (error) {
-    viewContainer.innerHTML = renderError(error.message);
+  if (opportunitiesResult.error) {
+    viewContainer.innerHTML = renderError(opportunitiesResult.error.message);
     return;
   }
+  let opportunities = opportunitiesResult.data || [];
 
   // For sales reps: load extra opportunities where they are an assignee but not the owner.
   // Do this BEFORE the assignee batch-load so all opp IDs are known upfront.
@@ -186,16 +504,15 @@ async function renderOpportunityPipelineView() {
       .from('opportunity_assignees')
       .select('opportunity_id')
       .eq('user_id', state.currentUser.id);
-    const myAssignedIds = (myAssignedRows || []).map(r => r.opportunity_id);
-    const existingOppIds = new Set((opportunities || []).map(o => o.id));
-    const newIds = myAssignedIds.filter(id => !existingOppIds.has(id));
+    const existingOppIds = new Set(opportunities.map(o => o.id));
+    const newIds = (myAssignedRows || []).map(r => r.opportunity_id).filter(id => !existingOppIds.has(id));
     if (newIds.length > 0) {
       const { data: extraOpps } = await supabaseClient
         .from('opportunities')
-        .select('*, profiles!inner(id, first_name, last_name, email, role, avatar_url)')
+        .select(OPPORTUNITY_SELECT)
         .in('id', newIds);
       (extraOpps || []).forEach(opp => {
-        // Mark explicitly so isOwnOpportunity stays true even if assignees fail to load
+        // Mark explicitly so the deal stays editable even if assignees fail to load
         opp._isAssignedToMe = true;
         opportunities.push(opp);
       });
@@ -205,13 +522,12 @@ async function renderOpportunityPipelineView() {
   // Batch-load assignees for ALL opportunities (owned + assigned) in two steps.
   // Cannot use embedded profiles(...) join because opportunity_assignees.user_id
   // references auth.users, not profiles — Supabase can't resolve that join.
-  let assigneesByOppId = {};
+  const assigneesByOppId = {};
   if (opportunities.length > 0) {
-    const allOppIds = opportunities.map(o => o.id);
     const { data: assigneeRows } = await supabaseClient
       .from('opportunity_assignees')
       .select('opportunity_id, user_id')
-      .in('opportunity_id', allOppIds);
+      .in('opportunity_id', opportunities.map(o => o.id));
 
     if (assigneeRows && assigneeRows.length > 0) {
       const uniqueUserIds = [...new Set(assigneeRows.map(a => a.user_id))];
@@ -236,68 +552,75 @@ async function renderOpportunityPipelineView() {
     opp.assignees = assigneesByOppId[opp.id] || [];
   });
 
-  // ── Filter to the active pipeline ────────────────────────────────────────
+  // ── Filter to the active pipeline and place each deal in a column ────────
+  const pipelineStages = getPipelineStages(activePipeline);
   opportunities = opportunities.filter(opp => oppMatchesPipeline(opp, activePipeline));
-
-  // Define pipeline stages from the active pipeline
-  const pipelineStages = activePipeline.stages || getDefaultPipeline().stages;
-
-  // Map old stage values to new ones (default pipeline only — legacy compat)
-  const stageMapping = activePipeline.is_default ? LEGACY_STAGE_TO_CANONICAL : {};
-
-  // Apply mapping to opportunities
   opportunities.forEach(opp => {
-    if (stageMapping[opp.stage]) {
-      opp.mappedStage = stageMapping[opp.stage];
-    } else {
-      opp.mappedStage = opp.stage;
-    }
+    opp.mappedStage = resolveStageId(opp.stage, pipelineStages, activePipeline.is_default);
   });
 
-  // Sort opportunities so the most recently updated or moved ones appear at the top of their stage column
+  // Won/Lost only keep recent deals unless the user asked for all time
+  const persisted = _loadPersistedState().pipeline || {};
+  const closedRange = persisted.closedRange === 'all' ? 'all' : 'recent';
+  const hasClosedStages = pipelineStages.some(s => getStageOutcome(s.id));
+  const olderClosedByStage = {};
+  if (closedRange === 'recent') {
+    const cutoff = Date.now() - CLOSED_RECENT_DAYS * DAY_MS;
+    opportunities = opportunities.filter(opp => {
+      if (!getStageOutcome(opp.mappedStage)) return true;
+      const closedAt = new Date(getStageEnteredAt(opp)).getTime();
+      if (Number.isNaN(closedAt) || closedAt >= cutoff) return true;
+      olderClosedByStage[opp.mappedStage] = (olderClosedByStage[opp.mappedStage] || 0) + 1;
+      return false;
+    });
+  }
+
+  // Most recently updated or moved deals first in each column
   opportunities.sort((a, b) => {
     const aTime = new Date(a.updated_at || a.created_at || 0).getTime();
     const bTime = new Date(b.updated_at || b.created_at || 0).getTime();
     return bTime - aTime;
   });
 
-  // Group opportunities by stage in a single pass to avoid repeated array scans.
   const opportunitiesByStage = {};
-  pipelineStages.forEach(stage => {
-    opportunitiesByStage[stage.id] = {
-      ...stage,
-      opportunities: [],
-      totalValue: 0,
-    };
-  });
-  opportunities.forEach((opp) => {
-    const stageBucket = opportunitiesByStage[opp.mappedStage];
-    if (!stageBucket) return;
-    stageBucket.opportunities.push(opp);
-    stageBucket.totalValue += parseFloat(opp.value || 0);
-  });
+  pipelineStages.forEach(stage => { opportunitiesByStage[stage.id] = []; });
+  opportunities.forEach(opp => opportunitiesByStage[opp.mappedStage]?.push(opp));
 
-  const opportunitiesById = new Map(opportunities.map(opp => [opp.id, opp]));
   const companyLookup = buildCompanyLookup(window.allCompaniesData);
-  const paginationState = {};
-  boardPagination = paginationState;
+  board = {
+    opportunitiesById: new Map(opportunities.map(opp => [opp.id, opp])),
+    pagination: {},
+    searchText: new Map(opportunities.map(opp => [opp.id, buildSearchText(opp, findCompanyForOpportunityFast(opp, companyLookup))])),
+    highValueThreshold: getHighValueThreshold(opportunities),
+  };
 
   const ownerOptions = state.isManager
-    ? Array.from(new Map(opportunities.map(opp => {
-      const user = opp.profiles;
-      const ownerName = user ? `${user.first_name} ${user.last_name}` : 'Unknown';
-      return [opp.user_id, ownerName];
-    })).entries())
+    ? Array.from(new Map(opportunities.map(opp => [opp.user_id || NO_OWNER, fullName(opp.profiles) || 'Unassigned'])).entries())
+      .sort((a, b) => a[1].localeCompare(b[1]))
+      .map(([value, label]) => ({ value, label }))
     : [];
 
-  const getStageDays = (opp) => {
-    const stageAnchor = opp.updated_at || opp.created_at;
-    if (!stageAnchor) return 0;
-    const stageDate = new Date(stageAnchor);
-    if (Number.isNaN(stageDate.getTime())) return 0;
-    const diffMs = Date.now() - stageDate.getTime();
-    return Math.max(0, Math.floor(diffMs / (1000 * 60 * 60 * 24)));
-  };
+  const quickFilterOptions = [
+    { value: 'all', label: 'All Deals' },
+    { value: 'high-value', label: 'High Value (top 20%)' },
+    { value: 'high-probability', label: 'High Probability (70%+)' },
+    { value: 'next-step-due', label: 'Next Step Due or Overdue' },
+    ...(state.isManager ? [{ value: 'my-reps', label: 'Sales Reps' }] : []),
+  ];
+
+  const sortOptions = [
+    { value: 'recent', label: 'Sort: Recently Updated' },
+    { value: 'newest', label: 'Sort: Newest' },
+    { value: 'oldest', label: 'Sort: Oldest' },
+    { value: 'value-desc', label: 'Sort: Highest Value' },
+    { value: 'value-asc', label: 'Sort: Lowest Value' },
+    { value: 'probability-desc', label: 'Sort: Highest Probability' },
+    { value: 'next-step', label: 'Sort: Next Step Due' },
+  ];
+
+  const closedRangeLabel = closedRange === 'recent' ? `last ${CLOSED_RECENT_DAYS} days` : 'all time';
+  const wonStage = pipelineStages.find(s => getStageOutcome(s.id) === 'won');
+  const lostStage = pipelineStages.find(s => getStageOutcome(s.id) === 'lost');
 
   let html = `
     <div class="pipeline-toolbar" style="flex-direction: column; align-items: stretch; gap: 8px;">
@@ -335,22 +658,7 @@ async function renderOpportunityPipelineView() {
 
       <div class="crm-filter-panel" id="pipeline-advanced-controls">
         <div class="crm-filter-bar" style="padding-top: 0;">
-          <div class="crm-dd crm-dd--filter" data-dd-id="pipeline-quick-filter">
-            <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
-              <span class="crm-dd-label">All Deals</span>
-              <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-            </button>
-            <div class="crm-dd-panel" role="listbox">
-              <ul class="crm-dd-list">
-                <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="all" data-label="All Deals" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Deals</li>
-                <li class="crm-dd-option" role="option" data-value="high-value" data-label="High Value" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>High Value</li>
-                <li class="crm-dd-option" role="option" data-value="high-probability" data-label="High Probability" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>High Probability</li>
-                <li class="crm-dd-option" role="option" data-value="next-step-due" data-label="Next Step Due" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Next Step Due</li>
-                ${state.isManager ? '<li class="crm-dd-option" role="option" data-value="my-reps" data-label="Sales Reps" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sales Reps</li>' : ''}
-              </ul>
-            </div>
-            <input class="crm-dd-value-input" type="hidden" id="pipeline-quick-filter" value="all">
-          </div>
+          ${renderFilterDropdown('pipeline-quick-filter', quickFilterOptions, 'all')}
 
           <span class="crm-filter-divider"></span>
 
@@ -364,299 +672,83 @@ async function renderOpportunityPipelineView() {
 
           ${state.isManager ? `
             <span class="crm-filter-divider"></span>
-            <div class="crm-dd crm-dd--filter" data-dd-id="pipeline-owner-filter">
-              <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
-                <span class="crm-dd-label">All Owners</span>
-                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-              </button>
-              <div class="crm-dd-panel" role="listbox">
-                <ul class="crm-dd-list">
-                  <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="all" data-label="All Owners" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Owners</li>
-                  ${ownerOptions.map(([id, name]) => `<li class="crm-dd-option" role="option" data-value="${id}" data-label="${name}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${name}</li>`).join('')}
-                </ul>
-              </div>
-              <input class="crm-dd-value-input" type="hidden" id="pipeline-owner-filter" value="all">
-            </div>
+            ${renderFilterDropdown('pipeline-owner-filter', [{ value: 'all', label: 'All Owners' }, ...ownerOptions], 'all')}
           ` : ''}
 
           <span class="crm-filter-divider"></span>
-          
-          <div class="crm-dd crm-dd--filter" data-dd-id="pipeline-sort">
-            <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
-              <span class="crm-dd-label">Sort: Newest</span>
-              <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-            </button>
-            <div class="crm-dd-panel" role="listbox">
-              <ul class="crm-dd-list">
-                <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="newest" data-label="Sort: Newest" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sort: Newest</li>
-                <li class="crm-dd-option" role="option" data-value="oldest" data-label="Sort: Oldest" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sort: Oldest</li>
-                <li class="crm-dd-option" role="option" data-value="value-desc" data-label="Sort: Highest Value" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sort: Highest Value</li>
-                <li class="crm-dd-option" role="option" data-value="value-asc" data-label="Sort: Lowest Value" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sort: Lowest Value</li>
-                <li class="crm-dd-option" role="option" data-value="probability-desc" data-label="Sort: Highest Probability" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sort: Highest Probability</li>
-                <li class="crm-dd-option" role="option" data-value="next-step" data-label="Sort: Next Step Due" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Sort: Next Step Due</li>
-              </ul>
-            </div>
-            <input class="crm-dd-value-input" type="hidden" id="pipeline-sort" value="newest">
-          </div>
+          ${renderFilterDropdown('pipeline-sort', sortOptions, DEFAULT_SORT)}
+
+          ${hasClosedStages ? `
+            <span class="crm-filter-divider"></span>
+            ${renderFilterDropdown('pipeline-closed-range', [
+              { value: 'recent', label: `Closed: Last ${CLOSED_RECENT_DAYS} Days` },
+              { value: 'all', label: 'Closed: All Time' },
+            ], closedRange)}
+          ` : ''}
 
           <button class="crm-filter-clear" id="pipeline-reset-controls" style="display:none;">✕ Clear</button>
         </div>
       </div>
     </div>
 
+    <div class="pipeline-totals" id="pipeline-totals">
+      <div class="pipeline-total">
+        <span class="pipeline-total-label">Open pipeline</span>
+        <span class="pipeline-total-value" data-total="open-value"></span>
+        <span class="pipeline-total-sub" data-total="open-count"></span>
+      </div>
+      <div class="pipeline-total">
+        <span class="pipeline-total-label">Weighted forecast</span>
+        <span class="pipeline-total-value" data-total="weighted"></span>
+        <span class="pipeline-total-sub">Open value × win chance</span>
+      </div>
+      ${wonStage ? `
+        <div class="pipeline-total">
+          <span class="pipeline-total-label">Won</span>
+          <span class="pipeline-total-value" data-total="won-value"></span>
+          <span class="pipeline-total-sub" data-total="won-count" data-range="${escapeHtml(closedRangeLabel)}"></span>
+        </div>
+      ` : ''}
+      ${wonStage && lostStage ? `
+        <div class="pipeline-total">
+          <span class="pipeline-total-label">Win rate</span>
+          <span class="pipeline-total-value" data-total="win-rate"></span>
+          <span class="pipeline-total-sub" data-total="win-rate-sub"></span>
+        </div>
+      ` : ''}
+    </div>
+
     <div class="pipeline-stages">
   `;
 
-  // Render pipeline stages
   pipelineStages.forEach(stage => {
-    const stageData = opportunitiesByStage[stage.id];
-    const deferredCards = [];
-    const deferredValues = [];
-    let renderedCount = 0;
+    const stageOpps = opportunitiesByStage[stage.id];
+    const rendered = stageOpps.slice(0, OPPORTUNITY_STAGE_PAGE_SIZE);
+    const deferred = stageOpps.slice(OPPORTUNITY_STAGE_PAGE_SIZE)
+      .map(opp => ({ id: opp.id, html: renderOpportunityCard(opp, companyLookup) }));
+    board.pagination[stage.id] = { pageSize: OPPORTUNITY_STAGE_PAGE_SIZE, rendered: rendered.length, deferred };
 
-    paginationState[stage.id] = {
-      pageSize: OPPORTUNITY_STAGE_PAGE_SIZE,
-      rendered: 0,
-      deferredCards,
-      deferredValues,
-      total: stageData.opportunities.length,
-    };
+    const olderHidden = olderClosedByStage[stage.id] || 0;
+    const stageColor = escapeHtml(stage.color || '#94a3b8');
 
     html += `
-      <div class="pipeline-stage" data-stage="${stage.id}" style="--stage-color: ${stage.color};">
+      <div class="pipeline-stage" data-stage="${escapeHtml(stage.id)}" style="--stage-color: ${stageColor};">
         <div class="pipeline-stage-header">
-          <div class="pipeline-stage-title"><span class="pipeline-stage-dot" style="background:${stage.color}"></span>${stage.title}</div>
-          <div class="pipeline-stage-count">${stageData.opportunities.length}</div>
+          <div class="pipeline-stage-title"><span class="pipeline-stage-dot" style="background:${stageColor}"></span>${escapeHtml(plainStageTitle(stage.title))}</div>
+          <div class="pipeline-stage-count">${stageOpps.length}</div>
         </div>
-        <div class="pipeline-stage-value" data-total="${stageData.totalValue}">${getCurrencySymbol()} ${stageData.totalValue.toLocaleString()}</div>
-        <button class="pipeline-inline-add" data-stage="${stage.id}">+ New</button>
-        <div class="opportunity-list" id="opportunities-${stage.id}">
-    `;
-
-    // Render opportunities in this stage
-    stageData.opportunities.forEach(opp => {
-      const shouldRenderNow = renderedCount < OPPORTUNITY_STAGE_PAGE_SIZE;
-      const isOverdue = opp.next_step_date && new Date(opp.next_step_date) < new Date();
-      const competitors = opp.competitors ? JSON.parse(opp.competitors) : [];
-      // Full edit access: owner, explicitly-fetched assignee, or confirmed via assignees list
-      const isAssignee = opp._isAssignedToMe === true
-        || (opp.assignees || []).some(a => a.user_id === state.currentUser.id);
-      const isOwnOpportunity = opp.user_id === state.currentUser.id || isAssignee;
-      const stageDays = getStageDays(opp);
-
-      // Get user info from joined data
-      const user = opp.profiles;
-      const ownerName = user ? [user.first_name, user.last_name].filter(Boolean).join(' ') || 'Teammate' : 'Unassigned';
-
-      // Resolve company object from global cache if available (robust/fuzzy matching)
-      const companyObj = findCompanyForOpportunityFast(opp, companyLookup);
-      const subsectorLabel = (opp.subsector || companyObj?.subsector || '').trim() || 'Unassigned';
-
-      // Ensure we have a usable logo URL (favicon only for real domains; ui-avatars otherwise)
-      const companyInitials = getInitials((companyObj && companyObj.name) ? companyObj.name : (opp.company_name || ''));
-      const companyNameResolved = (companyObj && companyObj.name) ? companyObj.name : (opp.company_name || companyInitials);
-      const companyDomain = (companyObj && companyObj.domain) ? companyObj.domain : '';
-      const uiAvatarFallback = `https://ui-avatars.com/api/?name=${encodeURIComponent(companyNameResolved)}&background=ededed&color=444&size=64`;
-      let companyLogoUrl = '';
-      if (companyObj && companyObj.logo_url) {
-        companyLogoUrl = companyObj.logo_url;
-      } else if (companyDomain) {
-        // Only use favicon service for real domain fields (getCompanyLogoUrl rejects emails)
-        companyLogoUrl = getCompanyLogoUrl(companyDomain) || uiAvatarFallback;
-      } else {
-        // No domain — skip speculative guessing, go straight to ui-avatars
-        companyLogoUrl = uiAvatarFallback;
-      }
-      // Cache computed logo_url for future renders when companyObj present
-      if (companyObj && !companyObj.logo_url) companyObj.logo_url = companyLogoUrl;
-      // Debug: log which logo URL we're using for this opportunity
-      // opportunity logo info (silent)
-
-      // Process mentioned people in notes using explicit mentioned_people from DB
-      let processedNotes = opp.notes || '';
-      // helper to escape regex special chars
-      const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-      if (opp.mentioned_people && Array.isArray(opp.mentioned_people) && opp.mentioned_people.length > 0) {
-        // Each mentioned person object should have `id` and `name` fields
-        opp.mentioned_people.forEach(person => {
-          if (!person || !person.name) return;
-          const safeName = escapeRegExp(person.name.trim());
-          // match @Name as whole word (case-insensitive)
-          const pattern = new RegExp(`@${safeName}\\b`, 'gi');
-          processedNotes = processedNotes.replace(pattern, (match) => {
-            // preserve original casing inside the span
-            const displayName = person.name;
-            return `<span class="mentioned-person">@${displayName}</span>`;
-          });
-        });
-      } else {
-        // Fallback: simple regex for single-word mentions (no DB info available)
-        processedNotes = processedNotes.replace(/@([A-Za-z0-9_\-]+)\b/g, '<span class="mentioned-person">@$1</span>');
-      }
-
-      const cardHtml = `
-        <div class="opportunity-card ${isOwnOpportunity ? 'is-mine' : 'readonly'}"
-          data-id="${opp.id}"
-          data-company-name="${escapeHtml(opp.company_name || '')}"
-          data-user-id="${opp.user_id}"
-          data-owner-id="${opp.user_id}"
-          data-value="${parseFloat(opp.value || 0)}"
-          data-probability="${parseInt(opp.probability || 0, 10)}"
-          data-created-ts="${new Date(opp.created_at).getTime() || 0}"
-          data-updated-ts="${new Date(opp.updated_at || opp.created_at).getTime() || 0}"
-          data-next-step-ts="${opp.next_step_date ? new Date(opp.next_step_date).getTime() : ''}"
-          draggable="${isOwnOpportunity}"
-          title="${!isOwnOpportunity ? 'Click to view details (managed by ' + escapeHtml(ownerName) + ')' : 'Click to view details or drag to move'}">
-
-          <div class="opp-card-header">
-            <div class="opp-company-row">
-              <div class="opp-company-avatar">
-                <div class="mention-avatar" style="width:22px;height:22px;font-size:0.6rem;border-radius:5px;flex-shrink:0;">${companyInitials}</div>
-                ${companyLogoUrl ? `<img src="${companyLogoUrl}" class="opp-logo-img" onload="this.style.display='block';var p=this.previousElementSibling;if(p)p.style.display='none'" onerror="this.style.display='none'" />` : ''}
-              </div>
-              <span class="opp-company-label">${escapeHtml(opp.company_name || 'No Company')}</span>
-            </div>
-            <div class="opp-header-right">
-              <span class="opp-stage-age">
-                <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/></svg>
-                ${stageDays}d
-              </span>
-              ${isOwnOpportunity ? `
-                <button class="opp-drag-handle" title="Drag to move" onclick="event.stopPropagation()">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/></svg>
-                </button>
-              ` : ''}
-            </div>
-          </div>
-
-          <div class="opp-name">${escapeHtml(opp.name)}</div>
-
-          <div class="opp-chip-row">
-            <span class="opp-chip opp-chip-subsector">Subsector: ${escapeHtml(subsectorLabel)}</span>
-          </div>
-
-          <div class="opp-metrics-grid">
-            <div class="opp-metric-card">
-              <span class="opp-metric-label">Deal Value</span>
-              <span class="opp-value">${getCurrencySymbol()} ${parseFloat(opp.value || 0).toLocaleString()}</span>
-            </div>
-            <div class="opp-metric-card">
-              <span class="opp-metric-label">Win Chance</span>
-              <span class="opp-prob-label">${opp.probability || 0}%</span>
-            </div>
-          </div>
-
-          <div class="opp-probability-row">
-            <div class="opp-prob-bar">
-              <div class="opp-prob-fill" style="width:${opp.probability || 0}%;background:${getProbabilityColor(opp.probability || 0)};"></div>
-            </div>
-          </div>
-
-          ${opp.next_step ? `
-            <div class="opp-next-step ${isOverdue ? 'overdue' : ''}">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="opp-step-icon"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 12 2 2 4-4"/></svg>
-              <span>${escapeHtml(opp.next_step)}</span>
-              ${opp.next_step_date ? `<time class="opp-step-date">${formatDate(opp.next_step_date)}</time>` : ''}
-            </div>
-          ` : ''}
-
-          ${competitors.length > 0 ? `
-            <div class="opp-competitors">
-              ${competitors.slice(0, 2).map(comp => `<span class="competitor-tag">${escapeHtml(comp)}</span>`).join('')}
-              ${competitors.length > 2 ? `<span class="competitor-tag">+${competitors.length - 2}</span>` : ''}
-            </div>
-          ` : ''}
-
-          ${opp.notes ? `
-            <div class="opp-notes">${processedNotes.substring(0, 120)}${processedNotes.length > 120 ? '\u2026' : ''}</div>
-          ` : ''}
-
-          ${(() => {
-            // Build full team: owner first, then assignees (excluding owner if also tagged)
-            const ownerProfile = opp.profiles;
-            const ownerEntry = ownerProfile
-              ? [{ user_id: opp.user_id, name: [ownerProfile.first_name, ownerProfile.last_name].filter(Boolean).join(' ') || 'Owner', avatar_url: ownerProfile.avatar_url }]
-              : [];
-            const assigneeEntries = (opp.assignees || [])
-              .filter(a => a.user_id !== opp.user_id)
-              .map(a => {
-                const p = a.profiles;
-                return { user_id: a.user_id, name: p ? ([p.first_name, p.last_name].filter(Boolean).join(' ') || 'Member') : 'Member', avatar_url: p?.avatar_url };
-              });
-            const team = [...ownerEntry, ...assigneeEntries];
-            if (team.length === 0) return '';
-            const visible = team.slice(0, 3);
-            const overflow = team.length - 3;
-            const bubbles = visible.map((m, i) => {
-              const color = getAssigneeColor(m.user_id);
-              const initialsOrImage = m.avatar_url 
-                ? `<span style="position:relative;z-index:1;display:none;">${getInitials(m.name)}</span><img src="${m.avatar_url}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />` 
-                : getInitials(m.name);
-              return `<div class="opp-assignee-bubble" title="${escapeHtml(m.name)}" style="background:${color};z-index:${10 - i}">${initialsOrImage}</div>`;
-            }).join('');
-            return `
-            <div class="opp-card-assignees">
-              <span class="opp-card-assignees-label">Team</span>
-              <div class="opp-assignees-stack">
-                ${bubbles}
-                ${overflow > 0 ? `<div class="opp-assignee-bubble opp-assignee-overflow" title="${overflow} more">+${overflow}</div>` : ''}
-              </div>
-            </div>`;
-          })()}
-
-          <div class="opp-card-footer">
-            <span class="opp-created-date">${formatDate(opp.created_at)}</span>
-            <div class="opp-actions-group">
-              ${isOwnOpportunity ? `
-                <button class="opportunity-action-btn edit-opportunity" data-id="${opp.id}" title="Edit deal">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
-                </button>
-              ` : `
-                <button class="opportunity-action-btn view-opportunity" data-id="${opp.id}" title="View">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z"/><path d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/></svg>
-                </button>
-              `}
-              ${isOwnOpportunity || state.isManager ? `
-                <button class="opportunity-action-btn delete-opportunity" data-id="${opp.id}" title="Delete deal">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
-                </button>
-              ` : ''}
-            </div>
-          </div>
+        <div class="pipeline-stage-value">
+          <span class="pipeline-stage-total"></span>
+          <span class="pipeline-stage-weighted"></span>
         </div>
-      `;
-
-      if (shouldRenderNow) {
-        html += cardHtml;
-      } else {
-        deferredCards.push(cardHtml);
-        deferredValues.push(parseFloat(opp.value || 0));
-      }
-
-      renderedCount += 1;
-    });
-
-    paginationState[stage.id].rendered = Math.min(renderedCount, OPPORTUNITY_STAGE_PAGE_SIZE);
-
-    html += `
-        </div>
-        ${deferredCards.length > 0 ? `
-          <div class="pipeline-load-more-wrap">
-            <button class="btn btn-ghost pipeline-load-more" data-stage-id="${stage.id}">
-              <span class="pipeline-load-more-main">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="m5 12 7 7 7-7"/></svg>
-                <span class="pipeline-load-more-label">Load more deals</span>
-              </span>
-              <span class="pipeline-load-more-meta">
-                <span class="pipeline-load-more-count">${Math.min(OPPORTUNITY_STAGE_PAGE_SIZE, deferredCards.length)}</span>
-                <span class="pipeline-load-more-sep">of</span>
-                <span class="pipeline-load-more-remaining">${deferredCards.length}</span>
-                <span class="pipeline-load-more-sep">left</span>
-              </span>
-            </button>
-          </div>
+        ${getStageOutcome(stage.id) && closedRange === 'recent' ? `
+          <div class="pipeline-stage-note">Last ${CLOSED_RECENT_DAYS} days${olderHidden ? ` · ${olderHidden} older hidden` : ''}</div>
         ` : ''}
+        <button class="pipeline-inline-add" data-stage="${escapeHtml(stage.id)}">+ New</button>
+        <div class="opportunity-list" id="opportunities-${escapeHtml(stage.id)}">
+          ${rendered.map(opp => renderOpportunityCard(opp, companyLookup)).join('')}
+        </div>
+        ${deferred.length > 0 ? renderLoadMoreButton(stage.id, deferred.length) : ''}
       </div>
     `;
   });
@@ -664,16 +756,18 @@ async function renderOpportunityPipelineView() {
   html += `</div>`;
 
   viewContainer.innerHTML = html;
+  updatePipelineStageCounts();
+  if (savedView) restoreBoardView(savedView);
 
   if (window.lucide) {
     lucide.createIcons();
   }
 
-  // Initialize drag and drop with a small delay to ensure DOM is ready
+  // Give the custom dropdowns a tick to initialise before restoring saved filters
   setTimeout(() => {
-    initPipelineDragAndDrop(opportunities);
-    initOpportunityEventListeners(opportunitiesById, paginationState);
-    initPipelineFilters(opportunities);
+    initPipelineDragAndDrop();
+    initOpportunityEventListeners();
+    initPipelineFilters();
   }, 100);
 
   // Fire logo upgrades in the background — never await so the kanban is immediately usable.
@@ -684,22 +778,16 @@ async function renderOpportunityPipelineView() {
 // Cache-only: avoids Supabase queries and sequential image-loading that blocked the UI.
 // Images are updated via onload/onerror so the browser handles them fully async.
 function updateOpportunityLogosAsync() {
-  const cards = Array.from(document.querySelectorAll('.opportunity-card'));
-  for (const card of cards) {
-    const companyName = card.getAttribute('data-company-name') || '';
-    if (!companyName) continue;
+  const companyLookup = buildCompanyLookup(window.allCompaniesData);
+  document.querySelectorAll('.opportunity-card').forEach(card => {
+    const opp = board?.opportunitiesById.get(card.dataset.id);
+    const company = opp && findCompanyForOpportunityFast(opp, companyLookup);
+    if (!company?.logo_url) return;
 
-    const company = Array.isArray(window.allCompaniesData)
-      ? window.allCompaniesData.find(c => normalizeForMatching(c.name) === normalizeForMatching(companyName))
-      : null;
-    if (!company?.logo_url) continue;
-
-    const imgEl    = card.querySelector('.opp-company-avatar img');
+    const imgEl = card.querySelector('.opp-company-avatar img');
     const initials = card.querySelector('.opp-company-avatar .mention-avatar');
-    if (!imgEl) continue;
-
     // Only update if the src is actually different
-    if (imgEl.src === company.logo_url) continue;
+    if (!imgEl || imgEl.src === company.logo_url) return;
 
     imgEl.onload = function () {
       this.style.display = 'block';
@@ -710,189 +798,143 @@ function updateOpportunityLogosAsync() {
       if (initials) initials.style.display = '';
     };
     imgEl.src = company.logo_url;
-  }
+  });
   return Promise.resolve();
 }
 
-function initOpportunityEventListeners(opportunitiesOrMap, paginationState = null) {
-  const opportunitiesById = opportunitiesOrMap instanceof Map
-    ? opportunitiesOrMap
-    : new Map((opportunitiesOrMap || []).map(opp => [opp.id, opp]));
+// ── Load more / view preservation ─────────────────────────────────────────────
 
-  const loadStageCards = (stageId, options = {}) => {
-    if (!paginationState || !stageId) return;
-    const { all = false } = options;
-    const stageState = paginationState[stageId];
-    if (!stageState || !Array.isArray(stageState.deferredCards) || stageState.deferredCards.length === 0) return;
+function getStageElement(stageId) {
+  return document.querySelector(`.pipeline-stage[data-stage="${CSS.escape(String(stageId))}"]`);
+}
 
-    const stageEl = document.querySelector(`.pipeline-stage[data-stage="${stageId}"]`);
-    const listEl = stageEl?.querySelector('.opportunity-list');
-    const buttonEl = stageEl?.querySelector('.pipeline-load-more');
-    if (!listEl) return;
+/** Render the next page of a column's deals (or a given number, or all of them) */
+function loadStageCards(stageId, { all = false, count } = {}) {
+  const stageState = board?.pagination[stageId];
+  if (!stageState || stageState.deferred.length === 0) return;
 
-    const takeCount = all ? stageState.deferredCards.length : Math.min(stageState.pageSize, stageState.deferredCards.length);
-    const htmlChunk = stageState.deferredCards.splice(0, takeCount).join('');
-    stageState.deferredValues?.splice(0, takeCount);
-    if (!htmlChunk) return;
+  const stageEl = getStageElement(stageId);
+  const listEl = stageEl?.querySelector('.opportunity-list');
+  if (!listEl) return;
 
-    listEl.insertAdjacentHTML('beforeend', htmlChunk);
-    stageState.rendered += takeCount;
+  const takeCount = all
+    ? stageState.deferred.length
+    : Math.min(count ?? stageState.pageSize, stageState.deferred.length);
+  const batch = stageState.deferred.splice(0, takeCount);
+  listEl.insertAdjacentHTML('beforeend', batch.map(d => d.html).join(''));
+  stageState.rendered += takeCount;
 
-    if (stageState.deferredCards.length === 0) {
-      buttonEl?.closest('.pipeline-load-more-wrap')?.remove();
-    } else if (buttonEl) {
-      const previewCount = Math.min(stageState.pageSize, stageState.deferredCards.length);
-      const countEl = buttonEl.querySelector('.pipeline-load-more-count');
-      const remainingEl = buttonEl.querySelector('.pipeline-load-more-remaining');
-      if (countEl) countEl.textContent = String(previewCount);
-      if (remainingEl) remainingEl.textContent = String(stageState.deferredCards.length);
-    }
-
-    // Bind handlers for newly inserted cards only.
-    initOpportunityEventListeners(opportunitiesById, paginationState);
-  };
-
-  if (paginationState) {
-    window.expandAllOpportunityColumns = () => {
-      Object.keys(paginationState).forEach((stageId) => loadStageCards(stageId, { all: true }));
-    };
+  const buttonEl = stageEl.querySelector('.pipeline-load-more');
+  if (stageState.deferred.length === 0) {
+    buttonEl?.closest('.pipeline-load-more-wrap')?.remove();
+  } else if (buttonEl) {
+    buttonEl.querySelector('.pipeline-load-more-count').textContent = String(Math.min(stageState.pageSize, stageState.deferred.length));
+    buttonEl.querySelector('.pipeline-load-more-remaining').textContent = String(stageState.deferred.length);
   }
+}
 
+function expandAllStages() {
+  Object.keys(board?.pagination || {}).forEach(stageId => loadStageCards(stageId, { all: true }));
+}
+
+function getScrollRoot() {
+  return document.scrollingElement || document.documentElement;
+}
+
+function captureBoardView() {
+  const boardEl = document.querySelector('.pipeline-stages');
+  if (!boardEl || !board) return null;
+  const stages = {};
+  boardEl.querySelectorAll('.pipeline-stage').forEach(stageEl => {
+    const stageId = stageEl.dataset.stage;
+    stages[stageId] = {
+      rendered: board.pagination[stageId]?.rendered || 0,
+      scrollTop: stageEl.querySelector('.opportunity-list')?.scrollTop || 0,
+    };
+  });
+  return {
+    pipelineId: state.activePipelineId,
+    stages,
+    boardScrollLeft: boardEl.scrollLeft,
+    containerScrollTop: viewContainer.scrollTop,
+    pageScrollTop: getScrollRoot().scrollTop,
+  };
+}
+
+function restoreBoardView(saved) {
+  if (!saved || saved.pipelineId !== state.activePipelineId) return;
+  Object.entries(saved.stages).forEach(([stageId, { rendered, scrollTop }]) => {
+    const stageState = board?.pagination[stageId];
+    if (stageState && rendered > stageState.rendered) {
+      loadStageCards(stageId, { count: rendered - stageState.rendered });
+    }
+    const listEl = getStageElement(stageId)?.querySelector('.opportunity-list');
+    if (listEl) listEl.scrollTop = scrollTop;
+  });
+  const boardEl = document.querySelector('.pipeline-stages');
+  if (boardEl) boardEl.scrollLeft = saved.boardScrollLeft;
+  viewContainer.scrollTop = saved.containerScrollTop;
+  getScrollRoot().scrollTop = saved.pageScrollTop;
+  updatePipelineStageCounts();
+}
+
+/** Re-render the board after a change, but only if the user is looking at it */
+function refreshPipelineIfVisible() {
+  if (state.currentView !== 'opportunity-pipeline') return;
+  renderOpportunityPipelineView({ preserveView: true });
+}
+
+// ── Board events ──────────────────────────────────────────────────────────────
+
+function initOpportunityEventListeners() {
   // Pipeline tab switcher
-  document.querySelectorAll('.pipeline-tab[data-pipeline-id]').forEach(tab => {
-    if (tab.dataset.boundClick === '1') return;
-    tab.dataset.boundClick = '1';
-    tab.addEventListener('click', () => {
-      const pipelineId = tab.dataset.pipelineId;
-      if (pipelineId && pipelineId !== state.activePipelineId) {
-        setActivePipeline(pipelineId);
-        renderOpportunityPipelineView();
-      }
-    });
+  document.getElementById('pipeline-tabs')?.addEventListener('click', (e) => {
+    const pipelineId = e.target.closest('.pipeline-tab[data-pipeline-id]')?.dataset.pipelineId;
+    if (pipelineId && pipelineId !== state.activePipelineId) {
+      setActivePipeline(pipelineId);
+      renderOpportunityPipelineView();
+    }
   });
 
   // Manage Pipelines button (managers only)
-  const managePipelinesBtn = document.getElementById('manage-pipelines-btn');
-  if (managePipelinesBtn && managePipelinesBtn.dataset.boundClick !== '1') {
-    managePipelinesBtn.dataset.boundClick = '1';
-    managePipelinesBtn.addEventListener('click', () => {
-      openManagePipelinesModal();
-    });
-  }
-
-  // Add opportunity button
-  const addOpportunityBtn = document.getElementById('add-opportunity-btn');
-  if (addOpportunityBtn && addOpportunityBtn.dataset.boundClick !== '1') {
-    addOpportunityBtn.dataset.boundClick = '1';
-    addOpportunityBtn.addEventListener('click', () => {
-      openOpportunityModal();
-    });
-  }
-
-  document.querySelectorAll('.pipeline-load-more').forEach(btn => {
-    if (btn.dataset.boundClick === '1') return;
-    btn.dataset.boundClick = '1';
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const stageId = btn.getAttribute('data-stage-id');
-      loadStageCards(stageId);
-    });
+  document.getElementById('manage-pipelines-btn')?.addEventListener('click', () => {
+    openManagePipelinesModal();
   });
 
-  document.querySelectorAll('.pipeline-inline-add').forEach(btn => {
-    if (btn.dataset.boundClick === '1') return;
-    btn.dataset.boundClick = '1';
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const stage = btn.dataset.stage;
-      openOpportunityModal();
-      setTimeout(() => {
-        if (stage) window.setCrmDropdownValue?.('opportunity-stage', stage);
-      }, 50);
-    });
+  document.getElementById('add-opportunity-btn')?.addEventListener('click', () => {
+    openOpportunityModal();
   });
 
-  // Edit opportunity buttons
-  document.querySelectorAll('.edit-opportunity').forEach(btn => {
-    if (btn.dataset.boundClick === '1') return;
-    btn.dataset.boundClick = '1';
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const opportunityId = btn.dataset.id;
-      const opportunity = opportunitiesById.get(opportunityId);
-      if (opportunity) {
-        openOpportunityModal(opportunity);
-      }
-    });
-  });
+  // One delegated handler for everything inside the columns, so cards added
+  // by "Load more" need no extra wiring.
+  document.querySelector('.pipeline-stages')?.addEventListener('click', (e) => {
+    const loadMoreBtn = e.target.closest('.pipeline-load-more');
+    if (loadMoreBtn) {
+      loadStageCards(loadMoreBtn.dataset.stageId);
+      return;
+    }
 
-  // Delete opportunity buttons
-  document.querySelectorAll('.delete-opportunity').forEach(btn => {
-    if (btn.dataset.boundClick === '1') return;
-    btn.dataset.boundClick = '1';
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      deleteOpportunity(opportunitiesById.get(btn.dataset.id));
-    });
-  });
+    const inlineAddBtn = e.target.closest('.pipeline-inline-add');
+    if (inlineAddBtn) {
+      openOpportunityModal(null, { stageId: inlineAddBtn.dataset.stage });
+      return;
+    }
 
-  // View opportunity buttons (for managers viewing others' opportunities)
-  document.querySelectorAll('.view-opportunity').forEach(btn => {
-    if (btn.dataset.boundClick === '1') return;
-    btn.dataset.boundClick = '1';
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const opportunityId = btn.dataset.id;
-      const opportunity = opportunitiesById.get(opportunityId);
-      if (opportunity) {
-        openOpportunityViewModal(opportunity);
-      }
-    });
-  });
-
-  // Click on opportunity card to view details
-  document.querySelectorAll('.opportunity-card').forEach(card => {
-    if (card.dataset.boundClick === '1') return;
-    card.dataset.boundClick = '1';
-    card.addEventListener('click', () => {
-      const opportunityId = card.dataset.id;
-      const opportunity = opportunitiesById.get(opportunityId);
-      if (opportunity) {
-        openOpportunityViewModal(opportunity);
-      }
-    });
-  });
-
-  // Make mentioned person spans clickable to open the person view modal
-  document.querySelectorAll('.opportunity-card .mentioned-person').forEach(el => {
-    if (el.dataset.boundClick === '1') return;
-    el.dataset.boundClick = '1';
-    el.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const personId = el.dataset.personId;
-      const personName = el.dataset.personName || el.textContent.replace(/^@/, '').trim();
-      if (personId) {
-        openPersonViewModal(personId);
-        return;
-      }
-      // Fallback: try to find by name
-      const person = state.allPeople.find(p => String(p.name).trim().toLowerCase() === String(personName).toLowerCase());
-      if (person) openPersonViewModal(person);
-    });
+    const card = e.target.closest('.opportunity-card');
+    const opportunity = card && board?.opportunitiesById.get(card.dataset.id);
+    if (opportunity) openOpportunityViewModal(opportunity);
   });
 }
 
 
-function initPipelineDragAndDrop(opportunities) {
-  const opportunityLists = document.querySelectorAll('.opportunity-list');
-
+function initPipelineDragAndDrop() {
   if (typeof Sortable === 'undefined') {
     console.error('Sortable.js library is not loaded!');
     showToast('Drag-and-drop functionality requires Sortable.js library', 'error');
     return;
   }
 
-  opportunityLists.forEach(list => {
+  document.querySelectorAll('.opportunity-list').forEach(list => {
     new Sortable(list, {
       group: 'pipeline',
       animation: 200,
@@ -908,8 +950,6 @@ function initPipelineDragAndDrop(opportunities) {
       ghostClass: 'sortable-ghost',
       chosenClass: 'sortable-chosen',
       dragClass: 'sortable-drag',
-      preventOnFilter: false,
-      filter: '.opportunity-action-btn',
       onStart: function (evt) {
         document.body.classList.add('is-dragging');
         evt.item.classList.add('dragging');
@@ -924,190 +964,176 @@ function initPipelineDragAndDrop(opportunities) {
         }
       },
       onAdd: async function (evt) {
-        const opportunityId = evt.item.dataset.id;
+        const card = evt.item;
+        const opportunityId = card.dataset.id;
+        const opportunity = board?.opportunitiesById.get(opportunityId);
         const newStage = evt.to.closest('.pipeline-stage').dataset.stage;
         const oldStage = evt.from.closest('.pipeline-stage').dataset.stage;
 
-        // Ensure moved card goes directly to the top of the destination tab/stage column
-        if (evt.to && evt.item) {
-          evt.item.style.transform = '';
-          evt.to.prepend(evt.item);
-          evt.item.dataset.updatedTs = String(Date.now());
-          requestAnimationFrame(() => {
-            if (evt.to && evt.item && evt.to.firstElementChild !== evt.item) {
-              evt.to.prepend(evt.item);
+        // Ensure moved card goes directly to the top of the destination column
+        card.style.transform = '';
+        evt.to.prepend(card);
+        requestAnimationFrame(() => {
+          if (evt.to.firstElementChild !== card) evt.to.prepend(card);
+        });
+
+        if (newStage === oldStage) return;
+
+        // Closing a deal settles its win chance
+        const outcome = getStageOutcome(newStage);
+        const now = new Date().toISOString();
+        const updates = { stage: newStage, updated_at: now };
+        if (outcome === 'won') updates.probability = 100;
+        if (outcome === 'lost') updates.probability = 0;
+
+        updatePipelineStageCounts();
+
+        try {
+          const { error } = await supabaseClient
+            .from('opportunities')
+            .update(updates)
+            .eq('id', opportunityId);
+          if (error) throw error;
+
+          if (opportunity) {
+            // stage_changed_at is set by the database trigger; mirror it locally
+            Object.assign(opportunity, updates, { mappedStage: newStage, stage_changed_at: now });
+            card.dataset.probability = String(dealProbability(opportunity));
+            const probEl = card.querySelector('.opp-prob-label');
+            if (probEl) {
+              // Win chance means nothing once a deal is closed
+              probEl.hidden = Boolean(outcome);
+              probEl.textContent = `${dealProbability(opportunity)}%`;
+              probEl.style.color = getProbabilityColor(dealProbability(opportunity));
             }
-          });
-        }
-
-        // Only update if stage changed
-        if (newStage !== oldStage) {
-          try {
-            const { error } = await supabaseClient
-              .from('opportunities')
-              .update({
-                stage: newStage,
-                updated_at: new Date().toISOString()
-              })
-              .eq('id', opportunityId);
-
-            if (error) throw error;
-
-            // Update local state so that subsequent edits reflect the new stage
-            const opportunity = opportunities.find(opp => opp.id === opportunityId);
-            if (opportunity) {
-              opportunity.stage = newStage;
-              opportunity.updated_at = new Date().toISOString();
-
-              // For default pipeline: keep legacy stage mapping; custom pipelines use stage as-is
-              const activePipeline = (state.pipelines && state.activePipelineId
-                ? state.pipelines.find(p => p.id === state.activePipelineId)
-                : null) || getDefaultPipeline();
-              if (activePipeline.is_default) {
-                opportunity.mappedStage = LEGACY_STAGE_TO_CANONICAL[newStage] || newStage;
-              } else {
-                opportunity.mappedStage = newStage;
-              }
-            }
-
-            const stageAgeEl = evt.item.querySelector('.opp-stage-age');
-            if (stageAgeEl) {
-              stageAgeEl.lastChild.textContent = ' 0d';
-            }
-            showInlineSuccess(evt.item);
-            showToast('Opportunity moved', 'success', { subtle: true, duration: 1400, dedupeMs: 1200 });
-
-            // Update stage counts
-            updatePipelineStageCounts();
-
-          } catch (error) {
-            showToast('Error updating opportunity: ' + error.message, 'error');
-            // Move item back to original position on error
-            evt.from.appendChild(evt.item);
           }
+          card.dataset.updatedTs = String(Date.now());
+          const stageDaysEl = card.querySelector('.opp-stage-age-days');
+          if (stageDaysEl) stageDaysEl.textContent = '0d';
+
+          showInlineSuccess(card);
+          if (outcome === 'won') {
+            triggerConfetti();
+            showToast('Deal won', 'success');
+          } else {
+            showToast('Opportunity moved', 'success', { subtle: true, duration: 1400, dedupeMs: 1200 });
+          }
+        } catch (error) {
+          showToast('Error updating opportunity: ' + error.message, 'error');
+          // Put the card back where it was
+          evt.from.insertBefore(card, evt.from.children[evt.oldIndex] || null);
         }
+        updatePipelineStageCounts();
       }
     });
   });
+}
+
+/** Deals in a column that are currently shown, plus any still behind "Load more" */
+function getStageDeals(stageEl) {
+  const stageId = stageEl.dataset.stage;
+  const ids = Array.from(stageEl.querySelectorAll('.opportunity-card:not(.is-filtered-out)'), card => card.dataset.id);
+  (board?.pagination[stageId]?.deferred || []).forEach(d => ids.push(d.id));
+  return ids.map(id => board?.opportunitiesById.get(id)).filter(Boolean);
 }
 
 function updatePipelineStageCounts() {
-  document.querySelectorAll('.pipeline-stage').forEach(stage => {
-    const stageId = stage.dataset.stage;
-    const opportunities = stage.querySelectorAll('.opportunity-card:not([style*="display: none"])');
-    // Deals still behind "Load more" aren't in the DOM yet but belong in the
-    // header. (Filtering expands every column first, so none are pending then.)
-    const pending = boardPagination?.[stageId];
-    const pendingValues = pending?.deferredValues || [];
-    const count = opportunities.length + (pending?.deferredCards?.length || 0);
-
-    // Update count badge
-    const countBadge = stage.querySelector('.pipeline-stage-count');
-    if (countBadge) {
-      countBadge.textContent = count;
-    }
-
-    // Calculate and update total value
-    let totalValue = pendingValues.reduce((sum, v) => sum + v, 0);
-    opportunities.forEach(card => {
-      const valueText = card.querySelector('.opp-value')?.textContent;
-      if (valueText) {
-        totalValue += parseCurrencyValue(valueText);
-      }
+  document.querySelectorAll('.pipeline-stage').forEach(stageEl => {
+    const deals = getStageDeals(stageEl);
+    const isOpenStage = !getStageOutcome(stageEl.dataset.stage);
+    let total = 0;
+    let weighted = 0;
+    deals.forEach(opp => {
+      total += dealValue(opp);
+      weighted += dealValue(opp) * dealProbability(opp) / 100;
     });
 
-    const valueElement = stage.querySelector('.pipeline-stage-value');
-    if (valueElement) {
-      valueElement.dataset.total = String(totalValue);
-      valueElement.textContent = `${getCurrencySymbol()} ${totalValue.toLocaleString()}`;
-    }
+    const countEl = stageEl.querySelector('.pipeline-stage-count');
+    if (countEl) countEl.textContent = String(deals.length);
+    const totalEl = stageEl.querySelector('.pipeline-stage-total');
+    if (totalEl) totalEl.textContent = formatMoney(total);
+    const weightedEl = stageEl.querySelector('.pipeline-stage-weighted');
+    if (weightedEl) weightedEl.textContent = isOpenStage && deals.length > 0 ? `${formatMoney(weighted)} weighted` : '';
+    stageEl.classList.toggle('is-empty', deals.length === 0);
   });
 
-  // Also update the main summary cards at the top
   updatePipelineSummary();
 }
 
-/**
- * Updates the summary cards at the top of the pipeline view based on current cards in the DOM.
- */
+/** Fill the totals row above the board from the deals currently shown. */
 function updatePipelineSummary() {
-  const visibleCards = document.querySelectorAll('.opportunity-card:not([style*="display: none"])');
+  const totalsEl = document.getElementById('pipeline-totals');
+  if (!totalsEl) return;
 
-  let totalValue = 0;
-  let wonValue = 0;
-  let lostValue = 0;
-  let weightedForecast = 0;
-  let totalProbability = 0;
-  let activeCount = 0;
-  let closedCount = 0;
+  let openCount = 0;
+  let openValue = 0;
+  let weighted = 0;
   let wonCount = 0;
+  let wonValue = 0;
+  let lostCount = 0;
 
-  visibleCards.forEach(card => {
-    const valueText = card.querySelector('.opp-value')?.textContent;
-    const value = parseCurrencyValue(valueText);
-    totalValue += value;
-
-    const probText = card.querySelector('.opp-prob-label')?.textContent;
-    const probability = parseInt(probText?.replace('%', '') || 0);
-    totalProbability += probability;
-    weightedForecast += (value * probability) / 100;
-
-    const stageId = card.closest('.pipeline-stage')?.dataset.stage;
-    if (stageId === 'closed-won') {
-      wonValue += value;
-      closedCount++;
-      wonCount++;
-    } else if (stageId === 'closed-lost') {
-      lostValue += value;
-      closedCount++;
-    } else if (stageId !== 'closed-lost') {
-      activeCount++;
-    }
+  document.querySelectorAll('.pipeline-stage').forEach(stageEl => {
+    const outcome = getStageOutcome(stageEl.dataset.stage);
+    getStageDeals(stageEl).forEach(opp => {
+      const value = dealValue(opp);
+      if (outcome === 'won') {
+        wonCount++;
+        wonValue += value;
+      } else if (outcome === 'lost') {
+        lostCount++;
+      } else {
+        openCount++;
+        openValue += value;
+        weighted += value * dealProbability(opp) / 100;
+      }
+    });
   });
 
-  const avgProbability = visibleCards.length > 0 ? Math.round(totalProbability / visibleCards.length) : 0;
-  const winRate = closedCount > 0 ? Math.round((wonCount / closedCount) * 100) : 0;
+  const set = (key, text) => {
+    const el = totalsEl.querySelector(`[data-total="${key}"]`);
+    if (el) el.textContent = text;
+  };
+  const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+  const closedCount = wonCount + lostCount;
+  const range = totalsEl.querySelector('[data-total="won-count"]')?.dataset.range || '';
 
-  // Update DOM elements
-  const summaryValues = document.querySelectorAll('.pipeline-summary-value');
-  if (summaryValues.length >= 4) {
-    summaryValues[0].textContent = `${getCurrencySymbol()} ${totalValue.toLocaleString()}`;
-    summaryValues[1].textContent = activeCount;
-    summaryValues[2].textContent = `${getCurrencySymbol()} ${Math.round(weightedForecast).toLocaleString()}`;
-    summaryValues[3].textContent = `${winRate}%`;
-
-    const summaryChanges = document.querySelectorAll('.pipeline-summary-change');
-    if (summaryChanges.length >= 4) {
-      summaryChanges[0].innerHTML = `<i class="fas fa-briefcase"></i> Active: ${getCurrencySymbol()} ${Math.max(totalValue - wonValue - lostValue, 0).toLocaleString()}`;
-      summaryChanges[1].innerHTML = `<i class="fas fa-flag-checkered"></i> Won: ${wonCount}`;
-      summaryChanges[2].innerHTML = `<i class="fas fa-percent"></i> Avg probability: ${avgProbability}%`;
-      summaryChanges[3].innerHTML = `<i class="fas fa-trophy"></i> Closed won value: ${getCurrencySymbol()} ${wonValue.toLocaleString()}`;
-    }
-  }
+  set('open-value', formatMoney(openValue));
+  set('open-count', plural(openCount, 'open deal'));
+  set('weighted', formatMoney(weighted));
+  set('won-value', formatMoney(wonValue));
+  set('won-count', `${plural(wonCount, 'deal')} · ${range}`);
+  set('win-rate', closedCount > 0 ? `${Math.round((wonCount / closedCount) * 100)}%` : '—');
+  set('win-rate-sub', closedCount > 0 ? `${wonCount} of ${plural(closedCount, 'closed deal')}` : 'No closed deals yet');
 }
 
-function initPipelineFilters(opportunities) {
-    const opportunitiesById = new Map((opportunities || []).map(opp => [opp.id, opp]));
-
+function initPipelineFilters() {
   const quickFilterSelect = document.getElementById('pipeline-quick-filter');
   const searchInput = document.getElementById('pipeline-search');
   const ownerSelect = document.getElementById('pipeline-owner-filter');
   const sortSelect = document.getElementById('pipeline-sort');
+  const closedRangeSelect = document.getElementById('pipeline-closed-range');
   const advancedToggle = document.getElementById('pipeline-advanced-toggle');
   const advancedControls = document.getElementById('pipeline-advanced-controls');
   const resetBtn = document.getElementById('pipeline-reset-controls');
-  let expandedForFiltering = false;
+  const dateFromInput = document.getElementById('pipeline-filter-date-from');
+  const dateToInput = document.getElementById('pipeline-filter-date-to');
+  const dateClearBtn = document.getElementById('pipeline-date-clear');
 
   // Load persisted state
   const persistedState = _loadPersistedState().pipeline || {};
+  const setDropdown = (id, el, value) => {
+    if (!el || !value) return;
+    window.setCrmDropdownValue?.(id, value);
+    el.value = value;
+  };
   if (searchInput && persistedState.search) searchInput.value = persistedState.search;
-  if (quickFilterSelect && persistedState.quickFilter) window.setCrmDropdownValue?.('pipeline-quick-filter', persistedState.quickFilter) || (quickFilterSelect.value = persistedState.quickFilter);
-  if (ownerSelect && persistedState.owner) window.setCrmDropdownValue?.('pipeline-owner-filter', persistedState.owner) || (ownerSelect.value = persistedState.owner);
-  if (sortSelect && persistedState.sort) window.setCrmDropdownValue?.('pipeline-sort', persistedState.sort) || (sortSelect.value = persistedState.sort);
+  setDropdown('pipeline-quick-filter', quickFilterSelect, persistedState.quickFilter);
+  setDropdown('pipeline-owner-filter', ownerSelect, persistedState.owner);
+  setDropdown('pipeline-sort', sortSelect, persistedState.sort);
   if (persistedState.advancedOpen && advancedToggle && advancedControls) {
-    advancedControls.removeAttribute('hidden');
+    advancedControls.classList.add('open');
+    advancedToggle.classList.add('is-active');
     advancedToggle.setAttribute('aria-expanded', 'true');
-    advancedToggle.classList.add('is-open');
   }
 
   if (window.initCustomCalendar) {
@@ -1125,6 +1151,7 @@ function initPipelineFilters(opportunities) {
     const aNext = Number(a.dataset.nextStepTs || Number.MAX_SAFE_INTEGER);
     const bNext = Number(b.dataset.nextStepTs || Number.MAX_SAFE_INTEGER);
 
+    if (sort === 'newest') return bCreated - aCreated;
     if (sort === 'oldest') return aCreated - bCreated;
     if (sort === 'value-desc') return bValue - aValue;
     if (sort === 'value-asc') return aValue - bValue;
@@ -1135,81 +1162,63 @@ function initPipelineFilters(opportunities) {
     return bActivity - aActivity;
   };
 
-  const applyPipelineControls = () => {
-    const activeFilter = quickFilterSelect?.value || 'all';
-    const query = (searchInput?.value || '').trim().toLowerCase();
-    const owner = ownerSelect?.value || 'all';
-    const sort = sortSelect?.value || 'newest';
-    const dateFrom = document.getElementById('pipeline-filter-date-from')?.value || '';
-    const dateTo = document.getElementById('pipeline-filter-date-to')?.value || '';
+  const getControls = () => ({
+    quickFilter: quickFilterSelect?.value || 'all',
+    search: searchInput?.value || '',
+    owner: ownerSelect?.value || 'all',
+    sort: sortSelect?.value || DEFAULT_SORT,
+    advancedOpen: advancedToggle?.classList.contains('is-active') || false,
+    closedRange: closedRangeSelect?.value || persistedState.closedRange || 'recent',
+  });
 
-    saveViewState({
-      pipeline: {
-        search: searchInput?.value || '',
-        quickFilter: activeFilter,
-        owner: owner,
-        sort: sort,
-        advancedOpen: advancedToggle?.classList.contains('is-active') || false
-      }
-    });
+  const matchesFilters = (opp, controls, tokens, dateFrom, dateTo) => {
+    if (controls.quickFilter === 'my-reps' && opp.profiles?.role !== 'sales_rep') return false;
+    if (controls.quickFilter === 'high-value' && dealValue(opp) < board.highValueThreshold) return false;
+    if (controls.quickFilter === 'high-probability' && dealProbability(opp) < 70) return false;
+    if (controls.quickFilter === 'next-step-due' && !getDueStatus(opp.next_step_date)) return false;
 
-    const hasFilters = activeFilter !== 'all' || owner !== 'all' || sort !== 'newest' || dateFrom || dateTo || query;
+    if (controls.owner !== 'all' && (opp.user_id || NO_OWNER) !== controls.owner) return false;
 
-    if (hasFilters && !expandedForFiltering) {
-      window.expandAllOpportunityColumns?.();
-      expandedForFiltering = true;
-    } else if (!hasFilters) {
-      expandedForFiltering = false;
+    if (dateFrom || dateTo) {
+      const nextDate = toLocalDay(opp.next_step_date);
+      if (!nextDate) return false;
+      if (dateFrom && nextDate < dateFrom) return false;
+      if (dateTo && nextDate > dateTo) return false;
     }
 
-    if (resetBtn) resetBtn.style.display = hasFilters ? 'inline-flex' : 'none';
+    if (tokens.length > 0) {
+      const text = board.searchText.get(opp.id) || '';
+      if (!tokens.every(token => text.includes(token))) return false;
+    }
+    return true;
+  };
 
-    const dateClearBtn = document.getElementById('pipeline-date-clear');
+  const applyPipelineControls = () => {
+    const controls = getControls();
+    const tokens = controls.search.trim().toLowerCase().split(/\s+/).filter(Boolean);
+    const dateFrom = toLocalDay(dateFromInput?.value);
+    const dateTo = toLocalDay(dateToInput?.value);
+
+    saveViewState({ pipeline: controls });
+
+    const hasFilters = controls.quickFilter !== 'all' || controls.owner !== 'all' || controls.sort !== DEFAULT_SORT
+      || dateFrom || dateTo || tokens.length > 0;
+
+    // Filtering and sorting work on every deal, not just the first page of each column
+    if (hasFilters) expandAllStages();
+
+    if (resetBtn) resetBtn.style.display = hasFilters ? 'inline-flex' : 'none';
     if (dateClearBtn) dateClearBtn.style.display = (dateFrom || dateTo) ? 'inline-flex' : 'none';
 
     document.querySelectorAll('.opportunity-card').forEach(card => {
-      let show = true;
-      const oppId = card.dataset.id;
-      const opportunity = opportunitiesById.get(oppId);
-
-      if (activeFilter === 'my-reps') {
-        show = opportunity && opportunity.profiles && opportunity.profiles.role === 'sales_rep';
-      } else if (activeFilter === 'high-value') {
-        show = Number(card.dataset.value || 0) >= 100000;
-      } else if (activeFilter === 'high-probability') {
-        show = Number(card.dataset.probability || 0) >= 70;
-      } else if (activeFilter === 'next-step-due') {
-        show = !!card.querySelector('.opp-next-step');
-      }
-
-      if (show && owner !== 'all') {
-        show = card.dataset.ownerId === owner;
-      }
-
-      if (show && (dateFrom || dateTo) && opportunity) {
-        if (!opportunity.next_step_date) {
-          show = false;
-        } else {
-          const nextDate = new Date(opportunity.next_step_date);
-          if (dateFrom && nextDate < new Date(dateFrom)) show = false;
-          if (dateTo) {
-            const toEnd = new Date(dateTo);
-            toEnd.setHours(23, 59, 59, 999);
-            if (nextDate > toEnd) show = false;
-          }
-        }
-      }
-
-      if (show && query) {
-        show = (card.textContent || '').toLowerCase().includes(query);
-      }
-
-      card.style.display = show ? 'block' : 'none';
+      const opp = board?.opportunitiesById.get(card.dataset.id);
+      const show = !opp || matchesFilters(opp, controls, tokens, dateFrom, dateTo);
+      card.classList.toggle('is-filtered-out', !show);
     });
 
     document.querySelectorAll('.opportunity-list').forEach(list => {
-      const visibleCards = Array.from(list.querySelectorAll('.opportunity-card')).filter(card => card.style.display !== 'none');
-      visibleCards.sort((a, b) => compareBySort(a, b, sort));
+      const visibleCards = Array.from(list.querySelectorAll('.opportunity-card:not(.is-filtered-out)'));
+      visibleCards.sort((a, b) => compareBySort(a, b, controls.sort));
       visibleCards.forEach(card => list.appendChild(card));
     });
 
@@ -1218,40 +1227,46 @@ function initPipelineFilters(opportunities) {
 
   advancedToggle?.addEventListener('click', () => {
     const isOpen = advancedControls?.classList.toggle('open');
-    advancedToggle?.classList.toggle('is-active', isOpen);
-    advancedToggle?.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    advancedToggle.classList.toggle('is-active', isOpen);
+    advancedToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
     applyPipelineControls();
   });
+
+  const clearDates = () => {
+    if (dateFromInput) dateFromInput.value = '';
+    if (dateToInput) dateToInput.value = '';
+  };
 
   resetBtn?.addEventListener('click', () => {
     if (searchInput) searchInput.value = '';
-    window.setCrmDropdownValue?.('pipeline-quick-filter', 'all') || (quickFilterSelect && (quickFilterSelect.value = 'all'));
-    window.setCrmDropdownValue?.('pipeline-owner-filter', 'all') || (ownerSelect && (ownerSelect.value = 'all'));
-    window.setCrmDropdownValue?.('pipeline-sort', 'newest') || (sortSelect && (sortSelect.value = 'newest'));
-    const dfrom = document.getElementById('pipeline-filter-date-from');
-    const dto = document.getElementById('pipeline-filter-date-to');
-    if (dfrom) dfrom.value = '';
-    if (dto) dto.value = '';
+    setDropdown('pipeline-quick-filter', quickFilterSelect, 'all');
+    setDropdown('pipeline-owner-filter', ownerSelect, 'all');
+    setDropdown('pipeline-sort', sortSelect, DEFAULT_SORT);
+    clearDates();
     applyPipelineControls();
   });
 
-  document.getElementById('pipeline-date-clear')?.addEventListener('click', () => {
-    const dfrom = document.getElementById('pipeline-filter-date-from');
-    const dto = document.getElementById('pipeline-filter-date-to');
-    if (dfrom) dfrom.value = '';
-    if (dto) dto.value = '';
+  dateClearBtn?.addEventListener('click', () => {
+    clearDates();
     applyPipelineControls();
+  });
+
+  // The closed range decides which deals are loaded into the columns, so it re-renders
+  closedRangeSelect?.addEventListener('change', () => {
+    saveViewState({ pipeline: getControls() });
+    renderOpportunityPipelineView();
   });
 
   quickFilterSelect?.addEventListener('change', applyPipelineControls);
   searchInput?.addEventListener('input', applyPipelineControls);
   ownerSelect?.addEventListener('change', applyPipelineControls);
   sortSelect?.addEventListener('change', applyPipelineControls);
-  document.getElementById('pipeline-filter-date-from')?.addEventListener('change', applyPipelineControls);
-  document.getElementById('pipeline-filter-date-to')?.addEventListener('change', applyPipelineControls);
+  dateFromInput?.addEventListener('change', applyPipelineControls);
+  dateToInput?.addEventListener('change', applyPipelineControls);
 
   applyPipelineControls();
 }
+
 
 /** Fetch current assignees for a single opportunity from the DB (two-step, no broken join) */
 async function fetchOpportunityAssignees(opportunityId) {
@@ -1278,16 +1293,23 @@ async function fetchOpportunityAssignees(opportunityId) {
   }));
 }
 
-async function openOpportunityModal(opportunity = null) {
+/**
+ * Open the create/edit form. options.stageId preselects a column for a new deal.
+ * (Some callers pass a boolean second argument; it is ignored.)
+ */
+async function openOpportunityModal(opportunity = null, options = {}) {
   const modal = document.getElementById('opportunity-modal');
   const modalTitle = document.getElementById('opportunity-modal-title');
   const saveBtn = document.getElementById('save-opportunity-btn');
 
+  // Drop the previous form session's listeners before the reset below fires change events
+  opportunityModalListeners?.abort();
+  opportunityModalListeners = null;
+
   // Resolve active pipeline and update stage dropdown before reset
-  const activePipeline = (state.pipelines && state.activePipelineId
-    ? state.pipelines.find(p => p.id === state.activePipelineId)
-    : null) || getDefaultPipeline();
-  const firstStageId = activePipeline.stages?.[0]?.id || 'prospecting';
+  const activePipeline = getCachedActivePipeline();
+  const pipelineStages = getPipelineStages(activePipeline);
+  const firstStageId = pipelineStages[0]?.id || 'prospecting';
 
   // Reset form
   document.getElementById('opportunity-name').value = '';
@@ -1355,31 +1377,31 @@ async function openOpportunityModal(opportunity = null) {
     window.selectedOpportunityCompanyData = matchedCompany || null;
     document.getElementById('opportunity-subsector').value = opportunity.subsector || matchedCompany?.subsector || '';
     document.getElementById('opportunity-value').value = opportunity.value || '';
-    document.getElementById('opportunity-probability').value = opportunity.probability || 50;
-    document.getElementById('probability-display').textContent = opportunity.probability || 50;
+    // 0% is a real value (lost deals), so only default when nothing is stored
+    const probability = opportunity.probability == null || opportunity.probability === '' ? 50 : dealProbability(opportunity);
+    document.getElementById('opportunity-probability').value = probability;
+    document.getElementById('probability-display').textContent = String(probability);
 
-    // Resolve stage value — for default pipeline apply legacy mapping, for custom use as-is
-    let stageValue = opportunity.stage || firstStageId;
-    if (activePipeline.is_default) {
-      if (opportunity.stage === 'proposal' || opportunity.stage === 'negotiation') stageValue = 'qualification';
-    }
-    // Ensure the stage exists in the active pipeline; fall back to first stage
-    const stageExists = activePipeline.stages?.some(s => s.id === stageValue);
-    if (!stageExists) stageValue = firstStageId;
-    updateStageDropdownForPipeline(activePipeline, stageValue);
+    updateStageDropdownForPipeline(activePipeline, resolveStageId(opportunity.stage, pipelineStages, activePipeline.is_default));
 
     document.getElementById('opportunity-next-step').value = opportunity.next_step || '';
     document.getElementById('opportunity-next-step-date').value = opportunity.next_step_date || '';
     document.getElementById('opportunity-notes').value = opportunity.notes || '';
 
-    // Add competitors
-    if (opportunity.competitors) {
-      const competitors = JSON.parse(opportunity.competitors);
-      competitors.forEach(comp => addCompetitor(comp));
-    }
+    parseCompetitors(opportunity.competitors).forEach(comp => addCompetitor(comp));
   } else {
     modalTitle.innerHTML = 'New Opportunity';
     window.selectedOpportunityCompanyData = null;
+
+    // "+ New" in a column starts the deal in that column
+    if (options?.stageId && pipelineStages.some(s => s.id === options.stageId)) {
+      updateStageDropdownForPipeline(activePipeline, options.stageId);
+      const outcomeProbability = { won: 100, lost: 0 }[getStageOutcome(options.stageId)];
+      if (outcomeProbability !== undefined) {
+        document.getElementById('opportunity-probability').value = outcomeProbability;
+        document.getElementById('probability-display').textContent = String(outcomeProbability);
+      }
+    }
   }
 
   document.querySelectorAll('#opportunity-modal input, #opportunity-modal select, #opportunity-modal textarea').forEach(el => {
@@ -1414,12 +1436,11 @@ function openOpportunityViewModal(opportunity) {
 
   // Stage badge
   if (stageEl) {
-    const viewPipeline = (state.pipelines && state.activePipelineId
-      ? state.pipelines.find(p => p.id === state.activePipelineId)
-      : null) || getDefaultPipeline();
-    const pipelineStages = viewPipeline.stages;
-    const stageInfo = pipelineStages.find(s => s.id === opportunity.mappedStage) || pipelineStages[0];
-    stageEl.textContent = stageInfo.title;
+    const viewPipeline = getCachedActivePipeline();
+    const pipelineStages = getPipelineStages(viewPipeline);
+    const stageId = opportunity.mappedStage || resolveStageId(opportunity.stage, pipelineStages, viewPipeline.is_default);
+    const stageInfo = pipelineStages.find(s => s.id === stageId) || pipelineStages[0];
+    stageEl.textContent = plainStageTitle(stageInfo.title);
     stageEl.style.background = `color-mix(in srgb, ${stageInfo.color} 12%, transparent)`;
     stageEl.style.color = stageInfo.color;
     stageEl.style.borderColor = `color-mix(in srgb, ${stageInfo.color} 25%, transparent)`;
@@ -1507,7 +1528,7 @@ function openOpportunityViewModal(opportunity) {
   const nextStepEl = document.getElementById('opportunity-view-next-step');
   const dueDateEl = document.getElementById('opportunity-view-next-step-date');
   if (nextStepEl) nextStepEl.textContent = opportunity.next_step || 'No next step scheduled';
-  if (dueDateEl) dueDateEl.textContent = (opportunity.next_step_date && opportunity.next_step_date !== 'None') ? formatDate(opportunity.next_step_date) : 'No due date';
+  if (dueDateEl) dueDateEl.textContent = formatDueDate(opportunity.next_step_date) || 'No due date';
 
   // Notes & Mentions
   const notesEl = document.getElementById('opportunity-view-notes');
@@ -1516,9 +1537,10 @@ function openOpportunityViewModal(opportunity) {
     if (opportunity.mentioned_people && Array.isArray(opportunity.mentioned_people)) {
       opportunity.mentioned_people.forEach(person => {
         if (!person || !person.name) return;
-        const safeName = escapeRegExp(person.name.trim());
-        const pattern = new RegExp(`@${safeName}\\b`, 'gi');
-        notesHtml = notesHtml.replace(pattern, `<span class="mentioned-person" data-person-id="${person.id}">@${person.name}</span>`);
+        // The notes are already escaped, so match the escaped form of the name
+        const safeName = escapeHtml(person.name.trim());
+        const pattern = new RegExp(`@${escapeRegExp(safeName)}\\b`, 'gi');
+        notesHtml = notesHtml.replace(pattern, `<span class="mentioned-person" data-person-id="${escapeHtml(person.id)}">@${safeName}</span>`);
       });
     } else {
       notesHtml = notesHtml.replace(/@([A-Za-z0-9_\-]+)\b/g, '<span class="mentioned-person" data-person-name="$1">@$1</span>');
@@ -1655,16 +1677,17 @@ function openOpportunityViewModal(opportunity) {
     }
   }
 
-  // Sidebar: Target Close Date
-  const sidebarCloseEl = document.getElementById('opportunity-sidebar-close-date');
-  if (sidebarCloseEl) {
-    sidebarCloseEl.textContent = (opportunity.next_step_date && opportunity.next_step_date !== 'None') ? formatDate(opportunity.next_step_date) : 'No date set';
+  // Sidebar: time in the current stage
+  const sidebarStageAgeEl = document.getElementById('opportunity-sidebar-stage-age');
+  if (sidebarStageAgeEl) {
+    const days = daysSince(getStageEnteredAt(opportunity));
+    sidebarStageAgeEl.textContent = days === 0 ? 'Since today' : `${days} day${days === 1 ? '' : 's'}`;
   }
 
   // Sidebar: Competitors
   const competitorsEl = document.getElementById('opportunity-view-competitors');
   if (competitorsEl) {
-    const competitors = opportunity.competitors ? (typeof opportunity.competitors === 'string' ? JSON.parse(opportunity.competitors) : opportunity.competitors) : [];
+    const competitors = parseCompetitors(opportunity.competitors);
     if (competitors.length > 0) {
       competitorsEl.innerHTML = `<div class="ov-competitors-list">${competitors.map(c => `<span class="ov-comp-tag">${escapeHtml(c)}</span>`).join('')}</div>`;
     } else {
@@ -1733,10 +1756,7 @@ function openOpportunityViewModal(opportunity) {
   // Edit Action
   const editBtn = document.getElementById('opportunity-view-edit-btn');
   if (editBtn) {
-    const isAssignee = opportunity._isAssignedToMe === true
-      || (opportunity.assignees || []).some(a => a.user_id === state.currentUser.id);
-    const canEdit = opportunity.user_id === state.currentUser.id || isAssignee;
-    editBtn.style.display = canEdit ? 'flex' : 'none';
+    editBtn.style.display = canEditOpportunity(opportunity) ? 'flex' : 'none';
     editBtn.onclick = () => {
       closeModal('opportunity-view-modal');
       openOpportunityModal(opportunity);
@@ -1758,21 +1778,16 @@ function openOpportunityViewModal(opportunity) {
   if (window.lucide) lucide.createIcons();
 }
 
-/** Owners and tagged assignees can delete their deals; managers can delete any deal in the org. */
+/** Deleting follows the same rule as editing. */
 function canDeleteOpportunity(opportunity) {
-  if (!opportunity) return false;
-  if (state.isManager) return true;
-  const isAssignee = opportunity._isAssignedToMe === true
-    || (opportunity.assignees || []).some(a => a.user_id === state.currentUser.id);
-  return opportunity.user_id === state.currentUser.id || isAssignee;
+  return canEditOpportunity(opportunity);
 }
 
 /** Confirm, delete and refresh the pipeline. Resolves true when the deal was deleted. */
 async function deleteOpportunity(opportunity) {
   if (!canDeleteOpportunity(opportunity)) return false;
 
-  const owner = opportunity.profiles;
-  const ownerName = owner ? [owner.first_name, owner.last_name].filter(Boolean).join(' ') : '';
+  const ownerName = fullName(opportunity.profiles);
   const message = opportunity.user_id !== state.currentUser.id && ownerName
     ? `Are you sure you want to delete ${opportunity.name}? This deal belongs to ${ownerName}.`
     : `Are you sure you want to delete ${opportunity.name}?`;
@@ -1799,38 +1814,26 @@ async function deleteOpportunity(opportunity) {
   showToast('Opportunity deleted successfully', 'success');
   // Remove just this card so columns the user expanded with "Load more"
   // stay expanded; fall back to a full render if it isn't on the board.
-  if (!removeOpportunityCard(opportunity.id)) renderOpportunityPipelineView();
+  if (!removeOpportunityFromBoard(opportunity.id)) refreshPipelineIfVisible();
   return true;
 }
 
-/** Take a deleted deal off the board and adjust its column's count and total. */
-function removeOpportunityCard(opportunityId) {
-  const card = document.querySelector(`.opportunity-card[data-id="${CSS.escape(String(opportunityId))}"]`);
-  if (!card) return false;
-
-  const stageEl = card.closest('.pipeline-stage');
-  const value = Number(card.dataset.value || 0);
-  card.remove();
-  if (!stageEl) return true;
-
-  const countEl = stageEl.querySelector('.pipeline-stage-count');
-  if (countEl) countEl.textContent = String(Math.max(0, (parseInt(countEl.textContent, 10) || 0) - 1));
-
-  const valueEl = stageEl.querySelector('.pipeline-stage-value');
-  if (valueEl) {
-    const total = Math.max(0, (Number(valueEl.dataset.total) || 0) - value);
-    valueEl.dataset.total = String(total);
-    valueEl.textContent = `${getCurrencySymbol()} ${total.toLocaleString()}`;
-  }
+/** Take a deleted deal off the board and recount its column and the totals. */
+function removeOpportunityFromBoard(opportunityId) {
+  if (!board?.opportunitiesById.delete(opportunityId)) return false;
+  document.querySelector(`.opportunity-card[data-id="${CSS.escape(String(opportunityId))}"]`)?.remove();
+  updatePipelineStageCounts();
   return true;
 }
-
-
 
 
 function initOpportunityModalListeners(opportunity) {
+  opportunityModalListeners?.abort();
+  opportunityModalListeners = new AbortController();
+  const { signal } = opportunityModalListeners;
+
   // Initialize assignees picker
-  initAssigneesPicker();
+  initAssigneesPicker(signal);
 
   // Probability slider
   const probabilitySlider = document.getElementById('opportunity-probability');
@@ -1843,6 +1846,15 @@ function initOpportunityModalListeners(opportunity) {
       probabilityDisplay.textContent = newSlider.value;
     });
   }
+
+  // Picking Won or Lost settles the win chance
+  document.getElementById('opportunity-stage')?.addEventListener('change', (e) => {
+    const outcomeProbability = { won: 100, lost: 0 }[getStageOutcome(e.target.value)];
+    if (outcomeProbability === undefined) return;
+    const slider = document.getElementById('opportunity-probability');
+    if (slider) slider.value = outcomeProbability;
+    probabilityDisplay.textContent = String(outcomeProbability);
+  }, { signal });
 
   // Company search
   const companyInput = document.getElementById('opportunity-company');
@@ -1899,10 +1911,10 @@ function initOpportunityModalListeners(opportunity) {
             ? company.logo_url
             : (company.domain ? getCompanyLogoUrl(company.domain) : '');
           const avatarInner = logoUrl
-            ? `<img src="${logoUrl}" class="opp-suggest-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><span class="opp-suggest-initials" style="display:none">${initials}</span>`
-            : `<span class="opp-suggest-initials">${initials}</span>`;
+            ? `<img src="${escapeHtml(logoUrl)}" class="opp-suggest-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><span class="opp-suggest-initials" style="display:none">${escapeHtml(initials)}</span>`
+            : `<span class="opp-suggest-initials">${escapeHtml(initials)}</span>`;
           return `
-          <div class="search-result-item" onclick="selectOpportunityCompany('${escapeHtml(company.name)}','${escapeHtml(company.id)}')">
+          <div class="search-result-item" data-company-name="${escapeHtml(company.name)}" data-company-id="${escapeHtml(company.id)}">
             <div class="opp-suggest-avatar">${avatarInner}</div>
             <div>
               <div class="search-result-name">${escapeHtml(company.name)}</div>
@@ -1914,7 +1926,7 @@ function initOpportunityModalListeners(opportunity) {
 
       // Always show option to use custom name if it's different from found companies
       const customNameOption = `
-        <div class="search-result-item" onclick="selectOpportunityCompany('${escapeHtml(e.target.value.trim())}','')">
+        <div class="search-result-item" data-company-name="${escapeHtml(e.target.value.trim())}" data-company-id="">
           <div class="opp-suggest-avatar opp-suggest-avatar--custom">
             <span>+</span>
           </div>
@@ -1938,12 +1950,19 @@ function initOpportunityModalListeners(opportunity) {
     }
   });
 
+  // Company names go through data attributes, not inline onclick strings, so
+  // names with apostrophes (O'Neil Ltd) can be picked.
+  companySearchResults.addEventListener('click', (e) => {
+    const item = e.target.closest('.search-result-item[data-company-name]');
+    if (item) selectOpportunityCompany(item.dataset.companyName, item.dataset.companyId);
+  }, { signal });
+
   // Close search results when clicking outside
   document.addEventListener('click', (e) => {
     if (!e.target.closest('.search-container')) {
       companySearchResults.style.display = 'none';
     }
-  });
+  }, { signal });
 
   // Initialize mention system for notes
   let notesEl = document.getElementById('opportunity-notes');
@@ -2018,14 +2037,14 @@ function initOpportunityModalListeners(opportunity) {
 
       insertMentionFromSuggestion(suggestion, notesEl, mentionStartIndex, currentMentionQuery, mentionSuggestionsContainer);
     }
-  }, true); // Capture phase
+  }, { capture: true, signal });
 
   // Close suggestions when clicking outside
   document.addEventListener('click', (e) => {
     if (e.target !== notesEl && !mentionSuggestionsContainer.contains(e.target)) {
       mentionSuggestionsContainer.style.display = 'none';
     }
-  });
+  }, { signal });
 
   // Competitors input
   const competitorsInput = document.getElementById('competitors-input');
@@ -2046,14 +2065,16 @@ function initOpportunityModalListeners(opportunity) {
     const companyName = document.getElementById('opportunity-company').value.trim();
     const formSubsector = document.getElementById('opportunity-subsector').value.trim();
     const value = document.getElementById('opportunity-value').value;
-    const probability = document.getElementById('opportunity-probability').value;
     const stage = document.getElementById('opportunity-stage').value;
+    const outcome = getStageOutcome(stage);
+    // Won and Lost deals always carry 100% / 0%
+    const probability = outcome === 'won' ? 100 : outcome === 'lost' ? 0 : document.getElementById('opportunity-probability').value;
     const nextStep = document.getElementById('opportunity-next-step').value.trim();
     const nextStepDate = document.getElementById('opportunity-next-step-date').value;
     const notes = document.getElementById('opportunity-notes').value.trim();
 
     // Get competitors
-    const competitorTags = document.querySelectorAll('.competitor-tag');
+    const competitorTags = document.querySelectorAll('#competitors-container .competitor-tag');
     const competitors = Array.from(competitorTags).map(tag =>
       tag.textContent.replace('×', '').trim()
     );
@@ -2124,8 +2145,10 @@ function initOpportunityModalListeners(opportunity) {
       }
 
       showToast(`Opportunity ${opportunity ? 'updated' : 'created'} successfully!`, 'success');
+      const wasWon = opportunity && getStageOutcome(opportunity.mappedStage || opportunity.stage) === 'won';
+      if (outcome === 'won' && !wasWon) triggerConfetti();
       closeModal('opportunity-modal');
-      renderOpportunityPipelineView();
+      refreshPipelineIfVisible();
 
       // Set reminder for next step if date is provided
       if (nextStepDate) {
@@ -2156,8 +2179,8 @@ function addCompetitor(name) {
   const tag = document.createElement('span');
   tag.className = 'competitor-tag';
   tag.innerHTML = `
-    ${name}
-    <button class="remove" onclick="removeCompetitor(this)">×</button>
+    ${escapeHtml(name)}
+    <button class="remove" type="button" onclick="removeCompetitor(this)">×</button>
   `;
 
   // Insert before input
@@ -2309,7 +2332,7 @@ function _appendAssigneeChip(member) {
 }
 
 /** Set up the assignees search/picker inside the opportunity modal */
-function initAssigneesPicker() {
+function initAssigneesPicker(signal) {
   const input = document.getElementById('opp-assignees-input');
   const dropdown = document.getElementById('opp-assignees-dropdown');
   if (!input || !dropdown) return;
@@ -2424,7 +2447,7 @@ function initAssigneesPicker() {
   });
 
   // Reposition if modal scrolls while dropdown is open
-  document.querySelector('.modal-body')?.addEventListener('scroll', positionDropdown, { passive: true });
+  document.querySelector('#opportunity-modal .modal-body')?.addEventListener('scroll', positionDropdown, { passive: true, signal });
 }
 
 
@@ -2516,20 +2539,28 @@ function renderPipelinesList(pipelines) {
         .eq('pipeline_id', pipeline.id);
       const oppCount = count || 0;
 
+      // Deals are moved to the default pipeline's first stage, never deleted
+      const targetPipeline = pipelines.find(p => p.is_default && p.id !== pipeline.id);
+      const targetStage = getPipelineStages(targetPipeline)[0];
+      const dealsLabel = `${oppCount} opportunit${oppCount === 1 ? 'y' : 'ies'}`;
+
       const warningMsg = oppCount > 0
-        ? `Delete "${pipeline.name}"?\n\n⚠️ This will permanently delete ${oppCount} opportunit${oppCount === 1 ? 'y' : 'ies'} in this pipeline. This cannot be undone.`
+        ? `Delete "${pipeline.name}"?\n\nIts ${dealsLabel} will move to the "${targetPipeline?.name || 'Sales'}" pipeline, in the "${plainStageTitle(targetStage?.title)}" stage.`
         : `Delete "${pipeline.name}"? This cannot be undone.`;
 
       const confirmed = await showConfirmDialog('Delete Pipeline', warningMsg);
       if (!confirmed) return;
 
-      // Delete all opportunities in this pipeline first
       if (oppCount > 0) {
-        const { error: oppErr } = await supabaseClient
+        const { error: moveErr } = await supabaseClient
           .from('opportunities')
-          .delete()
+          .update({
+            pipeline_id: targetPipeline && targetPipeline.id !== '__default__' ? targetPipeline.id : null,
+            stage: targetStage?.id || 'prospecting',
+            updated_at: new Date().toISOString(),
+          })
           .eq('pipeline_id', pipeline.id);
-        if (oppErr) { showToast('Error deleting opportunities: ' + oppErr.message, 'error'); return; }
+        if (moveErr) { showToast('Error moving opportunities: ' + moveErr.message, 'error'); return; }
       }
 
       const { error } = await supabaseClient.from('pipelines').delete().eq('id', pipeline.id);
@@ -2542,7 +2573,7 @@ function renderPipelinesList(pipelines) {
         if (fallback) setActivePipeline(fallback.id);
       }
 
-      showToast(`Pipeline deleted${oppCount > 0 ? ` along with ${oppCount} opportunit${oppCount === 1 ? 'y' : 'ies'}` : ''}`, 'success');
+      showToast(`Pipeline deleted${oppCount > 0 ? `. ${dealsLabel} moved to ${targetPipeline?.name || 'Sales'}` : ''}`, 'success');
       state.pipelines = null;
       closeModal('manage-pipelines-modal');
       renderOpportunityPipelineView();

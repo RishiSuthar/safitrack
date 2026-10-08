@@ -10578,6 +10578,53 @@ select {
   color: var(--text-muted);
 }
 
+/* Totals row above the board */
+.pipeline-totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin: 0.25rem 0 1rem;
+}
+
+.pipeline-total {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+  padding: 0.7rem 0.85rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+}
+
+[data-theme="dark"] .pipeline-total {
+  background: #161b22;
+  border-color: #2d343e;
+}
+
+.pipeline-total-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+}
+
+.pipeline-total-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pipeline-total-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
 .pipeline-stages {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -10659,10 +10706,36 @@ select {
 }
 
 .pipeline-stage-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.15rem 0.5rem;
   font-size: 0.72rem;
   font-weight: 550;
   color: var(--text-muted);
   padding-bottom: 0.2rem;
+}
+
+.pipeline-stage-total {
+  font-weight: 650;
+  color: var(--text-secondary);
+}
+
+.pipeline-stage-note {
+  margin-top: -0.3rem;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.pipeline-stage.is-empty .opportunity-list::before {
+  content: 'No deals';
+  display: block;
+  padding: 1.25rem 0.5rem;
+  border: 1px dashed var(--border-color);
+  border-radius: 10px;
+  text-align: center;
+  font-size: 0.78rem;
+  color: var(--text-muted);
 }
 
 .opportunity-list {
@@ -10991,32 +11064,6 @@ select {
   border-color: #384250;
 }
 
-/* Probability bar */
-.opp-probability-row {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.6rem;
-}
-
-.opp-prob-bar {
-  flex: 1;
-  height: 4px;
-  background: var(--bg-tertiary);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-}
-
-[data-theme="dark"] .opp-prob-bar {
-  background: #2d343e;
-}
-
-.opp-prob-fill {
-  height: 100%;
-  border-radius: var(--radius-full);
-  transition: width 300ms ease;
-}
-
 .opp-prob-label {
   font-size: 0.72rem;
   font-weight: 600;
@@ -11059,32 +11106,6 @@ select {
   flex-shrink: 0;
 }
 
-/* Competitors */
-.opp-competitors {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.3rem;
-  margin-bottom: 0.5rem;
-}
-
-/* Notes preview */
-.opp-notes {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  line-height: 1.5;
-  margin-bottom: 0.55rem;
-  display: -webkit-box;
-  line-clamp: 2;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-[data-theme="dark"] .opp-notes {
-  color: #6e7681;
-}
-
 /* Card footer */
 .opp-card-footer {
   display: flex;
@@ -11110,57 +11131,6 @@ select {
 
 [data-theme="dark"] .opp-stage-age {
   color: #6e7681;
-}
-
-.opp-created-date {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-  margin-right: auto;
-}
-
-[data-theme="dark"] .opp-created-date {
-  color: #6e7681;
-}
-
-.opp-actions-group {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  flex-shrink: 0;
-}
-
-/* Action buttons */
-.opportunity-action-btn {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  padding: 0.3rem;
-  border-radius: 6px;
-  transition: background 120ms ease, color 120ms ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-}
-
-.opportunity-card:hover .opportunity-action-btn {
-  opacity: 1;
-}
-
-.opportunity-action-btn:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-}
-
-[data-theme="dark"] .opportunity-action-btn:hover {
-  background: #2d343e;
-  color: #c9d1d9;
-}
-
-.delete-opportunity:hover {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
 }
 
 /* ===== OPPORTUNITY CARD REDESIGN (2026-09) ===== */
@@ -11222,14 +11192,6 @@ select {
   margin-bottom: 0.6rem;
 }
 
-.opp-chip-row {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem;
-  margin-bottom: 0.6rem;
-}
-
 .opp-chip {
   display: inline-flex;
   align-items: center;
@@ -11253,36 +11215,6 @@ select {
   max-width: 140px;
 }
 
-.opp-metrics-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.45rem;
-  margin-bottom: 0.55rem;
-}
-
-.opp-metric-card {
-  display: flex;
-  flex-direction: column;
-  gap: 0.16rem;
-  padding: 0.42rem 0.48rem;
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  background: color-mix(in srgb, var(--bg-secondary) 80%, #fff 20%);
-}
-
-[data-theme="dark"] .opp-metric-card {
-  border-color: #394150;
-  background: #232b34;
-}
-
-.opp-metric-label {
-  font-size: 0.64rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--text-muted);
-}
-
 .opp-value {
   font-size: 0.95rem;
 }
@@ -11299,14 +11231,6 @@ select {
   color: #e6edf3;
 }
 
-.opp-probability-row {
-  margin-bottom: 0.65rem;
-}
-
-.opp-prob-bar {
-  height: 6px;
-}
-
 .opp-next-step {
   margin-bottom: 0.55rem;
   padding: 0.45rem 0.55rem;
@@ -11318,45 +11242,42 @@ select {
   border-color: color-mix(in srgb, var(--color-danger) 32%, var(--border-color) 68%);
 }
 
-.opp-notes {
-  padding: 0.48rem 0.55rem;
-  border: 1px dashed var(--border-color);
-  border-radius: 9px;
-  background: color-mix(in srgb, var(--bg-secondary) 86%, #fff 14%);
-}
-
-[data-theme="dark"] .opp-notes {
-  border-color: #384151;
-  background: #222a33;
-}
-
-.opp-card-assignees {
-  margin-top: 0.5rem;
-}
-
 .opp-card-footer {
   margin-top: 0.58rem;
   padding-top: 0.58rem;
   align-items: center;
 }
 
-.opp-created-date {
-  font-size: 0.68rem;
+.opp-card-footer .opp-assignees-stack {
+  margin-left: auto;
+}
+
+.opp-step-text {
+  min-width: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.opp-next-step.due-today {
+  border-color: color-mix(in srgb, var(--color-warning) 40%, var(--border-color) 60%);
+}
+
+.opp-next-step.due-today .opp-step-date {
+  color: var(--color-warning);
   font-weight: 600;
-  color: var(--text-secondary);
 }
 
-.opportunity-action-btn {
-  opacity: 1;
-  width: 30px;
-  height: 30px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
+.opp-next-step.overdue .opp-step-date {
+  color: var(--color-danger);
+  font-weight: 600;
 }
 
-[data-theme="dark"] .opportunity-action-btn {
-  border-color: #394150;
-  background: #232b34;
+/* Filtered-out cards stay in the DOM so sorting and drag-and-drop keep working */
+.opportunity-card.is-filtered-out {
+  display: none !important;
 }
 
 /* ===== SORTABLE DRAG STATES ===== */
@@ -11464,10 +11385,6 @@ select {
 
   .pipeline-view-right {
     justify-content: flex-start;
-  }
-
-  .pipeline-summary {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .pipeline-stages {
@@ -11620,24 +11537,6 @@ body.is-dragging * {
   border-color: var(--color-primary, #4578e8) !important;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45) !important;
 }
-
-.opportunity-card.readonly .opportunity-action-btn {
-  opacity: 0.85;
-  cursor: pointer !important;
-}
-
-.opportunity-card.readonly .opportunity-action-btn:hover {
-  opacity: 1;
-  background: var(--bg-hover, rgba(0, 0, 0, 0.05));
-  color: var(--text-primary);
-}
-
-/* Managers can delete deals they don't own; keep the danger hover */
-.opportunity-card.readonly .delete-opportunity:hover {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
-}
-
 
 .sidebar-attribution {
   margin-top: auto;
@@ -26870,24 +26769,6 @@ textarea.ups-input {
 }
 
 /* ── Stacked avatars on kanban card ──────────────────────────────── */
-.opp-card-assignees {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 0 2px;
-  border-top: 1px solid var(--border-color-light);
-  margin-top: 6px;
-}
-
-.opp-card-assignees-label {
-  font-size: 0.675rem;
-  font-weight: 550;
-  color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  white-space: nowrap;
-}
-
 .opp-assignees-stack {
   display: flex;
   align-items: center;
