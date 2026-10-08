@@ -12,6 +12,9 @@ import { getDefaultSalesStages, LEGACY_STAGE_TO_CANONICAL } from '../utils/pipel
 /** Stage color palette for custom pipelines */
 const STAGE_COLORS = ['#3b82f6', '#ec4899', '#10b981', '#ef4444', '#f59e0b', '#8b5cf6', '#06b6d4', '#f97316'];
 const OPPORTUNITY_STAGE_PAGE_SIZE = 25;
+// Per-stage "Load more" state of the board currently on screen. Column
+// headers count these not-yet-rendered deals too.
+let boardPagination = null;
 
 /** The built-in fallback used when Supabase is unavailable */
 function getDefaultPipeline() {
@@ -277,6 +280,7 @@ async function renderOpportunityPipelineView() {
   const opportunitiesById = new Map(opportunities.map(opp => [opp.id, opp]));
   const companyLookup = buildCompanyLookup(window.allCompaniesData);
   const paginationState = {};
+  boardPagination = paginationState;
 
   const ownerOptions = state.isManager
     ? Array.from(new Map(opportunities.map(opp => {
@@ -407,12 +411,14 @@ async function renderOpportunityPipelineView() {
   pipelineStages.forEach(stage => {
     const stageData = opportunitiesByStage[stage.id];
     const deferredCards = [];
+    const deferredValues = [];
     let renderedCount = 0;
 
     paginationState[stage.id] = {
       pageSize: OPPORTUNITY_STAGE_PAGE_SIZE,
       rendered: 0,
       deferredCards,
+      deferredValues,
       total: stageData.opportunities.length,
     };
 
@@ -422,7 +428,7 @@ async function renderOpportunityPipelineView() {
           <div class="pipeline-stage-title"><span class="pipeline-stage-dot" style="background:${stage.color}"></span>${stage.title}</div>
           <div class="pipeline-stage-count">${stageData.opportunities.length}</div>
         </div>
-        <div class="pipeline-stage-value">${getCurrencySymbol()} ${stageData.totalValue.toLocaleString()}</div>
+        <div class="pipeline-stage-value" data-total="${stageData.totalValue}">${getCurrencySymbol()} ${stageData.totalValue.toLocaleString()}</div>
         <button class="pipeline-inline-add" data-stage="${stage.id}">+ New</button>
         <div class="opportunity-list" id="opportunities-${stage.id}">
     `;
@@ -625,6 +631,7 @@ async function renderOpportunityPipelineView() {
         html += cardHtml;
       } else {
         deferredCards.push(cardHtml);
+        deferredValues.push(parseFloat(opp.value || 0));
       }
 
       renderedCount += 1;
@@ -725,6 +732,7 @@ function initOpportunityEventListeners(opportunitiesOrMap, paginationState = nul
 
     const takeCount = all ? stageState.deferredCards.length : Math.min(stageState.pageSize, stageState.deferredCards.length);
     const htmlChunk = stageState.deferredCards.splice(0, takeCount).join('');
+    stageState.deferredValues?.splice(0, takeCount);
     if (!htmlChunk) return;
 
     listEl.insertAdjacentHTML('beforeend', htmlChunk);
@@ -987,7 +995,11 @@ function updatePipelineStageCounts() {
   document.querySelectorAll('.pipeline-stage').forEach(stage => {
     const stageId = stage.dataset.stage;
     const opportunities = stage.querySelectorAll('.opportunity-card:not([style*="display: none"])');
-    const count = opportunities.length;
+    // Deals still behind "Load more" aren't in the DOM yet but belong in the
+    // header. (Filtering expands every column first, so none are pending then.)
+    const pending = boardPagination?.[stageId];
+    const pendingValues = pending?.deferredValues || [];
+    const count = opportunities.length + (pending?.deferredCards?.length || 0);
 
     // Update count badge
     const countBadge = stage.querySelector('.pipeline-stage-count');
@@ -996,7 +1008,7 @@ function updatePipelineStageCounts() {
     }
 
     // Calculate and update total value
-    let totalValue = 0;
+    let totalValue = pendingValues.reduce((sum, v) => sum + v, 0);
     opportunities.forEach(card => {
       const valueText = card.querySelector('.opp-value')?.textContent;
       if (valueText) {
@@ -1006,6 +1018,7 @@ function updatePipelineStageCounts() {
 
     const valueElement = stage.querySelector('.pipeline-stage-value');
     if (valueElement) {
+      valueElement.dataset.total = String(totalValue);
       valueElement.textContent = `${getCurrencySymbol()} ${totalValue.toLocaleString()}`;
     }
   });
@@ -1784,7 +1797,31 @@ async function deleteOpportunity(opportunity) {
   }
 
   showToast('Opportunity deleted successfully', 'success');
-  renderOpportunityPipelineView();
+  // Remove just this card so columns the user expanded with "Load more"
+  // stay expanded; fall back to a full render if it isn't on the board.
+  if (!removeOpportunityCard(opportunity.id)) renderOpportunityPipelineView();
+  return true;
+}
+
+/** Take a deleted deal off the board and adjust its column's count and total. */
+function removeOpportunityCard(opportunityId) {
+  const card = document.querySelector(`.opportunity-card[data-id="${CSS.escape(String(opportunityId))}"]`);
+  if (!card) return false;
+
+  const stageEl = card.closest('.pipeline-stage');
+  const value = Number(card.dataset.value || 0);
+  card.remove();
+  if (!stageEl) return true;
+
+  const countEl = stageEl.querySelector('.pipeline-stage-count');
+  if (countEl) countEl.textContent = String(Math.max(0, (parseInt(countEl.textContent, 10) || 0) - 1));
+
+  const valueEl = stageEl.querySelector('.pipeline-stage-value');
+  if (valueEl) {
+    const total = Math.max(0, (Number(valueEl.dataset.total) || 0) - value);
+    valueEl.dataset.total = String(total);
+    valueEl.textContent = `${getCurrencySymbol()} ${total.toLocaleString()}`;
+  }
   return true;
 }
 
