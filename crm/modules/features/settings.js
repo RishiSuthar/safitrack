@@ -867,7 +867,7 @@ async function renderSettingsView() {
             <div class="sv-danger-field-row">
               <div class="sv-field-meta">
                 <div class="sv-field-label">Delete account permanently</div>
-                <div class="sv-field-hint">Removes your account, data, and workspace access from SafiTrack forever.</div>
+                <div class="sv-field-hint">Removes your login and profile from SafiTrack forever. Records you created stay with your organization.</div>
               </div>
               <div class="sv-field-control">
                 <button id="delete-account-btn" class="sv-danger-btn">
@@ -2371,36 +2371,28 @@ async function renderSettingsView() {
       return;
     }
 
-    // Step 2: if manager, ensure at least one other manager exists
-    if (state.isManager) {
-      try {
-        const { data: otherManagers, error: mgErr } = await supabaseClient
-          .from('profiles')
-          .select('id')
-          .eq('organization_id', state.currentOrganization?.id)
-          .eq('role', 'manager')
-          .neq('id', state.currentUser.id)
-          .limit(1);
-        if (mgErr) throw mgErr;
-        if (!otherManagers || otherManagers.length === 0) {
-          showToast('You are the only manager. Promote another member to manager before deleting your account.', 'error');
-          return;
-        }
-      } catch (e) {
-        console.error('Manager check error:', e);
-        showToast('Could not verify manager status. Please try again.', 'error');
-        return;
-      }
-    }
-
-    // Step 3: delete profile row (cascades app data) then sign out
+    // Step 2: the server checks ownership and last-manager rules, then
+    // deletes the login (and with it the profile)
     try {
       showToast('Deleting your account…', 'info');
-      const { error: delErr } = await supabaseClient
-        .from('profiles')
-        .delete()
-        .eq('id', state.currentUser.id);
-      if (delErr) throw delErr;
+      const { data: { session } } = await supabaseClient.auth.getSession();
+      const accessToken = session?.access_token;
+      if (!accessToken) throw new Error('Not authenticated');
+
+      const supabaseUrl = (window.APP_CONFIG || {}).SUPABASE_URL || '';
+      const res = await fetch(`${supabaseUrl}/functions/v1/delete-account`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok || !result.success) {
+        throw new Error(result.error || 'Deletion failed');
+      }
+
       showToast('Account deleted. Goodbye!', 'success');
       setTimeout(async () => {
         await supabaseClient.auth.signOut();

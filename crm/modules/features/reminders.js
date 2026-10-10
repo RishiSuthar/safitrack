@@ -4,6 +4,7 @@ import { state, supabaseClient } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards } from '../utils/helpers.js';
+import { fetchAllPages } from '../utils/analytics.js';
 
 async function renderRemindersView() {
   let reminders;
@@ -19,7 +20,7 @@ async function renderRemindersView() {
       `)
       .order('reminder_date', { ascending: true });
     if (state.currentOrganization?.id) remindersQ = remindersQ.eq('organization_id', state.currentOrganization.id);
-    const result = await remindersQ;
+    const result = await fetchAllPages(remindersQ);
     reminders = result.data;
     error = result.error;
   } else {
@@ -33,7 +34,7 @@ async function renderRemindersView() {
       .or(`assigned_to.eq.${state.currentUser.id},created_by.eq.${state.currentUser.id}`)
       .order('reminder_date', { ascending: true });
     if (state.currentOrganization?.id) remindersQ = remindersQ.eq('organization_id', state.currentOrganization.id);
-    const result = await remindersQ;
+    const result = await fetchAllPages(remindersQ);
     reminders = result.data;
     error = result.error;
   }

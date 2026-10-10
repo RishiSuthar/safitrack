@@ -5,6 +5,7 @@ import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards, renderError } from '../utils/helpers.js';
 import { matchesTokenizedQuery } from '../ui/spreadsheet.js';
+import { fetchAllPages } from '../utils/analytics.js';
 
 function groupRoutesByLocations(routes, routeLocations) {
   // Create a map of route_id to its location signature (sorted company IDs)
@@ -86,7 +87,7 @@ async function renderRoutePlanningView() {
     (() => {
       let rlQ = supabaseClient.from('route_locations').select('route_id, company_id, position').order('position', { ascending: true });
       if (orgId) rlQ = rlQ.eq('organization_id', orgId);
-      return rlQ;
+      return fetchAllPages(rlQ);
     })()
   ]);
 

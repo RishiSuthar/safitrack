@@ -6,6 +6,7 @@ import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards, renderError, getCurrencySymbol } from '../utils/helpers.js';
 import { renderEditableDataTable, normalizeSearchText, normalizeForMatching, findDuplicatePersonContact } from '../ui/spreadsheet.js';
 import { renderCustomFieldsForm, collectCustomFieldValues, validateCustomFields, saveCustomFieldValues, fetchCustomFieldValues, renderCustomFieldsDisplay } from './custom-fields.js';
+import { fetchAllPages } from '../utils/analytics.js';
 
 // ======================
 // PEOPLE VIEW
@@ -36,7 +37,7 @@ async function renderPeopleView() {
     if (orgId) {
       roQ = roQ.eq('organization_id', orgId);
     }
-    const { data: opportunities, error } = await roQ;
+    const { data: opportunities, error } = await fetchAllPages(roQ);
     if (error) {
       crmDebugLog('renderPeopleView.opportunitiesError', error);
       viewContainer.innerHTML = renderError(error.message);

@@ -2,7 +2,7 @@
  * SafiTrack Edge Function: delete-member
  * ─────────────────────────────────────────
  * Allows a manager to fully remove a non-manager member from their organization.
- * Deletes both the public.profiles row (cascading app data) and the auth.users
+ * Deletes both the public.profiles row and the auth.users
  * entry so no orphan account remains.
  *
  * Request body: { userId: string }
@@ -91,8 +91,8 @@ Deno.serve(async (req: Request) => {
       return json({ error: 'Managers cannot be deleted by other managers. Only the organization owner can delete the entire organization.' }, 403);
     }
 
-    // ── 6. Delete the profile row first (CASCADE removes all their CRM data) ──
-    // This mirrors how delete-organization works: data is wiped via cascade,
+    // ── 6. Delete the profile row first. Records they created stay with the
+    // organization with their name cleared (ON DELETE SET NULL),
     // then the auth user is removed best-effort.
     const { error: profileDelErr } = await supabaseAdmin
       .from('profiles')
@@ -103,12 +103,12 @@ Deno.serve(async (req: Request) => {
       return json({ error: 'Failed to delete member profile: ' + profileDelErr.message }, 500);
     }
 
-    // ── 7. Delete the auth user (best-effort — data is already gone) ─────────
+    // ── 7. Delete the auth user (best-effort — the profile is already gone) ──
     const { error: authDelErr } = await supabaseAdmin.auth.admin.deleteUser(targetId);
     if (authDelErr) {
-      // Log but don't fail — profile + all CRM data are already deleted.
+      // Log but don't fail — the profile is already deleted.
       // The auth account is now useless (no profile = no org access).
-      console.warn('[delete-member] Auth user deletion failed (data already removed):', JSON.stringify(authDelErr));
+      console.warn('[delete-member] Auth user deletion failed (profile already removed):', JSON.stringify(authDelErr));
     }
 
     return json({ success: true });

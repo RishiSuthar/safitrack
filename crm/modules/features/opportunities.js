@@ -6,6 +6,7 @@ import { showToast, escapeHtml, getInitials, triggerConfetti } from '../ui/toast
 import { renderError, formatCurrency } from '../utils/helpers.js';
 import { getCompanyLogoUrl } from '../ui/spreadsheet.js';
 import { getDefaultSalesStages, LEGACY_STAGE_TO_CANONICAL } from '../utils/pipeline-stages.js';
+import { fetchAllPages } from '../utils/analytics.js';
 
 // ── Pipeline helpers ──────────────────────────────────────────────────────────
 
@@ -491,7 +492,7 @@ async function renderOpportunityPipelineView({ preserveView = false } = {}) {
   if (!state.isManager) opportunitiesQuery = opportunitiesQuery.eq('user_id', state.currentUser.id);
   if (state.currentOrganization?.id) opportunitiesQuery = opportunitiesQuery.eq('organization_id', state.currentOrganization.id);
 
-  const [pipelines, opportunitiesResult] = await Promise.all([loadPipelines(), opportunitiesQuery]);
+  const [pipelines, opportunitiesResult] = await Promise.all([loadPipelines(), fetchAllPages(opportunitiesQuery)]);
   const activePipeline = getActivePipeline(pipelines);
   setActivePipeline(activePipeline.id);
 
@@ -1704,7 +1705,7 @@ function initOpportunityModalListeners(opportunity) {
           .select('*')
           .order('name', { ascending: true });
         if (state.currentOrganization?.id) q = q.eq('organization_id', state.currentOrganization.id);
-        const { data } = await q;
+        const { data } = await fetchAllPages(q);
         companies = data || [];
         window.allCompaniesData = companies; // Cache for future use
       }

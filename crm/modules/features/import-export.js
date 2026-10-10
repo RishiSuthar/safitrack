@@ -2,6 +2,7 @@
 // CSV import and export for companies.
 import { state, supabaseClient } from '../state.js';
 import { showToast, escapeHtml } from '../ui/toast.js';
+import { fetchAllPages } from '../utils/analytics.js';
 
 
 const COMPANY_IMPORT_TYPES = ['Competitor', 'Customer', 'Distributor', 'Investor', 'Partner', 'Reseller', 'Supplier', 'Vendor', 'Other'];
@@ -928,10 +929,10 @@ async function runPeopleImportFromCsv() {
     }
     
     // Refresh people data
-    const { data: peopleData, error: peopleError } = await supabaseClient
+    const { data: peopleData, error: peopleError } = await fetchAllPages(supabaseClient
       .from('people')
       .select('*')
-      .eq('organization_id', state.currentOrganization.id);
+      .eq('organization_id', state.currentOrganization.id));
     if (!peopleError) {
       window.allPeopleData = peopleData || [];
     }

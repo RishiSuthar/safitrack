@@ -5,6 +5,7 @@ import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards, renderError, getCurrencySymbol } from '../utils/helpers.js';
 import { renderCustomFieldsDisplay } from './custom-fields.js';
+import { fetchAllPages } from '../utils/analytics.js';
 
 // ======================
 // PWA LOGIC
@@ -31,7 +32,7 @@ async function renderCallLogsView() {
       // Fallback if not initialized via app-init
       let companiesCacheQ = supabaseClient.from('companies').select('id, name, address').order('name', { ascending: true });
       if (state.currentOrganization?.id) companiesCacheQ = companiesCacheQ.eq('organization_id', state.currentOrganization.id);
-      const { data: companies } = await companiesCacheQ;
+      const { data: companies } = await fetchAllPages(companiesCacheQ);
       window.allCompaniesData = companies || [];
     }
   }
@@ -55,7 +56,7 @@ async function renderCallLogsView() {
     query = query.eq('user_id', state.selectedRepId);
   }
 
-  const { data: logs, error } = await query;
+  const { data: logs, error } = await fetchAllPages(query);
 
   if (error) {
     viewContainer.innerHTML = renderError(error.message);

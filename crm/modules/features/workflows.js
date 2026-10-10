@@ -6,7 +6,7 @@ import { state, supabaseClient } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml } from '../ui/toast.js';
 import { renderSkeletonCards, renderError } from '../utils/helpers.js';
-import { invalidateWorkflowCache, getWorkflowRuns, getAllWorkflowRuns, getWorkflowRunStats } from './workflow-engine.js';
+import { getWorkflowRuns, getAllWorkflowRuns, getWorkflowRunStats } from './workflow-engine.js';
 
 // ── Local state ────────────────────────────────────────────────────────────────
 let allWorkflows = [];
@@ -365,7 +365,6 @@ async function handleToggle(id, newActive) {
   }
   const wf = allWorkflows.find(w => w.id === id);
   if (wf) wf.is_active = newActive;
-  invalidateWorkflowCache();
   showToast(`Workflow ${newActive ? 'activated' : 'deactivated'}`, 'success');
   renderListPage();
 }
@@ -387,7 +386,6 @@ async function handleDelete(id) {
     return;
   }
   allWorkflows = allWorkflows.filter(w => w.id !== id);
-  invalidateWorkflowCache();
   showToast('Workflow deleted', 'success');
   renderListPage();
 }
@@ -1618,7 +1616,6 @@ async function saveWorkflow() {
     }
   }
 
-  invalidateWorkflowCache();
   builderDirty = false;
   showToast(`Workflow "${wf.name}" saved`, 'success');
   currentWorkflow = null;

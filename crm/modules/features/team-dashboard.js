@@ -4,6 +4,7 @@ import { state, supabaseClient, persistedState as _persisted, saveViewState } fr
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards } from '../utils/helpers.js';
+import { fetchAllPages } from '../utils/analytics.js';
 
 // VISITS HUB - PREMIUM MANAGER VIEW
 // ======================
@@ -76,7 +77,7 @@ async function renderTeamDashboardView() {
 
   let tvQ = supabaseClient.from('visits').select('*').order('created_at', { ascending: false });
   if (state.currentOrganization?.id) tvQ = tvQ.eq('organization_id', state.currentOrganization.id);
-  const { data: visits, error: visitsError } = await tvQ;
+  const { data: visits, error: visitsError } = await fetchAllPages(tvQ);
 
   if (visitsError) {
     viewContainer.innerHTML = renderError(visitsError.message);
