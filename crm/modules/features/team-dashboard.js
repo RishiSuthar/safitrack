@@ -173,7 +173,7 @@ async function renderTeamDashboardView() {
               <div class="crm-dd-panel" role="listbox">
                 <ul class="crm-dd-list">
                   <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="All Reps" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Reps</li>
-                  ${salesReps.map(rep => `<li class="crm-dd-option" role="option" data-value="${rep.id}" data-label="${rep.first_name} ${rep.last_name}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${rep.first_name} ${rep.last_name}</li>`).join('')}
+                  ${salesReps.map(rep => `<li class="crm-dd-option" role="option" data-value="${rep.id}" data-label="${escapeHtml(rep.first_name)} ${escapeHtml(rep.last_name)}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${escapeHtml(rep.first_name)} ${escapeHtml(rep.last_name)}</li>`).join('')}
                 </ul>
               </div>
               <input class="crm-dd-value-input" type="hidden" id="filter-rep" value="">
@@ -508,14 +508,14 @@ function renderVisitsTimeline(visits) {
             <div class="visit-card-premium timeline-visit-card" data-visit-id="${visit.id}" onclick="openVisitDetail('${visit.id}')">
               <div class="visit-card-top">
                 <div class="visit-card-main">
-                  <div class="visit-card-company">${visit.company_name || 'Unknown'}</div>
-                  <div class="visit-card-rep">${userName} at ${time}</div>
+                  <div class="visit-card-company">${escapeHtml(visit.company_name || 'Unknown')}</div>
+                  <div class="visit-card-rep">${escapeHtml(userName)} at ${time}</div>
                 </div>
               </div>
               <div class="visit-card-meta" style="margin-top: 0.4rem;">
                 <span class="visit-card-badge subsector">Subsector: ${escapeHtml((visit.subsector || '').trim() || 'Unassigned')}</span>
               </div>
-              ${visit.notes ? `<div class="visit-card-notes">${visit.notes}</div>` : ''}
+              ${visit.notes ? `<div class="visit-card-notes">${escapeHtml(visit.notes)}</div>` : ''}
             </div>
           `;
     }).join('')}
@@ -546,7 +546,7 @@ function renderActivityTimeline(activities) {
         </div>
         <div class="activity-timeline-content">
           <div class="activity-timeline-title">
-            <strong>${userName}</strong> visited ${activity.company || 'a company'}
+            <strong>${escapeHtml(userName)}</strong> visited ${escapeHtml(activity.company || 'a company')}
           </div>
           <div class="activity-timeline-meta">${relativeTime}</div>
         </div>
@@ -563,9 +563,9 @@ function renderLeaderboard(leaderboard) {
     return `
       <div class="leaderboard-item">
         <div class="leaderboard-rank">${index + 1}</div>
-        <div class="leaderboard-avatar">${initials}</div>
+        <div class="leaderboard-avatar">${escapeHtml(initials)}</div>
         <div class="leaderboard-info">
-          <div class="leaderboard-name">${name}</div>
+          <div class="leaderboard-name">${escapeHtml(name)}</div>
           <div class="leaderboard-stats">${rep.visitCount} visits</div>
         </div>
         <div class="leaderboard-value">${rep.visitCount}</div>
@@ -1389,8 +1389,8 @@ function initVisitsMap() {
 
     const userName = visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : 'Unknown';
     marker.bindPopup(`
-      <strong>${visit.company_name || 'Unknown'}</strong><br>
-      ${userName}<br>
+      <strong>${escapeHtml(visit.company_name || 'Unknown')}</strong><br>
+      ${escapeHtml(userName)}<br>
       <small>${formatDate(visit.created_at)}</small>
     `);
   });

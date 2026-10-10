@@ -444,7 +444,7 @@ async function openPersonModal(person = null) {
   if (window.opportunitiesData) {
     opportunitySelect.innerHTML = '<option value="">Select an opportunity</option>';
     window.opportunitiesData.forEach(opportunity => {
-      opportunitySelect.innerHTML += `<option value="${opportunity.id}">${opportunity.name}</option>`;
+      opportunitySelect.innerHTML += `<option value="${opportunity.id}">${escapeHtml(opportunity.name)}</option>`;
     });
   }
 
@@ -866,9 +866,9 @@ function initPersonModalListeners(person) {
 
       if (filteredCompanies.length > 0) {
         searchResults.innerHTML = filteredCompanies.slice(0, 5).map(company => `
-          <div class="search-result-item" data-company-id="${company.id}" data-company-name="${company.name}">
-            <div class="search-result-name">${company.name}</div>
-            ${company.address ? `<div class="search-result-meta">${company.address}</div>` : ''}
+          <div class="search-result-item" data-company-id="${company.id}" data-company-name="${escapeHtml(company.name)}">
+            <div class="search-result-name">${escapeHtml(company.name)}</div>
+            ${company.address ? `<div class="search-result-meta">${escapeHtml(company.address)}</div>` : ''}
           </div>
         `).join('');
         searchResults.style.display = 'block';

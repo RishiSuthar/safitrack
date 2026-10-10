@@ -847,11 +847,11 @@ function renderTaskCard(task, isManager) {
   return `
     <div class="task-card" data-id="${task.id}" data-status="${task.status}" data-overdue="${isOverdue}">
       <div class="task-header">
-        <div class="task-title">${task.title}</div>
+        <div class="task-title">${escapeHtml(task.title)}</div>
         <div class="task-status ${task.status}">${getStatusLabel(task.status)}</div>
       </div>
       
-      ${task.description ? `<div class="task-description">${task.description}</div>` : ''}
+      ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
       
       <div class="task-meta">
         ${task.due_date ? `
@@ -870,7 +870,7 @@ function renderTaskCard(task, isManager) {
         ${state.isManager || task.assigned_to ? `
           <div class="task-meta-item">
             <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <span>Assigned to: ${assignedToName}</span>
+            <span>Assigned to: ${escapeHtml(assignedToName)}</span>
           </div>
         ` : ''}
       </div>
@@ -1036,7 +1036,7 @@ function openTaskModal(task = null, salesReps = [], initialStatus = 'pending') {
       listHtml += `<li class="crm-dd-option" role="option" data-value="${state.currentUser.id}" data-label="Me" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Me</li>`;
 
       salesReps.forEach(rep => {
-        listHtml += `<li class="crm-dd-option" role="option" data-value="${rep.id}" data-label="${rep.first_name} ${rep.last_name}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${rep.first_name} ${rep.last_name}</li>`;
+        listHtml += `<li class="crm-dd-option" role="option" data-value="${rep.id}" data-label="${escapeHtml(rep.first_name)} ${escapeHtml(rep.last_name)}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${escapeHtml(rep.first_name)} ${escapeHtml(rep.last_name)}</li>`;
       });
       assignList.innerHTML = listHtml;
     }

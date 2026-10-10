@@ -1,4 +1,4 @@
-const CACHE_NAME = 'safitrack-crm-v17';
+const CACHE_NAME = 'safitrack-crm-v18';
 const ASSETS = [
     '/crm/',
     '/crm/index.html',
@@ -34,9 +34,27 @@ self.addEventListener('activate', (event) => {
     );
 });
 
+// Only static assets are cached: the app's own files and the CDN libraries it
+// loads. API responses (Supabase etc.) carry user data and must never be stored,
+// or they would outlive logout on shared devices.
+const CACHEABLE_CDN_HOSTS = [
+    'unpkg.com',
+    'cdn.jsdelivr.net',
+    'cdnjs.cloudflare.com',
+    'fonts.googleapis.com',
+    'fonts.gstatic.com'
+];
+
+function isCacheable(request) {
+    if (request.method !== 'GET') return false;
+    const url = new URL(request.url);
+    if (url.origin === self.location.origin) return true;
+    return CACHEABLE_CDN_HOSTS.includes(url.hostname);
+}
+
 // Network First (fallback to cache) Strategy
 self.addEventListener('fetch', (event) => {
-    if (event.request.method !== 'GET' || !event.request.url.startsWith('http')) return;
+    if (!event.request.url.startsWith('http') || !isCacheable(event.request)) return;
     event.respondWith(
         fetch(event.request)
             .then((networkResponse) => {

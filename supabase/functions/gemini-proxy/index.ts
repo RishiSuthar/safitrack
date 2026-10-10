@@ -25,43 +25,37 @@ serve(async (req: Request) => {
       throw new Error('Missing required environment variables');
     }
 
+    // Only signed-in SafiTrack users may spend the Gemini key. The public anon
+    // key is itself a valid JWT, so platform JWT verification alone is not enough.
     const authHeader = req.headers.get('Authorization');
-    const action = req.headers.get('X-AI-Action') || 'general';
+    if (!authHeader) {
+      return json({ error: 'Authentication required' }, 401);
+    }
+    const userClient = createClient(supabaseUrl, anonKey);
+    const token = authHeader.replace('Bearer ', '').trim();
+    const { data: { user } } = await userClient.auth.getUser(token);
+    if (!user) {
+      return json({ error: 'Authentication required' }, 401);
+    }
+
+    const action = (req.headers.get('X-AI-Action') || 'general').slice(0, 64);
     const body = await req.json().catch(() => ({}));
-    
-    if (body.listModels) {
-      const listRes = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${GEMINI_API_KEY}`);
-      const listData = await listRes.json();
-      return json(listData, listRes.status);
-    }
-    const requestedModel = req.headers.get('X-Gemini-Model') || body.model || 'gemini-2.5-flash';
-    // Remove custom model property if present in body before forwarding to Gemini
-    const { model: _omittedModel, ...geminiPayload } = body;
 
-    let userId: string | null = null;
-    let orgIdPromise: Promise<string | null> = Promise.resolve(null);
+    // Callers may not pick the model: only models from the list below are used.
+    const { model: _omittedModel, listModels: _omittedList, ...geminiPayload } = body;
 
-    if (authHeader) {
-      const userClient = createClient(supabaseUrl, anonKey);
-      const token = authHeader.replace('Bearer ', '').trim();
-      const { data: { user } } = await userClient.auth.getUser(token);
-      
-      if (user) {
-        userId = user.id;
-        const supabaseAdmin = createClient(supabaseUrl, serviceKey);
-        orgIdPromise = supabaseAdmin
-          .from('profiles')
-          .select('organization_id')
-          .eq('id', user.id)
-          .single()
-          .then(res => res.data?.organization_id || null)
-          .catch(() => null);
-      }
-    }
+    const userId: string = user.id;
+    const supabaseAdmin = createClient(supabaseUrl, serviceKey);
+    const orgIdPromise: Promise<string | null> = supabaseAdmin
+      .from('profiles')
+      .select('organization_id')
+      .eq('id', user.id)
+      .single()
+      .then(res => res.data?.organization_id || null)
+      .catch(() => null);
 
     // Attempt Gemini call with candidate models (verified on API)
     const candidateModels = [
-      requestedModel,
       'gemini-2.5-flash',
       'gemini-2.5-flash-lite',
       'gemini-3.5-flash',
@@ -105,8 +99,7 @@ serve(async (req: Request) => {
     }
     
     // Log AI Usage asynchronously (do not await)
-    if (userId && data.usageMetadata) {
-      const supabaseAdmin = createClient(supabaseUrl, serviceKey);
+    if (data.usageMetadata) {
       supabaseAdmin.from('ai_usage_logs').insert([{
         organization_id: orgId || null,
         user_id: userId,

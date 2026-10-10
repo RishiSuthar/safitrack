@@ -665,7 +665,7 @@ function initRoutePlanning(companies, salesReps) {
         })
       }).addTo(map);
 
-      marker.bindPopup(`<strong>${stop.name}</strong><br>${stop.address || ''}`);
+      marker.bindPopup(`<strong>${escapeHtml(stop.name)}</strong><br>${escapeHtml(stop.address || '')}`);
       markers.push(marker);
       bounds.push([stop.latitude, stop.longitude]);
     });
@@ -994,10 +994,10 @@ function openAISafiPlanModal(companies, salesReps) {
                 ${salesReps.map(rep => `
                   <label class="auto-plan-row" data-rep-id="${rep.id}">
                     <input type="checkbox" value="${rep.id}">
-                    <span class="auto-plan-row-avatar">${rep.first_name.charAt(0)}${rep.last_name.charAt(0)}</span>
+                    <span class="auto-plan-row-avatar">${escapeHtml(rep.first_name.charAt(0))}${escapeHtml(rep.last_name.charAt(0))}</span>
                     <span class="auto-plan-row-info">
-                      <span class="auto-plan-row-name">${rep.first_name} ${rep.last_name}</span>
-                      <span class="auto-plan-row-sub">${rep.email || ''}</span>
+                      <span class="auto-plan-row-name">${escapeHtml(rep.first_name)} ${escapeHtml(rep.last_name)}</span>
+                      <span class="auto-plan-row-sub">${escapeHtml(rep.email || '')}</span>
                     </span>
                   </label>
                 `).join('')}
@@ -1023,8 +1023,8 @@ function openAISafiPlanModal(companies, salesReps) {
                   <label class="auto-plan-row selected" data-company-id="${company.id}">
                     <input type="checkbox" value="${company.id}" checked>
                     <span class="auto-plan-row-info">
-                      <span class="auto-plan-row-name">${company.name}</span>
-                      <span class="auto-plan-row-sub">${company.address || 'No address'}</span>
+                      <span class="auto-plan-row-name">${escapeHtml(company.name)}</span>
+                      <span class="auto-plan-row-sub">${escapeHtml(company.address || 'No address')}</span>
                     </span>
                   </label>
                 `).join('')}
@@ -1411,7 +1411,7 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
           <span><strong>${outliers.length}</strong> location${outliers.length > 1 ? 's' : ''} excluded (>100 km from nearest stop).</span>
           <button class="btn btn-ghost btn-sm rv-outlier-toggle">Show</button>
           <div class="rv-outlier-expandable" style="display: none;">
-            ${outliers.map(c => `<span class="rv-outlier-chip">${c.name} <em>${c.nearestRouteDistance || Math.round(c.excludedDistance)} km</em></span>`).join('')}
+            ${outliers.map(c => `<span class="rv-outlier-chip">${escapeHtml(c.name)} <em>${c.nearestRouteDistance || Math.round(c.excludedDistance)} km</em></span>`).join('')}
           </div>
         </div>
       `;
@@ -1454,7 +1454,7 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
             <div class="rv-card-color" style="background:${route.color}"></div>
             <div class="rv-card-body">
               <div class="rv-card-top">
-                <input type="text" class="rv-route-name" value="${route.name}" data-route-index="${ri}">
+                <input type="text" class="rv-route-name" value="${escapeHtml(route.name)}" data-route-index="${ri}">
                 <div class="rv-card-stats">
                   <span>${route.companies.length} stops</span>
                   <span>${route.totalDistance.toFixed(1)} km</span>
@@ -1464,8 +1464,8 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
 
               <div class="rv-card-rep-section">
                 <div class="rv-rep-display" data-route-index="${ri}">
-                  <span class="rv-rep-avatar" style="background:${route.color}">${repInitials}</span>
-                  <span class="rv-rep-name">${repName}</span>
+                  <span class="rv-rep-avatar" style="background:${route.color}">${escapeHtml(repInitials)}</span>
+                  <span class="rv-rep-name">${escapeHtml(repName)}</span>
                   ${extraReps > 0 ? `<span class="rv-rep-extra">+${extraReps}</span>` : ''}
                   <svg class="rv-rep-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                 </div>
@@ -1477,8 +1477,8 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
                       if (!r) return '';
                       return `
                       <div class="rv-rep-dropdown-row assigned" data-rep-id="${repId}">
-                        <span class="rv-rep-avatar-sm" style="background:${route.color}">${r.first_name.charAt(0)}${r.last_name.charAt(0)}</span>
-                        <span>${r.first_name} ${r.last_name}</span>
+                        <span class="rv-rep-avatar-sm" style="background:${route.color}">${escapeHtml(r.first_name.charAt(0))}${escapeHtml(r.last_name.charAt(0))}</span>
+                        <span>${escapeHtml(r.first_name)} ${escapeHtml(r.last_name)}</span>
                         ${route.assignedReps.length > 1 ? `<button class="rv-rep-remove" data-rep-id="${repId}" data-route-index="${ri}" title="Remove">&times;</button>` : ''}
                       </div>`;
                     }).join('')}
@@ -1488,8 +1488,8 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
                     <span class="rv-rep-dropdown-label">Add or switch</span>
                     ${allReps.filter(r => !route.assignedReps.includes(r.id)).map(r => `
                       <div class="rv-rep-dropdown-row available" data-rep-id="${r.id}" data-route-index="${ri}">
-                        <span class="rv-rep-avatar-sm">${r.first_name.charAt(0)}${r.last_name.charAt(0)}</span>
-                        <span>${r.first_name} ${r.last_name}</span>
+                        <span class="rv-rep-avatar-sm">${escapeHtml(r.first_name.charAt(0))}${escapeHtml(r.last_name.charAt(0))}</span>
+                        <span>${escapeHtml(r.first_name)} ${escapeHtml(r.last_name)}</span>
                         <span class="rv-rep-actions">
                           ${route.assignedReps.length === 1 ? `<button class="rv-rep-action-btn rv-switch-btn" data-action="switch" title="Replace current rep">Switch</button>` : ''}
                           <button class="rv-rep-action-btn rv-add-btn" data-action="add" title="Add to this route">Add</button>
@@ -1507,8 +1507,8 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
                 ${route.companies.map((company, idx) => `
                   <div class="rv-stop">
                     <span class="rv-stop-num" style="background:${route.color}">${idx + 1}</span>
-                    <span class="rv-stop-name">${company.name}</span>
-                    <span class="rv-stop-addr">${company.address || ''}</span>
+                    <span class="rv-stop-name">${escapeHtml(company.name)}</span>
+                    <span class="rv-stop-addr">${escapeHtml(company.address || '')}</span>
                   </div>
                 `).join('')}
               </div>
@@ -1718,7 +1718,7 @@ async function viewRouteDetails(routeId) {
       <div class="modal-backdrop" onclick="closeModal('route-details-modal')"></div>
       <div class="modal-container modal-size-lg">
         <div class="modal-header">
-          <h3>${route.name}</h3>
+          <h3>${escapeHtml(route.name)}</h3>
           <button class="modal-close" onclick="closeModal('route-details-modal')">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x-icon lucide-x"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
@@ -1726,8 +1726,8 @@ async function viewRouteDetails(routeId) {
         <div class="modal-body">
           <div class="route-details">
             <div class="route-info">
-              <p><strong>Assigned to:</strong> ${route.assigned_to_profile ? `${route.assigned_to_profile.first_name} ${route.assigned_to_profile.last_name}` : 'Unassigned'}</p>
-              <p><strong>Created by:</strong> ${route.created_by_profile ? `${route.created_by_profile.first_name} ${route.created_by_profile.last_name}` : 'Unknown'}</p>
+              <p><strong>Assigned to:</strong> ${route.assigned_to_profile ? `${escapeHtml(route.assigned_to_profile.first_name)} ${escapeHtml(route.assigned_to_profile.last_name)}` : 'Unassigned'}</p>
+              <p><strong>Created by:</strong> ${route.created_by_profile ? `${escapeHtml(route.created_by_profile.first_name)} ${escapeHtml(route.created_by_profile.last_name)}` : 'Unknown'}</p>
               <p><strong>Created:</strong> ${formatDate(route.created_at)}</p>
               ${route.estimated_duration ? `<p><strong>Est. duration:</strong> ${route.estimated_duration} min</p>` : ''}
               ${route.total_distance ? `<p><strong>Total distance:</strong> ${(route.total_distance / 1000).toFixed(2)} km</p>` : ''}
@@ -1739,8 +1739,8 @@ async function viewRouteDetails(routeId) {
             <ol class="route-stops">
               ${routeLocations.map((stop, index) => `
                 <li>
-                  <strong>${stop.companies.name}</strong><br>
-                  ${stop.companies.address || 'No address'}
+                  <strong>${escapeHtml(stop.companies.name)}</strong><br>
+                  ${escapeHtml(stop.companies.address || 'No address')}
                 </li>
               `).join('')}
             </ol>
@@ -1775,7 +1775,7 @@ async function viewRouteDetails(routeId) {
         // Add markers for each location
         const markers = validStops.map((stop, index) => {
           return L.marker([stop.companies.latitude, stop.companies.longitude])
-            .bindPopup(`<b>${index + 1}. ${stop.companies.name}</b><br>${stop.companies.address || 'No address'}`)
+            .bindPopup(`<b>${index + 1}. ${escapeHtml(stop.companies.name)}</b><br>${escapeHtml(stop.companies.address || 'No address')}`)
             .addTo(map);
         });
 
