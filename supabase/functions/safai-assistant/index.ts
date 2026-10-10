@@ -525,8 +525,9 @@ serve(async (req: Request) => {
       if (peopleRes.count !== null) contextSections.push(`Total Contacts on Record: ${peopleRes.count}`);
     }
 
-    // Sales Rep / Team Performance (Available for managers or team queries)
-    if (teamProfiles && teamProfiles.length > 0 && (isManager || wantsReports)) {
+    // Sales Rep / Team Performance (managers only: reps only have their own
+    // deals and visits loaded, so a breakdown would show colleagues as zero)
+    if (teamProfiles && teamProfiles.length > 0 && isManager) {
       const reps = teamProfiles.filter((p: any) => p.role === 'sales_rep' || p.role === 'manager');
       const allOpps = oppsRes.data || [];
       const allVisits = visitsRes.data || [];
