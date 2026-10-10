@@ -15,7 +15,10 @@
 -- Every core table already has an "<table>: org isolation" FOR ALL
 -- policy granting full access inside the caller's organization, so
 -- dropping the old policies only removes cross-organization access.
--- Behaviour inside an organization is unchanged.
+--
+-- Section 8 then narrows visits, deals and tasks inside an organization:
+-- managers see all of them, everyone else only their own (deals also
+-- to their assignees). Other tables stay organization-wide.
 -- ============================================================
 
 begin;
@@ -295,5 +298,67 @@ create policy "route_assignments: org isolation"
   on public.route_assignments for all to authenticated
   using      (organization_id = public.get_my_org_id())
   with check (organization_id = public.get_my_org_id());
+
+
+-- ─────────────────────────────────────────────────────────────
+-- 8. Visits, deals and tasks: managers see everything in their
+--    organization; everyone else sees only their own.
+-- ─────────────────────────────────────────────────────────────
+-- visits: owned by user_id
+drop policy if exists "visits: org isolation" on public.visits;
+drop policy if exists "visits: own or manager" on public.visits;
+create policy "visits: own or manager"
+  on public.visits for all to authenticated
+  using      (organization_id = public.get_my_org_id()
+              and (public.is_manager() or user_id = auth.uid()))
+  with check (organization_id = public.get_my_org_id()
+              and (public.is_manager() or user_id = auth.uid()));
+
+-- tasks: visible to creator and assignee
+drop policy if exists "tasks: org isolation" on public.tasks;
+drop policy if exists "tasks: own or manager" on public.tasks;
+create policy "tasks: own or manager"
+  on public.tasks for all to authenticated
+  using      (organization_id = public.get_my_org_id()
+              and (public.is_manager() or created_by = auth.uid() or assigned_to = auth.uid()))
+  with check (organization_id = public.get_my_org_id()
+              and (public.is_manager() or created_by = auth.uid() or assigned_to = auth.uid()));
+
+-- opportunities: owner (user_id) and anyone listed in opportunity_assignees
+-- can view and edit; only the owner or a manager can create or delete.
+drop policy if exists "opportunities: org isolation"      on public.opportunities;
+drop policy if exists "assignees can view opportunities"   on public.opportunities;
+drop policy if exists "assignees can update opportunities" on public.opportunities;
+drop policy if exists "opportunities: view"   on public.opportunities;
+drop policy if exists "opportunities: insert" on public.opportunities;
+drop policy if exists "opportunities: update" on public.opportunities;
+drop policy if exists "opportunities: delete" on public.opportunities;
+
+create policy "opportunities: view"
+  on public.opportunities for select to authenticated
+  using (organization_id = public.get_my_org_id()
+         and (public.is_manager() or user_id = auth.uid()
+              or exists (select 1 from public.opportunity_assignees oa
+                         where oa.opportunity_id = opportunities.id
+                           and oa.user_id = auth.uid())));
+
+create policy "opportunities: insert"
+  on public.opportunities for insert to authenticated
+  with check (organization_id = public.get_my_org_id()
+              and (public.is_manager() or user_id = auth.uid()));
+
+create policy "opportunities: update"
+  on public.opportunities for update to authenticated
+  using (organization_id = public.get_my_org_id()
+         and (public.is_manager() or user_id = auth.uid()
+              or exists (select 1 from public.opportunity_assignees oa
+                         where oa.opportunity_id = opportunities.id
+                           and oa.user_id = auth.uid())))
+  with check (organization_id = public.get_my_org_id());
+
+create policy "opportunities: delete"
+  on public.opportunities for delete to authenticated
+  using (organization_id = public.get_my_org_id()
+         and (public.is_manager() or user_id = auth.uid()));
 
 commit;

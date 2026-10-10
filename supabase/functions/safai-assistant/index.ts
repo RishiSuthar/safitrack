@@ -191,7 +191,8 @@ serve(async (req: Request) => {
       .order('due_date', { ascending: true, nullsFirst: false })
       .limit(60);
 
-    if (!isManager && hasWord(/\b(my|mine|assigned to me)\b/)) {
+    // Non-managers only ever see their own tasks, deals and visits (matches RLS).
+    if (!isManager) {
       tasksQuery = tasksQuery.or(`assigned_to.eq.${user.id},created_by.eq.${user.id}`);
     }
 
@@ -206,6 +207,31 @@ serve(async (req: Request) => {
 
     if (!isManager && hasWord(/\b(my|mine|assigned to me)\b/)) {
       remindersQuery = remindersQuery.or(`assigned_to.eq.${user.id},created_by.eq.${user.id}`);
+    }
+
+    let oppsQuery = supabaseAdmin
+      .from('opportunities')
+      .select('id, name, company_name, stage, value, probability, next_step, next_step_date, notes, user_id, created_at, updated_at')
+      .eq('organization_id', orgId)
+      .order('value', { ascending: false, nullsFirst: false })
+      .limit(100);
+
+    let visitsQuery = supabaseAdmin
+      .from('visits')
+      .select('id, company_name, contact_name, visit_type, notes, created_at, user_id')
+      .eq('organization_id', orgId)
+      .order('created_at', { ascending: false })
+      .limit(50);
+
+    if (!isManager) {
+      visitsQuery = visitsQuery.eq('user_id', user.id);
+      const { data: assigned } = fetchOpps
+        ? await supabaseAdmin.from('opportunity_assignees').select('opportunity_id').eq('user_id', user.id)
+        : { data: [] };
+      const assignedIds = (assigned || []).map((a: any) => a.opportunity_id);
+      oppsQuery = assignedIds.length
+        ? oppsQuery.or(`user_id.eq.${user.id},id.in.(${assignedIds.join(',')})`)
+        : oppsQuery.eq('user_id', user.id);
     }
 
     // Parallel queries without risky foreign key joins
@@ -223,23 +249,9 @@ serve(async (req: Request) => {
       fetchTasks ? tasksQuery : Promise.resolve({ data: null, error: null }),
       fetchReminders ? remindersQuery : Promise.resolve({ data: null, error: null }),
 
-      fetchOpps
-        ? supabaseAdmin
-            .from('opportunities')
-            .select('id, name, company_name, stage, value, probability, next_step, next_step_date, notes, user_id, created_at, updated_at')
-            .eq('organization_id', orgId)
-            .order('value', { ascending: false, nullsFirst: false })
-            .limit(100)
-        : Promise.resolve({ data: null, error: null }),
+      fetchOpps ? oppsQuery : Promise.resolve({ data: null, error: null }),
 
-      fetchVisits
-        ? supabaseAdmin
-            .from('visits')
-            .select('id, company_name, contact_name, visit_type, notes, created_at, user_id')
-            .eq('organization_id', orgId)
-            .order('created_at', { ascending: false })
-            .limit(50)
-        : Promise.resolve({ data: null, error: null }),
+      fetchVisits ? visitsQuery : Promise.resolve({ data: null, error: null }),
 
       fetchCalls
         ? supabaseAdmin
