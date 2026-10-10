@@ -1,10 +1,7 @@
 // ============================================================
 // SafiTrack – Landing Page Configuration
 // ============================================================
-// DO NOT commit this file to source control.
-// It is listed in .gitignore.
-//
-// Copy config.example.js → config.js and fill in your keys.
+// ✅ SAFE TO COMMIT — this file contains only public-safe values.
 //
 // SECURITY NOTES:
 //  • EmailJS keys are "public-safe" — protect them by adding

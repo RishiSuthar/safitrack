@@ -1,3 +1,10 @@
+# Database and edge-function source is not part of the website.
+[[redirects]]
+  from = "/supabase/*"
+  to = "/404.html"
+  status = 404
+  force = true
+
 [[redirects]]
   from = "/crm/*"
   to = "/crm/index.html"

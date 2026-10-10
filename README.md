@@ -50,6 +50,13 @@ Then open:
 
 Refresh, bookmarks, and Back/Forward will continue to work for CRM routes.
 
+## Database & Edge Functions
+
+- **Schema changes** go in `supabase/migrations/` as new, timestamped SQL files, applied in filename order (Supabase SQL editor or `supabase db push`). Never edit a migration that has already been applied; add a new one.
+- **Edge Functions** live in `supabase/functions/` and are deployed with `supabase functions deploy <name>`. Secrets (e.g. `GEMINI_API_KEY`) are set with `supabase secrets set`, never in `config.js`.
+- `supabase/legacy-sql/` holds the hand-run scripts from before migrations. They are out of date — do not run them.
+- Access control is enforced by Row Level Security in the database: users only see their own organization, and non-managers only see their own visits, deals and tasks. The keys in `config.js` are public by design.
+
 ## 📸 Screenshots
 
 > Screenshots coming soon.

@@ -228,21 +228,9 @@
           // Still allow login — the user has an auth account now.
           console.warn('[SafiTrack] accept_invitation returned:', rpcResult.error);
         }
-      } else {
-        // No invitation_id in metadata (edge case). Try to upsert profile from metadata.
-        const orgId = meta.organization_id;
-        if (orgId) {
-          await supabase.from('profiles').upsert({
-            id:              user.id,
-            email:           user.email,
-            first_name:      firstName,
-            last_name:       lastName,
-            role:            role || 'sales_rep',
-            organization_id: orgId,
-            status:          'active',
-          });
-        }
       }
+      // Without an invitation id there is nothing to accept: organization
+      // membership is only granted by accept_invitation, never set from here.
 
       // 5c. Clean up URL hash so tokens aren't visible
       history.replaceState(null, '', window.location.pathname);

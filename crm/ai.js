@@ -1,8 +1,7 @@
-// AI calls connect directly to Gemini API
-const GEMINI_API_KEY = (window.APP_CONFIG || {}).GEMINI_API_KEY || '';
+// AI calls go through the gemini-proxy edge function, which holds the key.
 
 /**
- * Low-level helper: POST a Gemini request body directly to Google API.
+ * Low-level helper: POST a Gemini request body via the gemini-proxy function.
  */
 async function callGeminiAPI(payload) {
   if (!window.supabaseClient) {
