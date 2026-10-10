@@ -24,5 +24,8 @@ dist/
 supabase/.env
 supabase/functions/.env
 
+# Supabase CLI scratch files
+supabase/.temp/
+
 # Local Netlify folder
 .netlify
