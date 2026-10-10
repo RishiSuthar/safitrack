@@ -8,6 +8,7 @@
 import { state, supabaseClient } from '../state.js';
 import { showToast } from '../ui/toast.js';
 import { renderError, getCurrencySymbol } from '../utils/helpers.js';
+import { fetchAllPages } from '../utils/analytics.js';
 
 // ── State & Registry ─────────────────────────────────────────────────────────
 
@@ -325,12 +326,12 @@ async function loadAllReportsData(forceRefresh = false) {
     peopleRes,
   ] = await Promise.all([
     profilesQ,
-    oppsQ,
-    visitsQ,
-    callsQ,
-    tasksQ,
-    companiesQ,
-    peopleQ,
+    fetchAllPages(oppsQ),
+    fetchAllPages(visitsQ),
+    fetchAllPages(callsQ),
+    fetchAllPages(tasksQ),
+    fetchAllPages(companiesQ),
+    fetchAllPages(peopleQ),
   ]);
 
   if (profilesRes.error) console.warn('[Reports] profiles load error:', profilesRes.error);

@@ -4,6 +4,7 @@ import { state, supabaseClient } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards } from '../utils/helpers.js';
+import { fetchAllPages } from '../utils/analytics.js';
 
 function ensureMyActivityRedesignStyles() {
   if (document.getElementById('my-activity-redesign-v2')) return;
@@ -121,11 +122,11 @@ function getTimeString(dateString) {
 
 async function renderMyActivityView() {
   ensureMyActivityRedesignStyles();
-  const { data: visits, error } = await supabaseClient
+  const { data: visits, error } = await fetchAllPages(supabaseClient
     .from('visits')
     .select('*')
     .eq('user_id', state.currentUser.id)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false }));
 
   if (error) {
     viewContainer.innerHTML = `<div class="error-msg">${escapeHtml(error.message)}</div>`;

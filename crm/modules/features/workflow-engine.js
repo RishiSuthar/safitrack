@@ -4,6 +4,7 @@
 // they run even when no manager has the app open.
 
 import { state, supabaseClient } from '../state.js';
+import { fetchAllPages } from '../utils/analytics.js';
 
 // ── Public Query API ─────────────────────────────────────────────────────────
 
@@ -33,11 +34,11 @@ async function getAllWorkflowRuns(limit = 100) {
 
 async function getWorkflowRunStats() {
   // Get run counts and last run time for all workflows
-  const { data, error } = await supabaseClient
+  const { data, error } = await fetchAllPages(supabaseClient
     .from('workflow_runs')
     .select('workflow_id, status, created_at')
     .eq('organization_id', state.currentOrganization?.id)
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false }));
 
   if (error) return {};
 

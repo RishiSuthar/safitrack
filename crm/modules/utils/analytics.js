@@ -112,13 +112,23 @@ export function storeChoice(key, value) {
 // ── Data ────────────────────────────────────────────────────────
 
 // PostgREST caps responses (1000 rows by default), so page through results.
-export async function fetchAllRows(buildQuery, { pageSize = 1000, maxRows = 20000 } = {}) {
+// Takes a built query and resolves to Supabase's usual { data, error }, so it
+// can wrap an existing `await query`. Rows are also ordered by id so equal
+// sort values cannot repeat or go missing across pages.
+export async function fetchAllPages(query, { pageSize = 1000, maxRows = 20000 } = {}) {
+  const paged = query.order('id', { ascending: true });
   const rows = [];
   for (let from = 0; from < maxRows; from += pageSize) {
-    const { data, error } = await buildQuery().range(from, from + pageSize - 1);
-    if (error) throw new Error(error.message);
+    const { data, error } = await paged.range(from, from + pageSize - 1);
+    if (error) return { data: null, error };
     rows.push(...(data || []));
     if (!data || data.length < pageSize) break;
   }
-  return rows;
+  return { data: rows, error: null };
+}
+
+export async function fetchAllRows(buildQuery, options) {
+  const { data, error } = await fetchAllPages(buildQuery(), options);
+  if (error) throw new Error(error.message);
+  return data;
 }
