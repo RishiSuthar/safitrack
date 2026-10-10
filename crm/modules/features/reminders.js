@@ -124,13 +124,13 @@ async function renderRemindersView() {
               ${canDelete ? `<button class="rem-action-btn delete-reminder" data-id="${reminder.id}" title="Delete"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg></button>` : ''}
             </div>
           </div>
-          <h4 class="rem-card-title reminder-title">${reminder.title}</h4>
-          ${reminder.description ? `<p class="rem-card-desc reminder-description">${reminder.description}</p>` : ''}
+          <h4 class="rem-card-title reminder-title">${escapeHtml(reminder.title)}</h4>
+          ${reminder.description ? `<p class="rem-card-desc reminder-description">${escapeHtml(reminder.description)}</p>` : ''}
           <div class="rem-card-foot">
             <span class="rem-card-meta"><i data-lucide="clock-3" class="rem-meta-icon"></i>${formatReminderDue(reminder.reminder_date)}</span>
             ${state.isManager
-              ? `<span class="rem-card-meta"><i data-lucide="user" class="rem-meta-icon"></i>${assignedToText}</span>`
-              : `<span class="rem-card-meta"><i data-lucide="users" class="rem-meta-icon"></i>By ${assignedByText}</span>`}
+              ? `<span class="rem-card-meta"><i data-lucide="user" class="rem-meta-icon"></i>${escapeHtml(assignedToText)}</span>`
+              : `<span class="rem-card-meta"><i data-lucide="users" class="rem-meta-icon"></i>By ${escapeHtml(assignedByText)}</span>`}
             ${canComplete && !reminder.is_completed ? `<button class="rem-action-btn complete-reminder is-lg" data-id="${reminder.id}" title="Mark as done"><i data-lucide="check"></i></button>` : ''}
           </div>
         </div>
@@ -144,7 +144,7 @@ async function renderRemindersView() {
     return `
       <div class="rem-sidebar-item">
         <div class="rem-sidebar-item-body">
-          <div class="rem-sidebar-item-title">${reminder.title}</div>
+          <div class="rem-sidebar-item-title">${escapeHtml(reminder.title)}</div>
           <div class="rem-sidebar-item-time"><i data-lucide="clock-3" class="rem-meta-icon"></i>${dueText}</div>
         </div>
         ${canComplete ? `<button class="rem-action-btn complete-reminder is-small" data-id="${reminder.id}" title="Mark as done"><i data-lucide="check"></i></button>` : ''}
@@ -416,7 +416,7 @@ function openReminderModal(reminder = null, salesReps = []) {
       listHtml += `<li class="crm-dd-option" role="option" data-value="${state.currentUser.id}" data-label="Me" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Me</li>`;
       
       salesReps.forEach(rep => {
-        listHtml += `<li class="crm-dd-option" role="option" data-value="${rep.id}" data-label="${rep.first_name} ${rep.last_name}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${rep.first_name} ${rep.last_name}</li>`;
+        listHtml += `<li class="crm-dd-option" role="option" data-value="${rep.id}" data-label="${escapeHtml(rep.first_name)} ${escapeHtml(rep.last_name)}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${escapeHtml(rep.first_name)} ${escapeHtml(rep.last_name)}</li>`;
       });
       assignList.innerHTML = listHtml;
     }

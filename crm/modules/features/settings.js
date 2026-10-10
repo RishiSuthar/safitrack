@@ -2377,7 +2377,7 @@ async function renderSettingsView() {
         const { data: otherManagers, error: mgErr } = await supabaseClient
           .from('profiles')
           .select('id')
-          .eq('org_id', state.currentOrganization?.id)
+          .eq('organization_id', state.currentOrganization?.id)
           .eq('role', 'manager')
           .neq('id', state.currentUser.id)
           .limit(1);

@@ -47,10 +47,10 @@ async function renderUserManagementView() {
 
     html += `
       <div class="card user-card">
-        <div class="user-avatar" style="width: 48px; height: 48px; font-size: 1rem;">${initials}</div>
+        <div class="user-avatar" style="width: 48px; height: 48px; font-size: 1rem;">${escapeHtml(initials)}</div>
         <div class="user-card-info">
-          <div class="user-card-name">${fullName}</div>
-          <div class="user-card-email">${user.email}</div>
+          <div class="user-card-name">${escapeHtml(fullName)}</div>
+          <div class="user-card-email">${escapeHtml(user.email)}</div>
         </div>
         <div class="user-card-actions">
           ${roleCell}

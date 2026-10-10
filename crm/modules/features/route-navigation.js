@@ -98,7 +98,7 @@ async function startRouteNavigation(routeId) {
           <button class="btn btn-ghost" onclick="navigateView('my-routes')">
             <i data-lucide="arrow-left"></i> Back
           </button>
-          <h2>${route.name}</h2>
+          <h2>${escapeHtml(route.name)}</h2>
           <button class="btn btn-secondary" id="complete-route-btn">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
             Complete
@@ -111,8 +111,8 @@ async function startRouteNavigation(routeId) {
           <div class="current-stop" id="current-stop">
             <h3>Current Stop</h3>
             <div class="stop-info">
-              <h4 id="current-stop-name">${validLocations[0].company.name}</h4>
-              <p id="current-stop-address">${validLocations[0].company.address || 'No address'}</p>
+              <h4 id="current-stop-name">${escapeHtml(validLocations[0].company.name)}</h4>
+              <p id="current-stop-address">${escapeHtml(validLocations[0].company.address || 'No address')}</p>
               <div class="stop-actions">
                 <button class="btn btn-primary" id="arrived-btn">
                   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>I've Arrived
@@ -132,8 +132,8 @@ async function startRouteNavigation(routeId) {
                 <div class="stop-item" data-index="${index + 1}">
                   <div class="stop-number">${index + 2}</div>
                   <div class="stop-details">
-                    <h4>${location.company.name}</h4>
-                    <p>${location.company.address || 'No address'}</p>
+                    <h4>${escapeHtml(location.company.name)}</h4>
+                    <p>${escapeHtml(location.company.address || 'No address')}</p>
                   </div>
                 </div>
               `).join('')}
@@ -177,7 +177,7 @@ async function startRouteNavigation(routeId) {
               iconAnchor: [15, 15]
             })
           })
-            .bindPopup(`<b>${index + 1}. ${location.company.name}</b><br>${location.company.address || 'No address'}`)
+            .bindPopup(`<b>${index + 1}. ${escapeHtml(location.company.name)}</b><br>${escapeHtml(location.company.address || 'No address')}`)
             .addTo(map);
 
           stopMarkers.push(marker);

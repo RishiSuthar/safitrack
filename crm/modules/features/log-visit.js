@@ -282,8 +282,8 @@ function initLogVisitForm(companies) {
         <div class="search-result-item" onclick="selectCompany('${company.id}')">
           <div class="search-result-icon"></div>
           <div>
-            <div class="search-result-name">${company.name}</div>
-            <div class="search-result-role">${company.description || 'No description'}</div>
+            <div class="search-result-name">${escapeHtml(company.name)}</div>
+            <div class="search-result-role">${escapeHtml(company.description || 'No description')}</div>
           </div>
         </div>
       `).join('');
@@ -392,10 +392,10 @@ function initLogVisitForm(companies) {
     } else {
       mentionSuggestions.innerHTML = filteredPeople.map(person => `
         <div class="mention-suggestion" data-person-id="${person.id}">
-          <div class="mention-avatar">${getInitials(person.name)}</div>
+          <div class="mention-avatar">${escapeHtml(getInitials(person.name))}</div>
           <div class="mention-info">
-            <div class="mention-name">${person.name}</div>
-            <div class="mention-details">${person.email || ''} ${person.companies ? `• ${person.companies.name}` : ''}</div>
+            <div class="mention-name">${escapeHtml(person.name)}</div>
+            <div class="mention-details">${escapeHtml(person.email || '')} ${person.companies ? `• ${escapeHtml(person.companies.name)}` : ''}</div>
           </div>
         </div>
       `).join('');
@@ -518,7 +518,7 @@ function initLogVisitForm(companies) {
 
         // Display how far they are, but always allow submission
         locationStatus.className = 'location-status success';
-        locationStatus.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Location checked! You are ${distance.toFixed(0)}m from ${window.selectedCompanyData.name}`;
+        locationStatus.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg> Location checked! You are ${distance.toFixed(0)}m from ${escapeHtml(window.selectedCompanyData.name)}`;
         locationVerified = true;
         window.locationActualVerified = true;
         window.verifiedDistance = distance;

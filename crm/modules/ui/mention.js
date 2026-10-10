@@ -1,6 +1,7 @@
 // modules/ui/mention.js
 // @mention suggestion system for text areas.
 import { state } from '../state.js';
+import { escapeHtml } from './toast.js';
 
 // ==================== MENTION SYSTEM HELPERS ====================
 
@@ -15,10 +16,10 @@ function showMentionSuggestions(query, container) {
   } else {
     container.innerHTML = filteredPeople.map(person => `
       <div class="mention-suggestion" data-person-id="${person.id}">
-        <div class="mention-avatar">${getInitials(person.name)}</div>
+        <div class="mention-avatar">${escapeHtml(getInitials(person.name))}</div>
         <div class="mention-info">
-          <div class="mention-name">${person.name}</div>
-          <div class="mention-details">${person.email || ''} ${person.companies ? `• ${person.companies.name}` : ''}</div>
+          <div class="mention-name">${escapeHtml(person.name)}</div>
+          <div class="mention-details">${escapeHtml(person.email || '')} ${person.companies ? `• ${escapeHtml(person.companies.name)}` : ''}</div>
         </div>
       </div>
     `).join('');

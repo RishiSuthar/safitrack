@@ -2,6 +2,8 @@
 function parseMarkdown(text) {
   if (!text) return '';
 
+  // Escape first: the input is AI output built from user-written notes.
+  text = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   text = text.replace(/^### (.*$)/gim, '<h4>$1</h4>');
   text = text.replace(/^## (.*$)/gim, '<h3>$1</h3>');
   text = text.replace(/^# (.*$)/gim, '<h2>$1</h2>');
