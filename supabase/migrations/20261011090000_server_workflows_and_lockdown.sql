@@ -312,8 +312,10 @@ begin
                                        'status', 'pending', 'assigned_to', p_wf.created_by)
                     || v_fields
                     || jsonb_build_object('organization_id', v_org, 'created_by', p_wf.created_by);
-        if not exists (select 1 from profiles
-                       where id = (v_fields ->> 'assigned_to')::uuid and organization_id = v_org) then
+        -- No assignee is allowed (e.g. the workflow's creator has left).
+        if (v_fields ->> 'assigned_to') is not null
+           and not exists (select 1 from profiles
+                           where id = (v_fields ->> 'assigned_to')::uuid and organization_id = v_org) then
           raise exception 'Assignee is not a member of this organization';
         end if;
         v_id := public.wf_insert('tasks', v_fields);
