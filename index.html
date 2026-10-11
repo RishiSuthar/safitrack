@@ -1,1710 +1,977 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SafiTrack - Modern CRM for Sales Teams</title>
+    <title>SafiTrack | The CRM for field sales teams</title>
     <link rel="icon" type="image/x-icon" href="assets/icons/whiteblue.ico">
     <meta name="description"
-        content="Transform your sales process with SafiTrack - the CRM platform built for modern sales teams.">
+        content="SafiTrack is the CRM for sales teams that work in the field. Plan routes, log every visit, run your pipeline and let Safi AI handle the follow-up.">
+    <meta name="theme-color" content="#ffffff">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://safitrack.netlify.app/">
-    <meta property="og:title" content="SafiTrack — The Intelligent CRM for Modern Sales Teams">
+    <meta property="og:title" content="SafiTrack | The CRM for field sales teams">
     <meta property="og:description"
-        content="Close more deals with AI-powered pipeline management and real-time field insights.">
+        content="Plan routes, log every visit, run your pipeline and let Safi AI handle the follow-up.">
     <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="https://safitrack.netlify.app/">
-    <meta property="twitter:title" content="SafiTrack — The Intelligent CRM for Modern Sales Teams">
+    <meta property="twitter:title" content="SafiTrack | The CRM for field sales teams">
     <meta property="twitter:description"
-        content="Close more deals with AI-powered pipeline management and real-time field insights.">
+        content="Plan routes, log every visit, run your pipeline and let Safi AI handle the follow-up.">
     <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="landing.css">
-    <link rel="stylesheet" href="landing-scroll.css">
-    <link rel="stylesheet" href="intelligence-hub.css">
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lucide@0.264.0/dist/lucide.min.js"></script>
-    <!-- Runtime config (gitignored) — copy config.example.js → config.js and add your keys -->
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="home.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
     <script src="config.js"></script>
+    <script src="home.js" defer></script>
 </head>
 
 <body>
-    <!-- Navigation -->
-    <nav class="navbar" id="navbar">
-        <div class="container">
-            <div class="nav-content">
-                <div class="nav-left">
-                    <a href="#" class="logo">
-                        <img src="assets/icons/transparentMain.png" alt="SafiTrack">
-                    </a>
+    <a class="skip-link" href="#main">Skip to content</a>
 
-                    <!-- Desktop Links -->
-                    <div class="nav-links">
-                        <div class="nav-item nav-features">
-                            <a href="#" class="nav-link-toggle">Features
-                                <span class="nav-caret" aria-hidden="true">
-                                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                </span>
-                            </a>
-                            <div class="mega-menu" aria-hidden="true">
-                                <div class="mega-content-grid">
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Platform</div>
-                                        <div class="mega-items-grid">
-                                            <a href="pages/features/safi-ai-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path
-                                                            d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Safi AI</div>
-                                                    <div class="mega-desc">AI insights native to your CRM</div>
-                                                </div>
-                                            </a>
-                                            <a href="pages/features/opportunities-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                                                        <path d="M2 17l10 5 10-5" />
-                                                        <path d="M2 12l10 5 10-5" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Pipelines</div>
-                                                    <div class="mega-desc">Visual deal tracking & management</div>
-                                                </div>
-                                            </a>
-                                            <a href="pages/features/companies-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
-                                                        <path d="M9 22v-4h6v4" />
-                                                        <path d="M8 6h.01" />
-                                                        <path d="M16 6h.01" />
-                                                        <path d="M8 10h.01" />
-                                                        <path d="M16 10h.01" />
-                                                        <path d="M8 14h.01" />
-                                                        <path d="M16 14h.01" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Companies</div>
-                                                    <div class="mega-desc">Complete organization context</div>
-                                                </div>
-                                            </a>
-                                            <a href="pages/features/people-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                                        <circle cx="9" cy="7" r="4" />
-                                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">People</div>
-                                                    <div class="mega-desc">Unified contact management</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
+    <!-- ============ Navigation ============ -->
+    <header class="nav" id="nav">
+        <div class="wrap nav-inner">
+            <a href="/" class="nav-logo" aria-label="SafiTrack home">
+                <img src="assets/icons/transparentMain.png" alt="SafiTrack" width="108" height="25">
+            </a>
 
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Operations</div>
-                                        <div class="mega-items-grid">
-                                            <a href="pages/features/sales-visits-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                                        <circle cx="12" cy="10" r="3" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Sales visits</div>
-                                                    <div class="mega-desc">Field activity & visit logging</div>
-                                                </div>
-                                            </a>
-                                            <a href="pages/features/route-plans-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <circle cx="6" cy="19" r="3" />
-                                                        <path
-                                                            d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
-                                                        <circle cx="18" cy="5" r="3" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Route plans</div>
-                                                    <div class="mega-desc">Optimized field routing</div>
-                                                </div>
-                                            </a>
-                                            <a href="pages/features/technician-visits-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path
-                                                            d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Service visits</div>
-                                                    <div class="mega-desc">Post-sales technician tracking</div>
-                                                </div>
-                                            </a>
-                                            <a href="pages/features/tasks-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <polyline points="9 11 12 14 22 4" />
-                                                        <path
-                                                            d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Tasks</div>
-                                                    <div class="mega-desc">Operational to-do management</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Insights &amp; Automation</div>
-                                        <div class="mega-items-grid">
-                                            <a href="pages/features/call-logs-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path
-                                                            d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Call Intelligence</div>
-                                                    <div class="mega-desc">Record &amp; analyze meetings</div>
-                                                </div>
-                                            </a>
-                                            <a href="pages/features/notes-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-                                                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Notes</div>
-                                                    <div class="mega-desc">Native meeting summaries</div>
-                                                </div>
-                                            </a>
-                                            <a href="pages/features/reminders-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                                                        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Reminders</div>
-                                                    <div class="mega-desc">Smart follow-up alerts</div>
-                                                </div>
-                                            </a>
-                                            <a href="pages/features/reports-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <line x1="18" y1="20" x2="18" y2="10"/>
-                                                        <line x1="12" y1="20" x2="12" y2="4"/>
-                                                        <line x1="6" y1="20" x2="6" y2="14"/>
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Reports</div>
-                                                    <div class="mega-desc">Custom analytics &amp; dashboards</div>
-                                                </div>
-                                            </a>
-                                            <a href="pages/features/workflows-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Workflows</div>
-                                                    <div class="mega-desc">Automate repetitive tasks</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mega-sidebar">
-                                    <div class="mega-sidebar-header">Get Started</div>
-                                    <ul class="mega-sidebar-list">
-                                        <li>
-                                            <a href="/crm/">
-                                                <span>Open CRM</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="pages/pricing.html">
-                                                <span>View Pricing</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#pricing">
-                                                <span>Request Demo</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                    <div class="mega-sidebar-footer">
-                                        <p>Trusted by 2,000+ teams</p>
-                                    </div>
-                                </div>
+            <nav class="nav-links" aria-label="Main">
+                <div class="nav-item has-menu">
+                    <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="menu-features">
+                        Features
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="menu" id="menu-features">
+                        <div class="menu-grid">
+                            <div class="menu-col">
+                                <p class="menu-heading">Platform</p>
+                                <a href="pages/features/safi-ai-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9z" /></svg></span>
+                                    <span><strong>Safi AI</strong><small>An assistant that knows your pipeline</small></span>
+                                </a>
+                                <a href="pages/features/opportunities-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg></span>
+                                    <span><strong>Pipelines</strong><small>Track every deal to close</small></span>
+                                </a>
+                                <a href="pages/features/companies-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" /><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01" /></svg></span>
+                                    <span><strong>Companies</strong><small>Every account in one record</small></span>
+                                </a>
+                                <a href="pages/features/people-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg></span>
+                                    <span><strong>People</strong><small>Contacts with full history</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">In the field</p>
+                                <a href="pages/features/sales-visits-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg></span>
+                                    <span><strong>Sales visits</strong><small>Log visits from your phone</small></span>
+                                </a>
+                                <a href="pages/features/route-plans-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="3" /><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /><circle cx="18" cy="5" r="3" /></svg></span>
+                                    <span><strong>Route plans</strong><small>Plan and assign the day's stops</small></span>
+                                </a>
+                                <a href="pages/features/technician-visits-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg></span>
+                                    <span><strong>Service visits</strong><small>Technician jobs after the sale</small></span>
+                                </a>
+                                <a href="pages/features/tasks-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg></span>
+                                    <span><strong>Tasks</strong><small>What needs doing, and by whom</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">Insight &amp; automation</p>
+                                <a href="pages/features/call-logs-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" /></svg></span>
+                                    <span><strong>Call logs</strong><small>Every conversation, on record</small></span>
+                                </a>
+                                <a href="pages/features/notes-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg></span>
+                                    <span><strong>Notes</strong><small>Meeting notes next to the deal</small></span>
+                                </a>
+                                <a href="pages/features/reminders-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg></span>
+                                    <span><strong>Reminders</strong><small>Never miss a follow-up</small></span>
+                                </a>
+                                <a href="pages/features/reports-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6" /></svg></span>
+                                    <span><strong>Reports</strong><small>Dashboards for the whole team</small></span>
+                                </a>
+                                <a href="pages/features/workflows-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg></span>
+                                    <span><strong>Workflows</strong><small>Automate the busywork</small></span>
+                                </a>
                             </div>
                         </div>
-
-                        <div class="nav-item nav-resources">
-                            <a href="#" class="nav-link-toggle">Resources
-                                <span class="nav-caret" aria-hidden="true">
-                                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                </span>
-                            </a>
-                            <div class="mega-menu" aria-hidden="true">
-                                <div class="mega-content-grid">
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Insights</div>
-                                        <div class="mega-items-grid">
-                                            <a href="pages/integrations.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                                                        <path d="M2 17l10 5 10-5" />
-                                                        <path d="M2 12l10 5 10-5" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Integrations</div>
-                                                    <div class="mega-desc">Connect your stack</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Support</div>
-                                        <div class="mega-items-grid">
-                                            <a href="pages/documentation.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                                                        <path
-                                                            d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Documentation</div>
-                                                    <div class="mega-desc">Guides and tutorials</div>
-                                                </div>
-                                            </a>
-                                            <a href="pages/helpcenter.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <circle cx="12" cy="12" r="10" />
-                                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                                                        <line x1="12" y1="17" x2="12.01" y2="17" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Help Center</div>
-                                                    <div class="mega-desc">Get support</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Developers</div>
-                                        <div class="mega-items-grid">
-                                            <a href="pages/apireference.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <polyline points="16 18 22 12 16 6" />
-                                                        <polyline points="8 6 2 12 8 18" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">API Reference</div>
-                                                    <div class="mega-desc">Build with SafiTrack</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mega-sidebar">
-                                    <div class="mega-sidebar-header">More</div>
-                                    <ul class="mega-sidebar-list">
-                                        <li>
-                                            <a href="pages/blog.html">
-                                                <span>Blog</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="pages/careers.html">
-                                                <span>Careers</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="pages/status.html">
-                                                <span>Status</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                    <div class="mega-sidebar-footer">
-                                        <p>Always growing</p>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="menu-foot">
+                            <a href="pages/features/mainfeatures.html">See all features <span aria-hidden="true">→</span></a>
                         </div>
-                        <a href="pages/pricing.html">Pricing</a>
                     </div>
                 </div>
 
-                <div class="nav-actions">
-                    <a href="/crm/" class="nav-link-sign-in">Sign in</a>
-                    <a href="#pricing" class="btn-hero-primary">Start for free</a>
+                <div class="nav-item has-menu">
+                    <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="menu-resources">
+                        Resources
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="menu menu-sm" id="menu-resources">
+                        <div class="menu-grid">
+                            <div class="menu-col">
+                                <p class="menu-heading">Learn</p>
+                                <a href="pages/documentation.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg></span>
+                                    <span><strong>Documentation</strong><small>Guides and how-tos</small></span>
+                                </a>
+                                <a href="pages/helpcenter.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg></span>
+                                    <span><strong>Help center</strong><small>Answers and support</small></span>
+                                </a>
+                                <a href="pages/apireference.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6" /></svg></span>
+                                    <span><strong>API reference</strong><small>Build on SafiTrack</small></span>
+                                </a>
+                                <a href="pages/integrations.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg></span>
+                                    <span><strong>Integrations</strong><small>Connect your tools</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">Company</p>
+                                <a href="pages/blog.html" class="menu-link menu-link-plain"><strong>Blog</strong></a>
+                                <a href="pages/comparison.html" class="menu-link menu-link-plain"><strong>Compare</strong></a>
+                                <a href="pages/careers.html" class="menu-link menu-link-plain"><strong>Careers</strong></a>
+                                <a href="pages/security.html" class="menu-link menu-link-plain"><strong>Security</strong></a>
+                                <a href="pages/status.html" class="menu-link menu-link-plain"><strong>Status</strong></a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Mobile Menu Button -->
-                <button class="mobile-menu-btn" aria-label="Toggle Menu">
-                    <span></span>
-                    <span></span>
-                </button>
+                <a href="pages/pricing.html" class="nav-link">Pricing</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="/crm/" class="nav-link">Sign in</a>
+                <a href="/crm/?signup=1" class="btn btn-dark btn-sm">Start for free</a>
+            </div>
+
+            <button class="nav-burger" type="button" aria-label="Open menu" aria-expanded="false"
+                aria-controls="mobile-menu">
+                <span></span><span></span>
+            </button>
+        </div>
+
+        <div class="mobile-menu" id="mobile-menu" hidden>
+            <div class="wrap">
+                <p class="mobile-heading">Product</p>
+                <a href="pages/features/mainfeatures.html">Features</a>
+                <a href="pages/features/safi-ai-feature.html">Safi AI</a>
+                <a href="pages/features/route-plans-feature.html">Route plans</a>
+                <a href="pages/features/sales-visits-feature.html">Sales visits</a>
+                <a href="pages/pricing.html">Pricing</a>
+                <p class="mobile-heading">Resources</p>
+                <a href="pages/documentation.html">Documentation</a>
+                <a href="pages/helpcenter.html">Help center</a>
+                <a href="pages/blog.html">Blog</a>
+                <div class="mobile-actions">
+                    <a href="/crm/" class="btn btn-light">Sign in</a>
+                    <a href="/crm/?signup=1" class="btn btn-dark">Start for free</a>
+                </div>
             </div>
         </div>
-    </nav>
+    </header>
 
-    <!-- Mobile Menu Overlay -->
-    <div class="mobile-nav-overlay">
-        <button class="mobile-close-btn" aria-label="Close Menu">
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
-        <div class="mobile-nav-content">
-            <a href="/pages/features/mainfeatures.html" class="mobile-link">Features</a>
-            <a href="/pages/pricing.html" class="mobile-link">Pricing</a>
-            <hr class="mobile-divider">
-            <a href="/crm/" class="mobile-link">Open App</a>
-            <button class="btn-primary btn-block get-started-btn">Get Started</button>
-        </div>
-    </div>
+    <main id="main">
 
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <div class="hero-badge">
-                    <span class="badge-dot"></span>
-                    <span>Safi A.I is now here!</span>
-                </div>
+        <!-- ============ Hero ============ -->
+        <section class="hero">
+            <div class="wrap">
+                <a href="pages/features/safi-ai-feature.html" class="announce">
+                    <span class="announce-tag">New</span>
+                    <span>Ask your CRM anything with Safi AI</span>
+                    <span class="announce-arrow" aria-hidden="true">→</span>
+                </a>
+
                 <h1 class="hero-title">
-                    Safi <span id="dynamic-text-header" class="dynamic-word"><span>Track</span></span>
+                    <span class="sr-only">SafiTrack, the CRM for field sales teams</span>
+                    <span class="hero-word" aria-hidden="true">Safi</span>
+                    <span class="rotator" id="rotator" aria-hidden="true"><span class="rotator-word is-active">track</span></span>
                 </h1>
-                <p class="hero-description">
-                    CRM built for the way sales teams actually work.
+
+                <p class="hero-sub">
+                    The CRM for sales teams that work in the field. Plan routes, log every visit,
+                    move deals forward, and let Safi AI handle the follow-up.
                 </p>
+
                 <div class="hero-actions">
-                    <a href="/crm/" class="btn-hero-primary btn-lg">
-                        Open App
-                    </a>
-                    <a href="#pricing" class="btn-hero-secondary btn-lg">
-                        Talk to sales
-                    </a>
+                    <a href="/crm/?signup=1" class="btn btn-dark btn-lg">Start for free</a>
+                    <button type="button" class="btn btn-light btn-lg" data-contact>Talk to sales</button>
                 </div>
+                <p class="hero-note">Free for up to 2 users</p>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            if (window.lucide && typeof lucide.createIcons === 'function') {
-                lucide.createIcons();
-            }
-        });
-    </script>
+        <!-- ============ Product showcase ============ -->
+        <section class="showcase" id="product" aria-label="Product tour">
+            <div class="wrap">
+                <div class="showcase-tabs" role="tablist" aria-label="Product areas">
+                    <button class="showcase-tab is-active" role="tab" aria-selected="true"
+                        data-src="assets/safitrackscreenshots/ai.webm">Safi AI<span class="tab-bar"></span></button>
+                    <button class="showcase-tab" role="tab" aria-selected="false"
+                        data-src="assets/safitrackscreenshots/op.webm">Opportunities<span class="tab-bar"></span></button>
+                    <button class="showcase-tab" role="tab" aria-selected="false"
+                        data-src="assets/safitrackscreenshots/visits.webm">Visits<span class="tab-bar"></span></button>
+                    <button class="showcase-tab" role="tab" aria-selected="false"
+                        data-src="assets/safitrackscreenshots/routeplan.webm">Routes<span class="tab-bar"></span></button>
+                    <button class="showcase-tab" role="tab" aria-selected="false"
+                        data-src="assets/safitrackscreenshots/companies.webm">Companies<span class="tab-bar"></span></button>
+                    <button class="showcase-tab" role="tab" aria-selected="false"
+                        data-src="assets/safitrackscreenshots/people.webm">People<span class="tab-bar"></span></button>
+                </div>
 
-    <!-- Showcase Section -->
-    <section class="showcase">
-        <div class="container">
-            <div class="showcase-tabs">
-                <button class="showcase-tab active" data-tab="ai">
-                    <span>Safi AI</span>
-                    <div class="tab-progress-wrap">
-                        <div class="tab-progress"></div>
-                    </div>
-                </button>
-                <span class="tab-divider"></span>
-                <button class="showcase-tab" data-tab="opportunities">
-                    <span>Opportunities</span>
-                    <div class="tab-progress-wrap">
-                        <div class="tab-progress"></div>
-                    </div>
-                </button>
-                <span class="tab-divider"></span>
-                <button class="showcase-tab" data-tab="visits">
-                    <span>Visits</span>
-                    <div class="tab-progress-wrap">
-                        <div class="tab-progress"></div>
-                    </div>
-                </button>
-                <span class="tab-divider"></span>
-                <button class="showcase-tab" data-tab="routes">
-                    <span>Routes</span>
-                    <div class="tab-progress-wrap">
-                        <div class="tab-progress"></div>
-                    </div>
-                </button>
-                <span class="tab-divider"></span>
-                <button class="showcase-tab" data-tab="companies">
-                    <span>Companies</span>
-                    <div class="tab-progress-wrap">
-                        <div class="tab-progress"></div>
-                    </div>
-                </button>
-                <span class="tab-divider"></span>
-                <button class="showcase-tab" data-tab="people">
-                    <span>People</span>
-                    <div class="tab-progress-wrap">
-                        <div class="tab-progress"></div>
-                    </div>
-                </button>
-            </div>
-
-            <div class="showcase-display">
-                <div class="browser-frame">
-                    <div class="browser-header">
-                        <div class="browser-dots">
-                            <span></span><span></span><span></span>
-                        </div>
-                        <div class="browser-address">SafiTrack CRM</div>
-                    </div>
-                    <div class="showcase-image-container">
-                        <video id="showcase-video" autoplay loop muted playsinline disablepictureinpicture
-                            disableremoteplayback oncontextmenu="return false">
+                <div class="stage" data-stage>
+                    <div class="showcase-frame">
+                        <video id="showcase-video" muted playsinline autoplay preload="auto" disablepictureinpicture
+                            disableremoteplayback aria-label="SafiTrack product walkthrough">
                             <source src="assets/safitrackscreenshots/ai.webm" type="video/webm">
                         </video>
-                        <div class="showcase-cover-bl"></div>
+                    </div>
+
+                    <!-- Draggable windows (desktop only, decorative) -->
+                    <div class="win win-ai" data-drag aria-hidden="true">
+                        <div class="win-bar"><span class="win-dots"><i></i><i></i><i></i></span><span class="win-title">Safi AI</span></div>
+                        <div class="win-body">
+                            <p class="ai-ask">What does my day look like?</p>
+                            <div class="ai-reply">
+                                <span class="ai-avatar">S</span>
+                                <p>5 visits planned, 1.5 km in total. Start with <b>Amazon</b> at 9:30, then
+                                    <b>Microsoft</b>.</p>
+                            </div>
+                            <div class="ai-chips"><span>Focus today</span><span>Needs attention</span></div>
+                        </div>
+                    </div>
+
+                    <div class="win win-dark win-feed" data-drag aria-hidden="true">
+                        <div class="win-bar"><span class="win-dots"><i></i><i></i><i></i></span><span class="win-title">Team activity</span><span class="live-dot"></span></div>
+                        <div class="win-body">
+                            <p class="feed-item"><span class="feed-pin"></span><span><b>Alex</b> visited Microsoft</span><time>now</time></p>
+                            <p class="feed-item"><span class="feed-pin"></span><span><b>Sarah</b> logged a call with Apple</span><time>12m</time></p>
+                            <p class="feed-item"><span class="feed-pin"></span><span><b>James</b> visited Salesforce</span><time>40m</time></p>
+                            <p class="feed-item"><span class="feed-pin"></span><span><b>Alex</b> moved Slack to Won</span><time>1h</time></p>
+                        </div>
+                    </div>
+
+                    <div class="win win-visit" data-drag aria-hidden="true">
+                        <div class="win-bar"><span class="win-dots"><i></i><i></i><i></i></span><span class="win-title">Visit · Microsoft</span></div>
+                        <div class="win-body">
+                            <div class="visit-grid">
+                                <p><small>Sales rep</small>Alex Carter</p>
+                                <p><small>Lead score</small>80%</p>
+                                <p><small>Contact</small>Sarah Mitchell</p>
+                                <p><small>Travel time</small>22 min</p>
+                            </div>
+                            <p class="visit-label">AI summary</p>
+                            <p class="visit-summary"><b>Hot opportunity.</b> Procurement confirmed Q2 budget. Next
+                                step: send a detailed proposal by 8 March.</p>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Companies Section -->
-    <section class="companies">
-        <div class="container">
-            <p class="companies-label">Trusted by scaling sales organizations</p>
-            <div class="companies-grid">
-                <img src="assets/companylogos/logo1.png" alt="CAMP" class="company-logo">
-                <img src="assets/companylogos/logo2.png" alt="Carrefour" class="company-logo">
-                <img src="assets/companylogos/logo3.png" alt="DD" class="company-logo">
-                <img src="assets/companylogos/logo4.png" alt="Ente" class="company-logo">
-                <img src="assets/companylogos/logo5.png" alt="Sangyug" class="company-logo">
-                <img src="assets/companylogos/logo6.png" alt="Yog" class="company-logo">
-            </div>
-            <!-- Mobile-only marquee (logos duplicated for seamless loop) -->
-            <div class="companies-marquee" aria-hidden="true">
-                <div class="companies-track">
-                    <img src="assets/companylogos/logo1.png" alt="" class="company-logo">
-                    <img src="assets/companylogos/logo2.png" alt="" class="company-logo">
-                    <img src="assets/companylogos/logo3.png" alt="" class="company-logo">
-                    <img src="assets/companylogos/logo4.png" alt="" class="company-logo">
-                    <img src="assets/companylogos/logo5.png" alt="" class="company-logo">
-                    <img src="assets/companylogos/logo6.png" alt="" class="company-logo">
-                    <!-- duplicate for seamless loop -->
-                    <img src="assets/companylogos/logo1.png" alt="" class="company-logo">
-                    <img src="assets/companylogos/logo2.png" alt="" class="company-logo">
-                    <img src="assets/companylogos/logo3.png" alt="" class="company-logo">
-                    <img src="assets/companylogos/logo4.png" alt="" class="company-logo">
-                    <img src="assets/companylogos/logo5.png" alt="" class="company-logo">
-                    <img src="assets/companylogos/logo6.png" alt="" class="company-logo">
+        <!-- ============ Scroll statement ============ -->
+        <section class="statement" data-statement>
+            <div class="statement-sticky">
+                <div class="wrap">
+                    <p class="eyebrow">Why SafiTrack</p>
+                    <p class="statement-text" data-statement-text>Your best reps aren't at their desks. They're in the
+                        field, and SafiTrack goes with them.</p>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Scroll Manifesto Section -->
-    <section class="scroll-manifesto" data-scroll-manifesto-section>
-        <div class="scroll-manifesto-sticky">
-            <div class="container">
-                <div class="scroll-manifesto-stage" data-scroll-manifesto>
-                    <p class="sm-kicker">A better rhythm for revenue teams</p>
+        <!-- ============ Features: scroll-driven ============ -->
+        <section class="flow" id="features">
+            <div class="wrap">
+                <div class="rail">
+                    <header class="flow-head">
+                        <p class="eyebrow">Platform</p>
+                        <h2 class="section-title">Everything a field team needs, in one place.</h2>
+                        <p class="section-sub">From the first visit to the signed contract, SafiTrack keeps reps,
+                            managers and technicians working from the same record.</p>
+                    </header>
 
-                    <h2 class="sm-quote" data-manifesto-quote>SafiTrack turns sales chaos into focused revenue momentum.
-                    </h2>
-                </div>
-            </div>
-        </div>
-    </section>
+                    <div class="flow-body">
+                        <nav class="flow-nav" aria-label="Platform sections">
+                            <a href="#flow-plan" class="is-active">Plan the day</a>
+                            <a href="#flow-visit">Log every visit</a>
+                            <a href="#flow-automate">Automate follow-up</a>
+                            <a href="#flow-ask">Ask Safi AI</a>
+                            <a href="#flow-forecast">Forecast revenue</a>
+                        </nav>
 
+                        <div class="flow-panels">
+                            <article class="flow-panel" id="flow-plan">
+                                <div class="flow-copy">
+                                    <h3>Plan the day in minutes. <span>Pick the accounts to visit and SafiTrack
+                                            orders the stops, works out the drive, and assigns the route to a
+                                            rep.</span></h3>
+                                    <a href="pages/features/route-plans-feature.html" class="card-link">Route plans
+                                        <span aria-hidden="true">→</span></a>
+                                </div>
+                                <div class="canvas canvas-wide">
+                                    <img src="assets/home/route.webp" alt="Route planning screen with five stops on a map"
+                                        width="2460" height="1456" loading="lazy">
+                                </div>
+                            </article>
 
-    <!-- Transformation Section — Animated Single Stage -->
-    <section class="transformation-split" id="features">
-        <div class="container">
-            <div class="section-header tf-header-left">
-                <h2 class="section-title">A new standard for field sales CRM. <span class="tf-title-light">SafiTrack
-                        adapts to your workflow, intelligently organizing your operations so your system works exactly
-                        the way your team does.</span></h2>
-            </div>
+                            <article class="flow-panel" id="flow-visit">
+                                <div class="flow-copy">
+                                    <h3>Every visit, on the record. <span>Reps log visits from their phone with
+                                            notes, photos and a lead score. Safi AI writes the summary and the next
+                                            step.</span></h3>
+                                    <a href="pages/features/sales-visits-feature.html" class="card-link">Sales visits
+                                        <span aria-hidden="true">→</span></a>
+                                </div>
+                                <div class="canvas canvas-panel">
+                                    <img src="assets/home/visit.webp"
+                                        alt="Visit record for Microsoft with lead score, notes and an AI summary"
+                                        width="938" height="1330" loading="lazy">
+                                </div>
+                            </article>
 
-            <!-- Animated stage wrapper (handles mobile scaling) -->
-            <div class="tf-stage-wrap">
-                <div class="tf-stage" id="tf-stage">
-
-                    <!-- Column headers — fade in as cards land -->
-                    <div class="tf-col-headers" id="tf-col-headers" aria-hidden="true">
-                        <div class="tf-ch" data-col="0">
-                            <span class="tf-ch-label">Qualified</span>
-                            <span class="tf-ch-count" id="tf-count-0">0</span>
-                        </div>
-                        <div class="tf-ch" data-col="1">
-                            <span class="tf-ch-label">Proposal</span>
-                            <span class="tf-ch-count" id="tf-count-1">0</span>
-                        </div>
-                        <div class="tf-ch" data-col="2">
-                            <span class="tf-ch-label">Negotiation</span>
-                            <span class="tf-ch-count" id="tf-count-2">0</span>
-                        </div>
-                        <div class="tf-ch tf-ch-won" data-col="3">
-                            <span class="tf-ch-label">Won ✓</span>
-                            <span class="tf-ch-count tf-ch-count-won" id="tf-count-3">0</span>
-                        </div>
-                    </div>
-
-                    <!-- Chaos-only overlay elements -->
-                    <div class="tf-chaos-layer" id="tf-chaos-layer" aria-hidden="true">
-                        <div class="tf-sticky tf-s1">
-                            <div class="tf-note-text">Follow up Acme…</div>
-                            <div class="tf-note-sub">14 days ago 😬</div>
-                        </div>
-                        <div class="tf-sticky tf-s2">
-                            <div class="tf-note-text">Call TechCo!</div>
-                            <div class="tf-note-urgent">URGENT ⚠</div>
-                        </div>
-                        <div class="tf-sheet">
-                            <div class="tf-sheet-title">📊 deals_v3_FINAL.xlsx</div>
-                            <div class="tf-sheet-row tf-row-err"><span>???</span><span>$45k</span><span>—</span></div>
-                            <div class="tf-sheet-row"><span>Acme</span><span>—</span><span>maybe?</span></div>
-                            <div class="tf-sheet-row tf-row-err"><span>Client
-                                    X</span><span>$12k</span><span>lost?</span></div>
-                        </div>
-                        <div class="tf-alert tf-alert-1">⚠ 3 missed follow-ups</div>
-                        <div class="tf-alert tf-alert-2">⏰ Deal stale — 3 weeks</div>
-                        <div class="tf-alert tf-alert-3">📵 No update in 30 days</div>
-
-                        <!-- extra sticky notes -->
-                        <div class="tf-sticky tf-s3">
-                            <div class="tf-note-text">Confirm demo w/ Pinnacle</div>
-                            <div class="tf-note-sub">Before Thursday!</div>
-                        </div>
-                        <div class="tf-sticky tf-s4">
-                            <div class="tf-note-text">Pipeline review — Friday?</div>
-                            <div class="tf-note-sub">ask the team 🤔</div>
-                        </div>
-
-                        <!-- floating chat bubble -->
-                        <div class="tf-chatbubble">
-                            <div class="tf-chat-sender">James K.</div>
-                            <div class="tf-chat-msg">"Any update on our proposal? 👀"</div>
-                            <div class="tf-chat-time">2 days ago · unread</div>
-                        </div>
-
-                        <!-- to-do checklist -->
-                        <div class="tf-checklist">
-                            <div class="tf-check-title">This week</div>
-                            <div class="tf-check-item tf-check-done">✓ Call Acme</div>
-                            <div class="tf-check-item">☐ Send proposal – Globex</div>
-                            <div class="tf-check-item">☐ Follow up TechCo</div>
-                            <div class="tf-check-item">☐ Check on Pinnacle??</div>
-                        </div>
-                    </div>
-
-                    <!--
-                        Deal cards.
-                        --cx/--cy/--cr = chaos position (left / top / rotation)
-                        data-col = target pipeline column index (0=Qualified, 1=Proposal, 2=Negotiation, 3=Won)
-                        data-prog = progress bar fill % in organized state
-                    -->
-                    <div class="tf-card tf-c1 is-chaotic is-hidden" id="tf-c1" data-col="0" data-prog="35"
-                        style="--cx:50px;--cy:200px;--cr:-13deg" aria-label="Acme Corp deal card">
-                        <div class="tf-card-head">
-                            <div class="tf-ctag">Qualified</div>
-                            <div class="tf-card-tick" aria-hidden="true">
-                                <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
-                                    <path d="M2 6l3 3 5-5" stroke="#10b981" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="tf-cname">Acme Corp</div>
-                        <div class="tf-card-meta">
-                            <div class="tf-cavatar" style="--av-color:#6366f1">R</div>
-                            <div class="tf-cval">$45,000</div>
-                        </div>
-                        <div class="tf-cprog">
-                            <div class="tf-cprog-fill"></div>
-                        </div>
-                    </div>
-
-                    <div class="tf-card tf-c2 is-chaotic is-hidden" id="tf-c2" data-col="1" data-prog="65"
-                        style="--cx:530px;--cy:50px;--cr:9deg" aria-label="Globex Inc deal card">
-                        <div class="tf-card-head">
-                            <div class="tf-ctag tf-tag-hot">Hot 🔥</div>
-                            <div class="tf-card-tick" aria-hidden="true">
-                                <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
-                                    <path d="M2 6l3 3 5-5" stroke="#10b981" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="tf-cname">Globex Inc</div>
-                        <div class="tf-card-meta">
-                            <div class="tf-cavatar" style="--av-color:#f97316">S</div>
-                            <div class="tf-cval">$32,700</div>
-                        </div>
-                        <div class="tf-cprog">
-                            <div class="tf-cprog-fill"></div>
-                        </div>
-                    </div>
-
-                    <div class="tf-card tf-c3 tf-card-won is-chaotic is-hidden" id="tf-c3" data-col="3" data-prog="100"
-                        style="--cx:330px;--cy:240px;--cr:-7deg" aria-label="TechCo won deal">
-                        <div class="tf-card-head">
-                            <div class="tf-ctag tf-tag-won">Won ✓</div>
-                            <div class="tf-card-tick" aria-hidden="true">
-                                <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
-                                    <path d="M2 6l3 3 5-5" stroke="#10b981" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="tf-cname">TechCo</div>
-                        <div class="tf-card-meta">
-                            <div class="tf-cavatar" style="--av-color:#10b981">M</div>
-                            <div class="tf-cval">$67,000</div>
-                        </div>
-                        <div class="tf-cprog">
-                            <div class="tf-cprog-fill"></div>
-                        </div>
-                    </div>
-
-                    <div class="tf-card tf-c4 is-chaotic is-hidden" id="tf-c4" data-col="0" data-prog="20"
-                        style="--cx:175px;--cy:85px;--cr:12deg" aria-label="Nexa Ltd deal card">
-                        <div class="tf-card-head">
-                            <div class="tf-ctag">Qualified</div>
-                            <div class="tf-card-tick" aria-hidden="true">
-                                <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
-                                    <path d="M2 6l3 3 5-5" stroke="#10b981" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="tf-cname">Nexa Ltd</div>
-                        <div class="tf-card-meta">
-                            <div class="tf-cavatar" style="--av-color:#8b5cf6">J</div>
-                            <div class="tf-cval">$21,000</div>
-                        </div>
-                        <div class="tf-cprog">
-                            <div class="tf-cprog-fill"></div>
-                        </div>
-                    </div>
-
-                    <div class="tf-card tf-c5 is-chaotic is-hidden" id="tf-c5" data-col="1" data-prog="50"
-                        style="--cx:440px;--cy:188px;--cr:-9deg" aria-label="Orbit Co deal card">
-                        <div class="tf-card-head">
-                            <div class="tf-ctag">Proposal</div>
-                            <div class="tf-card-tick" aria-hidden="true">
-                                <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
-                                    <path d="M2 6l3 3 5-5" stroke="#10b981" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="tf-cname">Orbit Co</div>
-                        <div class="tf-card-meta">
-                            <div class="tf-cavatar" style="--av-color:#ec4899">K</div>
-                            <div class="tf-cval">$18,500</div>
-                        </div>
-                        <div class="tf-cprog">
-                            <div class="tf-cprog-fill"></div>
-                        </div>
-                    </div>
-
-                    <div class="tf-card tf-c6 is-chaotic is-hidden" id="tf-c6" data-col="2" data-prog="80"
-                        style="--cx:660px;--cy:140px;--cr:6deg" aria-label="Pinnacle deal card">
-                        <div class="tf-card-head">
-                            <div class="tf-ctag tf-tag-hot">Hot 🔥</div>
-                            <div class="tf-card-tick" aria-hidden="true">
-                                <svg width="9" height="9" viewBox="0 0 12 12" fill="none">
-                                    <path d="M2 6l3 3 5-5" stroke="#10b981" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" />
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="tf-cname">Pinnacle Ltd</div>
-                        <div class="tf-card-meta">
-                            <div class="tf-cavatar" style="--av-color:#0ea5e9">A</div>
-                            <div class="tf-cval">$54,000</div>
-                        </div>
-                        <div class="tf-cprog">
-                            <div class="tf-cprog-fill"></div>
-                        </div>
-                    </div>
-
-                    <!-- AI organized badge — visible once all cards land -->
-                    <div class="tf-ai-badge" id="tf-ai-badge" aria-hidden="true">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" />
-                        </svg>
-                        Organized by SafiTrack
-                    </div>
-
-                </div><!-- /.tf-stage -->
-            </div><!-- /.tf-stage-wrap -->
-
-        </div>
-    </section>
-
-    <!-- Roles Showcase -->
-    <section class="roles-showcase" id="roles">
-        <div class="container">
-
-            <!-- Header -->
-            <div class="rs-header">
-                <span class="rs-eyebrow">Built for every role</span>
-                <h2 class="rs-title">One platform,<br>every team member covered.</h2>
-                <p class="rs-subtitle">SafiTrack adapts to how each person on your team actually works — from the field
-                    to the boardroom.</p>
-            </div>
-
-            <!-- Tab Pills -->
-            <div class="rs-tab-row" id="rs-tab-row">
-                <button class="dock-btn active" data-role="manager">
-                    <span class="rs-tab-icon">📊</span> Managers
-                    <span class="rs-tab-progress"></span>
-                </button>
-                <button class="dock-btn" data-role="salesrep">
-                    <span class="rs-tab-icon">⚡️</span> Sales Reps
-                    <span class="rs-tab-progress"></span>
-                </button>
-                <button class="dock-btn" data-role="technician">
-                    <span class="rs-tab-icon">📍</span> Technicians
-                    <span class="rs-tab-progress"></span>
-                </button>
-            </div>
-
-            <!-- Content Card -->
-            <div class="rs-card">
-
-                <!-- Left: Text panels -->
-                <div class="rs-text-area">
-                    <div class="role-context active" data-role="manager">
-                        <span class="rs-role-badge rs-badge-manager">📊 Managers</span>
-                        <h3 class="rs-panel-heading">Command your pipeline with total clarity</h3>
-                        <p class="rs-panel-desc">Get a real-time bird's-eye view of revenue, team performance, and field
-                            operations — all in one place.</p>
-                        <ul class="rs-bullets">
-                            <li>Live revenue dashboard &amp; forecasts</li>
-                            <li>Team activity feed &amp; performance scores</li>
-                            <li>Admin controls &amp; role permissions</li>
-                        </ul>
-                    </div>
-                    <div class="role-context" data-role="salesrep">
-                        <span class="rs-role-badge rs-badge-salesrep">⚡️ Sales Reps</span>
-                        <h3 class="rs-panel-heading">Close deals faster with a visual pipeline</h3>
-                        <p class="rs-panel-desc">Move opportunities through every stage with AI-assisted scoring and
-                            one-click follow-up actions.</p>
-                        <ul class="rs-bullets">
-                            <li>Visual kanban pipeline board</li>
-                            <li>AI deal scoring &amp; win probability</li>
-                            <li>One-click follow-up actions</li>
-                        </ul>
-                    </div>
-                    <div class="role-context" data-role="technician">
-                        <span class="rs-role-badge rs-badge-tech">📍 Technicians</span>
-                        <h3 class="rs-panel-heading">Field-ready tools that work where you do</h3>
-                        <p class="rs-panel-desc">Optimise routes, log visits, and submit evidence straight from your
-                            phone — even offline.</p>
-                        <ul class="rs-bullets">
-                            <li>Smart route planning &amp; navigation</li>
-                            <li>Visit logging with photo evidence</li>
-                            <li>Works offline, syncs instantly</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <!-- Right: App mockup -->
-                <div class="rs-visual-area">
-                    <div class="saas-window">
-                        <div class="saas-header">
-                            <div class="saas-controls"><span></span><span></span><span></span></div>
-                            <div class="saas-bar">SafiTrack OS</div>
-                            <div class="saas-actions">
-                                <div class="s-action"></div>
-                                <div class="s-action"></div>
-                            </div>
-                        </div>
-                        <div class="saas-content">
-                            <!-- MANAGER VIEW -->
-                            <div class="role-view active" id="view-manager">
-                                <div class="dashboard-grid">
-                                    <div class="dash-widget revenue-main">
-                                        <div class="w-head">
-                                            <span>Revenue Overview</span>
-                                            <select class="mini-select">
-                                                <option>This Quarter</option>
-                                            </select>
+                            <article class="flow-panel" id="flow-automate">
+                                <div class="flow-copy">
+                                    <h3>Follow-up that runs itself. <span>Workflows react the moment something
+                                            changes, creating tasks and notifying the right people so no deal goes
+                                            quiet.</span></h3>
+                                    <a href="pages/features/workflows-feature.html" class="card-link">Workflows
+                                        <span aria-hidden="true">→</span></a>
+                                </div>
+                                <div class="canvas canvas-flow">
+                                    <div class="wf" aria-label="Example workflow: when a new opportunity over $500,000 is created, create a proposal task and notify the sales manager">
+                                        <div class="wf-node wf-trigger">
+                                            <span class="wf-tag">Trigger</span>
+                                            <span class="wf-status">Triggered</span>
+                                            <p class="wf-title"><span class="wf-icon wf-blue">+</span>Record created</p>
+                                            <p class="wf-sub">New opportunity</p>
                                         </div>
-                                        <div class="rev-big-price">$1,240,500 <span class="trend up">+12%</span></div>
-                                        <div class="rev-chart-area">
-                                            <svg viewBox="0 0 100 25" preserveAspectRatio="none" class="chart-svg">
-                                                <path
-                                                    d="M0 25 L10 20 L20 22 L30 15 L40 18 L50 10 L60 12 L70 5 L80 8 L90 2 L100 15 V25 H0 Z"
-                                                    fill="rgba(47,95,208,0.1)" />
-                                                <path
-                                                    d="M0 25 L10 20 L20 22 L30 15 L40 18 L50 10 L60 12 L70 5 L80 8 L90 2 L100 15"
-                                                    fill="none" stroke="#2f5fd0" stroke-width="0.5" />
-                                            </svg>
+                                        <div class="wf-node">
+                                            <span class="wf-status">Passed</span>
+                                            <p class="wf-title"><span class="wf-icon wf-violet">?</span>Condition</p>
+                                            <p class="wf-sub">Value over $500,000</p>
                                         </div>
+                                        <div class="wf-node">
+                                            <span class="wf-status">Completed</span>
+                                            <p class="wf-title"><span class="wf-icon wf-amber">✓</span>Create task</p>
+                                            <p class="wf-sub">Send detailed proposal</p>
+                                        </div>
+                                        <div class="wf-node">
+                                            <span class="wf-status">Completed</span>
+                                            <p class="wf-title"><span class="wf-icon wf-pink">!</span>Send notification</p>
+                                            <p class="wf-sub">Notify sales manager</p>
+                                        </div>
+                                        <svg class="wf-lines" width="600" height="340" viewBox="0 0 600 340" aria-hidden="true">
+                                            <path d="M232 78 H364" />
+                                            <path d="M476 116 V164 Q476 172 468 172 H132 Q124 172 124 180 V226" />
+                                            <path d="M232 268 H364" />
+                                            <path class="wf-head" d="M359 73 L365 78 L359 83" />
+                                            <path class="wf-head" d="M119 221 L124 227 L129 221" />
+                                            <path class="wf-head" d="M359 263 L365 268 L359 273" />
+                                        </svg>
                                     </div>
-                                    <div class="dash-widget team-stat">
-                                        <div class="w-head">Active Agents</div>
-                                        <div class="team-avatars">
-                                            <div class="av">SC</div>
-                                            <div class="av">MR</div>
-                                            <div class="av">DK</div>
-                                            <div class="av count">+5</div>
+                                </div>
+                            </article>
+
+                            <article class="flow-panel" id="flow-ask">
+                                <div class="flow-copy">
+                                    <h3>Ask your CRM anything. <span>Ask what to focus on today, which deals
+                                            need attention, or how the team did this month. Safi AI answers from your
+                                            live pipeline.</span></h3>
+                                    <a href="pages/features/safi-ai-feature.html" class="card-link">Safi AI
+                                        <span aria-hidden="true">→</span></a>
+                                </div>
+                                <div class="canvas canvas-chat">
+                                    <div class="chat" role="img"
+                                        aria-label="Safi AI lists three deals that need attention this week">
+                                        <div class="chat-bar">
+                                            <span class="ai-avatar">S</span>
+                                            <p class="chat-name">Safi AI <small>Online</small></p>
+                                            <span class="chat-new">New chat</span>
                                         </div>
-                                        <div class="online-indicator"><span class="pulsing-dot"></span> 8 Online now
-                                        </div>
-                                    </div>
-                                    <div class="dash-widget live-list">
-                                        <div class="w-head">Live Activity</div>
-                                        <div class="activity-feed-scroller" id="manager-feed-list">
-                                            <div class="act-item"><span class="act-icon">💰</span>
-                                                <div class="act-text"><strong>Sarah</strong> closed Acme deal</div><span
-                                                    class="act-time">2m</span>
-                                            </div>
-                                            <div class="act-item"><span class="act-icon">📞</span>
-                                                <div class="act-text"><strong>Mike</strong> called Stark Ind</div><span
-                                                    class="act-time">5m</span>
+                                        <div class="chat-body">
+                                            <p class="chat-me">Which deals need attention this week?</p>
+                                            <div class="chat-ai">
+                                                <p>Three deals have something due before Friday:</p>
+                                                <ul class="chat-deals">
+                                                    <li>
+                                                        <span class="deal-logo">A</span>
+                                                        <span class="deal-main"><b>CRM Platform Rollout</b><small>Apple Inc. · legal sign-off stalled 7 days</small></span>
+                                                        <span class="deal-val">$420,000</span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="deal-logo">M</span>
+                                                        <span class="deal-main"><b>Enterprise Licence Expansion</b><small>Microsoft · send catalogue by Fri</small></span>
+                                                        <span class="deal-val">$850,000</span>
+                                                    </li>
+                                                    <li>
+                                                        <span class="deal-logo">H</span>
+                                                        <span class="deal-main"><b>Route Optimisation Deal</b><small>HubSpot · product demo Wed</small></span>
+                                                        <span class="deal-val">$930,000</span>
+                                                    </li>
+                                                </ul>
+                                                <p>Apple has gone the longest without an update, so I'd start there.</p>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                                <div class="rs-view-actions">
-                                    <button class="rs-view-btn" id="rs-mgr-btn">Open Dashboard →</button>
-                                    <button class="rs-view-btn rs-view-ghost" id="rs-mgr-export">Export Report</button>
-                                </div>
-                            </div>
-                            <!-- SALES VIEW -->
-                            <div class="role-view" id="view-salesrep">
-                                <div class="pipeline-board">
-                                    <div class="pipe-col">
-                                        <div class="pipe-head">New Leads <span class="p-badge">3</span></div>
-                                        <div class="pipe-card">
-                                            <div class="pc-tag">Enterprise</div>
-                                            <div class="pc-title">Acme Corp</div>
-                                            <div class="pc-val">$45k</div>
-                                        </div>
-                                        <div class="pipe-card">
-                                            <div class="pc-tag urgent">Urgent</div>
-                                            <div class="pc-title">Globex</div>
-                                            <div class="pc-val">$12k</div>
-                                        </div>
-                                    </div>
-                                    <div class="pipe-col">
-                                        <div class="pipe-head">Discovery <span class="p-badge">1</span></div>
-                                        <div class="pipe-card active-drag">
-                                            <div class="pc-tag">SaaS</div>
-                                            <div class="pc-title">Stark Ind</div>
-                                            <div class="pc-val">$120k</div>
-                                            <div class="ai-insight">✨ 80% Win Prob</div>
-                                        </div>
-                                        <div class="drop-target"></div>
-                                    </div>
-                                    <div class="pipe-col">
-                                        <div class="pipe-head">Negotiation <span class="p-badge">2</span></div>
-                                        <div class="pipe-card">
-                                            <div class="pc-title">Wayne Ent</div>
-                                            <div class="pc-val">$85k</div>
+                                        <div class="chat-input">
+                                            <span>Message Safi AI…</span>
+                                            <span class="chat-send">↑</span>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="rs-view-actions">
-                                    <button class="rs-view-btn" id="rs-sales-btn">+ Add Deal</button>
-                                    <button class="rs-view-btn rs-view-ghost" id="rs-sales-ai">✨ AI Score All</button>
+                            </article>
+
+                            <article class="flow-panel" id="flow-forecast">
+                                <div class="flow-copy">
+                                    <h3>Know where every deal stands. <span>A visual pipeline with weighted
+                                            forecast, win rate and the full history behind every deal, kept current
+                                            by the work your team already does.</span></h3>
+                                    <a href="pages/features/opportunities-feature.html" class="card-link">Pipelines
+                                        <span aria-hidden="true">→</span></a>
                                 </div>
-                            </div>
-                            <!-- TECHNICIAN VIEW -->
-                            <div class="role-view" id="view-technician">
-                                <div class="rs-tech-img-wrap">
-                                    <img src="https://i.imgur.com/uzQkNVo.png" alt="Technician map screenshot">
+                                <div class="canvas canvas-wide">
+                                    <img src="assets/home/pipeline.webp"
+                                        alt="Opportunities board with lead, in progress, won and lost columns"
+                                        width="2460" height="1406" loading="lazy">
                                 </div>
-                                <div class="rs-view-actions">
-                                    <button class="rs-view-btn" id="rs-tech-route">📍 Plan My Route</button>
-                                    <button class="rs-view-btn rs-view-ghost" id="rs-tech-log">Log a Visit</button>
-                                </div>
-                            </div>
+                            </article>
                         </div>
                     </div>
                 </div>
 
-            </div><!-- /.rs-card -->
-        </div>
-    </section>
-
-    <!-- Interactive Product Experience -->
-    <section class="product-experience" id="product">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">See how SafiTrack feels in real work</h2>
-                <p class="section-subtitle">Interactive views that mirror how teams actually run pipeline,
-                    relationships, and follow-up.</p>
+                <div class="more">
+                    <h3 class="more-title">And the rest of the toolkit.</h3>
+                    <div class="more-grid">
+                        <a href="pages/features/companies-feature.html" class="more-item">
+                            <strong>Companies</strong><span>Every account, contact and deal in one record.</span>
+                        </a>
+                        <a href="pages/features/people-feature.html" class="more-item">
+                            <strong>People</strong><span>Contacts with their full visit and call history.</span>
+                        </a>
+                        <a href="pages/features/technician-visits-feature.html" class="more-item">
+                            <strong>Service visits</strong><span>Technician jobs tracked after the sale.</span>
+                        </a>
+                        <a href="pages/features/tasks-feature.html" class="more-item">
+                            <strong>Tasks</strong><span>Clear owners and due dates for the whole team.</span>
+                        </a>
+                        <a href="pages/features/reminders-feature.html" class="more-item">
+                            <strong>Reminders</strong><span>Follow-ups that show up on time.</span>
+                        </a>
+                        <a href="pages/features/call-logs-feature.html" class="more-item">
+                            <strong>Call logs</strong><span>Every customer conversation, on record.</span>
+                        </a>
+                        <a href="pages/features/notes-feature.html" class="more-item">
+                            <strong>Notes</strong><span>Meeting notes that live next to the deal.</span>
+                        </a>
+                        <a href="pages/features/reports-feature.html" class="more-item">
+                            <strong>Reports</strong><span>Dashboards for revenue, activity and visits.</span>
+                        </a>
+                        <a href="pages/features/workflows-feature.html" class="more-item">
+                            <strong>Workflows</strong><span>Automations that take care of the busywork.</span>
+                        </a>
+                    </div>
+                </div>
             </div>
+        </section>
 
-            <div class="px-shell" data-scroll>
-                <aside class="px-nav" role="tablist" aria-label="Product experience views">
-                    <button class="px-tab active" data-view="pipeline" role="tab" aria-selected="true">
-                        <span class="px-tab-title">Pipeline Flow</span>
-                        <span class="px-tab-meta">Drag deals and watch momentum</span>
-                    </button>
-                    <button class="px-tab" data-view="contacts" role="tab" aria-selected="false">
-                        <span class="px-tab-title">Relationship Hub</span>
-                        <span class="px-tab-meta">Context, timeline, and next action</span>
-                    </button>
-                    <button class="px-tab" data-view="ai" role="tab" aria-selected="false">
-                        <span class="px-tab-title">AI Assistant</span>
-                        <span class="px-tab-meta">Summaries and prompts in real time</span>
-                    </button>
-                </aside>
-
-                <div class="px-stage">
-                    <div class="px-view active" data-view="pipeline" role="tabpanel">
-                        <div class="px-headline-row">
-                            <span class="px-kicker">Live board</span>
-                            <span class="px-pulse-dot"></span>
-                            <span class="px-chip px-dynamic-chip" data-chip="pipeline">2 deals moved</span>
+        <!-- ============ Field intelligence (dark) ============ -->
+        <section class="intel" data-theme="dark" data-intel>
+            <div class="wrap">
+                <div class="rail rail-dark">
+                    <div class="intel-stage">
+                        <div class="intel-heading">
+                            <p class="intel-kicker">The CRM built on</p>
+                            <h2 class="intel-title">Field Intelligence</h2>
                         </div>
-                        <div class="px-kanban">
-                            <div class="px-col">
-                                <div class="px-col-title">Qualified <span class="px-count" data-min="6"
-                                        data-max="11">8</span></div>
-                                <div class="px-card moving">
-                                    <strong>Acme Expansion</strong>
-                                    <span>$48,000</span>
-                                </div>
-                                <div class="px-card"><strong>Nexa Logistics</strong><span>$21,400</span></div>
-                            </div>
-                            <div class="px-col active-target">
-                                <div class="px-col-title">Proposal <span class="px-count" data-min="4"
-                                        data-max="8">5</span></div>
-                                <div class="px-card highlighted"><strong>BluePeak Holdings</strong><span>$32,700</span>
-                                </div>
-                            </div>
-                            <div class="px-col">
-                                <div class="px-col-title">Negotiation <span class="px-count" data-min="2"
-                                        data-max="5">3</span></div>
-                                <div class="px-card"><strong>Northline Retail</strong><span>$77,900</span></div>
-                            </div>
+                        <div class="planet" aria-hidden="true">
+                            <span class="planet-glow"></span>
+                            <span class="planet-rim"></span>
+                            <span class="planet-body"></span>
                         </div>
                     </div>
 
-                    <div class="px-view" data-view="contacts" role="tabpanel">
-                        <div class="px-headline-row">
-                            <span class="px-kicker">Customer timeline</span>
-                            <span class="px-chip px-dynamic-chip" data-chip="contacts">Updated now</span>
+                    <div class="intel-grid">
+                        <div class="intel-item">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="19" r="3" /><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /><circle cx="18" cy="5" r="3" /></svg>
+                            <h3>Routes, sorted.</h3>
+                            <p>Pick the stops. SafiTrack orders them and works out the drive.</p>
                         </div>
-                        <div class="px-profile">
-                            <div class="px-avatar">KM</div>
-                            <div>
-                                <h4>Keisha Morgan · VP Operations</h4>
-                                <p>Orbit Manufacturing • Expansion opportunity</p>
-                            </div>
+                        <div class="intel-item">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
+                            <h3>Every visit, on record.</h3>
+                            <p>Notes, photos, lead score and location, logged from the phone.</p>
                         </div>
-                        <ul class="px-timeline">
-                            <li><span>09:12</span> Call completed · Budget confirmed for Q2</li>
-                            <li><span>11:40</span> Proposal sent · Awaiting legal review</li>
-                            <li><span>14:05</span> Reminder created · Follow up Friday 10:00</li>
+                        <div class="intel-item">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9z" /></svg>
+                            <h3>AI does the write-up.</h3>
+                            <p>Each visit gets a summary and a suggested next step.</p>
+                        </div>
+                        <div class="intel-item">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 12h-4l-3 9L9 3l-3 9H2" /></svg>
+                            <h3>Managers see it live.</h3>
+                            <p>Team activity and the pipeline update as the day goes.</p>
+                        </div>
+                        <div class="intel-item">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>
+                            <h3>Service teams too.</h3>
+                            <p>Technician jobs and site visits sit right next to sales.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ Connectivity (dark) ============ -->
+        <section class="connect" data-theme="dark">
+            <div class="wrap">
+                <div class="rail rail-dark">
+                    <header class="connect-head">
+                        <p class="tag tag-dark">Connectivity</p>
+                        <h2 class="connect-title">Works with what you already use.</h2>
+                        <p class="connect-sub">Sign in with Google, open any stop in Google Maps, and move data in
+                            and out with Excel, CSV and PDF.</p>
+                        <a href="pages/integrations.html" class="btn btn-ghost btn-sm">See integrations <span
+                                aria-hidden="true">→</span></a>
+                    </header>
+
+                    <div class="marquee">
+                        <ul class="marquee-track">
+                            <li class="tile" title="Sign in with Google"><svg viewBox="0 0 24 24" role="img" aria-label="Sign in with Google"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" /></svg></li>
+                            <li class="tile" title="Google Maps"><svg viewBox="0 0 24 24" role="img" aria-label="Google Maps"><path d="M19.527 4.799c1.212 2.608.937 5.678-.405 8.173-1.101 2.047-2.744 3.74-4.098 5.614-.619.858-1.244 1.75-1.669 2.727-.141.325-.263.658-.383.992-.121.333-.224.673-.34 1.008-.109.314-.236.684-.627.687h-.007c-.466-.001-.579-.53-.695-.887-.284-.874-.581-1.713-1.019-2.525-.51-.944-1.145-1.817-1.79-2.671L19.527 4.799zM8.545 7.705l-3.959 4.707c.724 1.54 1.821 2.863 2.871 4.18.247.31.494.622.737.936l4.984-5.925-.029.01c-1.741.601-3.691-.291-4.392-1.987a3.377 3.377 0 0 1-.209-.716c-.063-.437-.077-.761-.004-1.198l.001-.007zM5.492 3.149l-.003.004c-1.947 2.466-2.281 5.88-1.117 8.77l4.785-5.689-.058-.05-3.607-3.035zM14.661.436l-3.838 4.563a.295.295 0 0 1 .027-.01c1.6-.551 3.403.15 4.22 1.626.176.319.323.683.377 1.045.068.446.085.773.012 1.22l-.003.016 3.836-4.561A8.382 8.382 0 0 0 14.67.439l-.009-.003zM9.466 5.868L14.162.285l-.047-.012A8.31 8.31 0 0 0 11.986 0a8.439 8.439 0 0 0-6.169 2.766l-.016.018 3.665 3.084z" /></svg></li>
+                            <li class="tile" title="OpenStreetMap"><svg viewBox="0 0 24 24" role="img" aria-label="OpenStreetMap"><path d="M2.672 23.969c-.352-.089-.534-.234-1.471-1.168C.085 21.688.014 21.579.018 20.999c0-.645-.196-.414 3.368-3.986 3.6-3.608 3.415-3.451 4.064-3.449.302 0 .378.016.62.14l.277.14 1.744-1.744-.218-.343c-.425-.662-.825-1.629-1.006-2.429a7.657 7.657 0 0 1 1.479-6.44c2.49-3.12 6.959-3.812 10.26-1.588 1.812 1.218 2.99 3.099 3.328 5.314.07.467.07 1.579 0 2.074a7.554 7.554 0 0 1-2.205 4.402 6.712 6.712 0 0 1-1.943 1.401c-.959.483-1.775.71-2.881.803-1.573.131-3.32-.305-4.656-1.163l-.343-.218-1.744 1.744.14.28c.125.241.14.316.14.617.003.651.156.467-3.426 4.049-2.761 2.756-3.186 3.164-3.398 3.261-.271.125-.69.171-.945.106zM17.485 13.95a6.425 6.425 0 0 0 4.603-3.51c1.391-2.899.455-6.306-2.227-8.108-.638-.43-1.529-.794-2.367-.962-.581-.117-1.809-.104-2.414.025a6.593 6.593 0 0 0-2.452 1.064c-.444.315-1.177 1.048-1.487 1.487a6.384 6.384 0 0 0 .38 7.907 6.406 6.406 0 0 0 3.901 2.136c.509.078 1.542.058 2.065-.037zm-3.738 7.376a80.97 80.97 0 0 1-2.196-.651c-.025-.028 1.207-4.396 1.257-4.449.023-.026 4.242 1.152 4.414 1.236.062.026-.003.288-.525 2.102a398.513 398.513 0 0 0-.635 2.236c-.025.087-.069.156-.097.156-.028-.003-1.028-.287-2.219-.631zm2.912.524c0-.053 1.227-4.333 1.246-4.347.047-.034 4.324-1.23 4.341-1.211.019.019-1.199 4.337-1.23 4.36-.02.019-4.126 1.191-4.259 1.218-.054.011-.098 0-.098-.019zm-7.105-1.911c.846-.852 1.599-1.627 1.674-1.728.171-.218.405-.732.472-1.015.026-.118.053-.352.058-.522l.011-.307.182-.051c.103-.028.193-.044.202-.034.023.025-1.207 4.321-1.246 4.36-.02.016-.677.213-1.464.436l-1.425.405 1.537-1.542zm8.289-3.06a1.371 1.371 0 0 1-.059-.187l-.044-.156.156-.028c1.339-.227 2.776-.856 3.908-1.713.16-.125.252-.171.265-.134.054.165.272.95.265.959-.034.034-4.48 1.282-4.492 1.261zm-15.083-1.3c-.05-.039-1.179-3.866-1.264-4.29-.016-.084.146-.044 2.174.536 2.121.604 2.192.629 2.222.74.028.098.011.129-.125.223-.084.059-.769.724-1.523 1.479a63.877 63.877 0 0 1-1.39 1.367c-.016 0-.056-.025-.093-.054zm.821-4.378c-1.188-.343-2.164-.623-2.167-.626-.016-.012 1.261-4.433 1.285-4.46.022-.022 4.422 1.211 4.469 1.252.009.009-.269 1.017-.618 2.239-.576 2.02-.643 2.224-.723 2.22-.05-.003-1.059-.285-2.247-.626zm2.959.538c.012-.031.212-.723.444-1.534l.42-1.476.056.321c.093.556.265 1.188.464 1.741.106.296.187.539.181.545-.008.006-.332.101-.719.212-.389.109-.741.21-.786.224-.058.016-.075.006-.059-.034zM4.905 6.112c-1.187-.339-2.167-.635-2.18-.654-.04-.062-1.246-4.321-1.23-4.338.026-.025 4.31 1.204 4.351 1.246.047.051 1.28 4.379 1.246 4.376L4.91 6.113zm2.148-1.713l-.519-1.806-.078-.28 1.693-.483c.934-.265 1.724-.495 1.76-.508.034-.016-.083.14-.26.336A8.729 8.729 0 0 0 7.69 5.23a4.348 4.348 0 0 0-.132.561c0 .293-.115-.025-.505-1.39z" /></svg></li>
+                            <li class="tile" title="Google Gemini"><svg viewBox="0 0 24 24" role="img" aria-label="Google Gemini"><path d="M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81" /></svg></li>
+                            <li class="tile" title="Excel spreadsheets"><svg viewBox="0 0 24 24" role="img" aria-label="Excel spreadsheets" class="tile-line"><rect x="3.5" y="4" width="17" height="16" rx="2.5" /><path d="M3.5 9.5h17M3.5 15h17M10 4v16" /></svg></li>
+                            <li class="tile" title="CSV import and export"><svg viewBox="0 0 24 24" role="img" aria-label="CSV import and export" class="tile-line"><path d="M6.5 2.75h7.25l4.75 4.75v12.5a1.25 1.25 0 0 1-1.25 1.25H6.5A1.25 1.25 0 0 1 5.25 20V4A1.25 1.25 0 0 1 6.5 2.75z" /><path d="M13.5 2.75V7.5h5" /><text x="12" y="17.6" text-anchor="middle">CSV</text></svg></li>
+                            <li class="tile" title="PDF reports"><svg viewBox="0 0 24 24" role="img" aria-label="PDF reports" class="tile-line"><path d="M6.5 2.75h7.25l4.75 4.75v12.5a1.25 1.25 0 0 1-1.25 1.25H6.5A1.25 1.25 0 0 1 5.25 20V4A1.25 1.25 0 0 1 6.5 2.75z" /><path d="M13.5 2.75V7.5h5" /><text x="12" y="17.6" text-anchor="middle">PDF</text></svg></li>
+                            <li class="tile" aria-hidden="true" title="Sign in with Google"><svg viewBox="0 0 24 24" aria-hidden="true" data-label="Sign in with Google"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" /></svg></li>
+                            <li class="tile" aria-hidden="true" title="Google Maps"><svg viewBox="0 0 24 24" aria-hidden="true" data-label="Google Maps"><path d="M19.527 4.799c1.212 2.608.937 5.678-.405 8.173-1.101 2.047-2.744 3.74-4.098 5.614-.619.858-1.244 1.75-1.669 2.727-.141.325-.263.658-.383.992-.121.333-.224.673-.34 1.008-.109.314-.236.684-.627.687h-.007c-.466-.001-.579-.53-.695-.887-.284-.874-.581-1.713-1.019-2.525-.51-.944-1.145-1.817-1.79-2.671L19.527 4.799zM8.545 7.705l-3.959 4.707c.724 1.54 1.821 2.863 2.871 4.18.247.31.494.622.737.936l4.984-5.925-.029.01c-1.741.601-3.691-.291-4.392-1.987a3.377 3.377 0 0 1-.209-.716c-.063-.437-.077-.761-.004-1.198l.001-.007zM5.492 3.149l-.003.004c-1.947 2.466-2.281 5.88-1.117 8.77l4.785-5.689-.058-.05-3.607-3.035zM14.661.436l-3.838 4.563a.295.295 0 0 1 .027-.01c1.6-.551 3.403.15 4.22 1.626.176.319.323.683.377 1.045.068.446.085.773.012 1.22l-.003.016 3.836-4.561A8.382 8.382 0 0 0 14.67.439l-.009-.003zM9.466 5.868L14.162.285l-.047-.012A8.31 8.31 0 0 0 11.986 0a8.439 8.439 0 0 0-6.169 2.766l-.016.018 3.665 3.084z" /></svg></li>
+                            <li class="tile" aria-hidden="true" title="OpenStreetMap"><svg viewBox="0 0 24 24" aria-hidden="true" data-label="OpenStreetMap"><path d="M2.672 23.969c-.352-.089-.534-.234-1.471-1.168C.085 21.688.014 21.579.018 20.999c0-.645-.196-.414 3.368-3.986 3.6-3.608 3.415-3.451 4.064-3.449.302 0 .378.016.62.14l.277.14 1.744-1.744-.218-.343c-.425-.662-.825-1.629-1.006-2.429a7.657 7.657 0 0 1 1.479-6.44c2.49-3.12 6.959-3.812 10.26-1.588 1.812 1.218 2.99 3.099 3.328 5.314.07.467.07 1.579 0 2.074a7.554 7.554 0 0 1-2.205 4.402 6.712 6.712 0 0 1-1.943 1.401c-.959.483-1.775.71-2.881.803-1.573.131-3.32-.305-4.656-1.163l-.343-.218-1.744 1.744.14.28c.125.241.14.316.14.617.003.651.156.467-3.426 4.049-2.761 2.756-3.186 3.164-3.398 3.261-.271.125-.69.171-.945.106zM17.485 13.95a6.425 6.425 0 0 0 4.603-3.51c1.391-2.899.455-6.306-2.227-8.108-.638-.43-1.529-.794-2.367-.962-.581-.117-1.809-.104-2.414.025a6.593 6.593 0 0 0-2.452 1.064c-.444.315-1.177 1.048-1.487 1.487a6.384 6.384 0 0 0 .38 7.907 6.406 6.406 0 0 0 3.901 2.136c.509.078 1.542.058 2.065-.037zm-3.738 7.376a80.97 80.97 0 0 1-2.196-.651c-.025-.028 1.207-4.396 1.257-4.449.023-.026 4.242 1.152 4.414 1.236.062.026-.003.288-.525 2.102a398.513 398.513 0 0 0-.635 2.236c-.025.087-.069.156-.097.156-.028-.003-1.028-.287-2.219-.631zm2.912.524c0-.053 1.227-4.333 1.246-4.347.047-.034 4.324-1.23 4.341-1.211.019.019-1.199 4.337-1.23 4.36-.02.019-4.126 1.191-4.259 1.218-.054.011-.098 0-.098-.019zm-7.105-1.911c.846-.852 1.599-1.627 1.674-1.728.171-.218.405-.732.472-1.015.026-.118.053-.352.058-.522l.011-.307.182-.051c.103-.028.193-.044.202-.034.023.025-1.207 4.321-1.246 4.36-.02.016-.677.213-1.464.436l-1.425.405 1.537-1.542zm8.289-3.06a1.371 1.371 0 0 1-.059-.187l-.044-.156.156-.028c1.339-.227 2.776-.856 3.908-1.713.16-.125.252-.171.265-.134.054.165.272.95.265.959-.034.034-4.48 1.282-4.492 1.261zm-15.083-1.3c-.05-.039-1.179-3.866-1.264-4.29-.016-.084.146-.044 2.174.536 2.121.604 2.192.629 2.222.74.028.098.011.129-.125.223-.084.059-.769.724-1.523 1.479a63.877 63.877 0 0 1-1.39 1.367c-.016 0-.056-.025-.093-.054zm.821-4.378c-1.188-.343-2.164-.623-2.167-.626-.016-.012 1.261-4.433 1.285-4.46.022-.022 4.422 1.211 4.469 1.252.009.009-.269 1.017-.618 2.239-.576 2.02-.643 2.224-.723 2.22-.05-.003-1.059-.285-2.247-.626zm2.959.538c.012-.031.212-.723.444-1.534l.42-1.476.056.321c.093.556.265 1.188.464 1.741.106.296.187.539.181.545-.008.006-.332.101-.719.212-.389.109-.741.21-.786.224-.058.016-.075.006-.059-.034zM4.905 6.112c-1.187-.339-2.167-.635-2.18-.654-.04-.062-1.246-4.321-1.23-4.338.026-.025 4.31 1.204 4.351 1.246.047.051 1.28 4.379 1.246 4.376L4.91 6.113zm2.148-1.713l-.519-1.806-.078-.28 1.693-.483c.934-.265 1.724-.495 1.76-.508.034-.016-.083.14-.26.336A8.729 8.729 0 0 0 7.69 5.23a4.348 4.348 0 0 0-.132.561c0 .293-.115-.025-.505-1.39z" /></svg></li>
+                            <li class="tile" aria-hidden="true" title="Google Gemini"><svg viewBox="0 0 24 24" aria-hidden="true" data-label="Google Gemini"><path d="M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81" /></svg></li>
+                            <li class="tile" aria-hidden="true" title="Excel spreadsheets"><svg viewBox="0 0 24 24" aria-hidden="true" data-label="Excel spreadsheets" class="tile-line"><rect x="3.5" y="4" width="17" height="16" rx="2.5" /><path d="M3.5 9.5h17M3.5 15h17M10 4v16" /></svg></li>
+                            <li class="tile" aria-hidden="true" title="CSV import and export"><svg viewBox="0 0 24 24" aria-hidden="true" data-label="CSV import and export" class="tile-line"><path d="M6.5 2.75h7.25l4.75 4.75v12.5a1.25 1.25 0 0 1-1.25 1.25H6.5A1.25 1.25 0 0 1 5.25 20V4A1.25 1.25 0 0 1 6.5 2.75z" /><path d="M13.5 2.75V7.5h5" /><text x="12" y="17.6" text-anchor="middle">CSV</text></svg></li>
+                            <li class="tile" aria-hidden="true" title="PDF reports"><svg viewBox="0 0 24 24" aria-hidden="true" data-label="PDF reports" class="tile-line"><path d="M6.5 2.75h7.25l4.75 4.75v12.5a1.25 1.25 0 0 1-1.25 1.25H6.5A1.25 1.25 0 0 1 5.25 20V4A1.25 1.25 0 0 1 6.5 2.75z" /><path d="M13.5 2.75V7.5h5" /><text x="12" y="17.6" text-anchor="middle">PDF</text></svg></li>
+                            <li class="tile" aria-hidden="true" title="Sign in with Google"><svg viewBox="0 0 24 24" aria-hidden="true" data-label="Sign in with Google"><path d="M12.48 10.92v3.28h7.84c-.24 1.84-.853 3.187-1.787 4.133-1.147 1.147-2.933 2.4-6.053 2.4-4.827 0-8.6-3.893-8.6-8.72s3.773-8.72 8.6-8.72c2.6 0 4.507 1.027 5.907 2.347l2.307-2.307C18.747 1.44 16.133 0 12.48 0 5.867 0 .307 5.387.307 12s5.56 12 12.173 12c3.573 0 6.267-1.173 8.373-3.36 2.16-2.16 2.84-5.213 2.84-7.667 0-.76-.053-1.467-.173-2.053H12.48z" /></svg></li>
+                            <li class="tile" aria-hidden="true" title="Google Maps"><svg viewBox="0 0 24 24" aria-hidden="true" data-label="Google Maps"><path d="M19.527 4.799c1.212 2.608.937 5.678-.405 8.173-1.101 2.047-2.744 3.74-4.098 5.614-.619.858-1.244 1.75-1.669 2.727-.141.325-.263.658-.383.992-.121.333-.224.673-.34 1.008-.109.314-.236.684-.627.687h-.007c-.466-.001-.579-.53-.695-.887-.284-.874-.581-1.713-1.019-2.525-.51-.944-1.145-1.817-1.79-2.671L19.527 4.799zM8.545 7.705l-3.959 4.707c.724 1.54 1.821 2.863 2.871 4.18.247.31.494.622.737.936l4.984-5.925-.029.01c-1.741.601-3.691-.291-4.392-1.987a3.377 3.377 0 0 1-.209-.716c-.063-.437-.077-.761-.004-1.198l.001-.007zM5.492 3.149l-.003.004c-1.947 2.466-2.281 5.88-1.117 8.77l4.785-5.689-.058-.05-3.607-3.035zM14.661.436l-3.838 4.563a.295.295 0 0 1 .027-.01c1.6-.551 3.403.15 4.22 1.626.176.319.323.683.377 1.045.068.446.085.773.012 1.22l-.003.016 3.836-4.561A8.382 8.382 0 0 0 14.67.439l-.009-.003zM9.466 5.868L14.162.285l-.047-.012A8.31 8.31 0 0 0 11.986 0a8.439 8.439 0 0 0-6.169 2.766l-.016.018 3.665 3.084z" /></svg></li>
+                            <li class="tile" aria-hidden="true" title="OpenStreetMap"><svg viewBox="0 0 24 24" aria-hidden="true" data-label="OpenStreetMap"><path d="M2.672 23.969c-.352-.089-.534-.234-1.471-1.168C.085 21.688.014 21.579.018 20.999c0-.645-.196-.414 3.368-3.986 3.6-3.608 3.415-3.451 4.064-3.449.302 0 .378.016.62.14l.277.14 1.744-1.744-.218-.343c-.425-.662-.825-1.629-1.006-2.429a7.657 7.657 0 0 1 1.479-6.44c2.49-3.12 6.959-3.812 10.26-1.588 1.812 1.218 2.99 3.099 3.328 5.314.07.467.07 1.579 0 2.074a7.554 7.554 0 0 1-2.205 4.402 6.712 6.712 0 0 1-1.943 1.401c-.959.483-1.775.71-2.881.803-1.573.131-3.32-.305-4.656-1.163l-.343-.218-1.744 1.744.14.28c.125.241.14.316.14.617.003.651.156.467-3.426 4.049-2.761 2.756-3.186 3.164-3.398 3.261-.271.125-.69.171-.945.106zM17.485 13.95a6.425 6.425 0 0 0 4.603-3.51c1.391-2.899.455-6.306-2.227-8.108-.638-.43-1.529-.794-2.367-.962-.581-.117-1.809-.104-2.414.025a6.593 6.593 0 0 0-2.452 1.064c-.444.315-1.177 1.048-1.487 1.487a6.384 6.384 0 0 0 .38 7.907 6.406 6.406 0 0 0 3.901 2.136c.509.078 1.542.058 2.065-.037zm-3.738 7.376a80.97 80.97 0 0 1-2.196-.651c-.025-.028 1.207-4.396 1.257-4.449.023-.026 4.242 1.152 4.414 1.236.062.026-.003.288-.525 2.102a398.513 398.513 0 0 0-.635 2.236c-.025.087-.069.156-.097.156-.028-.003-1.028-.287-2.219-.631zm2.912.524c0-.053 1.227-4.333 1.246-4.347.047-.034 4.324-1.23 4.341-1.211.019.019-1.199 4.337-1.23 4.36-.02.019-4.126 1.191-4.259 1.218-.054.011-.098 0-.098-.019zm-7.105-1.911c.846-.852 1.599-1.627 1.674-1.728.171-.218.405-.732.472-1.015.026-.118.053-.352.058-.522l.011-.307.182-.051c.103-.028.193-.044.202-.034.023.025-1.207 4.321-1.246 4.36-.02.016-.677.213-1.464.436l-1.425.405 1.537-1.542zm8.289-3.06a1.371 1.371 0 0 1-.059-.187l-.044-.156.156-.028c1.339-.227 2.776-.856 3.908-1.713.16-.125.252-.171.265-.134.054.165.272.95.265.959-.034.034-4.48 1.282-4.492 1.261zm-15.083-1.3c-.05-.039-1.179-3.866-1.264-4.29-.016-.084.146-.044 2.174.536 2.121.604 2.192.629 2.222.74.028.098.011.129-.125.223-.084.059-.769.724-1.523 1.479a63.877 63.877 0 0 1-1.39 1.367c-.016 0-.056-.025-.093-.054zm.821-4.378c-1.188-.343-2.164-.623-2.167-.626-.016-.012 1.261-4.433 1.285-4.46.022-.022 4.422 1.211 4.469 1.252.009.009-.269 1.017-.618 2.239-.576 2.02-.643 2.224-.723 2.22-.05-.003-1.059-.285-2.247-.626zm2.959.538c.012-.031.212-.723.444-1.534l.42-1.476.056.321c.093.556.265 1.188.464 1.741.106.296.187.539.181.545-.008.006-.332.101-.719.212-.389.109-.741.21-.786.224-.058.016-.075.006-.059-.034zM4.905 6.112c-1.187-.339-2.167-.635-2.18-.654-.04-.062-1.246-4.321-1.23-4.338.026-.025 4.31 1.204 4.351 1.246.047.051 1.28 4.379 1.246 4.376L4.91 6.113zm2.148-1.713l-.519-1.806-.078-.28 1.693-.483c.934-.265 1.724-.495 1.76-.508.034-.016-.083.14-.26.336A8.729 8.729 0 0 0 7.69 5.23a4.348 4.348 0 0 0-.132.561c0 .293-.115-.025-.505-1.39z" /></svg></li>
+                            <li class="tile" aria-hidden="true" title="Google Gemini"><svg viewBox="0 0 24 24" aria-hidden="true" data-label="Google Gemini"><path d="M11.04 19.32Q12 21.51 12 24q0-2.49.93-4.68.96-2.19 2.58-3.81t3.81-2.55Q21.51 12 24 12q-2.49 0-4.68-.93a12.3 12.3 0 0 1-3.81-2.58 12.3 12.3 0 0 1-2.58-3.81Q12 2.49 12 0q0 2.49-.96 4.68-.93 2.19-2.55 3.81a12.3 12.3 0 0 1-3.81 2.58Q2.49 12 0 12q2.49 0 4.68.96 2.19.93 3.81 2.55t2.55 3.81" /></svg></li>
+                            <li class="tile" aria-hidden="true" title="Excel spreadsheets"><svg viewBox="0 0 24 24" aria-hidden="true" data-label="Excel spreadsheets" class="tile-line"><rect x="3.5" y="4" width="17" height="16" rx="2.5" /><path d="M3.5 9.5h17M3.5 15h17M10 4v16" /></svg></li>
+                            <li class="tile" aria-hidden="true" title="CSV import and export"><svg viewBox="0 0 24 24" aria-hidden="true" data-label="CSV import and export" class="tile-line"><path d="M6.5 2.75h7.25l4.75 4.75v12.5a1.25 1.25 0 0 1-1.25 1.25H6.5A1.25 1.25 0 0 1 5.25 20V4A1.25 1.25 0 0 1 6.5 2.75z" /><path d="M13.5 2.75V7.5h5" /><text x="12" y="17.6" text-anchor="middle">CSV</text></svg></li>
+                            <li class="tile" aria-hidden="true" title="PDF reports"><svg viewBox="0 0 24 24" aria-hidden="true" data-label="PDF reports" class="tile-line"><path d="M6.5 2.75h7.25l4.75 4.75v12.5a1.25 1.25 0 0 1-1.25 1.25H6.5A1.25 1.25 0 0 1 5.25 20V4A1.25 1.25 0 0 1 6.5 2.75z" /><path d="M13.5 2.75V7.5h5" /><text x="12" y="17.6" text-anchor="middle">PDF</text></svg></li>
                         </ul>
                     </div>
 
-                    <div class="px-view" data-view="ai" role="tabpanel">
-                        <div class="px-headline-row">
-                            <span class="px-kicker">AI Copilot</span>
-                            <span class="px-chip success px-dynamic-chip" data-chip="ai">3 insights generated</span>
+                    <div class="connect-split">
+                        <div class="connect-copy">
+                            <h3 class="split-title split-title-dark">Import. Export. Report.
+                                <span>Your data never gets stuck.</span></h3>
+                            <a href="pages/documentation.html" class="btn btn-ghost btn-sm">Read the docs <span
+                                    aria-hidden="true">→</span></a>
                         </div>
-                        <div class="px-ai-chat">
-                            <div class="px-bubble user">Summarize the Acme meeting and suggest next best action.</div>
-                            <div class="px-bubble ai" id="px-ai-typebox"
-                                data-summary="Stakeholders agreed on rollout scope for 2 regions."
-                                data-next="Send revised commercial terms and schedule security review.">
-                                <div><strong>Summary:</strong> <span class="px-type px-type-summary"></span></div>
-                                <div><strong>Next Action:</strong> <span class="px-type px-type-next"></span></div>
-                            </div>
-                            <div class="px-ai-actions">
-                                <button class="px-mini-btn">Create follow-up task</button>
-                                <button class="px-mini-btn">Send summary to team</button>
-                            </div>
+                        <div class="connect-art" aria-hidden="true">
+                            <svg class="route-art" viewBox="0 0 560 320" preserveAspectRatio="xMidYMid slice">
+                                <g class="lattice">
+                                    <path d="M-40 320 L200 -40 M60 320 L300 -40 M160 320 L400 -40 M260 320 L500 -40 M360 320 L600 -40 M460 320 L700 -40" />
+                                    <path d="M-40 -40 L200 320 M60 -40 L300 320 M160 -40 L400 320 M260 -40 L500 320 M360 -40 L600 320 M460 -40 L700 320" />
+                                </g>
+                                <path class="route-line" d="M70 250 L150 190 Q160 182 172 188 L232 220 Q244 226 252 216 L318 132 Q326 122 338 127 L414 160 Q426 165 434 155 L496 74" />
+                                <g class="route-stops">
+                                    <circle cx="70" cy="250" r="5" class="route-start" />
+                                    <g transform="translate(160 184)"><circle r="11" /><text y="3.6">1</text></g>
+                                    <g transform="translate(242 222)"><circle r="11" /><text y="3.6">2</text></g>
+                                    <g transform="translate(326 124)"><circle r="11" /><text y="3.6">3</text></g>
+                                    <g transform="translate(424 162)"><circle r="11" /><text y="3.6">4</text></g>
+                                    <g transform="translate(496 74)"><circle r="11" /><text y="3.6">5</text></g>
+                                </g>
+                            </svg>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Testimonial Quote -->
-    <!-- Premium Testimonials -->
-    <!-- Premium Testimonials (Cinematic Spotlight) -->
-    <section class="premium-testimonials">
-        <div class="container">
-            <div class="t-carousel-container">
-                <!-- Slide 1 -->
-                <div class="t-slide active">
-                    <div class="t-image-wrapper">
-                        <img src="assets/illustrations/people-faces/2.jpg" alt="Elena Rodriguez">
-                    </div>
-                    <div class="t-content">
-                        <p class="t-quote">"I was skeptical at first, but SafiTrack actually delivered. We're saving a
-                            full day of planning every week now. It’s just... way easier."</p>
-                        <div class="t-author">
-                            <div class="t-info">
-                                <span class="t-name">Elena Rodriguez</span>
-                                <span class="t-role">Logistics Manager</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 2 -->
-                <div class="t-slide">
-                    <div class="t-image-wrapper">
-                        <img src="assets/illustrations/people-faces/3.jpg" alt="Aisha Washington">
-                    </div>
-                    <div class="t-content">
-                        <p class="t-quote">"I used to spend Sunday nights catching up on meeting notes. Now, the AI
-                            handles it and I'm done. Real life-saver."</p>
-                        <div class="t-author">
-                            <div class="t-info">
-                                <span class="t-name">Aisha Washington</span>
-                                <span class="t-role">Director of Sales</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 3 -->
-                <div class="t-slide">
-                    <div class="t-image-wrapper">
-                        <img src="assets/illustrations/people-faces/4.jpg" alt="Kenji Tanaka">
-                    </div>
-                    <div class="t-content">
-                        <p class="t-quote">"Most CRMs feel like they're from 1995. SafiTrack is the first one I don't
-                            have to fight. It's snappy and the team actually wants to use it."</p>
-                        <div class="t-author">
-                            <div class="t-info">
-                                <span class="t-name">Kenji Tanaka</span>
-                                <span class="t-role">Tech Operations Lead</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 4 -->
-                <div class="t-slide">
-                    <div class="t-image-wrapper">
-                        <img src="assets/illustrations/people-faces/5.jpg" alt="James Caldwell">
-                    </div>
-                    <div class="t-content">
-                        <p class="t-quote">"We just wanted something that didn't break every day. SafiTrack gave us that
-                            and more. Efficiency is up, but mostly, the team is just less stressed."</p>
-                        <div class="t-author">
-                            <div class="t-info">
-                                <span class="t-name">James Caldwell</span>
-                                <span class="t-role">Senior Field Manager</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- Slide 5 -->
-                <div class="t-slide">
-                    <div class="t-image-wrapper">
-                        <img src="assets/illustrations/people-faces/6.jpg" alt="Emma Sterling">
-                    </div>
-                    <div class="t-content">
-                        <p class="t-quote">"No more pestering my team for updates every morning. I just open the
-                            pipeline and it's all there. It's given me my time back."</p>
-                        <div class="t-author">
-                            <div class="t-info">
-                                <span class="t-name">Emma Sterling</span>
-                                <span class="t-role">Chief Revenue Officer</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="t-controls-bar">
-                    <div class="t-pagination">
-                        <span class="t-current">01</span>
-                        <div class="t-segments">
-                            <div class="t-seg">
-                                <div class="t-seg-fill"></div>
-                            </div>
-                            <div class="t-seg">
-                                <div class="t-seg-fill"></div>
-                            </div>
-                            <div class="t-seg">
-                                <div class="t-seg-fill"></div>
-                            </div>
-                            <div class="t-seg">
-                                <div class="t-seg-fill"></div>
-                            </div>
-                            <div class="t-seg">
-                                <div class="t-seg-fill"></div>
-                            </div>
-                        </div>
-                        <span class="t-total">05</span>
+        <!-- ============ Customers ============ -->
+        <section class="customers" aria-labelledby="customers-title">
+            <div class="wrap">
+                <div class="rail">
+                    <header class="customers-head">
+                        <p class="tag">Customers</p>
+                        <h2 class="split-title" id="customers-title">Trusted by teams in the field.
+                            <span>Here's what they told us.</span></h2>
+                    </header>
+                    <div class="logo-cells">
+                        <div><img src="assets/companylogos/logo1.png" alt="45 Degrees" height="28"></div>
+                        <div><img src="assets/companylogos/logo2.png" alt="Customer logo" height="28"></div>
+                        <div><img src="assets/companylogos/logo3.png" alt="Capsule" height="28"></div>
+                        <div><img src="assets/companylogos/logo4.png" alt="Customer logo" height="28"></div>
+                        <div><img src="assets/companylogos/logo5.png" alt="Eclipseful" height="28"></div>
+                        <div><img src="assets/companylogos/logo6.png" alt="Goodwell" height="28"></div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Pricing Section -->
-    <section class="pricing" id="pricing">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="section-title">Simple, transparent pricing</h2>
-                <p class="section-subtitle">Choose the plan that fits your team size and needs</p>
-            </div>
-            <div class="pricing-grid">
-                <div class="price-card">
-                    <div class="price-header">
-                        <h3 class="price-name">Free</h3>
-                        <div class="price-amount">
-                            <span class="price-currency">$</span>
-                            <span class="price-value">0</span>
+        <!-- ============ Testimonials ============ -->
+        <section class="premium-testimonials">
+            <div class="wrap">
+                <div class="t-carousel-container">
+                    <!-- Slide 1 -->
+                    <div class="t-slide active">
+                        <div class="t-image-wrapper">
+                            <img src="assets/illustrations/people-faces/2.jpg" alt="Elena Rodriguez">
                         </div>
-                        <div class="price-period">Per user/month</div>
-                        <p class="price-description">A simple, no-cost starter for very small teams</p>
-                    </div>
-                    <ul class="price-features">
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Up to 2 users</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Contact management</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Pipeline tracking</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Basic reporting</span>
-                        </li>
-                    </ul>
-                    <a href="/crm/?signup=1" class="btn-secondary btn-block">Start for free</a>
-                </div>
-                <div class="price-card">
-                    <div class="price-header">
-                        <h3 class="price-name">Core</h3>
-                        <div class="price-amount">
-                            <span class="price-currency">$</span>
-                            <span class="price-value">19</span>
-                        </div>
-                        <div class="price-period">Per user/month</div>
-                        <p class="price-description">Perfect for small teams getting started</p>
-                    </div>
-                    <ul class="price-features">
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Up to 20 users</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Contact management</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Pipeline tracking</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Basic reporting</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Email support</span>
-                        </li>
-                    </ul>
-                    <button class="btn-secondary btn-block get-started-btn" data-plan="Core">Continue with
-                        Core</button>
-                </div>
-
-                <div class="price-card price-card-featured">
-                    <div class="price-badge">Most Popular</div>
-                    <div class="price-header">
-                        <h3 class="price-name">Pro</h3>
-                        <div class="price-amount">
-                            <span class="price-currency">$</span>
-                            <span class="price-value">79</span>
-                        </div>
-                        <div class="price-period">Per user/month</div>
-                        <p class="price-description">For growing teams that need more power</p>
-                    </div>
-                    <ul class="price-features">
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Unlimited users</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Advanced analytics</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Route planning</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Custom workflows</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Priority support</span>
-                        </li>
-                    </ul>
-                    <button class="btn-primary btn-block get-started-btn" data-plan="Professional">Continue with
-                        Pro</button>
-                </div>
-
-                <div class="price-card">
-                    <div class="price-header">
-                        <h3 class="price-name">Enterprise</h3>
-                        <div class="price-amount">
-                            <span class="price-value">Custom</span>
-                        </div>
-                        <p class="price-description">Custom plans for large teams and dedicated support</p>
-                    </div>
-                    <ul class="price-features">
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Custom user seats</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Advanced analytics</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Priority support</span>
-                        </li>
-                    </ul>
-                    <button class="btn-secondary btn-block get-started-btn" data-plan="Enterprise">Let&apos;s
-                        Talk</button>
-                </div>
-
-            </div>
-        </div>
-    </section>
-
-    <!-- Scale & Performance Section -->
-    <section class="scale-performance">
-        <div class="container">
-            <div class="scale-content">
-                <div class="scale-header">
-                    <h2 class="scale-title">
-                        The modern CRM for scaling businesses.
-                        <span>SafiTrack is built for scale. Our customers manage relationships and close deals with
-                            clarity and control.</span>
-                    </h2>
-                </div>
-
-                <div class="scale-grid">
-                    <div class="scale-metric">
-                        <div class="metric-val">10,000+</div>
-                        <div class="metric-label">deals tracked</div>
-                    </div>
-                    <div class="scale-metric">
-                        <div class="metric-val">100+</div>
-                        <div class="metric-label">customers</div>
-                    </div>
-                    <div class="scale-metric">
-                        <div class="metric-val">500+</div>
-                        <div class="metric-label">teams</div>
-                    </div>
-                    <div class="scale-metric">
-                        <div class="metric-val">99.9%</div>
-                        <div class="metric-label">uptime</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Animated Growth Curve SVG -->
-        <div class="scale-visual">
-            <svg class="growth-curve-svg" viewBox="0 0 1440 400" preserveAspectRatio="none">
-                <!-- Pronounced exponential curve -->
-                <path class="growth-curve-path" d="M0,370 C600,370 1100,250 1440,20" fill="none"
-                    stroke="var(--color-primary)" stroke-width="2.5" />
-                <g class="grid-lines">
-                    <line x1="80" y1="0" x2="80" y2="400" />
-                    <line x1="160" y1="0" x2="160" y2="400" />
-                    <line x1="240" y1="0" x2="240" y2="400" />
-                    <line x1="320" y1="0" x2="320" y2="400" />
-                    <line x1="400" y1="0" x2="400" y2="400" />
-                    <line x1="480" y1="0" x2="480" y2="400" />
-                    <line x1="560" y1="0" x2="560" y2="400" />
-                    <line x1="640" y1="0" x2="640" y2="400" />
-                    <line x1="720" y1="0" x2="720" y2="400" />
-                    <line x1="800" y1="0" x2="800" y2="400" />
-                    <line x1="880" y1="0" x2="880" y2="400" />
-                    <line x1="960" y1="0" x2="960" y2="400" />
-                    <line x1="1040" y1="0" x2="1040" y2="400" />
-                    <line x1="1120" y1="0" x2="1120" y2="400" />
-                    <line x1="1200" y1="0" x2="1200" y2="400" />
-                    <line x1="1280" y1="0" x2="1280" y2="400" />
-                    <line x1="1360" y1="0" x2="1360" y2="400" />
-                </g>
-            </svg>
-        </div>
-    </section>
-
-    <!-- Contact Modal -->
-    <div id="contact-modal" class="modal">
-        <div class="modal-content premium-split">
-            <button class="close-modal" aria-label="Close Modal">&times;</button>
-
-            <!-- Left Side: Value Prop -->
-            <div class="modal-sidebar">
-                <div class="sidebar-badge">Join the club</div>
-                <h2 class="sidebar-title">Want to supercharge your sales? 🚀</h2>
-                <p class="sidebar-desc">Join 500+ happy teams using SafiTrack to make their work day a little easier and
-                    their pipeline a lot bigger.</p>
-
-                <ul class="modal-value-list">
-                    <li>
-                        <div class="v-icon">✨</div>
-                        <div class="v-text">
-                            <strong>Personalized Demo</strong>
-                            <span>See how SafiTrack fits your specific workflow.</span>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="v-icon">🚀</div>
-                        <div class="v-text">
-                            <strong>15-Min Setup</strong>
-                            <span>Get your whole team onboarded in minutes.</span>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="v-icon">🛡️</div>
-                        <div class="v-text">
-                            <strong>No Commitment</strong>
-                            <span>Start with a 14-day trial. No credit card required.</span>
-                        </div>
-                    </li>
-                </ul>
-
-                <div class="sidebar-footer">
-                    <div class="trust-avatars">
-                        <div class="t-av"></div>
-                        <div class="t-av"></div>
-                        <div class="t-av"></div>
-                        <span>Trusted by leading sales teams</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Side: The Form -->
-            <div class="modal-form-area">
-                <div class="form-header">
-                    <h3>Get Started</h3>
-                    <div class="step-indicator">
-                        <div class="step-dot active" data-step="1"></div>
-                        <div class="step-line"></div>
-                        <div class="step-dot" data-step="2"></div>
-                        <div class="step-line"></div>
-                        <div class="step-dot" data-step="3"></div>
-                    </div>
-                </div>
-
-                <form id="contact-form">
-                    <input type="hidden" name="plan" id="selected-plan" value="General">
-
-                    <!-- Step 1: Personal -->
-                    <div class="form-step active" data-step="1">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="first_name">First Name</label>
-                                <input type="text" id="first_name" name="first_name" placeholder="Eric" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="last_name">Last Name</label>
-                                <input type="text" id="last_name" name="last_name" placeholder="Brooks" required>
+                        <div class="t-content">
+                            <p class="t-quote">"I was skeptical at first, but SafiTrack actually delivered. We're saving a
+                                full day of planning every week now. It’s just... way easier."</p>
+                            <div class="t-author">
+                                <div class="t-info">
+                                    <span class="t-name">Elena Rodriguez</span>
+                                    <span class="t-role">Logistics Manager</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="job_title">Job Title</label>
-                            <input type="text" id="job_title" name="job_title" placeholder="Sales Director" required>
-                        </div>
-                        <div class="form-actions-step">
-                            <button type="button" class="btn-primary btn-block next-step">Continue →</button>
-                        </div>
                     </div>
-
-                    <!-- Step 2: Company -->
-                    <div class="form-step" data-step="2">
-                        <div class="form-group">
-                            <label for="company_name">Company Name</label>
-                            <input type="text" id="company_name" name="company_name" placeholder="Acme Inc." required>
+                    <!-- Slide 2 -->
+                    <div class="t-slide">
+                        <div class="t-image-wrapper">
+                            <img src="assets/illustrations/people-faces/3.jpg" alt="Aisha Washington">
                         </div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="company_size">Company Size</label>
-                                <select id="company_size" name="company_size" required>
-                                    <option value="" disabled selected>Select size</option>
-                                    <option value="1-10">1-10 employees</option>
-                                    <option value="11-50">11-50 employees</option>
-                                    <option value="51-200">51-200 employees</option>
-                                    <option value="201-500">201-500 employees</option>
-                                    <option value="501+">501+ employees</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="region">Country / Region</label>
-                                <select id="region" name="region" required>
-                                    <option value="" disabled selected>Select country</option>
-                                    <option value="US">United States</option>
-                                    <option value="UK">United Kingdom</option>
-                                    <option value="CA">Canada</option>
-                                    <option value="AU">Australia</option>
-                                    <option value="DE">Germany</option>
-                                    <option value="FR">France</option>
-                                    <option value="IN">India</option>
-                                    <option value="KE">Kenya</option>
-                                    <option value="NG">Nigeria</option>
-                                    <option value="ZA">South Africa</option>
-                                    <option value="AE">United Arab Emirates</option>
-                                    <option value="OTHER">Other</option>
-                                </select>
+                        <div class="t-content">
+                            <p class="t-quote">"I used to spend Sunday nights catching up on meeting notes. Now, the AI
+                                handles it and I'm done. Real life-saver."</p>
+                            <div class="t-author">
+                                <div class="t-info">
+                                    <span class="t-name">Aisha Washington</span>
+                                    <span class="t-role">Director of Sales</span>
+                                </div>
                             </div>
                         </div>
-                        <div class="form-actions-step split">
-                            <button type="button" class="btn-secondary prev-step">Back</button>
-                            <button type="button" class="btn-primary next-step">Next Step →</button>
+                    </div>
+                    <!-- Slide 3 -->
+                    <div class="t-slide">
+                        <div class="t-image-wrapper">
+                            <img src="assets/illustrations/people-faces/4.jpg" alt="Kenji Tanaka">
+                        </div>
+                        <div class="t-content">
+                            <p class="t-quote">"Most CRMs feel like they're from 1995. SafiTrack is the first one I don't
+                                have to fight. It's snappy and the team actually wants to use it."</p>
+                            <div class="t-author">
+                                <div class="t-info">
+                                    <span class="t-name">Kenji Tanaka</span>
+                                    <span class="t-role">Tech Operations Lead</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Slide 4 -->
+                    <div class="t-slide">
+                        <div class="t-image-wrapper">
+                            <img src="assets/illustrations/people-faces/5.jpg" alt="James Caldwell">
+                        </div>
+                        <div class="t-content">
+                            <p class="t-quote">"We just wanted something that didn't break every day. SafiTrack gave us that
+                                and more. Efficiency is up, but mostly, the team is just less stressed."</p>
+                            <div class="t-author">
+                                <div class="t-info">
+                                    <span class="t-name">James Caldwell</span>
+                                    <span class="t-role">Senior Field Manager</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Slide 5 -->
+                    <div class="t-slide">
+                        <div class="t-image-wrapper">
+                            <img src="assets/illustrations/people-faces/6.jpg" alt="Emma Sterling">
+                        </div>
+                        <div class="t-content">
+                            <p class="t-quote">"No more pestering my team for updates every morning. I just open the
+                                pipeline and it's all there. It's given me my time back."</p>
+                            <div class="t-author">
+                                <div class="t-info">
+                                    <span class="t-name">Emma Sterling</span>
+                                    <span class="t-role">Chief Revenue Officer</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <!-- Step 3: Final -->
-                    <div class="form-step" data-step="3">
-                        <div class="form-group">
-                            <label for="from_email">Work Email</label>
-                            <input type="email" id="from_email" name="from_email" placeholder="eric@company.com"
-                                required>
-                        </div>
-                        <div class="form-group checkbox-group">
-                            <label class="checkbox-container">
-                                <input type="checkbox" name="terms" required>
-                                <span class="checkmark"></span>
-                                <span class="checkbox-text">I agree to the <a href="pages/legal/terms.html">Terms of
-                                        Service</a> and <a href="pages/legal/privacy.html">Privacy Policy</a>.</span>
-                            </label>
-                        </div>
-                        <div class="form-actions-step split">
-                            <button type="button" class="btn-secondary prev-step">Back</button>
-                            <button type="submit" class="btn-primary" id="submit-btn" style="flex: 2;">
-                                <span>Request Access →</span>
-                                <div class="btn-loader" style="display: none;"></div>
-                            </button>
+                    <div class="t-controls-bar">
+                        <div class="t-pagination">
+                            <span class="t-current">01</span>
+                            <div class="t-segments">
+                                <div class="t-seg">
+                                    <div class="t-seg-fill"></div>
+                                </div>
+                                <div class="t-seg">
+                                    <div class="t-seg-fill"></div>
+                                </div>
+                                <div class="t-seg">
+                                    <div class="t-seg-fill"></div>
+                                </div>
+                                <div class="t-seg">
+                                    <div class="t-seg-fill"></div>
+                                </div>
+                                <div class="t-seg">
+                                    <div class="t-seg-fill"></div>
+                                </div>
+                            </div>
+                            <span class="t-total">05</span>
                         </div>
                     </div>
-                </form>
-
-                <div id="form-success" style="display: none;" class="form-feedback success">
-                    <div class="feedback-icon" style="background: none; font-size: 48px;">👋</div>
-                    <h3>We got it! High five!</h3>
-                    <p>One of our friendly specialists will reach out to you within 2 hours. Hang tight!</p>
-                    <button class="btn-secondary btn-block close-feedback">Back to Site</button>
-                </div>
-
-                <div id="form-error" style="display: none;" class="form-feedback error">
-                    <div class="feedback-icon">✕</div>
-                    <h3>Connection Error</h3>
-                    <p>We couldn't process your request. Please check your connection and try again.</p>
-                    <button class="btn-secondary btn-block close-feedback">Try Again</button>
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- CTA Section -->
-    <section class="cta">
-        <div class="container">
-            <div class="cta-content">
-                <h2 class="cta-title">Ready to run revenue with confidence?</h2>
-                <p class="cta-description">
-                    See how SafiTrack helps your team prioritize the right deals and execute faster.
-                </p>
-                <div class="cta-actions">
-                    <button class="btn-primary btn-lg get-started-btn">Book a Demo</button>
-                    <span class="cta-note">Personalized walkthrough • No commitment</span>
+        <!-- ============ Pricing ============ -->
+        <section class="pricing" id="pricing">
+            <div class="wrap">
+                <header class="section-head section-head-split">
+                    <div>
+                        <p class="eyebrow">Pricing</p>
+                        <h2 class="section-title">Start free. Grow when you're ready.</h2>
+                    </div>
+                    <a href="pages/pricing.html" class="text-link">Compare all plans <span aria-hidden="true">→</span></a>
+                </header>
+
+                <div class="plans">
+                    <div class="plan">
+                        <h3 class="plan-name">Free</h3>
+                        <p class="plan-price"><span>$0</span></p>
+                        <p class="plan-desc">For trying SafiTrack with a very small team.</p>
+                        <a href="/crm/?signup=1" class="btn btn-light btn-block">Start for free</a>
+                        <ul class="plan-list">
+                            <li>Up to 2 users</li>
+                            <li>Contact management</li>
+                            <li>Pipeline tracking</li>
+                            <li>Basic reporting</li>
+                        </ul>
+                    </div>
+                    <div class="plan">
+                        <h3 class="plan-name">Core</h3>
+                        <p class="plan-price"><span>$19</span> per user / month</p>
+                        <p class="plan-desc">For small teams getting organised.</p>
+                        <button type="button" class="btn btn-light btn-block" data-contact data-plan="Core">Choose
+                            Core</button>
+                        <ul class="plan-list">
+                            <li>Up to 20 users</li>
+                            <li>Contact management</li>
+                            <li>Pipeline tracking</li>
+                            <li>Basic reporting</li>
+                            <li>Email support</li>
+                        </ul>
+                    </div>
+                    <div class="plan plan-featured">
+                        <h3 class="plan-name">Pro <span class="plan-tag">Popular</span></h3>
+                        <p class="plan-price"><span>$79</span> per user / month</p>
+                        <p class="plan-desc">For growing teams running in the field.</p>
+                        <button type="button" class="btn btn-dark btn-block" data-contact
+                            data-plan="Professional">Choose Pro</button>
+                        <ul class="plan-list">
+                            <li>Unlimited users</li>
+                            <li>Route planning</li>
+                            <li>Advanced analytics</li>
+                            <li>Custom workflows</li>
+                            <li>Priority support</li>
+                        </ul>
+                    </div>
+                    <div class="plan">
+                        <h3 class="plan-name">Enterprise</h3>
+                        <p class="plan-price"><span>Custom</span></p>
+                        <p class="plan-desc">For large teams that need dedicated support.</p>
+                        <button type="button" class="btn btn-light btn-block" data-contact
+                            data-plan="Enterprise">Talk to sales</button>
+                        <ul class="plan-list">
+                            <li>Custom user seats</li>
+                            <li>Advanced analytics</li>
+                            <li>Priority support</li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
+        <!-- ============ CTA (dark) ============ -->
+        <section class="cta" data-theme="dark">
+            <div class="wrap">
+                <div class="rail rail-dark cta-box">
+                    <h2 class="cta-title">Put your field team on SafiTrack.</h2>
+                    <p class="cta-sub">Free for up to 2 users. Upgrade when your team grows.</p>
+                    <div class="hero-actions">
+                        <button type="button" class="btn btn-ghost btn-lg" data-contact>Talk to sales</button>
+                        <a href="/crm/?signup=1" class="btn btn-white btn-lg">Start for free</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============ Footer (dark) ============ -->
+    <footer class="footer" data-theme="dark">
+        <div class="wrap">
+            <div class="footer-top">
                 <div class="footer-brand">
-                    <div class="footer-logo-wrapper">
-                        <img src="assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
-                    </div>
+                    <img src="assets/icons/transparentMain.png" alt="SafiTrack" width="124" height="29">
+                    <p>The CRM for field sales teams.</p>
                 </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Product</h4>
-                        <ul>
-                            <li><a href="/pages/features/mainfeatures.html">Features</a></li>
-                            <li><a href="/pages/pricing.html">Pricing</a></li>
-                            <li><a href="pages/integrations.html">Integrations</a></li>
-                            <li><a href="pages/comparison.html">Compare</a></li>
-                        </ul>
+                <div class="footer-cols">
+                    <div>
+                        <p class="footer-heading">Product</p>
+                        <a href="pages/features/mainfeatures.html">Features</a>
+                        <a href="pages/features/safi-ai-feature.html">Safi AI</a>
+                        <a href="pages/features/route-plans-feature.html">Route plans</a>
+                        <a href="pages/pricing.html">Pricing</a>
+                        <a href="pages/integrations.html">Integrations</a>
+                        <a href="pages/comparison.html">Compare</a>
                     </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Company</h4>
-                        <ul>
-                            <li><a href="pages/blog.html">Blog</a></li>
-                            <li><a href="pages/careers.html">Careers</a></li>
-                        </ul>
+                    <div>
+                        <p class="footer-heading">Company</p>
+                        <a href="pages/blog.html">Blog</a>
+                        <a href="pages/careers.html">Careers</a>
+                        <a href="pages/security.html">Security</a>
                     </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Resources</h4>
-                        <ul>
-                            <li><a href="pages/documentation.html">Documentation</a></li>
-                            <li><a href="pages/helpcenter.html">Help Center</a></li>
-                            <li><a href="pages/apireference.html">API Reference</a></li>
-                            <li><a href="pages/status.html">Status</a></li>
-                        </ul>
+                    <div>
+                        <p class="footer-heading">Resources</p>
+                        <a href="pages/documentation.html">Documentation</a>
+                        <a href="pages/helpcenter.html">Help center</a>
+                        <a href="pages/apireference.html">API reference</a>
+                        <a href="pages/status.html">System status</a>
                     </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Legal</h4>
-                        <ul>
-                            <li><a href="pages/legal/privacy.html">Privacy Policy</a></li>
-                            <li><a href="pages/legal/terms.html">Terms of Service</a></li>
-                            <li><a href="pages/security.html">Security</a></li>
-                        </ul>
+                    <div>
+                        <p class="footer-heading">Get started</p>
+                        <a href="/crm/?signup=1">Create an account</a>
+                        <a href="/crm/">Sign in</a>
+                        <button type="button" class="footer-link" data-contact>Talk to sales</button>
                     </div>
                 </div>
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-                <div class="footer-social">
-                    <a href="#" aria-label="Twitter">Twitter</a>
-                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
-                    <a href="#" aria-label="GitHub">GitHub</a>
-                </div>
+                <nav aria-label="Legal">
+                    <a href="pages/legal/terms.html">Terms of service</a>
+                    <a href="pages/legal/privacy.html">Privacy policy</a>
+                </nav>
             </div>
         </div>
     </footer>
 
-    <script src="landing.js"></script>
+    <!-- ============ Contact dialog ============ -->
+    <dialog class="contact" id="contact" aria-labelledby="contact-title">
+        <button type="button" class="contact-close" data-close aria-label="Close">
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+                <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+        </button>
+
+        <div class="contact-body" data-state="form">
+            <h2 class="contact-title" id="contact-title">Talk to sales</h2>
+            <p class="contact-sub">Tell us a little about your team and we'll be in touch to set up a walkthrough.</p>
+
+            <form id="contact-form" novalidate>
+                <input type="hidden" name="plan" id="selected-plan" value="General">
+                <div class="field-row">
+                    <label class="field">
+                        <span>First name</span>
+                        <input type="text" name="first_name" autocomplete="given-name" required>
+                    </label>
+                    <label class="field">
+                        <span>Last name</span>
+                        <input type="text" name="last_name" autocomplete="family-name" required>
+                    </label>
+                </div>
+                <label class="field">
+                    <span>Work email</span>
+                    <input type="email" name="from_email" autocomplete="email" required>
+                </label>
+                <div class="field-row">
+                    <label class="field">
+                        <span>Company</span>
+                        <input type="text" name="company_name" autocomplete="organization" required>
+                    </label>
+                    <label class="field">
+                        <span>Job title</span>
+                        <input type="text" name="job_title" autocomplete="organization-title" required>
+                    </label>
+                </div>
+                <div class="field-row">
+                    <label class="field">
+                        <span>Team size</span>
+                        <select name="company_size" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="1-10">1–10</option>
+                            <option value="11-50">11–50</option>
+                            <option value="51-200">51–200</option>
+                            <option value="201-500">201–500</option>
+                            <option value="501+">501+</option>
+                        </select>
+                    </label>
+                    <label class="field">
+                        <span>Country</span>
+                        <select name="region" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="KE">Kenya</option>
+                            <option value="NG">Nigeria</option>
+                            <option value="ZA">South Africa</option>
+                            <option value="AE">United Arab Emirates</option>
+                            <option value="IN">India</option>
+                            <option value="UK">United Kingdom</option>
+                            <option value="US">United States</option>
+                            <option value="CA">Canada</option>
+                            <option value="AU">Australia</option>
+                            <option value="DE">Germany</option>
+                            <option value="FR">France</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </label>
+                </div>
+                <label class="check">
+                    <input type="checkbox" name="terms" required>
+                    <span>I agree to the <a href="pages/legal/terms.html">Terms</a> and
+                        <a href="pages/legal/privacy.html">Privacy Policy</a>.</span>
+                </label>
+                <button type="submit" class="btn btn-dark btn-block btn-lg" id="contact-submit">Send request</button>
+            </form>
+        </div>
+
+        <div class="contact-body contact-result" data-state="success" hidden>
+            <h2 class="contact-title">Thanks, we've got it.</h2>
+            <p class="contact-sub">Someone from our team will reach out to the email you gave us shortly.</p>
+            <button type="button" class="btn btn-light btn-block" data-close>Done</button>
+        </div>
+
+        <div class="contact-body contact-result" data-state="error" hidden>
+            <h2 class="contact-title">That didn't go through.</h2>
+            <p class="contact-sub">Please check your connection and try again.</p>
+            <button type="button" class="btn btn-dark btn-block" data-retry>Try again</button>
+        </div>
+    </dialog>
 </body>
 
 </html>

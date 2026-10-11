@@ -1,1249 +1,622 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Safi AI — SafiTrack CRM</title>
-<meta name="description" content="Safi AI is your CRM copilot. Deal scoring, visit summarization, natural language pipeline queries, and proactive insights — built directly into SafiTrack.">
-<meta property="og:type" content="website">
-<meta property="og:title" content="Safi AI — SafiTrack CRM">
-<meta property="og:description" content="Safi AI is your CRM copilot. Deal scoring, visit summarization, natural language pipeline queries, and proactive insights.">
-<meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
-<link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../../landing.css">
-<link rel="stylesheet" href="feature-page.css">
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --white:#ffffff;
-  --off:#f7f7f5;
-  --off2:#f0efed;
-  --off3:#e8e7e4;
-  --ink:#111110;
-  --ink2:#4a4a48;
-  --ink3:#7a7a78;
-  --ink4:#a8a8a6;
-  --rule:rgba(17,17,16,.09);
-  --rule2:rgba(17,17,16,.15);
-  --accent:#0b1220;
-  --accent-bg:rgba(11,17,32,0.06);
-  --accent-border:rgba(11,17,32,0.12);
-  --green:#15803d;
-  --green-bg:#f0fdf4;
-  --green-border:#bbf7d0;
-  --amber:#92400e;
-  --amber-bg:#fffbeb;
-  --amber-border:#fde68a;
-  --red:#b91c1c;
-  --red-bg:#fef2f2;
-  --red-border:#fecaca;
-  --serif:'Instrument Serif',Georgia,serif;
-  --sans:'Manrope',system-ui,sans-serif;
-  --r:12px;
-  --shadow:0 1px 3px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.06),0 12px 40px rgba(0,0,0,.06);
-  --shadow-lg:0 2px 4px rgba(0,0,0,.05),0 8px 32px rgba(0,0,0,.09),0 24px 72px rgba(0,0,0,.08);
-}
-html{scroll-behavior:smooth}
-body{background:var(--white);color:var(--ink);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Safi AI | SafiTrack</title>
+    <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
+    <meta name="description"
+        content="Safi AI answers questions about your pipeline, visits, tasks and calls in plain English, writes up every visit with a lead score, and never changes your data.">
+    <meta name="theme-color" content="#ffffff">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://safitrack.netlify.app/pages/features/safi-ai-feature.html">
+    <meta property="og:title" content="Safi AI | SafiTrack">
+    <meta property="og:description" content="Ask your CRM anything. Safi AI reads everything and changes nothing.">
+    <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Safi AI | SafiTrack">
+    <meta property="twitter:description" content="Ask your CRM anything. Safi AI reads everything and changes nothing.">
+    <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
 
-/* ── LAYOUT ── */
-.w{max-width:1200px;margin:0 auto;padding:0 28px}
-.w-sm{max-width:780px;margin:0 auto;padding:0 28px}
-
-/* ── HERO ── */
-.hero{min-height:100svh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:110px 28px 80px;position:relative;overflow:hidden}
-.hbg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(79,70,229,.05) 0%,transparent 70%);pointer-events:none}
-.hgrid{position:absolute;inset:0;background-image:linear-gradient(var(--rule) 1px,transparent 1px),linear-gradient(90deg,var(--rule) 1px,transparent 1px);background-size:56px 56px;mask-image:radial-gradient(ellipse 90% 65% at 50% 35%,black 0%,transparent 100%);pointer-events:none}
-.hbadge{display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:28px;border:1px solid var(--rule2);padding:5px 13px;border-radius:99px;background:var(--white)}
-.hbadge-dot{width:5px;height:5px;border-radius:50%;background:var(--accent)}
-h1.headline{font-family:var(--serif);font-size:clamp(38px,5.2vw,68px);font-weight:400;line-height:1.05;letter-spacing:-.022em;margin-bottom:24px;color:var(--ink)}
-h1.headline em{font-style:italic;color:var(--ink3)}
-.hsub{font-size:18px;line-height:1.65;color:var(--ink2);max-width:520px;margin:0 auto 44px}
-.hbtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-.btn-dark{font-size:14px;font-weight:600;color:#fff;background:var(--ink);padding:13px 30px;border-radius:9px;text-decoration:none;transition:opacity .15s}
-.btn-dark:hover{opacity:.8}
-.btn-out{font-size:14px;font-weight:500;color:var(--ink2);border:1.5px solid var(--rule2);padding:12px 30px;border-radius:9px;text-decoration:none;transition:all .15s}
-.btn-out:hover{color:var(--ink);border-color:var(--ink2)}
-
-/* hero mockup */
-.hmock{width:100%;max-width:900px;margin:68px auto 0;position:relative}
-.hmock::after{content:'';position:absolute;bottom:-40px;left:50%;transform:translateX(-50%);width:50%;height:40px;background:radial-gradient(ellipse,rgba(79,70,229,.1) 0%,transparent 70%);filter:blur(12px);pointer-events:none}
-.mshell{background:var(--white);border:1px solid var(--rule2);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-lg)}
-.mbar{height:40px;background:var(--off);border-bottom:1px solid var(--rule);display:flex;align-items:center;padding:0 16px;gap:7px}
-.d{width:11px;height:11px;border-radius:50%}
-.mpanes{display:flex;min-height:420px}
-
-/* chat pane */
-.cpane{flex:1;display:flex;flex-direction:column;border-right:1px solid var(--rule)}
-.chead{padding:14px 20px;border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:12px}
-.aiorb{width:34px;height:34px;border-radius:9px;background:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.cname{font-size:13px;font-weight:700;color:var(--ink)}
-.conl{font-size:11px;color:var(--ink3);display:flex;align-items:center;gap:5px}
-.sdot{width:5px;height:5px;border-radius:50%;background:var(--green)}
-.cmsgs{flex:1;padding:20px;display:flex;flex-direction:column;gap:14px;overflow:hidden}
-.mu{align-self:flex-end;max-width:70%;background:var(--ink);color:#fff;padding:10px 15px;border-radius:14px 14px 3px 14px;font-size:13px;line-height:1.5}
-.mairow{display:flex;gap:9px;align-items:flex-start;max-width:92%}
-.maiorb{width:26px;height:26px;border-radius:7px;background:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
-.mabub{background:var(--off);border:1px solid var(--rule);padding:13px 16px;border-radius:3px 14px 14px 14px;font-size:13px;line-height:1.7;color:var(--ink2);flex:1}
-.mabub strong{color:var(--ink)}
-.drow{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--white);border:1px solid var(--rule);border-radius:7px;margin-top:6px}
-.drow+.drow{margin-top:4px}
-.dn{font-size:12px;font-weight:600;color:var(--ink)}
-.dv{font-size:11px;color:var(--ink4);margin-left:5px}
-.pg{font-size:12px;font-weight:700;color:var(--green)}
-.pa{font-size:12px;font-weight:700;color:var(--amber)}
-.ahint{margin-top:9px;padding:9px 12px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:7px;font-size:11px;color:var(--accent);line-height:1.5}
-.typ{display:flex;gap:5px;align-items:center;padding:10px 14px;background:var(--off);border:1px solid var(--rule);border-radius:3px 14px 14px 14px;width:fit-content}
-.typ span{width:5px;height:5px;border-radius:50%;background:var(--ink4);animation:tp 1.4s ease-in-out infinite}
-.typ span:nth-child(2){animation-delay:.2s}
-.typ span:nth-child(3){animation-delay:.4s}
-@keyframes tp{0%,100%{opacity:.25;transform:scale(.85)}50%{opacity:1;transform:scale(1.2)}}
-.cinput{padding:12px 20px;border-top:1px solid var(--rule);display:flex;gap:9px;align-items:center}
-.finput{flex:1;padding:10px 14px;background:var(--off);border:1px solid var(--rule);border-radius:9px;font-size:13px;color:var(--ink4);font-family:var(--sans)}
-.sbtn{width:36px;height:36px;border-radius:9px;background:var(--ink);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-
-/* right panel */
-.rpan{width:210px;flex-shrink:0;padding:18px 16px;display:flex;flex-direction:column;gap:12px;background:var(--off);border-left:1px solid var(--rule)}
-.rpl{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
-.rpc{padding:12px;background:var(--white);border:1px solid var(--rule);border-radius:10px}
-.rpcl{font-size:10px;color:var(--ink3);margin-bottom:4px;font-weight:500}
-.rpcv{font-size:22px;font-weight:800;line-height:1}
-.rpcs{font-size:11px;color:var(--ink3);margin-top:3px;line-height:1.4}
-.rpca{font-size:12px;color:var(--ink2);line-height:1.9}
-
-/* ── SECTIONS BASE ── */
-.sec{padding:100px 0}
-.sec-off{background:var(--off)}
-.sec-off2{background:var(--off2)}
-.ey{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:14px}
-.st{font-family:var(--serif);font-size:clamp(36px,4.2vw,52px);font-weight:400;line-height:1.05;letter-spacing:-.02em;margin-bottom:18px;color:var(--ink)}
-.st em{font-style:italic;color:var(--ink3)}
-.sd{font-size:15px;line-height:1.78;color:var(--ink2);max-width:430px}
-.spl{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center}
-.spl.rev{direction:rtl}
-.spl.rev>*{direction:ltr}
-.cl{list-style:none;margin-top:28px;display:flex;flex-direction:column;gap:12px}
-.cl li{display:flex;gap:12px;align-items:flex-start;font-size:14px;color:var(--ink2);line-height:1.55}
-.cli{width:18px;height:18px;border-radius:5px;border:1.5px solid var(--rule2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-.cli svg{color:var(--ink)}
-
-/* ── VIS SHELL ── */
-.vs{background:var(--white);border:1px solid var(--rule2);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow)}
-.vsbar{height:38px;background:var(--off);border-bottom:1px solid var(--rule);display:flex;align-items:center;padding:0 14px;gap:7px}
-.vsbartitle{font-size:11px;font-weight:600;color:var(--ink3);margin-left:4px;flex:1}
-.vsacct{font-size:10px;font-weight:600;color:var(--accent)}
-
-/* ── SECTION 1: Query terminal ── */
-.qtbody{padding:20px}
-.qtprompt{display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--off);border:1px solid var(--rule);border-radius:9px;margin-bottom:16px}
-.qtprompt svg{color:var(--ink3);flex-shrink:0}
-.qttext{font-size:13px;font-weight:500;color:var(--ink);flex:1;min-height:18px}
-.qtcur{display:inline-block;width:2px;height:13px;background:var(--accent);margin-left:1px;vertical-align:middle;animation:cur .85s step-end infinite}
-@keyframes cur{0%,100%{opacity:1}50%{opacity:0}}
-.qtrows{display:flex;flex-direction:column;gap:7px}
-.qtr{display:flex;align-items:center;gap:10px;padding:10px 13px;background:var(--off);border:1px solid var(--rule);border-radius:9px;opacity:0;transform:translateY(5px);transition:opacity .35s,transform .35s}
-.qtr.on{opacity:1;transform:translateY(0)}
-.qtdot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-.qtrname{font-size:13px;font-weight:600;color:var(--ink);flex:1}
-.qtrmeta{font-size:11px;color:var(--ink3);font-weight:400}
-.qttag{font-size:10px;font-weight:600;padding:3px 9px;border-radius:5px;white-space:nowrap}
-.tgg{background:var(--green-bg);color:var(--green);border:1px solid var(--green-border)}
-.tga{background:var(--amber-bg);color:var(--amber);border:1px solid var(--amber-border)}
-.tgr{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
-.qtnote{margin-top:12px;padding:10px 14px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:9px;font-size:12px;color:var(--accent);line-height:1.55;opacity:0;transition:opacity .4s}
-.qtnote.on{opacity:1}
-
-/* ── SECTION 2: Pipeline ── */
-.pcbody{padding:18px}
-.pctabs{display:flex;gap:5px;margin-bottom:16px}
-.pctab{font-size:11px;font-weight:500;padding:5px 11px;border-radius:6px;border:1px solid transparent;color:var(--ink3);cursor:default;white-space:nowrap}
-.pctab.on{background:var(--ink);color:#fff}
-.pcd{padding:13px 15px;background:var(--off);border:1px solid var(--rule);border-radius:10px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;margin-bottom:8px}
-.pcd:last-child{margin-bottom:0}
-.pcd::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px}
-.pcd.dg::before{background:var(--green)}
-.pcd.da::before{background:var(--amber)}
-.pcd.dr::before{background:var(--red)}
-.pcdi{flex:1;min-width:0}
-.pcdn{font-size:13px;font-weight:600;color:var(--ink)}
-.pcdm{font-size:11px;color:var(--ink3);margin-top:2px}
-.pcds{text-align:right;flex-shrink:0}
-.pcdp{font-size:16px;font-weight:800;line-height:1}
-.pcdpl{font-size:9px;color:var(--ink3);margin-top:2px;text-transform:uppercase;letter-spacing:.06em}
-.spulse{display:inline-block;width:6px;height:6px;border-radius:50%;vertical-align:middle;margin-right:4px;animation:spulse 2s ease-in-out infinite}
-@keyframes spulse{0%,100%{opacity:.3}50%{opacity:1}}
-.pcbar2{margin-top:16px;padding:12px 14px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:9px;display:flex;align-items:center;justify-content:space-between;opacity:0;transition:opacity .4s .6s}
-.pcbar2.on{opacity:1}
-.pcbar2-label{font-size:11px;color:var(--accent);font-weight:600}
-.pcbar2-val{font-size:13px;font-weight:700;color:var(--accent)}
-
-/* ── SECTION 3: Transform ── */
-.tvtop{padding:18px 20px;border-bottom:1px solid var(--rule)}
-.tvlabel{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px}
-.tvraw{font-size:13px;color:var(--ink3);font-style:italic;line-height:1.75;padding:12px 14px;background:var(--off);border:1px solid var(--rule);border-radius:8px}
-.tvmid{padding:14px 20px;border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:10px}
-.tvtrack{flex:1;height:1px;background:var(--off3);position:relative;overflow:hidden}
-.tvtrack::after{content:'';position:absolute;left:-40%;top:-1px;width:40%;height:3px;background:linear-gradient(90deg,transparent,var(--accent),transparent);animation:tp2 2s linear infinite}
-@keyframes tp2{0%{left:-40%}100%{left:110%}}
-.tvbadge{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:99px;font-size:11px;font-weight:600;color:var(--accent);flex-shrink:0}
-.tvout{padding:18px 20px}
-.tvfields{display:flex;flex-direction:column;gap:7px}
-.tvf{display:flex;align-items:baseline;gap:10px;padding:9px 12px;background:var(--off);border:1px solid var(--rule);border-radius:8px;opacity:0;transform:translateY(4px);transition:opacity .32s,transform .32s}
-.tvf.on{opacity:1;transform:translateY(0)}
-.tvfk{font-size:11px;font-weight:600;color:var(--ink);width:90px;flex-shrink:0}
-.tvfv{font-size:12px;color:var(--ink2);line-height:1.5}
-.tvcheck{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:4px;background:var(--green-bg);border:1px solid var(--green-border);vertical-align:middle;margin-left:5px}
-
-/* ── SECTION 4: Weekly digest ── */
-.digest-vis{display:flex;flex-direction:column;gap:0}
-.dweek-header{padding:16px 20px;border-bottom:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between}
-.dweek-title{font-size:13px;font-weight:700;color:var(--ink)}
-.dweek-badge{font-size:10px;font-weight:600;padding:3px 9px;background:var(--accent-bg);border:1px solid var(--accent-border);border-radius:99px;color:var(--accent)}
-.dweek-stats{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--rule)}
-.dst{padding:16px 20px;text-align:center}
-.dst+.dst{border-left:1px solid var(--rule)}
-.dstval{font-size:28px;font-weight:800;color:var(--ink);line-height:1}
-.dstlabel{font-size:10px;color:var(--ink3);margin-top:4px;font-weight:500;text-transform:uppercase;letter-spacing:.06em}
-.dsttrend{font-size:11px;margin-top:3px;font-weight:600}
-.dweek-body{padding:16px 20px;display:flex;flex-direction:column;gap:10px}
-.dweek-item{display:flex;gap:12px;align-items:flex-start;padding:12px 14px;background:var(--off);border:1px solid var(--rule);border-radius:9px;opacity:0;transform:translateX(6px);transition:opacity .35s,transform .35s}
-.dweek-item.on{opacity:1;transform:translateX(0)}
-.dweek-item-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:4px}
-.dweek-item-text{font-size:12px;color:var(--ink2);line-height:1.55;flex:1}
-.dweek-item-text strong{color:var(--ink)}
-
-/* ── SECTION 5: At-risk alerts ── */
-.alerts-vis{display:flex;flex-direction:column;gap:0}
-.alert-head{padding:16px 20px;border-bottom:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between}
-.alert-head-title{font-size:13px;font-weight:700;color:var(--ink)}
-.alert-count{font-size:11px;font-weight:600;color:var(--red);background:var(--red-bg);border:1px solid var(--red-border);padding:3px 9px;border-radius:99px}
-.alert-list{padding:16px 20px;display:flex;flex-direction:column;gap:8px}
-.alert-row{display:flex;gap:12px;align-items:flex-start;padding:13px 15px;border-radius:10px;border:1.5px solid;opacity:0;transform:translateY(6px);transition:opacity .35s,transform .35s}
-.alert-row.on{opacity:1;transform:translateY(0)}
-.alert-row.sev-high{background:var(--red-bg);border-color:var(--red-border)}
-.alert-row.sev-med{background:var(--amber-bg);border-color:var(--amber-border)}
-.alert-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.alert-icon.high{background:var(--red-bg);border:1px solid var(--red-border)}
-.alert-icon.med{background:var(--amber-bg);border:1px solid var(--amber-border)}
-.alert-body{flex:1}
-.alert-co{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px}
-.alert-msg{font-size:12px;color:var(--ink2);line-height:1.5}
-.alert-action{font-size:11px;font-weight:600;margin-top:6px}
-.alert-action.high{color:var(--red)}
-.alert-action.med{color:var(--amber)}
-.alert-footer{padding:12px 20px;border-top:1px solid var(--rule);background:var(--off);display:flex;align-items:center;justify-content:space-between}
-.alert-footer-text{font-size:11px;color:var(--ink3)}
-.alert-footer-link{font-size:11px;font-weight:600;color:var(--accent);text-decoration:none}
-
-/* ── CONTEXT GRID ── */
-.ctxgrid{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--rule2);border-radius:var(--r);overflow:hidden;margin-top:56px}
-.ctxrow{display:contents}
-.ctxcell{padding:28px 26px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);background:var(--white)}
-.ctxcell:nth-child(3n){border-right:none}
-.ctxcell:nth-last-child(-n+3){border-bottom:none}
-.ctxcell h4{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:8px}
-.ctxcell p{font-size:14px;color:var(--ink2);line-height:1.68}
-
-/* ── METRICS BAND ── */
-.metrics-band{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid var(--rule2);border-radius:var(--r);overflow:hidden;margin-top:0}
-.metric{padding:32px 28px;border-right:1px solid var(--rule)}
-.metric:last-child{border-right:none}
-.metric-val{font-family:var(--serif);font-size:clamp(36px,4vw,52px);font-weight:400;line-height:1;letter-spacing:-.02em;color:var(--ink);margin-bottom:8px}
-.metric-label{font-size:13px;color:var(--ink2);line-height:1.5}
-.metric-sub{font-size:12px;color:var(--ink3);margin-top:4px}
-
-/* ── PROMPTS ── */
-.pscroll{overflow:hidden;position:relative;margin-top:56px}
-.pscroll::before,.pscroll::after{content:'';position:absolute;top:0;bottom:0;width:120px;z-index:2;pointer-events:none}
-.pscroll::before{left:0;background:linear-gradient(to right,var(--white),transparent)}
-.pscroll::after{right:0;background:linear-gradient(to left,var(--white),transparent)}
-.prow{display:flex;gap:10px;width:max-content;animation:scrolll 44s linear infinite}
-.prow.r2{animation-direction:reverse;animation-duration:52s;margin-top:10px}
-@keyframes scrolll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.ppill{padding:12px 18px;background:var(--white);border:1.5px solid var(--rule2);border-radius:10px;white-space:nowrap;flex-shrink:0;cursor:default;transition:border-color .15s}
-.ppill:hover{border-color:var(--ink3)}
-.ppillt{font-size:13px;font-weight:600;color:var(--ink)}
-.ppilld{font-size:12px;color:var(--ink3);margin-top:2px}
-
-/* ── QUOTE ── */
-.qsec{background:var(--off);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
-.qwrap{max-width:720px;margin:0 auto;padding:96px 28px;text-align:center}
-.qmark{font-family:var(--serif);font-size:80px;line-height:.3;color:var(--off3);margin-bottom:24px;display:block}
-blockquote{font-family:var(--serif);font-size:clamp(22px,3vw,34px);font-style:italic;color:var(--ink);line-height:1.42;margin-bottom:24px}
-.qauth{font-size:13px;color:var(--ink3)}
-
-/* ── CTA ── */
-.ctasec{padding:120px 28px;text-align:center}
-.ctasec h2{font-family:var(--serif);font-size:clamp(40px,5.5vw,68px);font-weight:400;line-height:1.04;letter-spacing:-.025em;margin-bottom:18px}
-.ctasec h2 em{font-style:italic;color:var(--ink3)}
-.ctasec p{font-size:16px;color:var(--ink2);margin-bottom:36px}
-.ctabtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
-
-/* ── FADE IN ── */
-.fi{opacity:0;transform:translateY(16px);transition:opacity .6s ease,transform .6s ease}
-.fi.d1{transition-delay:.1s}
-.fi.d2{transition-delay:.2s}
-.fi.vis{opacity:1;transform:none}
-
-/* ── RESPONSIVE ── */
-@media(max-width:960px){
-  .spl{grid-template-columns:1fr;gap:44px}
-  .spl.rev{direction:ltr}
-  .rpan{display:none}
-  .ctxgrid{grid-template-columns:1fr 1fr}
-  .ctxcell:nth-child(2n){border-right:none}
-  .ctxcell:nth-child(3){border-right:none;border-bottom:1px solid var(--rule)}
-  .metrics-band{grid-template-columns:1fr 1fr}
-  .metric:nth-child(2){border-right:none}
-  .metric:nth-child(3){border-top:1px solid var(--rule)}
-  .metric:last-child{border-top:1px solid var(--rule)}
-}
-@media(max-width:640px){
-  h1.headline{font-size:36px}
-  .ctxgrid{grid-template-columns:1fr}
-  .ctxcell{border-right:none}
-  .metrics-band{grid-template-columns:1fr}
-  .metric{border-right:none;border-bottom:1px solid var(--rule)}
-  .dweek-stats{grid-template-columns:1fr 1fr}
-}
-</style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../home.css">
+    <link rel="stylesheet" href="safi-ai.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+    <script src="../../config.js"></script>
+    <script src="../../home.js" defer></script>
+    <script src="safi-ai.js" defer></script>
 </head>
+
 <body>
+    <a class="skip-link" href="#main">Skip to content</a>
 
-<!-- NAV -->
-    <nav class="navbar" id="navbar">
-        <div class="container">
-            <div class="nav-content">
-                <div class="nav-left">
-                    <a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png"
-                            alt="SafiTrack"></a>
-                    <div class="nav-links">
-                        <div class="nav-item nav-features">
-                            <a href="mainfeatures.html" class="nav-link-toggle">Features
-                                <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg></span>
-                            </a>
-                            <div class="mega-menu" aria-hidden="true">
-                                <div class="mega-content-grid">
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Platform</div>
-                                        <div class="mega-items-grid">
-                                            <a href="safi-ai-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Safi AI</div>
-                                                    <div class="mega-desc">AI insights native to your CRM</div>
-                                                </div>
-                                            </a>
-                                            <a href="opportunities-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Pipelines</div>
-                                                    <div class="mega-desc">Visual deal tracking &amp; management</div>
-                                                </div>
-                                            </a>
-                                            <a href="companies-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2" ry="2" /><path d="M9 22v-4h6v4" /><path d="M8 6h.01" /><path d="M16 6h.01" /><path d="M8 10h.01" /><path d="M16 10h.01" /><path d="M8 14h.01" /><path d="M16 14h.01" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Companies</div>
-                                                    <div class="mega-desc">Complete organization context</div>
-                                                </div>
-                                            </a>
-                                            <a href="people-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">People</div>
-                                                    <div class="mega-desc">Unified contact management</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Operations</div>
-                                        <div class="mega-items-grid">
-                                            <a href="sales-visits-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Sales visits</div>
-                                                    <div class="mega-desc">Field activity &amp; visit logging</div>
-                                                </div>
-                                            </a>
-                                            <a href="route-plans-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="19" r="3" /><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /><circle cx="18" cy="5" r="3" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Route plans</div>
-                                                    <div class="mega-desc">Optimized field routing</div>
-                                                </div>
-                                            </a>
-                                            <a href="technician-visits-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Service visits</div>
-                                                    <div class="mega-desc">Post-sales technician tracking</div>
-                                                </div>
-                                            </a>
-                                            <a href="tasks-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Tasks</div>
-                                                    <div class="mega-desc">Operational to-do management</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Insights &amp; Automation</div>
-                                        <div class="mega-items-grid">
-                                            <a href="call-logs-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Call Intelligence</div>
-                                                    <div class="mega-desc">Record &amp; analyze meetings</div>
-                                                </div>
-                                            </a>
-                                            <a href="notes-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Notes</div>
-                                                    <div class="mega-desc">Native meeting summaries</div>
-                                                </div>
-                                            </a>
-                                            <a href="reminders-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Reminders</div>
-                                                    <div class="mega-desc">Smart follow-up alerts</div>
-                                                </div>
-                                            </a>
-                                            <a href="reports-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Reports</div>
-                                                    <div class="mega-desc">Custom analytics &amp; dashboards</div>
-                                                </div>
-                                            </a>
-                                            <a href="workflows-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Workflows</div>
-                                                    <div class="mega-desc">Automate repetitive tasks</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mega-sidebar">
-                                    <div class="mega-sidebar-header">Get Started</div>
-                                    <ul class="mega-sidebar-list">
-                                        <li><a href="/crm/"><span>Open CRM</span></a></li>
-                                        <li><a href="../pricing.html"><span>View Pricing</span></a></li>
-                                        <li><a href="../../index.html#pricing"><span>Request Demo</span></a></li>
-                                    </ul>
-                                    <div class="mega-sidebar-footer">
-                                        <p>Trusted by 2,000+ teams</p>
-                                    </div>
-                                </div>
+    <!-- ============ Navigation ============ -->
+    <header class="nav" id="nav">
+        <div class="wrap nav-inner">
+            <a href="/" class="nav-logo" aria-label="SafiTrack home">
+                <img src="../../assets/icons/transparentMain.png" alt="SafiTrack" width="108" height="25">
+            </a>
+
+            <nav class="nav-links" aria-label="Main">
+                <div class="nav-item has-menu">
+                    <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="menu-features">
+                        Features
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="menu" id="menu-features">
+                        <div class="menu-grid">
+                            <div class="menu-col">
+                                <p class="menu-heading">Platform</p>
+                                <a href="../../pages/features/safi-ai-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9z" /></svg></span>
+                                    <span><strong>Safi AI</strong><small>An assistant that knows your pipeline</small></span>
+                                </a>
+                                <a href="../../pages/features/opportunities-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg></span>
+                                    <span><strong>Pipelines</strong><small>Track every deal to close</small></span>
+                                </a>
+                                <a href="../../pages/features/companies-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" /><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01" /></svg></span>
+                                    <span><strong>Companies</strong><small>Every account in one record</small></span>
+                                </a>
+                                <a href="../../pages/features/people-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg></span>
+                                    <span><strong>People</strong><small>Contacts with full history</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">In the field</p>
+                                <a href="../../pages/features/sales-visits-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg></span>
+                                    <span><strong>Sales visits</strong><small>Log visits from your phone</small></span>
+                                </a>
+                                <a href="../../pages/features/route-plans-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="3" /><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /><circle cx="18" cy="5" r="3" /></svg></span>
+                                    <span><strong>Route plans</strong><small>Plan and assign the day's stops</small></span>
+                                </a>
+                                <a href="../../pages/features/technician-visits-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg></span>
+                                    <span><strong>Service visits</strong><small>Technician jobs after the sale</small></span>
+                                </a>
+                                <a href="../../pages/features/tasks-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg></span>
+                                    <span><strong>Tasks</strong><small>What needs doing, and by whom</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">Insight &amp; automation</p>
+                                <a href="../../pages/features/call-logs-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" /></svg></span>
+                                    <span><strong>Call logs</strong><small>Every conversation, on record</small></span>
+                                </a>
+                                <a href="../../pages/features/notes-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg></span>
+                                    <span><strong>Notes</strong><small>Meeting notes next to the deal</small></span>
+                                </a>
+                                <a href="../../pages/features/reminders-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg></span>
+                                    <span><strong>Reminders</strong><small>Never miss a follow-up</small></span>
+                                </a>
+                                <a href="../../pages/features/reports-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6" /></svg></span>
+                                    <span><strong>Reports</strong><small>Dashboards for the whole team</small></span>
+                                </a>
+                                <a href="../../pages/features/workflows-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg></span>
+                                    <span><strong>Workflows</strong><small>Automate the busywork</small></span>
+                                </a>
                             </div>
                         </div>
-                        <div class="nav-item nav-resources">
-                            <a href="../documentation.html" class="nav-link-toggle">Resources
-                                <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg></span>
-                            </a>
-                            <div class="mega-menu" aria-hidden="true">
-                                <div class="mega-content-grid">
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Insights</div>
-                                        <div class="mega-items-grid">
-                                            <a href="../integrations.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Integrations</div>
-                                                    <div class="mega-desc">Connect your stack</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Support</div>
-                                        <div class="mega-items-grid">
-                                            <a href="../documentation.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Documentation</div>
-                                                    <div class="mega-desc">Guides and tutorials</div>
-                                                </div>
-                                            </a>
-                                            <a href="../helpcenter.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Help Center</div>
-                                                    <div class="mega-desc">Get support</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Developers</div>
-                                        <div class="mega-items-grid">
-                                            <a href="../apireference.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">API Reference</div>
-                                                    <div class="mega-desc">Build with SafiTrack</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mega-sidebar">
-                                    <div class="mega-sidebar-header">More</div>
-                                    <ul class="mega-sidebar-list">
-                                        <li><a href="../blog.html"><span>Blog</span></a></li>
-                                        <li><a href="../careers.html"><span>Careers</span></a></li>
-                                        <li><a href="../status.html"><span>Status</span></a></li>
-                                    </ul>
-                                    <div class="mega-sidebar-footer">
-                                        <p>Always growing</p>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="menu-foot">
+                            <a href="../../pages/features/mainfeatures.html">See all features <span aria-hidden="true">→</span></a>
                         </div>
-                        <a href="../pricing.html">Pricing</a>
                     </div>
                 </div>
-                <div class="nav-actions"><a href="/crm/" class="nav-link-sign-in">Sign in</a><a
-                        href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a></div>
-                <button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button>
+
+                <div class="nav-item has-menu">
+                    <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="menu-resources">
+                        Resources
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="menu menu-sm" id="menu-resources">
+                        <div class="menu-grid">
+                            <div class="menu-col">
+                                <p class="menu-heading">Learn</p>
+                                <a href="../../pages/documentation.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg></span>
+                                    <span><strong>Documentation</strong><small>Guides and how-tos</small></span>
+                                </a>
+                                <a href="../../pages/helpcenter.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg></span>
+                                    <span><strong>Help center</strong><small>Answers and support</small></span>
+                                </a>
+                                <a href="../../pages/apireference.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6" /></svg></span>
+                                    <span><strong>API reference</strong><small>Build on SafiTrack</small></span>
+                                </a>
+                                <a href="../../pages/integrations.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg></span>
+                                    <span><strong>Integrations</strong><small>Connect your tools</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">Company</p>
+                                <a href="../../pages/blog.html" class="menu-link menu-link-plain"><strong>Blog</strong></a>
+                                <a href="../../pages/comparison.html" class="menu-link menu-link-plain"><strong>Compare</strong></a>
+                                <a href="../../pages/careers.html" class="menu-link menu-link-plain"><strong>Careers</strong></a>
+                                <a href="../../pages/security.html" class="menu-link menu-link-plain"><strong>Security</strong></a>
+                                <a href="../../pages/status.html" class="menu-link menu-link-plain"><strong>Status</strong></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="../../pages/pricing.html" class="nav-link">Pricing</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="/crm/" class="nav-link">Sign in</a>
+                <a href="/crm/?signup=1" class="btn btn-dark btn-sm">Start for free</a>
+            </div>
+
+            <button class="nav-burger" type="button" aria-label="Open menu" aria-expanded="false"
+                aria-controls="mobile-menu">
+                <span></span><span></span>
+            </button>
+        </div>
+
+        <div class="mobile-menu" id="mobile-menu" hidden>
+            <div class="wrap">
+                <p class="mobile-heading">Product</p>
+                <a href="../../pages/features/mainfeatures.html">Features</a>
+                <a href="../../pages/features/safi-ai-feature.html">Safi AI</a>
+                <a href="../../pages/features/route-plans-feature.html">Route plans</a>
+                <a href="../../pages/features/sales-visits-feature.html">Sales visits</a>
+                <a href="../../pages/pricing.html">Pricing</a>
+                <p class="mobile-heading">Resources</p>
+                <a href="../../pages/documentation.html">Documentation</a>
+                <a href="../../pages/helpcenter.html">Help center</a>
+                <a href="../../pages/blog.html">Blog</a>
+                <div class="mobile-actions">
+                    <a href="/crm/" class="btn btn-light">Sign in</a>
+                    <a href="/crm/?signup=1" class="btn btn-dark">Start for free</a>
+                </div>
             </div>
         </div>
-    </nav>
-    <div class="mobile-nav-overlay"><button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24"
-                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg></button>
-        <div class="mobile-nav-content"><a href="mainfeatures.html" class="mobile-link">Features</a><a
-                href="../pricing.html" class="mobile-link">Pricing</a>
-            <hr class="mobile-divider"><a href="/crm/" class="mobile-link">Open App</a><a
-                href="../pricing.html#pricing-grid" class="btn-hero-primary"
-                style="margin-top: 1rem; text-align: center;">Get Started</a>
-        </div>
-    </div>
+    </header>
 
-<!-- ══ HERO ══ -->
-<header class="hero">
-  <div class="hbg"></div>
-  <div class="hgrid"></div>
-  <div class="hbadge"><span class="hbadge-dot"></span>AI built into your CRM</div>
-  <h1 class="headline">Meet Safi AI — the intelligence<br><em>built into your CRM.</em></h1>
-  <p class="hsub">Safi AI answers questions, scores your deals, and writes your reports — all from inside your pipeline, in plain English.</p>
-  <div class="hbtns">
-    <a href="../pricing.html#pricing-grid" class="btn-dark">Start for free</a>
-    <a href="../../index.html#product" class="btn-out">See how it works</a>
-  </div>
+    <main id="main">
 
-  <!-- HERO MOCKUP -->
-  <div class="hmock fi">
-    <div class="mshell">
-      <div class="mbar">
-        <div class="d" style="background:#ff5f57"></div>
-        <div class="d" style="background:#febc2e"></div>
-        <div class="d" style="background:#28c840"></div>
-      </div>
-      <div class="mpanes">
-        <div class="cpane">
-          <div class="chead">
-            <div class="aiorb">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/><path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/></svg>
+        <!-- ============ Hero ============ -->
+        <section class="ai-hero">
+            <div class="wrap">
+                <p class="tag">Safi AI</p>
+                <h1 class="ai-title">Ask your CRM anything.</h1>
+                <p class="ai-sub">Safi AI reads your pipeline, visits, tasks and calls, and answers in plain English.
+                    It can look at everything you can see, and it changes nothing.</p>
+                <div class="hero-actions">
+                    <a href="/crm/?signup=1" class="btn btn-dark btn-lg">Start for free</a>
+                    <button type="button" class="btn btn-light btn-lg" data-contact>Talk to sales</button>
+                </div>
             </div>
-            <div>
-              <div class="cname">Safi AI</div>
-              <div class="conl"><span class="sdot"></span>Analyzing your CRM</div>
-            </div>
-          </div>
-          <div class="cmsgs">
-            <div class="mu">Which deals are most likely to close this month?</div>
-            <div class="mairow">
-              <div class="maiorb"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18V5"/><path d="M15 13a4 4 0 0 1-3-4 4 4 0 0 1-3 4"/></svg></div>
-              <div class="mabub">
-                Here are the <strong>3 deals most likely to close this month:</strong>
-                <div class="drow"><div><span class="dn">Acme Corp</span><span class="dv">· $45K</span></div><span class="pg">92%</span></div>
-                <div class="drow"><div><span class="dn">Globex Inc</span><span class="dv">· $28K</span></div><span class="pa">74%</span></div>
-                <div class="drow"><div><span class="dn">Wayne Ent.</span><span class="dv">· $62K</span></div><span class="pa">68%</span></div>
-                <div class="ahint">Acme Corp hasn't been contacted in 5 days — a check-in now could keep this moving.</div>
-              </div>
-            </div>
-            <div class="typ"><span></span><span></span><span></span></div>
-          </div>
-          <div class="cinput">
-            <div class="finput">Ask Safi anything about your CRM…</div>
-            <div class="sbtn"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div>
-          </div>
-        </div>
-        <div class="rpan">
-          <div class="rpl">AI Insights</div>
-          <div class="rpc">
-            <div class="rpcl">Pipeline health</div>
-            <div class="rpcv" style="color:var(--green)">Strong</div>
-            <div class="rpcs">$135K expected this month</div>
-          </div>
-          <div class="rpc">
-            <div class="rpcl">At-risk deals</div>
-            <div class="rpcv" style="color:var(--red)">2</div>
-            <div class="rpcs">Stalled over 7 days</div>
-          </div>
-          <div class="rpc">
-            <div class="rpcl">Today's actions</div>
-            <div class="rpca">Call Acme Corp<br>Proposal overdue<br>3 tasks due today</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</header>
+        </section>
 
-<!-- ══ METRICS BAND ══ -->
-<div class="sec-off" style="border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)">
-  <div class="w">
-    <div class="metrics-band fi">
-      <div class="metric">
-        <div class="metric-val">3.2×</div>
-        <div class="metric-label">More pipeline visibility</div>
-        <div class="metric-sub">Compared to manual CRM review</div>
-      </div>
-      <div class="metric">
-        <div class="metric-val">41%</div>
-        <div class="metric-label">Reduction in data entry time</div>
-        <div class="metric-sub">With AI-powered note summarization</div>
-      </div>
-      <div class="metric">
-        <div class="metric-val">89%</div>
-        <div class="metric-label">Deal score accuracy</div>
-        <div class="metric-sub">Based on historical close outcomes</div>
-      </div>
-      <div class="metric">
-        <div class="metric-val">&lt;2s</div>
-        <div class="metric-label">Average query response time</div>
-        <div class="metric-sub">Across your full CRM dataset</div>
-      </div>
-    </div>
-  </div>
-</div>
+        <!-- ============ Live demo ============ -->
+        <section class="demo" aria-label="Safi AI demo">
+            <div class="wrap">
+                <div class="demo-shell">
+                    <div class="demo-prompts" role="tablist" aria-label="Example questions">
+                        <p class="demo-label">Try asking</p>
+                        <button class="demo-prompt is-active" role="tab" aria-selected="true" data-answer="focus">What should I focus on today?</button>
+                        <button class="demo-prompt" role="tab" aria-selected="false" data-answer="attention">Which opportunities need attention?</button>
+                        <button class="demo-prompt" role="tab" aria-selected="false" data-answer="overdue">What tasks are overdue?</button>
+                        <button class="demo-prompt" role="tab" aria-selected="false" data-answer="visits">What visits did I complete this week?</button>
+                        <button class="demo-prompt" role="tab" aria-selected="false" data-answer="month">How did I perform this month?</button>
+                    </div>
 
-<!-- ══ SECTION 1: Conversational AI ══ -->
-<section class="sec">
-  <div class="w">
-    <div class="spl">
-      <div class="fi">
-        <p class="ey">Conversational AI</p>
-        <h2 class="st">Ask anything<br>about your <em>pipeline.</em></h2>
-        <p class="sd">No more digging through filters or building reports. Type a question in plain English and get an accurate answer drawn directly from your live CRM data.</p>
-        <ul class="cl">
-          <li><span class="cli"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>"Show me deals closing this week"</li>
-          <li><span class="cli"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>"Who hasn't been contacted in 2 weeks?"</li>
-          <li><span class="cli"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>"What's our win rate this quarter?"</li>
-          <li><span class="cli"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>"Which rep is leading in closed revenue?"</li>
-        </ul>
-      </div>
+                    <div class="chat demo-chat">
+                        <div class="chat-bar">
+                            <span class="ai-avatar">S</span>
+                            <p class="chat-name">Safi AI <small>Online</small></p>
+                            <span class="chat-new">New chat</span>
+                        </div>
+                        <div class="chat-body demo-body" aria-live="polite">
+                            <p class="chat-me" data-q>What should I focus on today?</p>
+                            <div class="chat-ai" data-a></div>
+                        </div>
+                        <div class="chat-input">
+                            <span>Message Safi AI…</span>
+                            <span class="chat-send">↑</span>
+                        </div>
+                    </div>
+                </div>
 
-      <!-- QUERY TERMINAL -->
-      <div class="vs fi d1" id="qvis">
-        <div class="vsbar">
-          <div class="d" style="background:#ff5f57"></div>
-          <div class="d" style="background:#febc2e"></div>
-          <div class="d" style="background:#28c840"></div>
-          <span class="vsbartitle">Safi AI — Query</span>
-        </div>
-        <div class="qtbody">
-          <div class="qtprompt">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <div class="qttext" id="qtxt"></div>
-          </div>
-          <div class="qtrows">
-            <div class="qtr" id="qr1">
-              <div class="qtdot" style="background:var(--green)"></div>
-              <span class="qtrname">Acme Corp <span class="qtrmeta">· $45K · Negotiation</span></span>
-              <span class="qttag tgg">Closing soon</span>
+                <!-- Answers for the demo; JS swaps them into the chat -->
+                <template id="answer-focus">
+                    <p>Here's your day, Alex:</p>
+                    <ul class="chat-deals">
+                        <li><span class="deal-logo">3</span><span class="deal-main"><b>Visits planned</b><small>Amazon 9:30 · Microsoft 11:00 · Salesforce 14:00</small></span></li>
+                        <li><span class="deal-logo">2</span><span class="deal-main"><b>Tasks due today</b><small>Send Microsoft the catalogue · confirm HubSpot demo</small></span></li>
+                        <li><span class="deal-logo">!</span><span class="deal-main"><b>CRM Platform Rollout</b><small>Apple Inc. · no activity for 7 days</small></span></li>
+                    </ul>
+                    <p>I'd start with the Microsoft catalogue. It's due before Friday's meeting.</p>
+                </template>
+                <template id="answer-attention">
+                    <p>Three deals have something due before Friday:</p>
+                    <ul class="chat-deals">
+                        <li><span class="deal-logo">A</span><span class="deal-main"><b>CRM Platform Rollout</b><small>Apple Inc. · legal sign-off stalled 7 days</small></span><span class="deal-val">$420,000</span></li>
+                        <li><span class="deal-logo">M</span><span class="deal-main"><b>Enterprise Licence Expansion</b><small>Microsoft · send catalogue by Fri</small></span><span class="deal-val">$850,000</span></li>
+                        <li><span class="deal-logo">H</span><span class="deal-main"><b>Route Optimisation Deal</b><small>HubSpot · product demo Wed</small></span><span class="deal-val">$930,000</span></li>
+                    </ul>
+                    <p>Apple has gone the longest without an update.</p>
+                </template>
+                <template id="answer-overdue">
+                    <p>You have 2 overdue tasks:</p>
+                    <ul class="chat-deals">
+                        <li><span class="deal-logo">S</span><span class="deal-main"><b>Call Slack about the renewal</b><small>Annual Enterprise Renewal · high priority</small></span><span class="deal-due">2 days</span></li>
+                        <li><span class="deal-logo">M</span><span class="deal-main"><b>Send visit notes to Sarah Mitchell</b><small>Microsoft · medium priority</small></span><span class="deal-due">1 day</span></li>
+                    </ul>
+                    <p>Both are assigned to you. Nothing else is past due.</p>
+                </template>
+                <template id="answer-visits">
+                    <p>You completed 3 visits this week:</p>
+                    <ul class="chat-deals">
+                        <li><span class="deal-logo">S</span><span class="deal-main"><b>Salesforce</b><small>Wed · IT security review, pilot going ahead</small></span><span class="deal-val">85%</span></li>
+                        <li><span class="deal-logo">M</span><span class="deal-main"><b>Microsoft</b><small>Tue · Q2 budget confirmed by procurement</small></span><span class="deal-val">80%</span></li>
+                        <li><span class="deal-logo">A</span><span class="deal-main"><b>Apple Inc.</b><small>Mon · demo of route planning, asked for pricing</small></span><span class="deal-val">72%</span></li>
+                    </ul>
+                    <p>Percentages are each visit's lead score.</p>
+                </template>
+                <template id="answer-month">
+                    <p>Here's your month so far:</p>
+                    <ul class="chat-deals chat-stats">
+                        <li><span class="deal-main"><b>Visits logged</b></span><span class="deal-val">18</span></li>
+                        <li><span class="deal-main"><b>Calls made</b></span><span class="deal-val">42</span></li>
+                        <li><span class="deal-main"><b>Deals won</b><small>Slack and Amazon</small></span><span class="deal-val">$1,150,000</span></li>
+                    </ul>
+                    <p>That's 4 more visits than last month.</p>
+                </template>
             </div>
-            <div class="qtr" id="qr2">
-              <div class="qtdot" style="background:var(--amber)"></div>
-              <span class="qtrname">Globex Inc <span class="qtrmeta">· $28K · Proposal</span></span>
-              <span class="qttag tga">In progress</span>
-            </div>
-            <div class="qtr" id="qr3">
-              <div class="qtdot" style="background:var(--amber)"></div>
-              <span class="qtrname">Wayne Ent. <span class="qtrmeta">· $62K · Demo</span></span>
-              <span class="qttag tga">In progress</span>
-            </div>
-            <div class="qtr" id="qr4">
-              <div class="qtdot" style="background:var(--red)"></div>
-              <span class="qtrname">Stark Labs <span class="qtrmeta">· $18K · Stalled</span></span>
-              <span class="qttag tgr">At risk</span>
-            </div>
-          </div>
-          <div class="qtnote" id="qnote">Stark Labs has had no activity in 14 days. A follow-up now could prevent losing this deal entirely.</div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+        </section>
 
-<!-- ══ SECTION 2: Deal Scoring ══ -->
-<section class="sec sec-off">
-  <div class="w">
-    <div class="spl rev">
-      <div class="fi">
-        <p class="ey">Predictive Intelligence</p>
-        <h2 class="st">Know which deals<br><em>will close.</em></h2>
-        <p class="sd">Safi AI scores every deal using velocity, engagement, and historical win patterns. Stop guessing and start prioritizing the opportunities that actually matter.</p>
-        <ul class="cl">
-          <li><span class="cli"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Live win probability on every deal</li>
-          <li><span class="cli"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Scores update as deals progress</li>
-          <li><span class="cli"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Revenue forecast with confidence intervals</li>
-        </ul>
-      </div>
-
-      <!-- PIPELINE CANVAS -->
-      <div class="vs fi d1" id="pvis">
-        <div class="vsbar">
-          <div class="d" style="background:#ff5f57"></div>
-          <div class="d" style="background:#febc2e"></div>
-          <div class="d" style="background:#28c840"></div>
-          <span class="vsbartitle">Pipeline · AI Scored</span>
-          <span class="vsacct">Live</span>
-        </div>
-        <div class="pcbody">
-          <div class="pctabs">
-            <div class="pctab on">All deals</div>
-            <div class="pctab">Prospect</div>
-            <div class="pctab">Demo</div>
-            <div class="pctab">Proposal</div>
-            <div class="pctab">Closing</div>
-          </div>
-          <div id="pdeals">
-            <div class="pcd dg" id="pd1" style="opacity:0;transform:translateX(-10px);transition:opacity .4s,transform .4s">
-              <div class="pcdi">
-                <div class="pcdn">Acme Corp</div>
-                <div class="pcdm">$45,000 · Negotiation · Last touch: today</div>
-              </div>
-              <div class="pcds">
-                <div class="pcdp" style="color:var(--green)"><span class="spulse" style="background:var(--green)"></span>92%</div>
-                <div class="pcdpl">win prob.</div>
-              </div>
+        <!-- ============ What it can answer ============ -->
+        <section class="asks">
+            <div class="wrap">
+                <div class="rail">
+                    <header class="asks-head">
+                        <h2 class="split-title">It knows your whole CRM.
+                            <span>Ask about anything you can open in SafiTrack.</span></h2>
+                    </header>
+                    <div class="asks-grid">
+                        <div class="ask"><p class="ask-area">Pipeline</p><p class="ask-q">“What's in negotiation right now?”</p></div>
+                        <div class="ask"><p class="ask-area">Tasks</p><p class="ask-q">“What's overdue for me?”</p></div>
+                        <div class="ask"><p class="ask-area">Reminders</p><p class="ask-q">“What's coming up this week?”</p></div>
+                        <div class="ask"><p class="ask-area">Visits</p><p class="ask-q">“Who did I visit on Tuesday?”</p></div>
+                        <div class="ask"><p class="ask-area">Calls</p><p class="ask-q">“How many calls did I make today?”</p></div>
+                        <div class="ask"><p class="ask-area">Notes</p><p class="ask-q">“What did we discuss with Microsoft?”</p></div>
+                        <div class="ask"><p class="ask-area">Contacts</p><p class="ask-q">“Who's our contact at Apple?”</p></div>
+                        <div class="ask"><p class="ask-area">Team <small>Managers</small></p><p class="ask-q">“Which rep closed the most this month?”</p></div>
+                    </div>
+                </div>
             </div>
-            <div class="pcd dg" id="pd2" style="opacity:0;transform:translateX(-10px);transition:opacity .4s .13s,transform .4s .13s">
-              <div class="pcdi">
-                <div class="pcdn">Globex Inc</div>
-                <div class="pcdm">$28,000 · Proposal sent · 2 days ago</div>
-              </div>
-              <div class="pcds">
-                <div class="pcdp" style="color:var(--amber)"><span class="spulse" style="background:var(--amber)"></span>74%</div>
-                <div class="pcdpl">win prob.</div>
-              </div>
+        </section>
+
+        <!-- ============ Visit write-ups ============ -->
+        <section class="writeup">
+            <div class="wrap">
+                <div class="rail writeup-grid">
+                    <div class="writeup-copy">
+                        <p class="tag">Visit write-ups</p>
+                        <h2 class="split-title">Every visit, written up for you.
+                            <span>No one has to ask.</span></h2>
+                        <p class="writeup-text">When a rep logs a visit, Safi AI reads the notes and adds a short
+                            summary and a lead score from 0 to 100. Managers get the gist of every meeting without
+                            chasing anyone.</p>
+                        <a href="sales-visits-feature.html" class="card-link">Sales visits <span aria-hidden="true">→</span></a>
+                    </div>
+                    <div class="writeup-art" data-writeup>
+                        <div class="note-card">
+                            <p class="note-head">Visit notes · Microsoft</p>
+                            <p class="note-text">met sarah + procurement. want ~40 seats for the field sales team,
+                                budget ok for Q2. need proposal before march 8 then legal review</p>
+                        </div>
+                        <div class="note-arrow" aria-hidden="true"></div>
+                        <div class="note-card summary-card">
+                            <div class="summary-top">
+                                <p class="note-head">AI summary</p>
+                                <p class="score"><span>Lead score</span><b>80</b></p>
+                            </div>
+                            <ul class="summary-list">
+                                <li>Procurement wants about 40 seats for the field sales team.</li>
+                                <li>Q2 budget is confirmed.</li>
+                                <li>Next step: send a proposal by 8 March, then legal review.</li>
+                            </ul>
+                            <div class="score-bar"><i></i></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="pcd da" id="pd3" style="opacity:0;transform:translateX(-10px);transition:opacity .4s .26s,transform .4s .26s">
-              <div class="pcdi">
-                <div class="pcdn">Wayne Ent.</div>
-                <div class="pcdm">$62,000 · Demo scheduled · 3 days ago</div>
-              </div>
-              <div class="pcds">
-                <div class="pcdp" style="color:var(--amber)"><span class="spulse" style="background:var(--amber)"></span>68%</div>
-                <div class="pcdpl">win prob.</div>
-              </div>
+        </section>
+
+        <!-- ============ Read-only (dark) ============ -->
+        <section class="trust" data-theme="dark">
+            <div class="wrap">
+                <div class="rail rail-dark">
+                    <div class="trust-head">
+                        <p class="intel-kicker">Built to be trusted</p>
+                        <h2 class="trust-title">Reads everything. Changes nothing.</h2>
+                    </div>
+
+                    <div class="trust-chat">
+                        <p class="chat-me">Delete the Stripe deal.</p>
+                        <div class="trust-reply">
+                            <span class="ai-avatar">S</span>
+                            <p>I'm read-only, so I can't create, edit or delete records. You can delete the deal from
+                                its page in Opportunities.</p>
+                        </div>
+                    </div>
+
+                    <div class="intel-grid trust-grid">
+                        <div class="intel-item">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></svg>
+                            <h3>Reads, never writes.</h3>
+                            <p>Safi AI can look things up, total them and explain them. It can't change a record.</p>
+                        </div>
+                        <div class="intel-item">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg>
+                            <h3>Sees what you see.</h3>
+                            <p>Reps get answers about their own work. Managers can ask about the whole team.</p>
+                        </div>
+                        <div class="intel-item">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>
+                            <h3>Stays in your workspace.</h3>
+                            <p>Every question is checked against your login and answered from your organisation only.</p>
+                        </div>
+                        <div class="intel-item">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9z" /></svg>
+                            <h3>Powered by Gemini.</h3>
+                            <p>Requests run through SafiTrack's servers, so no AI key ever reaches the browser.</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="pcd dr" id="pd4" style="opacity:0;transform:translateX(-10px);transition:opacity .4s .39s,transform .4s .39s">
-              <div class="pcdi">
-                <div class="pcdn">Stark Labs</div>
-                <div class="pcdm">$18,000 · Stalled · No contact in 14 days</div>
-              </div>
-              <div class="pcds">
-                <div class="pcdp" style="color:var(--red)"><span class="spulse" style="background:var(--red)"></span>35%</div>
-                <div class="pcdpl">win prob.</div>
-              </div>
+        </section>
+
+        <!-- ============ Auto Plan ============ -->
+        <section class="plan-sec">
+            <div class="wrap">
+                <div class="rail writeup-grid">
+                    <div class="writeup-copy">
+                        <p class="tag">Auto Plan</p>
+                        <h2 class="split-title">Plan the whole team's day.
+                            <span>In one go.</span></h2>
+                        <p class="writeup-text">Pick the reps and the accounts. Auto Plan splits the accounts into
+                            routes by area, orders each route by distance, and flags any stop that's too far out to
+                            fit.</p>
+                        <a href="route-plans-feature.html" class="card-link">Route plans <span aria-hidden="true">→</span></a>
+                    </div>
+                    <div class="writeup-art plan-art" aria-hidden="true">
+                        <svg class="plan-svg" viewBox="0 0 520 380">
+                            <g class="plan-route r1">
+                                <path d="M260 190 L178 150 L120 96 L74 120" />
+                                <circle cx="178" cy="150" r="6" /><circle cx="120" cy="96" r="6" /><circle cx="74" cy="120" r="6" />
+                            </g>
+                            <g class="plan-route r2">
+                                <path d="M260 190 L330 120 L402 92 L452 140" />
+                                <circle cx="330" cy="120" r="6" /><circle cx="402" cy="92" r="6" /><circle cx="452" cy="140" r="6" />
+                            </g>
+                            <g class="plan-route r3">
+                                <path d="M260 190 L292 262 L232 310 L156 290" />
+                                <circle cx="292" cy="262" r="6" /><circle cx="232" cy="310" r="6" /><circle cx="156" cy="290" r="6" />
+                            </g>
+                            <circle class="plan-far" cx="488" cy="330" r="6" />
+                            <text class="plan-far-label" x="478" y="356" text-anchor="end">Too far · left out</text>
+                            <circle class="plan-hub" cx="260" cy="190" r="8" />
+                        </svg>
+                        <ul class="plan-legend">
+                            <li><i class="l1"></i>Alex · 3 stops</li>
+                            <li><i class="l2"></i>Sarah · 3 stops</li>
+                            <li><i class="l3"></i>James · 3 stops</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-          </div>
-          <div class="pcbar2" id="pcbar2">
-            <span class="pcbar2-label">AI Forecast · This month</span>
-            <span class="pcbar2-val">$135K expected · High confidence</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+        </section>
 
-<!-- ══ SECTION 3: Auto-summarization ══ -->
-<section class="sec">
-  <div class="w">
-    <div class="spl">
-      <div class="fi">
-        <p class="ey">Auto-Summarization</p>
-        <h2 class="st">AI that writes<br><em>your reports.</em></h2>
-        <p class="sd">Dump your raw notes after a visit or call. Safi AI extracts the attendees, decisions, requirements, and action items — and formats them into a structured record automatically.</p>
-        <ul class="cl">
-          <li><span class="cli"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Visit and call report generation</li>
-          <li><span class="cli"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Action item extraction from free-form notes</li>
-          <li><span class="cli"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Deal records updated in one step</li>
-        </ul>
-      </div>
-
-      <!-- TRANSFORM VISUAL -->
-      <div class="vs fi d1" id="tvis">
-        <div class="vsbar">
-          <div class="d" style="background:#ff5f57"></div>
-          <div class="d" style="background:#febc2e"></div>
-          <div class="d" style="background:#28c840"></div>
-          <span class="vsbartitle">Note → Structured Record</span>
-        </div>
-        <div class="tvtop">
-          <div class="tvlabel">Raw input</div>
-          <div class="tvraw">"met eleanor and robert at acme. budget 45k approved. sf integration needed. proposal due march 10. robert now owns deal. go live end q2."</div>
-        </div>
-        <div class="tvmid">
-          <div class="tvtrack"></div>
-          <div class="tvbadge">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 18V5"/><path d="M15 13a4 4 0 0 1-3-4 4 4 0 0 1-3 4"/></svg>
-            Safi AI processed
-          </div>
-          <div class="tvtrack"></div>
-        </div>
-        <div class="tvout">
-          <div class="tvlabel">Structured output</div>
-          <div class="tvfields">
-            <div class="tvf" id="tf1"><span class="tvfk">Meeting</span><span class="tvfv">Q3 Budget Review — Acme Corp</span></div>
-            <div class="tvf" id="tf2"><span class="tvfk">Attendees</span><span class="tvfv">Eleanor Pena, Robert Garcia</span></div>
-            <div class="tvf" id="tf3"><span class="tvfk">Budget</span><span class="tvfv">$45,000 confirmed<span class="tvcheck"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></span></div>
-            <div class="tvf" id="tf4"><span class="tvfk">Deal owner</span><span class="tvfv">Robert Garcia <span style="color:var(--ink3);font-size:11px">(updated)</span></span></div>
-            <div class="tvf" id="tf5"><span class="tvfk">Requirements</span><span class="tvfv">Salesforce integration</span></div>
-            <div class="tvf" id="tf6"><span class="tvfk">Actions</span><span class="tvfv">Send proposal by Mar 10 · Update deal owner to Robert</span></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══ SECTION 4: At-Risk Alerts ══ -->
-<section class="sec sec-off">
-  <div class="w">
-    <div class="spl rev">
-      <div class="fi">
-        <p class="ey">Proactive Alerts</p>
-        <h2 class="st">Know before<br><em>deals go cold.</em></h2>
-        <p class="sd">Safi AI watches for signals that a deal is drifting — no contact, stalled stages, missed follow-ups. You get a clear alert before it becomes a lost opportunity.</p>
-        <ul class="cl">
-          <li><span class="cli"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>No-contact alerts after configurable thresholds</li>
-          <li><span class="cli"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Stalled stage detection and suggested actions</li>
-          <li><span class="cli"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Overdue task and proposal reminders</li>
-        </ul>
-      </div>
-
-      <!-- AT-RISK ALERTS VISUAL -->
-      <div class="vs fi d1" id="avis">
-        <div class="vsbar">
-          <div class="d" style="background:#ff5f57"></div>
-          <div class="d" style="background:#febc2e"></div>
-          <div class="d" style="background:#28c840"></div>
-          <span class="vsbartitle">At-Risk Alerts</span>
-        </div>
-        <div class="alert-head">
-          <span class="alert-head-title">Deals needing attention</span>
-          <span class="alert-count">3 alerts</span>
-        </div>
-        <div class="alert-list" id="alist">
-          <div class="alert-row sev-high" id="ar1">
-            <div class="alert-icon high">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <!-- ============ FAQ ============ -->
+        <section class="faq">
+            <div class="wrap">
+                <div class="rail faq-grid">
+                    <h2 class="split-title faq-title">Questions.<span>Answered.</span></h2>
+                    <div class="faq-list">
+                        <details>
+                            <summary>Can Safi AI change my data?</summary>
+                            <p>No. Safi AI is read-only. If you ask it to create, edit or delete something, it tells
+                                you where to do it in SafiTrack instead.</p>
+                        </details>
+                        <details>
+                            <summary>What can my reps see?</summary>
+                            <p>The same as they can in the app. Reps get answers about their own tasks, deals and
+                                visits. Managers can ask about the whole team.</p>
+                        </details>
+                        <details>
+                            <summary>Which AI model does it use?</summary>
+                            <p>Google Gemini. Requests go through SafiTrack's servers, which hold the key, so nothing
+                                sensitive is exposed in the browser.</p>
+                        </details>
+                        <details>
+                            <summary>Do I need to set anything up?</summary>
+                            <p>No. Visit summaries and lead scores are added automatically when a visit is logged,
+                                and you can open the assistant from Ask Safi at the top of the app.</p>
+                        </details>
+                    </div>
+                </div>
             </div>
-            <div class="alert-body">
-              <div class="alert-co">Stark Labs — $18,000</div>
-              <div class="alert-msg">No contact in 14 days. Deal is stalled at Proposal stage with no scheduled follow-up.</div>
-              <div class="alert-action high">Suggested: Send a follow-up email today</div>
+        </section>
+
+        <!-- ============ CTA (dark) ============ -->
+        <section class="cta" data-theme="dark">
+            <div class="wrap">
+                <div class="rail rail-dark cta-box">
+                    <h2 class="cta-title">Ask your first question.</h2>
+                    <p class="cta-sub">Free for up to 2 users. Safi AI is built in.</p>
+                    <div class="hero-actions">
+                        <button type="button" class="btn btn-ghost btn-lg" data-contact>Talk to sales</button>
+                        <a href="/crm/?signup=1" class="btn btn-white btn-lg">Start for free</a>
+                    </div>
+                </div>
             </div>
-          </div>
-          <div class="alert-row sev-med" id="ar2">
-            <div class="alert-icon med">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            </div>
-            <div class="alert-body">
-              <div class="alert-co">Wayne Ent. — $62,000</div>
-              <div class="alert-msg">Demo was 5 days ago. Proposal not yet sent. Decision window may be closing.</div>
-              <div class="alert-action med">Suggested: Send proposal this week</div>
-            </div>
-          </div>
-          <div class="alert-row sev-med" id="ar3">
-            <div class="alert-icon med">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--amber)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-            </div>
-            <div class="alert-body">
-              <div class="alert-co">Acme Corp — $45,000</div>
-              <div class="alert-msg">Last contacted 5 days ago. High win probability but momentum may be slipping.</div>
-              <div class="alert-action med">Suggested: Check in with a call today</div>
-            </div>
-          </div>
-        </div>
-        <div class="alert-footer">
-          <span class="alert-footer-text">Updated 2 minutes ago</span>
-          <a href="#" class="alert-footer-link">View all alerts</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
+        </section>
+    </main>
 
-<!-- ══ SECTION 5: Weekly Digest ══ -->
-<section class="sec">
-  <div class="w">
-    <div class="spl">
-      <div class="fi">
-        <p class="ey">Weekly Intelligence</p>
-        <h2 class="st">Your week,<br><em>summarized.</em></h2>
-        <p class="sd">Every Monday, Safi AI generates a digest of last week's activity — what moved, what stalled, what closed, and what your team needs to focus on to hit their numbers.</p>
-        <ul class="cl">
-          <li><span class="cli"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Automated weekly and monthly digests</li>
-          <li><span class="cli"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Team performance breakdown by rep</li>
-          <li><span class="cli"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Revenue forecast vs. actual comparison</li>
-        </ul>
-      </div>
-
-      <!-- WEEKLY DIGEST VISUAL -->
-      <div class="vs fi d1" id="dvis">
-        <div class="vsbar">
-          <div class="d" style="background:#ff5f57"></div>
-          <div class="d" style="background:#febc2e"></div>
-          <div class="d" style="background:#28c840"></div>
-          <span class="vsbartitle">Weekly Digest — Mar 3–7</span>
-        </div>
-        <div class="dweek-header">
-          <span class="dweek-title">This week's summary</span>
-          <span class="dweek-badge">AI generated</span>
-        </div>
-        <div class="dweek-stats">
-          <div class="dst">
-            <div class="dstval">$87K</div>
-            <div class="dstlabel">Revenue closed</div>
-            <div class="dsttrend" style="color:var(--green)">+18% vs last week</div>
-          </div>
-          <div class="dst">
-            <div class="dstval">14</div>
-            <div class="dstlabel">Deals active</div>
-            <div class="dsttrend" style="color:var(--amber)">2 at risk</div>
-          </div>
-          <div class="dst">
-            <div class="dstval">6</div>
-            <div class="dstlabel">Visits logged</div>
-            <div class="dsttrend" style="color:var(--ink3)">3 reports auto-generated</div>
-          </div>
-        </div>
-        <div class="dweek-body" id="dbody">
-          <div class="dweek-item" id="di1">
-            <div class="dweek-item-dot" style="background:var(--green)"></div>
-            <div class="dweek-item-text"><strong>Acme Corp</strong> moved to Negotiation. Budget confirmed at $45K. High close probability this month.</div>
-          </div>
-          <div class="dweek-item" id="di2">
-            <div class="dweek-item-dot" style="background:var(--green)"></div>
-            <div class="dweek-item-text"><strong>Meridian Health</strong> deal closed at $31K. 2 visit reports auto-generated from field notes.</div>
-          </div>
-          <div class="dweek-item" id="di3">
-            <div class="dweek-item-dot" style="background:var(--red)"></div>
-            <div class="dweek-item-text"><strong>Stark Labs</strong> has not been contacted in 14 days. Win probability dropped from 58% to 35%.</div>
-          </div>
-          <div class="dweek-item" id="di4">
-            <div class="dweek-item-dot" style="background:var(--ink4)"></div>
-            <div class="dweek-item-text">Team completed <strong>23 tasks</strong> this week. 4 overdue tasks carry into next week.</div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══ CONTEXT GRID ══ -->
-<section class="sec sec-off2">
-  <div class="w">
-    <div class="w-sm" style="padding:0;max-width:560px;margin:0">
-      <div class="fi">
-        <p class="ey">Under the hood</p>
-        <h2 class="st">Real answers,<br><em>not guesses.</em></h2>
-        <p class="sd">Every answer Safi gives is sourced from your actual CRM records. Nothing invented, nothing hallucinated.</p>
-      </div>
-    </div>
-    <div class="ctxgrid fi d1">
-      <div class="ctxcell">
-        <h4>Semantic search</h4>
-        <p>Finds the right records instantly even with vague or conversational queries, across thousands of entries.</p>
-      </div>
-      <div class="ctxcell">
-        <h4>Full context awareness</h4>
-        <p>Pulls from visit notes, call logs, emails, and product usage — not just deal stages and amounts.</p>
-      </div>
-      <div class="ctxcell">
-        <h4>Pattern recognition</h4>
-        <p>Understands trends across your entire customer base, not just individual records or snapshots.</p>
-      </div>
-      <div class="ctxcell">
-        <h4>Permission-respecting</h4>
-        <p>Safi AI only surfaces what each user is already allowed to see. Your access controls are always enforced.</p>
-      </div>
-      <div class="ctxcell">
-        <h4>Always live</h4>
-        <p>No scheduled syncs or stale exports. Insights reflect your CRM data in real time, every query.</p>
-      </div>
-      <div class="ctxcell">
-        <h4>Human in the loop</h4>
-        <p>Safi suggests. You decide. Every recommendation can be accepted, edited, or dismissed — you stay in control.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ══ PROMPT LIBRARY ══ -->
-<section class="sec">
-  <div class="w">
-    <div style="max-width:520px;margin:0 auto;text-align:center" class="fi">
-      <p class="ey">Prompt library</p>
-      <h2 class="st">Best practice,<br><em>for everyone.</em></h2>
-      <p class="sd" style="max-width:400px;margin:0 auto">Pre-built prompts turn complex workflows into one-click intelligence — so every rep operates like your best rep.</p>
-    </div>
-  </div>
-  <div class="pscroll fi d1">
-    <div class="prow">
-      <div class="ppill"><div class="ppillt">Daily brief</div><div class="ppilld">Prep for today's meetings</div></div>
-      <div class="ppill"><div class="ppillt">Recap call</div><div class="ppilld">Structured summary from recording</div></div>
-      <div class="ppill"><div class="ppillt">Deal brief</div><div class="ppilld">Full overview before a key meeting</div></div>
-      <div class="ppill"><div class="ppillt">Follow-up email</div><div class="ppilld">Draft post-meeting outreach</div></div>
-      <div class="ppill"><div class="ppillt">Account research</div><div class="ppilld">Deep dive on any company</div></div>
-      <div class="ppill"><div class="ppillt">Objection handling</div><div class="ppilld">Targeted responses to likely pushback</div></div>
-      <div class="ppill"><div class="ppillt">Meeting prep</div><div class="ppilld">Full context before every call</div></div>
-      <div class="ppill"><div class="ppillt">Pipeline forecast</div><div class="ppilld">Revenue prediction with confidence</div></div>
-      <div class="ppill"><div class="ppillt">Daily brief</div><div class="ppilld">Prep for today's meetings</div></div>
-      <div class="ppill"><div class="ppillt">Recap call</div><div class="ppilld">Structured summary from recording</div></div>
-      <div class="ppill"><div class="ppillt">Deal brief</div><div class="ppilld">Full overview before a key meeting</div></div>
-      <div class="ppill"><div class="ppillt">Follow-up email</div><div class="ppilld">Draft post-meeting outreach</div></div>
-      <div class="ppill"><div class="ppillt">Account research</div><div class="ppilld">Deep dive on any company</div></div>
-      <div class="ppill"><div class="ppillt">Objection handling</div><div class="ppilld">Targeted responses to likely pushback</div></div>
-      <div class="ppill"><div class="ppillt">Meeting prep</div><div class="ppilld">Full context before every call</div></div>
-      <div class="ppill"><div class="ppillt">Pipeline forecast</div><div class="ppilld">Revenue prediction with confidence</div></div>
-    </div>
-    <div class="prow r2">
-      <div class="ppill"><div class="ppillt">QBR prep</div><div class="ppilld">Quarterly business review brief</div></div>
-      <div class="ppill"><div class="ppillt">Sales coaching</div><div class="ppilld">Improve your technique per call</div></div>
-      <div class="ppill"><div class="ppillt">Update deal</div><div class="ppilld">Auto-update from a recorded call</div></div>
-      <div class="ppill"><div class="ppillt">Next steps</div><div class="ppilld">Actionable follow-up tasks</div></div>
-      <div class="ppill"><div class="ppillt">Onboarding prep</div><div class="ppilld">Brief for customer onboarding calls</div></div>
-      <div class="ppill"><div class="ppillt">Product engagement</div><div class="ppilld">Usage trends by workspace</div></div>
-      <div class="ppill"><div class="ppillt">Feature outreach</div><div class="ppilld">Find customers who requested a feature</div></div>
-      <div class="ppill"><div class="ppillt">Churn risk</div><div class="ppilld">Flag accounts showing disengagement</div></div>
-      <div class="ppill"><div class="ppillt">QBR prep</div><div class="ppilld">Quarterly business review brief</div></div>
-      <div class="ppill"><div class="ppillt">Sales coaching</div><div class="ppilld">Improve your technique per call</div></div>
-      <div class="ppill"><div class="ppillt">Update deal</div><div class="ppilld">Auto-update from a recorded call</div></div>
-      <div class="ppill"><div class="ppillt">Next steps</div><div class="ppilld">Actionable follow-up tasks</div></div>
-      <div class="ppill"><div class="ppillt">Onboarding prep</div><div class="ppilld">Brief for customer onboarding calls</div></div>
-      <div class="ppill"><div class="ppillt">Product engagement</div><div class="ppilld">Usage trends by workspace</div></div>
-      <div class="ppill"><div class="ppillt">Feature outreach</div><div class="ppilld">Find customers who requested a feature</div></div>
-      <div class="ppill"><div class="ppillt">Churn risk</div><div class="ppilld">Flag accounts showing disengagement</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- ══ QUOTE ══ -->
-<div class="qsec">
-  <div class="qwrap fi">
-    <span class="qmark">"</span>
-    <blockquote>Before every meeting, Safi AI surfaces everything I need to know to give a great first impression — or close the deal.</blockquote>
-    <p class="qauth">Head of Sales · SafiTrack Customer</p>
-  </div>
-</div>
-
-<!-- ══ CTA ══ -->
-<section class="ctasec">
-  <div class="fi">
-    <h2>Your CRM,<br><em>finally intelligent.</em></h2>
-    <p>Let Safi analyze your pipeline, score your deals,<br>and surface the insights that close revenue.</p>
-    <div class="ctabtns">
-      <a href="../pricing.html#pricing-grid" class="btn-dark">Start for free</a>
-      <a href="../../index.html#product" class="btn-out">See the platform</a>
-    </div>
-  </div>
-</section>
-
-<!-- ══ FOOTER ══ -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
+    <!-- ============ Footer (dark) ============ -->
+    <footer class="footer" data-theme="dark">
+        <div class="wrap">
+            <div class="footer-top">
                 <div class="footer-brand">
-                    <div class="footer-logo-wrapper"><a href="../../index.html"><img
-                                src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a>
-                    </div>
+                    <img src="../../assets/icons/transparentMain.png" alt="SafiTrack" width="124" height="29">
+                    <p>The CRM for field sales teams.</p>
                 </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Product</h4>
-                        <ul>
-                            <li><a href="mainfeatures.html">Features</a></li>
-                            <li><a href="../pricing.html">Pricing</a></li>
-                            <li><a href="../integrations.html">Integrations</a></li>
-                            <li><a href="../comparison.html">Compare</a></li>
-                        </ul>
+                <div class="footer-cols">
+                    <div>
+                        <p class="footer-heading">Product</p>
+                        <a href="../../pages/features/mainfeatures.html">Features</a>
+                        <a href="../../pages/features/safi-ai-feature.html">Safi AI</a>
+                        <a href="../../pages/features/route-plans-feature.html">Route plans</a>
+                        <a href="../../pages/pricing.html">Pricing</a>
+                        <a href="../../pages/integrations.html">Integrations</a>
+                        <a href="../../pages/comparison.html">Compare</a>
                     </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Company</h4>
-                        <ul>
-                            <li><a href="../blog.html">Blog</a></li>
-                            <li><a href="../careers.html">Careers</a></li>
-                        </ul>
+                    <div>
+                        <p class="footer-heading">Company</p>
+                        <a href="../../pages/blog.html">Blog</a>
+                        <a href="../../pages/careers.html">Careers</a>
+                        <a href="../../pages/security.html">Security</a>
                     </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Resources</h4>
-                        <ul>
-                            <li><a href="../documentation.html">Documentation</a></li>
-                            <li><a href="../helpcenter.html">Help Center</a></li>
-                            <li><a href="../apireference.html">API Reference</a></li>
-                            <li><a href="../status.html">Status</a></li>
-                        </ul>
+                    <div>
+                        <p class="footer-heading">Resources</p>
+                        <a href="../../pages/documentation.html">Documentation</a>
+                        <a href="../../pages/helpcenter.html">Help center</a>
+                        <a href="../../pages/apireference.html">API reference</a>
+                        <a href="../../pages/status.html">System status</a>
                     </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Legal</h4>
-                        <ul>
-                            <li><a href="../legal/privacy.html">Privacy Policy</a></li>
-                            <li><a href="../legal/terms.html">Terms of Service</a></li>
-                            <li><a href="../security.html">Security</a></li>
-                        </ul>
+                    <div>
+                        <p class="footer-heading">Get started</p>
+                        <a href="/crm/?signup=1">Create an account</a>
+                        <a href="/crm/">Sign in</a>
+                        <button type="button" class="footer-link" data-contact>Talk to sales</button>
                     </div>
                 </div>
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-                <div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div>
+                <nav aria-label="Legal">
+                    <a href="../../pages/legal/terms.html">Terms of service</a>
+                    <a href="../../pages/legal/privacy.html">Privacy policy</a>
+                </nav>
             </div>
         </div>
     </footer>
 
-<script>
-// ── Fade in on scroll ──
-const io = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('vis'); io.unobserve(e.target); } });
-}, { threshold: 0.08 });
-document.querySelectorAll('.fi').forEach(el => io.observe(el));
+    <!-- ============ Contact dialog ============ -->
+    <dialog class="contact" id="contact" aria-labelledby="contact-title">
+        <button type="button" class="contact-close" data-close aria-label="Close">
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+                <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+        </button>
 
-// ── SECTION 1: Typewriter query terminal ──
-const queries = [
-  "Show me deals closing this week",
-  "Who hasn't been contacted in 2 weeks?",
-  "What's our win rate this quarter?",
-  "Which rep is leading in closed revenue?"
-];
-let qi = 0, ci = 0, typing = true, qstarted = false;
+        <div class="contact-body" data-state="form">
+            <h2 class="contact-title" id="contact-title">Talk to sales</h2>
+            <p class="contact-sub">Tell us a little about your team and we'll be in touch to set up a walkthrough.</p>
 
-const showQ = () => {
-  ['qr1','qr2','qr3','qr4'].forEach((id, i) => setTimeout(() => document.getElementById(id)?.classList.add('on'), i * 130));
-  setTimeout(() => document.getElementById('qnote')?.classList.add('on'), 700);
-};
-const hideQ = () => ['qr1','qr2','qr3','qr4','qnote'].forEach(id => document.getElementById(id)?.classList.remove('on'));
+            <form id="contact-form" novalidate>
+                <input type="hidden" name="plan" id="selected-plan" value="General">
+                <div class="field-row">
+                    <label class="field">
+                        <span>First name</span>
+                        <input type="text" name="first_name" autocomplete="given-name" required>
+                    </label>
+                    <label class="field">
+                        <span>Last name</span>
+                        <input type="text" name="last_name" autocomplete="family-name" required>
+                    </label>
+                </div>
+                <label class="field">
+                    <span>Work email</span>
+                    <input type="email" name="from_email" autocomplete="email" required>
+                </label>
+                <div class="field-row">
+                    <label class="field">
+                        <span>Company</span>
+                        <input type="text" name="company_name" autocomplete="organization" required>
+                    </label>
+                    <label class="field">
+                        <span>Job title</span>
+                        <input type="text" name="job_title" autocomplete="organization-title" required>
+                    </label>
+                </div>
+                <div class="field-row">
+                    <label class="field">
+                        <span>Team size</span>
+                        <select name="company_size" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="1-10">1–10</option>
+                            <option value="11-50">11–50</option>
+                            <option value="51-200">51–200</option>
+                            <option value="201-500">201–500</option>
+                            <option value="501+">501+</option>
+                        </select>
+                    </label>
+                    <label class="field">
+                        <span>Country</span>
+                        <select name="region" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="KE">Kenya</option>
+                            <option value="NG">Nigeria</option>
+                            <option value="ZA">South Africa</option>
+                            <option value="AE">United Arab Emirates</option>
+                            <option value="IN">India</option>
+                            <option value="UK">United Kingdom</option>
+                            <option value="US">United States</option>
+                            <option value="CA">Canada</option>
+                            <option value="AU">Australia</option>
+                            <option value="DE">Germany</option>
+                            <option value="FR">France</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </label>
+                </div>
+                <label class="check">
+                    <input type="checkbox" name="terms" required>
+                    <span>I agree to the <a href="../../pages/legal/terms.html">Terms</a> and
+                        <a href="../../pages/legal/privacy.html">Privacy Policy</a>.</span>
+                </label>
+                <button type="submit" class="btn btn-dark btn-block btn-lg" id="contact-submit">Send request</button>
+            </form>
+        </div>
 
-function tickQ() {
-  const el = document.getElementById('qtxt');
-  if (!el) return;
-  const cur = queries[qi];
-  if (typing) {
-    el.innerHTML = cur.slice(0, ci) + '<span class="qtcur"></span>';
-    if (ci < cur.length) { ci++; setTimeout(tickQ, 44); }
-    else { typing = false; showQ(); setTimeout(tickQ, 3000); }
-  } else {
-    hideQ();
-    if (ci > 0) { el.innerHTML = cur.slice(0, ci) + '<span class="qtcur"></span>'; ci--; setTimeout(tickQ, 18); }
-    else { typing = true; qi = (qi + 1) % queries.length; setTimeout(tickQ, 400); }
-  }
-}
+        <div class="contact-body contact-result" data-state="success" hidden>
+            <h2 class="contact-title">Thanks, we've got it.</h2>
+            <p class="contact-sub">Someone from our team will reach out to the email you gave us shortly.</p>
+            <button type="button" class="btn btn-light btn-block" data-close>Done</button>
+        </div>
 
-new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting && !qstarted) { qstarted = true; setTimeout(tickQ, 700); } });
-}, { threshold: 0.3 }).observe(document.getElementById('qvis'));
-
-// ── SECTION 2: Pipeline deals slide in ──
-new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      ['pd1','pd2','pd3','pd4'].forEach((id, i) => setTimeout(() => {
-        const el = document.getElementById(id);
-        if (el) { el.style.opacity = '1'; el.style.transform = 'none'; }
-      }, 180 + i * 150));
-      setTimeout(() => document.getElementById('pcbar2')?.classList.add('on'), 900);
-    }
-  });
-}, { threshold: 0.25 }).observe(document.getElementById('pvis'));
-
-// ── SECTION 3: Transform fields ──
-new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      ['tf1','tf2','tf3','tf4','tf5','tf6'].forEach((id, i) => setTimeout(() => document.getElementById(id)?.classList.add('on'), 380 + i * 110));
-    }
-  });
-}, { threshold: 0.25 }).observe(document.getElementById('tvis'));
-
-// ── SECTION 4: Alert rows slide in ──
-new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      ['ar1','ar2','ar3'].forEach((id, i) => setTimeout(() => document.getElementById(id)?.classList.add('on'), 200 + i * 160));
-    }
-  });
-}, { threshold: 0.25 }).observe(document.getElementById('avis'));
-
-// ── SECTION 5: Digest items ──
-new IntersectionObserver(entries => {
-  entries.forEach(e => {
-    if (e.isIntersecting) {
-      ['di1','di2','di3','di4'].forEach((id, i) => setTimeout(() => document.getElementById(id)?.classList.add('on'), 200 + i * 140));
-    }
-  });
-}, { threshold: 0.25 }).observe(document.getElementById('dvis'));
-</script>
-    <script src="feature-page.js"></script>
-    <script src="../../landing.js"></script>
+        <div class="contact-body contact-result" data-state="error" hidden>
+            <h2 class="contact-title">That didn't go through.</h2>
+            <p class="contact-sub">Please check your connection and try again.</p>
+            <button type="button" class="btn btn-dark btn-block" data-retry>Try again</button>
+        </div>
+    </dialog>
 </body>
+
 </html>

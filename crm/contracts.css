@@ -398,12 +398,12 @@
 }
 
 .contracts-compact-card--overdue {
-  border-left: 3px solid #ef4444;
+  border-color: rgba(239, 68, 68, 0.35);
   background: rgba(239, 68, 68, 0.04);
 }
 
 .contracts-compact-card--today {
-  border-left: 3px solid #f59e0b;
+  border-color: rgba(245, 158, 11, 0.4);
   background: rgba(245, 158, 11, 0.04);
 }
 
@@ -454,11 +454,11 @@
 }
 
 .contracts-list-card--overdue {
-  border-left: 3px solid #ef4444;
+  border-color: rgba(239, 68, 68, 0.35);
 }
 
 .contracts-list-card--today {
-  border-left: 3px solid #f59e0b;
+  border-color: rgba(245, 158, 11, 0.4);
 }
 
 .contracts-list-card-body {
