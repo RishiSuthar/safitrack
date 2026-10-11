@@ -11,7 +11,10 @@
     initNav();
     initRotator();
     initShowcase();
+    initWindows();
     initStatement();
+    initFlow();
+    initIntel();
     initTestimonials();
     initContact();
 
@@ -22,7 +25,16 @@
         const nav = document.getElementById('nav');
         if (!nav) return;
 
-        const onScroll = () => nav.classList.toggle('is-scrolled', window.scrollY > 8);
+        // Switch the nav to its dark style while a dark section sits under it.
+        const darkSections = [...document.querySelectorAll('[data-theme="dark"]')];
+        const onScroll = () => {
+            nav.classList.toggle('is-scrolled', window.scrollY > 8);
+            const line = nav.offsetHeight / 2;
+            nav.classList.toggle('is-dark', darkSections.some(sec => {
+                const r = sec.getBoundingClientRect();
+                return r.top <= line && r.bottom > line;
+            }));
+        };
         window.addEventListener('scroll', onScroll, { passive: true });
         onScroll();
 
@@ -227,6 +239,130 @@
                 cancelAnimationFrame(raf);
             }
         }, { threshold: 0.25 }).observe(video);
+    }
+
+    // ------------------------------------------------------
+    // Showcase windows: drag them around; the activity feed ticks over
+    // ------------------------------------------------------
+    function initWindows() {
+        const wins = [...document.querySelectorAll('[data-drag]')];
+        const hero = document.querySelector('.hero');
+        const showcase = document.querySelector('.showcase');
+        if (!wins.length || !hero || !showcase) return;
+
+        const EDGE = 8;
+        let z = 10;
+
+        wins.forEach(win => {
+            let pointer = null;
+            let start = null;
+            let offset = { x: 0, y: 0 };
+            let limits = null;
+
+            win.addEventListener('pointerdown', (e) => {
+                if (e.button !== 0) return;
+                pointer = e.pointerId;
+                win.setPointerCapture(pointer);
+                win.classList.add('is-dragging');
+                win.style.zIndex = ++z;
+                start = { x: e.clientX, y: e.clientY, ox: offset.x, oy: offset.y };
+
+                // Keep the window on screen and within the hero + showcase area.
+                const r = win.getBoundingClientRect();
+                const top = hero.getBoundingClientRect().top;
+                const bottom = showcase.getBoundingClientRect().bottom;
+                limits = {
+                    minX: EDGE - r.left, maxX: window.innerWidth - EDGE - r.right,
+                    minY: top + EDGE - r.top, maxY: bottom - EDGE - r.bottom,
+                };
+            });
+
+            win.addEventListener('pointermove', (e) => {
+                if (e.pointerId !== pointer) return;
+                const dx = clamp(e.clientX - start.x, limits.minX, limits.maxX);
+                const dy = clamp(e.clientY - start.y, limits.minY, limits.maxY);
+                offset = { x: start.ox + dx, y: start.oy + dy };
+                win.style.setProperty('--dx', offset.x + 'px');
+                win.style.setProperty('--dy', offset.y + 'px');
+            });
+
+            const end = (e) => {
+                if (e.pointerId !== pointer) return;
+                pointer = null;
+                win.classList.remove('is-dragging');
+            };
+            win.addEventListener('pointerup', end);
+            win.addEventListener('pointercancel', end);
+        });
+
+        // Team activity: a new entry arrives every few seconds.
+        const feed = document.querySelector('.win-feed .win-body');
+        if (!feed || reducedMotion) return;
+        const times = [...feed.querySelectorAll('time')].map(t => t.textContent);
+
+        setInterval(() => {
+            if (document.hidden || getComputedStyle(feed.closest('.win')).display === 'none') return;
+            const items = feed.querySelectorAll('.feed-item');
+            const last = items[items.length - 1];
+            last.classList.remove('is-new');
+            feed.prepend(last);
+            void last.offsetWidth;
+            last.classList.add('is-new');
+            feed.querySelectorAll('time').forEach((t, i) => (t.textContent = times[i]));
+        }, 3600);
+    }
+
+    // ------------------------------------------------------
+    // Features: highlight the panel in view; run the workflow demo
+    // ------------------------------------------------------
+    function initFlow() {
+        const links = [...document.querySelectorAll('.flow-nav a')];
+        const panels = links.map(a => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+        if (!panels.length) return;
+
+        const setActive = (id) => links.forEach(a => a.classList.toggle('is-active', a.getAttribute('href') === '#' + id));
+
+        // A panel is "current" when it crosses the middle of the viewport.
+        const io = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) setActive(entry.target.id);
+            });
+        }, { rootMargin: '-45% 0px -54% 0px' });
+        panels.forEach(p => io.observe(p));
+
+        const wf = document.querySelector('.wf');
+        if (wf) {
+            new IntersectionObserver(([entry], obs) => {
+                if (!entry.isIntersecting) return;
+                wf.classList.add('is-run');
+                obs.disconnect();
+            }, { threshold: 0.6 }).observe(wf);
+        }
+    }
+
+    // ------------------------------------------------------
+    // Field Intelligence: the horizon rises as the section scrolls in
+    // ------------------------------------------------------
+    function initIntel() {
+        const stage = document.querySelector('.intel-stage');
+        const planet = stage && stage.querySelector('.planet');
+        if (!planet || reducedMotion) return;
+
+        let queued = false;
+        const update = () => {
+            queued = false;
+            const top = stage.getBoundingClientRect().top;
+            const p = clamp((window.innerHeight - top) / (window.innerHeight * 0.85), 0, 1);
+            planet.style.setProperty('--p', p.toFixed(3));
+        };
+        const request = () => {
+            if (queued) return;
+            queued = true;
+            requestAnimationFrame(update);
+        };
+        window.addEventListener('scroll', request, { passive: true });
+        window.addEventListener('resize', request);
+        update();
     }
 
     // ------------------------------------------------------
