@@ -1,3 +1,9 @@
+# The comparison page was retired; send old links home.
+[[redirects]]
+  from = "/pages/comparison.html"
+  to = "/"
+  status = 301
+
 # Database and edge-function source is not part of the website.
 [[redirects]]
   from = "/supabase/*"
