@@ -1,6 +1,6 @@
 /* ==========================================================
    SafiTrack home page
-   Standalone stylesheet; sub-pages keep using landing.css.
+   Shared base: tokens, nav, footer, buttons and home page sections.
    ========================================================== */
 
 :root {
