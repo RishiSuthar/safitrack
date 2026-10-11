@@ -4,813 +4,530 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Call Logs - SafiTrack CRM</title>
-    <meta name="description"
-        content="Log every call and track outcomes in SafiTrack. Complete call history, notes, and follow-up actions for every conversation your sales team has.">
+    <title>Call logs | SafiTrack</title>
+    <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
+    <meta name="description" content="Log every call and track outcomes in SafiTrack. Complete call history, notes, and follow-up actions for every conversation your sales team has.">
+    <meta name="theme-color" content="#ffffff">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://safitrack.netlify.app/pages/features/call-logs-feature.html">
-    <meta property="og:title" content="Call Logs — SafiTrack CRM">
-    <meta property="og:description"
-        content="Log every call and track outcomes in SafiTrack. Complete call history, notes, and follow-up actions for every conversation your sales team has.">
+    <meta property="og:title" content="Call logs | SafiTrack">
+    <meta property="og:description" content="Log every call and track outcomes in SafiTrack. Complete call history, notes, and follow-up actions for every conversation your sales team has.">
     <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://safitrack.netlify.app/pages/features/call-logs-feature.html">
-    <meta property="twitter:title" content="Call Logs — SafiTrack CRM">
-    <meta property="twitter:description"
-        content="Log every call and track outcomes in SafiTrack. Complete call history, notes, and follow-up actions for every conversation your sales team has.">
+    <meta property="twitter:title" content="Call logs | SafiTrack">
+    <meta property="twitter:description" content="Log every call and track outcomes in SafiTrack. Complete call history, notes, and follow-up actions for every conversation your sales team has.">
     <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
-    <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="../../landing.css">
-    <link rel="stylesheet" href="feature-page.css">
-    <style>
-        :root {
-            --accent: #0b1220;
-        }
-    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../home.css">
+    <link rel="stylesheet" href="../../site.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+    <script src="../../config.js"></script>
+    <script src="../../home.js" defer></script>
+
 </head>
 
 <body>
-    <nav class="navbar" id="navbar">
-        <div class="container">
-            <div class="nav-content">
-                <div class="nav-left">
-                    <a href="../../index.html" class="logo"><img src="../../assets/icons/transparentMain.png"
-                            alt="SafiTrack"></a>
-                    <div class="nav-links">
-                        <div class="nav-item nav-features">
-                            <a href="mainfeatures.html" class="nav-link-toggle">Features
-                                <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg></span>
-                            </a>
-                            <div class="mega-menu" aria-hidden="true">
-                                <div class="mega-content-grid">
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Platform</div>
-                                        <div class="mega-items-grid">
-                                            <a href="safi-ai-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Safi AI</div>
-                                                    <div class="mega-desc">AI insights native to your CRM</div>
-                                                </div>
-                                            </a>
-                                            <a href="opportunities-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                                                        <path d="M2 17l10 5 10-5" />
-                                                        <path d="M2 12l10 5 10-5" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Pipelines</div>
-                                                    <div class="mega-desc">Visual deal tracking &amp; management</div>
-                                                </div>
-                                            </a>
-                                            <a href="companies-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
-                                                        <path d="M9 22v-4h6v4" />
-                                                        <path d="M8 6h.01" />
-                                                        <path d="M16 6h.01" />
-                                                        <path d="M8 10h.01" />
-                                                        <path d="M16 10h.01" />
-                                                        <path d="M8 14h.01" />
-                                                        <path d="M16 14h.01" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Companies</div>
-                                                    <div class="mega-desc">Complete organization context</div>
-                                                </div>
-                                            </a>
-                                            <a href="people-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                                        <circle cx="9" cy="7" r="4" />
-                                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">People</div>
-                                                    <div class="mega-desc">Unified contact management</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Operations</div>
-                                        <div class="mega-items-grid">
-                                            <a href="sales-visits-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                                        <circle cx="12" cy="10" r="3" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Sales visits</div>
-                                                    <div class="mega-desc">Field activity &amp; visit logging</div>
-                                                </div>
-                                            </a>
-                                            <a href="route-plans-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <circle cx="6" cy="19" r="3" />
-                                                        <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
-                                                        <circle cx="18" cy="5" r="3" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Route plans</div>
-                                                    <div class="mega-desc">Optimized field routing</div>
-                                                </div>
-                                            </a>
-                                            <a href="technician-visits-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Service visits</div>
-                                                    <div class="mega-desc">Post-sales technician tracking</div>
-                                                </div>
-                                            </a>
-                                            <a href="tasks-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <polyline points="9 11 12 14 22 4" />
-                                                        <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Tasks</div>
-                                                    <div class="mega-desc">Operational to-do management</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Insights &amp; Automation</div>
-                                        <div class="mega-items-grid">
-                                            <a href="call-logs-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Call Intelligence</div>
-                                                    <div class="mega-desc">Record &amp; analyze meetings</div>
-                                                </div>
-                                            </a>
-                                            <a href="notes-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Notes</div>
-                                                    <div class="mega-desc">Native meeting summaries</div>
-                                                </div>
-                                            </a>
-                                            <a href="reminders-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Reminders</div>
-                                                    <div class="mega-desc">Smart follow-up alerts</div>
-                                                </div>
-                                            </a>
-                                            <a href="reports-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Reports</div>
-                                                    <div class="mega-desc">Custom analytics &amp; dashboards</div>
-                                                </div>
-                                            </a>
-                                            <a href="workflows-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Workflows</div>
-                                                    <div class="mega-desc">Automate repetitive tasks</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mega-sidebar">
-                                    <div class="mega-sidebar-header">Get Started</div>
-                                    <ul class="mega-sidebar-list">
-                                        <li><a href="/crm/"><span>Open CRM</span></a></li>
-                                        <li><a href="../pricing.html"><span>View Pricing</span></a></li>
-                                        <li><a href="../../index.html#pricing"><span>Request Demo</span></a></li>
-                                    </ul>
-                                    <div class="mega-sidebar-footer">
-                                        <p>Trusted by 2,000+ teams</p>
-                                    </div>
-                                </div>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- ============ Navigation ============ -->
+    <header class="nav" id="nav">
+        <div class="wrap nav-inner">
+            <a href="/" class="nav-logo" aria-label="SafiTrack home">
+                <img src="../../assets/icons/transparentMain.png" alt="SafiTrack" width="108" height="25">
+            </a>
+
+            <nav class="nav-links" aria-label="Main">
+                <div class="nav-item has-menu">
+                    <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="menu-features">
+                        Features
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="menu" id="menu-features">
+                        <div class="menu-grid">
+                            <div class="menu-col">
+                                <p class="menu-heading">Platform</p>
+                                <a href="../../pages/features/safi-ai-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9z" /></svg></span>
+                                    <span><strong>Safi AI</strong><small>An assistant that knows your pipeline</small></span>
+                                </a>
+                                <a href="../../pages/features/opportunities-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg></span>
+                                    <span><strong>Pipelines</strong><small>Track every deal to close</small></span>
+                                </a>
+                                <a href="../../pages/features/companies-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" /><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01" /></svg></span>
+                                    <span><strong>Companies</strong><small>Every account in one record</small></span>
+                                </a>
+                                <a href="../../pages/features/people-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg></span>
+                                    <span><strong>People</strong><small>Contacts with full history</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">In the field</p>
+                                <a href="../../pages/features/sales-visits-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg></span>
+                                    <span><strong>Sales visits</strong><small>Log visits from your phone</small></span>
+                                </a>
+                                <a href="../../pages/features/route-plans-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="3" /><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /><circle cx="18" cy="5" r="3" /></svg></span>
+                                    <span><strong>Route plans</strong><small>Plan and assign the day's stops</small></span>
+                                </a>
+                                <a href="../../pages/features/technician-visits-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg></span>
+                                    <span><strong>Service visits</strong><small>Technician jobs after the sale</small></span>
+                                </a>
+                                <a href="../../pages/features/tasks-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg></span>
+                                    <span><strong>Tasks</strong><small>What needs doing, and by whom</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">Insight &amp; automation</p>
+                                <a href="../../pages/features/call-logs-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" /></svg></span>
+                                    <span><strong>Call logs</strong><small>Every conversation, on record</small></span>
+                                </a>
+                                <a href="../../pages/features/notes-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg></span>
+                                    <span><strong>Notes</strong><small>Meeting notes next to the deal</small></span>
+                                </a>
+                                <a href="../../pages/features/reminders-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg></span>
+                                    <span><strong>Reminders</strong><small>Never miss a follow-up</small></span>
+                                </a>
+                                <a href="../../pages/features/reports-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6" /></svg></span>
+                                    <span><strong>Reports</strong><small>Dashboards for the whole team</small></span>
+                                </a>
+                                <a href="../../pages/features/workflows-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg></span>
+                                    <span><strong>Workflows</strong><small>Automate the busywork</small></span>
+                                </a>
                             </div>
                         </div>
-                        <div class="nav-item nav-resources">
-                            <a href="../documentation.html" class="nav-link-toggle">Resources
-                                <span class="nav-caret" aria-hidden="true"><svg viewBox="0 0 12 8" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg></span>
-                            </a>
-                            <div class="mega-menu" aria-hidden="true">
-                                <div class="mega-content-grid">
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Insights</div>
-                                        <div class="mega-items-grid">
-                                            <a href="../integrations.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                                                        <path d="M2 17l10 5 10-5" />
-                                                        <path d="M2 12l10 5 10-5" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Integrations</div>
-                                                    <div class="mega-desc">Connect your stack</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Support</div>
-                                        <div class="mega-items-grid">
-                                            <a href="../documentation.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                                                        <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Documentation</div>
-                                                    <div class="mega-desc">Guides and tutorials</div>
-                                                </div>
-                                            </a>
-                                            <a href="../helpcenter.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <circle cx="12" cy="12" r="10" />
-                                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                                                        <line x1="12" y1="17" x2="12.01" y2="17" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Help Center</div>
-                                                    <div class="mega-desc">Get support</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Developers</div>
-                                        <div class="mega-items-grid">
-                                            <a href="../apireference.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <polyline points="16 18 22 12 16 6" />
-                                                        <polyline points="8 6 2 12 8 18" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">API Reference</div>
-                                                    <div class="mega-desc">Build with SafiTrack</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="mega-sidebar">
-                                    <div class="mega-sidebar-header">More</div>
-                                    <ul class="mega-sidebar-list">
-                                        <li><a href="../blog.html"><span>Blog</span></a></li>
-                                        <li><a href="../careers.html"><span>Careers</span></a></li>
-                                        <li><a href="../status.html"><span>Status</span></a></li>
-                                    </ul>
-                                    <div class="mega-sidebar-footer">
-                                        <p>Always growing</p>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="menu-foot">
+                            <a href="../../pages/features/mainfeatures.html">See all features <span aria-hidden="true">→</span></a>
                         </div>
-                        <a href="../pricing.html">Pricing</a>
                     </div>
                 </div>
-                <div class="nav-actions"><a href="/crm/" class="nav-link-sign-in">Sign in</a><a
-                        href="../pricing.html#pricing-grid" class="btn-hero-primary">Start for free</a></div>
-                <button class="mobile-menu-btn" aria-label="Toggle Menu"><span></span><span></span></button>
+
+                <div class="nav-item has-menu">
+                    <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="menu-resources">
+                        Resources
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="menu menu-sm" id="menu-resources">
+                        <div class="menu-grid">
+                            <div class="menu-col">
+                                <p class="menu-heading">Learn</p>
+                                <a href="../../pages/documentation.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg></span>
+                                    <span><strong>Documentation</strong><small>Guides and how-tos</small></span>
+                                </a>
+                                <a href="../../pages/helpcenter.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg></span>
+                                    <span><strong>Help center</strong><small>Answers and support</small></span>
+                                </a>
+                                <a href="../../pages/apireference.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6" /></svg></span>
+                                    <span><strong>API reference</strong><small>Build on SafiTrack</small></span>
+                                </a>
+                                <a href="../../pages/integrations.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg></span>
+                                    <span><strong>Integrations</strong><small>Connect your tools</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">Company</p>
+                                <a href="../../pages/blog.html" class="menu-link menu-link-plain"><strong>Blog</strong></a>
+                                <a href="../../pages/careers.html" class="menu-link menu-link-plain"><strong>Careers</strong></a>
+                                <a href="../../pages/security.html" class="menu-link menu-link-plain"><strong>Security</strong></a>
+                                <a href="../../pages/status.html" class="menu-link menu-link-plain"><strong>Status</strong></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="../../pages/pricing.html" class="nav-link">Pricing</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="/crm/" class="nav-link">Sign in</a>
+                <a href="/crm/?signup=1" class="btn btn-dark btn-sm">Start for free</a>
             </div>
-        </div>
-    </nav>
-    <div class="mobile-nav-overlay"><button class="mobile-close-btn" aria-label="Close"><svg width="24" height="24"
-                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg></button>
-        <div class="mobile-nav-content"><a href="mainfeatures.html" class="mobile-link">Features</a><a
-                href="../pricing.html" class="mobile-link">Pricing</a>
-            <hr class="mobile-divider"><a href="/crm/" class="mobile-link">Open App</a><a
-                href="../pricing.html#pricing-grid" class="btn-hero-primary"
-                style="margin-top: 1rem; text-align: center;">Get Started</a>
-        </div>
-    </div>
 
-    <header class="fp-hero">
-        <div class="fp-container">
-            <h1>Every call, <br><span>logged and tracked</span></h1>
-            <p class="fp-subtitle">Log inbound and outbound calls with one tap. Record outcomes, durations, and
-                follow-up actions — everything auto-links to the right contact and deal.</p>
+            <button class="nav-burger" type="button" aria-label="Open menu" aria-expanded="false"
+                aria-controls="mobile-menu">
+                <span></span><span></span>
+            </button>
+        </div>
 
-            <div class="fp-mockup">
-                <div class="fp-mockup-window">
-                    <div class="fp-mockup-bar">
-                        <div class="fp-mockup-dot"></div>
-                        <div class="fp-mockup-dot"></div>
-                        <div class="fp-mockup-dot"></div>
-                    </div>
-                    <div class="fp-mockup-body" style="padding:24px;min-height:380px;">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
-                            <div style="font-size:18px;font-weight:700;color:#0b1220;">Call Activity</div>
-                            <div style="display:flex;gap:8px;">
-                                <div
-                                    style="padding:5px 14px;background:#f3f4f6;border:1px solid #e6e9ef;border-radius:8px;font-size:12px;color:#374151;">
-                                    This Week</div>
-                                <div
-                                    style="padding:5px 14px;background:#06b6d4;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">
-                                    + Log Call</div>
-                            </div>
-                        </div>
-                        <!-- Stats row -->
-                        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
-                            <div
-                                style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;padding:12px;text-align:center;">
-                                <div style="font-size:22px;font-weight:800;color:#0b1220;">47</div>
-                                <div style="font-size:11px;color:#6b7280;">Total Calls</div>
-                            </div>
-                            <div
-                                style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;padding:12px;text-align:center;">
-                                <div style="font-size:22px;font-weight:800;color:#0b1220;">32</div>
-                                <div style="font-size:11px;color:#6b7280;">Connected</div>
-                            </div>
-                            <div
-                                style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;padding:12px;text-align:center;">
-                                <div style="font-size:22px;font-weight:800;color:#0b1220;">8</div>
-                                <div style="font-size:11px;color:#6b7280;">Voicemail</div>
-                            </div>
-                            <div
-                                style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;padding:12px;text-align:center;">
-                                <div style="font-size:22px;font-weight:800;color:#0b1220;">4m 12s</div>
-                                <div style="font-size:11px;color:#6b7280;">Avg Duration</div>
-                            </div>
-                        </div>
-                        <!-- Call log entries -->
-                        <div style="display:flex;flex-direction:column;gap:4px;">
-                            <div
-                                style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
-                                <div
-                                    style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(11,18,32,.06);flex-shrink:0;">
-                                    <svg width="16" height="16" fill="none" stroke="#374151" stroke-width="2">
-                                        <path d="M15 3l-6 6M15 3h-4M15 3v4" />
-                                    </svg>
-                                </div>
-                                <div style="flex:1;">
-                                    <div style="font-size:14px;font-weight:600;color:#0b1220;">Eleanor Pena <span
-                                            style="font-size:11px;font-weight:500;color:#6b7280;">· Acme Corp</span>
-                                    </div>
-                                    <div style="font-size:12px;color:#6b7280;">Outbound · 6m 32s · <span
-                                            style="color:#0b1220;font-weight:600;">Connected</span></div>
-                                </div>
-                                <div style="font-size:11px;color:#6b7280;">10:30 AM</div>
-                            </div>
-                            <div
-                                style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
-                                <div
-                                    style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(11,18,32,.06);flex-shrink:0;">
-                                    <svg width="16" height="16" fill="none" stroke="#374151" stroke-width="2">
-                                        <path d="M1 13l6-6M1 13h4M1 13V9" />
-                                    </svg>
-                                </div>
-                                <div style="flex:1;">
-                                    <div style="font-size:14px;font-weight:600;color:#0b1220;">Marcus Chen <span
-                                            style="font-size:11px;font-weight:500;color:#6b7280;">· Globex</span></div>
-                                    <div style="font-size:12px;color:#6b7280;">Inbound · 3m 15s · <span
-                                            style="color:#0b1220;font-weight:600;">Connected</span></div>
-                                </div>
-                                <div style="font-size:11px;color:#6b7280;">9:45 AM</div>
-                            </div>
-                            <div
-                                style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
-                                <div
-                                    style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(11,18,32,.06);flex-shrink:0;">
-                                    <svg width="16" height="16" fill="none" stroke="#374151" stroke-width="2">
-                                        <path d="M15 3l-6 6M15 3h-4M15 3v4" />
-                                    </svg>
-                                </div>
-                                <div style="flex:1;">
-                                    <div style="font-size:14px;font-weight:600;color:#0b1220;">Sarah Kim <span
-                                            style="font-size:11px;font-weight:500;color:#6b7280;">· Wayne Ent.</span>
-                                    </div>
-                                    <div style="font-size:12px;color:#6b7280;">Outbound · 0m 45s · <span
-                                            style="color:#6b7280;font-weight:600;">Voicemail</span></div>
-                                </div>
-                                <div style="font-size:11px;color:#6b7280;">9:15 AM</div>
-                            </div>
-                        </div>
-                    </div>
+        <div class="mobile-menu" id="mobile-menu" hidden>
+            <div class="wrap">
+                <p class="mobile-heading">Product</p>
+                <a href="../../pages/features/mainfeatures.html">Features</a>
+                <a href="../../pages/features/safi-ai-feature.html">Safi AI</a>
+                <a href="../../pages/features/route-plans-feature.html">Route plans</a>
+                <a href="../../pages/features/sales-visits-feature.html">Sales visits</a>
+                <a href="../../pages/pricing.html">Pricing</a>
+                <p class="mobile-heading">Resources</p>
+                <a href="../../pages/documentation.html">Documentation</a>
+                <a href="../../pages/helpcenter.html">Help center</a>
+                <a href="../../pages/blog.html">Blog</a>
+                <div class="mobile-actions">
+                    <a href="/crm/" class="btn btn-light">Sign in</a>
+                    <a href="/crm/?signup=1" class="btn btn-dark">Start for free</a>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Section 1: Outcome tracking -->
-    <section class="fp-section">
-        <div class="fp-container">
-            <div class="fp-split">
-                <div>
-                    <p class="fp-section-label">Outcome Tracking</p>
-                    <h2 class="fp-section-title">Know what happened on every call</h2>
-                    <p class="fp-section-desc">Log call outcomes — connected, voicemail, no answer, busy — and add
-                        follow-up actions in seconds. Outcomes feed your analytics so you understand call patterns
-                        across the team.</p>
-                    <ul class="fp-checklist">
-                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
-                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
-                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
-                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
-                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
-                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
-                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
-                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
-                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
-                                <circle cx="12" cy="12" r="1" />
-                            </svg> Connected, voicemail, no answer, busy outcomes</li>
-                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
-                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
-                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
-                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
-                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
-                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
-                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
-                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
-                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
-                                <circle cx="12" cy="12" r="1" />
-                            </svg> Quick follow-up actions from any call</li>
-                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
-                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
-                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
-                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
-                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
-                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
-                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
-                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
-                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
-                                <circle cx="12" cy="12" r="1" />
-                            </svg> Duration tracking for performance metrics</li>
-                    </ul>
-                </div>
-                <div class="fp-visual">
-                    <div class="fp-visual-inner">
-                        <svg width="100%" height="220" viewBox="0 0 420 220" fill="none" style="display:block;">
-                            <!-- Call flow diagram -->
-                            <rect x="150" y="10" width="120" height="40" rx="10" fill="#06b6d4" fill-opacity="0.1"
-                                stroke="#06b6d4" stroke-opacity="0.3" />
-                            <text x="210" y="34" text-anchor="middle" font-size="12" font-weight="600" fill="#0b1220"
-                                font-family="Manrope,sans-serif">📞 Call Made</text>
-                            <!-- Arrow -->
-                            <line x1="210" y1="50" x2="210" y2="70" stroke="#d1d5db" stroke-width="1.5" />
-                            <polygon points="206,68 210,76 214,68" fill="#d1d5db" />
-                            <!-- Outcomes -->
-                            <rect x="30" y="80" width="90" height="36" rx="8" fill="#10b981" fill-opacity="0.1"
-                                stroke="#374151" stroke-opacity="0.3" />
-                            <text x="75" y="102" text-anchor="middle" font-size="11" font-weight="600" fill="#10b981"
-                                font-family="Manrope,sans-serif">Connected</text>
-                            <rect x="130" y="80" width="82" height="36" rx="8" fill="#f59e0b" fill-opacity="0.1"
-                                stroke="#f59e0b" stroke-opacity="0.3" />
-                            <text x="171" y="102" text-anchor="middle" font-size="11" font-weight="600" fill="#f59e0b"
-                                font-family="Manrope,sans-serif">Voicemail</text>
-                            <rect x="222" y="80" width="82" height="36" rx="8" fill="#6b7280" fill-opacity="0.1"
-                                stroke="#6b7280" stroke-opacity="0.3" />
-                            <text x="263" y="102" text-anchor="middle" font-size="11" font-weight="600" fill="#6b7280"
-                                font-family="Manrope,sans-serif">No Answer</text>
-                            <rect x="314" y="80" width="76" height="36" rx="8" fill="#f43f5e" fill-opacity="0.1"
-                                stroke="#f43f5e" stroke-opacity="0.3" />
-                            <text x="352" y="102" text-anchor="middle" font-size="11" font-weight="600" fill="#f43f5e"
-                                font-family="Manrope,sans-serif">Busy</text>
-                            <!-- Lines from center to outcomes -->
-                            <line x1="175" y1="76" x2="120" y2="88" stroke="#d1d5db" stroke-width="1" />
-                            <line x1="200" y1="76" x2="171" y2="80" stroke="#d1d5db" stroke-width="1" />
-                            <line x1="220" y1="76" x2="263" y2="80" stroke="#d1d5db" stroke-width="1" />
-                            <line x1="245" y1="76" x2="314" y2="88" stroke="#d1d5db" stroke-width="1" />
-                            <!-- Actions from Connected -->
-                            <line x1="75" y1="116" x2="75" y2="138" stroke="#374151" stroke-width="1"
-                                stroke-dasharray="3 3" />
-                            <rect x="10" y="140" width="130" height="60" rx="10" fill="#fff" stroke="#e6e9ef" />
-                            <text x="75" y="158" text-anchor="middle" font-size="10" fill="#6b7280"
-                                font-family="Manrope,sans-serif">FOLLOW-UP</text>
-                            <text x="75" y="173" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220"
-                                font-family="Manrope,sans-serif">📝 Add Note</text>
-                            <text x="75" y="190" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220"
-                                font-family="Manrope,sans-serif">✅ Create Task</text>
-                            <!-- Actions from Voicemail -->
-                            <line x1="171" y1="116" x2="171" y2="138" stroke="#f59e0b" stroke-width="1"
-                                stroke-dasharray="3 3" />
-                            <rect x="120" y="140" width="100" height="60" rx="10" fill="#fff" stroke="#e6e9ef" />
-                            <text x="170" y="158" text-anchor="middle" font-size="10" fill="#6b7280"
-                                font-family="Manrope,sans-serif">AUTO</text>
-                            <text x="170" y="173" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220"
-                                font-family="Manrope,sans-serif">🔔 Retry in 2h</text>
-                            <text x="170" y="190" text-anchor="middle" font-size="11" font-weight="600" fill="#0b1220"
-                                font-family="Manrope,sans-serif">📧 Send email</text>
-                        </svg>
-                    </div>
+    <main id="main">
+
+        <section class="ph">
+            <div class="wrap">
+                <p class="tag">Call logs</p>
+                <h1 class="ph-title">Every call, <span>logged and tracked</span></h1>
+                <p class="ph-sub">Log inbound and outbound calls with one tap. Record outcomes, durations, and follow-up actions. Everything auto-links to the right contact and deal.</p>
+                <div class="hero-actions">
+                    <a href="/crm/?signup=1" class="btn btn-dark btn-lg">Start for free</a>
+                    <button type="button" class="btn btn-light btn-lg" data-contact>Talk to sales</button>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Section 2: Analytics -->
-    <section class="fp-section">
-        <div class="fp-container">
-            <div class="fp-split reversed">
-                <div>
-                    <p class="fp-section-label">Call Analytics</p>
-                    <h2 class="fp-section-title">Measure what matters</h2>
-                    <p class="fp-section-desc">Track call volume, connect rates, average duration, and outcomes over
-                        time. Identify top performers and coach reps who need more conversations.</p>
-                    <ul class="fp-checklist">
-                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
-                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
-                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
-                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
-                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
-                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
-                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
-                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
-                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
-                                <circle cx="12" cy="12" r="1" />
-                            </svg> Daily, weekly, and monthly call reports</li>
-                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
-                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
-                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
-                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
-                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
-                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
-                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
-                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
-                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
-                                <circle cx="12" cy="12" r="1" />
-                            </svg> Outcome distribution analysis</li>
-                        <li><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="lucide lucide-circle-dot-dashed-icon lucide-circle-dot-dashed">
-                                <path d="M10.1 2.18a9.93 9.93 0 0 1 3.8 0" />
-                                <path d="M17.6 3.71a9.95 9.95 0 0 1 2.69 2.7" />
-                                <path d="M21.82 10.1a9.93 9.93 0 0 1 0 3.8" />
-                                <path d="M20.29 17.6a9.95 9.95 0 0 1-2.7 2.69" />
-                                <path d="M13.9 21.82a9.94 9.94 0 0 1-3.8 0" />
-                                <path d="M6.4 20.29a9.95 9.95 0 0 1-2.69-2.7" />
-                                <path d="M2.18 13.9a9.93 9.93 0 0 1 0-3.8" />
-                                <path d="M3.71 6.4a9.95 9.95 0 0 1 2.7-2.69" />
-                                <circle cx="12" cy="12" r="1" />
-                            </svg> Per-rep performance leaderboards</li>
-                    </ul>
-                </div>
-                <div class="fp-visual">
-                    <div class="fp-visual-inner" style="padding:20px;">
-                        <div style="font-size:13px;font-weight:700;color:#0b1220;margin-bottom:14px;">Weekly Call Volume
+        <section class="visual">
+            <div class="wrap">
+                <div class="frame frame-mock" aria-hidden="true"><div class="mock" style="padding:24px;min-height:380px;">
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+<div style="font-size:18px;font-weight:700;color:#0b1220;">Call Activity</div>
+<div style="display:flex;gap:8px;">
+<div style="padding:5px 14px;background:#f3f4f6;border:1px solid #e6e9ef;border-radius:8px;font-size:12px;color:#374151;">
+                                    This Week</div>
+<div style="padding:5px 14px;background:#2f5fd0;color:#fff;border-radius:8px;font-size:12px;font-weight:600;">
+                                    + Log Call</div>
+</div>
+</div>
+<!-- Stats row -->
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px;">
+<div style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;padding:12px;text-align:center;">
+<div style="font-size:22px;font-weight:800;color:#0b1220;">47</div>
+<div style="font-size:11px;color:#6b7280;">Total Calls</div>
+</div>
+<div style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;padding:12px;text-align:center;">
+<div style="font-size:22px;font-weight:800;color:#0b1220;">32</div>
+<div style="font-size:11px;color:#6b7280;">Connected</div>
+</div>
+<div style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;padding:12px;text-align:center;">
+<div style="font-size:22px;font-weight:800;color:#0b1220;">8</div>
+<div style="font-size:11px;color:#6b7280;">Voicemail</div>
+</div>
+<div style="background:#f9fafb;border:1px solid #e6e9ef;border-radius:10px;padding:12px;text-align:center;">
+<div style="font-size:22px;font-weight:800;color:#0b1220;">4m 12s</div>
+<div style="font-size:11px;color:#6b7280;">Avg Duration</div>
+</div>
+</div>
+<!-- Call log entries -->
+<div style="display:flex;flex-direction:column;gap:4px;">
+<div style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
+<div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(11,18,32,.06);flex-shrink:0;">
+<svg fill="none" height="16" stroke="#374151" stroke-width="2" width="16">
+<path d="M15 3l-6 6M15 3h-4M15 3v4"></path>
+</svg>
+</div>
+<div style="flex:1;">
+<div style="font-size:14px;font-weight:600;color:#0b1220;">Eleanor Pena <span style="font-size:11px;font-weight:500;color:#6b7280;">· Acme Corp</span>
+</div>
+<div style="font-size:12px;color:#6b7280;">Outbound · 6m 32s · <span style="color:#0b1220;font-weight:600;">Connected</span></div>
+</div>
+<div style="font-size:11px;color:#6b7280;">10:30 AM</div>
+</div>
+<div style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
+<div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(11,18,32,.06);flex-shrink:0;">
+<svg fill="none" height="16" stroke="#374151" stroke-width="2" width="16">
+<path d="M1 13l6-6M1 13h4M1 13V9"></path>
+</svg>
+</div>
+<div style="flex:1;">
+<div style="font-size:14px;font-weight:600;color:#0b1220;">Marcus Chen <span style="font-size:11px;font-weight:500;color:#6b7280;">· Globex</span></div>
+<div style="font-size:12px;color:#6b7280;">Inbound · 3m 15s · <span style="color:#0b1220;font-weight:600;">Connected</span></div>
+</div>
+<div style="font-size:11px;color:#6b7280;">9:45 AM</div>
+</div>
+<div style="display:flex;align-items:center;gap:14px;padding:12px 14px;background:#fff;border:1px solid #e6e9ef;border-radius:10px;">
+<div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(11,18,32,.06);flex-shrink:0;">
+<svg fill="none" height="16" stroke="#374151" stroke-width="2" width="16">
+<path d="M15 3l-6 6M15 3h-4M15 3v4"></path>
+</svg>
+</div>
+<div style="flex:1;">
+<div style="font-size:14px;font-weight:600;color:#0b1220;">Sarah Kim <span style="font-size:11px;font-weight:500;color:#6b7280;">· Wayne Ent.</span>
+</div>
+<div style="font-size:12px;color:#6b7280;">Outbound · 0m 45s · <span style="color:#6b7280;font-weight:600;">Voicemail</span></div>
+</div>
+<div style="font-size:11px;color:#6b7280;">9:15 AM</div>
+</div>
+</div>
+</div></div>
+            </div>
+        </section>
+
+        <section class="rows">
+            <div class="wrap">
+                <div class="rail">
+                    <div class="row">
+                        <div class="row-head">
+                            <p class="row-label">Outcome Tracking</p>
+                            <h2 class="row-title">Know what happened on every call</h2>
                         </div>
-                        <!-- Bar chart -->
-                        <div
-                            style="display:flex;align-items:flex-end;gap:10px;height:120px;padding-bottom:4px;border-bottom:1px solid #e6e9ef;">
-                            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
-                                <div
-                                    style="width:100%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#2f5fd0,#2451b8);height:50px;">
-                                </div>
-                                <span style="font-size:10px;color:#6b7280;">Mon</span>
-                            </div>
-                            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
-                                <div
-                                    style="width:100%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#2f5fd0,#2451b8);height:80px;">
-                                </div>
-                                <span style="font-size:10px;color:#6b7280;">Tue</span>
-                            </div>
-                            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
-                                <div
-                                    style="width:100%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#2f5fd0,#2451b8);height:110px;">
-                                </div>
-                                <span style="font-size:10px;color:#6b7280;">Wed</span>
-                            </div>
-                            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
-                                <div
-                                    style="width:100%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#2f5fd0,#2451b8);height:70px;">
-                                </div>
-                                <span style="font-size:10px;color:#6b7280;">Thu</span>
-                            </div>
-                            <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;">
-                                <div
-                                    style="width:100%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#2f5fd0,#2451b8);height:90px;">
-                                </div>
-                                <span style="font-size:10px;color:#6b7280;">Fri</span>
-                            </div>
+                        <div class="row-body">
+                            <p>Log call outcomes (connected, voicemail, no answer, busy) and add follow-up actions in seconds. Outcomes feed your analytics so you understand call patterns across the team.</p>
+                            <ul class="checks">
+                                <li>Connected, voicemail, no answer, busy outcomes</li>
+                                <li>Quick follow-up actions from any call</li>
+                                <li>Duration tracking for performance metrics</li>
+                            </ul>
                         </div>
-                        <div style="display:flex;gap:14px;margin-top:14px;">
-                            <span class="ui-tag" style="background:rgba(11,18,32,.06);color:#374151;">68% connect
-                                rate</span>
-                            <span class="ui-tag" style="background:rgba(11,18,32,.06);color:#374151;">+12% vs last
-                                week</span>
+                    </div>
+                    <div class="row">
+                        <div class="row-head">
+                            <p class="row-label">Call Analytics</p>
+                            <h2 class="row-title">Measure what matters</h2>
+                        </div>
+                        <div class="row-body">
+                            <p>Track call volume, connect rates, average duration, and outcomes over time. Identify top performers and coach reps who need more conversations.</p>
+                            <ul class="checks">
+                                <li>Daily, weekly, and monthly call reports</li>
+                                <li>Outcome distribution analysis</li>
+                                <li>Per-rep performance leaderboards</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- Feature grid -->
-    <section class="fp-grid-section" style="background:#f9fafb;">
-        <div class="fp-container">
-            <div class="fp-grid-header">
-                <p class="fp-section-label">Capabilities</p>
-                <h2 class="fp-section-title">Call management, perfected</h2>
-            </div>
-            <div class="fp-grid">
-                <div class="fp-card fp-animate">
-                    <div class="fp-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-phone-icon lucide-phone">
-                            <path
-                                d="M13.832 16.568a1 1 0 0 0 1.213-.303l.355-.465A2 2 0 0 1 17 15h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2A18 18 0 0 1 2 4a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v3a2 2 0 0 1-.8 1.6l-.468.351a1 1 0 0 0-.292 1.233 14 14 0 0 0 6.392 6.384" />
-                        </svg></div>
-                    <h4>One-Tap Logging</h4>
-                    <p>Log a call in seconds — select the outcome, add a note, and you're done.</p>
-                </div>
-                <div class="fp-card fp-animate">
-                    <div class="fp-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-clock-icon lucide-clock">
-                            <circle cx="12" cy="12" r="10" />
-                            <path d="M12 6v6l4 2" />
-                        </svg></div>
-                    <h4>Duration Tracking</h4>
-                    <p>Automatic call duration capture to understand how long conversations take.</p>
-                </div>
-                <div class="fp-card fp-animate">
-                    <div class="fp-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-contact-icon lucide-contact">
-                            <path d="M16 2v2" />
-                            <path d="M7 22v-2a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2" />
-                            <path d="M8 2v2" />
-                            <circle cx="12" cy="11" r="3" />
-                            <rect x="3" y="4" width="18" height="18" rx="2" />
-                        </svg></div>
-                    <h4>Auto-Link Contacts</h4>
-                    <p>Calls are automatically linked to the contact and their company record.</p>
-                </div>
-                <div class="fp-card fp-animate">
-                    <div class="fp-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-clipboard-minus-icon lucide-clipboard-minus">
-                            <rect width="8" height="4" x="8" y="2" rx="1" ry="1" />
-                            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-                            <path d="M9 14h6" />
-                        </svg></div>
-                    <h4>Call Reports</h4>
-                    <p>Team-wide and individual call analytics to track performance over time.</p>
-                </div>
-                <div class="fp-card fp-animate">
-                    <div class="fp-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-square-check-icon lucide-square-check">
-                            <rect width="18" height="18" x="3" y="3" rx="2" />
-                            <path d="m9 12 2 2 4-4" />
-                        </svg></div>
-                    <h4>Follow-Up Actions</h4>
-                    <p>Create tasks, schedule callbacks, or add notes — all from the call log.</p>
-                </div>
-                <div class="fp-card fp-animate">
-                    <div class="fp-card-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-chart-no-axes-column-decreasing-icon lucide-chart-no-axes-column-decreasing">
-                            <path d="M5 21V3" />
-                            <path d="M12 21V9" />
-                            <path d="M19 21v-6" />
-                        </svg></div>
-                    <h4>Outcome Analytics</h4>
-                    <p>Break down calls by outcome to optimize talk time and connect rates.</p>
+        <section class="cells-sec">
+            <div class="wrap">
+                <div class="rail">
+                    <header class="cells-head">
+                        <p class="eyebrow">Capabilities</p>
+                        <h2 class="section-title">Call management, perfected</h2>
+                    </header>
+                    <div class="cells">
+                        <div class="cell">
+                            <h3>One-Tap Logging</h3>
+                            <p>Log a call in seconds. Select the outcome, add a note, and you're done.</p>
+                        </div>
+                        <div class="cell">
+                            <h3>Duration Tracking</h3>
+                            <p>Automatic call duration capture to understand how long conversations take.</p>
+                        </div>
+                        <div class="cell">
+                            <h3>Auto-Link Contacts</h3>
+                            <p>Calls are automatically linked to the contact and their company record.</p>
+                        </div>
+                        <div class="cell">
+                            <h3>Call Reports</h3>
+                            <p>Team-wide and individual call analytics to track performance over time.</p>
+                        </div>
+                        <div class="cell">
+                            <h3>Follow-Up Actions</h3>
+                            <p>Create tasks, schedule callbacks, or add notes. All from the call log.</p>
+                        </div>
+                        <div class="cell">
+                            <h3>Outcome Analytics</h3>
+                            <p>Break down calls by outcome to optimize talk time and connect rates.</p>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section class="fp-cta">
-        <div class="fp-container">
-            <h2>Make every call count</h2>
-            <p>Track conversations, measure outcomes, and close more deals.</p>
-            <a href="../pricing.html#pricing-grid" class="fp-cta-btn">Start free trial <svg width="16" height="16"
-                    fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M5 12l5-5-5-5" />
-                </svg></a>
-        </div>
-    </section>
+        <section class="related">
+            <div class="wrap">
+                <div class="rail">
+                    <p class="related-head">Works well with</p>
+                    <div class="cells">
+                        <a class="cell" href="people-feature.html">
+                            <h3>People <span class="cell-arrow" aria-hidden="true">→</span></h3>
+                            <p>Contacts with full history</p>
+                        </a>
+                        <a class="cell" href="notes-feature.html">
+                            <h3>Notes <span class="cell-arrow" aria-hidden="true">→</span></h3>
+                            <p>Meeting notes next to the deal</p>
+                        </a>
+                        <a class="cell" href="reminders-feature.html">
+                            <h3>Reminders <span class="cell-arrow" aria-hidden="true">→</span></h3>
+                            <p>Never miss a follow-up</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
+        <section class="cta" data-theme="dark">
+            <div class="wrap">
+                <div class="rail rail-dark cta-box">
+                    <h2 class="cta-title">Make every call count</h2>
+                    <p class="cta-sub">Track conversations, measure outcomes, and close more deals.</p>
+                    <div class="hero-actions">
+                        <button type="button" class="btn btn-ghost btn-lg" data-contact>Talk to sales</button>
+                        <a href="/crm/?signup=1" class="btn btn-white btn-lg">Start for free</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============ Footer (dark) ============ -->
+    <footer class="footer" data-theme="dark">
+        <div class="wrap">
+            <div class="footer-top">
                 <div class="footer-brand">
-                    <div class="footer-logo-wrapper"><a href="../../index.html"><img
-                                src="../../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo"></a>
-                    </div>
+                    <img src="../../assets/icons/transparentMain.png" alt="SafiTrack" width="124" height="29">
+                    <p>The CRM for field sales teams.</p>
                 </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Product</h4>
-                        <ul>
-                            <li><a href="mainfeatures.html">Features</a></li>
-                            <li><a href="../pricing.html">Pricing</a></li>
-                            <li><a href="../integrations.html">Integrations</a></li>
-                            <li><a href="../comparison.html">Compare</a></li>
-                        </ul>
+                <div class="footer-cols">
+                    <div>
+                        <p class="footer-heading">Product</p>
+                        <a href="../../pages/features/mainfeatures.html">Features</a>
+                        <a href="../../pages/features/safi-ai-feature.html">Safi AI</a>
+                        <a href="../../pages/features/route-plans-feature.html">Route plans</a>
+                        <a href="../../pages/pricing.html">Pricing</a>
+                        <a href="../../pages/integrations.html">Integrations</a>
                     </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Company</h4>
-                        <ul>
-                            <li><a href="../blog.html">Blog</a></li>
-                            <li><a href="../careers.html">Careers</a></li>
-                        </ul>
+                    <div>
+                        <p class="footer-heading">Company</p>
+                        <a href="../../pages/blog.html">Blog</a>
+                        <a href="../../pages/careers.html">Careers</a>
+                        <a href="../../pages/security.html">Security</a>
                     </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Resources</h4>
-                        <ul>
-                            <li><a href="../documentation.html">Documentation</a></li>
-                            <li><a href="../helpcenter.html">Help Center</a></li>
-                            <li><a href="../apireference.html">API Reference</a></li>
-                            <li><a href="../status.html">Status</a></li>
-                        </ul>
+                    <div>
+                        <p class="footer-heading">Resources</p>
+                        <a href="../../pages/documentation.html">Documentation</a>
+                        <a href="../../pages/helpcenter.html">Help center</a>
+                        <a href="../../pages/apireference.html">API reference</a>
+                        <a href="../../pages/status.html">System status</a>
                     </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Legal</h4>
-                        <ul>
-                            <li><a href="../legal/privacy.html">Privacy Policy</a></li>
-                            <li><a href="../legal/terms.html">Terms of Service</a></li>
-                            <li><a href="../security.html">Security</a></li>
-                        </ul>
+                    <div>
+                        <p class="footer-heading">Get started</p>
+                        <a href="/crm/?signup=1">Create an account</a>
+                        <a href="/crm/">Sign in</a>
+                        <button type="button" class="footer-link" data-contact>Talk to sales</button>
                     </div>
                 </div>
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-                <div class="footer-social"><a href="#">Twitter</a><a href="#">LinkedIn</a><a href="#">GitHub</a></div>
+                <nav aria-label="Legal">
+                    <a href="../../pages/legal/terms.html">Terms of service</a>
+                    <a href="../../pages/legal/privacy.html">Privacy policy</a>
+                </nav>
             </div>
         </div>
     </footer>
-    <script src="feature-page.js"></script>
-    <script src="../../landing.js"></script>
+
+    <!-- ============ Contact dialog ============ -->
+    <dialog class="contact" id="contact" aria-labelledby="contact-title">
+        <button type="button" class="contact-close" data-close aria-label="Close">
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+                <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+        </button>
+
+        <div class="contact-body" data-state="form">
+            <h2 class="contact-title" id="contact-title">Talk to sales</h2>
+            <p class="contact-sub">Tell us a little about your team and we'll be in touch to set up a walkthrough.</p>
+
+            <form id="contact-form" novalidate>
+                <input type="hidden" name="plan" id="selected-plan" value="General">
+                <div class="field-row">
+                    <label class="field">
+                        <span>First name</span>
+                        <input type="text" name="first_name" autocomplete="given-name" required>
+                    </label>
+                    <label class="field">
+                        <span>Last name</span>
+                        <input type="text" name="last_name" autocomplete="family-name" required>
+                    </label>
+                </div>
+                <label class="field">
+                    <span>Work email</span>
+                    <input type="email" name="from_email" autocomplete="email" required>
+                </label>
+                <div class="field-row">
+                    <label class="field">
+                        <span>Company</span>
+                        <input type="text" name="company_name" autocomplete="organization" required>
+                    </label>
+                    <label class="field">
+                        <span>Job title</span>
+                        <input type="text" name="job_title" autocomplete="organization-title" required>
+                    </label>
+                </div>
+                <div class="field-row">
+                    <label class="field">
+                        <span>Team size</span>
+                        <select name="company_size" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="1-10">1–10</option>
+                            <option value="11-50">11–50</option>
+                            <option value="51-200">51–200</option>
+                            <option value="201-500">201–500</option>
+                            <option value="501+">501+</option>
+                        </select>
+                    </label>
+                    <label class="field">
+                        <span>Country</span>
+                        <select name="region" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="KE">Kenya</option>
+                            <option value="NG">Nigeria</option>
+                            <option value="ZA">South Africa</option>
+                            <option value="AE">United Arab Emirates</option>
+                            <option value="IN">India</option>
+                            <option value="UK">United Kingdom</option>
+                            <option value="US">United States</option>
+                            <option value="CA">Canada</option>
+                            <option value="AU">Australia</option>
+                            <option value="DE">Germany</option>
+                            <option value="FR">France</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </label>
+                </div>
+                <label class="check">
+                    <input type="checkbox" name="terms" required>
+                    <span>I agree to the <a href="../../pages/legal/terms.html">Terms</a> and
+                        <a href="../../pages/legal/privacy.html">Privacy Policy</a>.</span>
+                </label>
+                <button type="submit" class="btn btn-dark btn-block btn-lg" id="contact-submit">Send request</button>
+            </form>
+        </div>
+
+        <div class="contact-body contact-result" data-state="success" hidden>
+            <h2 class="contact-title">Thanks, we've got it.</h2>
+            <p class="contact-sub">Someone from our team will reach out to the email you gave us shortly.</p>
+            <button type="button" class="btn btn-light btn-block" data-close>Done</button>
+        </div>
+
+        <div class="contact-body contact-result" data-state="error" hidden>
+            <h2 class="contact-title">That didn't go through.</h2>
+            <p class="contact-sub">Please check your connection and try again.</p>
+            <button type="button" class="btn btn-dark btn-block" data-retry>Try again</button>
+        </div>
+    </dialog>
 </body>
 
 </html>

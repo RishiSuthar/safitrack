@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to build a territory plan that actually works | SafiTrack Blog</title>
+    <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
+    <meta name="description" content="Most territory plans look great in a spreadsheet and fall apart in the field. Here&#x27;s how to build one that survives first contact with reality.">
+    <meta name="theme-color" content="#ffffff">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://safitrack.netlify.app/pages/blog/how-to-build-a-territory-plan-that-actually-works.html">
+    <meta property="og:title" content="How to build a territory plan that actually works | SafiTrack Blog">
+    <meta property="og:description" content="Most territory plans look great in a spreadsheet and fall apart in the field. Here&#x27;s how to build one that survives first contact with reality.">
+    <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="How to build a territory plan that actually works | SafiTrack Blog">
+    <meta property="twitter:description" content="Most territory plans look great in a spreadsheet and fall apart in the field. Here&#x27;s how to build one that survives first contact with reality.">
+    <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../home.css">
+    <link rel="stylesheet" href="../../site.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+    <script src="../../config.js"></script>
+    <script src="../../home.js" defer></script>
+
+</head>
+
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- ============ Navigation ============ -->
+    <header class="nav" id="nav">
+        <div class="wrap nav-inner">
+            <a href="/" class="nav-logo" aria-label="SafiTrack home">
+                <img src="../../assets/icons/transparentMain.png" alt="SafiTrack" width="108" height="25">
+            </a>
+
+            <nav class="nav-links" aria-label="Main">
+                <div class="nav-item has-menu">
+                    <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="menu-features">
+                        Features
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="menu" id="menu-features">
+                        <div class="menu-grid">
+                            <div class="menu-col">
+                                <p class="menu-heading">Platform</p>
+                                <a href="../../pages/features/safi-ai-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9z" /></svg></span>
+                                    <span><strong>Safi AI</strong><small>An assistant that knows your pipeline</small></span>
+                                </a>
+                                <a href="../../pages/features/opportunities-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg></span>
+                                    <span><strong>Pipelines</strong><small>Track every deal to close</small></span>
+                                </a>
+                                <a href="../../pages/features/companies-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" /><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01" /></svg></span>
+                                    <span><strong>Companies</strong><small>Every account in one record</small></span>
+                                </a>
+                                <a href="../../pages/features/people-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg></span>
+                                    <span><strong>People</strong><small>Contacts with full history</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">In the field</p>
+                                <a href="../../pages/features/sales-visits-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg></span>
+                                    <span><strong>Sales visits</strong><small>Log visits from your phone</small></span>
+                                </a>
+                                <a href="../../pages/features/route-plans-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="3" /><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /><circle cx="18" cy="5" r="3" /></svg></span>
+                                    <span><strong>Route plans</strong><small>Plan and assign the day's stops</small></span>
+                                </a>
+                                <a href="../../pages/features/technician-visits-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg></span>
+                                    <span><strong>Service visits</strong><small>Technician jobs after the sale</small></span>
+                                </a>
+                                <a href="../../pages/features/tasks-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg></span>
+                                    <span><strong>Tasks</strong><small>What needs doing, and by whom</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">Insight &amp; automation</p>
+                                <a href="../../pages/features/call-logs-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" /></svg></span>
+                                    <span><strong>Call logs</strong><small>Every conversation, on record</small></span>
+                                </a>
+                                <a href="../../pages/features/notes-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg></span>
+                                    <span><strong>Notes</strong><small>Meeting notes next to the deal</small></span>
+                                </a>
+                                <a href="../../pages/features/reminders-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg></span>
+                                    <span><strong>Reminders</strong><small>Never miss a follow-up</small></span>
+                                </a>
+                                <a href="../../pages/features/reports-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6" /></svg></span>
+                                    <span><strong>Reports</strong><small>Dashboards for the whole team</small></span>
+                                </a>
+                                <a href="../../pages/features/workflows-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg></span>
+                                    <span><strong>Workflows</strong><small>Automate the busywork</small></span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="menu-foot">
+                            <a href="../../pages/features/mainfeatures.html">See all features <span aria-hidden="true">→</span></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-item has-menu">
+                    <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="menu-resources">
+                        Resources
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="menu menu-sm" id="menu-resources">
+                        <div class="menu-grid">
+                            <div class="menu-col">
+                                <p class="menu-heading">Learn</p>
+                                <a href="../../pages/documentation.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg></span>
+                                    <span><strong>Documentation</strong><small>Guides and how-tos</small></span>
+                                </a>
+                                <a href="../../pages/helpcenter.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg></span>
+                                    <span><strong>Help center</strong><small>Answers and support</small></span>
+                                </a>
+                                <a href="../../pages/apireference.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6" /></svg></span>
+                                    <span><strong>API reference</strong><small>Build on SafiTrack</small></span>
+                                </a>
+                                <a href="../../pages/integrations.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg></span>
+                                    <span><strong>Integrations</strong><small>Connect your tools</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">Company</p>
+                                <a href="../../pages/blog.html" class="menu-link menu-link-plain"><strong>Blog</strong></a>
+                                <a href="../../pages/careers.html" class="menu-link menu-link-plain"><strong>Careers</strong></a>
+                                <a href="../../pages/security.html" class="menu-link menu-link-plain"><strong>Security</strong></a>
+                                <a href="../../pages/status.html" class="menu-link menu-link-plain"><strong>Status</strong></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="../../pages/pricing.html" class="nav-link">Pricing</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="/crm/" class="nav-link">Sign in</a>
+                <a href="/crm/?signup=1" class="btn btn-dark btn-sm">Start for free</a>
+            </div>
+
+            <button class="nav-burger" type="button" aria-label="Open menu" aria-expanded="false"
+                aria-controls="mobile-menu">
+                <span></span><span></span>
+            </button>
+        </div>
+
+        <div class="mobile-menu" id="mobile-menu" hidden>
+            <div class="wrap">
+                <p class="mobile-heading">Product</p>
+                <a href="../../pages/features/mainfeatures.html">Features</a>
+                <a href="../../pages/features/safi-ai-feature.html">Safi AI</a>
+                <a href="../../pages/features/route-plans-feature.html">Route plans</a>
+                <a href="../../pages/features/sales-visits-feature.html">Sales visits</a>
+                <a href="../../pages/pricing.html">Pricing</a>
+                <p class="mobile-heading">Resources</p>
+                <a href="../../pages/documentation.html">Documentation</a>
+                <a href="../../pages/helpcenter.html">Help center</a>
+                <a href="../../pages/blog.html">Blog</a>
+                <div class="mobile-actions">
+                    <a href="/crm/" class="btn btn-light">Sign in</a>
+                    <a href="/crm/?signup=1" class="btn btn-dark">Start for free</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="main">
+
+        <article class="article">
+            <div class="wrap">
+                <header class="article-head">
+                    <a href="../blog.html" class="article-back"><span aria-hidden="true">←</span> All articles</a>
+                    <p class="post-cat">Field Ops · Oct 22, 2025 · 7 min read</p>
+                    <h1 class="article-title">How to build a territory plan that actually works</h1>
+                    <p class="article-lede">Most territory plans look great in a spreadsheet and fall apart in the field. Here's how to build one that survives first contact with reality.</p>
+                    <p class="article-by"><span class="article-av">RS</span>Rishi S., SafiTrack</p>
+                </header>
+                <div class="prose article-body">
+<p>Every sales manager has been there. You spend a week building a territory plan, the spreadsheet looks clean, the accounts are evenly distributed, the revenue targets feel achievable. Then Q1 starts and three months later you're looking at a plan that bears almost no resemblance to reality.</p>
+<p>Territory planning isn't hard because the strategy is complicated. It's hard because the map is not the territory, and most plans are built on assumptions that don't survive contact with the field.</p>
+<h2>Start with drive time, not account count</h2>
+<p>The most common mistake in territory design is treating accounts like points on a map and distributing them evenly by count. What you actually need to distribute evenly is time. Specifically, the time a rep can spend in front of customers.</p>
+<p>Two territories can have the same number of accounts and wildly different effective capacities. A territory with forty accounts in a dense urban grid might take less drive time than a territory with twenty-five accounts spread across a rural region. Build your territories around sustainable drive time first, then see how many accounts fit.</p>
+<p>As a rough benchmark: most field reps can realistically visit four to six customers per day when you account for drive time, meeting time, and the admin that happens between. Work backwards from there.</p>
+<h2>Segment your accounts by actual potential, not revenue history</h2>
+<p>Territory plans that allocate accounts based only on current revenue perpetuate the status quo. The customer who's been spending £5,000 a year for five years might have a theoretical ceiling of £50,000. Or they might be fully penetrated. You need to know which one before you decide how much of a rep's time that account deserves.</p>
+<p>Build a simple potential score: industry, company size, number of relevant sites or locations, and any intelligence about expansion plans or competitive dissatisfaction. Accounts with high potential and low current revenue deserve disproportionate attention. They're where the growth is.</p>
+<h2>Build in slack for prospecting</h2>
+<p>Most territory plans fill reps to 100% capacity with existing accounts. This is a mistake. Without dedicated prospecting time, the pipeline stagnates as existing accounts churn naturally over time.</p>
+<p>Reserve twenty to thirty percent of each rep's weekly capacity for prospecting new accounts within their territory. Protect it actively: the temptation to fill that time with "just one more customer visit" is always there, and it needs to be resisted.</p>
+<h2>Define coverage tiers and be explicit about them</h2>
+<p>Not every account in a territory gets the same treatment, and pretending otherwise sets everyone up for failure. Define three or four coverage tiers explicitly:</p>
+<ul>
+<li><strong>Strategic accounts</strong>: monthly visits minimum, named rep ownership, executive engagement</li>
+<li><strong>Core accounts</strong>: quarterly visits, regular check-ins, renewal tracking</li>
+<li><strong>Maintenance accounts</strong>: biannual visits or as-needed, primarily reactive</li>
+<li><strong>Prospects</strong>: active outreach cadence, defined conversion criteria</li>
+</ul>
+<p>Once you have these tiers, your territory plan becomes a resource allocation problem you can actually solve. Sum up the time required to service each tier across all accounts in a territory and compare it to a rep's available capacity. If it doesn't fit, you either need to move accounts, adjust coverage frequency, or add headcount.</p>
+<h2>Review quarterly, not annually</h2>
+<p>Territory plans reviewed once a year are out of date for eleven months. Markets shift, reps leave, large accounts get acquired, new prospects emerge in unexpected places. A quarterly territory review (even a light one) lets you course-correct before a mismatch becomes a performance problem.</p>
+<div class="callout"><strong>A practical cadence</strong> Monthly: review coverage metrics and flag accounts falling below visit targets. Quarterly: reassess account tiers, redistribute overloaded territories, add new prospects from market intelligence. Annually: full territory redesign if headcount has changed significantly.</div>
+<h2>Get your reps into the planning process</h2>
+<p>The best territory intelligence you have is sitting in the heads of the people doing the job. Your reps know which accounts are expanding, which are genuinely at risk, which neighbours of existing customers look promising, and where the hidden gems are.</p>
+<p>Build a simple input process (even just a structured conversation) where reps contribute their field intelligence before each quarter's planning cycle. The plans that come out of this are better, and the reps who contributed to them feel ownership over the outcomes rather than resentment at the assignments.</p>
+<p>Territory planning done right is less about perfect allocation and more about building a shared understanding of where the team's time goes. Get that right and the rest tends to follow.</p>
+                </div>
+            </div>
+        </article>
+
+        <section class="related">
+            <div class="wrap">
+                <div class="rail">
+                    <p class="related-head">More from the blog</p>
+                    <div class="cells">
+                        <a class="cell post-card" href="the-on-site-visit-is-not-dead-its-just-overused.html" data-group="fieldops" data-text="the on-site visit is not dead. it's just overused. remote selling has changed what field visits are for. the teams getting the most from them have changed how they think about when to show up in person.">
+                            <p class="post-cat">Field Ops</p>
+                            <h3>The on-site visit is not dead. It's just overused.</h3>
+                            <p>Remote selling has changed what field visits are for. The teams getting the most from them have changed how they think about when to show up in person.</p>
+                            <p class="post-meta">Rishi S. · Nov 18, 2025 · 5 min read</p>
+                        </a>
+                        <a class="cell post-card" href="route-optimisation-101-saving-2-hours-per-rep-per-day.html" data-group="fieldops" data-text="route optimisation 101: saving 2 hours per rep per day manual route planning wastes time your reps should be spending with customers. here's how smart routing cuts drive time by up to 35%.">
+                            <p class="post-cat">Field Ops</p>
+                            <h3>Route optimisation 101: saving 2 hours per rep per day</h3>
+                            <p>Manual route planning wastes time your reps should be spending with customers. Here's how smart routing cuts drive time by up to 35%.</p>
+                            <p class="post-meta">Rishi S. · Jul 9, 2025 · 9 min read</p>
+                        </a>
+                        <a class="cell post-card" href="introducing-intelligence-hub-ai-powered-field-sales-insights.html" data-group="product" data-text="introducing intelligence hub: ai-powered field sales insights we're rolling out intelligence hub, a new layer of ai that surfaces missed opportunities, summarises visit notes and gives every rep their own sales coach. here's what we built and why.">
+                            <p class="post-cat">Product</p>
+                            <h3>Introducing Intelligence Hub: AI-powered field sales insights</h3>
+                            <p>We're rolling out Intelligence Hub, a new layer of AI that surfaces missed opportunities, summarises visit notes and gives every rep their own sales coach. Here's what we built and why.</p>
+                            <p class="post-meta">Rishi S. · Jan 28, 2026 · 6 min read</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta" data-theme="dark">
+            <div class="wrap">
+                <div class="rail rail-dark cta-box">
+                    <h2 class="cta-title">Run your field team on SafiTrack.</h2>
+                    <p class="cta-sub">Free for up to 2 users. Upgrade when your team grows.</p>
+                    <div class="hero-actions">
+                        <button type="button" class="btn btn-ghost btn-lg" data-contact>Talk to sales</button>
+                        <a href="/crm/?signup=1" class="btn btn-white btn-lg">Start for free</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============ Footer (dark) ============ -->
+    <footer class="footer" data-theme="dark">
+        <div class="wrap">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <img src="../../assets/icons/transparentMain.png" alt="SafiTrack" width="124" height="29">
+                    <p>The CRM for field sales teams.</p>
+                </div>
+                <div class="footer-cols">
+                    <div>
+                        <p class="footer-heading">Product</p>
+                        <a href="../../pages/features/mainfeatures.html">Features</a>
+                        <a href="../../pages/features/safi-ai-feature.html">Safi AI</a>
+                        <a href="../../pages/features/route-plans-feature.html">Route plans</a>
+                        <a href="../../pages/pricing.html">Pricing</a>
+                        <a href="../../pages/integrations.html">Integrations</a>
+                    </div>
+                    <div>
+                        <p class="footer-heading">Company</p>
+                        <a href="../../pages/blog.html">Blog</a>
+                        <a href="../../pages/careers.html">Careers</a>
+                        <a href="../../pages/security.html">Security</a>
+                    </div>
+                    <div>
+                        <p class="footer-heading">Resources</p>
+                        <a href="../../pages/documentation.html">Documentation</a>
+                        <a href="../../pages/helpcenter.html">Help center</a>
+                        <a href="../../pages/apireference.html">API reference</a>
+                        <a href="../../pages/status.html">System status</a>
+                    </div>
+                    <div>
+                        <p class="footer-heading">Get started</p>
+                        <a href="/crm/?signup=1">Create an account</a>
+                        <a href="/crm/">Sign in</a>
+                        <button type="button" class="footer-link" data-contact>Talk to sales</button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+                <nav aria-label="Legal">
+                    <a href="../../pages/legal/terms.html">Terms of service</a>
+                    <a href="../../pages/legal/privacy.html">Privacy policy</a>
+                </nav>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============ Contact dialog ============ -->
+    <dialog class="contact" id="contact" aria-labelledby="contact-title">
+        <button type="button" class="contact-close" data-close aria-label="Close">
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+                <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+        </button>
+
+        <div class="contact-body" data-state="form">
+            <h2 class="contact-title" id="contact-title">Talk to sales</h2>
+            <p class="contact-sub">Tell us a little about your team and we'll be in touch to set up a walkthrough.</p>
+
+            <form id="contact-form" novalidate>
+                <input type="hidden" name="plan" id="selected-plan" value="General">
+                <div class="field-row">
+                    <label class="field">
+                        <span>First name</span>
+                        <input type="text" name="first_name" autocomplete="given-name" required>
+                    </label>
+                    <label class="field">
+                        <span>Last name</span>
+                        <input type="text" name="last_name" autocomplete="family-name" required>
+                    </label>
+                </div>
+                <label class="field">
+                    <span>Work email</span>
+                    <input type="email" name="from_email" autocomplete="email" required>
+                </label>
+                <div class="field-row">
+                    <label class="field">
+                        <span>Company</span>
+                        <input type="text" name="company_name" autocomplete="organization" required>
+                    </label>
+                    <label class="field">
+                        <span>Job title</span>
+                        <input type="text" name="job_title" autocomplete="organization-title" required>
+                    </label>
+                </div>
+                <div class="field-row">
+                    <label class="field">
+                        <span>Team size</span>
+                        <select name="company_size" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="1-10">1–10</option>
+                            <option value="11-50">11–50</option>
+                            <option value="51-200">51–200</option>
+                            <option value="201-500">201–500</option>
+                            <option value="501+">501+</option>
+                        </select>
+                    </label>
+                    <label class="field">
+                        <span>Country</span>
+                        <select name="region" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="KE">Kenya</option>
+                            <option value="NG">Nigeria</option>
+                            <option value="ZA">South Africa</option>
+                            <option value="AE">United Arab Emirates</option>
+                            <option value="IN">India</option>
+                            <option value="UK">United Kingdom</option>
+                            <option value="US">United States</option>
+                            <option value="CA">Canada</option>
+                            <option value="AU">Australia</option>
+                            <option value="DE">Germany</option>
+                            <option value="FR">France</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </label>
+                </div>
+                <label class="check">
+                    <input type="checkbox" name="terms" required>
+                    <span>I agree to the <a href="../../pages/legal/terms.html">Terms</a> and
+                        <a href="../../pages/legal/privacy.html">Privacy Policy</a>.</span>
+                </label>
+                <button type="submit" class="btn btn-dark btn-block btn-lg" id="contact-submit">Send request</button>
+            </form>
+        </div>
+
+        <div class="contact-body contact-result" data-state="success" hidden>
+            <h2 class="contact-title">Thanks, we've got it.</h2>
+            <p class="contact-sub">Someone from our team will reach out to the email you gave us shortly.</p>
+            <button type="button" class="btn btn-light btn-block" data-close>Done</button>
+        </div>
+
+        <div class="contact-body contact-result" data-state="error" hidden>
+            <h2 class="contact-title">That didn't go through.</h2>
+            <p class="contact-sub">Please check your connection and try again.</p>
+            <button type="button" class="btn btn-dark btn-block" data-retry>Try again</button>
+        </div>
+    </dialog>
+</body>
+
+</html>

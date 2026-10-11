@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A practical guide to sales commission structures that don't backfire | SafiTrack Blog</title>
+    <link rel="icon" type="image/x-icon" href="../../assets/icons/whiteblue.ico">
+    <meta name="description" content="Commission structures shape behaviour in ways that are often invisible until they cause a problem. Getting them right takes more thought than most teams give it.">
+    <meta name="theme-color" content="#ffffff">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://safitrack.netlify.app/pages/blog/a-practical-guide-to-sales-commission-structures-that-dont-backfire.html">
+    <meta property="og:title" content="A practical guide to sales commission structures that don&#x27;t backfire | SafiTrack Blog">
+    <meta property="og:description" content="Commission structures shape behaviour in ways that are often invisible until they cause a problem. Getting them right takes more thought than most teams give it.">
+    <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="A practical guide to sales commission structures that don&#x27;t backfire | SafiTrack Blog">
+    <meta property="twitter:description" content="Commission structures shape behaviour in ways that are often invisible until they cause a problem. Getting them right takes more thought than most teams give it.">
+    <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../../home.css">
+    <link rel="stylesheet" href="../../site.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+    <script src="../../config.js"></script>
+    <script src="../../home.js" defer></script>
+
+</head>
+
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- ============ Navigation ============ -->
+    <header class="nav" id="nav">
+        <div class="wrap nav-inner">
+            <a href="/" class="nav-logo" aria-label="SafiTrack home">
+                <img src="../../assets/icons/transparentMain.png" alt="SafiTrack" width="108" height="25">
+            </a>
+
+            <nav class="nav-links" aria-label="Main">
+                <div class="nav-item has-menu">
+                    <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="menu-features">
+                        Features
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="menu" id="menu-features">
+                        <div class="menu-grid">
+                            <div class="menu-col">
+                                <p class="menu-heading">Platform</p>
+                                <a href="../../pages/features/safi-ai-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9z" /></svg></span>
+                                    <span><strong>Safi AI</strong><small>An assistant that knows your pipeline</small></span>
+                                </a>
+                                <a href="../../pages/features/opportunities-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg></span>
+                                    <span><strong>Pipelines</strong><small>Track every deal to close</small></span>
+                                </a>
+                                <a href="../../pages/features/companies-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" /><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01" /></svg></span>
+                                    <span><strong>Companies</strong><small>Every account in one record</small></span>
+                                </a>
+                                <a href="../../pages/features/people-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg></span>
+                                    <span><strong>People</strong><small>Contacts with full history</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">In the field</p>
+                                <a href="../../pages/features/sales-visits-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg></span>
+                                    <span><strong>Sales visits</strong><small>Log visits from your phone</small></span>
+                                </a>
+                                <a href="../../pages/features/route-plans-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="3" /><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /><circle cx="18" cy="5" r="3" /></svg></span>
+                                    <span><strong>Route plans</strong><small>Plan and assign the day's stops</small></span>
+                                </a>
+                                <a href="../../pages/features/technician-visits-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg></span>
+                                    <span><strong>Service visits</strong><small>Technician jobs after the sale</small></span>
+                                </a>
+                                <a href="../../pages/features/tasks-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg></span>
+                                    <span><strong>Tasks</strong><small>What needs doing, and by whom</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">Insight &amp; automation</p>
+                                <a href="../../pages/features/call-logs-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" /></svg></span>
+                                    <span><strong>Call logs</strong><small>Every conversation, on record</small></span>
+                                </a>
+                                <a href="../../pages/features/notes-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg></span>
+                                    <span><strong>Notes</strong><small>Meeting notes next to the deal</small></span>
+                                </a>
+                                <a href="../../pages/features/reminders-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg></span>
+                                    <span><strong>Reminders</strong><small>Never miss a follow-up</small></span>
+                                </a>
+                                <a href="../../pages/features/reports-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6" /></svg></span>
+                                    <span><strong>Reports</strong><small>Dashboards for the whole team</small></span>
+                                </a>
+                                <a href="../../pages/features/workflows-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg></span>
+                                    <span><strong>Workflows</strong><small>Automate the busywork</small></span>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="menu-foot">
+                            <a href="../../pages/features/mainfeatures.html">See all features <span aria-hidden="true">→</span></a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="nav-item has-menu">
+                    <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="menu-resources">
+                        Resources
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="menu menu-sm" id="menu-resources">
+                        <div class="menu-grid">
+                            <div class="menu-col">
+                                <p class="menu-heading">Learn</p>
+                                <a href="../../pages/documentation.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg></span>
+                                    <span><strong>Documentation</strong><small>Guides and how-tos</small></span>
+                                </a>
+                                <a href="../../pages/helpcenter.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg></span>
+                                    <span><strong>Help center</strong><small>Answers and support</small></span>
+                                </a>
+                                <a href="../../pages/apireference.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6" /></svg></span>
+                                    <span><strong>API reference</strong><small>Build on SafiTrack</small></span>
+                                </a>
+                                <a href="../../pages/integrations.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg></span>
+                                    <span><strong>Integrations</strong><small>Connect your tools</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">Company</p>
+                                <a href="../../pages/blog.html" class="menu-link menu-link-plain"><strong>Blog</strong></a>
+                                <a href="../../pages/careers.html" class="menu-link menu-link-plain"><strong>Careers</strong></a>
+                                <a href="../../pages/security.html" class="menu-link menu-link-plain"><strong>Security</strong></a>
+                                <a href="../../pages/status.html" class="menu-link menu-link-plain"><strong>Status</strong></a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="../../pages/pricing.html" class="nav-link">Pricing</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="/crm/" class="nav-link">Sign in</a>
+                <a href="/crm/?signup=1" class="btn btn-dark btn-sm">Start for free</a>
+            </div>
+
+            <button class="nav-burger" type="button" aria-label="Open menu" aria-expanded="false"
+                aria-controls="mobile-menu">
+                <span></span><span></span>
+            </button>
+        </div>
+
+        <div class="mobile-menu" id="mobile-menu" hidden>
+            <div class="wrap">
+                <p class="mobile-heading">Product</p>
+                <a href="../../pages/features/mainfeatures.html">Features</a>
+                <a href="../../pages/features/safi-ai-feature.html">Safi AI</a>
+                <a href="../../pages/features/route-plans-feature.html">Route plans</a>
+                <a href="../../pages/features/sales-visits-feature.html">Sales visits</a>
+                <a href="../../pages/pricing.html">Pricing</a>
+                <p class="mobile-heading">Resources</p>
+                <a href="../../pages/documentation.html">Documentation</a>
+                <a href="../../pages/helpcenter.html">Help center</a>
+                <a href="../../pages/blog.html">Blog</a>
+                <div class="mobile-actions">
+                    <a href="/crm/" class="btn btn-light">Sign in</a>
+                    <a href="/crm/?signup=1" class="btn btn-dark">Start for free</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main id="main">
+
+        <article class="article">
+            <div class="wrap">
+                <header class="article-head">
+                    <a href="../blog.html" class="article-back"><span aria-hidden="true">←</span> All articles</a>
+                    <p class="post-cat">Guides · Dec 11, 2025 · 10 min read</p>
+                    <h1 class="article-title">A practical guide to sales commission structures that don't backfire</h1>
+                    <p class="article-lede">Commission structures shape behaviour in ways that are often invisible until they cause a problem. Getting them right takes more thought than most teams give it.</p>
+                    <p class="article-by"><span class="article-av">SM</span>Sadie F., SafiTrack</p>
+                </header>
+                <div class="prose article-body">
+<p>Sales commission structures seem like a straightforward business problem. Pay people for what they produce, align incentives with company goals, don't overcomplicate it. In practice, a poorly designed commission structure is one of the most reliable ways to create exactly the behaviour you were trying to prevent.</p>
+<p>This guide is for sales leaders designing or redesigning a commission structure. It's not a formula (every business has different economics and different sales motions) but it's a set of principles that hold across most field sales contexts.</p>
+<h2>Principle 1: Commissions measure what you count, not what you value</h2>
+<p>Every commission structure has unintended consequences because it's impossible to write a formula that perfectly captures everything you actually value. You value revenue, but you also value retention, margin, customer satisfaction, and rep development. Commissions can only pay for what's measured, so they always optimise for a subset of what matters.</p>
+<p>The practical implication: before designing the structure, write down the three or four behaviours you most want to encourage and the two or three you most want to prevent. Then stress-test your proposed structure against both lists. What does a rep who is purely maximising their commission under this structure look like? If that rep is causing problems you don't want, the structure needs adjustment.</p>
+<h2>Principle 2: Cliff structures create end-of-period dysfunction</h2>
+<p>A cliff is a threshold below which commission rate is lower. For example, zero commission until you hit 70% of quota, then a flat rate above it. Cliffs are common because they feel like they prevent paying commission on inadequate performance. What they actually do is create a binary at the threshold that distorts behaviour dramatically in the final weeks of every period.</p>
+<p>Reps close to but below the cliff will do almost anything to cross it. Including pushing deals that aren't ready, offering discounts they shouldn't, or pulling forward Q1 commitments into Q4. Reps who miss the cliff by a margin in the first half of the period often give up on the period entirely and start sandbagging for the next one.</p>
+<p>A smoother accelerator structure (where commission rate increases gradually as attainment rises, with no cliff) produces more predictable behaviour throughout the quarter and almost the same economic outcome for the company.</p>
+<h2>Principle 3: Complexity is a tax on trust</h2>
+<p>Every additional variable in a commission structure is a variable reps have to track, model, and potentially dispute. Structures with product-specific rates, territory modifiers, team bonuses, and multi-year deal haircuts quickly become something reps can't calculate themselves. When a rep can't verify their own commission, they either distrust the number or spend significant time auditing it. Neither of which is where you want their mental energy.</p>
+<div class="callout"><strong>The pub test</strong> A useful heuristic: can a rep explain their commission structure to a friend at the pub without needing a spreadsheet? If not, it's too complex. Simplicity isn't just administratively convenient. It's a trust signal. Reps who understand exactly how they're being paid focus on selling. Reps who don't focus on their commission statement.</div>
+<h2>Principle 4: Separate new business from retention</h2>
+<p>Many field sales teams pay commission on both new logo acquisition and renewal revenue from the same pool. This creates a consistent problem: reps learn quickly that renewals are lower-effort than new business, and they tilt their time accordingly. Your most productive reps become account managers by stealth.</p>
+<p>A cleaner structure separates the two motions with different rates that reflect the actual effort required. New business commission is higher because the work is harder and riskier. Renewal commission is lower but reliable. It rewards reps for maintaining the relationships they built. The separation is explicit about what the company values and removes the subtle incentive to coast on the existing book.</p>
+<h2>Principle 5: Cap structures punish your best reps</h2>
+<p>Commission caps (maximum earnings regardless of attainment) seem financially prudent. In practice they cause two problems. First, they remove incentive to push past the cap, which means your highest-performing reps slow down at exactly the point where you'd most like them to accelerate. Second, once a cap is known in the market, it becomes a recruitment liability. The best reps, who know they can produce above cap, will go where earnings are uncapped.</p>
+<p>If the concern is that a rep might earn an "embarrassing" amount because of a windfall deal or a territory anomaly, the right fix is to address the anomaly. Adjust territories, normalise for windfall accounts, build in deal size modifiers. Not to cap the upside for everyone.</p>
+<h2>Getting the review cycle right</h2>
+<p>Commission structures should be reviewed annually at minimum, and redesigned whenever the sales motion changes significantly. A structure designed for a transactional product doesn't work for a complex enterprise sale. A structure designed for a two-person team starts generating dysfunction at twenty people.</p>
+<p>The review should include the reps, not just leadership. The people running the structure every day see the dysfunction it creates most clearly. Ignoring that input produces structures that look logical on paper and create predictable problems in the field.</p>
+                </div>
+            </div>
+        </article>
+
+        <section class="related">
+            <div class="wrap">
+                <div class="rail">
+                    <p class="related-head">More from the blog</p>
+                    <div class="cells">
+                        <a class="cell post-card" href="how-to-run-a-weekly-pipeline-review-that-people-dont-hate.html" data-group="guide" data-text="how to run a weekly pipeline review that people don't hate most pipeline reviews are a slow roll-call of deal statuses that adds stress without adding clarity. here's a format that actually changes outcomes.">
+                            <p class="post-cat">Guides</p>
+                            <h3>How to run a weekly pipeline review that people don't hate</h3>
+                            <p>Most pipeline reviews are a slow roll-call of deal statuses that adds stress without adding clarity. Here's a format that actually changes outcomes.</p>
+                            <p class="post-meta">Sadie F. · Oct 8, 2025 · 8 min read</p>
+                        </a>
+                        <a class="cell post-card" href="the-complete-guide-to-crm-adoption-for-field-teams.html" data-group="guide" data-text="the complete guide to crm adoption for field teams adoption is the hardest part of any crm rollout. these six principles helped our customers achieve 90%+ active usage within 30 days.">
+                            <p class="post-cat">Guides</p>
+                            <h3>The complete guide to CRM adoption for field teams</h3>
+                            <p>Adoption is the hardest part of any CRM rollout. These six principles helped our customers achieve 90%+ active usage within 30 days.</p>
+                            <p class="post-meta">Sadie F. · Sep 30, 2025 · 12 min read</p>
+                        </a>
+                        <a class="cell post-card" href="introducing-intelligence-hub-ai-powered-field-sales-insights.html" data-group="product" data-text="introducing intelligence hub: ai-powered field sales insights we're rolling out intelligence hub, a new layer of ai that surfaces missed opportunities, summarises visit notes and gives every rep their own sales coach. here's what we built and why.">
+                            <p class="post-cat">Product</p>
+                            <h3>Introducing Intelligence Hub: AI-powered field sales insights</h3>
+                            <p>We're rolling out Intelligence Hub, a new layer of AI that surfaces missed opportunities, summarises visit notes and gives every rep their own sales coach. Here's what we built and why.</p>
+                            <p class="post-meta">Rishi S. · Jan 28, 2026 · 6 min read</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta" data-theme="dark">
+            <div class="wrap">
+                <div class="rail rail-dark cta-box">
+                    <h2 class="cta-title">Run your field team on SafiTrack.</h2>
+                    <p class="cta-sub">Free for up to 2 users. Upgrade when your team grows.</p>
+                    <div class="hero-actions">
+                        <button type="button" class="btn btn-ghost btn-lg" data-contact>Talk to sales</button>
+                        <a href="/crm/?signup=1" class="btn btn-white btn-lg">Start for free</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============ Footer (dark) ============ -->
+    <footer class="footer" data-theme="dark">
+        <div class="wrap">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <img src="../../assets/icons/transparentMain.png" alt="SafiTrack" width="124" height="29">
+                    <p>The CRM for field sales teams.</p>
+                </div>
+                <div class="footer-cols">
+                    <div>
+                        <p class="footer-heading">Product</p>
+                        <a href="../../pages/features/mainfeatures.html">Features</a>
+                        <a href="../../pages/features/safi-ai-feature.html">Safi AI</a>
+                        <a href="../../pages/features/route-plans-feature.html">Route plans</a>
+                        <a href="../../pages/pricing.html">Pricing</a>
+                        <a href="../../pages/integrations.html">Integrations</a>
+                    </div>
+                    <div>
+                        <p class="footer-heading">Company</p>
+                        <a href="../../pages/blog.html">Blog</a>
+                        <a href="../../pages/careers.html">Careers</a>
+                        <a href="../../pages/security.html">Security</a>
+                    </div>
+                    <div>
+                        <p class="footer-heading">Resources</p>
+                        <a href="../../pages/documentation.html">Documentation</a>
+                        <a href="../../pages/helpcenter.html">Help center</a>
+                        <a href="../../pages/apireference.html">API reference</a>
+                        <a href="../../pages/status.html">System status</a>
+                    </div>
+                    <div>
+                        <p class="footer-heading">Get started</p>
+                        <a href="/crm/?signup=1">Create an account</a>
+                        <a href="/crm/">Sign in</a>
+                        <button type="button" class="footer-link" data-contact>Talk to sales</button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+                <nav aria-label="Legal">
+                    <a href="../../pages/legal/terms.html">Terms of service</a>
+                    <a href="../../pages/legal/privacy.html">Privacy policy</a>
+                </nav>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ============ Contact dialog ============ -->
+    <dialog class="contact" id="contact" aria-labelledby="contact-title">
+        <button type="button" class="contact-close" data-close aria-label="Close">
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+                <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+        </button>
+
+        <div class="contact-body" data-state="form">
+            <h2 class="contact-title" id="contact-title">Talk to sales</h2>
+            <p class="contact-sub">Tell us a little about your team and we'll be in touch to set up a walkthrough.</p>
+
+            <form id="contact-form" novalidate>
+                <input type="hidden" name="plan" id="selected-plan" value="General">
+                <div class="field-row">
+                    <label class="field">
+                        <span>First name</span>
+                        <input type="text" name="first_name" autocomplete="given-name" required>
+                    </label>
+                    <label class="field">
+                        <span>Last name</span>
+                        <input type="text" name="last_name" autocomplete="family-name" required>
+                    </label>
+                </div>
+                <label class="field">
+                    <span>Work email</span>
+                    <input type="email" name="from_email" autocomplete="email" required>
+                </label>
+                <div class="field-row">
+                    <label class="field">
+                        <span>Company</span>
+                        <input type="text" name="company_name" autocomplete="organization" required>
+                    </label>
+                    <label class="field">
+                        <span>Job title</span>
+                        <input type="text" name="job_title" autocomplete="organization-title" required>
+                    </label>
+                </div>
+                <div class="field-row">
+                    <label class="field">
+                        <span>Team size</span>
+                        <select name="company_size" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="1-10">1–10</option>
+                            <option value="11-50">11–50</option>
+                            <option value="51-200">51–200</option>
+                            <option value="201-500">201–500</option>
+                            <option value="501+">501+</option>
+                        </select>
+                    </label>
+                    <label class="field">
+                        <span>Country</span>
+                        <select name="region" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="KE">Kenya</option>
+                            <option value="NG">Nigeria</option>
+                            <option value="ZA">South Africa</option>
+                            <option value="AE">United Arab Emirates</option>
+                            <option value="IN">India</option>
+                            <option value="UK">United Kingdom</option>
+                            <option value="US">United States</option>
+                            <option value="CA">Canada</option>
+                            <option value="AU">Australia</option>
+                            <option value="DE">Germany</option>
+                            <option value="FR">France</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </label>
+                </div>
+                <label class="check">
+                    <input type="checkbox" name="terms" required>
+                    <span>I agree to the <a href="../../pages/legal/terms.html">Terms</a> and
+                        <a href="../../pages/legal/privacy.html">Privacy Policy</a>.</span>
+                </label>
+                <button type="submit" class="btn btn-dark btn-block btn-lg" id="contact-submit">Send request</button>
+            </form>
+        </div>
+
+        <div class="contact-body contact-result" data-state="success" hidden>
+            <h2 class="contact-title">Thanks, we've got it.</h2>
+            <p class="contact-sub">Someone from our team will reach out to the email you gave us shortly.</p>
+            <button type="button" class="btn btn-light btn-block" data-close>Done</button>
+        </div>
+
+        <div class="contact-body contact-result" data-state="error" hidden>
+            <h2 class="contact-title">That didn't go through.</h2>
+            <p class="contact-sub">Please check your connection and try again.</p>
+            <button type="button" class="btn btn-dark btn-block" data-retry>Try again</button>
+        </div>
+    </dialog>
+</body>
+
+</html>

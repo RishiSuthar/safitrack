@@ -1,6 +1,6 @@
 /* ==========================================================
    SafiTrack home page
-   Standalone stylesheet; sub-pages keep using landing.css.
+   Shared base: tokens, nav, footer, buttons and home page sections.
    ========================================================== */
 
 :root {
@@ -2386,7 +2386,16 @@ blockquote {
 }
 
 .plan-list li::before {
-    color: var(--ink);
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 50%;
+    width: 11px;
+    height: 6px;
+    margin-top: -5px;
+    border-left: 1.6px solid var(--ink);
+    border-bottom: 1.6px solid var(--ink);
+    transform: rotate(-45deg);
 }
 
 /* ==========================================================

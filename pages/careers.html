@@ -2,1349 +2,506 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Careers - SafiTrack</title>
-  <meta name="description"
-    content="Join the SafiTrack team. We're building the modern CRM for field sales teams. Explore open roles in engineering, design, sales, and more.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://safitrack.netlify.app/pages/careers.html">
-  <meta property="og:title" content="Careers — SafiTrack">
-  <meta property="og:description"
-    content="Join the SafiTrack team. We're building the modern CRM for field sales teams. Explore open roles in engineering, design, sales, and more.">
-  <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
-  <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:url" content="https://safitrack.netlify.app/pages/careers.html">
-  <meta property="twitter:title" content="Careers — SafiTrack">
-  <meta property="twitter:description"
-    content="Join the SafiTrack team. We're building the modern CRM for field sales teams. Explore open roles in engineering, design, sales, and more.">
-  <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
-  <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../landing.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Careers | SafiTrack</title>
+    <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
+    <meta name="description" content="Join the SafiTrack team. Remote roles across engineering, design, growth, customer success and operations.">
+    <meta name="theme-color" content="#ffffff">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://safitrack.netlify.app/pages/careers.html">
+    <meta property="og:title" content="Careers | SafiTrack">
+    <meta property="og:description" content="Join the SafiTrack team. Remote roles across engineering, design, growth, customer success and operations.">
+    <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Careers | SafiTrack">
+    <meta property="twitter:description" content="Join the SafiTrack team. Remote roles across engineering, design, growth, customer success and operations.">
+    <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../home.css">
+    <link rel="stylesheet" href="../site.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+    <script src="../config.js"></script>
+    <script src="../home.js" defer></script>
+    <script src="../site.js" defer></script>
 </head>
 
 <body>
-  <!-- Navigation -->
-  <nav class="navbar" id="navbar">
-    <div class="container">
-      <div class="nav-content">
-        <div class="nav-left">
-          <a href="../index.html" class="logo">
-            <img src="../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
-          </a>
-          <div class="nav-links">
-            <div class="nav-item nav-features">
-              <a href="#" class="nav-link-toggle">Features
-                <span class="nav-caret" aria-hidden="true">
-                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
-                      stroke-linejoin="round" />
-                  </svg>
-                </span>
-              </a>
-              <div class="mega-menu" aria-hidden="true">
-                <div class="mega-content-grid">
-                  <div class="mega-category">
-                    <div class="mega-category-header">Platform</div>
-                    <div class="mega-items-grid">
-                      <a href="features/safi-ai-feature.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" />
-                          </svg>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- ============ Navigation ============ -->
+    <header class="nav" id="nav">
+        <div class="wrap nav-inner">
+            <a href="/" class="nav-logo" aria-label="SafiTrack home">
+                <img src="../assets/icons/transparentMain.png" alt="SafiTrack" width="108" height="25">
+            </a>
+
+            <nav class="nav-links" aria-label="Main">
+                <div class="nav-item has-menu">
+                    <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="menu-features">
+                        Features
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="menu" id="menu-features">
+                        <div class="menu-grid">
+                            <div class="menu-col">
+                                <p class="menu-heading">Platform</p>
+                                <a href="../pages/features/safi-ai-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9z" /></svg></span>
+                                    <span><strong>Safi AI</strong><small>An assistant that knows your pipeline</small></span>
+                                </a>
+                                <a href="../pages/features/opportunities-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg></span>
+                                    <span><strong>Pipelines</strong><small>Track every deal to close</small></span>
+                                </a>
+                                <a href="../pages/features/companies-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" /><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01" /></svg></span>
+                                    <span><strong>Companies</strong><small>Every account in one record</small></span>
+                                </a>
+                                <a href="../pages/features/people-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg></span>
+                                    <span><strong>People</strong><small>Contacts with full history</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">In the field</p>
+                                <a href="../pages/features/sales-visits-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg></span>
+                                    <span><strong>Sales visits</strong><small>Log visits from your phone</small></span>
+                                </a>
+                                <a href="../pages/features/route-plans-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="3" /><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /><circle cx="18" cy="5" r="3" /></svg></span>
+                                    <span><strong>Route plans</strong><small>Plan and assign the day's stops</small></span>
+                                </a>
+                                <a href="../pages/features/technician-visits-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg></span>
+                                    <span><strong>Service visits</strong><small>Technician jobs after the sale</small></span>
+                                </a>
+                                <a href="../pages/features/tasks-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg></span>
+                                    <span><strong>Tasks</strong><small>What needs doing, and by whom</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">Insight &amp; automation</p>
+                                <a href="../pages/features/call-logs-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" /></svg></span>
+                                    <span><strong>Call logs</strong><small>Every conversation, on record</small></span>
+                                </a>
+                                <a href="../pages/features/notes-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg></span>
+                                    <span><strong>Notes</strong><small>Meeting notes next to the deal</small></span>
+                                </a>
+                                <a href="../pages/features/reminders-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg></span>
+                                    <span><strong>Reminders</strong><small>Never miss a follow-up</small></span>
+                                </a>
+                                <a href="../pages/features/reports-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6" /></svg></span>
+                                    <span><strong>Reports</strong><small>Dashboards for the whole team</small></span>
+                                </a>
+                                <a href="../pages/features/workflows-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg></span>
+                                    <span><strong>Workflows</strong><small>Automate the busywork</small></span>
+                                </a>
+                            </div>
                         </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Safi AI</div>
-                          <div class="mega-desc">AI insights native to your CRM</div>
+                        <div class="menu-foot">
+                            <a href="../pages/features/mainfeatures.html">See all features <span aria-hidden="true">→</span></a>
                         </div>
-                      </a>
-                      <a href="features/opportunities-feature.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                            <path d="M2 17l10 5 10-5" />
-                            <path d="M2 12l10 5 10-5" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Pipelines</div>
-                          <div class="mega-desc">Visual deal tracking & management</div>
-                        </div>
-                      </a>
-                      <a href="features/companies-feature.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
-                            <path d="M9 22v-4h6v4" />
-                            <path d="M8 6h.01" />
-                            <path d="M16 6h.01" />
-                            <path d="M8 10h.01" />
-                            <path d="M16 10h.01" />
-                            <path d="M8 14h.01" />
-                            <path d="M16 14h.01" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Companies</div>
-                          <div class="mega-desc">Complete organization context</div>
-                        </div>
-                      </a>
-                      <a href="features/people-feature.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                            <circle cx="9" cy="7" r="4" />
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">People</div>
-                          <div class="mega-desc">Unified contact management</div>
-                        </div>
-                      </a>
                     </div>
-                  </div>
-                  <div class="mega-category">
-                    <div class="mega-category-header">Operations</div>
-                    <div class="mega-items-grid">
-                      <a href="features/sales-visits-feature.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                            <circle cx="12" cy="10" r="3" />
-                          </svg>
+                </div>
+
+                <div class="nav-item has-menu">
+                    <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="menu-resources">
+                        Resources
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="menu menu-sm" id="menu-resources">
+                        <div class="menu-grid">
+                            <div class="menu-col">
+                                <p class="menu-heading">Learn</p>
+                                <a href="../pages/documentation.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg></span>
+                                    <span><strong>Documentation</strong><small>Guides and how-tos</small></span>
+                                </a>
+                                <a href="../pages/helpcenter.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg></span>
+                                    <span><strong>Help center</strong><small>Answers and support</small></span>
+                                </a>
+                                <a href="../pages/apireference.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6" /></svg></span>
+                                    <span><strong>API reference</strong><small>Build on SafiTrack</small></span>
+                                </a>
+                                <a href="../pages/integrations.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg></span>
+                                    <span><strong>Integrations</strong><small>Connect your tools</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">Company</p>
+                                <a href="../pages/blog.html" class="menu-link menu-link-plain"><strong>Blog</strong></a>
+                                <a href="../pages/careers.html" class="menu-link menu-link-plain"><strong>Careers</strong></a>
+                                <a href="../pages/security.html" class="menu-link menu-link-plain"><strong>Security</strong></a>
+                                <a href="../pages/status.html" class="menu-link menu-link-plain"><strong>Status</strong></a>
+                            </div>
                         </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Sales visits</div>
-                          <div class="mega-desc">Field activity & visit logging</div>
-                        </div>
-                      </a>
-                      <a href="features/route-plans-feature.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="6" cy="19" r="3" />
-                            <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
-                            <circle cx="18" cy="5" r="3" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Route plans</div>
-                          <div class="mega-desc">Optimized field routing</div>
-                        </div>
-                      </a>
-                      <a href="features/technician-visits-feature.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path
-                              d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Service visits</div>
-                          <div class="mega-desc">Post-sales technician tracking</div>
-                        </div>
-                      </a>
-                      <a href="features/tasks-feature.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 11 12 14 22 4" />
-                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Tasks</div>
-                          <div class="mega-desc">Operational to-do management</div>
-                        </div>
-                      </a>
                     </div>
-                  </div>
-                  <div class="mega-category">
-                                        <div class="mega-category-header">Insights &amp; Automation</div>
-                                        <div class="mega-items-grid">
-                                            <a href="features/call-logs-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Call Intelligence</div>
-                                                    <div class="mega-desc">Record &amp; analyze meetings</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/notes-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Notes</div>
-                                                    <div class="mega-desc">Native meeting summaries</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/reminders-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Reminders</div>
-                                                    <div class="mega-desc">Smart follow-up alerts</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/reports-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Reports</div>
-                                                    <div class="mega-desc">Custom analytics &amp; dashboards</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/workflows-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Workflows</div>
-                                                    <div class="mega-desc">Automate repetitive tasks</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
                 </div>
-                <div class="mega-sidebar">
-                  <div class="mega-sidebar-header">Get Started</div>
-                  <ul class="mega-sidebar-list">
-                    <li><a href="/crm/"><span>Open CRM</span></a></li>
-                    <li><a href="pricing.html"><span>View Pricing</span></a></li>
-                    <li><a href="../index.html#pricing"><span>Request Demo</span></a></li>
-                  </ul>
-                  <div class="mega-sidebar-footer">
-                    <p>Trusted by 2,000+ teams</p>
-                  </div>
-                </div>
-              </div>
+
+                <a href="../pages/pricing.html" class="nav-link">Pricing</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="/crm/" class="nav-link">Sign in</a>
+                <a href="/crm/?signup=1" class="btn btn-dark btn-sm">Start for free</a>
             </div>
-            <div class="nav-item nav-resources">
-              <a href="#" class="nav-link-toggle">Resources
-                <span class="nav-caret" aria-hidden="true">
-                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
-                      stroke-linejoin="round" />
-                  </svg>
-                </span>
-              </a>
-              <div class="mega-menu" aria-hidden="true">
-                <div class="mega-content-grid">
-                  <div class="mega-category">
-                    <div class="mega-category-header">Insights</div>
-                    <div class="mega-items-grid">
-                      <a href="integrations.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                            <path d="M2 17l10 5 10-5" />
-                            <path d="M2 12l10 5 10-5" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Integrations</div>
-                          <div class="mega-desc">Connect your stack</div>
-                        </div>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="mega-category">
-                    <div class="mega-category-header">Support</div>
-                    <div class="mega-items-grid">
-                      <a href="documentation.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Documentation</div>
-                          <div class="mega-desc">Guides and tutorials</div>
-                        </div>
-                      </a>
-                      <a href="helpcenter.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10" />
-                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                            <line x1="12" y1="17" x2="12.01" y2="17" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Help Center</div>
-                          <div class="mega-desc">Get support</div>
-                        </div>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="mega-category">
-                    <div class="mega-category-header">Developers</div>
-                    <div class="mega-items-grid">
-                      <a href="apireference.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="16 18 22 12 16 6" />
-                            <polyline points="8 6 2 12 8 18" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">API Reference</div>
-                          <div class="mega-desc">Build with SafiTrack</div>
-                        </div>
-                      </a>
-                    </div>
-                  </div>
+
+            <button class="nav-burger" type="button" aria-label="Open menu" aria-expanded="false"
+                aria-controls="mobile-menu">
+                <span></span><span></span>
+            </button>
+        </div>
+
+        <div class="mobile-menu" id="mobile-menu" hidden>
+            <div class="wrap">
+                <p class="mobile-heading">Product</p>
+                <a href="../pages/features/mainfeatures.html">Features</a>
+                <a href="../pages/features/safi-ai-feature.html">Safi AI</a>
+                <a href="../pages/features/route-plans-feature.html">Route plans</a>
+                <a href="../pages/features/sales-visits-feature.html">Sales visits</a>
+                <a href="../pages/pricing.html">Pricing</a>
+                <p class="mobile-heading">Resources</p>
+                <a href="../pages/documentation.html">Documentation</a>
+                <a href="../pages/helpcenter.html">Help center</a>
+                <a href="../pages/blog.html">Blog</a>
+                <div class="mobile-actions">
+                    <a href="/crm/" class="btn btn-light">Sign in</a>
+                    <a href="/crm/?signup=1" class="btn btn-dark">Start for free</a>
                 </div>
-                <div class="mega-sidebar">
-                  <div class="mega-sidebar-header">More</div>
-                  <ul class="mega-sidebar-list">
-                    <li><a href="blog.html"><span>Blog</span></a></li>
-                    <li><a href="careers.html"><span>Careers</span></a></li>
-                    <li><a href="status.html"><span>Status</span></a></li>
-                  </ul>
-                  <div class="mega-sidebar-footer">
-                    <p>Always growing</p>
-                  </div>
-                </div>
-              </div>
             </div>
-            <a href="pricing.html">Pricing</a>
-          </div>
         </div>
-        <div class="nav-actions">
-          <a href="/crm/" class="nav-link-sign-in">Sign in</a>
-          <a href="pricing.html" class="btn-hero-primary">Start for free</a>
+    </header>
+
+    <main id="main">
+
+        <section class="ph">
+            <div class="wrap">
+                <p class="tag">Careers · Hiring across 5 teams</p>
+                <h1 class="ph-title">Help us build the future <span>of field operations.</span></h1>
+                <p class="ph-sub">A small, ambitious team building tools that tens of thousands of field reps rely on
+                    daily. Remote-first, high-craft, real impact.</p>
+                <div class="hero-actions">
+                    <a href="#roles" class="btn btn-dark btn-lg">See open roles</a>
+                    <a href="mailto:careers@safitrack.com" class="btn btn-light btn-lg">Get in touch</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="sec sec-first">
+            <div class="wrap">
+                <div class="rail">
+                    <header class="sec-head">
+                        <p class="row-label">Our values</p>
+                        <h2 class="split-title">How we work. <span>Principles that guide every decision, hire and product choice.</span></h2>
+                    </header>
+                    <div class="cells cells-2">
+                        <div class="cell">
+                            <h3>Remote first</h3>
+                            <p>Our team spans four continents. Every process is designed to work asynchronously by default. No HQ advantage.</p>
+                        </div>
+                        <div class="cell">
+                            <h3>High craft</h3>
+                            <p>We sweat the details. Whether it's a hover state or a backend schema, quality is non-negotiable at every layer.</p>
+                        </div>
+                        <div class="cell">
+                            <h3>Real impact</h3>
+                            <p>Every feature ships to real field reps in the real world. You'll see your work in production minutes after deploy.</p>
+                        </div>
+                        <div class="cell">
+                            <h3>Small and mighty</h3>
+                            <p>We stay lean intentionally. A small, focused team moves faster and builds things that matter. Not things that look good in a deck.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="sec" id="roles">
+            <div class="wrap">
+                <div class="rail">
+                    <header class="sec-head">
+                        <p class="row-label">Open positions</p>
+                        <h2 class="split-title">Join the team. <span>All roles are fully remote. We hire on impact, not location.</span></h2>
+                        <div class="chips" role="toolbar" aria-label="Filter roles by team"><button type="button" class="chip is-active" data-filter="all">All teams</button><button type="button" class="chip" data-filter="engineering">Engineering</button><button type="button" class="chip" data-filter="design">Design</button><button type="button" class="chip" data-filter="growth">Growth</button><button type="button" class="chip" data-filter="success">Customer Success</button><button type="button" class="chip" data-filter="operations">Operations</button></div>
+                    </header>
+                    <ul class="role-list-jobs" data-roles>
+                        <li class="role-row" data-group="engineering">
+                            <div class="role-main">
+                                <h3>Senior Frontend Engineer <span class="pill pill-blue">New</span></h3>
+                                <p>Engineering · Remote · Full-time</p>
+                            </div>
+                            <a class="btn btn-light btn-sm" href="mailto:careers@safitrack.com?subject=Application%3A%20Senior%20Frontend%20Engineer">Apply</a>
+                        </li>
+                        <li class="role-row" data-group="engineering">
+                            <div class="role-main">
+                                <h3>Backend Platform Lead</h3>
+                                <p>Engineering · Remote · Full-time</p>
+                            </div>
+                            <a class="btn btn-light btn-sm" href="mailto:careers@safitrack.com?subject=Application%3A%20Backend%20Platform%20Lead">Apply</a>
+                        </li>
+                        <li class="role-row" data-group="engineering">
+                            <div class="role-main">
+                                <h3>Mobile Engineer (iOS &amp; Android) <span class="pill pill-blue">New</span></h3>
+                                <p>Engineering · Remote · Full-time</p>
+                            </div>
+                            <a class="btn btn-light btn-sm" href="mailto:careers@safitrack.com?subject=Application%3A%20Mobile%20Engineer%20%28iOS%20%26%20Android%29">Apply</a>
+                        </li>
+                        <li class="role-row" data-group="design">
+                            <div class="role-main">
+                                <h3>Product Designer</h3>
+                                <p>Design · Remote · Full-time</p>
+                            </div>
+                            <a class="btn btn-light btn-sm" href="mailto:careers@safitrack.com?subject=Application%3A%20Product%20Designer">Apply</a>
+                        </li>
+                        <li class="role-row" data-group="design">
+                            <div class="role-main">
+                                <h3>Motion &amp; Brand Designer</h3>
+                                <p>Design · Remote · Contract</p>
+                            </div>
+                            <a class="btn btn-light btn-sm" href="mailto:careers@safitrack.com?subject=Application%3A%20Motion%20%26%20Brand%20Designer">Apply</a>
+                        </li>
+                        <li class="role-row" data-group="growth">
+                            <div class="role-main">
+                                <h3>Head of Growth <span class="pill pill-blue">New</span></h3>
+                                <p>Growth · Remote · Full-time</p>
+                            </div>
+                            <a class="btn btn-light btn-sm" href="mailto:careers@safitrack.com?subject=Application%3A%20Head%20of%20Growth">Apply</a>
+                        </li>
+                        <li class="role-row" data-group="growth">
+                            <div class="role-main">
+                                <h3>Content &amp; SEO Lead</h3>
+                                <p>Growth · Remote · Full-time</p>
+                            </div>
+                            <a class="btn btn-light btn-sm" href="mailto:careers@safitrack.com?subject=Application%3A%20Content%20%26%20SEO%20Lead">Apply</a>
+                        </li>
+                        <li class="role-row" data-group="success">
+                            <div class="role-main">
+                                <h3>Customer Success Manager</h3>
+                                <p>Customer Success · Remote · Full-time</p>
+                            </div>
+                            <a class="btn btn-light btn-sm" href="mailto:careers@safitrack.com?subject=Application%3A%20Customer%20Success%20Manager">Apply</a>
+                        </li>
+                        <li class="role-row" data-group="operations">
+                            <div class="role-main">
+                                <h3>RevOps Analyst <span class="pill pill-blue">New</span></h3>
+                                <p>Operations · Remote · Full-time</p>
+                            </div>
+                            <a class="btn btn-light btn-sm" href="mailto:careers@safitrack.com?subject=Application%3A%20RevOps%20Analyst">Apply</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section class="sec">
+            <div class="wrap">
+                <div class="rail">
+                    <header class="sec-head">
+                        <p class="row-label">Benefits</p>
+                        <h2 class="split-title">What we offer. <span>We look after the people who look after our customers.</span></h2>
+                    </header>
+                    <div class="cells">
+                        <div class="cell">
+                            <h3>Competitive pay</h3>
+                            <p>Benchmarked against top-tier tech companies. Equity offered at every level.</p>
+                        </div>
+                        <div class="cell">
+                            <h3>Unlimited PTO</h3>
+                            <p>We trust you to take the time you need. Rest is part of doing great work.</p>
+                        </div>
+                        <div class="cell">
+                            <h3>Home office budget</h3>
+                            <p>$1,500 to build the workspace setup that works best for you.</p>
+                        </div>
+                        <div class="cell">
+                            <h3>Learning budget</h3>
+                            <p>$500/year for courses, books, or conferences. Whatever sharpens your edge.</p>
+                        </div>
+                        <div class="cell">
+                            <h3>Health coverage</h3>
+                            <p>Full medical, dental, and vision for you and your dependants, wherever you are.</p>
+                        </div>
+                        <div class="cell">
+                            <h3>Company retreats</h3>
+                            <p>Two off-site trips per year to meet the whole team in person and build what's next.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta" data-theme="dark">
+            <div class="wrap">
+                <div class="rail rail-dark cta-box">
+                    <h2 class="cta-title">Don't see your role?</h2>
+                    <p class="cta-sub">We're always on the lookout for exceptional people. Send us a note; the right role
+                        might be just around the corner.</p>
+                    <div class="hero-actions">
+                        <a href="mailto:careers@safitrack.com" class="btn btn-white btn-lg">Reach out</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============ Footer (dark) ============ -->
+    <footer class="footer" data-theme="dark">
+        <div class="wrap">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <img src="../assets/icons/transparentMain.png" alt="SafiTrack" width="124" height="29">
+                    <p>The CRM for field sales teams.</p>
+                </div>
+                <div class="footer-cols">
+                    <div>
+                        <p class="footer-heading">Product</p>
+                        <a href="../pages/features/mainfeatures.html">Features</a>
+                        <a href="../pages/features/safi-ai-feature.html">Safi AI</a>
+                        <a href="../pages/features/route-plans-feature.html">Route plans</a>
+                        <a href="../pages/pricing.html">Pricing</a>
+                        <a href="../pages/integrations.html">Integrations</a>
+                    </div>
+                    <div>
+                        <p class="footer-heading">Company</p>
+                        <a href="../pages/blog.html">Blog</a>
+                        <a href="../pages/careers.html">Careers</a>
+                        <a href="../pages/security.html">Security</a>
+                    </div>
+                    <div>
+                        <p class="footer-heading">Resources</p>
+                        <a href="../pages/documentation.html">Documentation</a>
+                        <a href="../pages/helpcenter.html">Help center</a>
+                        <a href="../pages/apireference.html">API reference</a>
+                        <a href="../pages/status.html">System status</a>
+                    </div>
+                    <div>
+                        <p class="footer-heading">Get started</p>
+                        <a href="/crm/?signup=1">Create an account</a>
+                        <a href="/crm/">Sign in</a>
+                        <button type="button" class="footer-link" data-contact>Talk to sales</button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+                <nav aria-label="Legal">
+                    <a href="../pages/legal/terms.html">Terms of service</a>
+                    <a href="../pages/legal/privacy.html">Privacy policy</a>
+                </nav>
+            </div>
         </div>
-        <button class="mobile-menu-btn" aria-label="Toggle Menu">
-          <span></span><span></span>
+    </footer>
+
+    <!-- ============ Contact dialog ============ -->
+    <dialog class="contact" id="contact" aria-labelledby="contact-title">
+        <button type="button" class="contact-close" data-close aria-label="Close">
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+                <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
         </button>
-      </div>
-    </div>
-  </nav>
-  <div class="mobile-nav-overlay">
-    <button class="mobile-close-btn" aria-label="Close">
-      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-      </svg>
-    </button>
-    <div class="mobile-nav-content">
-      <a href="features/mainfeatures.html" class="mobile-link">Features</a>
-      <a href="pricing.html" class="mobile-link">Pricing</a>
-      <hr class="mobile-divider">
-      <a href="/crm/" class="mobile-link">Open App</a>
-      <button class="btn-primary btn-block get-started-btn">Get Started</button>
-    </div>
-  </div>
 
-  <style>
-    /* hero */
-    .page-hero {
-      padding: 120px 0 72px;
-      text-align: center;
-      background: #fff;
-      border-bottom: 1px solid #e6e9ef
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #f4f4f5;
-      border: 1px solid #e4e4e7;
-      border-radius: 50px;
-      padding: 6px 16px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #374151;
-      margin-bottom: 24px
-    }
-
-    .hero-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #374151;
-      animation: pulse-dot 1.8s ease-in-out infinite
-    }
-
-    @keyframes pulse-dot {
-
-      0%,
-      100% {
-        opacity: 1;
-        transform: scale(1)
-      }
-
-      50% {
-        opacity: .4;
-        transform: scale(.75)
-      }
-    }
-
-    .page-hero h1 {
-      font-size: clamp(2.2rem, 5vw, 3.4rem);
-      font-weight: 800;
-      color: #0b1220;
-      margin-bottom: 16px;
-      line-height: 1.15
-    }
-
-    .page-hero h1 span {
-      color: #0b1220
-    }
-
-    .page-hero>div>p {
-      font-size: 18px;
-      color: #6b7280;
-      max-width: 560px;
-      margin: 0 auto;
-      line-height: 1.7
-    }
-
-    .hero-actions {
-      margin-top: 32px;
-      display: flex;
-      gap: 12px;
-      justify-content: center;
-      flex-wrap: wrap
-    }
-
-    .hero-stats {
-      margin-top: 52px;
-      display: flex;
-      gap: 48px;
-      justify-content: center;
-      flex-wrap: wrap;
-      padding-top: 40px;
-      border-top: 1px solid #e6e9ef
-    }
-
-    .hero-stat .num {
-      font-size: 30px;
-      font-weight: 800;
-      color: #0b1220
-    }
-
-    .hero-stat .lbl {
-      font-size: 13px;
-      color: #6b7280;
-      margin-top: 2px
-    }
-
-    /* sections */
-    .section-label {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: #6b7280;
-      margin-bottom: 12px;
-      text-align: center
-    }
-
-    .section-title {
-      font-size: clamp(1.6rem, 3vw, 2.2rem);
-      font-weight: 800;
-      color: #0b1220;
-      text-align: center;
-      margin-bottom: 12px
-    }
-
-    .section-sub {
-      text-align: center;
-      color: #6b7280;
-      font-size: 16px;
-      margin-bottom: 48px;
-      line-height: 1.6
-    }
-
-    /* values */
-    .values-section {
-      padding: 80px 0;
-      background: #fff
-    }
-
-    .values-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 24px
-    }
-
-    .value-card {
-      border: 1px solid #e6e9ef;
-      border-radius: 16px;
-      padding: 36px 28px;
-      background: #fff;
-      transition: box-shadow .2s
-    }
-
-    .value-card:hover {
-      box-shadow: 0 6px 24px rgba(0, 0, 0, .07)
-    }
-
-    .val-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      background: #f4f4f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 20px
-    }
-
-    .val-icon svg {
-      stroke: #374151
-    }
-
-    .value-card h3 {
-      font-size: 17px;
-      font-weight: 700;
-      color: #0b1220;
-      margin-bottom: 8px
-    }
-
-    .value-card p {
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.7
-    }
-
-    /* jobs */
-    .jobs-section {
-      padding: 80px 0;
-      background: #fafafa;
-      border-top: 1px solid #e6e9ef
-    }
-
-    .filter-bar {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 20px
-    }
-
-    .filter-btn {
-      padding: 8px 18px;
-      border-radius: 50px;
-      border: 1.5px solid #e4e4e7;
-      background: #fff;
-      font-size: 13px;
-      font-weight: 600;
-      color: #6b7280;
-      cursor: pointer;
-      transition: all .15s;
-      white-space: nowrap;
-      line-height: 1
-    }
-
-    .filter-btn:hover {
-      border-color: #0b1220;
-      color: #0b1220
-    }
-
-    .filter-btn.active {
-      background: #0b1220;
-      border-color: #0b1220;
-      color: #fff
-    }
-
-    .jobs-stats {
-      font-size: 14px;
-      color: #6b7280;
-      margin-bottom: 20px
-    }
-
-    .jobs-stats strong {
-      color: #0b1220
-    }
-
-    .job-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 20px;
-      border: 1px solid #e6e9ef;
-      border-radius: 12px;
-      padding: 20px 24px;
-      background: #fff;
-      margin-bottom: 8px;
-      text-align: left;
-      transition: box-shadow .2s
-    }
-
-    .job-card:hover {
-      box-shadow: 0 4px 16px rgba(0, 0, 0, .07)
-    }
-
-    .job-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex: 1;
-      min-width: 0;
-      text-align: left
-    }
-
-    .job-dept-icon {
-      width: 38px;
-      height: 38px;
-      border-radius: 9px;
-      background: #f4f4f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0
-    }
-
-    .job-dept-icon svg {
-      stroke: #374151
-    }
-
-    .job-info {
-      flex: 1;
-      min-width: 0;
-      text-align: left
-    }
-
-    .job-info h3 {
-      font-size: 15px;
-      font-weight: 700;
-      color: #0b1220;
-      margin-bottom: 6px
-    }
-
-    .job-tags {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center
-    }
-
-    .job-tag {
-      font-size: 12px;
-      font-weight: 600;
-      padding: 3px 10px;
-      border-radius: 50px;
-      background: #f4f4f5;
-      color: #4b5563;
-      white-space: nowrap
-    }
-
-    .job-tag.new-tag {
-      background: #f0fdf4;
-      color: #15803d
-    }
-
-    .btn-apply {
-      padding: 9px 20px;
-      background: #0b1220;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background .15s;
-      white-space: nowrap;
-      flex-shrink: 0
-    }
-
-    .btn-apply:hover {
-      background: #1f2937
-    }
-
-    .no-roles {
-      text-align: center;
-      padding: 64px 24px;
-      color: #6b7280;
-      display: none
-    }
-
-    .no-roles.visible {
-      display: block
-    }
-
-    /* perks */
-    .perks-section {
-      padding: 80px 0;
-      background: #fff;
-      border-top: 1px solid #e6e9ef
-    }
-
-    .perks-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 28px;
-      margin-top: 48px
-    }
-
-    .perk-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 16px
-    }
-
-    .perk-icon-wrap {
-      width: 42px;
-      height: 42px;
-      border-radius: 10px;
-      background: #f4f4f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0
-    }
-
-    .perk-icon-wrap svg {
-      stroke: #374151
-    }
-
-    .perk-item p {
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.6
-    }
-
-    .perk-item strong {
-      display: block;
-      font-size: 15px;
-      font-weight: 700;
-      color: #0b1220;
-      margin-bottom: 4px
-    }
-
-    /* cta */
-    .cta-band {
-      background: #0b1220;
-      padding: 80px 0;
-      text-align: center
-    }
-
-    .cta-band h2 {
-      font-size: clamp(1.6rem, 3vw, 2.2rem);
-      font-weight: 800;
-      color: #fff;
-      margin-bottom: 12px
-    }
-
-    .cta-band p {
-      color: #9ca3af;
-      font-size: 16px;
-      margin-bottom: 32px;
-      max-width: 480px;
-      margin-left: auto;
-      margin-right: auto;
-      line-height: 1.6
-    }
-
-    /* modal */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, .5);
-      backdrop-filter: blur(4px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .22s
-    }
-
-    .modal-overlay.open {
-      opacity: 1;
-      pointer-events: auto
-    }
-
-    .modal-box {
-      background: #fff;
-      border-radius: 16px;
-      padding: 40px 36px;
-      max-width: 480px;
-      width: 90%;
-      text-align: center;
-      transform: translateY(24px);
-      transition: transform .25s;
-      box-shadow: 0 24px 80px rgba(0, 0, 0, .2)
-    }
-
-    .modal-overlay.open .modal-box {
-      transform: translateY(0)
-    }
-
-    .modal-role-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 14px;
-      background: #f4f4f5;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin: 0 auto 20px
-    }
-
-    .modal-role-icon svg {
-      stroke: #374151
-    }
-
-    .modal-dept-label {
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      color: #6b7280;
-      margin-bottom: 8px
-    }
-
-    .modal-box h3 {
-      font-size: 21px;
-      font-weight: 800;
-      color: #0b1220;
-      margin-bottom: 8px
-    }
-
-    .modal-box p {
-      font-size: 14px;
-      color: #6b7280;
-      margin-bottom: 24px;
-      line-height: 1.6
-    }
-
-    .modal-notify {
-      display: flex;
-      gap: 8px;
-      max-width: 340px;
-      margin: 0 auto 12px
-    }
-
-    .modal-notify input {
-      flex: 1;
-      padding: 10px 14px;
-      border: 1.5px solid #e4e4e7;
-      border-radius: 8px;
-      font-size: 14px;
-      outline: none;
-      transition: border .15s
-    }
-
-    .modal-notify input:focus {
-      border-color: #0b1220
-    }
-
-    .modal-notify button {
-      padding: 10px 18px;
-      background: #0b1220;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      white-space: nowrap
-    }
-
-    .modal-notify button:hover {
-      background: #1f2937
-    }
-
-    .modal-form-hint {
-      font-size: 12px;
-      color: #9ca3af;
-      margin-bottom: 0
-    }
-
-    .modal-success {
-      display: none;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      color: #15803d;
-      font-size: 14px;
-      font-weight: 600;
-      margin-top: 4px
-    }
-
-    .modal-success svg {
-      flex-shrink: 0
-    }
-
-    .modal-close {
-      margin-top: 20px;
-      background: none;
-      border: none;
-      color: #9ca3af;
-      font-size: 13px;
-      cursor: pointer;
-      text-decoration: underline
-    }
-
-    @media(max-width:640px) {
-      .job-card {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 14px
-      }
-
-      .job-left {
-        width: 100%
-      }
-
-      .btn-apply {
-        width: 100%;
-        text-align: center
-      }
-
-      .modal-notify {
-        flex-direction: column
-      }
-
-      .hero-stats {
-        gap: 28px
-      }
-    }
-  </style>
-
-  <section class="page-hero">
-    <div class="container">
-      <div class="hero-badge"><span class="hero-dot"></span> We're hiring across 4 departments</div>
-      <h1>Help us build the future<br>of <span>field operations.</span></h1>
-      <p>A small, ambitious team building tools that tens of thousands of field reps rely on daily. Remote-first,
-        high-craft, real impact.</p>
-      <div class="hero-actions">
-        <a href="#open-roles" class="btn-hero-primary">See open roles</a>
-        <a href="mailto:careers@safitrack.com" class="btn-hero-secondary">Get in touch</a>
-      </div>
-
-    </div>
-  </section>
-
-  <section class="values-section">
-    <div class="container">
-      <div class="section-label">Our values</div>
-      <h2 class="section-title">How we work</h2>
-      <p class="section-sub">Three principles that guide every decision, hire, and product choice we make.</p>
-      <div class="values-grid">
-        <div class="value-card">
-          <div class="val-icon">
-            <svg width="22" height="22" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="2" y1="12" x2="22" y2="12" />
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-            </svg>
-          </div>
-          <h3>Remote First</h3>
-          <p>Our team spans four continents. Every process is designed to work asynchronously by default — no HQ
-            advantage.</p>
+        <div class="contact-body" data-state="form">
+            <h2 class="contact-title" id="contact-title">Talk to sales</h2>
+            <p class="contact-sub">Tell us a little about your team and we'll be in touch to set up a walkthrough.</p>
+
+            <form id="contact-form" novalidate>
+                <input type="hidden" name="plan" id="selected-plan" value="General">
+                <div class="field-row">
+                    <label class="field">
+                        <span>First name</span>
+                        <input type="text" name="first_name" autocomplete="given-name" required>
+                    </label>
+                    <label class="field">
+                        <span>Last name</span>
+                        <input type="text" name="last_name" autocomplete="family-name" required>
+                    </label>
+                </div>
+                <label class="field">
+                    <span>Work email</span>
+                    <input type="email" name="from_email" autocomplete="email" required>
+                </label>
+                <div class="field-row">
+                    <label class="field">
+                        <span>Company</span>
+                        <input type="text" name="company_name" autocomplete="organization" required>
+                    </label>
+                    <label class="field">
+                        <span>Job title</span>
+                        <input type="text" name="job_title" autocomplete="organization-title" required>
+                    </label>
+                </div>
+                <div class="field-row">
+                    <label class="field">
+                        <span>Team size</span>
+                        <select name="company_size" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="1-10">1–10</option>
+                            <option value="11-50">11–50</option>
+                            <option value="51-200">51–200</option>
+                            <option value="201-500">201–500</option>
+                            <option value="501+">501+</option>
+                        </select>
+                    </label>
+                    <label class="field">
+                        <span>Country</span>
+                        <select name="region" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="KE">Kenya</option>
+                            <option value="NG">Nigeria</option>
+                            <option value="ZA">South Africa</option>
+                            <option value="AE">United Arab Emirates</option>
+                            <option value="IN">India</option>
+                            <option value="UK">United Kingdom</option>
+                            <option value="US">United States</option>
+                            <option value="CA">Canada</option>
+                            <option value="AU">Australia</option>
+                            <option value="DE">Germany</option>
+                            <option value="FR">France</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </label>
+                </div>
+                <label class="check">
+                    <input type="checkbox" name="terms" required>
+                    <span>I agree to the <a href="../pages/legal/terms.html">Terms</a> and
+                        <a href="../pages/legal/privacy.html">Privacy Policy</a>.</span>
+                </label>
+                <button type="submit" class="btn btn-dark btn-block btn-lg" id="contact-submit">Send request</button>
+            </form>
         </div>
-        <div class="value-card">
-          <div class="val-icon">
-            <svg width="22" height="22" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" viewBox="0 0 24 24">
-              <polygon
-                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-            </svg>
-          </div>
-          <h3>High Craft</h3>
-          <p>We sweat the details. Whether it's a hover state or a backend schema, quality is non-negotiable at every
-            layer.</p>
-        </div>
-        <div class="value-card">
-          <div class="val-icon">
-            <svg width="22" height="22" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" viewBox="0 0 24 24">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
-            </svg>
-          </div>
-          <h3>Real Impact</h3>
-          <p>Every feature ships to real field reps in the real world. You'll see your work in production minutes after
-            deploy.</p>
-        </div>
-        <div class="value-card">
-          <div class="val-icon">
-            <svg width="22" height="22" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" viewBox="0 0 24 24">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-          </div>
-          <h3>Small & Mighty</h3>
-          <p>We stay lean intentionally. A small, focused team moves faster and builds things that matter — not things
-            that look good in a deck.</p>
-        </div>
-      </div>
-    </div>
-  </section>
 
-  <section class="jobs-section" id="open-roles">
-    <div class="container">
-      <div class="section-label">Open positions</div>
-      <h2 class="section-title">Join the team</h2>
-      <p class="section-sub">All roles are fully remote. We hire based on impact, not location.</p>
-
-      <div class="filter-bar" id="jobFilters">
-        <button class="filter-btn active" data-dept="all">All departments</button>
-        <button class="filter-btn" data-dept="engineering">Engineering</button>
-        <button class="filter-btn" data-dept="design">Design</button>
-        <button class="filter-btn" data-dept="growth">Growth</button>
-        <button class="filter-btn" data-dept="success">Customer Success</button>
-        <button class="filter-btn" data-dept="operations">Operations</button>
-      </div>
-      <div class="jobs-stats" id="jobsStats"></div>
-      <div id="jobsList"></div>
-      <div class="no-roles" id="noRoles">
-        <svg width="40" height="40" fill="none" stroke="#d1d5db" stroke-width="1.5" viewBox="0 0 24 24"
-          style="margin:0 auto 12px;display:block">
-          <rect x="2" y="7" width="20" height="14" rx="2" />
-          <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
-        </svg>
-        <p>No open roles in this department right now — check back soon.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="perks-section">
-    <div class="container">
-      <div class="section-label">Benefits</div>
-      <h2 class="section-title">What we offer</h2>
-      <p class="section-sub">We look after the people who look after our customers.</p>
-      <div class="perks-grid">
-        <div class="perk-item">
-          <div class="perk-icon-wrap">
-            <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" viewBox="0 0 24 24">
-              <line x1="12" y1="1" x2="12" y2="23" />
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </svg>
-          </div>
-          <div><strong>Competitive pay</strong>
-            <p>Benchmarked against top-tier tech companies. Equity offered at every level.</p>
-          </div>
+        <div class="contact-body contact-result" data-state="success" hidden>
+            <h2 class="contact-title">Thanks, we've got it.</h2>
+            <p class="contact-sub">Someone from our team will reach out to the email you gave us shortly.</p>
+            <button type="button" class="btn btn-light btn-block" data-close>Done</button>
         </div>
-        <div class="perk-item">
-          <div class="perk-icon-wrap">
-            <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" viewBox="0 0 24 24">
-              <circle cx="12" cy="12" r="5" />
-              <line x1="12" y1="1" x2="12" y2="3" />
-              <line x1="12" y1="21" x2="12" y2="23" />
-              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" />
-              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" />
-              <line x1="1" y1="12" x2="3" y2="12" />
-              <line x1="21" y1="12" x2="23" y2="12" />
-              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" />
-              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" />
-            </svg>
-          </div>
-          <div><strong>Unlimited PTO</strong>
-            <p>We trust you to take the time you need. Rest is part of doing great work.</p>
-          </div>
+
+        <div class="contact-body contact-result" data-state="error" hidden>
+            <h2 class="contact-title">That didn't go through.</h2>
+            <p class="contact-sub">Please check your connection and try again.</p>
+            <button type="button" class="btn btn-dark btn-block" data-retry>Try again</button>
         </div>
-        <div class="perk-item">
-          <div class="perk-icon-wrap">
-            <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" viewBox="0 0 24 24">
-              <rect x="2" y="3" width="20" height="14" rx="2" />
-              <line x1="8" y1="21" x2="16" y2="21" />
-              <line x1="12" y1="17" x2="12" y2="21" />
-            </svg>
-          </div>
-          <div><strong>Home office budget</strong>
-            <p>$1,500 to build the workspace setup that works best for you.</p>
-          </div>
-        </div>
-        <div class="perk-item">
-          <div class="perk-icon-wrap">
-            <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" viewBox="0 0 24 24">
-              <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
-              <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
-            </svg>
-          </div>
-          <div><strong>Learning budget</strong>
-            <p>$500/year for courses, books, or conferences — whatever sharpens your edge.</p>
-          </div>
-        </div>
-        <div class="perk-item">
-          <div class="perk-icon-wrap">
-            <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" viewBox="0 0 24 24">
-              <path
-                d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-            </svg>
-          </div>
-          <div><strong>Health coverage</strong>
-            <p>Full medical, dental, and vision for you and your dependants, wherever you are.</p>
-          </div>
-        </div>
-        <div class="perk-item">
-          <div class="perk-icon-wrap">
-            <svg width="20" height="20" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" viewBox="0 0 24 24">
-              <path
-                d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.63 3.44 2 2 0 0 1 3.6 1.27h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L7.91 8.91a16 16 0 0 0 6.18 6.18l.9-.9a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-            </svg>
-          </div>
-          <div><strong>Company retreats</strong>
-            <p>Two off-site trips per year to meet the whole team in person and build what's next.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="cta-band">
-    <div class="container">
-      <h2>Don't see your role?</h2>
-      <p>We're always on the lookout for exceptional people. Send us a note — the right role might be just around the
-        corner.</p>
-      <a href="mailto:careers@safitrack.com" class="btn-hero-primary">Reach out</a>
-    </div>
-  </section>
-
-  <div class="modal-overlay" id="applyModal">
-    <div class="modal-box">
-      <div class="modal-role-icon" id="modalIcon"></div>
-      <div class="modal-dept-label" id="modalDept"></div>
-      <h3 id="modalTitle"></h3>
-      <p>Our applications portal is launching soon. Drop your email and we'll reach out the moment it's live — you'll be
-        first in line.</p>
-      <div class="modal-notify">
-        <input type="email" id="applyEmail" placeholder="you@company.com">
-        <button onclick="submitApply()">Notify me</button>
-      </div>
-      <div class="modal-form-hint">We'll only use this to let you know when applications open.</div>
-      <div class="modal-success" id="applySuccess">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-          stroke-linejoin="round" viewBox="0 0 24 24">
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-        Got it! We'll be in touch soon.
-      </div>
-      <button class="modal-close" onclick="closeModal()">Maybe later</button>
-    </div>
-  </div>
-
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-content">
-        <div class="footer-brand">
-          <div class="footer-logo-wrapper">
-            <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
-          </div>
-          <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp;
-            sales CRM built for modern teams.</p>
-        </div>
-        <div class="footer-links">
-          <div class="footer-column">
-            <h4 class="footer-heading">Product</h4>
-            <ul>
-              <li><a href="features/mainfeatures.html">Features</a></li>
-              <li><a href="pricing.html">Pricing</a></li>
-              <li><a href="integrations.html">Integrations</a></li>
-              <li><a href="comparison.html">Compare</a></li>
-            </ul>
-          </div>
-          <div class="footer-column">
-            <h4 class="footer-heading">Company</h4>
-            <ul>
-              <li><a href="blog.html">Blog</a></li>
-              <li><a href="careers.html">Careers</a></li>
-            </ul>
-          </div>
-          <div class="footer-column">
-            <h4 class="footer-heading">Resources</h4>
-            <ul>
-              <li><a href="documentation.html">Documentation</a></li>
-              <li><a href="helpcenter.html">Help Center</a></li>
-              <li><a href="apireference.html">API Reference</a></li>
-              <li><a href="status.html">Status</a></li>
-            </ul>
-          </div>
-          <div class="footer-column">
-            <h4 class="footer-heading">Legal</h4>
-            <ul>
-              <li><a href="legal/privacy.html">Privacy Policy</a></li>
-              <li><a href="legal/terms.html">Terms of Service</a></li>
-              <li><a href="security.html">Security</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-        <div class="footer-social">
-          <a href="#">Twitter</a>
-          <a href="#">LinkedIn</a>
-          <a href="#">GitHub</a>
-        </div>
-      </div>
-    </div>
-  </footer>
-  <script>
-    (function () {
-      // mobile nav
-      var mb = document.querySelector('.mobile-menu-btn'),
-        mo = document.querySelector('.mobile-nav-overlay'),
-        mc = document.querySelector('.mobile-close-btn');
-      if (mb && mo) {
-        mb.addEventListener('click', function () { mo.classList.add('active'); });
-        if (mc) mc.addEventListener('click', function () { mo.classList.remove('active'); });
-        mo.addEventListener('click', function (e) { if (e.target === mo) mo.classList.remove('active'); });
-      }
-      window.addEventListener('scroll', function () {
-        var nb = document.getElementById('navbar');
-        if (nb) nb.classList.toggle('scrolled', window.scrollY > 20);
-      });
-
-      // jobs data
-      var JOBS = [
-        {
-          title: 'Senior Frontend Engineer', dept: 'engineering', deptLabel: 'Engineering', tags: ['Remote', 'Full-time'], isNew: true,
-          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>'
-        },
-        {
-          title: 'Backend Platform Lead', dept: 'engineering', deptLabel: 'Engineering', tags: ['Remote', 'Full-time'], isNew: false,
-          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>'
-        },
-        {
-          title: 'Mobile Engineer (iOS & Android)', dept: 'engineering', deptLabel: 'Engineering', tags: ['Remote', 'Full-time'], isNew: true,
-          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>'
-        },
-        {
-          title: 'Product Designer', dept: 'design', deptLabel: 'Design', tags: ['Remote', 'Full-time'], isNew: false,
-          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>'
-        },
-        {
-          title: 'Motion & Brand Designer', dept: 'design', deptLabel: 'Design', tags: ['Remote', 'Contract'], isNew: false,
-          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>'
-        },
-        {
-          title: 'Head of Growth', dept: 'growth', deptLabel: 'Growth', tags: ['Remote', 'Full-time'], isNew: true,
-          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>'
-        },
-        {
-          title: 'Content & SEO Lead', dept: 'growth', deptLabel: 'Growth', tags: ['Remote', 'Full-time'], isNew: false,
-          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>'
-        },
-        {
-          title: 'Customer Success Manager', dept: 'success', deptLabel: 'Customer Success', tags: ['Remote', 'Full-time'], isNew: false,
-          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>'
-        },
-        {
-          title: 'RevOps Analyst', dept: 'operations', deptLabel: 'Operations', tags: ['Remote', 'Full-time'], isNew: true,
-          icon: '<svg width="18" height="18" fill="none" stroke="#374151" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>'
-        }
-      ];
-
-      var activeDept = 'all';
-
-      function renderJobs() {
-        var list = document.getElementById('jobsList');
-        var stats = document.getElementById('jobsStats');
-        var noRoles = document.getElementById('noRoles');
-        if (!list) return;
-        var filtered = activeDept === 'all' ? JOBS : JOBS.filter(function (j) { return j.dept === activeDept; });
-        if (filtered.length === 0) {
-          list.innerHTML = '';
-          noRoles.classList.add('visible');
-          stats.innerHTML = '';
-          return;
-        }
-        noRoles.classList.remove('visible');
-        stats.innerHTML = 'Showing <strong>' + filtered.length + '</strong> open role' + (filtered.length === 1 ? '' : 's') + (activeDept !== 'all' ? ' in <strong>' + filtered[0].deptLabel + '</strong>' : '');
-        list.innerHTML = filtered.map(function (j, i) {
-          var tags = j.tags.map(function (t) { return '<span class="job-tag">' + t + '</span>'; }).join('');
-          var newBadge = j.isNew ? '<span class="job-tag new-tag">New</span>' : '';
-          return '<div class="job-card">' +
-            '<div class="job-left">' +
-            '<div class="job-dept-icon">' + j.icon + '</div>' +
-            '<div class="job-info">' +
-            '<h3>' + j.title + '</h3>' +
-            '<div class="job-tags"><span class="job-tag">' + j.deptLabel + '</span>' + tags + newBadge + '</div>' +
-            '</div>' +
-            '</div>' +
-            '<button class="btn-apply" onclick="openModal(' + i + ')">Apply now</button>' +
-            '</div>';
-        }).join('');
-      }
-
-      // filter buttons
-      document.getElementById('jobFilters').addEventListener('click', function (e) {
-        var btn = e.target.closest('.filter-btn');
-        if (!btn) return;
-        document.querySelectorAll('.filter-btn').forEach(function (b) { b.classList.remove('active'); });
-        btn.classList.add('active');
-        activeDept = btn.dataset.dept;
-        renderJobs();
-      });
-
-      renderJobs();
-
-      // modal
-      var _modalJobs = [];
-      window.openModal = function (idx) {
-        var filtered = activeDept === 'all' ? JOBS : JOBS.filter(function (j) { return j.dept === activeDept; });
-        var job = filtered[idx];
-        if (!job) return;
-        document.getElementById('modalIcon').innerHTML = job.icon;
-        document.getElementById('modalDept').textContent = job.deptLabel;
-        document.getElementById('modalTitle').textContent = job.title;
-        document.getElementById('applyEmail').value = '';
-        document.getElementById('applySuccess').style.display = 'none';
-        document.getElementById('applySuccess').style.justifyContent = 'center';
-        document.getElementById('applyModal').classList.add('open');
-      };
-      window.closeModal = function () {
-        document.getElementById('applyModal').classList.remove('open');
-      };
-      document.getElementById('applyModal').addEventListener('click', function (e) {
-        if (e.target === this) closeModal();
-      });
-      window.submitApply = function () {
-        var input = document.getElementById('applyEmail');
-        if (!input.value || !input.value.includes('@')) {
-          input.style.borderColor = '#ef4444';
-          setTimeout(function () { input.style.borderColor = ''; }, 1200);
-          return;
-        }
-        var s = document.getElementById('applySuccess');
-        s.style.display = 'flex';
-        input.parentElement.style.display = 'none';
-        document.querySelector('.modal-form-hint').style.display = 'none';
-      };
-      document.getElementById('applyEmail').addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') window.submitApply();
-      });
-      document.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') closeModal();
-      });
-    })();
-  </script>
+    </dialog>
 </body>
 
 </html>
