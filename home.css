@@ -582,12 +582,12 @@ blockquote {
 
 .hero-title {
     /* the widest state ("Safi customers") is ~6.9em, so cap the size to always fit one line */
-    --size: clamp(40px, min(13vw, calc((100vw - 32px) / 7)), 124px);
+    --size: clamp(40px, min(11vw, calc((100vw - 32px) / 7)), 88px);
     display: flex;
     justify-content: center;
     align-items: center;
     gap: .2em;
-    margin-top: 36px;
+    margin-top: 32px;
     font-size: var(--size);
     line-height: 1;
     font-weight: 600;
@@ -792,7 +792,7 @@ blockquote {
 
 .statement {
     position: relative;
-    height: 240vh;
+    height: 180vh;
 }
 
 .statement-sticky {
@@ -805,8 +805,8 @@ blockquote {
 }
 
 .statement-text {
-    max-width: 1020px;
-    font-size: clamp(30px, 4.3vw, 54px);
+    max-width: 900px;
+    font-size: clamp(32px, 4.6vw, 58px);
     line-height: 1.14;
     font-weight: 600;
     letter-spacing: -0.04em;
@@ -1054,68 +1054,242 @@ blockquote {
 }
 
 /* ==========================================================
-   Quotes
+   Testimonials (original cinematic carousel)
    ========================================================== */
 
-.quotes {
-    padding: 140px 0 0;
+.premium-testimonials {
+    position: relative;
+    margin-top: 140px;
+    padding: 100px 0;
+    background: #fafafa;
+    overflow: hidden;
 }
 
-.quote blockquote {
-    font-size: 17px;
-    line-height: 1.55;
-    color: var(--ink-2);
-    text-wrap: pretty;
+.t-carousel-container {
+    position: relative;
+    max-width: 1100px;
+    height: 500px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    border-radius: 24px;
+    background: #fff;
+    border: 1px solid #e6e9ef;
+    box-shadow: 0 40px 80px -20px rgba(0, 0, 0, .5);
+    overflow: hidden;
 }
 
-.quote figcaption {
-    margin-top: 20px;
-    font-size: 14px;
-}
-
-.quote figcaption strong {
-    display: block;
-    font-weight: 600;
-    color: var(--ink);
-}
-
-.quote figcaption span {
-    color: var(--muted);
-}
-
-.quote-lead {
-    max-width: 900px;
-    margin-bottom: 64px;
-}
-
-.quote-lead blockquote {
-    font-size: clamp(26px, 3.2vw, 38px);
-    line-height: 1.2;
-    font-weight: 600;
-    letter-spacing: -0.035em;
-    color: var(--ink);
-    text-indent: -0.4em;
-}
-
-.quote-lead figcaption {
-    margin-top: 28px;
-    font-size: 15px;
-}
-
-.quotes-row {
+.t-slide {
+    position: absolute;
+    inset: 0;
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 16px;
+    grid-template-columns: 40% 60%;
+    opacity: 0;
+    visibility: hidden;
+    transform: scale(1.05);
+    transition: opacity 1.2s ease, transform 1.2s ease, visibility 1.2s;
 }
 
-.quotes-row .quote {
+.t-slide.active {
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+    z-index: 5;
+}
+
+.t-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.t-image-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(0);
+    transition: filter 1.5s ease;
+}
+
+.t-slide.active .t-image-wrapper img {
+    filter: saturate(1);
+}
+
+.t-image-wrapper::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 60%, #fff 100%);
+}
+
+.t-content {
+    position: relative;
+    z-index: 20;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 28px;
-    border: 1px solid var(--line);
-    border-radius: var(--radius-lg);
-    background: var(--bg-soft);
+    justify-content: center;
+    padding: 60px;
+    text-align: left;
+}
+
+.t-quote {
+    margin-bottom: 40px;
+    font-family: "Times New Roman", serif;
+    font-style: italic;
+    font-size: 32px;
+    line-height: 1.4;
+    color: #0b1220;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all .8s ease .4s;
+}
+
+.t-slide.active .t-quote {
+    opacity: 1;
+    transform: none;
+}
+
+.t-author {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all .8s ease .6s;
+}
+
+.t-slide.active .t-author {
+    opacity: 1;
+    transform: none;
+}
+
+.t-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.t-name {
+    font-size: 20px;
+    font-weight: 700;
+    color: #0b1220;
+}
+
+.t-role {
+    font-size: 14px;
+    font-weight: 600;
+    color: #000;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.t-controls-bar {
+    position: absolute;
+    left: 40%;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    padding: 32px 60px;
+}
+
+.t-pagination {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.t-current,
+.t-total {
+    font-family: monospace;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.t-current {
+    color: #0b1220;
+}
+
+.t-segments {
+    flex-grow: 1;
+    display: flex;
+    gap: 6px;
+}
+
+.t-seg {
+    flex-grow: 1;
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(11, 18, 32, .12);
+    overflow: hidden;
+}
+
+.t-seg-fill {
+    width: 0%;
+    height: 100%;
+    background: #000;
+}
+
+@media (max-width: 900px) {
+    .t-carousel-container {
+        flex-direction: column;
+        height: auto;
+        min-height: 600px;
+    }
+
+    .t-controls-bar {
+        left: 0;
+        justify-content: center;
+        padding: 24px;
+    }
+
+    .t-slide {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .t-image-wrapper {
+        order: -1;
+        width: 100%;
+        height: 300px;
+    }
+
+    .t-image-wrapper::after {
+        background: linear-gradient(180deg, transparent 0%, #fff 100%);
+    }
+
+    .t-content {
+        padding: 40px 32px 80px;
+        text-align: center;
+    }
+
+    .t-quote {
+        font-size: 24px;
+    }
+
+    .t-author {
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .premium-testimonials {
+        margin-top: 96px;
+        padding: 50px 0;
+    }
+
+    .t-content {
+        padding: 28px 18px 72px;
+    }
+
+    .t-quote {
+        font-size: 20px;
+        line-height: 1.35;
+    }
 }
 
 /* ==========================================================
@@ -1506,10 +1680,6 @@ blockquote {
         gap: 40px;
     }
 
-    .quotes-row {
-        grid-template-columns: 1fr;
-    }
-
     .plans {
         grid-template-columns: 1fr 1fr;
     }
@@ -1578,12 +1748,11 @@ blockquote {
     }
 
     .statement {
-        height: 200vh;
+        height: 160vh;
     }
 
     .features,
     .roles,
-    .quotes,
     .pricing {
         padding-top: 96px;
     }
@@ -1638,10 +1807,6 @@ blockquote {
 
     .more-item {
         padding: 18px 20px;
-    }
-
-    .quote-lead {
-        margin-bottom: 40px;
     }
 
     .plans {

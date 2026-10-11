@@ -12,6 +12,7 @@
     initRotator();
     initShowcase();
     initStatement();
+    initTestimonials();
     initContact();
 
     // ------------------------------------------------------
@@ -279,6 +280,50 @@
         window.addEventListener('scroll', request, { passive: true });
         window.addEventListener('resize', request);
         update();
+    }
+
+    // ------------------------------------------------------
+    // Testimonials: auto-advancing carousel with segment progress
+    // ------------------------------------------------------
+    function initTestimonials() {
+        const slides = [...document.querySelectorAll('.t-slide')];
+        const fills = [...document.querySelectorAll('.t-seg-fill')];
+        const counter = document.querySelector('.t-current');
+        if (slides.length < 2) return;
+
+        const DURATION = 5000;
+        const pad = (n) => String(n).padStart(2, '0');
+        let index = 0;
+        let elapsed = 0;
+        let last = performance.now();
+
+        const show = (i) => {
+            slides[index].classList.remove('active');
+            index = i;
+            slides[index].classList.add('active');
+            if (counter) counter.textContent = pad(index + 1);
+        };
+
+        const frame = (now) => {
+            // Clamp the step so a backgrounded tab doesn't skip slides on return.
+            elapsed += Math.min(now - last, 100);
+            last = now;
+
+            if (elapsed >= DURATION) {
+                elapsed = 0;
+                show((index + 1) % slides.length);
+            }
+
+            const progress = elapsed / DURATION;
+            fills.forEach((fill, i) => {
+                const value = i < index ? 1 : i === index ? progress : 0;
+                fill.style.width = (value * 100).toFixed(2) + '%';
+            });
+
+            requestAnimationFrame(frame);
+        };
+
+        requestAnimationFrame(frame);
     }
 
     // ------------------------------------------------------
