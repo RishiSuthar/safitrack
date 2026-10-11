@@ -2,2272 +2,483 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SafiBlogs - SafiTrack</title>
-  <meta name="description"
-    content="Insights, tips, and updates from the SafiTrack team. CRM best practices, sales strategy, and product news for field sales teams.">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://safitrack.netlify.app/pages/blog.html">
-  <meta property="og:title" content="Blog — SafiTrack">
-  <meta property="og:description"
-    content="Insights, tips, and updates from the SafiTrack team. CRM best practices, sales strategy, and product news for field sales teams.">
-  <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
-  <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:url" content="https://safitrack.netlify.app/pages/blog.html">
-  <meta property="twitter:title" content="Blog — SafiTrack">
-  <meta property="twitter:description"
-    content="Insights, tips, and updates from the SafiTrack team. CRM best practices, sales strategy, and product news for field sales teams.">
-  <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
-  <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../landing.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog | SafiTrack</title>
+    <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
+    <meta name="description" content="Field ops, product thinking and engineering notes from the SafiTrack team.">
+    <meta name="theme-color" content="#ffffff">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://safitrack.netlify.app/pages/blog.html">
+    <meta property="og:title" content="Blog | SafiTrack">
+    <meta property="og:description" content="Field ops, product thinking and engineering notes from the SafiTrack team.">
+    <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Blog | SafiTrack">
+    <meta property="twitter:description" content="Field ops, product thinking and engineering notes from the SafiTrack team.">
+    <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../home.css">
+    <link rel="stylesheet" href="../site.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
+    <script src="../config.js"></script>
+    <script src="../home.js" defer></script>
+    <script src="../site.js" defer></script>
 </head>
 
 <body>
-  <!-- Navigation -->
-  <nav class="navbar" id="navbar">
-    <div class="container">
-      <div class="nav-content">
-        <div class="nav-left">
-          <a href="../index.html" class="logo">
-            <img src="../assets/icons/transparentMain.png" alt="SafiTrack" style="height:32px">
-          </a>
-          <div class="nav-links">
-            <div class="nav-item nav-features">
-              <a href="#" class="nav-link-toggle">Features
-                <span class="nav-caret" aria-hidden="true">
-                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
-                      stroke-linejoin="round" />
-                  </svg>
-                </span>
-              </a>
-              <div class="mega-menu" aria-hidden="true">
-                <div class="mega-content-grid">
-                  <div class="mega-category">
-                    <div class="mega-category-header">Platform</div>
-                    <div class="mega-items-grid">
-                      <a href="features/safi-ai-feature.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" />
-                          </svg>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- ============ Navigation ============ -->
+    <header class="nav" id="nav">
+        <div class="wrap nav-inner">
+            <a href="/" class="nav-logo" aria-label="SafiTrack home">
+                <img src="../assets/icons/transparentMain.png" alt="SafiTrack" width="108" height="25">
+            </a>
+
+            <nav class="nav-links" aria-label="Main">
+                <div class="nav-item has-menu">
+                    <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="menu-features">
+                        Features
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="menu" id="menu-features">
+                        <div class="menu-grid">
+                            <div class="menu-col">
+                                <p class="menu-heading">Platform</p>
+                                <a href="../pages/features/safi-ai-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9z" /></svg></span>
+                                    <span><strong>Safi AI</strong><small>An assistant that knows your pipeline</small></span>
+                                </a>
+                                <a href="../pages/features/opportunities-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg></span>
+                                    <span><strong>Pipelines</strong><small>Track every deal to close</small></span>
+                                </a>
+                                <a href="../pages/features/companies-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" /><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01" /></svg></span>
+                                    <span><strong>Companies</strong><small>Every account in one record</small></span>
+                                </a>
+                                <a href="../pages/features/people-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg></span>
+                                    <span><strong>People</strong><small>Contacts with full history</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">In the field</p>
+                                <a href="../pages/features/sales-visits-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg></span>
+                                    <span><strong>Sales visits</strong><small>Log visits from your phone</small></span>
+                                </a>
+                                <a href="../pages/features/route-plans-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="3" /><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /><circle cx="18" cy="5" r="3" /></svg></span>
+                                    <span><strong>Route plans</strong><small>Plan and assign the day's stops</small></span>
+                                </a>
+                                <a href="../pages/features/technician-visits-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg></span>
+                                    <span><strong>Service visits</strong><small>Technician jobs after the sale</small></span>
+                                </a>
+                                <a href="../pages/features/tasks-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg></span>
+                                    <span><strong>Tasks</strong><small>What needs doing, and by whom</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">Insight &amp; automation</p>
+                                <a href="../pages/features/call-logs-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" /></svg></span>
+                                    <span><strong>Call logs</strong><small>Every conversation, on record</small></span>
+                                </a>
+                                <a href="../pages/features/notes-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg></span>
+                                    <span><strong>Notes</strong><small>Meeting notes next to the deal</small></span>
+                                </a>
+                                <a href="../pages/features/reminders-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg></span>
+                                    <span><strong>Reminders</strong><small>Never miss a follow-up</small></span>
+                                </a>
+                                <a href="../pages/features/reports-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6" /></svg></span>
+                                    <span><strong>Reports</strong><small>Dashboards for the whole team</small></span>
+                                </a>
+                                <a href="../pages/features/workflows-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg></span>
+                                    <span><strong>Workflows</strong><small>Automate the busywork</small></span>
+                                </a>
+                            </div>
                         </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Safi AI</div>
-                          <div class="mega-desc">AI insights native to your CRM</div>
+                        <div class="menu-foot">
+                            <a href="../pages/features/mainfeatures.html">See all features <span aria-hidden="true">→</span></a>
                         </div>
-                      </a>
-                      <a href="features/opportunities-feature.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                            <path d="M2 17l10 5 10-5" />
-                            <path d="M2 12l10 5 10-5" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Pipelines</div>
-                          <div class="mega-desc">Visual deal tracking & management</div>
-                        </div>
-                      </a>
-                      <a href="features/companies-feature.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
-                            <path d="M9 22v-4h6v4" />
-                            <path d="M8 6h.01" />
-                            <path d="M16 6h.01" />
-                            <path d="M8 10h.01" />
-                            <path d="M16 10h.01" />
-                            <path d="M8 14h.01" />
-                            <path d="M16 14h.01" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Companies</div>
-                          <div class="mega-desc">Complete organization context</div>
-                        </div>
-                      </a>
-                      <a href="features/people-feature.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                            <circle cx="9" cy="7" r="4" />
-                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">People</div>
-                          <div class="mega-desc">Unified contact management</div>
-                        </div>
-                      </a>
                     </div>
-                  </div>
-                  <div class="mega-category">
-                    <div class="mega-category-header">Operations</div>
-                    <div class="mega-items-grid">
-                      <a href="features/sales-visits-feature.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                            <circle cx="12" cy="10" r="3" />
-                          </svg>
+                </div>
+
+                <div class="nav-item has-menu">
+                    <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="menu-resources">
+                        Resources
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="menu menu-sm" id="menu-resources">
+                        <div class="menu-grid">
+                            <div class="menu-col">
+                                <p class="menu-heading">Learn</p>
+                                <a href="../pages/documentation.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg></span>
+                                    <span><strong>Documentation</strong><small>Guides and how-tos</small></span>
+                                </a>
+                                <a href="../pages/helpcenter.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg></span>
+                                    <span><strong>Help center</strong><small>Answers and support</small></span>
+                                </a>
+                                <a href="../pages/apireference.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6" /></svg></span>
+                                    <span><strong>API reference</strong><small>Build on SafiTrack</small></span>
+                                </a>
+                                <a href="../pages/integrations.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg></span>
+                                    <span><strong>Integrations</strong><small>Connect your tools</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">Company</p>
+                                <a href="../pages/blog.html" class="menu-link menu-link-plain"><strong>Blog</strong></a>
+                                <a href="../pages/careers.html" class="menu-link menu-link-plain"><strong>Careers</strong></a>
+                                <a href="../pages/security.html" class="menu-link menu-link-plain"><strong>Security</strong></a>
+                                <a href="../pages/status.html" class="menu-link menu-link-plain"><strong>Status</strong></a>
+                            </div>
                         </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Sales visits</div>
-                          <div class="mega-desc">Field activity & visit logging</div>
-                        </div>
-                      </a>
-                      <a href="features/route-plans-feature.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="6" cy="19" r="3" />
-                            <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
-                            <circle cx="18" cy="5" r="3" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Route plans</div>
-                          <div class="mega-desc">Optimized field routing</div>
-                        </div>
-                      </a>
-                      <a href="features/technician-visits-feature.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path
-                              d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Service visits</div>
-                          <div class="mega-desc">Post-sales technician tracking</div>
-                        </div>
-                      </a>
-                      <a href="features/tasks-feature.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 11 12 14 22 4" />
-                            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Tasks</div>
-                          <div class="mega-desc">Operational to-do management</div>
-                        </div>
-                      </a>
                     </div>
-                  </div>
-                  <div class="mega-category">
-                                        <div class="mega-category-header">Insights &amp; Automation</div>
-                                        <div class="mega-items-grid">
-                                            <a href="features/call-logs-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Call Intelligence</div>
-                                                    <div class="mega-desc">Record &amp; analyze meetings</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/notes-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Notes</div>
-                                                    <div class="mega-desc">Native meeting summaries</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/reminders-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Reminders</div>
-                                                    <div class="mega-desc">Smart follow-up alerts</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/reports-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Reports</div>
-                                                    <div class="mega-desc">Custom analytics &amp; dashboards</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/workflows-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Workflows</div>
-                                                    <div class="mega-desc">Automate repetitive tasks</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
                 </div>
-                <div class="mega-sidebar">
-                  <div class="mega-sidebar-header">Get Started</div>
-                  <ul class="mega-sidebar-list">
-                    <li><a href="/crm/"><span>Open CRM</span></a></li>
-                    <li><a href="pricing.html"><span>View Pricing</span></a></li>
-                    <li><a href="../index.html#pricing"><span>Request Demo</span></a></li>
-                  </ul>
-                  <div class="mega-sidebar-footer">
-                    <p>Trusted by 2,000+ teams</p>
-                  </div>
-                </div>
-              </div>
+
+                <a href="../pages/pricing.html" class="nav-link">Pricing</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="/crm/" class="nav-link">Sign in</a>
+                <a href="/crm/?signup=1" class="btn btn-dark btn-sm">Start for free</a>
             </div>
-            <div class="nav-item nav-resources">
-              <a href="#" class="nav-link-toggle">Resources
-                <span class="nav-caret" aria-hidden="true">
-                  <svg width="12" height="8" viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"
-                      stroke-linejoin="round" />
-                  </svg>
-                </span>
-              </a>
-              <div class="mega-menu" aria-hidden="true">
-                <div class="mega-content-grid">
-                  <div class="mega-category">
-                    <div class="mega-category-header">Insights</div>
-                    <div class="mega-items-grid">
-                      <a href="integrations.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                            <path d="M2 17l10 5 10-5" />
-                            <path d="M2 12l10 5 10-5" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Integrations</div>
-                          <div class="mega-desc">Connect your stack</div>
-                        </div>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="mega-category">
-                    <div class="mega-category-header">Support</div>
-                    <div class="mega-items-grid">
-                      <a href="documentation.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Documentation</div>
-                          <div class="mega-desc">Guides and tutorials</div>
-                        </div>
-                      </a>
-                      <a href="helpcenter.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="12" cy="12" r="10" />
-                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                            <line x1="12" y1="17" x2="12.01" y2="17" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">Help Center</div>
-                          <div class="mega-desc">Get support</div>
-                        </div>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="mega-category">
-                    <div class="mega-category-header">Developers</div>
-                    <div class="mega-items-grid">
-                      <a href="apireference.html" class="mega-item">
-                        <div class="mega-icon">
-                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="16 18 22 12 16 6" />
-                            <polyline points="8 6 2 12 8 18" />
-                          </svg>
-                        </div>
-                        <div class="mega-info">
-                          <div class="mega-label">API Reference</div>
-                          <div class="mega-desc">Build with SafiTrack</div>
-                        </div>
-                      </a>
-                    </div>
-                  </div>
+
+            <button class="nav-burger" type="button" aria-label="Open menu" aria-expanded="false"
+                aria-controls="mobile-menu">
+                <span></span><span></span>
+            </button>
+        </div>
+
+        <div class="mobile-menu" id="mobile-menu" hidden>
+            <div class="wrap">
+                <p class="mobile-heading">Product</p>
+                <a href="../pages/features/mainfeatures.html">Features</a>
+                <a href="../pages/features/safi-ai-feature.html">Safi AI</a>
+                <a href="../pages/features/route-plans-feature.html">Route plans</a>
+                <a href="../pages/features/sales-visits-feature.html">Sales visits</a>
+                <a href="../pages/pricing.html">Pricing</a>
+                <p class="mobile-heading">Resources</p>
+                <a href="../pages/documentation.html">Documentation</a>
+                <a href="../pages/helpcenter.html">Help center</a>
+                <a href="../pages/blog.html">Blog</a>
+                <div class="mobile-actions">
+                    <a href="/crm/" class="btn btn-light">Sign in</a>
+                    <a href="/crm/?signup=1" class="btn btn-dark">Start for free</a>
                 </div>
-                <div class="mega-sidebar">
-                  <div class="mega-sidebar-header">More</div>
-                  <ul class="mega-sidebar-list">
-                    <li><a href="blog.html"><span>Blog</span></a></li>
-                    <li><a href="careers.html"><span>Careers</span></a></li>
-                    <li><a href="status.html"><span>Status</span></a></li>
-                  </ul>
-                  <div class="mega-sidebar-footer">
-                    <p>Always growing</p>
-                  </div>
-                </div>
-              </div>
             </div>
-            <a href="pricing.html">Pricing</a>
-          </div>
         </div>
-        <div class="nav-actions">
-          <a href="/crm/" class="nav-link-sign-in">Sign in</a>
-          <a href="pricing.html" class="btn-hero-primary">Start for free</a>
+    </header>
+
+    <main id="main">
+
+        <section class="ph ph-left">
+            <div class="wrap">
+                <p class="tag">17 articles</p>
+                <h1 class="ph-title blog-title">Safi <span class="blog-chip">Blog</span></h1>
+                <p class="ph-sub">Field ops, product thinking and engineering notes, written by Sadie F. and Rishi S.
+                    from the SafiTrack team.</p>
+            </div>
+        </section>
+
+        <section class="sec sec-first">
+            <div class="wrap">
+                <div class="rail">
+                    <a class="featured" href="blog/introducing-intelligence-hub-ai-powered-field-sales-insights.html">
+                        <div class="featured-copy">
+                            <p class="post-cat">Featured · Product</p>
+                            <h2>Introducing Intelligence Hub: AI-powered field sales insights</h2>
+                            <p>We're rolling out Intelligence Hub, a new layer of AI that surfaces missed opportunities, summarises visit notes and gives every rep their own sales coach. Here's what we built and why.</p>
+                            <p class="post-meta">Rishi S. · Jan 28, 2026 · 6 min read</p>
+                        </div>
+                        <div class="featured-cover" aria-hidden="true">
+                            <span>Product</span>
+                            <b>Intelligence Hub</b>
+                        </div>
+                    </a>
+                    <div class="int-toolbar blog-toolbar">
+                        <label class="int-search">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
+                            <input type="search" placeholder="Search articles" aria-label="Search articles" data-search>
+                        </label>
+                        <div class="chips" role="toolbar" aria-label="Filter by topic"><button type="button" class="chip is-active" data-filter="all">All</button><button type="button" class="chip" data-filter="product">Product</button><button type="button" class="chip" data-filter="sales">Sales</button><button type="button" class="chip" data-filter="fieldops">Field Ops</button><button type="button" class="chip" data-filter="engineering">Engineering</button><button type="button" class="chip" data-filter="guide">Guides</button></div>
+                    </div>
+                    <div class="cells int-grid post-grid">
+                        <a class="cell post-card" href="blog/safitrack-changelog-q1-2026-product-updates.html" data-group="product" data-text="safitrack changelog: q1 2026 product updates bulk actions, custom pipeline stages, a redesigned dashboard, and a wave of smaller improvements shipped this quarter.">
+                            <p class="post-cat">Product</p>
+                            <h3>SafiTrack changelog: Q1 2026 product updates</h3>
+                            <p>Bulk actions, custom pipeline stages, a redesigned dashboard, and a wave of smaller improvements shipped this quarter.</p>
+                            <p class="post-meta">Sadie F. · Mar 1, 2026 · 4 min read</p>
+                        </a>
+                        <a class="cell post-card" href="blog/the-real-reason-your-pipeline-forecast-is-always-wrong.html" data-group="sales" data-text="the real reason your pipeline forecast is always wrong most pipeline forecasts are optimistic fiction. here's why the problem is structural, not motivational. and what to do about it.">
+                            <p class="post-cat">Sales</p>
+                            <h3>The real reason your pipeline forecast is always wrong</h3>
+                            <p>Most pipeline forecasts are optimistic fiction. Here's why the problem is structural, not motivational. And what to do about it.</p>
+                            <p class="post-meta">Sadie F. · Feb 19, 2026 · 7 min read</p>
+                        </a>
+                        <a class="cell post-card" href="blog/how-we-moved-from-rest-to-graphql-for-our-mobile-clients.html" data-group="engineering" data-text="how we moved from rest to graphql for our mobile clients our rest api was showing its age on mobile. here's the tradeoffs we hit, what we got right, and what we'd do differently.">
+                            <p class="post-cat">Engineering</p>
+                            <h3>How we moved from REST to GraphQL for our mobile clients</h3>
+                            <p>Our REST API was showing its age on mobile. Here's the tradeoffs we hit, what we got right, and what we'd do differently.</p>
+                            <p class="post-meta">Rishi S. · Feb 5, 2026 · 12 min read</p>
+                        </a>
+                        <a class="cell post-card" href="blog/10-ways-to-shorten-your-field-sales-cycle-in-2026.html" data-group="sales" data-text="10 ways to shorten your field-sales cycle in 2026 from smarter route planning to ai follow-up reminders, here are the tactics top-performing reps are using right now.">
+                            <p class="post-cat">Sales</p>
+                            <h3>10 ways to shorten your field-sales cycle in 2026</h3>
+                            <p>From smarter route planning to AI follow-up reminders, here are the tactics top-performing reps are using right now.</p>
+                            <p class="post-meta">Sadie F. · Jan 14, 2026 · 8 min read</p>
+                        </a>
+                        <a class="cell post-card" href="blog/what-separates-a-good-sales-manager-from-a-great-one.html" data-group="sales" data-text="what separates a good sales manager from a great one the gap between good and great management in field sales isn't about harder work or better scripts. it's about where you focus your attention.">
+                            <p class="post-cat">Sales</p>
+                            <h3>What separates a good sales manager from a great one</h3>
+                            <p>The gap between good and great management in field sales isn't about harder work or better scripts. It's about where you focus your attention.</p>
+                            <p class="post-meta">Sadie F. · Jan 7, 2026 · 6 min read</p>
+                        </a>
+                        <a class="cell post-card" href="blog/scaling-safitrack-to-handle-1m-daily-location-updates.html" data-group="engineering" data-text="scaling safitrack to handle 1m+ daily location updates a behind-the-scenes look at the infrastructure changes we made to support high-frequency gps telemetry at scale.">
+                            <p class="post-cat">Engineering</p>
+                            <h3>Scaling SafiTrack to handle 1M+ daily location updates</h3>
+                            <p>A behind-the-scenes look at the infrastructure changes we made to support high-frequency GPS telemetry at scale.</p>
+                            <p class="post-meta">Rishi S. · Dec 20, 2025 · 11 min read</p>
+                        </a>
+                        <a class="cell post-card" href="blog/a-practical-guide-to-sales-commission-structures-that-dont-backfire.html" data-group="guide" data-text="a practical guide to sales commission structures that don't backfire commission structures shape behaviour in ways that are often invisible until they cause a problem. getting them right takes more thought than most teams give it.">
+                            <p class="post-cat">Guides</p>
+                            <h3>A practical guide to sales commission structures that don't backfire</h3>
+                            <p>Commission structures shape behaviour in ways that are often invisible until they cause a problem. Getting them right takes more thought than most teams give it.</p>
+                            <p class="post-meta">Sadie F. · Dec 11, 2025 · 10 min read</p>
+                        </a>
+                        <a class="cell post-card" href="blog/the-on-site-visit-is-not-dead-its-just-overused.html" data-group="fieldops" data-text="the on-site visit is not dead. it's just overused. remote selling has changed what field visits are for. the teams getting the most from them have changed how they think about when to show up in person.">
+                            <p class="post-cat">Field Ops</p>
+                            <h3>The on-site visit is not dead. It's just overused.</h3>
+                            <p>Remote selling has changed what field visits are for. The teams getting the most from them have changed how they think about when to show up in person.</p>
+                            <p class="post-meta">Rishi S. · Nov 18, 2025 · 5 min read</p>
+                        </a>
+                        <a class="cell post-card" href="blog/why-we-rebuilt-the-mobile-experience-from-scratch.html" data-group="product" data-text="why we rebuilt the mobile experience from scratch field reps need speed. we redesigned the mobile crm with offline-first architecture and a one-thumb workflow in mind.">
+                            <p class="post-cat">Product</p>
+                            <h3>Why we rebuilt the mobile experience from scratch</h3>
+                            <p>Field reps need speed. We redesigned the mobile CRM with offline-first architecture and a one-thumb workflow in mind.</p>
+                            <p class="post-meta">Sadie F. · Nov 5, 2025 · 5 min read</p>
+                        </a>
+                        <a class="cell post-card" href="blog/how-to-build-a-territory-plan-that-actually-works.html" data-group="fieldops" data-text="how to build a territory plan that actually works most territory plans look great in a spreadsheet and fall apart in the field. here's how to build one that survives first contact with reality.">
+                            <p class="post-cat">Field Ops</p>
+                            <h3>How to build a territory plan that actually works</h3>
+                            <p>Most territory plans look great in a spreadsheet and fall apart in the field. Here's how to build one that survives first contact with reality.</p>
+                            <p class="post-meta">Rishi S. · Oct 22, 2025 · 7 min read</p>
+                        </a>
+                        <a class="cell post-card" href="blog/how-to-run-a-weekly-pipeline-review-that-people-dont-hate.html" data-group="guide" data-text="how to run a weekly pipeline review that people don't hate most pipeline reviews are a slow roll-call of deal statuses that adds stress without adding clarity. here's a format that actually changes outcomes.">
+                            <p class="post-cat">Guides</p>
+                            <h3>How to run a weekly pipeline review that people don't hate</h3>
+                            <p>Most pipeline reviews are a slow roll-call of deal statuses that adds stress without adding clarity. Here's a format that actually changes outcomes.</p>
+                            <p class="post-meta">Sadie F. · Oct 8, 2025 · 8 min read</p>
+                        </a>
+                        <a class="cell post-card" href="blog/the-complete-guide-to-crm-adoption-for-field-teams.html" data-group="guide" data-text="the complete guide to crm adoption for field teams adoption is the hardest part of any crm rollout. these six principles helped our customers achieve 90%+ active usage within 30 days.">
+                            <p class="post-cat">Guides</p>
+                            <h3>The complete guide to CRM adoption for field teams</h3>
+                            <p>Adoption is the hardest part of any CRM rollout. These six principles helped our customers achieve 90%+ active usage within 30 days.</p>
+                            <p class="post-meta">Sadie F. · Sep 30, 2025 · 12 min read</p>
+                        </a>
+                        <a class="cell post-card" href="blog/building-a-zero-downtime-deployment-pipeline-on-a-small-team.html" data-group="engineering" data-text="building a zero-downtime deployment pipeline on a small team we run continuous deployment with a two-engineer on-call rotation. here's how we made that sustainable without sacrificing reliability.">
+                            <p class="post-cat">Engineering</p>
+                            <h3>Building a zero-downtime deployment pipeline on a small team</h3>
+                            <p>We run continuous deployment with a two-engineer on-call rotation. Here's how we made that sustainable without sacrificing reliability.</p>
+                            <p class="post-meta">Rishi S. · Aug 27, 2025 · 9 min read</p>
+                        </a>
+                        <a class="cell post-card" href="blog/visit-frequency-the-metric-that-predicts-churn-before-it-happens.html" data-group="sales" data-text="visit frequency: the metric that predicts churn before it happens our analysis of 120k+ customer visits revealed a clear signal: a drop in visit frequency precedes churn by an average of 47 days.">
+                            <p class="post-cat">Sales</p>
+                            <h3>Visit frequency: the metric that predicts churn before it happens</h3>
+                            <p>Our analysis of 120K+ customer visits revealed a clear signal: a drop in visit frequency precedes churn by an average of 47 days.</p>
+                            <p class="post-meta">Sadie F. · Aug 18, 2025 · 6 min read</p>
+                        </a>
+                        <a class="cell post-card" href="blog/route-optimisation-101-saving-2-hours-per-rep-per-day.html" data-group="fieldops" data-text="route optimisation 101: saving 2 hours per rep per day manual route planning wastes time your reps should be spending with customers. here's how smart routing cuts drive time by up to 35%.">
+                            <p class="post-cat">Field Ops</p>
+                            <h3>Route optimisation 101: saving 2 hours per rep per day</h3>
+                            <p>Manual route planning wastes time your reps should be spending with customers. Here's how smart routing cuts drive time by up to 35%.</p>
+                            <p class="post-meta">Rishi S. · Jul 9, 2025 · 9 min read</p>
+                        </a>
+                        <a class="cell post-card" href="blog/how-we-cut-our-ci-build-time-from-18-minutes-to-4.html" data-group="engineering" data-text="how we cut our ci build time from 18 minutes to 4 a practical walkthrough of the caching strategies, test parallelisation, and docker layer tricks that transformed our developer experience.">
+                            <p class="post-cat">Engineering</p>
+                            <h3>How we cut our CI build time from 18 minutes to 4</h3>
+                            <p>A practical walkthrough of the caching strategies, test parallelisation, and Docker layer tricks that transformed our developer experience.</p>
+                            <p class="post-meta">Rishi S. · Jun 3, 2025 · 10 min read</p>
+                        </a>
+                    </div>
+                    <p class="int-empty" data-empty hidden>No articles match your search.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta" data-theme="dark">
+            <div class="wrap">
+                <div class="rail rail-dark cta-box">
+                    <h2 class="cta-title">Ideas worth reading, in your inbox.</h2>
+                    <p class="cta-sub">Field ops, product thinking and engineering notes. No marketing fluff.</p>
+                    <div class="hero-actions">
+                        <a href="mailto:hello@safitrack.com?subject=Subscribe%20me%20to%20the%20SafiTrack%20blog" class="btn btn-white btn-lg">Subscribe by email</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============ Footer (dark) ============ -->
+    <footer class="footer" data-theme="dark">
+        <div class="wrap">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <img src="../assets/icons/transparentMain.png" alt="SafiTrack" width="124" height="29">
+                    <p>The CRM for field sales teams.</p>
+                </div>
+                <div class="footer-cols">
+                    <div>
+                        <p class="footer-heading">Product</p>
+                        <a href="../pages/features/mainfeatures.html">Features</a>
+                        <a href="../pages/features/safi-ai-feature.html">Safi AI</a>
+                        <a href="../pages/features/route-plans-feature.html">Route plans</a>
+                        <a href="../pages/pricing.html">Pricing</a>
+                        <a href="../pages/integrations.html">Integrations</a>
+                    </div>
+                    <div>
+                        <p class="footer-heading">Company</p>
+                        <a href="../pages/blog.html">Blog</a>
+                        <a href="../pages/careers.html">Careers</a>
+                        <a href="../pages/security.html">Security</a>
+                    </div>
+                    <div>
+                        <p class="footer-heading">Resources</p>
+                        <a href="../pages/documentation.html">Documentation</a>
+                        <a href="../pages/helpcenter.html">Help center</a>
+                        <a href="../pages/apireference.html">API reference</a>
+                        <a href="../pages/status.html">System status</a>
+                    </div>
+                    <div>
+                        <p class="footer-heading">Get started</p>
+                        <a href="/crm/?signup=1">Create an account</a>
+                        <a href="/crm/">Sign in</a>
+                        <button type="button" class="footer-link" data-contact>Talk to sales</button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 SafiTrack. All rights reserved.</p>
+                <nav aria-label="Legal">
+                    <a href="../pages/legal/terms.html">Terms of service</a>
+                    <a href="../pages/legal/privacy.html">Privacy policy</a>
+                </nav>
+            </div>
         </div>
-        <button class="mobile-menu-btn" aria-label="Toggle Menu">
-          <span></span><span></span>
+    </footer>
+
+    <!-- ============ Contact dialog ============ -->
+    <dialog class="contact" id="contact" aria-labelledby="contact-title">
+        <button type="button" class="contact-close" data-close aria-label="Close">
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+                <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
         </button>
-      </div>
-    </div>
-  </nav>
-  <div class="mobile-nav-overlay">
-    <button class="mobile-close-btn" aria-label="Close">
-      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-      </svg>
-    </button>
-    <div class="mobile-nav-content">
-      <a href="features/mainfeatures.html" class="mobile-link">Features</a>
-      <a href="pricing.html" class="mobile-link">Pricing</a>
-      <hr class="mobile-divider">
-      <a href="/crm/" class="mobile-link">Open App</a>
-      <button class="btn-primary btn-block get-started-btn">Get Started</button>
-    </div>
-  </div>
 
-  <style>
-    /* ── Hero ──────────────────────────────────── */
-    .page-hero {
-      padding: 100px 0 0;
-      background: #fff;
-      border-bottom: 1px solid #e6e9ef
-    }
-
-    .hero-inner {
-      display: flex;
-      flex-direction: column;
-      gap: 0
-    }
-
-    .hero-top {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 24px;
-      padding-bottom: 32px
-    }
-
-    .hero-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 12px;
-      font-weight: 600;
-      color: #9ca3af;
-      margin-bottom: 14px
-    }
-
-    .hero-label-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: #d1d5db
-    }
-
-    .hero-authors {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px
-    }
-
-    .hero-author-stack {
-      display: flex
-    }
-
-    .hero-author-stack .av {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: #374151;
-      border: 2px solid #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 9px;
-      font-weight: 800;
-      color: #fff;
-      margin-left: -8px
-    }
-
-    .hero-author-stack .av:first-child { margin-left: 0 }
-
-    .hero-authors-text {
-      font-size: 13px;
-      color: #6b7280;
-      line-height: 1.5
-    }
-
-    .hero-authors-text strong {
-      color: #0b1220;
-      font-weight: 700
-    }
-
-    .hero-title {
-      font-size: clamp(2.4rem, 5vw, 3.6rem);
-      font-weight: 800;
-      color: #4b5563;
-      line-height: 1;
-      letter-spacing: -.03em;
-      margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 12px
-    }
-
-    .hero-title-pill {
-      display: inline-flex;
-      align-items: center;
-      background: #0d1117;
-      color: #fff;
-      border-radius: 18px;
-      padding: .18em .48em;
-      font-weight: 800;
-      letter-spacing: -.03em;
-      line-height: 1;
-      font-size: 1em
-    }
-
-    .hero-right {
-      flex-shrink: 0;
-      max-width: 280px;
-      text-align: right
-    }
-
-    .hero-sub {
-      font-size: 14px;
-      color: #6b7280;
-      line-height: 1.7;
-      margin: 0
-    }
-
-    /* ── Search + filters bar ──────────────────── */
-    .hero-controls {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px 0;
-      border-top: 1px solid #f0f2f5;
-      flex-wrap: wrap
-    }
-
-    .search-box {
-      position: relative;
-      flex: 1;
-      min-width: 180px;
-      max-width: 280px
-    }
-
-    .search-box svg {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #9ca3af;
-      pointer-events: none
-    }
-
-    .search-box input {
-      width: 100%;
-      border: 1.5px solid #e6e9ef;
-      border-radius: 9px;
-      padding: 9px 14px 9px 36px;
-      font-size: 13.5px;
-      font-family: inherit;
-      color: #0b1220;
-      background: #fafafa;
-      transition: border-color .15s, background .15s;
-      box-sizing: border-box
-    }
-
-    .search-box input:focus {
-      outline: none;
-      border-color: #0b1220;
-      background: #fff
-    }
-
-    .controls-divider {
-      width: 1px;
-      height: 22px;
-      background: #e6e9ef;
-      flex-shrink: 0
-    }
-
-    /* ── Filter tabs ───────────────────────────── */
-    .blog-filters {
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
-      align-items: center
-    }
-
-    .blog-filter {
-      padding: 6px 16px;
-      border-radius: 7px;
-      border: 1.5px solid transparent;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      background: transparent;
-      color: #6b7280;
-      transition: all .15s;
-      font-family: inherit;
-      line-height: 1
-    }
-
-    .blog-filter:hover {
-      color: #0b1220;
-      background: #f3f4f6
-    }
-
-    .blog-filter.active {
-      background: #0b1220;
-      color: #fff;
-      border-color: #0b1220
-    }
-
-    /* ── Blog section ──────────────────────────── */
-    .blog-section {
-      padding: 56px 0 80px;
-      background: #fff
-    }
-
-    /* ── Category badges ───────────────────────── */
-    .cat-badge {
-      display: inline-block;
-      font-size: 10.5px;
-      font-weight: 700;
-      letter-spacing: .06em;
-      text-transform: uppercase;
-      padding: 3px 9px;
-      border-radius: 4px;
-      margin-bottom: 14px
-    }
-
-    .cat-product   { background: #f0f2f5; color: #374151 }
-    .cat-sales     { background: #f0f2f5; color: #374151 }
-    .cat-engineering { background: #f0f2f5; color: #374151 }
-    .cat-fieldops  { background: #f0f2f5; color: #374151 }
-    .cat-design    { background: #f0f2f5; color: #374151 }
-    .cat-guide     { background: #f0f2f5; color: #374151 }
-
-    .post-meta {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12.5px;
-      color: #9ca3af
-    }
-
-    .author-avatar {
-      width: 24px;
-      height: 24px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 9px;
-      font-weight: 700;
-      color: #fff;
-      flex-shrink: 0;
-      background: #374151
-    }
-
-    /* ── Featured post ─────────────────────────── */
-    .featured-post {
-      display: grid;
-      grid-template-columns: 5fr 4fr;
-      gap: 0;
-      align-items: stretch;
-      background: #0b1220;
-      border-radius: 20px;
-      overflow: hidden;
-      margin-bottom: 64px;
-      cursor: pointer;
-      transition: transform .18s, box-shadow .18s
-    }
-
-    .featured-post:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 20px 60px rgba(0,0,0,.18)
-    }
-
-    .featured-img {
-      min-height: 360px;
-      display: flex;
-      align-items: flex-end;
-      justify-content: flex-start;
-      position: relative;
-      overflow: hidden;
-      padding: 40px
-    }
-
-    .featured-img svg.bg-pattern {
-      opacity: .06;
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%
-    }
-
-    .featured-img .feat-icon { display: none }
-
-    .featured-img-content {
-      position: relative;
-      z-index: 1
-    }
-
-    .featured-eyebrow {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .1em;
-      text-transform: uppercase;
-      color: rgba(255,255,255,.45);
-      margin-bottom: 16px
-    }
-
-    .featured-img h2 {
-      font-size: clamp(1.5rem, 2.5vw, 2.1rem);
-      font-weight: 800;
-      color: #fff;
-      line-height: 1.2;
-      letter-spacing: -.025em;
-      margin: 0 0 20px;
-      max-width: 480px
-    }
-
-    .featured-img .post-meta {
-      color: rgba(255,255,255,.45)
-    }
-
-    .featured-img .post-meta .author-avatar {
-      background: rgba(255,255,255,.15) !important;
-      color: rgba(255,255,255,.8)
-    }
-
-    .featured-aside {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 40px;
-      border-left: 1px solid rgba(255,255,255,.07)
-    }
-
-    .featured-aside .excerpt {
-      font-size: 15px;
-      line-height: 1.75;
-      color: rgba(255,255,255,.55);
-      margin: 0
-    }
-
-    .featured-aside .read-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      font-weight: 700;
-      letter-spacing: .02em;
-      color: #fff;
-      text-decoration: none;
-      margin-top: 32px;
-      padding: 11px 20px;
-      border: 1.5px solid rgba(255,255,255,.2);
-      border-radius: 9px;
-      transition: background .15s, border-color .15s;
-      align-self: flex-start
-    }
-
-    .featured-aside .read-link:hover {
-      background: rgba(255,255,255,.08);
-      border-color: rgba(255,255,255,.4)
-    }
-
-    /* ── Posts grid ────────────────────────────── */
-    .posts-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      background: #e6e9ef;
-      border: 1px solid #e6e9ef;
-      border-radius: 16px;
-      overflow: hidden
-    }
-
-    .post-card {
-      background: #fff;
-      transition: background .15s;
-      cursor: pointer;
-      display: flex;
-      flex-direction: column;
-      padding: 28px;
-      position: relative
-    }
-
-    .post-card:hover {
-      background: #fafafa
-    }
-
-    .post-card:hover .post-card-arrow {
-      opacity: 1;
-      transform: translate(2px, -2px)
-    }
-
-    .post-card.hidden {
-      display: none
-    }
-
-    .post-card-img { display: none }
-
-    .post-card-top {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      margin-bottom: 14px
-    }
-
-    .post-card-arrow {
-      opacity: 0;
-      transition: opacity .15s, transform .15s;
-      color: #9ca3af;
-      flex-shrink: 0;
-      margin-top: 2px
-    }
-
-    .post-card-body {
-      padding: 0;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 0
-    }
-
-    .post-card-body h3 {
-      font-size: 15px;
-      font-weight: 700;
-      color: #0b1220;
-      line-height: 1.45;
-      margin: 0 0 10px;
-      letter-spacing: -.01em
-    }
-
-    .post-card-body .excerpt {
-      font-size: 13px;
-      color: #6b7280;
-      line-height: 1.65;
-      flex: 1;
-      margin-bottom: 20px
-    }
-
-    .post-card-footer {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding-top: 0;
-      margin-top: auto;
-      border-top: 1px solid #f0f2f5;
-      padding-top: 16px
-    }
-
-    /* ── No results ────────────────────────────── */
-    .no-results {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 80px 0;
-      gap: 14px;
-      text-align: center
-    }
-
-    .no-results svg { color: #d1d5db }
-    .no-results p { font-size: 16px; color: #6b7280 }
-    .no-results.visible { display: flex }
-
-    /* ── Newsletter ────────────────────────────── */
-    .newsletter-band {
-      background: #0b1220;
-      border-radius: 20px;
-      padding: 64px 72px;
-      margin-top: 72px;
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 48px;
-      align-items: center
-    }
-
-    .newsletter-band-left h2 {
-      font-size: 1.6rem;
-      font-weight: 800;
-      color: #fff;
-      margin: 0 0 10px;
-      letter-spacing: -.025em;
-      line-height: 1.2
-    }
-
-    .newsletter-band-left p {
-      color: rgba(255,255,255,.5);
-      font-size: 14px;
-      margin: 0;
-      line-height: 1.6
-    }
-
-    .newsletter-form {
-      display: flex;
-      gap: 8px;
-      flex-wrap: nowrap
-    }
-
-    .newsletter-form input {
-      width: 220px;
-      border: 1.5px solid rgba(255,255,255,.15);
-      border-radius: 9px;
-      padding: 11px 16px;
-      font-size: 14px;
-      font-family: inherit;
-      color: #fff;
-      background: rgba(255,255,255,.08);
-      transition: border-color .15s, background .15s
-    }
-
-    .newsletter-form input::placeholder { color: rgba(255,255,255,.3) }
-
-    .newsletter-form input:focus {
-      outline: none;
-      border-color: rgba(255,255,255,.4);
-      background: rgba(255,255,255,.12)
-    }
-
-    .newsletter-form .btn-hero-primary {
-      white-space: nowrap;
-      background: #fff;
-      color: #0b1220;
-      border: none;
-      padding: 11px 22px;
-      border-radius: 9px;
-      font-size: 14px;
-      font-weight: 700;
-      font-family: inherit;
-      cursor: pointer;
-      transition: opacity .15s
-    }
-
-    .newsletter-form .btn-hero-primary:hover { opacity: .88 }
-
-    .nl-success {
-      display: none;
-      align-items: center;
-      gap: 8px;
-      justify-content: flex-end;
-      font-size: 14px;
-      font-weight: 600;
-      color: rgba(255,255,255,.7)
-    }
-
-    /* ── Article Full Page ─────────────────────── */
-    .article-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 900;
-      pointer-events: none;
-      opacity: 0;
-      transition: opacity .2s
-    }
-    .article-overlay.open {
-      pointer-events: all;
-      opacity: 1
-    }
-    .article-panel {
-      width: 100%;
-      height: 100vh;
-      background: #fff;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      -webkit-overflow-scrolling: touch;
-      transform: translateY(16px);
-      transition: transform .24s cubic-bezier(.4,0,.2,1)
-    }
-    .article-overlay.open .article-panel {
-      transform: translateY(0)
-    }
-
-    /* progress bar */
-    .article-progress {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 2px;
-      background: #0b1220;
-      width: 0%;
-      z-index: 1000;
-      transition: width .1s linear;
-      pointer-events: none;
-      opacity: 0
-    }
-    .article-overlay.open .article-progress {
-      opacity: 1
-    }
-
-    /* top nav bar */
-    .article-panel-header {
-      position: sticky;
-      top: 0;
-      z-index: 10;
-      background: #fff;
-      padding: 0 40px;
-      height: 52px;
-      border-bottom: 1px solid #e6e9ef;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-shrink: 0;
-      position: relative
-    }
-    .article-back-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      font-size: 13px;
-      font-weight: 600;
-      font-family: inherit;
-      color: #9ca3af;
-      padding: 0;
-      transition: color .15s;
-      min-width: 80px
-    }
-    .article-back-btn:hover { color: #0b1220 }
-    .article-nav-brand {
-      font-size: 14px;
-      font-weight: 800;
-      color: #4b5563;
-      letter-spacing: -.02em;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%)
-    }
-    .article-nav-pill {
-      background: #0d1117;
-      color: #fff;
-      border-radius: 6px;
-      padding: 2px 9px 3px;
-      font-size: 13px;
-      font-weight: 800;
-      letter-spacing: -.02em
-    }
-    .article-nav-right {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      min-width: 80px;
-      justify-content: flex-end
-    }
-    .article-read-time-badge {
-      font-size: 12px;
-      color: #9ca3af;
-      font-weight: 500
-    }
-
-    /* article layout */
-    .article-page {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr min(680px, calc(100% - 80px)) 1fr;
-      column-gap: 0
-    }
-    .article-page > * { grid-column: 2 }
-
-    /* header block — no image, pure type */
-    .article-header {
-      padding: 52px 0 36px;
-      border-bottom: 1px solid #f0f2f5
-    }
-    .article-header .cat-badge {
-      margin-bottom: 16px
-    }
-    .article-title {
-      font-size: clamp(1.9rem, 4vw, 2.8rem);
-      font-weight: 800;
-      color: #0b1220;
-      line-height: 1.15;
-      letter-spacing: -.03em;
-      margin: 0 0 24px
-    }
-    .article-lede {
-      font-size: 18px;
-      line-height: 1.7;
-      color: #4b5563;
-      margin: 0 0 24px;
-      font-weight: 400
-    }
-    .article-byline {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 13px;
-      color: #9ca3af
-    }
-    .article-byline-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      font-weight: 800;
-      color: #fff;
-      background: #374151;
-      flex-shrink: 0
-    }
-    .article-byline-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px
-    }
-    .article-byline-name {
-      font-weight: 700;
-      color: #0b1220;
-      font-size: 13px
-    }
-    .article-byline-meta {
-      font-size: 12px;
-      color: #9ca3af
-    }
-
-    /* content */
-    .article-content {
-      padding: 36px 0 100px;
-      font-size: 17px;
-      line-height: 1.82;
-      color: #374151
-    }
-    .article-content p { margin: 0 0 26px }
-    .article-content h2 {
-      font-size: 1.25rem;
-      font-weight: 800;
-      color: #0b1220;
-      margin: 52px 0 16px;
-      letter-spacing: -.02em;
-      line-height: 1.3
-    }
-    .article-content h3 {
-      font-size: 1.05rem;
-      font-weight: 700;
-      color: #0b1220;
-      margin: 36px 0 12px;
-      letter-spacing: -.01em
-    }
-    .article-content ul, .article-content ol {
-      margin: 0 0 26px;
-      padding-left: 24px
-    }
-    .article-content li { margin-bottom: 10px }
-    .article-content strong {
-      color: #0b1220;
-      font-weight: 700
-    }
-    .article-content blockquote {
-      margin: 36px 0;
-      padding: 22px 28px;
-      border-left: 3px solid #0b1220;
-      background: #f8f9fa;
-      border-radius: 0 10px 10px 0;
-      font-size: 16px;
-      font-style: italic;
-      color: #4b5563
-    }
-    .article-content .callout {
-      background: #f8f9fa;
-      border: 1px solid #e6e9ef;
-      border-radius: 12px;
-      padding: 22px 28px;
-      margin: 36px 0;
-      font-size: 15px
-    }
-    .article-content .callout strong {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 13px;
-      letter-spacing: .03em;
-      text-transform: uppercase
-    }
-    .article-content hr {
-      border: none;
-      border-top: 1px solid #e6e9ef;
-      margin: 48px 0
-    }
-    .article-content code {
-      font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-      font-size: .875em;
-      background: #f3f4f6;
-      border: 1px solid #e6e9ef;
-      border-radius: 5px;
-      padding: 1px 6px;
-      color: #0b1220
-    }
-    .article-content pre {
-      background: #0b1220;
-      border-radius: 10px;
-      padding: 20px 24px;
-      overflow-x: auto;
-      margin: 32px 0
-    }
-    .article-content pre code {
-      background: none;
-      border: none;
-      padding: 0;
-      color: #e5e7eb;
-      font-size: 13.5px;
-      line-height: 1.7
-    }
-
-    /* wide card — first in grid spans full row */
-    .post-card.post-card-wide {
-      grid-column: 1 / -1;
-      flex-direction: row;
-      align-items: stretch
-    }
-    .post-card.post-card-wide .post-card-body {
-      display: flex;
-      flex-direction: column;
-      flex: 1
-    }
-    .post-card.post-card-wide .post-card-top {
-      margin-bottom: 16px
-    }
-    .post-card.post-card-wide h3 {
-      font-size: 18px;
-      letter-spacing: -.02em
-    }
-    .post-card.post-card-wide .excerpt {
-      font-size: 14px
-    }
-    @media(max-width:900px) {
-      .post-card.post-card-wide { flex-direction: column }
-    }
-    .article-content .stat-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px,1fr));
-      gap: 12px;
-      margin: 36px 0
-    }
-    .article-content .stat-box {
-      background: #f8f9fa;
-      border: 1px solid #e6e9ef;
-      border-radius: 12px;
-      padding: 22px 16px;
-      text-align: center
-    }
-    .article-content .stat-box .stat-num {
-      font-size: 2rem;
-      font-weight: 800;
-      color: #0b1220;
-      line-height: 1;
-      letter-spacing: -.03em
-    }
-    .article-content .stat-box .stat-label {
-      font-size: 11.5px;
-      color: #6b7280;
-      margin-top: 8px;
-      font-weight: 500;
-      line-height: 1.4
-    }
-
-    /* article footer — more posts suggestion */
-    .article-footer {
-      grid-column: 1 / -1;
-      background: #fafafa;
-      border-top: 1px solid #e6e9ef;
-      padding: 56px 0
-    }
-    .article-footer-inner {
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 0 40px
-    }
-    .article-footer-label {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: .08em;
-      text-transform: uppercase;
-      color: #9ca3af;
-      margin-bottom: 24px
-    }
-    .article-more-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      background: #e6e9ef;
-      border: 1px solid #e6e9ef;
-      border-radius: 14px;
-      overflow: hidden
-    }
-    .article-more-card {
-      background: #fff;
-      padding: 24px;
-      cursor: pointer;
-      transition: background .15s
-    }
-    .article-more-card:hover { background: #f8f9fa }
-    .article-more-card .cat-badge { margin-bottom: 10px }
-    .article-more-card h4 {
-      font-size: 14px;
-      font-weight: 700;
-      color: #0b1220;
-      line-height: 1.4;
-      margin: 0 0 8px;
-      letter-spacing: -.01em
-    }
-    .article-more-card .meta {
-      font-size: 12px;
-      color: #9ca3af
-    }
-
-    @media(max-width:768px) {
-      .article-page {
-        grid-template-columns: 1fr;
-        padding: 0 24px
-      }
-      .article-page > * { grid-column: 1 }
-      .article-panel-header { padding: 0 20px }
-      .article-header { padding: 40px 0 36px }
-      .article-content { padding: 36px 0 72px }
-      .article-more-grid { grid-template-columns: 1fr }
-      .article-footer-inner { padding: 0 24px }
-    }
-
-    @media(max-width:900px) {
-      .posts-grid {
-        grid-template-columns: repeat(2, 1fr)
-      }
-      .newsletter-band {
-        grid-template-columns: 1fr;
-        gap: 28px;
-        padding: 48px 36px
-      }
-      .newsletter-form {
-        flex-wrap: wrap
-      }
-      .newsletter-form input {
-        width: 100%
-      }
-    }
-    @media(max-width:768px) {
-      .hero-top {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px
-      }
-      .hero-right {
-        max-width: 100%;
-        text-align: left
-      }
-      .featured-post {
-        grid-template-columns: 1fr
-      }
-      .featured-img {
-        min-height: 260px
-      }
-      .article-body {
-        padding: 32px 20px 60px
-      }
-      .article-panel-header {
-        padding: 12px 20px
-      }
-    }
-    @media(max-width:600px) {
-      .posts-grid {
-        grid-template-columns: 1fr
-      }
-      .newsletter-band {
-        padding: 36px 24px
-      }
-    }
-  </style>
-
-  <section class="page-hero">
-    <div class="container">
-      <div class="hero-inner">
-        <div class="hero-top">
-          <div class="hero-left">
-            <div class="hero-label">
-              <span class="hero-label-dot"></span>
-              <span id="heroPostCount">10 articles</span>
-            </div>
-            <h1 class="hero-title">Safi<span class="hero-title-pill">Blogs</span></h1>
-          </div>
-          <div class="hero-right">
-            <div class="hero-authors">
-              <div class="hero-author-stack">
-                <div class="av" style="background:#374151">SM</div>
-                <div class="av" style="background:#6b7280">RS</div>
-              </div>
-              <div class="hero-authors-text">
-                Written by <strong>Sadie F.</strong> and <strong>Rishi S.</strong><br>
-                from the SafiTrack team
-              </div>
-            </div>
-          </div>
+        <div class="contact-body" data-state="form">
+            <h2 class="contact-title" id="contact-title">Talk to sales</h2>
+            <p class="contact-sub">Tell us a little about your team and we'll be in touch to set up a walkthrough.</p>
+
+            <form id="contact-form" novalidate>
+                <input type="hidden" name="plan" id="selected-plan" value="General">
+                <div class="field-row">
+                    <label class="field">
+                        <span>First name</span>
+                        <input type="text" name="first_name" autocomplete="given-name" required>
+                    </label>
+                    <label class="field">
+                        <span>Last name</span>
+                        <input type="text" name="last_name" autocomplete="family-name" required>
+                    </label>
+                </div>
+                <label class="field">
+                    <span>Work email</span>
+                    <input type="email" name="from_email" autocomplete="email" required>
+                </label>
+                <div class="field-row">
+                    <label class="field">
+                        <span>Company</span>
+                        <input type="text" name="company_name" autocomplete="organization" required>
+                    </label>
+                    <label class="field">
+                        <span>Job title</span>
+                        <input type="text" name="job_title" autocomplete="organization-title" required>
+                    </label>
+                </div>
+                <div class="field-row">
+                    <label class="field">
+                        <span>Team size</span>
+                        <select name="company_size" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="1-10">1–10</option>
+                            <option value="11-50">11–50</option>
+                            <option value="51-200">51–200</option>
+                            <option value="201-500">201–500</option>
+                            <option value="501+">501+</option>
+                        </select>
+                    </label>
+                    <label class="field">
+                        <span>Country</span>
+                        <select name="region" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="KE">Kenya</option>
+                            <option value="NG">Nigeria</option>
+                            <option value="ZA">South Africa</option>
+                            <option value="AE">United Arab Emirates</option>
+                            <option value="IN">India</option>
+                            <option value="UK">United Kingdom</option>
+                            <option value="US">United States</option>
+                            <option value="CA">Canada</option>
+                            <option value="AU">Australia</option>
+                            <option value="DE">Germany</option>
+                            <option value="FR">France</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </label>
+                </div>
+                <label class="check">
+                    <input type="checkbox" name="terms" required>
+                    <span>I agree to the <a href="../pages/legal/terms.html">Terms</a> and
+                        <a href="../pages/legal/privacy.html">Privacy Policy</a>.</span>
+                </label>
+                <button type="submit" class="btn btn-dark btn-block btn-lg" id="contact-submit">Send request</button>
+            </form>
         </div>
-        <div class="hero-controls">
-          <div class="search-box">
-            <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-              <circle cx="11" cy="11" r="8" />
-              <path stroke-linecap="round" d="M21 21l-4.35-4.35" />
-            </svg>
-            <input type="search" id="searchInput" placeholder="Search articles…" autocomplete="off">
-          </div>
-          <div class="controls-divider"></div>
-          <div class="blog-filters" id="blogFilters">
-            <button class="blog-filter active" data-cat="all">All</button>
-            <button class="blog-filter" data-cat="product">Product</button>
-            <button class="blog-filter" data-cat="sales">Sales</button>
-            <button class="blog-filter" data-cat="fieldops">Field Ops</button>
-            <button class="blog-filter" data-cat="engineering">Engineering</button>
-            <button class="blog-filter" data-cat="guide">Guides</button>
-          </div>
+
+        <div class="contact-body contact-result" data-state="success" hidden>
+            <h2 class="contact-title">Thanks, we've got it.</h2>
+            <p class="contact-sub">Someone from our team will reach out to the email you gave us shortly.</p>
+            <button type="button" class="btn btn-light btn-block" data-close>Done</button>
         </div>
-      </div>
-    </div>
-  </section>
 
-  <section class="blog-section">
-    <div class="container">
-      <!-- Featured post -->
-      <div class="featured-post" id="featuredPost" data-idx="0">
-        <div class="featured-img" style="background:#0b1220">
-          <svg class="bg-pattern" viewBox="0 0 600 400" fill="none" preserveAspectRatio="xMidYMid slice">
-            <circle cx="500" cy="80" r="300" stroke="white" stroke-width="1"/>
-            <circle cx="100" cy="320" r="200" stroke="white" stroke-width="1"/>
-            <circle cx="300" cy="200" r="400" stroke="white" stroke-width=".5"/>
-          </svg>
-          <div class="featured-img-content">
-            <div class="featured-eyebrow">Featured &nbsp;·&nbsp; Product</div>
-            <h2>Introducing Intelligence Hub: AI-powered field sales insights</h2>
-            <div class="post-meta">
-              <div class="author-avatar" style="background:rgba(255,255,255,.12)">RS</div>
-              <span>Rishi S. &nbsp;·&nbsp; Jan 28, 2026 &nbsp;·&nbsp; 6 min read</span>
-            </div>
-          </div>
+        <div class="contact-body contact-result" data-state="error" hidden>
+            <h2 class="contact-title">That didn't go through.</h2>
+            <p class="contact-sub">Please check your connection and try again.</p>
+            <button type="button" class="btn btn-dark btn-block" data-retry>Try again</button>
         </div>
-        <div class="featured-aside">
-          <p class="excerpt">We&#8217;re rolling out Intelligence Hub — a new layer of AI that surfaces missed opportunities, summarises visit notes and gives every rep their own sales coach. Here&#8217;s what we built and why.</p>
-          <a class="read-link" href="#">
-            Read article
-            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-            </svg>
-          </a>
-        </div>
-      </div>
-
-      <!-- Posts grid -->
-      <div class="posts-grid" id="postsGrid"></div>
-      <div class="no-results" id="noResults">
-        <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-          <circle cx="11" cy="11" r="8" />
-          <path stroke-linecap="round" d="M21 21l-4.35-4.35" />
-        </svg>
-        <p>No articles match your search.</p>
-      </div>
-
-      <!-- Newsletter -->
-      <div class="newsletter-band">
-        <div class="newsletter-band-left">
-          <h2>Ideas worth reading,<br>in your inbox.</h2>
-          <p>Field ops, product thinking, and engineering notes. No marketing fluff.</p>
-        </div>
-        <div>
-          <div class="newsletter-form" id="nlForm">
-            <input type="email" id="nlEmail" placeholder="you@company.com" autocomplete="email">
-            <button class="btn-hero-primary" type="button" id="nlBtn">Subscribe</button>
-          </div>
-          <div class="nl-success" id="nlSuccess">
-            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-            </svg>
-            You&#8217;re subscribed.
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Article Reader -->
-  <div class="article-overlay" id="articleOverlay">
-    <div class="article-progress" id="articleProgress"></div>
-    <div class="article-panel" id="articlePanel" role="dialog" aria-modal="true">
-      <div class="article-panel-header" id="articlePanelHeader">
-        <button class="article-back-btn" id="articleClose" aria-label="Back to blog">
-          <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5m0 0l7-7m-7 7l7 7"/>
-          </svg>
-          Back
-        </button>
-        <div class="article-nav-brand">Safi<span class="article-nav-pill">Blogs</span></div>
-        <div class="article-nav-right">
-          <span class="article-read-time-badge" id="articleReadTime"></span>
-        </div>
-      </div>
-      <div class="article-page" id="articlePage">
-        <div class="article-header">
-          <div class="article-meta-row" id="articleMetaRow"></div>
-          <h1 class="article-title" id="articleTitle"></h1>
-          <p class="article-lede" id="articleLede"></p>
-          <div class="article-byline" id="articleByline"></div>
-        </div>
-        <div class="article-content" id="articleContent"></div>
-        <div class="article-footer">
-          <div class="article-footer-inner">
-            <div class="article-footer-label">More from SafiBlogs</div>
-            <div class="article-more-grid" id="articleMoreGrid"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-content">
-        <div class="footer-brand">
-          <div class="footer-logo-wrapper">
-            <img src="../assets/icons/transparentMain.png" alt="SafiTrack" class="footer-logo">
-          </div>
-          <p style="color:#9ca3af;font-size:14px;margin-top:12px;max-width:220px;line-height:1.6">Field operations &amp;
-            sales CRM built for modern teams.</p>
-        </div>
-        <div class="footer-links">
-          <div class="footer-column">
-            <h4 class="footer-heading">Product</h4>
-            <ul>
-              <li><a href="features/mainfeatures.html">Features</a></li>
-              <li><a href="pricing.html">Pricing</a></li>
-              <li><a href="integrations.html">Integrations</a></li>
-              <li><a href="comparison.html">Compare</a></li>
-            </ul>
-          </div>
-          <div class="footer-column">
-            <h4 class="footer-heading">Company</h4>
-            <ul>
-              <li><a href="blog.html">Blog</a></li>
-              <li><a href="careers.html">Careers</a></li>
-            </ul>
-          </div>
-          <div class="footer-column">
-            <h4 class="footer-heading">Resources</h4>
-            <ul>
-              <li><a href="documentation.html">Documentation</a></li>
-              <li><a href="helpcenter.html">Help Center</a></li>
-              <li><a href="apireference.html">API Reference</a></li>
-              <li><a href="status.html">Status</a></li>
-            </ul>
-          </div>
-          <div class="footer-column">
-            <h4 class="footer-heading">Legal</h4>
-            <ul>
-              <li><a href="legal/privacy.html">Privacy Policy</a></li>
-              <li><a href="legal/terms.html">Terms of Service</a></li>
-              <li><a href="security.html">Security</a></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-      <div class="footer-bottom">
-        <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-        <div class="footer-social">
-          <a href="#">Twitter</a>
-          <a href="#">LinkedIn</a>
-          <a href="#">GitHub</a>
-        </div>
-      </div>
-    </div>
-  </footer>
-  <script>
-    // ─── Blog post data ───────────────────────────────────────────────────────────
-    var POSTS = [
-      {
-        title: '10 ways to shorten your field-sales cycle in 2026',
-        excerpt: 'From smarter route planning to AI follow-up reminders, here are the tactics top-performing reps are using right now.',
-        cat: 'sales', catLabel: 'Sales', catClass: 'cat-sales',
-        author: 'Sadie F.', authorInitials: 'SM', authorColor: '#374151',
-        date: 'Jan 14, 2026', read: '8 min read',
-        grad: 'linear-gradient(135deg,#14532d 0%,#166534 100%)',
-        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>',
-        body: `<p>Field sales has always been a grind of windshields and waiting rooms. But the reps closing fastest right now aren't grinding harder — they've just gotten ruthless about where their time actually goes. Here are ten things the best ones are doing differently.</p>
-<h2>1. Qualify harder at the top, move faster at the bottom</h2>
-<p>The single biggest time drain in most field cycles is spending days with prospects who were never going to buy. Tighten your qualification criteria. If a prospect can't answer three basic questions in your first conversation — budget authority, a real problem, and some sense of timing — they go into a nurture sequence, not your active pipeline.</p>
-<h2>2. Route your day around deal stage, not geography</h2>
-<p>Most reps optimise their day geographically. The smarter approach: anchor your route around your hottest deals and let proximity be a secondary factor. A thirty-minute detour to visit a prospect who's two days from signing is almost always worth it.</p>
-<h2>3. Send a micro-agenda before every visit</h2>
-<p>A two-line message the morning of a meeting — "Stopping by at 2pm, want to run through the proposal and answer any questions you have on pricing" — does two things. It confirms the meeting is still on (saving you a wasted trip) and it primes the customer to actually engage, not just politely receive your pitch.</p>
-<h2>4. Log your visits in the parking lot, not at the end of the day</h2>
-<p>Every hour that passes between a meeting and your notes is a compounding memory tax. Spend four minutes in the car immediately after. Voice-to-text has made this almost effortless. The reps who do this consistently have dramatically better follow-up quality, and follow-up quality is what actually moves deals.</p>
-<h2>5. Use AI to write follow-up emails, not to think about them</h2>
-<p>Your job after a visit is to think about what you learned and what the next step is. The writing is mechanical. Let your CRM's AI draft the follow-up from your visit notes. Read it, adjust the tone if needed, send it. What used to take twenty minutes now takes two, and you're doing it while the conversation is still fresh.</p>
-<h2>6. Set a hard close date and work backwards</h2>
-<p>Deals without deadlines drift. Pick a target close date at the start of every opportunity — even an internal one the customer never sees — and work backwards to identify every dependency. What approvals need to happen? Who else needs to be in a room? What's the procurement lead time? Map it out and you'll see the stalls before they happen.</p>
-<h2>7. Stop chasing. Start scheduling</h2>
-<p>The follow-up call with no agenda ("just checking in") is one of the great time-wasters in sales. Every customer interaction should end with a specific next step booked. Not "I'll reach out next week" — a calendar invite with a subject and a purpose. The deals that slip are almost always the ones where you didn't nail down the next step in person.</p>
-<h2>8. Know your three-minute pitch for every objection</h2>
-<p>Most deals stall on a small set of repeatable objections: price, internal buy-in, timing, competition. Write out your three-minute response to each one and practice it until it feels like a real conversation, not a recitation. When the objection comes up in the field, you're not improvising — you're executing.</p>
-<h2>9. Block two deep-focus hours daily</h2>
-<p>The best reps treat their mornings like surgeons treat pre-op: no admin, no email, just deal strategy. Block two hours where you review your pipeline, prep your visits, and think about what you need to do to move your top five opportunities forward. The rest of the day is execution.</p>
-<h2>10. Review your lost deals more than your wins</h2>
-<p>Win reviews feel good. Loss reviews are where you actually learn. Once a month, pull up your last five losses and ask honestly: where did the cycle stall? What did I miss early? Could better qualification have saved the time? The patterns are always there. The reps who find them close faster next quarter.</p>
-<hr>
-<p>None of these are new ideas. The difference is consistency. Pick three, do them every single day for thirty days, and then look at your numbers. The cycle time will move.</p>`
-      },
-      {
-        title: 'Scaling SafiTrack to handle 1M+ daily location updates',
-        excerpt: 'A behind-the-scenes look at the infrastructure changes we made to support high-frequency GPS telemetry at scale.',
-        cat: 'engineering', catLabel: 'Engineering', catClass: 'cat-engineering',
-        author: 'Rishi S.', authorInitials: 'RS', authorColor: '#6d28d9',
-        date: 'Dec 20, 2025', read: '11 min read',
-        grad: 'linear-gradient(135deg,#3b0764 0%,#5b21b6 100%)',
-        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>',
-        body: `<p>Six months ago, we hit a wall. Not the dramatic kind — no outage, no customer complaints, no spike in our error dashboard. Just a quiet, creeping realisation that the architecture we'd built to get SafiTrack from zero to a hundred customers was not going to carry us to a thousand.</p>
-<p>The specific number that focused our attention: during peak hours on a Tuesday in November, we were receiving just over 800,000 location updates per day from devices in the field. We'd designed for a fraction of that. We needed to talk.</p>
-<h2>The original architecture and why it worked (until it didn't)</h2>
-<p>When we built the location ingestion pipeline, we made sensible early-stage decisions. A single Postgres instance handled everything: writes came in, we fan-out to the relevant dashboards via polling, done. Simple to reason about, easy to debug, fast to ship.</p>
-<p>The cracks started showing at around 400K daily events. Write latency crept up. Dashboard refreshes felt sluggish. Our on-call rota started getting paged about database CPU at 2am. Classic growth pains, but ones we needed to address before they became customer-facing problems.</p>
-<h2>Step one: separate the write path from the read path</h2>
-<p>The first and most important change we made was pulling the write path entirely out of Postgres and putting it behind a Kafka topic. Devices now write to a lightweight ingestion service that validates the payload, stamps a server-side timestamp, and drops the event onto the queue. Postgres never touches a raw location update during ingestion.</p>
-<p>This immediately took the pressure off our primary database. CPU dropped by around 40% during peak hours. More importantly, it decoupled ingestion from processing — we could now scale each independently.</p>
-<h2>Step two: consumer groups for different use cases</h2>
-<p>Once events are on the queue, we have three different consumer groups reading from them, each optimised for a different latency profile.</p>
-<p>The real-time consumer processes events within about two seconds and writes to Redis. This is what powers the live map view. It doesn't need to be durable — if Redis loses a few seconds of state, the next update will correct it.</p>
-<p>The analytics consumer batches events into five-minute windows and writes aggregated summaries to Postgres. This is what powers visit detection, route replay, and the intelligence layer. The write volume is 95% lower because we're writing summaries, not raw events.</p>
-<p>The archive consumer writes the raw event stream to cold storage (we use S3) for compliance and historical replay. This runs on a thirty-second delay and we don't particularly care about its latency.</p>
-<h2>Step three: visit detection as a stream processor</h2>
-<p>Visit detection — the logic that says "this rep was at this location for long enough to count as a visit" — used to run as a cron job every fifteen minutes. That was fine when we had a few thousand reps. At scale, it became a monster batch job that competed with everything else for database resources.</p>
-<p>We rewrote visit detection as a stream processor sitting on top of the analytics consumer. As location events arrive, we maintain a stateful window per rep. When the conditions for a visit are met (proximity threshold plus dwell time), we emit a visit event. The database sees a small trickle of visit writes rather than a massive batch every quarter hour.</p>
-<div class="callout"><strong>One tricky edge case</strong> We had to think carefully about what happens when a rep's device goes offline mid-visit and reconnects later. We now buffer a short lookback window per device and reprocess any gaps when connectivity resumes, which handles the offline-first mobile scenarios without creating phantom visits or missed ones.</div>
-<h2>Step four: partitioning Postgres</h2>
-<p>Even with the reduced write volume, our Postgres tables were getting large enough that vacuum and autovacuum were causing noticeable performance degradation. We partitioned the visits and analytics tables by month. Old partitions get archived to a read-replica that the dashboard queries transparently. Hot partitions (last 90 days) stay on the primary.</p>
-<p>Query performance on the dashboard improved dramatically — not because we changed the queries, but because the planner was now only scanning a fraction of the data.</p>
-<div class="stat-row">
-  <div class="stat-box"><div class="stat-num">1.2M</div><div class="stat-label">peak daily events</div></div>
-  <div class="stat-box"><div class="stat-num">~1.8s</div><div class="stat-label">p99 live map latency</div></div>
-  <div class="stat-box"><div class="stat-num">40%</div><div class="stat-label">DB CPU reduction</div></div>
-  <div class="stat-box"><div class="stat-num">3×</div><div class="stat-label">headroom before next rearchitect</div></div>
-</div>
-<h2>What we'd do differently</h2>
-<p>We should have introduced the Kafka layer earlier. We kept telling ourselves the simpler architecture was "good enough" until it wasn't, and the migration was harder than it needed to be because so many things depended on the original write path. The lesson is familiar but worth repeating: if you can see the shape of the scaling problem coming, it's almost always cheaper to address it before it's urgent.</p>
-<p>We also underestimated how much operational complexity the streaming infrastructure would add. Kafka is powerful and reliable, but it's not free to run. We spent meaningful engineering time on monitoring, lag alerting, consumer group management, and handling the occasional partition rebalance at the worst possible moment. Plan for that cost.</p>
-<p>The work isn't finished — we're already thinking about what 10M daily events looks like. But for now, the system is healthy, the on-call paging has stopped, and the team can focus on building product again rather than firefighting infrastructure. That feels like a win.</p>`
-      },
-      {
-        title: 'Why we rebuilt the mobile experience from scratch',
-        excerpt: 'Field reps need speed. We redesigned the mobile CRM with offline-first architecture and a one-thumb workflow in mind.',
-        cat: 'product', catLabel: 'Product', catClass: 'cat-product',
-        author: 'Sadie F.', authorInitials: 'SM', authorColor: '#374151',
-        date: 'Nov 5, 2025', read: '5 min read',
-        grad: 'linear-gradient(135deg,#1e3a8a 0%,#2563eb 100%)',
-        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>',
-        body: `<p>The old SafiTrack mobile app worked. That was the problem. "Works" is a very low bar for something a sales rep opens thirty times a day while standing in a car park between calls.</p>
-<p>We'd been hearing the same things from customers for months: too many taps to log a visit, loading spinners in places that should be instant, the app becoming useless in areas with poor signal. The feedback was consistent enough that we made the call to start over rather than keep patching.</p>
-<h2>What we learned from watching reps actually use the app</h2>
-<p>Before writing a line of code, we spent two weeks doing contextual research — riding along with field reps and watching them use the app in real conditions. Three things stood out immediately.</p>
-<p>First, most interactions happen under time pressure. A rep logging a visit is usually between two other things: just finished a meeting, heading to the car, trying to get notes down before the details fade. The app needs to get out of the way, not demand their full attention.</p>
-<p>Second, connectivity is genuinely unpredictable. Even in urban areas, reps go in and out of weak signal zones all day. An app that requires a network connection to do basic things like view a contact or log a note is fundamentally broken for this use case.</p>
-<p>Third, one thumb. People use phones with one hand while doing other things. Navigation that requires reaching to the top of the screen, or targets that are too small to hit accurately, add friction that accumulates over hundreds of daily interactions.</p>
-<h2>Offline-first from day one</h2>
-<p>The architectural decision that shaped everything else was committing to offline-first from the very beginning of the rebuild. Every action the app supports — logging a visit, adding a note, updating a deal stage, creating a task — works when the device has no connectivity. Changes queue locally and sync when the connection returns.</p>
-<p>This sounds straightforward but the conflict resolution logic is genuinely hard. If a rep updates a contact note while offline, and their manager updates the same contact from the web dashboard at the same time, what wins? We spent a lot of time on the merge strategy and we still don't think we've nailed every edge case. But the baseline — "the app never tells you it can't do something because of network" — we've achieved.</p>
-<h2>Reducing the tap count</h2>
-<p>Logging a visit in the old app took seven taps from the home screen. In the new app it takes two: tap the floating action button, confirm the visit. Everything else — which customer you're visiting, your GPS coordinates, the timestamp — is inferred from context or pre-populated.</p>
-<p>We rebuilt the navigation hierarchy to put the actions reps do most — view today's route, log a visit, add a quick note — within one tap of wherever they are in the app. Less-frequent actions like editing company details or reviewing pipeline reports are still there, just one level deeper.</p>
-<blockquote>"It sounds like a small thing but when you're doing it twenty times a day, five taps versus two taps is enormous." — customer feedback from beta testing</blockquote>
-<h2>What's next</h2>
-<p>We're three months into the rebuild being in production and the metrics are moving in the right direction. Visit logging frequency is up 34% among active users, which tells us the friction reduction is real. Crash rates are down significantly, partly from the new architecture and partly from switching to a more predictable state management approach.</p>
-<p>Next on the list: a smarter home screen that surfaces the right information contextually — nearest unvisited customers, deals with stalled activity, tasks due today — without the rep having to go looking for it. The goal is an app that feels like it knows what you need before you do.</p>`
-      },
-      {
-        title: 'How to build a territory plan that actually works',
-        excerpt: 'Most territory plans look great in a spreadsheet and fall apart in the field. Here\'s how to build one that survives first contact with reality.',
-        cat: 'fieldops', catLabel: 'Field Ops', catClass: 'cat-fieldops',
-        author: 'Rishi S.', authorInitials: 'RS', authorColor: '#6d28d9',
-        date: 'Oct 22, 2025', read: '7 min read',
-        grad: 'linear-gradient(135deg,#7c2d12 0%,#c2410c 100%)',
-        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6-10l6 3m0 7l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 10m0 7V10"/></svg>',
-        body: `<p>Every sales manager has been there. You spend a week building a territory plan, the spreadsheet looks clean, the accounts are evenly distributed, the revenue targets feel achievable. Then Q1 starts and three months later you're looking at a plan that bears almost no resemblance to reality.</p>
-<p>Territory planning isn't hard because the strategy is complicated. It's hard because the map is not the territory, and most plans are built on assumptions that don't survive contact with the field.</p>
-<h2>Start with drive time, not account count</h2>
-<p>The most common mistake in territory design is treating accounts like points on a map and distributing them evenly by count. What you actually need to distribute evenly is time — specifically, the time a rep can spend in front of customers.</p>
-<p>Two territories can have the same number of accounts and wildly different effective capacities. A territory with forty accounts in a dense urban grid might take less drive time than a territory with twenty-five accounts spread across a rural region. Build your territories around sustainable drive time first, then see how many accounts fit.</p>
-<p>As a rough benchmark: most field reps can realistically visit four to six customers per day when you account for drive time, meeting time, and the admin that happens between. Work backwards from there.</p>
-<h2>Segment your accounts by actual potential, not revenue history</h2>
-<p>Territory plans that allocate accounts based only on current revenue perpetuate the status quo. The customer who's been spending £5,000 a year for five years might have a theoretical ceiling of £50,000 — or they might be fully penetrated. You need to know which one before you decide how much of a rep's time that account deserves.</p>
-<p>Build a simple potential score: industry, company size, number of relevant sites or locations, and any intelligence about expansion plans or competitive dissatisfaction. Accounts with high potential and low current revenue deserve disproportionate attention — they're where the growth is.</p>
-<h2>Build in slack for prospecting</h2>
-<p>Most territory plans fill reps to 100% capacity with existing accounts. This is a mistake. Without dedicated prospecting time, the pipeline stagnates as existing accounts churn naturally over time.</p>
-<p>Reserve twenty to thirty percent of each rep's weekly capacity for prospecting new accounts within their territory. Protect it actively — the temptation to fill that time with "just one more customer visit" is always there, and it needs to be resisted.</p>
-<h2>Define coverage tiers and be explicit about them</h2>
-<p>Not every account in a territory gets the same treatment, and pretending otherwise sets everyone up for failure. Define three or four coverage tiers explicitly:</p>
-<ul>
-  <li><strong>Strategic accounts</strong> — monthly visits minimum, named rep ownership, executive engagement</li>
-  <li><strong>Core accounts</strong> — quarterly visits, regular check-ins, renewal tracking</li>
-  <li><strong>Maintenance accounts</strong> — biannual visits or as-needed, primarily reactive</li>
-  <li><strong>Prospects</strong> — active outreach cadence, defined conversion criteria</li>
-</ul>
-<p>Once you have these tiers, your territory plan becomes a resource allocation problem you can actually solve. Sum up the time required to service each tier across all accounts in a territory and compare it to a rep's available capacity. If it doesn't fit, you either need to move accounts, adjust coverage frequency, or add headcount.</p>
-<h2>Review quarterly, not annually</h2>
-<p>Territory plans reviewed once a year are out of date for eleven months. Markets shift, reps leave, large accounts get acquired, new prospects emerge in unexpected places. A quarterly territory review — even a light one — lets you course-correct before a mismatch becomes a performance problem.</p>
-<div class="callout"><strong>A practical cadence</strong> Monthly: review coverage metrics and flag accounts falling below visit targets. Quarterly: reassess account tiers, redistribute overloaded territories, add new prospects from market intelligence. Annually: full territory redesign if headcount has changed significantly.</div>
-<h2>Get your reps into the planning process</h2>
-<p>The best territory intelligence you have is sitting in the heads of the people doing the job. Your reps know which accounts are expanding, which are genuinely at risk, which neighbours of existing customers look promising, and where the hidden gems are.</p>
-<p>Build a simple input process — even just a structured conversation — where reps contribute their field intelligence before each quarter's planning cycle. The plans that come out of this are better, and the reps who contributed to them feel ownership over the outcomes rather than resentment at the assignments.</p>
-<p>Territory planning done right is less about perfect allocation and more about building a shared understanding of where the team's time goes. Get that right and the rest tends to follow.</p>`
-      },
-      {
-        title: 'The complete guide to CRM adoption for field teams',
-        excerpt: 'Adoption is the hardest part of any CRM rollout. These six principles helped our customers achieve 90%+ active usage within 30 days.',
-        cat: 'guide', catLabel: 'Guide', catClass: 'cat-guide',
-        author: 'Sadie F.', authorInitials: 'SM', authorColor: '#374151',
-        date: 'Sep 30, 2025', read: '12 min read',
-        grad: 'linear-gradient(135deg,#052e16 0%,#166534 100%)',
-        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>',
-        body: `<p>CRM adoption is one of those problems that seems like it should be easy and turns out to be one of the hardest things a sales organisation tackles. The technology is usually fine. The process is usually fine. The problem is almost always human.</p>
-<p>We've watched hundreds of field teams go through a SafiTrack rollout. The ones that hit 90%+ active usage within thirty days don't do anything magical — they just get a handful of things consistently right. Here's what we've observed.</p>
-<h2>Principle 1: Answer "what's in it for me?" before training starts</h2>
-<p>Most CRM rollouts lead with features. Here's the pipeline view. Here's how to log a visit. Here are your tasks. This is backwards.</p>
-<p>Before any rep opens the app for the first time, they need a clear answer to the only question that matters to them: how does using this make my job easier or my results better? Not "the company gets better data" — that's a manager's answer. What does <em>the rep</em> get?</p>
-<p>For field reps, the honest answers are usually: your route suggestions will save you an hour a day, your manager will stop asking you to fill out visit spreadsheets, and the AI notes will mean you never forget a follow-up again. Lead with those. Save the feature tour for after they're already sold on the value.</p>
-<h2>Principle 2: Make the default action the right action</h2>
-<p>The single most impactful UX decision for adoption is making the correct behaviour easier than the incorrect behaviour. If logging a visit takes seven taps and sending a WhatsApp to update the manager takes two, the WhatsApp wins every time — regardless of what the process says.</p>
-<p>Before launch, walk through every common action a rep needs to take in a day and count the steps. Then ask: is this competitive with the workaround they're currently using? If not, something needs to change — either in the product configuration or in the process expectations.</p>
-<h2>Principle 3: Launch with a champion cohort, not the whole team</h2>
-<p>Rolling out to the entire team simultaneously means you're troubleshooting at scale from day one. A better approach: identify five to eight reps who are naturally enthusiastic or influential among their peers, launch with them two weeks early, and let them become internal advocates.</p>
-<p>When the rest of the team hears from a colleague "this genuinely saves me time" rather than a manager "you need to use this," the receptivity is completely different. Peer credibility is worth more than any amount of top-down mandate.</p>
-<h2>Principle 4: Measure usage, not just output</h2>
-<p>Most managers track CRM output: pipeline value, visits logged, deals closed. These lag indicators don't tell you where adoption is breaking down until it's too late to course-correct.</p>
-<p>Track leading indicators in the first thirty days: daily active users, average time to log a visit, notes completion rate. These tell you who's struggling and why before the numbers start showing up in the pipeline. Address them early and proactively rather than waiting for a quarterly review to reveal the problem.</p>
-<div class="stat-row">
-  <div class="stat-box"><div class="stat-num">90%+</div><div class="stat-label">active usage at 30 days (champion cohort model)</div></div>
-  <div class="stat-box"><div class="stat-num">2 wks</div><div class="stat-label">champion cohort head start</div></div>
-  <div class="stat-box"><div class="stat-num">3×</div><div class="stat-label">faster full adoption vs. big-bang rollout</div></div>
-</div>
-<h2>Principle 5: Have one person who owns the rollout</h2>
-<p>CRM rollouts fail when responsibility is diffused. "IT owns the technical setup, HR owns the training, managers own the adoption" — when something goes wrong, no one fixes it because it belongs to someone else.</p>
-<p>Designate a single rollout owner. This person is accountable for the usage metrics, runs the daily check-ins in the first two weeks, and is the single point of contact for every question about the system. They don't have to be the most technical person in the room. They have to be organised, responsive, and trusted by the team.</p>
-<h2>Principle 6: Declare victory and transition to steady state</h2>
-<p>Adoptions that never formally end have a way of quietly decaying. Decide in advance what success looks like — specific metric targets, at a specific date — and when you hit it, mark the milestone deliberately. Recognise the team publicly, remove the training wheels, and shift from a rollout posture to a business-as-usual one.</p>
-<p>This matters psychologically. Teams that feel like they're always "implementing the new system" never fully commit to it. Teams that have clearly crossed the line and are now just doing their job with a new tool embed it much more durably.</p>
-<hr>
-<p>None of this is rocket science, but it does require intentionality. The CRM graveyard is full of systems that were technically fine and organisationally neglected. Do the human work first, and the technology part mostly takes care of itself.</p>`
-      },
-      {
-        title: 'Visit frequency: the metric that predicts churn before it happens',
-        excerpt: 'Our analysis of 120K+ customer visits revealed a clear signal: a drop in visit frequency precedes churn by an average of 47 days.',
-        cat: 'sales', catLabel: 'Sales', catClass: 'cat-sales',
-        author: 'Sadie F.', authorInitials: 'SM', authorColor: '#374151',
-        date: 'Aug 18, 2025', read: '6 min read',
-        grad: 'linear-gradient(135deg,#064e3b 0%,#059669 100%)',
-        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>',
-        body: `<p>We've been sitting on this data for a while, trying to make sure we were interpreting it correctly before putting it out into the world. The signal is clear enough now that we're confident sharing it.</p>
-<p>Across more than 120,000 customer visits logged in SafiTrack over the past eighteen months, we found a consistent pattern: accounts that churned almost always showed a measurable drop in visit frequency before any other leading indicator moved. The average lead time was 47 days.</p>
-<h2>What the data actually shows</h2>
-<p>We segmented churned accounts and compared their visit frequency in the 90 days before cancellation against their historical baseline. Two patterns emerged clearly.</p>
-<p>First, the gradual drift: accounts where visit frequency slowly declined over two or three months before churn. These customers weren't vocal. They didn't submit support tickets or call to complain. They just became gradually less visited — often because the rep had deprioritised them as shinier opportunities took up more calendar space.</p>
-<p>Second, the sudden drop: accounts where a previously healthy visit cadence fell off a cliff, usually within a four-week window. These often correlated with rep turnover, territory reorganisations, or periods where the rep was pulled into a large new account pursuit.</p>
-<div class="callout"><strong>The 47-day window</strong> On average across the dataset, visit frequency decline began 47 days before churn. That's a meaningful intervention window — enough time to identify at-risk accounts, re-engage them, and course-correct before the relationship is lost. But it requires that someone is actually watching the metric.</div>
-<h2>Why this metric matters more than NPS or support tickets</h2>
-<p>Customer health scores typically rely on product usage data, NPS surveys, and support interaction volume. These are useful but they have a lag problem: by the time a customer is submitting complaints or showing poor NPS scores, they're often already mentally out the door.</p>
-<p>Visit frequency is different because it's a measure of your behaviour, not theirs. You control it. And because you control it, a decline is an early signal that something has shifted — a de-prioritisation decision, a capacity constraint, a relationship that's been taken for granted — before the customer has had the chance to respond to that neglect.</p>
-<h2>How to act on this signal</h2>
-<p>The practical implication is straightforward. For any customer relationship with a defined visit cadence, you need a system that alerts you when that cadence is breaking down — before it's been broken for two months.</p>
-<p>In SafiTrack, this is what the visit health alert does: it compares actual visit frequency against each account's target cadence and flags accounts that are falling behind. The idea is to surface the "quiet drift" accounts — the ones that are easy to neglect precisely because they're not shouting at you — before the drift becomes a problem.</p>
-<h2>The counterintuitive finding on account size</h2>
-<p>We expected the pattern to be stronger for smaller accounts, which are often more dependent on the relationship quality and less locked in by contractual complexity. The data said the opposite. The 47-day early warning was actually more pronounced in mid-market accounts — the ones large enough to have multiple internal stakeholders but not large enough to have a dedicated customer success manager.</p>
-<p>Our theory: with enterprise accounts, relationship health is tracked obsessively because the stakes are visible. With SMBs, the churn decision often happens quickly with limited warning. It's the mid-market accounts, caught in the middle, where the gradual drift pattern is most predictable and most preventable.</p>
-<h2>A caveat on causality</h2>
-<p>We should be clear: visit frequency decline is a correlate of churn, not necessarily a cause. It's possible — perhaps likely — that in some cases, both the declining visits and the eventual churn are downstream effects of some third factor: a shift in the customer's business priorities, a budget cycle, a new decision-maker who doesn't value the relationship the same way.</p>
-<p>That doesn't make the metric less useful. Even if declining visits are a symptom rather than a cause, they're a symptom you can observe and respond to, which puts you in a far better position than waiting for the cancellation notice.</p>`
-      },
-      {
-        title: 'Route optimisation 101: saving 2 hours per rep per day',
-        excerpt: 'Manual route planning wastes time your reps should be spending with customers. Here\'s how smart routing cuts drive time by up to 35%.',
-        cat: 'fieldops', catLabel: 'Field Ops', catClass: 'cat-fieldops',
-        author: 'Rishi S.', authorInitials: 'RS', authorColor: '#6d28d9',
-        date: 'Jul 9, 2025', read: '9 min read',
-        grad: 'linear-gradient(135deg,#431407 0%,#ea580c 100%)',
-        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>',
-        body: `<p>Ask most field reps how they plan their day and the answer is usually some variation of: they look at their list of visits, they think about where things are, and they figure out a rough order that makes geographic sense. Then they drive.</p>
-<p>This process takes between twenty and forty-five minutes for a typical rep planning a full day. And the route they end up with is almost never optimal — not because reps are bad at planning, but because route optimisation is a genuinely hard combinatorial problem that human intuition handles poorly.</p>
-<h2>The travelling salesman problem, briefly</h2>
-<p>Route optimisation is a variant of the travelling salesman problem: given a set of locations, find the shortest route that visits all of them. Even with ten stops, there are over 3.6 million possible orderings. The human brain is not built to evaluate 3.6 million options before 8am.</p>
-<p>Algorithms designed for this specific problem can find solutions within a few percent of optimal in milliseconds. The gap between a human-planned route and an algorithm-planned route across a full working week translates, in our data, to between 90 minutes and two hours of avoidable drive time per day per rep.</p>
-<div class="stat-row">
-  <div class="stat-box"><div class="stat-num">~2 hrs</div><div class="stat-label">daily drive time saved per rep</div></div>
-  <div class="stat-box"><div class="stat-num">35%</div><div class="stat-label">reduction in total mileage</div></div>
-  <div class="stat-box"><div class="stat-num">+1.4</div><div class="stat-label">extra customer visits per day</div></div>
-</div>
-<h2>What smart routing accounts for</h2>
-<p>Basic route optimisation just minimises distance. A good route planner for field sales needs to account for more than that.</p>
-<p><strong>Time windows.</strong> Customers have availability constraints. A route that visits everyone in the optimal geographic order is useless if it arrives at the key account at the wrong time. Real optimisation respects time windows for each stop.</p>
-<p><strong>Visit priority.</strong> Not all stops are equal. A high-priority renewal visit might justify a geographic detour. A brief check-in visit should be slotted opportunistically on the way to somewhere else.</p>
-<p><strong>Dwell time.</strong> Different visits take different amounts of time. A route plan that assumes every stop is thirty minutes and doesn't account for a two-hour strategic review will fall apart by lunchtime.</p>
-<p><strong>Traffic patterns.</strong> A route that looks efficient on a static map can be painful in real traffic. Good optimisation uses live or historical traffic data, not just straight-line distance.</p>
-<h2>The "nearby opportunities" feature most reps don't use</h2>
-<p>One of the highest-leverage features in SafiTrack's routing is the nearby opportunities view. While a rep is completing a visit, the app surfaces prospect accounts within a defined radius that match their ideal customer profile and haven't been visited recently.</p>
-<p>This turns dead time — the drive between appointments, the window when a meeting ends early — into prospecting time. Reps in our highest-performing cohort average 1.4 more customer interactions per day than reps who plan manually, and a significant portion of that difference comes from opportunistic visits that wouldn't have happened without the nearby prompt.</p>
-<h2>The change management piece</h2>
-<p>A lot of reps push back on algorithmic routing at first. The feeling of having a computer rearrange your carefully planned day is, understandably, not immediately welcome. The resistance usually fades within about a week when the time savings become tangible — but it's worth acknowledging upfront rather than trying to mandate adoption.</p>
-<p>The framing that works best: the algorithm handles the logistics so you can focus on the relationships. You still decide who to visit and when the customer has a genuine time constraint. The routing handles the sequencing puzzle that's not really a high-value use of your brain.</p>
-<h2>What two hours actually buys</h2>
-<p>Two hours per rep per day is not a small number. Across a team of ten reps over a working year, that's roughly 4,800 hours — the equivalent of two and a half full-time employees, recovered from windshield time and redirected toward actual selling. Even if only a fraction of that time converts to incremental customer visits, the pipeline impact is material.</p>
-<p>The reps who resist it most in the beginning are often the ones who end up using it most enthusiastically once they've seen their numbers at the end of a month.</p>`
-      },
-      {
-        title: 'How we cut our CI build time from 18 minutes to 4',
-        excerpt: 'A practical walkthrough of the caching strategies, test parallelisation, and Docker layer tricks that transformed our developer experience.',
-        cat: 'engineering', catLabel: 'Engineering', catClass: 'cat-engineering',
-        author: 'Rishi S.', authorInitials: 'RS', authorColor: '#6d28d9',
-        date: 'Jun 3, 2025', read: '10 min read',
-        grad: 'linear-gradient(135deg,#2e1065 0%,#7c3aed 100%)',
-        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>',
-        body: `<p>Eighteen minutes. That was how long our CI pipeline took to run at the start of this year. Doesn't sound catastrophic, but when you're merging five to ten times a day and the pipeline gates every merge, eighteen minutes of waiting adds up to a genuine drag on how fast the team can ship.</p>
-<p>We got it to four minutes. Here's exactly what we did.</p>
-<h2>Step 1: Profile before you optimise</h2>
-<p>The temptation when a build is slow is to immediately start guessing at what to fix. We resisted this and spent a day just profiling the pipeline to understand where the time was actually going.</p>
-<p>The breakdown was roughly: 6 minutes on dependency installation, 5 minutes on building the Docker image, 4 minutes running the test suite, 3 minutes on linting and type-checking. A few minutes miscellaneous. This told us immediately that dependency installation was the single biggest target — almost a third of the total time.</p>
-<h2>Step 2: Cache your dependencies properly</h2>
-<p>We were on GitHub Actions, and our caching setup was... technically present but not doing much. The cache key was based on the lock file, which is correct, but we were caching the entire <code>node_modules</code> directory, which is large and fragile.</p>
-<p>The fix was switching to restoring the npm cache (the tarballs GitHub Actions caches automatically) rather than caching <code>node_modules</code> directly, and adding a fallback cache key for the base OS image so that a lock file change didn't require downloading everything from scratch.</p>
-<p>This alone cut about 4 minutes off the dependency installation step on cache hits. Cache miss performance improved too because we were now fetching from GitHub's CDN rather than npm's registry for most packages.</p>
-<h2>Step 3: Fix the Docker layer order</h2>
-<p>Our Dockerfile was doing something you see a lot in projects that grow organically: copying the entire project directory before installing dependencies. This meant that any change to any file — a comment in a component, an updated test — invalidated the dependency layer and forced a full reinstall in the Docker build.</p>
-<p>The fix is mechanical: copy the package files first, run the install, then copy everything else. Any Docker tutorial from the last five years will tell you this. We'd just never gotten around to doing it properly.</p>
-<p>After the fix, the Docker build step went from 5 minutes to under 90 seconds on most commits because only the final COPY instruction was invalidated.</p>
-<h2>Step 4: Parallelise the test suite</h2>
-<p>Our tests were running sequentially on a single GitHub Actions runner. With about 1,400 tests, this was the obvious next target once we'd addressed caching and Docker.</p>
-<p>We split the test suite into four shards running on parallel jobs. The orchestration is straightforward with GitHub Actions' matrix strategy: you define the number of shards and each job receives an index, then Jest (or your test runner of choice) splits the test files accordingly.</p>
-<p>Four parallel jobs running 350 tests each takes about the same wall time as running a single shard with 350 tests. The test step went from 4 minutes to just over 1 minute.</p>
-<h2>Step 5: Move linting out of the critical path</h2>
-<p>Linting and type-checking are important, but they don't need to block deployment in most scenarios. We refactored our pipeline so that type-checking runs as a separate parallel job that doesn't gate the deployment flow. If type errors exist, the job fails visibly and engineers are expected to fix them, but it doesn't add to the critical path time.</p>
-<p>This is a slightly philosophical decision — you could argue linting should block deploys — but in practice our engineers catch type errors before pushing and the runtime cost of occasionally deploying with a type warning is lower than the productivity cost of the wait.</p>
-<div class="stat-row">
-  <div class="stat-box"><div class="stat-num">18 min</div><div class="stat-label">before</div></div>
-  <div class="stat-box"><div class="stat-num">4 min</div><div class="stat-label">after</div></div>
-  <div class="stat-box"><div class="stat-num">78%</div><div class="stat-label">total reduction</div></div>
-  <div class="stat-box"><div class="stat-num">~2 hrs</div><div class="stat-label">daily developer time reclaimed</div></div>
-</div>
-<h2>What we'd still like to improve</h2>
-<p>Four minutes is good. We think there's a path to under two. The remaining low-hanging fruit: test file parallelisation across more shards, incrementally building only the packages that changed in a monorepo setup, and potentially moving some of the heavier integration tests to a separate pipeline that runs on schedule rather than on every push.</p>
-<p>The returns diminish, but so does the friction. Every minute off the build cycle is a minute more the team spends in flow rather than context-switching while waiting for green lights.</p>`
-      },
-      {
-        title: 'SafiTrack changelog: Q1 2026 product updates',
-        excerpt: 'Bulk actions, custom pipeline stages, a redesigned dashboard, and a wave of smaller improvements shipped this quarter.',
-        cat: 'product', catLabel: 'Product', catClass: 'cat-product',
-        author: 'Sadie F.', authorInitials: 'SM', authorColor: '#374151',
-        date: 'Mar 1, 2026', read: '4 min read',
-        grad: 'linear-gradient(135deg,#172554 0%,#3b7bfc 100%)',
-        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"/></svg>',
-        body: `<p>Q1 2026 was one of our most productive shipping quarters. Here's a rundown of everything that landed.</p>
-<h2>Bulk actions across the board</h2>
-<p>This was our most requested feature for most of the last year, and we're glad it's finally out. You can now select multiple contacts, companies, or deals and take actions on all of them at once: reassign owner, update a field, add a tag, move pipeline stage, export. Works across all the main record types and respects your role-based access permissions so reps can only bulk-edit records they own.</p>
-<p>We also added a smarter multi-select interaction on mobile — a long press enters selection mode and then taps add to the selection — since the checkbox affordance that works on desktop doesn't translate well to touch.</p>
-<h2>Custom pipeline stages</h2>
-<p>You can now rename, reorder, add, and remove pipeline stages to match your actual sales process rather than the generic defaults. Each stage supports a custom win probability and you can set required fields that must be completed before a deal can advance — useful if your process requires a demo to be logged before moving to proposal, for example.</p>
-<p>Stage changes are reflected immediately in pipeline reporting, and you can migrate existing deals in bulk when you add or change stages.</p>
-<h2>Redesigned activity dashboard</h2>
-<p>The manager dashboard got a significant redesign this quarter. The old version showed you aggregate numbers; the new version is built around surfacing the accounts and reps that need attention right now.</p>
-<p>The key additions: a visit health heatmap that shows coverage gaps across your account portfolio, a rep activity leaderboard (which can be hidden if it's not the culture you want), and an "accounts at risk" panel that surfaces customers whose visit frequency has dropped below their defined target cadence. This panel runs off the same analysis we wrote about in the visit frequency post — it's the closest thing we have to an early churn warning in the product.</p>
-<h2>Safi AI improvements</h2>
-<p>We've been quietly improving the AI note summaries since the initial release and the quality is meaningfully better now. The key changes: summaries are now structured around action items rather than prose recaps (we found managers and reps both preferred the structured format), and the AI now pulls in context from previous visits to the same account so the summary reflects the ongoing relationship, not just the individual meeting.</p>
-<p>We also added AI-generated suggested follow-up tasks, which appear automatically after a visit is logged. About 60% of suggested tasks are accepted as-is; the rest are either edited or dismissed. We'll keep iterating on the suggestion quality based on acceptance rate patterns.</p>
-<h2>Smaller things worth noting</h2>
-<ul>
-  <li>Calendar sync is now bidirectional — changes made in Google Calendar or Outlook reflect in SafiTrack and vice versa</li>
-  <li>The route planner now supports multi-day route planning for reps who plan their week in advance</li>
-  <li>Company records now show a consolidated timeline of all interactions across all contacts at that company, not just the primary contact</li>
-  <li>Email open and click tracking is now available as a trigger for Safi AI follow-up reminders</li>
-  <li>The iOS widget now shows your next three visits for the day without opening the app</li>
-  <li>Export to CSV now supports custom field mapping and remembers your last configuration</li>
-</ul>
-<h2>What's coming in Q2</h2>
-<p>We're not announcing dates yet, but the things we're furthest along on: a public API with webhook support, deeper HubSpot and Salesforce integrations for teams that run SafiTrack alongside an existing CRM, and a conversational AI assistant for managers that can answer questions about team performance directly in natural language.</p>
-<p>As always, the best way to influence the roadmap is to tell us what's blocking you. The Q1 bulk actions feature was driven almost entirely by customer conversations. We're listening.</p>`
-      },
-      {
-        title: 'The real reason your pipeline forecast is always wrong',
-        excerpt: 'Most pipeline forecasts are optimistic fiction. Here\'s why the problem is structural, not motivational — and what to do about it.',
-        cat: 'sales', catLabel: 'Sales', catClass: 'cat-sales',
-        author: 'Sadie F.', authorInitials: 'SM', authorColor: '#374151',
-        date: 'Feb 19, 2026', read: '7 min read',
-        grad: 'linear-gradient(135deg,#14532d 0%,#166534 100%)',
-        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>',
-        body: `<p>Every sales manager knows the feeling. You go into the quarter with a forecast that feels solid, built from pipeline stages and deal values and rep input. Then the quarter ends and the number is off — sometimes by twenty percent, sometimes by half. You do a post-mortem, identify a few deals that slipped, resolve to forecast better next time. And the same thing happens again.</p>
-<p>The problem isn't that your reps are poor forecasters. It's that the inputs going into your forecast are structurally biased toward optimism, and no amount of manager scepticism can fully correct for that.</p>
-<h2>Where the optimism comes from</h2>
-<p>Pipeline stages are the primary input to most forecasts. A deal at stage four — say, "proposal sent" — gets weighted at sixty percent. Multiply by deal value, sum across all opportunities, adjust for seasonal factors, done. The problem is that a deal being at stage four tells you almost nothing about whether it will close.</p>
-<p>Stage is a measure of activity completed, not buyer commitment. A rep who sends a proposal to someone who hasn't responded in two weeks is in a fundamentally different situation from one who sent a proposal after a buyer explicitly requested it following a competitive review. Both show as "proposal sent." Both get the same sixty percent weighting.</p>
-<p>Reps know this. They also know that the pipeline review conversation is implicitly a performance conversation — a short pipeline is a signal that something is wrong. So deals stay in the pipeline longer than they should, and optimistic close dates get pushed rather than removed.</p>
-<h2>The recency bias problem</h2>
-<p>Human beings are bad at weighting base rates against specific narrative. When a rep tells you about a deal — the history, the relationship, the compelling event, the champion — that narrative feels real in a way that historical close rates don't. You end up anchoring on the story of the deal rather than on the statistical likelihood of deals at this stage, at this velocity, from this type of account, actually closing.</p>
-<p>The fix isn't to stop listening to deal narratives. It's to counterbalance them with the base rate data your CRM has been silently accumulating. How many deals that reached stage four in the last twelve months actually closed? What was the average time from stage four to close, and how does that compare to this deal's age in stage? These numbers are almost always sobering.</p>
-<h2>What a better forecast actually requires</h2>
-<p>The forecasts that hold up consistently are built on activity signals, not stage labels. Deals where the buyer has taken a recent action — responded to an email, attended a meeting, shared an internal champion, requested a security review — close at materially higher rates than deals where the last activity was the rep sending something.</p>
-<div class="callout"><strong>A useful mental model</strong> Split your pipeline into two buckets: deals with recent buyer-initiated activity in the last fourteen days, and everything else. Your confident forecast is the first bucket, heavily discounted. Everything else is upside. Most managers find this produces a more accurate number than their weighted pipeline, even though it feels more conservative.</div>
-<p>The second change is to create a formal path out of the pipeline that isn't a loss. "Nurture" or "pending" — a place deals go when they're not dead but aren't genuinely active. This reduces the pressure on reps to keep deals at inflated stages and gives you a cleaner picture of what's actually in motion.</p>
-<h2>The manager's role</h2>
-<p>Better forecasting is partly a process problem and partly a culture one. If reps believe that a lower forecast will trigger a performance conversation, they'll sandbag or inflate, depending on what they perceive as safer. The only way to get honest pipeline data is to make honesty safe — to separate the pipeline health conversation from the rep performance conversation, and to reward accurate forecasting regardless of the size of the number.</p>
-<p>This is harder than it sounds. But it's the actual lever. Everything else is just noise reduction on top of biased inputs.</p>`
-      },
-      {
-        title: 'How we moved from REST to GraphQL for our mobile clients',
-        excerpt: 'Our REST API was showing its age on mobile. Here\'s the tradeoffs we hit, what we got right, and what we\'d do differently.',
-        cat: 'engineering', catLabel: 'Engineering', catClass: 'cat-engineering',
-        author: 'Rishi S.', authorInitials: 'RS', authorColor: '#6d28d9',
-        date: 'Feb 5, 2026', read: '12 min read',
-        grad: 'linear-gradient(135deg,#2e1065 0%,#7c3aed 100%)',
-        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
-        body: `<p>For most of SafiTrack's life, our mobile app talked to the same REST API as everything else. That was fine when the app was thin — a few screens, mostly read-heavy, occasional writes. It stopped being fine when we started building the new mobile experience we wrote about last year.</p>
-<p>The core problem was over-fetching. A rep opening the dashboard on mobile would trigger six separate network requests, each returning more data than the screen actually needed. On a decent LTE connection this was merely inefficient. On the patchy rural networks our field reps actually work in, it was a real usability problem.</p>
-<h2>Why REST was the wrong shape for our mobile data needs</h2>
-<p>Consider what the visit log screen needs: the rep's name and avatar, a list of today's visits with customer name, address, time, and status, and a count of pending tasks. That data lives across four different REST resources — <code>/users/me</code>, <code>/visits</code>, <code>/customers</code>, <code>/tasks</code>. Each request is independently paginated, requires its own error handling, and has to be joined on the client.</p>
-<p>We tried solving this with purpose-built endpoint aggregates — a <code>/dashboard-summary</code> endpoint that returned everything the dashboard needed in one call. That worked, but it created a new problem: every time the dashboard UI changed, the backend team had to update the aggregate endpoint. The frontend and backend were tightly coupled through a growing collection of special-purpose endpoints that didn't compose and couldn't be reused.</p>
-<h2>The migration approach</h2>
-<p>We didn't do a big bang rewrite. We introduced GraphQL as a separate layer in front of the existing REST services and migrated screens one at a time, keeping REST available as the fallback throughout. This let us ship incrementally and roll back individual screens without touching anything else.</p>
-<p>The GraphQL server is a thin translation layer — it receives queries, fans them out to the relevant REST services (or directly to the database for the hot paths we've since optimised), assembles the response, and returns it. We're using Apollo Server, which was the obvious choice given our Node.js backend, and the integration with our existing auth middleware was straightforward.</p>
-<pre><code># Example: what the dashboard query looks like now
-query DashboardSummary {
-  me {
-    name
-    avatarInitials
-  }
-  todaysVisits {
-    id
-    customer { name address }
-    scheduledAt
-    status
-  }
-  pendingTaskCount
-}</code></pre>
-<p>One request, exactly the fields the screen needs, no client-side joining. On a slow connection, the dashboard load time dropped by just over half.</p>
-<h2>Where we got it wrong: N+1 queries</h2>
-<p>The N+1 problem in GraphQL is well-documented but we still walked straight into it. Our initial <code>todaysVisits</code> resolver fetched the visit list, then for each visit made a separate call to resolve the customer. Fifty visits meant fifty customer fetches. We caught it in staging when we looked at the query logs and saw the volume of database calls and fixed it with DataLoader — Facebook's batching utility — but it added a sprint's worth of work we hadn't planned for.</p>
-<p>If you're doing this migration: set up query complexity analysis and resolver-level logging before you ship to production, not after. The problems are invisible until they're not.</p>
-<h2>What we got right: schema-first design</h2>
-<p>We wrote the schema before writing any resolvers, and we treated the schema review as a product conversation, not just an engineering one. The product manager and mobile lead both sat in the schema design sessions, which meant we caught several cases where the shape of the data we were planning to expose didn't match how the screens actually needed to use it.</p>
-<p>This sounds obvious but it's the opposite of how REST API design usually goes — where the backend exposes what it has and the frontend adapts. Forcing the shape conversation upfront saved us significant rework.</p>
-<h2>The verdict after six months</h2>
-<p>We're not moving the web client to GraphQL. The REST API works fine for our dashboard and the overhead of maintaining both isn't worth it for screens that aren't network-constrained. GraphQL is mobile-only for now and will probably stay that way.</p>
-<p>If you're considering the same migration: the benefits are real on mobile, the complexity is real everywhere, and the N+1 problem will get you if you're not watching for it. Go schema-first, instrument everything, and don't try to migrate everything at once.</p>`
-      },
-      {
-        title: 'What separates a good sales manager from a great one',
-        excerpt: 'The gap between good and great management in field sales isn\'t about harder work or better scripts. It\'s about where you focus your attention.',
-        cat: 'sales', catLabel: 'Sales', catClass: 'cat-sales',
-        author: 'Sadie F.', authorInitials: 'SM', authorColor: '#374151',
-        date: 'Jan 7, 2026', read: '6 min read',
-        grad: 'linear-gradient(135deg,#064e3b 0%,#059669 100%)',
-        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>',
-        body: `<p>The managers who get called "great" by their teams tend to share a few habits that their merely good counterparts don't. None of these habits are secret. Most are things every manager would say they agree with in principle. The difference is in the doing.</p>
-<h2>They manage the activity, not just the outcome</h2>
-<p>Every sales manager cares about numbers. Great managers understand that the number is a lagging indicator — by the time it shows up in the monthly report, the window to influence it has already closed. What you can influence is the activity: visits made, calls logged, follow-ups sent, pipeline reviewed. A manager who is watching activity weekly can intervene when patterns break. A manager who only watches revenue is always three months behind the problem.</p>
-<p>This sounds obvious until you're in the middle of a quarter with a full calendar and the easiest version of the job is to check in on the big deals and let everything else run. The discipline to look at activity data for every rep, every week, even when the numbers are green — that's what separates the managers who build durable teams from the ones who inherit good reps and coast.</p>
-<h2>They invest time in the middle of the distribution</h2>
-<p>A common mistake is concentrating all coaching energy on either the bottom of the team (the reps at risk of a PIP) or the top (the star performers you're trying to keep happy). The most leverage, almost always, is in the middle — the competent reps who are performing adequately but who have room to move meaningfully if someone actually works with them.</p>
-<p>A rep who moves from adequate to good represents a larger absolute gain than a struggling rep who moves from poor to adequate. Middle-of-distribution coaching is where the team's overall performance shifts, but it requires patience and the willingness to invest time in people who don't feel urgent.</p>
-<h2>They give feedback in the field, not in the office</h2>
-<p>Most sales feedback happens in a meeting room, from notes taken two days after a visit the manager heard about secondhand. This is almost useless. The feedback that actually changes behaviour is specific, immediate, and observed firsthand. Great managers spend time in the field with reps — not to take over, but to watch, and then debrief in the car immediately after.</p>
-<blockquote>"You lost the room when you led with pricing. They hadn't agreed on value yet. Let's talk about what you could have done at that moment instead."</blockquote>
-<p>That feedback, given in the car park twenty minutes after it happened, lands differently than the same observation delivered in a weekly one-to-one. The memory is shared, the context is live, and the rep hasn't had time to reconstruct a narrative that protects their ego.</p>
-<h2>They know when to get out of the way</h2>
-<p>The instinct to help — to jump in on a deal, to take a meeting alongside a rep, to add your own suggestions to the proposal — is natural for managers who were previously good individual contributors. It's also frequently counterproductive. Reps who always have a manager to catch their mistakes don't develop the judgment to handle those situations alone. And customers who deal with the manager directly never fully commit to the relationship with the rep.</p>
-<p>The best managers I've observed treat their involvement in a deal as a cost, not a feature. Sometimes the cost is worth paying. More often, the better move is to coach the rep before the meeting, let them run it, and debrief after. The rep learns more, the customer relationship stays where it belongs, and the manager's time isn't a bottleneck.</p>
-<h2>They say the hard thing early</h2>
-<p>Performance problems almost always have a long visible run-up before anyone says anything formal. The manager notices the pattern, decides to give it more time, hopes it self-corrects. It rarely does. By the time the formal conversation happens, months of context have accumulated and the rep feels ambushed because the feedback they're receiving doesn't match the informal signals they've been getting.</p>
-<p>Great managers have the uncomfortable conversation three months earlier, when the pattern is just emerging. That conversation is harder in the moment and almost always better for everyone in the long run. The rep gets a real chance to course-correct. The manager gets to manage rather than document.</p>`
-      },
-      {
-        title: 'A practical guide to sales commission structures that don\'t backfire',
-        excerpt: 'Commission structures shape behaviour in ways that are often invisible until they cause a problem. Getting them right takes more thought than most teams give it.',
-        cat: 'guide', catLabel: 'Guide', catClass: 'cat-guide',
-        author: 'Sadie F.', authorInitials: 'SM', authorColor: '#374151',
-        date: 'Dec 11, 2025', read: '10 min read',
-        grad: 'linear-gradient(135deg,#052e16 0%,#166534 100%)',
-        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>',
-        body: `<p>Sales commission structures seem like a straightforward business problem. Pay people for what they produce, align incentives with company goals, don't overcomplicate it. In practice, a poorly designed commission structure is one of the most reliable ways to create exactly the behaviour you were trying to prevent.</p>
-<p>This guide is for sales leaders designing or redesigning a commission structure. It's not a formula — every business has different economics and different sales motions — but it's a set of principles that hold across most field sales contexts.</p>
-<h2>Principle 1: Commissions measure what you count, not what you value</h2>
-<p>Every commission structure has unintended consequences because it's impossible to write a formula that perfectly captures everything you actually value. You value revenue, but you also value retention, margin, customer satisfaction, and rep development. Commissions can only pay for what's measured, so they always optimise for a subset of what matters.</p>
-<p>The practical implication: before designing the structure, write down the three or four behaviours you most want to encourage and the two or three you most want to prevent. Then stress-test your proposed structure against both lists. What does a rep who is purely maximising their commission under this structure look like? If that rep is causing problems you don't want, the structure needs adjustment.</p>
-<h2>Principle 2: Cliff structures create end-of-period dysfunction</h2>
-<p>A cliff is a threshold below which commission rate is lower — for example, zero commission until you hit 70% of quota, then a flat rate above it. Cliffs are common because they feel like they prevent paying commission on inadequate performance. What they actually do is create a binary at the threshold that distorts behaviour dramatically in the final weeks of every period.</p>
-<p>Reps close to but below the cliff will do almost anything to cross it — including pushing deals that aren't ready, offering discounts they shouldn't, or pulling forward Q1 commitments into Q4. Reps who miss the cliff by a margin in the first half of the period often give up on the period entirely and start sandbagging for the next one.</p>
-<p>A smoother accelerator structure — where commission rate increases gradually as attainment rises, with no cliff — produces more predictable behaviour throughout the quarter and almost the same economic outcome for the company.</p>
-<h2>Principle 3: Complexity is a tax on trust</h2>
-<p>Every additional variable in a commission structure is a variable reps have to track, model, and potentially dispute. Structures with product-specific rates, territory modifiers, team bonuses, and multi-year deal haircuts quickly become something reps can't calculate themselves. When a rep can't verify their own commission, they either distrust the number or spend significant time auditing it — neither of which is where you want their mental energy.</p>
-<div class="callout"><strong>The pub test</strong> A useful heuristic: can a rep explain their commission structure to a friend at the pub without needing a spreadsheet? If not, it's too complex. Simplicity isn't just administratively convenient — it's a trust signal. Reps who understand exactly how they're being paid focus on selling. Reps who don't focus on their commission statement.</div>
-<h2>Principle 4: Separate new business from retention</h2>
-<p>Many field sales teams pay commission on both new logo acquisition and renewal revenue from the same pool. This creates a consistent problem: reps learn quickly that renewals are lower-effort than new business, and they tilt their time accordingly. Your most productive reps become account managers by stealth.</p>
-<p>A cleaner structure separates the two motions with different rates that reflect the actual effort required. New business commission is higher because the work is harder and riskier. Renewal commission is lower but reliable — it rewards reps for maintaining the relationships they built. The separation is explicit about what the company values and removes the subtle incentive to coast on the existing book.</p>
-<h2>Principle 5: Cap structures punish your best reps</h2>
-<p>Commission caps — maximum earnings regardless of attainment — seem financially prudent. In practice they cause two problems. First, they remove incentive to push past the cap, which means your highest-performing reps slow down at exactly the point where you'd most like them to accelerate. Second, once a cap is known in the market, it becomes a recruitment liability — the best reps, who know they can produce above cap, will go where earnings are uncapped.</p>
-<p>If the concern is that a rep might earn an "embarrassing" amount because of a windfall deal or a territory anomaly, the right fix is to address the anomaly — adjust territories, normalise for windfall accounts, build in deal size modifiers. Not to cap the upside for everyone.</p>
-<h2>Getting the review cycle right</h2>
-<p>Commission structures should be reviewed annually at minimum, and redesigned whenever the sales motion changes significantly. A structure designed for a transactional product doesn't work for a complex enterprise sale. A structure designed for a two-person team starts generating dysfunction at twenty people.</p>
-<p>The review should include the reps, not just leadership. The people running the structure every day see the dysfunction it creates most clearly. Ignoring that input produces structures that look logical on paper and create predictable problems in the field.</p>`
-      },
-      {
-        title: 'The on-site visit is not dead. It\'s just overused.',
-        excerpt: 'Remote selling has changed what field visits are for. The teams getting the most from them have changed how they think about when to show up in person.',
-        cat: 'fieldops', catLabel: 'Field Ops', catClass: 'cat-fieldops',
-        author: 'Rishi S.', authorInitials: 'RS', authorColor: '#6d28d9',
-        date: 'Nov 18, 2025', read: '5 min read',
-        grad: 'linear-gradient(135deg,#7c2d12 0%,#c2410c 100%)',
-        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>',
-        body: `<p>The default assumption in field sales for decades was simple: more visits are better. Show up often enough, the relationship deepens, the deal closes, the account stays. And for a long time, with limited alternatives, this was more or less true.</p>
-<p>Remote tools have changed the calculus. A customer who used to require a physical presence to get fifteen minutes with can now have a thirty-minute video call that's more convenient for both parties. The visit is no longer the only way to maintain contact — which means the visit needs to earn its place rather than simply filling a cadence requirement.</p>
-<h2>What visits are actually good for</h2>
-<p>The research on in-person versus remote interaction consistently shows the same thing: physical presence is most valuable when the interaction requires trust-building, navigating complexity, or reading a room. It's less valuable — and often not worth the travel time — for information exchange, status updates, or routine check-ins that have no decision attached.</p>
-<p>Translated to field sales: an on-site visit earns its cost when you're meeting someone new in the buying group, when there's a genuine problem to understand firsthand, when you're trying to close something that has stalled, or when the relationship is at risk. It doesn't earn its cost when you're delivering an update the customer could have read in an email or maintaining visibility for its own sake.</p>
-<h2>The cadence trap</h2>
-<p>Most field sales organisations set visit cadences by account tier: tier one accounts get monthly visits, tier two quarterly, and so on. This is administratively clean and genuinely useful as a baseline. The problem is when cadence becomes the objective rather than the mechanism.</p>
-<p>A rep who is visiting a tier one account monthly because the cadence says to — even when there's nothing to discuss, no decision pending, no relationship repair needed — is burning hours that could go to genuine opportunities. The customer notices too. There is a real phenomenon of "visit fatigue" with over-serviced accounts where the rep becomes background noise.</p>
-<div class="callout"><strong>A better framing</strong> Instead of asking "how often should we visit this account?", ask "what has to be true for a visit to this account to be worth doing?" The answer is usually: something has changed, something is at risk, or something is close to a decision. When none of those are true, a phone call or a brief message is often a better use of everyone's time.</div>
-<h2>What the data shows</h2>
-<p>Looking at SafiTrack data across our customer base, we see a consistent pattern: visits that are triggered by a specific event — a customer inquiry, a deal stage change, a renewal window opening — convert to outcomes at roughly twice the rate of visits made purely to fulfil a cadence. The event-triggered visits are also shorter on average, because both parties came with something specific to discuss.</p>
-<p>The teams with the highest sales efficiency metrics aren't the ones visiting most frequently. They're the ones visiting most purposefully — with a clear reason for being there that the customer would agree with if asked.</p>
-<h2>How to shift the culture</h2>
-<p>This is harder than it sounds because "make more visits" is a deeply ingrained management heuristic. Managers who have always measured activity by visit count need new proxies for effort and engagement. The shift is from measuring visits as an input to measuring visit quality as an output — which requires reps to log what happened and what the next step is, not just that they showed up.</p>
-<p>The reps who adapt to this model quickly tend to find it liberating. They spend less time in cars and more time on conversations that are actually going somewhere. The reps who struggle are usually the ones who were using high visit frequency to avoid the harder work of qualification and follow-through.</p>`
-      },
-      {
-        title: 'How to run a weekly pipeline review that people don\'t hate',
-        excerpt: 'Most pipeline reviews are a slow roll-call of deal statuses that adds stress without adding clarity. Here\'s a format that actually changes outcomes.',
-        cat: 'guide', catLabel: 'Guide', catClass: 'cat-guide',
-        author: 'Sadie F.', authorInitials: 'SM', authorColor: '#374151',
-        date: 'Oct 8, 2025', read: '8 min read',
-        grad: 'linear-gradient(135deg,#052e16 0%,#166534 100%)',
-        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-        body: `<p>The weekly pipeline review is one of the most reliably unpleasant rituals in sales management. An hour of going deal by deal while reps update their numbers in real time, managers ask questions that feel like challenges, and everyone leaves with a vague sense of pressure and no actual change in what anyone is going to do next week.</p>
-<p>It doesn't have to be like this. The format is the problem, not the concept.</p>
-<h2>What the typical review is actually optimising for</h2>
-<p>Most pipeline reviews are designed around the manager's information need — "I need to know where we stand" — rather than around what would make reps more effective. The implicit structure is: rep presents deal, manager interrogates, rep defends, next deal. The rep's job in this meeting is to survive the interrogation, not to solve a problem.</p>
-<p>This produces a predictable set of dynamics. Reps anchor on their best version of each deal's status because the alternative is admitting uncertainty in a room that treats uncertainty as failure. Deals that should be cut from the forecast stay in because removing them feels like losing an argument. The review becomes a negotiation over numbers rather than a thinking session about what to actually do.</p>
-<h2>A format that works better</h2>
-<p>Start from a different premise: the pipeline review exists to help reps close deals, not to hold them accountable for their pipeline. The accountability is real but it's a byproduct of helping, not the purpose.</p>
-<p>This reframe changes the structure. Instead of going deal by deal through everything, focus the meeting on three buckets:</p>
-<ul>
-  <li><strong>Deals that need a decision this week.</strong> Something has to happen — a call made, a proposal sent, a concession approved, a deal cut. These get real discussion time.</li>
-  <li><strong>Deals where the rep is stuck or uncertain.</strong> This is the most valuable category and the one most rarely surfaced in traditional reviews. Create explicit space for reps to say "I don't know what to do here" without it feeling like an admission of failure.</li>
-  <li><strong>Deals that are running cleanly.</strong> These don't need discussion. A quick confirmation that they're on track is enough. Move on.</li>
-</ul>
-<p>Running the review this way takes roughly the same time but produces a completely different quality of conversation. You spend more time on the deals that actually need thinking and almost no time on the ones that don't.</p>
-<h2>The pre-read is non-negotiable</h2>
-<p>The manager needs to review the pipeline data before the meeting, not during it. If you're hearing about deals for the first time in the review, you can't ask the questions that matter. You're gathering information, not making decisions.</p>
-<p>Fifteen minutes with the CRM data the night before — looking at what moved, what didn't, what's overdue for activity — transforms the manager's role in the meeting from information-gatherer to problem-solver. The questions become specific: "I noticed this deal has been at stage three for six weeks and there hasn't been a buyer-side action in three — what happened?" That's a useful question. "Where are we on the Johnson account?" is not.</p>
-<h2>What to do about the deals nobody wants to talk about</h2>
-<p>Every pipeline has deals that are technically active but genuinely stalled — where there's no clear next step, no recent buyer engagement, and no compelling event that would make them move. In a standard review these deals either get skipped or produce vague commitments to "follow up."</p>
-<p>Build a monthly habit of explicitly reviewing the oldest deals in the pipeline with a binary decision: is there a genuine reason to believe this will close in the next ninety days, or does it need to move to a long-term nurture sequence? This conversation is uncomfortable because it feels like accepting failure. In practice, it's the only way to keep the pipeline honest and the team's energy focused on deals that are actually going somewhere.</p>
-<h2>One metric that matters more than you think</h2>
-<p>Track the ratio of deals that advanced to the next stage in a given week versus deals that moved backwards or were removed from the pipeline. A healthy team advances more than it retreats. When that ratio inverts — when more deals are slipping back than moving forward — you have a leading indicator of a bad quarter that's six weeks early enough to do something about.</p>
-<p>Most pipeline metrics are snapshots. This one is directional, and direction is what actually tells you where you're headed.</p>`
-      },
-      {
-        title: 'Building a zero-downtime deployment pipeline on a small team',
-        excerpt: 'We run continuous deployment with a two-engineer on-call rotation. Here\'s how we made that sustainable without sacrificing reliability.',
-        cat: 'engineering', catLabel: 'Engineering', catClass: 'cat-engineering',
-        author: 'Rishi S.', authorInitials: 'RS', authorColor: '#6d28d9',
-        date: 'Aug 27, 2025', read: '9 min read',
-        grad: 'linear-gradient(135deg,#3b0764 0%,#5b21b6 100%)',
-        icon: '<svg width="22" height="22" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>',
-        body: `<p>Field sales software has an interesting deployment constraint that most SaaS products don't: our customers' most critical usage happens during business hours, Monday through Friday, when reps are in the field and managers are watching dashboards. A deployment that causes a two-minute degradation at 10am on a Tuesday is genuinely disruptive in a way that a 10pm degradation isn't.</p>
-<p>We ship multiple times a day and we have a two-engineer on-call rotation. This is how we've made that sustainable.</p>
-<h2>The foundation: feature flags over big deployments</h2>
-<p>The single most impactful change we made to our deployment culture was committing to feature flags for any change that touches user-visible behaviour. New features go out dark — deployed to production but not enabled for any users — and are turned on gradually: internal team first, then a small percentage of accounts, then broader rollout.</p>
-<p>This decouples deployment from release. The deployment risk (does the code work in production?) is separated from the release risk (do users experience something unexpected?). A bad deployment with a feature flag active for one percent of users is annoying. The same deployment with full rollout is an incident.</p>
-<p>We use LaunchDarkly for flag management. It's not cheap but the time it saves in incident response is significant — when something unexpected happens after a release, the first action is to kill the flag, not to roll back a deployment.</p>
-<h2>Blue-green deployments for zero downtime</h2>
-<p>Our production environment runs two identical sets of application servers — blue and green. At any given time, one set is live and one is idle. When we deploy, we deploy to the idle set, run smoke tests against it, and then shift traffic over using our load balancer. If something goes wrong, the shift back to the previous environment takes about thirty seconds.</p>
-<p>The tricky part is database migrations. A blue-green deployment only works if both versions of the application can run against the same database schema simultaneously — which means you can't ship a migration that removes a column the old version still reads from. We follow a three-phase approach:</p>
-<ol>
-  <li>Deploy the new code that handles both old and new schema</li>
-  <li>Run the migration</li>
-  <li>Deploy the cleanup that removes the backwards-compatibility layer</li>
-</ol>
-<p>This adds a deployment to every schema change but removes the class of incidents where a migration and an application change interact badly in production.</p>
-<div class="callout"><strong>On migration testing</strong> We run every migration against a production-sized data clone before it touches production. The clone is rebuilt weekly from an anonymised snapshot. Migrations that take two seconds against a dev database can take eight minutes against real data volumes — and that eight minutes of table locking is an outage.</div>
-<h2>Observability before deployment, not after</h2>
-<p>Our deployment pipeline blocks on health checks, but health checks only tell you the service is running — not that it's running correctly. We instrument every meaningful operation with structured logs and we have dashboards that track our key metrics (visit log latency, API error rate, dashboard load time) in real time.</p>
-<p>When a deployment goes out, whoever deployed it watches the dashboards for ten minutes. Not because we expect something to go wrong — most deployments are completely uneventful — but because ten minutes of human attention immediately post-deploy is the cheapest possible form of incident detection. Automated alerting has a lag. A person watching a graph notices a trend starting.</p>
-<h2>The on-call rotation and why it's sustainable</h2>
-<p>Two engineers on call in rotation sounds brutal. It's sustainable because we've invested heavily in making incidents rare and short. When an incident does happen, the runbook for the ten most common failure modes is on the first page of our internal wiki — not because incidents are common, but because 3am is not the time to be figuring out how to fail over the database from scratch.</p>
-<p>We also have a strict policy: any incident that requires more than thirty minutes to resolve gets a blameless post-mortem the following week, and the output of that post-mortem is always a change to the system (better alerting, a runbook entry, a guard rail in the deployment pipeline) not a change to a person's behaviour. Systems are auditable. "Be more careful" is not.</p>
-<p>The result is an on-call rotation where the average week involves zero pages. Not because we don't deploy often, but because the investment in reliability tooling compounds over time.</p>`
-      }
-    ];
-
-    // ─── Featured post article content ────────────────────────────────────────────
-    var FEATURED = {
-      title: 'Introducing Intelligence Hub: AI-powered field sales insights',
-      cat: 'product', catLabel: 'Product', catClass: 'cat-product',
-      author: 'Rishi S.', authorInitials: 'RS', authorColor: '#6d28d9',
-      date: 'Jan 28, 2026', read: '6 min read',
-      grad: 'linear-gradient(135deg,#0b1220 0%,#1a3a5c 100%)',
-      icon: '<svg width="26" height="26" fill="none" stroke="white" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>',
-      body: `<p>When we started building SafiTrack, the premise was simple: field sales teams needed a better way to log what was happening out there and give managers visibility into it. The data problem was the first problem to solve.</p>
-<p>But data without insight is just storage. And after three years of watching how teams actually use SafiTrack, it became clear that the most valuable thing we could build next wasn't more data collection — it was something that made sense of the data that was already there.</p>
-<p>Today we're launching Intelligence Hub.</p>
-<h2>What Intelligence Hub is</h2>
-<p>Intelligence Hub is a new layer of AI that sits across all your SafiTrack data — visits, pipeline, notes, call logs, route history — and surfaces the things that matter, when they matter, without you having to go looking for them.</p>
-<p>It's built around three capabilities that work together.</p>
-<h3>Opportunity detection</h3>
-<p>Intelligence Hub monitors your account portfolio continuously and surfaces opportunities that might otherwise slip through the cracks. Accounts that haven't been visited in longer than their target cadence. Deals that have been sitting in the same pipeline stage for twice their historical average. Customers whose order frequency has dropped but who haven't flagged any dissatisfaction. These signals existed before — they just required someone to go looking for them. Now they come to you.</p>
-<h3>Visit summaries and next-step suggestions</h3>
-<p>After every visit, the AI generates a structured summary from your notes and any call recordings linked to the visit. Unlike generic summarisation, these summaries are specifically structured around what a field rep needs: what was discussed, what the customer's situation is, what was committed to, and what the suggested next action is.</p>
-<p>The suggested next actions are where we've spent the most time. We've trained the model on patterns from thousands of successful field sales interactions to understand what "good next steps" look like for different types of visits — renewal conversations, first meetings, technical walkthroughs. Early beta users are accepting about 60% of suggestions as-is, with most of the rest being accepted with minor edits.</p>
-<h3>Rep coaching insights</h3>
-<p>This one is sensitive to get right, and we know it. Reps don't want to feel surveilled, and managers don't want a tool that creates anxiety rather than performance.</p>
-<p>The coaching layer is designed around a specific framing: not "here's what you did wrong" but "here's what top performers do differently, and here's how your patterns compare." It surfaces things like: accounts where visit frequency is lower than your peer average, deals where time-to-advance is slower than your own historical baseline, and follow-up response times compared to the team. The goal is self-directed improvement, not surveillance.</p>
-<p>Managers can see team-level aggregate patterns. Individual rep data is visible to the rep and, depending on your settings, their direct manager. We've made the privacy settings explicit and configurable because we believe the tool only works if reps actually trust it.</p>
-<h2>How we built it</h2>
-<p>Intelligence Hub runs on a combination of purpose-built models and general-purpose LLMs, depending on the task. The opportunity detection and pattern analysis runs on fine-tuned models trained on SafiTrack's own anonymised dataset — because the signal patterns in field sales data are specific enough that general models don't perform well without that domain grounding.</p>
-<p>The summarisation and coaching insight generation uses a larger general model with careful prompt engineering and output validation. We've been running this in shadow mode against our own internal usage and with a group of beta customers for the past four months.</p>
-<div class="callout"><strong>On data privacy</strong> Intelligence Hub processes your data entirely within your SafiTrack workspace. We do not use customer data to train our models. Anonymised, aggregate patterns are used to improve the models, but individual customer data never leaves your tenant. This is non-negotiable for us.</div>
-<h2>What's available today and what's coming</h2>
-<p>Today's release includes opportunity detection and visit summaries with next-step suggestions. These are available on all SafiTrack plans, with usage limits that scale by plan tier.</p>
-<p>The rep coaching insights are currently in beta with a limited group of customers. We're being deliberate about the rollout because the human dynamics of this feature require more care than a typical product launch. If you're interested in the beta, there's a waitlist form in the product.</p>
-<p>Later this year, we're planning to extend Intelligence Hub to conversational queries — you'll be able to ask your CRM questions in plain language and get answers drawn from your actual data. We'll have more to share on that when we're closer.</p>
-<p>We're genuinely excited about this one. It's the first time SafiTrack has felt less like a system of record and more like something that actively helps you do your job better. We think that's the right direction for where CRM should go.</p>`
-    };
-
-    // ─── Render grid cards ────────────────────────────────────────────────────────
-    var grid = document.getElementById('postsGrid');
-    var noResults = document.getElementById('noResults');
-    var heroCount = document.getElementById('heroPostCount');
-
-    POSTS.forEach(function (p, i) {
-      var card = document.createElement('div');
-      card.className = 'post-card' + (i === 0 ? ' post-card-wide' : '');
-      card.dataset.cat = p.cat;
-      card.dataset.search = (p.title + ' ' + p.excerpt + ' ' + p.catLabel).toLowerCase();
-      card.dataset.idx = i;
-      card.innerHTML =
-        '<div class="post-card-top">' +
-        '<span class="cat-badge ' + p.catClass + '">' + p.catLabel + '</span>' +
-        '<svg class="post-card-arrow" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 17L17 7M17 7H7M17 7v10"/></svg>' +
-        '</div>' +
-        '<div class="post-card-body">' +
-        '<h3>' + p.title + '</h3>' +
-        '<p class="excerpt">' + p.excerpt + '</p>' +
-        '<div class="post-card-footer post-meta">' +
-        '<div class="author-avatar" style="background:' + p.authorColor + '">' + p.authorInitials + '</div>' +
-        '<span>' + p.author + ' &nbsp;·&nbsp; ' + p.date + ' &nbsp;·&nbsp; ' + p.read + '</span>' +
-        '</div>' +
-        '</div>';
-      card.addEventListener('click', function () { openArticle(p, POSTS.concat([FEATURED])); });
-      grid.appendChild(card);
-    });
-
-    // Wire featured post
-    document.getElementById('featuredPost').addEventListener('click', function(e) {
-      if (!e.target.closest('a')) openArticle(FEATURED, POSTS.concat([FEATURED]));
-    });
-    document.querySelector('.read-link').addEventListener('click', function (e) { e.preventDefault(); openArticle(FEATURED, POSTS.concat([FEATURED])); });
-
-    function updateCount() {
-      var fp = document.getElementById('featuredPost');
-      var fpHidden = fp && fp.classList.contains('fp-hidden');
-      var gridVis = grid.querySelectorAll('.post-card:not(.hidden)').length;
-      var total = gridVis + (fpHidden ? 0 : 1);
-      if (heroCount) heroCount.textContent = total + ' article' + (total === 1 ? '' : 's');
-      noResults.classList.toggle('visible', total === 0);
-    }
-    updateCount();
-
-    // ─── Filter + search ──────────────────────────────────────────────────────────
-    var activecat = 'all', searchq = '';
-
-    function applyFilters() {
-      var fp = document.getElementById('featuredPost');
-      var featCat = 'product';
-      var featSearch = 'intelligence hub ai product'.toLowerCase();
-      var fpCatOk = activecat === 'all' || activecat === featCat;
-      var fpSearchOk = !searchq || featSearch.includes(searchq);
-      if (fp) { fp.classList.toggle('fp-hidden', !(fpCatOk && fpSearchOk)); fp.style.display = (fpCatOk && fpSearchOk) ? '' : 'none'; }
-
-      grid.querySelectorAll('.post-card').forEach(function (card) {
-        var catOk = activecat === 'all' || card.dataset.cat === activecat;
-        var nameOk = !searchq || card.dataset.search.includes(searchq);
-        card.classList.toggle('hidden', !(catOk && nameOk));
-      });
-      updateCount();
-    }
-
-    document.getElementById('blogFilters').addEventListener('click', function (e) {
-      var btn = e.target.closest('.blog-filter');
-      if (!btn) return;
-      document.querySelectorAll('.blog-filter').forEach(function (b) { b.classList.remove('active'); });
-      btn.classList.add('active');
-      activecat = btn.dataset.cat;
-      applyFilters();
-    });
-    document.getElementById('searchInput').addEventListener('input', function (e) {
-      searchq = e.target.value.trim().toLowerCase();
-      applyFilters();
-    });
-
-    // ─── Article reader ───────────────────────────────────────────────────────────
-    var overlay = document.getElementById('articleOverlay');
-    var panel = document.getElementById('articlePanel');
-    var progressBar = document.getElementById('articleProgress');
-    var listingScrollY = 0;
-
-    // reading progress
-    panel.addEventListener('scroll', function() {
-      var scrollable = panel.scrollHeight - panel.clientHeight;
-      var pct = scrollable > 0 ? (panel.scrollTop / scrollable) * 100 : 0;
-      progressBar.style.width = pct + '%';
-    });
-
-    function openArticle(post, allPosts) {
-      // save listing scroll position
-      listingScrollY = window.scrollY;
-
-      document.getElementById('articleMetaRow').innerHTML =
-        '<span class="cat-badge ' + post.catClass + '">' + post.catLabel + '</span>';
-      document.getElementById('articleTitle').textContent = post.title;
-      document.getElementById('articleReadTime').textContent = post.read;
-
-      // pull first paragraph as lede, rest as body
-      var bodyHTML = post.body;
-      var firstPEnd = bodyHTML.indexOf('</p>');
-      var lede = '', rest = bodyHTML;
-      if (firstPEnd !== -1) {
-        lede = bodyHTML.substring(3, firstPEnd);
-        rest = bodyHTML.substring(firstPEnd + 4);
-      }
-      document.getElementById('articleLede').innerHTML = lede;
-      document.getElementById('articleContent').innerHTML = rest;
-
-      document.getElementById('articleByline').innerHTML =
-        '<div class="article-byline-avatar" style="background:' + post.authorColor + '">' + post.authorInitials + '</div>' +
-        '<div class="article-byline-info">' +
-        '<span class="article-byline-name">' + post.author + '</span>' +
-        '<span class="article-byline-meta">' + post.date + ' &nbsp;·&nbsp; ' + post.read + '</span>' +
-        '</div>';
-
-      // more posts — pick 3, prioritise same category first
-      var moreGrid = document.getElementById('articleMoreGrid');
-      var pool = allPosts.filter(function(p) { return p.title !== post.title; });
-      var sameCat = pool.filter(function(p) { return p.cat === post.cat; });
-      var other = pool.filter(function(p) { return p.cat !== post.cat; });
-      var picks = sameCat.concat(other.sort(function() { return .5 - Math.random(); })).slice(0, 3);
-      moreGrid.innerHTML = picks.map(function(p) {
-        return '<div class="article-more-card" data-title="' + p.title.replace(/"/g,'&quot;') + '">' +
-          '<span class="cat-badge ' + p.catClass + '">' + p.catLabel + '</span>' +
-          '<h4>' + p.title + '</h4>' +
-          '<div class="meta">' +
-          '<div class="author-avatar" style="background:' + p.authorColor + ';width:18px;height:18px;font-size:7px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:#fff;font-weight:800;flex-shrink:0;vertical-align:middle;margin-right:5px">' + p.authorInitials + '</div>' +
-          p.author + ' &nbsp;·&nbsp; ' + p.read +
-          '</div>' +
-          '</div>';
-      }).join('');
-      moreGrid.querySelectorAll('.article-more-card').forEach(function(card) {
-        card.addEventListener('click', function() {
-          var title = card.dataset.title;
-          var found = allPosts.find(function(p) { return p.title === title; });
-          if (found) openArticle(found, allPosts);
-        });
-      });
-
-      panel.scrollTop = 0;
-      progressBar.style.width = '0%';
-      overlay.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeArticle() {
-      overlay.classList.remove('open');
-      document.body.style.overflow = '';
-      // restore listing scroll position
-      window.scrollTo(0, listingScrollY);
-    }
-
-    document.getElementById('articleClose').addEventListener('click', closeArticle);
-    overlay.addEventListener('click', function(e) { if (e.target === overlay) closeArticle(); });
-    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeArticle(); });
-
-    // ─── Newsletter ───────────────────────────────────────────────────────────────
-    var nlBtn = document.getElementById('nlBtn');
-    var nlEmail = document.getElementById('nlEmail');
-    var nlForm = document.getElementById('nlForm');
-    var nlSuccessEl = document.getElementById('nlSuccess');
-
-    nlBtn.addEventListener('click', function () {
-      var val = nlEmail.value.trim();
-      if (!val || !val.includes('@')) { nlEmail.focus(); nlEmail.style.borderColor = '#f43f5e'; return; }
-      nlEmail.style.borderColor = '';
-      nlBtn.textContent = '...';
-      nlBtn.disabled = true;
-      setTimeout(function () {
-        nlForm.style.display = 'none';
-        nlSuccessEl.style.display = 'flex';
-        nlBtn.textContent = 'Subscribe';
-        nlBtn.disabled = false;
-      }, 600);
-    });
-    nlEmail.addEventListener('keydown', function (e) { if (e.key === 'Enter') nlBtn.click(); });
-
-    // ─── Navbar ───────────────────────────────────────────────────────────────────
-    (function () {
-      var mb = document.querySelector('.mobile-menu-btn'),
-        mo = document.querySelector('.mobile-nav-overlay'),
-        mc = document.querySelector('.mobile-close-btn');
-      if (mb && mo) {
-        mb.addEventListener('click', function () { mo.classList.add('active'); });
-        if (mc) mc.addEventListener('click', function () { mo.classList.remove('active'); });
-        mo.addEventListener('click', function (e) { if (e.target === mo) mo.classList.remove('active'); });
-      }
-      window.addEventListener('scroll', function () {
-        var nb = document.getElementById('navbar');
-        if (nb) nb.classList.toggle('scrolled', window.scrollY > 20);
-      });
-    })();
-  </script>
+    </dialog>
 </body>
 
 </html>
