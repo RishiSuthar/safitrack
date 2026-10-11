@@ -1,1002 +1,462 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pricing - SafiTrack CRM</title>
-    <meta name="description"
-        content="Simple, transparent pricing for SafiTrack CRM. Free, Core, Pro, and Enterprise plans for sales teams of every size.">
+    <title>Pricing | SafiTrack</title>
+    <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
+    <meta name="description" content="Simple pricing for field sales teams. Free for up to 2 users; Core, Pro and Enterprise plans as you grow.">
+    <meta name="theme-color" content="#ffffff">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://safitrack.netlify.app/pages/pricing.html">
-    <meta property="og:title" content="Pricing — SafiTrack CRM">
-    <meta property="og:description"
-        content="Simple, transparent pricing for SafiTrack CRM. Free, Core, Pro, and Enterprise plans for sales teams of every size.">
+    <meta property="og:title" content="Pricing | SafiTrack">
+    <meta property="og:description" content="Simple pricing for field sales teams. Free for up to 2 users; Core, Pro and Enterprise plans as you grow.">
     <meta property="og:image" content="https://safitrack.netlify.app/assets/social-preview.png">
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://safitrack.netlify.app/pages/pricing.html">
-    <meta property="twitter:title" content="Pricing — SafiTrack CRM">
-    <meta property="twitter:description"
-        content="Simple, transparent pricing for SafiTrack CRM. Free, Core, Pro, and Enterprise plans for sales teams of every size.">
+    <meta property="twitter:title" content="Pricing | SafiTrack">
+    <meta property="twitter:description" content="Simple pricing for field sales teams. Free for up to 2 users; Core, Pro and Enterprise plans as you grow.">
     <meta property="twitter:image" content="https://safitrack.netlify.app/assets/social-preview.png">
-    <link rel="icon" type="image/x-icon" href="../assets/icons/whiteblue.ico">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="../landing.css">
-    <link rel="stylesheet" href="../landing-scroll.css">
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../home.css">
+    <link rel="stylesheet" href="../site.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js" defer></script>
     <script src="../config.js"></script>
-    <style>
-        /* Pricing Specific overrides if needed, otherwise using landing.css */
-        .pricing-page-hero {
-            padding: 120px 0 40px;
-            /* tightened to pull plans closer to divider */
-            text-align: center;
-            background: none;
-        }
+    <script src="../home.js" defer></script>
 
-        /* Plan comparison styles */
-        .plan-comparison .section-title {
-            font-size: 28px;
-        }
-
-        .comparison-wrapper {
-            margin-top: 8px;
-        }
-
-        .comparison-table th {
-            font-weight: 700;
-            padding: 12px 16px;
-            color: var(--text-primary);
-        }
-
-        .comparison-table td {
-            padding: 14px 16px;
-            color: var(--text-primary);
-        }
-
-        .comparison-table tbody tr {
-            transition: background .15s ease;
-        }
-
-        .comparison-table tbody tr:nth-child(odd) {
-            background: rgba(0, 0, 0, 0.02);
-        }
-
-        .comparison-table button {
-            padding: 8px 14px;
-            border-radius: 8px;
-        }
-
-        @media (max-width: 720px) {
-            .comparison-table {
-                min-width: 640px;
-            }
-        }
-    </style>
 </head>
 
 <body>
-    <!-- Navigation -->
-    <nav class="navbar" id="navbar">
-        <div class="container">
-            <div class="nav-content">
-                <div class="nav-left">
-                    <a href="../index.html" class="logo">
-                        <img src="../assets/icons/transparentMain.png" alt="SafiTrack">
-                    </a>
+    <a class="skip-link" href="#main">Skip to content</a>
 
-                    <!-- Desktop Links -->
-                    <div class="nav-links">
-                        <div class="nav-item nav-features">
-                            <a href="#" class="nav-link-toggle">Features
-                                <span class="nav-caret" aria-hidden="true">
-                                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                </span>
-                            </a>
-                            <div class="mega-menu" aria-hidden="true">
-                                <div class="mega-content-grid">
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Platform</div>
-                                        <div class="mega-items-grid">
-                                            <a href="features/safi-ai-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path
-                                                            d="M12 2l2.4 7.4L22 12l-7.6 2.6L12 22l-2.4-7.4L2 12l7.6-2.6z" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Safi AI</div>
-                                                    <div class="mega-desc">AI insights native to your CRM</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/opportunities-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                                                        <path d="M2 17l10 5 10-5" />
-                                                        <path d="M2 12l10 5 10-5" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Pipelines</div>
-                                                    <div class="mega-desc">Visual deal tracking & management</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/companies-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
-                                                        <path d="M9 22v-4h6v4" />
-                                                        <path d="M8 6h.01" />
-                                                        <path d="M16 6h.01" />
-                                                        <path d="M8 10h.01" />
-                                                        <path d="M16 10h.01" />
-                                                        <path d="M8 14h.01" />
-                                                        <path d="M16 14h.01" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Companies</div>
-                                                    <div class="mega-desc">Complete organization context</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/people-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-                                                        <circle cx="9" cy="7" r="4" />
-                                                        <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-                                                        <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">People</div>
-                                                    <div class="mega-desc">Unified contact management</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
+    <!-- ============ Navigation ============ -->
+    <header class="nav" id="nav">
+        <div class="wrap nav-inner">
+            <a href="/" class="nav-logo" aria-label="SafiTrack home">
+                <img src="../assets/icons/transparentMain.png" alt="SafiTrack" width="108" height="25">
+            </a>
 
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Operations</div>
-                                        <div class="mega-items-grid">
-                                            <a href="features/sales-visits-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                                                        <circle cx="12" cy="10" r="3" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Sales visits</div>
-                                                    <div class="mega-desc">Field activity & visit logging</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/route-plans-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <circle cx="6" cy="19" r="3" />
-                                                        <path
-                                                            d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
-                                                        <circle cx="18" cy="5" r="3" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Route plans</div>
-                                                    <div class="mega-desc">Optimized field routing</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/technician-visits-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path
-                                                            d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Service visits</div>
-                                                    <div class="mega-desc">Post-sales technician tracking</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/tasks-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <polyline points="9 11 12 14 22 4" />
-                                                        <path
-                                                            d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Tasks</div>
-                                                    <div class="mega-desc">Operational to-do management</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Insights &amp; Automation</div>
-                                        <div class="mega-items-grid">
-                                            <a href="features/call-logs-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Call Intelligence</div>
-                                                    <div class="mega-desc">Record &amp; analyze meetings</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/notes-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Notes</div>
-                                                    <div class="mega-desc">Native meeting summaries</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/reminders-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Reminders</div>
-                                                    <div class="mega-desc">Smart follow-up alerts</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/reports-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Reports</div>
-                                                    <div class="mega-desc">Custom analytics &amp; dashboards</div>
-                                                </div>
-                                            </a>
-                                            <a href="features/workflows-feature.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Workflows</div>
-                                                    <div class="mega-desc">Automate repetitive tasks</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mega-sidebar">
-                                    <div class="mega-sidebar-header">Get Started</div>
-                                    <ul class="mega-sidebar-list">
-                                        <li>
-                                            <a href="/crm/">
-                                                <span>Open CRM</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="pricing.html">
-                                                <span>View Pricing</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="../index.html#pricing">
-                                                <span>Request Demo</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                    <div class="mega-sidebar-footer">
-                                        <p>Trusted by 2,000+ teams</p>
-                                    </div>
-                                </div>
+            <nav class="nav-links" aria-label="Main">
+                <div class="nav-item has-menu">
+                    <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="menu-features">
+                        Features
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="menu" id="menu-features">
+                        <div class="menu-grid">
+                            <div class="menu-col">
+                                <p class="menu-heading">Platform</p>
+                                <a href="../pages/features/safi-ai-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 3l1.9 5.6L19.5 10.5l-5.6 1.9L12 18l-1.9-5.6L4.5 10.5l5.6-1.9z" /></svg></span>
+                                    <span><strong>Safi AI</strong><small>An assistant that knows your pipeline</small></span>
+                                </a>
+                                <a href="../pages/features/opportunities-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg></span>
+                                    <span><strong>Pipelines</strong><small>Track every deal to close</small></span>
+                                </a>
+                                <a href="../pages/features/companies-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2" /><path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01" /></svg></span>
+                                    <span><strong>Companies</strong><small>Every account in one record</small></span>
+                                </a>
+                                <a href="../pages/features/people-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" /></svg></span>
+                                    <span><strong>People</strong><small>Contacts with full history</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">In the field</p>
+                                <a href="../pages/features/sales-visits-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" /></svg></span>
+                                    <span><strong>Sales visits</strong><small>Log visits from your phone</small></span>
+                                </a>
+                                <a href="../pages/features/route-plans-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="6" cy="19" r="3" /><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /><circle cx="18" cy="5" r="3" /></svg></span>
+                                    <span><strong>Route plans</strong><small>Plan and assign the day's stops</small></span>
+                                </a>
+                                <a href="../pages/features/technician-visits-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" /></svg></span>
+                                    <span><strong>Service visits</strong><small>Technician jobs after the sale</small></span>
+                                </a>
+                                <a href="../pages/features/tasks-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" /></svg></span>
+                                    <span><strong>Tasks</strong><small>What needs doing, and by whom</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">Insight &amp; automation</p>
+                                <a href="../pages/features/call-logs-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z" /></svg></span>
+                                    <span><strong>Call logs</strong><small>Every conversation, on record</small></span>
+                                </a>
+                                <a href="../pages/features/notes-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg></span>
+                                    <span><strong>Notes</strong><small>Meeting notes next to the deal</small></span>
+                                </a>
+                                <a href="../pages/features/reminders-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg></span>
+                                    <span><strong>Reminders</strong><small>Never miss a follow-up</small></span>
+                                </a>
+                                <a href="../pages/features/reports-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6" /></svg></span>
+                                    <span><strong>Reports</strong><small>Dashboards for the whole team</small></span>
+                                </a>
+                                <a href="../pages/features/workflows-feature.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" /></svg></span>
+                                    <span><strong>Workflows</strong><small>Automate the busywork</small></span>
+                                </a>
                             </div>
                         </div>
-
-                        <div class="nav-item nav-resources">
-                            <a href="#" class="nav-link-toggle">Resources
-                                <span class="nav-caret" aria-hidden="true">
-                                    <svg width="12" height="8" viewBox="0 0 12 8" fill="none"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M1 1L6 6L11 1" stroke="currentColor" stroke-width="1.6"
-                                            stroke-linecap="round" stroke-linejoin="round" />
-                                    </svg>
-                                </span>
-                            </a>
-                            <div class="mega-menu" aria-hidden="true">
-                                <div class="mega-content-grid">
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Insights</div>
-                                        <div class="mega-items-grid">
-                                            <a href="integrations.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M12 2L2 7l10 5 10-5-10-5z" />
-                                                        <path d="M2 17l10 5 10-5" />
-                                                        <path d="M2 12l10 5 10-5" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Integrations</div>
-                                                    <div class="mega-desc">Connect your stack</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Support</div>
-                                        <div class="mega-items-grid">
-                                            <a href="documentation.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                                                        <path
-                                                            d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Documentation</div>
-                                                    <div class="mega-desc">Guides and tutorials</div>
-                                                </div>
-                                            </a>
-                                            <a href="helpcenter.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <circle cx="12" cy="12" r="10" />
-                                                        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                                                        <line x1="12" y1="17" x2="12.01" y2="17" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">Help Center</div>
-                                                    <div class="mega-desc">Get support</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-
-                                    <div class="mega-category">
-                                        <div class="mega-category-header">Developers</div>
-                                        <div class="mega-items-grid">
-                                            <a href="apireference.html" class="mega-item">
-                                                <div class="mega-icon">
-                                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                                        <polyline points="16 18 22 12 16 6" />
-                                                        <polyline points="8 6 2 12 8 18" />
-                                                    </svg>
-                                                </div>
-                                                <div class="mega-info">
-                                                    <div class="mega-label">API Reference</div>
-                                                    <div class="mega-desc">Build with SafiTrack</div>
-                                                </div>
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="mega-sidebar">
-                                    <div class="mega-sidebar-header">More</div>
-                                    <ul class="mega-sidebar-list">
-                                        <li>
-                                            <a href="blog.html">
-                                                <span>Blog</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="careers.html">
-                                                <span>Careers</span>
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="status.html">
-                                                <span>Status</span>
-                                            </a>
-                                        </li>
-                                    </ul>
-                                    <div class="mega-sidebar-footer">
-                                        <p>Always growing</p>
-                                    </div>
-                                </div>
-                            </div>
+                        <div class="menu-foot">
+                            <a href="../pages/features/mainfeatures.html">See all features <span aria-hidden="true">→</span></a>
                         </div>
-                        <a href="pricing.html">Pricing</a>
                     </div>
                 </div>
 
-                <div class="nav-actions">
-                    <a href="/crm/" class="nav-link-sign-in">Sign in</a>
-                    <a href="#pricing-grid" class="btn-hero-primary">Start for free</a>
+                <div class="nav-item has-menu">
+                    <button class="nav-trigger" type="button" aria-expanded="false" aria-controls="menu-resources">
+                        Resources
+                        <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true">
+                            <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                    <div class="menu menu-sm" id="menu-resources">
+                        <div class="menu-grid">
+                            <div class="menu-col">
+                                <p class="menu-heading">Learn</p>
+                                <a href="../pages/documentation.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" /><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" /></svg></span>
+                                    <span><strong>Documentation</strong><small>Guides and how-tos</small></span>
+                                </a>
+                                <a href="../pages/helpcenter.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" /></svg></span>
+                                    <span><strong>Help center</strong><small>Answers and support</small></span>
+                                </a>
+                                <a href="../pages/apireference.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6" /></svg></span>
+                                    <span><strong>API reference</strong><small>Build on SafiTrack</small></span>
+                                </a>
+                                <a href="../pages/integrations.html" class="menu-link">
+                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5" /><rect x="14" y="3" width="7" height="7" rx="1.5" /><rect x="3" y="14" width="7" height="7" rx="1.5" /><rect x="14" y="14" width="7" height="7" rx="1.5" /></svg></span>
+                                    <span><strong>Integrations</strong><small>Connect your tools</small></span>
+                                </a>
+                            </div>
+                            <div class="menu-col">
+                                <p class="menu-heading">Company</p>
+                                <a href="../pages/blog.html" class="menu-link menu-link-plain"><strong>Blog</strong></a>
+                                <a href="../pages/careers.html" class="menu-link menu-link-plain"><strong>Careers</strong></a>
+                                <a href="../pages/security.html" class="menu-link menu-link-plain"><strong>Security</strong></a>
+                                <a href="../pages/status.html" class="menu-link menu-link-plain"><strong>Status</strong></a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Mobile Menu Button -->
-                <button class="mobile-menu-btn" aria-label="Toggle Menu">
-                    <span></span>
-                    <span></span>
-                </button>
+                <a href="../pages/pricing.html" class="nav-link">Pricing</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="/crm/" class="nav-link">Sign in</a>
+                <a href="/crm/?signup=1" class="btn btn-dark btn-sm">Start for free</a>
             </div>
+
+            <button class="nav-burger" type="button" aria-label="Open menu" aria-expanded="false"
+                aria-controls="mobile-menu">
+                <span></span><span></span>
+            </button>
         </div>
-    </nav>
 
-    <!-- Mobile Menu Overlay -->
-    <div class="mobile-nav-overlay">
-        <button class="mobile-close-btn" aria-label="Close Menu">
-            <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-        </button>
-        <div class="mobile-nav-content">
-            <a href="features/mainfeatures.html" class="mobile-link">Features</a>
-            <a href="pricing.html" class="mobile-link">Pricing</a>
-            <hr class="mobile-divider">
-            <a href="/crm/" class="mobile-link">Open App</a>
-            <button class="btn-primary btn-block get-started-btn">Get Started</button>
-        </div>
-    </div>
-
-    <!-- Hero Section -->
-    <section class="pricing-page-hero">
-        <div class="container">
-            <h1 class="hero-title" style="color: #000;">
-                Invest in growth,<br>not overhead.
-            </h1>
-            <p class="hero-description" style="margin: 0 auto 24px; font-size: 18px; color: #000;">
-                Start for free, upgrade as you scale. No credit card required
-            </p>
-        </div>
-    </section>
-
-    <!-- Pricing Section -->
-    <section class="pricing" id="pricing-grid">
-        <div class="container">
-            <div class="pricing-grid">
-                <div class="price-card">
-                    <div class="price-header">
-                        <h3 class="price-name">Free</h3>
-                        <div class="price-amount">
-                            <span class="price-currency">$</span>
-                            <span class="price-value">0</span>
-                        </div>
-                        <div class="price-period">Per user/month</div>
-                        <p class="price-description">A simple, no-cost starter for very small teams</p>
-                    </div>
-                    <ul class="price-features">
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Up to 2 users</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Contact management</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Pipeline tracking</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Basic reporting</span>
-                        </li>
-                    </ul>
-                    <a href="/crm/?signup=1" class="btn-secondary btn-block">Start for free</a>
-                </div>
-                <div class="price-card">
-                    <div class="price-header">
-                        <h3 class="price-name">Core</h3>
-                        <div class="price-amount">
-                            <span class="price-currency">$</span>
-                            <span class="price-value">19</span>
-                        </div>
-                        <div class="price-period">Per user/month</div>
-                        <p class="price-description">Perfect for small teams getting started</p>
-                    </div>
-                    <ul class="price-features">
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Up to 20 users</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Contact management</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Pipeline tracking</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Basic reporting</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Email support</span>
-                        </li>
-                    </ul>
-                    <button class="btn-secondary btn-block get-started-btn" data-plan="Core">Continue with
-                        Core</button>
-                </div>
-
-                <div class="price-card price-card-featured">
-                    <div class="price-badge">Most Popular</div>
-                    <div class="price-header">
-                        <h3 class="price-name">Pro</h3>
-                        <div class="price-amount">
-                            <span class="price-currency">$</span>
-                            <span class="price-value">79</span>
-                        </div>
-                        <div class="price-period">Per user/month</div>
-                        <p class="price-description">For growing teams that need more power</p>
-                    </div>
-                    <ul class="price-features">
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Unlimited users</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Advanced analytics</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Route planning</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Custom workflows</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Priority support</span>
-                        </li>
-                    </ul>
-                    <button class="btn-primary btn-block get-started-btn" data-plan="Professional">Continue with
-                        Pro</button>
-                </div>
-
-                <div class="price-card">
-                    <div class="price-header">
-                        <h3 class="price-name">Enterprise</h3>
-                        <div class="price-amount">
-                            <span class="price-value">Custom</span>
-                        </div>
-                        <p class="price-description">Custom plans for large teams and dedicated support</p>
-                    </div>
-                    <ul class="price-features">
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Custom user seats</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Advanced analytics</span>
-                        </li>
-                        <li>
-                            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Priority support</span>
-                        </li>
-                    </ul>
-                    <button class="btn-secondary btn-block get-started-btn" data-plan="Enterprise">Let&apos;s
-                        Talk</button>
+        <div class="mobile-menu" id="mobile-menu" hidden>
+            <div class="wrap">
+                <p class="mobile-heading">Product</p>
+                <a href="../pages/features/mainfeatures.html">Features</a>
+                <a href="../pages/features/safi-ai-feature.html">Safi AI</a>
+                <a href="../pages/features/route-plans-feature.html">Route plans</a>
+                <a href="../pages/features/sales-visits-feature.html">Sales visits</a>
+                <a href="../pages/pricing.html">Pricing</a>
+                <p class="mobile-heading">Resources</p>
+                <a href="../pages/documentation.html">Documentation</a>
+                <a href="../pages/helpcenter.html">Help center</a>
+                <a href="../pages/blog.html">Blog</a>
+                <div class="mobile-actions">
+                    <a href="/crm/" class="btn btn-light">Sign in</a>
+                    <a href="/crm/?signup=1" class="btn btn-dark">Start for free</a>
                 </div>
             </div>
         </div>
-    </section>
+    </header>
 
-    <!-- Plan Comparison Section (Polished) -->
-    <section class="plan-comparison" style="padding: 72px 0;">
-        <div class="container">
-            <h2 class="section-title" style="text-align: center; margin-bottom: 8px;">Compare plans</h2>
-            <p style="text-align: center; max-width: 820px; margin: 0 auto 28px; color: var(--text-secondary);">A clean,
-                clear comparison to help you pick the right plan. Data below is mock — we can swap real values later.
-            </p>
+    <main id="main">
 
-            <div class="comparison-panel"
-                style="background: var(--bg-primary); border-radius:12px; padding:18px; box-shadow: 0 6px 18px rgba(8,10,25,0.06);">
-                <!-- Header Row -->
-                <div class="compare-row header"
-                    style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:12px 8px;">
-                    <div class="cell label" style="font-weight:700;">Features</div>
-                    <div class="cell" style="text-align:center; font-weight:700;">Free</div>
-                    <div class="cell" style="text-align:center; font-weight:700;">Core</div>
-                    <div class="cell" style="text-align:center; font-weight:700;">Pro <span class="badge-featured"
-                            style="background:linear-gradient(90deg,#2f5fd0,#2bb7ff); color:#fff; padding:4px 8px; border-radius:999px; font-size:12px; margin-left:8px;">Most
-                            Popular</span></div>
-                    <div class="cell" style="text-align:center; font-weight:700;">Enterprise</div>
-                </div>
-
-                <!-- Rows -->
-                <div class="compare-row"
-                    style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
-                    <div class="cell label">Users</div>
-                    <div class="cell" style="text-align:center;">Up to 2</div>
-                    <div class="cell" style="text-align:center;">Up to 5</div>
-                    <div class="cell" style="text-align:center;">Unlimited</div>
-                    <div class="cell" style="text-align:center;">Custom</div>
-                </div>
-
-                <div class="compare-row"
-                    style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
-                    <div class="cell label">Contact management</div>
-                    <div class="cell" style="text-align:center;">✓</div>
-                    <div class="cell" style="text-align:center;">✓</div>
-                    <div class="cell" style="text-align:center;">✓</div>
-                    <div class="cell" style="text-align:center;">✓</div>
-                </div>
-
-                <div class="compare-row"
-                    style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
-                    <div class="cell label">Pipeline tracking</div>
-                    <div class="cell" style="text-align:center;">Basic</div>
-                    <div class="cell" style="text-align:center;">Standard</div>
-                    <div class="cell" style="text-align:center;">Advanced</div>
-                    <div class="cell" style="text-align:center;">Advanced</div>
-                </div>
-
-                <div class="compare-row"
-                    style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
-                    <div class="cell label">Route planning</div>
-                    <div class="cell" style="text-align:center;">—</div>
-                    <div class="cell" style="text-align:center;">Basic</div>
-                    <div class="cell" style="text-align:center;">Full</div>
-                    <div class="cell" style="text-align:center;">Full</div>
-                </div>
-
-                <div class="compare-row"
-                    style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
-                    <div class="cell label">Analytics</div>
-                    <div class="cell" style="text-align:center;">Basic</div>
-                    <div class="cell" style="text-align:center;">Standard</div>
-                    <div class="cell" style="text-align:center;">Advanced</div>
-                    <div class="cell" style="text-align:center;">Advanced</div>
-                </div>
-
-                <div class="compare-row"
-                    style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:14px 8px; border-top:1px solid var(--border-color);">
-                    <div class="cell label">Support</div>
-                    <div class="cell" style="text-align:center;">Email</div>
-                    <div class="cell" style="text-align:center;">Email</div>
-                    <div class="cell" style="text-align:center;">Priority</div>
-                    <div class="cell" style="text-align:center;">Dedicated</div>
-                </div>
-
-                <!-- CTA Row -->
-                <div class="compare-row cta"
-                    style="display:grid; grid-template-columns: 2fr repeat(4,1fr); gap:16px; align-items:center; padding:18px 8px; border-top:1px solid var(--border-color);">
-                    <div class="cell label"></div>
-                    <div class="cell" style="text-align:center;"><a href="/crm/?signup=1" class="btn-secondary">Start
-                            for free</a></div>
-                    <div class="cell" style="text-align:center;"><button class="btn-secondary get-started-btn"
-                            data-plan="Core">Choose Core</button></div>
-                    <div class="cell" style="text-align:center;"><button class="btn-primary get-started-btn"
-                            data-plan="Pro">Choose Pro</button></div>
-                    <div class="cell" style="text-align:center;"><button class="btn-secondary get-started-btn"
-                            data-plan="Enterprise">Contact Sales</button></div>
-                </div>
+        <section class="ph">
+            <div class="wrap">
+                <p class="tag">Pricing</p>
+                <h1 class="ph-title">Invest in growth, <span>not overhead.</span></h1>
+                <p class="ph-sub">Start for free and upgrade as you scale. No credit card required.</p>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- FAQ Section -->
-    <section class="faq-section" style="padding: 80px 0; background: var(--bg-secondary);">
-        <div class="container">
-            <h2 class="section-title" style="text-align: center; margin-bottom: 60px;">FAQs</h2>
-            <div class="faq-grid"
-                style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 24px;">
-                <div class="faq-item">
-                    <h3 style="margin-bottom: 8px; font-size: 18px;">Can I switch plans later?</h3>
-                    <p style="color: var(--text-secondary);">Absolutely. You can upgrade or downgrade your plan at any
-                        time from your account settings.</p>
-                </div>
-                <div class="faq-item">
-                    <h3 style="margin-bottom: 8px; font-size: 18px;">Is there a free trial?</h3>
-                    <p style="color: var(--text-secondary);">Yes, we offer a 14-day free trial for both plans. No credit
-                        card required to sign up.</p>
-                </div>
-                <div class="faq-item">
-                    <h3 style="margin-bottom: 8px; font-size: 18px;">Do you offer enterprise pricing?</h3>
-                    <p style="color: var(--text-secondary);">Yes, for teams larger than 50, please contact our sales
-                        team for custom pricing.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Contact Modal -->
-    <div id="contact-modal" class="modal">
-        <div class="modal-content premium-split">
-            <button class="close-modal" aria-label="Close Modal">&times;</button>
-
-            <!-- Left Side: Value Prop -->
-            <div class="modal-sidebar">
-                <div class="sidebar-badge">Join the club</div>
-                <h2 class="sidebar-title">Want to supercharge your sales? 🚀</h2>
-                <p class="sidebar-desc">Join 500+ happy teams using SafiTrack to make their work day a little easier and
-                    their pipeline a lot bigger.</p>
-
-                <ul class="modal-value-list">
-                    <li>
-                        <div class="v-icon">✨</div>
-                        <div class="v-text">
-                            <strong>Personalized Demo</strong>
-                            <span>See how SafiTrack fits your specific workflow.</span>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="v-icon">🚀</div>
-                        <div class="v-text">
-                            <strong>15-Min Setup</strong>
-                            <span>Get your whole team onboarded in minutes.</span>
-                        </div>
-                    </li>
-                    <li>
-                        <div class="v-icon">🛡️</div>
-                        <div class="v-text">
-                            <strong>No Commitment</strong>
-                            <span>Start with a 14-day trial. No credit card required.</span>
-                        </div>
-                    </li>
-                </ul>
-
-                <div class="sidebar-footer">
-                    <div class="trust-avatars">
-                        <div class="t-av"></div>
-                        <div class="t-av"></div>
-                        <div class="t-av"></div>
-                        <span>Trusted by leading sales teams</span>
+        <section class="pricing-sec">
+            <div class="wrap">
+                <div class="plans">
+                    <div class="plan">
+                        <h3 class="plan-name">Free</h3>
+                        <p class="plan-price"><span>$0</span></p>
+                        <p class="plan-desc">A simple, no-cost starter for very small teams.</p>
+                        <a href="/crm/?signup=1" class="btn btn-light btn-block">Start for free</a>
+                        <ul class="plan-list">
+                            <li>Up to 2 users</li>
+                            <li>Contact management</li>
+                            <li>Pipeline tracking</li>
+                            <li>Basic reporting</li>
+                        </ul>
+                    </div>
+                    <div class="plan">
+                        <h3 class="plan-name">Core</h3>
+                        <p class="plan-price"><span>$19</span> per user / month</p>
+                        <p class="plan-desc">Perfect for small teams getting started.</p>
+                        <button type="button" class="btn btn-light btn-block" data-contact data-plan="Core">Choose Core</button>
+                        <ul class="plan-list">
+                            <li>Up to 20 users</li>
+                            <li>Contact management</li>
+                            <li>Pipeline tracking</li>
+                            <li>Basic reporting</li>
+                            <li>Email support</li>
+                        </ul>
+                    </div>
+                    <div class="plan plan-featured">
+                        <h3 class="plan-name">Pro <span class="plan-tag">Popular</span></h3>
+                        <p class="plan-price"><span>$79</span> per user / month</p>
+                        <p class="plan-desc">For growing teams that need more power.</p>
+                        <button type="button" class="btn btn-dark btn-block" data-contact data-plan="Professional">Choose Pro</button>
+                        <ul class="plan-list">
+                            <li>Unlimited users</li>
+                            <li>Advanced analytics</li>
+                            <li>Route planning</li>
+                            <li>Custom workflows</li>
+                            <li>Priority support</li>
+                        </ul>
+                    </div>
+                    <div class="plan">
+                        <h3 class="plan-name">Enterprise</h3>
+                        <p class="plan-price"><span>Custom</span></p>
+                        <p class="plan-desc">Custom plans for large teams and dedicated support.</p>
+                        <button type="button" class="btn btn-light btn-block" data-contact data-plan="Enterprise">Let's talk</button>
+                        <ul class="plan-list">
+                            <li>Custom user seats</li>
+                            <li>Advanced analytics</li>
+                            <li>Priority support</li>
+                        </ul>
                     </div>
                 </div>
             </div>
+        </section>
 
-            <!-- Right Side: The Form -->
-            <div class="modal-form-area">
-                <div class="form-header">
-                    <h3>Get Started</h3>
-                    <div class="step-indicator">
-                        <div class="step-dot active" data-step="1"></div>
-                        <div class="step-line"></div>
-                        <div class="step-dot" data-step="2"></div>
-                        <div class="step-line"></div>
-                        <div class="step-dot" data-step="3"></div>
-                    </div>
-                </div>
-
-                <form id="contact-form">
-                    <input type="hidden" name="plan" id="selected-plan" value="General">
-
-                    <!-- Step 1: Personal -->
-                    <div class="form-step active" data-step="1">
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="first_name">First Name</label>
-                                <input type="text" id="first_name" name="first_name" placeholder="Eric" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="last_name">Last Name</label>
-                                <input type="text" id="last_name" name="last_name" placeholder="Brooks" required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="job_title">Job Title</label>
-                            <input type="text" id="job_title" name="job_title" placeholder="Sales Director" required>
-                        </div>
-                        <div class="form-actions-step">
-                            <button type="button" class="btn-primary btn-block next-step">Continue →</button>
+        <section class="sec">
+            <div class="wrap">
+                <div class="rail">
+                    <header class="sec-head">
+                        <h2 class="split-title">Compare plans. <span>Everything side by side.</span></h2>
+                    </header>
+                    <div class="sec-body">
+                        <div class="table-wrap">
+                            <table class="table table-plans">
+                                <thead><tr><th>Feature</th><th>Free</th><th>Core</th><th>Pro</th><th>Enterprise</th></tr></thead>
+                                <tbody>
+                                <tr><td>Users</td><td>Up to 2</td><td>Up to 20</td><td>Unlimited</td><td>Custom</td></tr>
+                                <tr><td>Contact management</td><td><span class="yes" aria-label="Included"></span></td><td><span class="yes" aria-label="Included"></span></td><td><span class="yes" aria-label="Included"></span></td><td><span class="yes" aria-label="Included"></span></td></tr>
+                                <tr><td>Pipeline tracking</td><td>Basic</td><td>Standard</td><td>Advanced</td><td>Advanced</td></tr>
+                                <tr><td>Route planning</td><td><span class="no" aria-label="Not included"></span></td><td>Basic</td><td>Full</td><td>Full</td></tr>
+                                <tr><td>Analytics</td><td>Basic</td><td>Standard</td><td>Advanced</td><td>Advanced</td></tr>
+                                <tr><td>Support</td><td>Email</td><td>Email</td><td>Priority</td><td>Dedicated</td></tr>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
-
-                    <!-- Step 2: Company -->
-                    <div class="form-step" data-step="2">
-                        <div class="form-group">
-                            <label for="company_name">Company Name</label>
-                            <input type="text" id="company_name" name="company_name" placeholder="Acme Inc." required>
-                        </div>
-                        <div class="form-grid">
-                            <div class="form-group">
-                                <label for="company_size">Company Size</label>
-                                <select id="company_size" name="company_size" required>
-                                    <option value="" disabled selected>Select size</option>
-                                    <option value="1-10">1-10 employees</option>
-                                    <option value="11-50">11-50 employees</option>
-                                    <option value="51-200">51-200 employees</option>
-                                    <option value="201-500">201-500 employees</option>
-                                    <option value="501+">501+ employees</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="region">Country / Region</label>
-                                <select id="region" name="region" required>
-                                    <option value="" disabled selected>Select country</option>
-                                    <option value="US">United States</option>
-                                    <option value="UK">United Kingdom</option>
-                                    <option value="CA">Canada</option>
-                                    <option value="AU">Australia</option>
-                                    <option value="DE">Germany</option>
-                                    <option value="FR">France</option>
-                                    <option value="IN">India</option>
-                                    <option value="KE">Kenya</option>
-                                    <option value="NG">Nigeria</option>
-                                    <option value="ZA">South Africa</option>
-                                    <option value="AE">United Arab Emirates</option>
-                                    <option value="OTHER">Other</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="form-actions-step split">
-                            <button type="button" class="btn-secondary prev-step">Back</button>
-                            <button type="button" class="btn-primary next-step">Next Step →</button>
-                        </div>
-                    </div>
-
-                    <!-- Step 3: Final -->
-                    <div class="form-step" data-step="3">
-                        <div class="form-group">
-                            <label for="from_email">Work Email</label>
-                            <input type="email" id="from_email" name="from_email" placeholder="eric@company.com"
-                                required>
-                        </div>
-                        <div class="form-group checkbox-group">
-                            <label class="checkbox-container">
-                                <input type="checkbox" name="terms" required>
-                                <span class="checkmark"></span>
-                                <span class="checkbox-text">I agree to the <a href="legal/terms.html">Terms of
-                                        Service</a> and <a href="legal/privacy.html">Privacy Policy</a>.</span>
-                            </label>
-                        </div>
-                        <div class="form-actions-step split">
-                            <button type="button" class="btn-secondary prev-step">Back</button>
-                            <button type="submit" class="btn-primary" id="submit-btn" style="flex: 2;">
-                                <span>Request Access →</span>
-                                <div class="btn-loader" style="display: none;"></div>
-                            </button>
-                        </div>
-                    </div>
-                </form>
-
-                <div id="form-success" style="display: none;" class="form-feedback success">
-                    <div class="feedback-icon" style="background: none; font-size: 48px;">👋</div>
-                    <h3>We got it! High five!</h3>
-                    <p>One of our friendly specialists will reach out to you within 2 hours. Hang tight!</p>
-                    <button class="btn-secondary btn-block close-feedback">Back to Site</button>
-                </div>
-
-                <div id="form-error" style="display: none;" class="form-feedback error">
-                    <div class="feedback-icon">✕</div>
-                    <h3>Connection Error</h3>
-                    <p>We couldn't process your request. Please check your connection and try again.</p>
-                    <button class="btn-secondary btn-block close-feedback">Try Again</button>
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- Footer -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
+        <section class="sec">
+            <div class="wrap">
+                <div class="rail faq-grid">
+                    <h2 class="split-title faq-title">Questions. <span>Answered.</span></h2>
+                    <div class="faq-list">
+                        <details>
+                            <summary>Can I switch plans later?</summary>
+                            <p>Absolutely. You can upgrade or downgrade your plan at any time from your account settings.</p>
+                        </details>
+                        <details>
+                            <summary>Is there a free trial?</summary>
+                            <p>You can start on the Free plan for up to 2 users at no cost, and no credit card is required. Upgrade when you're ready.</p>
+                        </details>
+                        <details>
+                            <summary>Do you offer enterprise pricing?</summary>
+                            <p>Yes. For teams larger than 50, contact our sales team for custom pricing.</p>
+                        </details>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta" data-theme="dark">
+            <div class="wrap">
+                <div class="rail rail-dark cta-box">
+                    <h2 class="cta-title">Start free today.</h2>
+                    <p class="cta-sub">Free for up to 2 users. Upgrade when your team grows.</p>
+                    <div class="hero-actions">
+                        <button type="button" class="btn btn-ghost btn-lg" data-contact>Talk to sales</button>
+                        <a href="/crm/?signup=1" class="btn btn-white btn-lg">Start for free</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============ Footer (dark) ============ -->
+    <footer class="footer" data-theme="dark">
+        <div class="wrap">
+            <div class="footer-top">
                 <div class="footer-brand">
-                    <div class="footer-logo-wrapper">
-                        <a href="../index.html"><img src="../assets/icons/transparentMain.png" alt="SafiTrack"
-                                class="footer-logo"></a>
-                    </div>
+                    <img src="../assets/icons/transparentMain.png" alt="SafiTrack" width="124" height="29">
+                    <p>The CRM for field sales teams.</p>
                 </div>
-                <div class="footer-links">
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Product</h4>
-                        <ul>
-                            <li><a href="features/mainfeatures.html">Features</a></li>
-                            <li><a href="pricing.html">Pricing</a></li>
-                            <li><a href="integrations.html">Integrations</a></li>
-              <li><a href="comparison.html">Compare</a></li>
-                        </ul>
+                <div class="footer-cols">
+                    <div>
+                        <p class="footer-heading">Product</p>
+                        <a href="../pages/features/mainfeatures.html">Features</a>
+                        <a href="../pages/features/safi-ai-feature.html">Safi AI</a>
+                        <a href="../pages/features/route-plans-feature.html">Route plans</a>
+                        <a href="../pages/pricing.html">Pricing</a>
+                        <a href="../pages/integrations.html">Integrations</a>
                     </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Company</h4>
-                        <ul>
-                            <li><a href="blog.html">Blog</a></li>
-                            <li><a href="careers.html">Careers</a></li>
-                        </ul>
+                    <div>
+                        <p class="footer-heading">Company</p>
+                        <a href="../pages/blog.html">Blog</a>
+                        <a href="../pages/careers.html">Careers</a>
+                        <a href="../pages/security.html">Security</a>
                     </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Resources</h4>
-                        <ul>
-                            <li><a href="documentation.html">Documentation</a></li>
-                            <li><a href="helpcenter.html">Help Center</a></li>
-                            <li><a href="apireference.html">API Reference</a></li>
-                            <li><a href="status.html">Status</a></li>
-                        </ul>
+                    <div>
+                        <p class="footer-heading">Resources</p>
+                        <a href="../pages/documentation.html">Documentation</a>
+                        <a href="../pages/helpcenter.html">Help center</a>
+                        <a href="../pages/apireference.html">API reference</a>
+                        <a href="../pages/status.html">System status</a>
                     </div>
-                    <div class="footer-column">
-                        <h4 class="footer-heading">Legal</h4>
-                        <ul>
-                            <li><a href="legal/privacy.html">Privacy Policy</a></li>
-                            <li><a href="legal/terms.html">Terms of Service</a></li>
-              <li><a href="security.html">Security</a></li>
-                        </ul>
+                    <div>
+                        <p class="footer-heading">Get started</p>
+                        <a href="/crm/?signup=1">Create an account</a>
+                        <a href="/crm/">Sign in</a>
+                        <button type="button" class="footer-link" data-contact>Talk to sales</button>
                     </div>
                 </div>
             </div>
             <div class="footer-bottom">
                 <p>&copy; 2026 SafiTrack. All rights reserved.</p>
-                <div class="footer-social">
-                    <a href="#" aria-label="Twitter">Twitter</a>
-                    <a href="#" aria-label="LinkedIn">LinkedIn</a>
-                    <a href="#" aria-label="GitHub">GitHub</a>
-                </div>
+                <nav aria-label="Legal">
+                    <a href="../pages/legal/terms.html">Terms of service</a>
+                    <a href="../pages/legal/privacy.html">Privacy policy</a>
+                </nav>
             </div>
         </div>
     </footer>
 
-    <script src="../landing.js"></script>
+    <!-- ============ Contact dialog ============ -->
+    <dialog class="contact" id="contact" aria-labelledby="contact-title">
+        <button type="button" class="contact-close" data-close aria-label="Close">
+            <svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true">
+                <path d="M1 1l12 12M13 1L1 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+            </svg>
+        </button>
+
+        <div class="contact-body" data-state="form">
+            <h2 class="contact-title" id="contact-title">Talk to sales</h2>
+            <p class="contact-sub">Tell us a little about your team and we'll be in touch to set up a walkthrough.</p>
+
+            <form id="contact-form" novalidate>
+                <input type="hidden" name="plan" id="selected-plan" value="General">
+                <div class="field-row">
+                    <label class="field">
+                        <span>First name</span>
+                        <input type="text" name="first_name" autocomplete="given-name" required>
+                    </label>
+                    <label class="field">
+                        <span>Last name</span>
+                        <input type="text" name="last_name" autocomplete="family-name" required>
+                    </label>
+                </div>
+                <label class="field">
+                    <span>Work email</span>
+                    <input type="email" name="from_email" autocomplete="email" required>
+                </label>
+                <div class="field-row">
+                    <label class="field">
+                        <span>Company</span>
+                        <input type="text" name="company_name" autocomplete="organization" required>
+                    </label>
+                    <label class="field">
+                        <span>Job title</span>
+                        <input type="text" name="job_title" autocomplete="organization-title" required>
+                    </label>
+                </div>
+                <div class="field-row">
+                    <label class="field">
+                        <span>Team size</span>
+                        <select name="company_size" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="1-10">1–10</option>
+                            <option value="11-50">11–50</option>
+                            <option value="51-200">51–200</option>
+                            <option value="201-500">201–500</option>
+                            <option value="501+">501+</option>
+                        </select>
+                    </label>
+                    <label class="field">
+                        <span>Country</span>
+                        <select name="region" required>
+                            <option value="" disabled selected>Select</option>
+                            <option value="KE">Kenya</option>
+                            <option value="NG">Nigeria</option>
+                            <option value="ZA">South Africa</option>
+                            <option value="AE">United Arab Emirates</option>
+                            <option value="IN">India</option>
+                            <option value="UK">United Kingdom</option>
+                            <option value="US">United States</option>
+                            <option value="CA">Canada</option>
+                            <option value="AU">Australia</option>
+                            <option value="DE">Germany</option>
+                            <option value="FR">France</option>
+                            <option value="OTHER">Other</option>
+                        </select>
+                    </label>
+                </div>
+                <label class="check">
+                    <input type="checkbox" name="terms" required>
+                    <span>I agree to the <a href="../pages/legal/terms.html">Terms</a> and
+                        <a href="../pages/legal/privacy.html">Privacy Policy</a>.</span>
+                </label>
+                <button type="submit" class="btn btn-dark btn-block btn-lg" id="contact-submit">Send request</button>
+            </form>
+        </div>
+
+        <div class="contact-body contact-result" data-state="success" hidden>
+            <h2 class="contact-title">Thanks, we've got it.</h2>
+            <p class="contact-sub">Someone from our team will reach out to the email you gave us shortly.</p>
+            <button type="button" class="btn btn-light btn-block" data-close>Done</button>
+        </div>
+
+        <div class="contact-body contact-result" data-state="error" hidden>
+            <h2 class="contact-title">That didn't go through.</h2>
+            <p class="contact-sub">Please check your connection and try again.</p>
+            <button type="button" class="btn btn-dark btn-block" data-retry>Try again</button>
+        </div>
+    </dialog>
 </body>
 
 </html>
