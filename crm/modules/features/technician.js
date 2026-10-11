@@ -1672,7 +1672,7 @@ async function renderTechnicianActivityView() {
           </div>
           
           ${r.manager_approval_status === 'Denied' ? `
-            <div style="margin-top:8px; padding:8px 12px; background:var(--color-danger-bg); border-left:3px solid var(--color-danger); border-radius:var(--radius-xs); font-size:0.85rem; color:var(--color-danger-rgb);">
+            <div style="margin-top:8px; padding:8px 12px; background:var(--color-danger-bg); border-radius:var(--radius-xs); font-size:0.85rem; color:var(--color-danger-rgb);">
               <strong>Denied:</strong> ${escapeHtml(r.denial_reason || 'Needs revision')}
             </div>
           ` : ''}
@@ -2699,7 +2699,7 @@ window._downloadCustomSubmissionPDF = function (submissionId) {
 
     /* ── Section ── */
     .cf-section { margin-bottom: 18px; break-inside: avoid; }
-    .cf-section-head { display: flex; align-items: center; gap: 8px; background: #f0f5ff; border-left: 3px solid #0f2d52; padding: 7px 12px; border-radius: 0 6px 6px 0; margin-bottom: 10px; }
+    .cf-section-head { display: flex; align-items: center; gap: 8px; background: #f0f5ff; padding: 7px 12px; border-radius: 6px; margin-bottom: 10px; }
     .cf-section-num { width: 18px; height: 18px; background: #0f2d52; color: #fff; font-size: 9px; font-weight: 800; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
     .cf-section-title { font-size: 11px; font-weight: 700; color: #0f2d52; text-transform: uppercase; letter-spacing: 0.06em; }
 
@@ -2721,7 +2721,7 @@ window._downloadCustomSubmissionPDF = function (submissionId) {
     .cf-footer { margin-top: 24px; padding-top: 10px; border-top: 1px solid #e0e8f0; display: flex; justify-content: space-between; align-items: center; }
     .cf-footer-brand { font-size: 9px; font-weight: 700; color: #0f2d52; }
     .cf-footer-time { font-size: 8.5px; color: #9ca3af; }
-    .cf-footer-accent { width: 100%; height: 3px; background: linear-gradient(to right, #0f2d52, #3b7dd8); margin-top: 8px; border-radius: 100px; }
+    .cf-footer-accent { width: 100%; height: 3px; background: #0f2d52; margin-top: 8px; border-radius: 100px; }
   `;
 
   // ── Body HTML ──────────────────────────────────────────────

@@ -25,7 +25,7 @@ function ensureMyActivityRedesignStyles() {
     .myact-card {
       border: 1px solid var(--border-color);
       border-radius: 12px;
-      background: linear-gradient(180deg, color-mix(in srgb, var(--bg-secondary) 86%, white), var(--bg-secondary));
+      background: var(--bg-secondary);
       overflow: hidden;
     }
     .myact-head {

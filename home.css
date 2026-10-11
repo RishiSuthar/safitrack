@@ -803,18 +803,6 @@ blockquote {
     isolation: isolate;
 }
 
-/* soft blue wash behind the product frame */
-.showcase::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 38%;
-    bottom: -160px;
-    z-index: -1;
-    background: linear-gradient(180deg, rgba(234, 239, 252, 0) 0%, #ebeffc 46%, rgba(255, 255, 255, 0) 100%);
-}
-
 .stage {
     position: relative;
 }
@@ -1076,10 +1064,9 @@ blockquote {
 .visit-summary {
     margin-top: 6px !important;
     padding: 9px 10px;
-    border: 1px solid #e4dcfb;
-    border-left: 3px solid #7c5cf0;
+    border: 1px solid var(--line);
     border-radius: 8px;
-    background: #f6f3ff;
+    background: var(--bg-soft);
     color: var(--ink-2);
 }
 
@@ -2459,11 +2446,6 @@ blockquote {
 
     .showcase-frame video {
         border-radius: 10px;
-    }
-
-    .showcase::before {
-        top: 30%;
-        bottom: -40px;
     }
 
     .statement {

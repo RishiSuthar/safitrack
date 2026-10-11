@@ -945,7 +945,7 @@ async function renderSettingsView() {
               <div style="padding: 20px; border-top: 1px solid var(--border-color); background: var(--bg-primary);">
                 <div style="display: flex; gap: 10px; background: var(--bg-secondary); padding: 6px 6px 6px 16px; border-radius: 24px; border: 1px solid var(--border-color); align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); transition: border-color 0.2s, box-shadow 0.2s;" onfocusin="this.style.borderColor='var(--color-primary)'; this.style.boxShadow='0 0 0 2px rgba(99, 102, 241, 0.2)';" onfocusout="this.style.borderColor='var(--border-color)'; this.style.boxShadow='0 2px 6px rgba(0,0,0,0.02)';">
                   <input type="text" id="sv-support-chat-input" placeholder="Type your message here..." style="flex: 1; border: none; background: transparent; outline: none; color: var(--text-primary); font-size: 0.95rem; font-family: inherit;">
-                  <button id="sv-support-chat-send" style="background: linear-gradient(135deg, var(--color-primary), #6366f1); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(99,102,241,0.3);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                  <button id="sv-support-chat-send" style="background: var(--color-primary); border: none; color: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s; box-shadow: 0 2px 8px rgba(99,102,241,0.3);" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px; margin-left: -2px;"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
                   </button>
                 </div>
@@ -1390,7 +1390,7 @@ async function renderSettingsView() {
         width: 52px;
         height: 52px;
         border-radius: 50%;
-        background: linear-gradient(135deg, var(--color-primary) 0%, #818cf8 100%);
+        background: var(--color-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1544,7 +1544,7 @@ async function renderSettingsView() {
         width: 42px;
         height: 42px;
         border-radius: 8px;
-        background: linear-gradient(135deg, var(--color-primary) 0%, #818cf8 100%);
+        background: var(--color-primary);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -1744,12 +1744,12 @@ async function renderSettingsView() {
         flex-shrink: 0;
         letter-spacing: -0.02em;
       }
-      .sv-member-avatar[data-color="0"] { background: linear-gradient(135deg, #3b82f6, #6366f1); }
-      .sv-member-avatar[data-color="1"] { background: linear-gradient(135deg, #0d9488, #06b6d4); }
-      .sv-member-avatar[data-color="2"] { background: linear-gradient(135deg, #f59e0b, #f97316); }
-      .sv-member-avatar[data-color="3"] { background: linear-gradient(135deg, #ec4899, #f43f5e); }
-      .sv-member-avatar[data-color="4"] { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
-      .sv-member-avatar[data-color="5"] { background: linear-gradient(135deg, #10b981, #34d399); }
+      .sv-member-avatar[data-color="0"] { background: #3b82f6; }
+      .sv-member-avatar[data-color="1"] { background: #0d9488; }
+      .sv-member-avatar[data-color="2"] { background: #f59e0b; }
+      .sv-member-avatar[data-color="3"] { background: #ec4899; }
+      .sv-member-avatar[data-color="4"] { background: #8b5cf6; }
+      .sv-member-avatar[data-color="5"] { background: #10b981; }
       .sv-member-info { display: flex; flex-direction: column; gap: 2px; }
       .sv-member-name { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; }
       .sv-member-email { font-size: 0.82rem; color: var(--text-muted); }
@@ -3552,7 +3552,7 @@ async function renderSettingsView() {
 
     supportChatMessages.insertAdjacentHTML('beforeend', `
       <div style="display: flex; gap: 12px; align-items: flex-end; justify-content: flex-end; animation: slideInRight 0.3s ease-out forwards; opacity: 0; transform: translateX(10px);">
-        <div style="background: linear-gradient(135deg, var(--color-primary), #6366f1); padding: 14px 18px; border-radius: 18px; border-bottom-right-radius: 4px; color: white; font-size: 0.95rem; max-width: 80%; line-height: 1.5; box-shadow: 0 4px 12px rgba(99,102,241,0.2);">
+        <div style="background: var(--color-primary); padding: 14px 18px; border-radius: 18px; border-bottom-right-radius: 4px; color: white; font-size: 0.95rem; max-width: 80%; line-height: 1.5; box-shadow: 0 4px 12px rgba(99,102,241,0.2);">
           ${escH(text)}
         </div>
       </div>
