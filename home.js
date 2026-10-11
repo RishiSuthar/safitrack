@@ -1,5 +1,5 @@
 // ==========================================================
-// SafiTrack — home page
+// SafiTrack home page
 // ==========================================================
 
 (function () {
@@ -38,7 +38,7 @@
         window.addEventListener('scroll', onScroll, { passive: true });
         onScroll();
 
-        // Mega menus — hover on pointer devices, click everywhere
+        // Mega menus: hover on pointer devices, click everywhere
         const items = [...nav.querySelectorAll('.nav-item.has-menu')];
         const canHover = window.matchMedia('(hover: hover)').matches;
 
