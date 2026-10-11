@@ -45,17 +45,30 @@
         });
     });
 
-    // Docs: highlight the section currently in view in the table of contents.
-    const toc = document.querySelector('[data-toc]');
-    if (toc) {
-        const links = [...toc.querySelectorAll('a[href^="#"]')];
-        const targets = links.map(a => document.getElementById(a.getAttribute('href').slice(1))).filter(Boolean);
+    // Docs: highlight the section currently in view in every [data-toc] list.
+    const tocs = [...document.querySelectorAll('[data-toc]')];
+    if (tocs.length) {
+        const links = tocs.flatMap(t => [...t.querySelectorAll('a[href^="#"]')]);
+        const ids = [...new Set(links.map(a => a.getAttribute('href').slice(1)))];
+        const targets = ids.map(id => document.getElementById(id)).filter(Boolean);
         const io = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (!entry.isIntersecting) return;
                 links.forEach(a => a.classList.toggle('is-active', a.getAttribute('href') === '#' + entry.target.id));
             });
-        }, { rootMargin: '-20% 0px -70% 0px' });
+        }, { rootMargin: '-15% 0px -75% 0px' });
         targets.forEach(t => io.observe(t));
     }
+
+    // Code blocks: copy button
+    document.querySelectorAll('[data-copy]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const code = btn.closest('.code').querySelector('pre').innerText;
+            const done = () => {
+                btn.textContent = 'Copied';
+                setTimeout(() => (btn.textContent = 'Copy'), 1500);
+            };
+            if (navigator.clipboard) navigator.clipboard.writeText(code).then(done, () => { });
+        });
+    });
 })();
