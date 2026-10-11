@@ -330,6 +330,16 @@
         }, { rootMargin: '-45% 0px -54% 0px' });
         panels.forEach(p => io.observe(p));
 
+        // Draw the route in the connectivity section once it's on screen.
+        const route = document.querySelector('.route-art');
+        if (route) {
+            new IntersectionObserver(([entry], obs) => {
+                if (!entry.isIntersecting) return;
+                route.classList.add('is-run');
+                obs.disconnect();
+            }, { threshold: 0.5 }).observe(route);
+        }
+
         const wf = document.querySelector('.wf');
         if (wf) {
             new IntersectionObserver(([entry], obs) => {
