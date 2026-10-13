@@ -394,10 +394,14 @@
     }
 
     // ------------------------------------------------------
-    // Signals: the list advances on its own (click to pick one);
-    // the orbit on the right shows field activity circling the
-    // account. Each item changes what the orbit emphasises, and
-    // the plane leans toward the pointer.
+    // Signals: the list advances on its own (click to pick one).
+    // Each item has its own diagram, drawn from one shared set of
+    // particles so switching morphs one picture into the next:
+    //   0 Live team activity: reps orbiting the account, pinging in
+    //   1 AI write-ups: loose notes stream through Safi AI into a
+    //     tidy summary card with a lead score
+    //   2 Workflows: trigger -> condition -> task + alert, with data
+    //     flowing along the connections
     // ------------------------------------------------------
     function initSignals() {
         const section = document.querySelector('.signals');
@@ -407,16 +411,251 @@
         const canvas = section.querySelector('.signals-canvas');
         const art = section.querySelector('.signals-art');
         const ctx = canvas.getContext('2d');
-        const DURATION = 6000;
-        let active = 0, elapsed = 0, inView = false, last = 0, raf = 0;
+        const DURATION = 6000, MORPH = 1400, N = 72;
+        const TAU = Math.PI * 2;
+        const lerp = (a, b, t) => a + (b - a) * t;
+        const ease = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+        const smooth = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t * t * (3 - 2 * t); };
+        const font = getComputedStyle(document.body).fontFamily;
 
-        const select = (i) => {
-            active = i;
+        // Stable per-particle randomness so layouts don't jump between frames.
+        let seed = 11;
+        const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+        const P = Array.from({ length: N }, () => ({ d: rnd(), a: rnd(), b: rnd(), c: rnd() }));
+
+        let W = 0, H = 0, dpr = 1;
+        const resize = () => {
+            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            W = art.clientWidth; H = art.clientHeight;
+            canvas.width = W * dpr; canvas.height = H * dpr;
+        };
+        const geom = () => ({ cx: W * 0.5, cy: H * 0.47, u: Math.min(W * 0.68, H * 1.05) });
+        // The write-up and workflow diagrams are flatter than the orbit, so draw them larger.
+        const big = (g) => ({ cx: g.cx, cy: g.cy, u: g.u * 1.2 });
+
+        const stroke = (style, width = 1, dash = []) => {
+            ctx.strokeStyle = style; ctx.lineWidth = width; ctx.setLineDash(dash); ctx.stroke(); ctx.setLineDash([]);
+        };
+        const rrect = (x, y, w, h, r) => {
+            ctx.beginPath();
+            if (ctx.roundRect) ctx.roundRect(x, y, w, h, r); else ctx.rect(x, y, w, h);
+        };
+
+        // ---------- Scene 0: orbit ----------
+        const RINGS = [
+            { r: .17, s: .36, n: 6 }, { r: .29, s: .22, n: 10 }, { r: .42, s: .15, n: 14 },
+            { r: .56, s: .10, n: 18 }, { r: .70, s: .06, n: 24, dashed: true },
+        ];
+        const ringOf = [];
+        RINGS.forEach((rg, ri) => { for (let k = 0; k < rg.n; k++) ringOf.push([ri, k]); });
+        const REPS = [1, 4, 8, 12, 18, 23, 27, 34, 41, 55];      // the bright dots
+        const isRep = new Set(REPS);
+        const ROT = -16 * Math.PI / 180, SQ = .58;
+        const onEllipse = (g, r, ang) => {
+            const rx = r * g.u, x = Math.cos(ang) * rx, y = Math.sin(ang) * rx * SQ;
+            return [g.cx + x * Math.cos(ROT) - y * Math.sin(ROT), g.cy + x * Math.sin(ROT) + y * Math.cos(ROT)];
+        };
+        const orbitDot = (i, g, t) => {
+            const [ri, k] = ringOf[i], rg = RINGS[ri];
+            const [x, y] = onEllipse(g, rg.r, (k / rg.n) * TAU + P[i].a * .4 + (t / 1000) * rg.s);
+            return isRep.has(i) ? [x, y, 2.2, 1] : [x, y, 1.1, rg.dashed ? .22 : .32];
+        };
+
+        // ---------- Scene 1: write-ups ----------
+        const ROWS = [10, 8, 9, 5];
+        const SLOTS = ROWS.reduce((a, b) => a + b, 0);
+        const slotRC = [];
+        ROWS.forEach((n, r) => { for (let c = 0; c < n; c++) slotRC.push([r, c]); });
+        const writeup = (g) => {
+            const card = { x: g.cx + .07 * g.u, y: g.cy - .16 * g.u, w: .38 * g.u, h: .32 * g.u };
+            return { card, core: [g.cx - .07 * g.u, g.cy], cloud: [g.cx - .34 * g.u, g.cy] };
+        };
+        const writeupDot = (i, g, t, tl) => {
+            const L = writeup(g);
+            if (i < SLOTS) {
+                const [r, c] = slotRC[i];
+                const sx = L.card.x + .045 * g.u + c * .024 * g.u, sy = L.card.y + .09 * g.u + r * .062 * g.u;
+                const release = 500 + i * 85;
+                // waiting in the core, then written into the card
+                const ang = P[i].a * TAU + t / 380, rad = 3 + P[i].b * 6;
+                const wx = L.core[0] + Math.cos(ang) * rad, wy = L.core[1] + Math.sin(ang) * rad;
+                const k = ease(clamp((tl - release) / 480, 0, 1));
+                return [lerp(wx, sx, k), lerp(wy, sy, k), lerp(1.3, 1.7, k), lerp(.75, r === 3 ? .45 : .9, k)];
+            }
+            const x = L.cloud[0] + (P[i].a - .5) * .3 * g.u + Math.sin(t / 900 + P[i].c * 6) * 3;
+            const y = L.cloud[1] + (P[i].b - .5) * .4 * g.u + Math.cos(t / 1100 + P[i].d * 6) * 3;
+            return [x, y, .9 + P[i].c * 1.1, .4];
+        };
+
+        // ---------- Scene 2: workflows ----------
+        const flow = (g) => {
+            const u = g.u;
+            const T = { x: g.cx - .36 * u, y: g.cy, label: 'Trigger' };
+            const D = { x: g.cx - .06 * u, y: g.cy, label: 'If' };
+            const A1 = { x: g.cx + .25 * u, y: g.cy - .17 * u, label: 'Task' };
+            const A2 = { x: g.cx + .25 * u, y: g.cy + .17 * u, label: 'Alert' };
+            const hw = .095 * u, hd = .055 * u;
+            const edges = [
+                [[T.x + hw, T.y], [T.x + hw + .05 * u, T.y], [D.x - hd - .05 * u, D.y], [D.x - hd, D.y]],
+                [[D.x + hd, D.y], [D.x + .16 * u, D.y], [A1.x - hw - .12 * u, A1.y], [A1.x - hw, A1.y]],
+                [[D.x + hd, D.y], [D.x + .16 * u, D.y], [A2.x - hw - .12 * u, A2.y], [A2.x - hw, A2.y]],
+            ];
+            return { T, D, A1, A2, hw, hd, edges };
+        };
+        const bez = (e, s) => {
+            const m = 1 - s;
+            return [0, 1].map(j => m * m * m * e[0][j] + 3 * m * m * s * e[1][j] + 3 * m * s * s * e[2][j] + s * s * s * e[3][j]);
+        };
+        const CYCLE = 2600;
+        const flowDot = (i, g, t) => {
+            const F = flow(g);
+            if (i < 24) {
+                // data packets on the connections, in step with the node glows
+                const edge = Math.floor(i / 8), k = i % 8;
+                const s = ((t / CYCLE + k / 8) % 1);
+                const [x, y] = bez(F.edges[edge], s);
+                return [x, y, 1.5, .25 + .65 * Math.sin(s * Math.PI)];
+            }
+            const j = i - 24, col = j % 8, row = Math.floor(j / 8);
+            return [g.cx + (col - 3.5) * .12 * g.u, g.cy + (row - 2.5) * .12 * g.u, .9, .13];
+        };
+
+        // ---------- Line art + effects for each scene ----------
+        const pings = [], sparks = [];
+        const SCENES = [
+            {
+                dot: (i, g, t) => orbitDot(i, g, t),
+                art(g, t, tl, w) {
+                    RINGS.forEach(rg => {
+                        const rx = rg.r * g.u;
+                        ctx.beginPath(); ctx.ellipse(g.cx, g.cy, rx, rx * SQ, ROT, 0, TAU);
+                        stroke(`rgba(255,255,255,${(rg.dashed ? .1 : .15) * w})`, 1, rg.dashed ? [4, 6] : []);
+                    });
+                    ctx.beginPath(); ctx.arc(g.cx, g.cy, .11 * g.u, 0, TAU);
+                    stroke(`rgba(255,255,255,${.55 * w})`, 1.4);
+                    pings.forEach(p => {
+                        const age = (t - p.at) / 1400;
+                        if (age < 0 || age > 1) return;
+                        const [x, y] = orbitDot(p.i, g, t);
+                        ctx.beginPath(); ctx.arc(x, y, 3 + age * 22, 0, TAU);
+                        stroke(`rgba(125,211,252,${.6 * (1 - age) * w})`);
+                    });
+                },
+            },
+            {
+                dot: (i, g, t, tl) => writeupDot(i, big(g), t, tl),
+                art(g0, t, tl, w) {
+                    const g = big(g0), L = writeup(g), c = L.card;
+                    // guides: notes -> core -> card
+                    ctx.beginPath(); ctx.moveTo(L.cloud[0] + .16 * g.u, L.cloud[1]); ctx.lineTo(L.core[0] - .05 * g.u, L.core[1]);
+                    stroke(`rgba(255,255,255,${.1 * w})`, 1, [3, 5]);
+                    ctx.beginPath(); ctx.moveTo(L.core[0] + .05 * g.u, L.core[1]); ctx.lineTo(c.x, L.core[1]);
+                    stroke(`rgba(255,255,255,${.1 * w})`, 1, [3, 5]);
+                    // the Safi AI core
+                    const glow = .5 + .5 * Math.sin(t / 600);
+                    const grad = ctx.createRadialGradient(L.core[0], L.core[1], 0, L.core[0], L.core[1], .1 * g.u);
+                    grad.addColorStop(0, `rgba(165,180,252,${(.22 + glow * .12) * w})`);
+                    grad.addColorStop(1, 'rgba(165,180,252,0)');
+                    ctx.fillStyle = grad; ctx.beginPath(); ctx.arc(L.core[0], L.core[1], .1 * g.u, 0, TAU); ctx.fill();
+                    ctx.beginPath(); ctx.arc(L.core[0], L.core[1], .045 * g.u, 0, TAU);
+                    stroke(`rgba(255,255,255,${.55 * w})`, 1.4);
+                    // the summary card
+                    rrect(c.x, c.y, c.w, c.h, 12);
+                    stroke(`rgba(255,255,255,${.22 * w})`, 1.2);
+                    // lead score ring fills once the card is written
+                    const rx = c.x + c.w - .065 * g.u, ry = c.y + .08 * g.u, rr = .035 * g.u;
+                    const fill = .85 * smooth(1500, 3400, tl);
+                    ctx.beginPath(); ctx.arc(rx, ry, rr, 0, TAU); stroke(`rgba(255,255,255,${.12 * w})`, 2);
+                    if (fill > 0) {
+                        ctx.beginPath(); ctx.arc(rx, ry, rr, -Math.PI / 2, -Math.PI / 2 + fill * TAU);
+                        stroke(`rgba(125,211,252,${.85 * w})`, 2);
+                    }
+                    ctx.fillStyle = `rgba(230,231,234,${.85 * w * smooth(1500, 2200, tl)})`;
+                    ctx.font = `600 ${Math.round(.03 * g.u)}px ${font}`;
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    ctx.fillText(String(Math.round(fill * 100)), rx, ry + 1);
+                    // notes being read: sparks from the cloud into the core
+                    sparks.forEach(sp => {
+                        const age = (t - sp.at) / 700;
+                        if (age < 0 || age > 1) return;
+                        const k = ease(age);
+                        const x = lerp(sp.x * g.u + L.cloud[0], L.core[0], k), y = lerp(sp.y * g.u + L.cloud[1], L.core[1], k);
+                        ctx.beginPath(); ctx.arc(x, y, 1.4, 0, TAU);
+                        ctx.fillStyle = `rgba(165,180,252,${.8 * Math.sin(age * Math.PI) * w})`; ctx.fill();
+                    });
+                },
+            },
+            {
+                dot: (i, g, t) => flowDot(i, big(g), t),
+                art(g0, t, tl, w) {
+                    const g = big(g0), F = flow(g);
+                    F.edges.forEach(e => {
+                        ctx.beginPath(); ctx.moveTo(...e[0]); ctx.bezierCurveTo(...e[1], ...e[2], ...e[3]);
+                        stroke(`rgba(255,255,255,${.16 * w})`);
+                    });
+                    // nodes light up in order as the data reaches them
+                    const phase = (t / CYCLE) % 1;
+                    const lit = (at) => { const d = (phase - at + 1) % 1; return d < .3 ? 1 - d / .3 : 0; };
+                    const box = (n, l) => {
+                        rrect(n.x - F.hw, n.y - .042 * g.u, F.hw * 2, .084 * g.u, 10);
+                        ctx.fillStyle = `rgba(125,211,252,${.08 * l * w})`; ctx.fill();
+                        stroke(`rgba(${l > .05 ? '125,211,252' : '255,255,255'},${(.3 + .5 * l) * w})`, 1.2);
+                    };
+                    const diamond = (n, l) => {
+                        ctx.beginPath();
+                        ctx.moveTo(n.x, n.y - F.hd); ctx.lineTo(n.x + F.hd, n.y); ctx.lineTo(n.x, n.y + F.hd); ctx.lineTo(n.x - F.hd, n.y); ctx.closePath();
+                        ctx.fillStyle = `rgba(125,211,252,${.08 * l * w})`; ctx.fill();
+                        stroke(`rgba(${l > .05 ? '125,211,252' : '255,255,255'},${(.3 + .5 * l) * w})`, 1.2);
+                    };
+                    box(F.T, lit(0)); diamond(F.D, lit(.33)); box(F.A1, lit(.95)); box(F.A2, lit(.95));
+                    ctx.fillStyle = `rgba(200,202,208,${.75 * w})`;
+                    ctx.font = `500 ${Math.round(.03 * g.u)}px ${font}`;
+                    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                    [F.T, F.D, F.A1, F.A2].forEach(n => ctx.fillText(n.label, n.x, n.y + 1));
+                },
+            },
+        ];
+
+        // ---------- State ----------
+        let active = 0, from = 0, sceneStart = 0, fromStart = 0, morphStart = -1e9;
+        let elapsed = 0, last = 0, raf = 0, nextEvent = 0;
+
+        const render = (now) => {
+            const g = geom();
+            const k = reducedMotion ? 1 : clamp((now - morphStart) / MORPH, 0, 1);
+            const wNew = smooth(.3, 1, k), wOld = 1 - smooth(0, .5, k);
+            const tl = reducedMotion ? 1e5 : now - sceneStart, tlOld = now - fromStart;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, W, H);
+            if (k < 1 && wOld > 0) SCENES[from].art(g, now, tlOld, wOld);
+            SCENES[active].art(g, now, tl, wNew);
+            for (let i = 0; i < N; i++) {
+                let [x, y, r, a] = SCENES[active].dot(i, g, now, tl);
+                if (k < 1) {
+                    const o = SCENES[from].dot(i, g, now, tlOld);
+                    const ki = ease(clamp((k - P[i].d * .35) / .65, 0, 1));
+                    x = lerp(o[0], x, ki); y = lerp(o[1], y, ki); r = lerp(o[2], r, ki); a = lerp(o[3], a, ki);
+                }
+                if (a < .02) continue;
+                ctx.beginPath(); ctx.arc(x, y, r, 0, TAU);
+                ctx.fillStyle = `rgba(255,255,255,${a.toFixed(3)})`;
+                ctx.shadowColor = 'rgba(255,255,255,.8)';
+                ctx.shadowBlur = r > 1.8 ? 6 : 0;
+                ctx.fill();
+            }
+            ctx.shadowBlur = 0;
+        };
+
+        const select = (i, now = performance.now()) => {
             elapsed = 0;
             items.forEach((el, n) => {
                 el.classList.toggle('is-active', n === i);
                 el.setAttribute('aria-selected', String(n === i));
             });
+            if (i === active) return;
+            from = active; fromStart = sceneStart;
+            active = i; sceneStart = now; morphStart = now;
+            if (reducedMotion) render(now);
         };
         items.forEach((el, i) => {
             el.addEventListener('click', () => select(i));
@@ -429,170 +668,41 @@
             });
         });
 
-        // ---- Orbit scene ----
-        let W = 0, H = 0, dpr = 1;
-        const resize = () => {
-            dpr = Math.min(window.devicePixelRatio || 1, 2);
-            W = art.clientWidth; H = art.clientHeight;
-            canvas.width = W * dpr; canvas.height = H * dpr;
-        };
-        const RINGS = [
-            { r: 0.17, speed: 0.36, dots: [0.2, 1.4] },
-            { r: 0.29, speed: 0.22, dots: [2.1, 3.9] },
-            { r: 0.42, speed: 0.15, dots: [0.9, 2.8, 4.8] },
-            { r: 0.56, speed: 0.10, dots: [1.7, 4.2] },
-            { r: 0.70, speed: 0.06, dots: [0.4, 3.3], dashed: true },
-        ];
-        const pings = [];       // expanding rings where a dot "reports in"
-        const beams = [];       // lines from a dot to the centre
-        const tilt = { x: 0, y: 0, tx: 0, ty: 0 };
-        let nextEvent = 0, sweep = 0;
-
-        const geom = () => {
-            const s = Math.min(W * 0.68, H * 1.05);
-            return {
-                cx: W * 0.5 + tilt.x * 18, cy: H * 0.48 + tilt.y * 10,
-                unit: s, squash: 0.58 + tilt.y * 0.07, rot: (-16 + tilt.x * 6) * Math.PI / 180,
-            };
-        };
-        const pointOn = (g, ring, ang) => {
-            const rx = ring.r * g.unit, ry = rx * g.squash;
-            const x = Math.cos(ang) * rx, y = Math.sin(ang) * ry;
-            return [g.cx + x * Math.cos(g.rot) - y * Math.sin(g.rot), g.cy + x * Math.sin(g.rot) + y * Math.cos(g.rot)];
-        };
-
-        const draw = (t) => {
-            const g = geom();
-            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            ctx.clearRect(0, 0, W, H);
-            ctx.lineWidth = 1;
-
-            // rings
-            RINGS.forEach((ring, i) => {
-                const rx = ring.r * g.unit;
-                ctx.beginPath();
-                ctx.ellipse(g.cx, g.cy, rx, rx * g.squash, g.rot, 0, Math.PI * 2);
-                ctx.setLineDash(ring.dashed ? [4, 6] : []);
-                ctx.strokeStyle = `rgba(255,255,255,${ring.dashed ? 0.12 : 0.16 + (active === 2 && i === 2 ? 0.06 : 0)})`;
-                ctx.stroke();
-            });
-            ctx.setLineDash([]);
-
-            // workflows: a lit segment travels round one ring
-            if (active === 2) {
-                const ring = RINGS[2], rx = ring.r * g.unit;
-                ctx.beginPath();
-                ctx.ellipse(g.cx, g.cy, rx, rx * g.squash, g.rot, sweep, sweep + 0.9);
-                ctx.strokeStyle = 'rgba(125,211,252,.75)';
-                ctx.lineWidth = 1.6;
-                ctx.shadowColor = 'rgba(125,211,252,.9)';
-                ctx.shadowBlur = 10;
-                ctx.stroke();
-                ctx.shadowBlur = 0;
-                ctx.lineWidth = 1;
-            }
-
-            // the account at the centre
-            const cr = 0.11 * g.unit;
-            const glow = active === 1 ? 0.25 + 0.15 * Math.sin(t / 500) : 0;
-            if (glow > 0) {
-                const grad = ctx.createRadialGradient(g.cx, g.cy, cr * 0.4, g.cx, g.cy, cr * 2.2);
-                grad.addColorStop(0, `rgba(165,180,252,${glow})`);
-                grad.addColorStop(1, 'rgba(165,180,252,0)');
-                ctx.fillStyle = grad;
-                ctx.beginPath(); ctx.arc(g.cx, g.cy, cr * 2.2, 0, Math.PI * 2); ctx.fill();
-            }
-            ctx.beginPath();
-            ctx.arc(g.cx, g.cy, cr, 0, Math.PI * 2);
-            ctx.strokeStyle = 'rgba(255,255,255,.55)';
-            ctx.lineWidth = 1.4;
-            ctx.stroke();
-            ctx.lineWidth = 1;
-
-            // beams (AI write-ups): a dot reports to the centre
-            for (let i = beams.length - 1; i >= 0; i--) {
-                const b = beams[i], age = (t - b.at) / 900;
-                if (age > 1) { beams.splice(i, 1); continue; }
-                const [x, y] = pointOn(g, RINGS[b.ring], b.ang);
-                const grad = ctx.createLinearGradient(x, y, g.cx, g.cy);
-                grad.addColorStop(0, `rgba(165,180,252,${0.7 * (1 - age)})`);
-                grad.addColorStop(1, 'rgba(165,180,252,0)');
-                ctx.strokeStyle = grad;
-                ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(g.cx, g.cy); ctx.stroke();
-            }
-
-            // dots
-            RINGS.forEach((ring, ri) => {
-                ring.dots.forEach(phase => {
-                    const ang = phase + (t / 1000) * ring.speed;
-                    const [x, y] = pointOn(g, ring, ang);
-                    ctx.beginPath();
-                    ctx.arc(x, y, 2.2, 0, Math.PI * 2);
-                    ctx.fillStyle = active === 2 && ri === 2 ? '#bae6fd' : '#fff';
-                    ctx.shadowColor = 'rgba(255,255,255,.8)';
-                    ctx.shadowBlur = 6;
-                    ctx.fill();
-                    ctx.shadowBlur = 0;
-                });
-            });
-
-            // pings (live activity)
-            for (let i = pings.length - 1; i >= 0; i--) {
-                const p = pings[i], age = (t - p.at) / 1400;
-                if (age > 1) { pings.splice(i, 1); continue; }
-                const [x, y] = pointOn(g, RINGS[p.ring], p.ang + ((t - p.at) / 1000) * RINGS[p.ring].speed);
-                ctx.beginPath();
-                ctx.arc(x, y, 3 + age * 22, 0, Math.PI * 2);
-                ctx.strokeStyle = `rgba(125,211,252,${0.6 * (1 - age)})`;
-                ctx.stroke();
-            }
-        };
-
-        // Something happens every so often; how often depends on the item shown.
-        const events = (t) => {
-            if (t < nextEvent) return;
-            const ri = Math.floor(Math.random() * RINGS.length);
-            const ring = RINGS[ri];
-            const phase = ring.dots[Math.floor(Math.random() * ring.dots.length)];
-            const ang = phase + (t / 1000) * ring.speed;
-            if (active === 0) { pings.push({ ring: ri, ang, at: t }); nextEvent = t + 700 + Math.random() * 600; }
-            else if (active === 1) { beams.push({ ring: ri, ang, at: t }); nextEvent = t + 900 + Math.random() * 700; }
-            else { if (Math.random() < 0.5) pings.push({ ring: 2, ang: RINGS[2].dots[0] + (t / 1000) * RINGS[2].speed, at: t }); nextEvent = t + 1400; }
+        // Occasional events: a rep checks in, or a note gets read.
+        const events = (now) => {
+            if (now < nextEvent) return;
+            if (active === 0) {
+                pings.push({ i: REPS[Math.floor(Math.random() * REPS.length)], at: now });
+                nextEvent = now + 700 + Math.random() * 600;
+            } else if (active === 1) {
+                sparks.push({ x: (Math.random() - .5) * .28, y: (Math.random() - .5) * .38, at: now });
+                nextEvent = now + 160 + Math.random() * 160;
+            } else nextEvent = now + 500;
+            const cutoff = now - 2000;
+            while (pings.length && pings[0].at < cutoff) pings.shift();
+            while (sparks.length && sparks[0].at < cutoff) sparks.shift();
         };
 
         const frame = (now) => {
             const dt = Math.min(now - (last || now), 100);
             last = now;
             elapsed += dt;
-            if (elapsed >= DURATION) select((active + 1) % items.length);
+            if (elapsed >= DURATION) select((active + 1) % items.length, now);
             if (bar) bar.style.width = ((elapsed / DURATION) * 100).toFixed(2) + '%';
-            tilt.x += (tilt.tx - tilt.x) * 0.06;
-            tilt.y += (tilt.ty - tilt.y) * 0.06;
-            sweep += dt / 1000 * 0.9;
             events(now);
-            draw(now);
+            render(now);
             raf = requestAnimationFrame(frame);
         };
 
         resize();
-        window.addEventListener('resize', () => { resize(); if (reducedMotion) draw(0); });
-        if (reducedMotion) { draw(0); if (bar) bar.style.width = '100%'; return; }
-
-        if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-            art.addEventListener('pointermove', (e) => {
-                const r = art.getBoundingClientRect();
-                tilt.tx = clamp(((e.clientX - r.left) / r.width) * 2 - 1, -1, 1);
-                tilt.ty = clamp(((e.clientY - r.top) / r.height) * 2 - 1, -1, 1);
-            });
-            art.addEventListener('pointerleave', () => { tilt.tx = 0; tilt.ty = 0; });
-        }
+        window.addEventListener('resize', () => { resize(); render(performance.now()); });
+        if (reducedMotion) { if (bar) bar.style.width = '100%'; render(0); return; }
 
         new IntersectionObserver(([entry]) => {
-            inView = entry.isIntersecting;
             cancelAnimationFrame(raf);
-            if (inView) { last = 0; raf = requestAnimationFrame(frame); }
+            if (entry.isIntersecting) { last = 0; raf = requestAnimationFrame(frame); }
         }, { threshold: 0.2 }).observe(section);
-        draw(0);
+        render(performance.now());
     }
 
     // ------------------------------------------------------
