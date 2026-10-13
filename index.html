@@ -572,16 +572,17 @@
                                     <path d="M-40 -40 L200 320 M60 -40 L300 320 M160 -40 L400 320 M260 -40 L500 320 M360 -40 L600 320 M460 -40 L700 320" />
                                 </g>
                                 <path class="route-line" d="M70 250 L150 190 Q160 182 172 188 L232 220 Q244 226 252 216 L318 132 Q326 122 338 127 L414 160 Q426 165 434 155 L496 74" />
+                                <path class="route-progress" d="M70 250 L150 190 Q160 182 172 188 L232 220 Q244 226 252 216 L318 132 Q326 122 338 127 L414 160 Q426 165 434 155 L496 74" />
                                 <circle class="route-pulse" r="3.5" />
                                 <g class="route-stops">
                                     <circle cx="70" cy="250" r="5" class="route-start" />
-                                    <g transform="translate(160 184)" data-label="Import 312 companies from CSV"><g class="stop"><circle r="11" /><text y="3.6">1</text></g></g>
-                                    <g transform="translate(242 222)" data-label="Match contacts to accounts"><g class="stop"><circle r="11" /><text y="3.6">2</text></g></g>
-                                    <g transform="translate(326 124)" data-label="Export the pipeline to Excel"><g class="stop"><circle r="11" /><text y="3.6">3</text></g></g>
-                                    <g transform="translate(424 162)" data-label="PDF report for every visit"><g class="stop"><circle r="11" /><text y="3.6">4</text></g></g>
-                                    <g transform="translate(496 74)" data-label="Shared with the whole team"><g class="stop"><circle r="11" /><text y="3.6">5</text></g></g>
+                                    <g transform="translate(160 184)" data-badge="CSV" data-text="312 companies imported" data-tone="#34d399" data-side="up"><g class="stop"><circle r="11" /><text y="3.6">1</text></g></g>
+                                    <g transform="translate(242 222)" data-badge="✓" data-text="48 contacts matched" data-tone="#7dd3fc" data-side="down"><g class="stop"><circle r="11" /><text y="3.6">2</text></g></g>
+                                    <g transform="translate(326 124)" data-badge="XLSX" data-text="Pipeline exported" data-tone="#4ade80" data-side="up"><g class="stop"><circle r="11" /><text y="3.6">3</text></g></g>
+                                    <g transform="translate(424 162)" data-badge="PDF" data-text="Visit report" data-tone="#f87171" data-side="down"><g class="stop"><circle r="11" /><text y="3.6">4</text></g></g>
+                                    <g transform="translate(496 74)" data-badge="↗" data-text="Shared with 6 reps" data-tone="#a5b4fc" data-side="up"><g class="stop"><circle r="11" /><text y="3.6">5</text></g></g>
                                 </g>
-                                <g class="route-tip"><rect rx="7" height="26" /><text y="17"></text></g>
+                                <g class="route-chips"></g>
                             </svg>
                         </div>
                     </div>

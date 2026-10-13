@@ -411,7 +411,7 @@
         const canvas = section.querySelector('.signals-canvas');
         const art = section.querySelector('.signals-art');
         const ctx = canvas.getContext('2d');
-        const DURATION = 6000, MORPH = 1400, N = 72;
+        const DURATION = 4000, MORPH = 1100, N = 72;
         const TAU = Math.PI * 2;
         const lerp = (a, b, t) => a + (b - a) * t;
         const ease = (t) => (t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
@@ -475,11 +475,11 @@
             if (i < SLOTS) {
                 const [r, c] = slotRC[i];
                 const sx = L.card.x + .045 * g.u + c * .024 * g.u, sy = L.card.y + .09 * g.u + r * .062 * g.u;
-                const release = 500 + i * 85;
+                const release = 250 + i * 55;
                 // waiting in the core, then written into the card
                 const ang = P[i].a * TAU + t / 380, rad = 3 + P[i].b * 6;
                 const wx = L.core[0] + Math.cos(ang) * rad, wy = L.core[1] + Math.sin(ang) * rad;
-                const k = ease(clamp((tl - release) / 480, 0, 1));
+                const k = ease(clamp((tl - release) / 380, 0, 1));
                 return [lerp(wx, sx, k), lerp(wy, sy, k), lerp(1.3, 1.7, k), lerp(.75, r === 3 ? .45 : .9, k)];
             }
             const x = L.cloud[0] + (P[i].a - .5) * .3 * g.u + Math.sin(t / 900 + P[i].c * 6) * 3;
@@ -564,13 +564,13 @@
                     stroke(`rgba(255,255,255,${.22 * w})`, 1.2);
                     // lead score ring fills once the card is written
                     const rx = c.x + c.w - .065 * g.u, ry = c.y + .08 * g.u, rr = .035 * g.u;
-                    const fill = .85 * smooth(1500, 3400, tl);
+                    const fill = .85 * smooth(900, 2400, tl);
                     ctx.beginPath(); ctx.arc(rx, ry, rr, 0, TAU); stroke(`rgba(255,255,255,${.12 * w})`, 2);
                     if (fill > 0) {
                         ctx.beginPath(); ctx.arc(rx, ry, rr, -Math.PI / 2, -Math.PI / 2 + fill * TAU);
                         stroke(`rgba(125,211,252,${.85 * w})`, 2);
                     }
-                    ctx.fillStyle = `rgba(230,231,234,${.85 * w * smooth(1500, 2200, tl)})`;
+                    ctx.fillStyle = `rgba(230,231,234,${.85 * w * smooth(900, 1500, tl)})`;
                     ctx.font = `600 ${Math.round(.03 * g.u)}px ${font}`;
                     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
                     ctx.fillText(String(Math.round(fill * 100)), rx, ry + 1);
@@ -707,35 +707,111 @@
 
     // ------------------------------------------------------
     // Import / export route: draws itself on screen, then a pulse
-    // runs the route. Near stops grow and show what they stand
-    // for; the lattice shifts with the pointer; click to replay.
+    // runs the route. On hover the pointer scrubs along it: the
+    // route lights up to the cursor and each stop passed lights
+    // and pops a file chip (CSV in, XLSX and PDF out, shared).
+    // The lattice shifts with the pointer; click to replay.
     // ------------------------------------------------------
     function initRouteArt() {
         const art = document.querySelector('.connect-art');
         const svg = art && art.querySelector('.route-art');
         if (!svg) return;
+        const NS = 'http://www.w3.org/2000/svg';
         const line = svg.querySelector('.route-line');
+        const progress = svg.querySelector('.route-progress');
         const pulse = svg.querySelector('.route-pulse');
         const lattice = svg.querySelector('.lattice');
-        const tip = svg.querySelector('.route-tip');
-        const stops = [...svg.querySelectorAll('.route-stops > g[data-label]')].map(g => {
-            const [, x, y] = g.getAttribute('transform').match(/translate\(([\d.]+) ([\d.]+)\)/);
-            return { inner: g.querySelector('.stop'), x: +x, y: +y, label: g.dataset.label };
-        });
+        const chipLayer = svg.querySelector('.route-chips');
         const length = line.getTotalLength();
-        const LAP = 3800;   // ms for the pulse to run the route
-        let inView = false, pulsing = false, raf = 0, startedAt = 0, timer = 0;
+        progress.style.strokeDasharray = length;
+        progress.style.strokeDashoffset = length;
 
-        const frame = (now) => {
-            const t = ((now - startedAt) % LAP) / LAP;
-            const p = line.getPointAtLength(t * length);
+        // Distance along the route at which each stop sits.
+        const samples = [];
+        for (let i = 0; i <= 240; i++) {
+            const p = line.getPointAtLength((i / 240) * length);
+            samples.push({ x: p.x, y: p.y, at: (i / 240) * length });
+        }
+        const atNearest = (x, y) => samples.reduce((best, s) => {
+            const d = Math.hypot(s.x - x, s.y - y);
+            return d < best.d ? { d, at: s.at } : best;
+        }, { d: Infinity, at: 0 }).at;
+
+        const stops = [...svg.querySelectorAll('.route-stops > g[data-badge]')].map(g => {
+            const [, x, y] = g.getAttribute('transform').match(/translate\(([\d.]+) ([\d.]+)\)/);
+            const stop = { inner: g.querySelector('.stop'), x: +x, y: +y, at: atNearest(+x, +y) };
+
+            // file chip: coloured badge + label, above or below the stop
+            const chip = document.createElementNS(NS, 'g');
+            chip.setAttribute('class', 'route-chip');
+            const inner = document.createElementNS(NS, 'g');
+            inner.setAttribute('class', 'chip-in');
+            const bg = document.createElementNS(NS, 'rect');
+            bg.setAttribute('class', 'chip-bg'); bg.setAttribute('rx', 8); bg.setAttribute('height', 26);
+            const badge = document.createElementNS(NS, 'rect');
+            badge.setAttribute('rx', 4); badge.setAttribute('height', 14); badge.setAttribute('x', 6); badge.setAttribute('y', 6);
+            badge.setAttribute('fill', g.dataset.tone);
+            const bt = document.createElementNS(NS, 'text');
+            bt.setAttribute('class', 'chip-badge'); bt.setAttribute('y', 16.2); bt.textContent = g.dataset.badge;
+            const tt = document.createElementNS(NS, 'text');
+            tt.setAttribute('y', 17); tt.textContent = g.dataset.text;
+            inner.append(bg, badge, bt, tt);
+            chip.append(inner);
+            chipLayer.append(chip);
+            const bw = Math.max(16, bt.getComputedTextLength() + 8);
+            badge.setAttribute('width', bw);
+            bt.setAttribute('x', 6 + (bw - bt.getComputedTextLength()) / 2);
+            tt.setAttribute('x', 6 + bw + 7);
+            const w = 6 + bw + 7 + tt.getComputedTextLength() + 10;
+            bg.setAttribute('width', w);
+            Object.assign(stop, { chip, w, cy: g.dataset.side === 'down' ? stop.y + 18 : stop.y - 44 });
+            return stop;
+        });
+
+        // The SVG is cropped to cover its panel, so keep chips inside the part that's visible.
+        const placeChips = () => {
+            const r = art.getBoundingClientRect(), m = svg.getScreenCTM();
+            if (!m || !r.width) return;
+            const inv = m.inverse();
+            const left = new DOMPoint(r.left, r.top).matrixTransform(inv).x;
+            const right = new DOMPoint(r.right, r.top).matrixTransform(inv).x;
+            stops.forEach(s => {
+                const x = clamp(s.x - s.w / 2, left + 8, right - s.w - 8);
+                s.chip.setAttribute('transform', `translate(${x.toFixed(1)} ${s.cy.toFixed(1)})`);
+            });
+        };
+        placeChips();
+        window.addEventListener('resize', placeChips);
+
+        const LAP = 3800;   // ms for the idle pulse to run the route
+        let inView = false, pulsing = false, scrubbing = false, raf = 0, startedAt = 0, timer = 0;
+        let head = 0, headTo = 0;
+
+        const place = (at) => {
+            const p = line.getPointAtLength(at);
             pulse.setAttribute('cx', p.x.toFixed(1));
             pulse.setAttribute('cy', p.y.toFixed(1));
-            raf = requestAnimationFrame(frame);
+        };
+        const frame = (now) => {
+            if (scrubbing) {
+                head += (headTo - head) * 0.16;
+                progress.style.strokeDashoffset = (length - head).toFixed(1);
+                place(head);
+                stops.forEach(s => {
+                    const on = head >= s.at - 2;
+                    s.inner.classList.toggle('is-lit', on);
+                    s.chip.classList.toggle('is-on', on);
+                });
+            } else if (pulsing) {
+                place((((now - startedAt) % LAP) / LAP) * length);
+            }
+            if (inView && (pulsing || scrubbing)) raf = requestAnimationFrame(frame);
         };
         const loop = () => {
             cancelAnimationFrame(raf);
-            if (pulsing && inView && !reducedMotion) { startedAt = performance.now(); raf = requestAnimationFrame(frame); }
+            if (reducedMotion || !inView) return;
+            if (pulsing && !scrubbing) startedAt = performance.now();
+            if (pulsing || scrubbing) raf = requestAnimationFrame(frame);
         };
         const run = () => {
             clearTimeout(timer);
@@ -760,38 +836,28 @@
         const toSvg = (e) => { pt.x = e.clientX; pt.y = e.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); };
 
         art.addEventListener('pointermove', (e) => {
-            const r = art.getBoundingClientRect();
-            art.style.setProperty('--mx', (e.clientX - r.left) + 'px');
-            art.style.setProperty('--my', (e.clientY - r.top) + 'px');
+            if (!svg.classList.contains('is-run')) return;
             const p = toSvg(e);
             lattice.style.transform = `translate(${(-(p.x - 280) / 28).toFixed(1)}px, ${(-(p.y - 160) / 22).toFixed(1)}px)`;
-
-            let nearest = null, best = 36;
-            stops.forEach(s => {
-                const d = Math.hypot(p.x - s.x, p.y - s.y);
-                s.inner.style.transform = `scale(${(1 + 0.45 * Math.max(0, 1 - d / 90)).toFixed(3)})`;
-                s.inner.classList.remove('is-near');
-                if (d < best) { best = d; nearest = s; }
-            });
-            if (nearest && svg.classList.contains('is-run')) {
-                nearest.inner.classList.add('is-near');
-                const text = tip.querySelector('text');
-                text.textContent = nearest.label;
-                const w = text.getComputedTextLength() + 20;
-                text.setAttribute('x', 10);
-                tip.querySelector('rect').setAttribute('width', w.toFixed(1));
-                const x = clamp(nearest.x + 18, 6, 560 - w - 6);
-                const y = clamp(nearest.y - 40, 6, 288);
-                tip.setAttribute('transform', `translate(${x.toFixed(1)} ${y.toFixed(1)})`);
-                tip.classList.add('is-on');
-            } else {
-                tip.classList.remove('is-on');
+            // The route only moves left to right, so the cursor's x picks how far along it we are.
+            const x = clamp(p.x, samples[0].x, samples[samples.length - 1].x);
+            const hit = samples.find(s => s.x >= x) || samples[samples.length - 1];
+            headTo = hit.at;
+            if (!scrubbing) {
+                placeChips();
+                scrubbing = true;
+                head = 0;
+                art.classList.add('is-scrubbing');
+                loop();
             }
         });
         art.addEventListener('pointerleave', () => {
+            scrubbing = false;
+            art.classList.remove('is-scrubbing');
             lattice.style.transform = '';
-            stops.forEach(s => { s.inner.style.transform = ''; s.inner.classList.remove('is-near'); });
-            tip.classList.remove('is-on');
+            progress.style.strokeDashoffset = length;
+            stops.forEach(s => { s.inner.classList.remove('is-lit'); s.chip.classList.remove('is-on'); });
+            loop();
         });
     }
 

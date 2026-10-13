@@ -1646,76 +1646,107 @@ blockquote {
 .route-art.is-run .route-stops > g:nth-of-type(4) { transition-delay: 1.4s; }
 .route-art.is-run .route-stops > g:nth-of-type(5) { transition-delay: 1.75s; }
 
-/* interactive layer (home.js): cursor glow, near stops grow, a pulse runs the route */
+/* interactive layer (home.js): a pulse runs the route; on hover the
+   pointer scrubs along it, lighting stops and popping a file chip at each */
 .connect-art {
-    --mx: 50%;
-    --my: 50%;
     overflow: hidden;
     cursor: pointer;
-}
-
-.connect-art::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background: radial-gradient(240px circle at var(--mx) var(--my), rgba(56, 189, 248, .10), transparent 70%);
-    opacity: 0;
-    transition: opacity .3s ease;
-    pointer-events: none;
-}
-
-.connect-art:hover::before {
-    opacity: 1;
 }
 
 .lattice {
     transition: transform .6s var(--ease);
 }
 
+.route-line {
+    transition: stroke-dashoffset 1.8s cubic-bezier(.4, 0, .2, 1), stroke .3s ease;
+}
+
+.connect-art.is-scrubbing .route-line {
+    stroke: rgba(255, 255, 255, .2);
+}
+
+.route-progress {
+    fill: none;
+    stroke: #e0f2fe;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 4px rgba(125, 211, 252, .8));
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+
+.connect-art.is-scrubbing .route-progress {
+    opacity: 1;
+}
+
 .route-stops .stop {
-    transition: transform .25s var(--ease);
+    transition: transform .3s var(--ease);
 }
 
 .route-stops .stop circle {
-    transition: fill .25s ease, stroke .25s ease;
+    transition: fill .3s ease, stroke .3s ease;
 }
 
-.route-stops .stop.is-near circle {
-    fill: #16202e;
-    stroke: #7dd3fc;
+.route-stops .stop text {
+    transition: fill .3s ease;
+}
+
+.route-stops .stop.is-lit {
+    transform: scale(1.15);
+}
+
+.route-stops .stop.is-lit circle {
+    fill: #e0f2fe;
+    stroke: #e0f2fe;
+}
+
+.route-stops .stop.is-lit text {
+    fill: #0e0e10;
 }
 
 .route-pulse {
     fill: #fff;
     opacity: 0;
-    filter: drop-shadow(0 0 4px rgba(125, 211, 252, .95));
+    filter: drop-shadow(0 0 5px rgba(125, 211, 252, .95));
     transition: opacity .4s ease;
 }
 
-.route-art.is-pulsing .route-pulse {
+.route-art.is-pulsing .route-pulse,
+.connect-art.is-scrubbing .route-pulse {
     opacity: 1;
 }
 
-.route-tip {
+.route-chip .chip-in {
     opacity: 0;
-    transition: opacity .2s ease;
-    pointer-events: none;
+    transform: translateY(6px) scale(.9);
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: opacity .25s ease, transform .35s var(--ease);
 }
 
-.route-tip.is-on {
+.route-chip.is-on .chip-in {
     opacity: 1;
+    transform: none;
 }
 
-.route-tip rect {
-    fill: #1b1b20;
+.route-chip rect.chip-bg {
+    fill: #17171b;
     stroke: rgba(255, 255, 255, .14);
 }
 
-.route-tip text {
-    fill: #e6e7ea;
+.route-chip text {
     font-family: inherit;
-    font-size: 11px;
+    font-size: 10.5px;
     font-weight: 500;
+    fill: #d4d5d9;
+}
+
+.route-chip text.chip-badge {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .03em;
+    fill: #0e0e10;
 }
 
 /* ==========================================================
