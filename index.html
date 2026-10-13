@@ -254,43 +254,20 @@
                         </video>
                     </div>
 
-                    <!-- Draggable windows (desktop only, decorative) -->
-                    <div class="win win-ai" data-drag aria-hidden="true">
+                    <!-- Draggable windows (desktop only, decorative): crops of real SafiTrack screens -->
+                    <div class="win win-shot win-ai" data-drag aria-hidden="true">
                         <div class="win-bar"><span class="win-dots"><i></i><i></i><i></i></span><span class="win-title">Safi AI</span></div>
-                        <div class="win-body">
-                            <p class="ai-ask">What does my day look like?</p>
-                            <div class="ai-reply">
-                                <span class="ai-avatar">S</span>
-                                <p>5 visits planned, 1.5 km in total. Start with <b>Amazon</b> at 9:30, then
-                                    <b>Microsoft</b>.</p>
-                            </div>
-                            <div class="ai-chips"><span>Focus today</span><span>Needs attention</span></div>
-                        </div>
+                        <img src="assets/home/win-ai.webp" alt="" width="600" height="421" draggable="false">
                     </div>
 
-                    <div class="win win-dark win-feed" data-drag aria-hidden="true">
+                    <div class="win win-shot win-dark win-feed" data-drag aria-hidden="true">
                         <div class="win-bar"><span class="win-dots"><i></i><i></i><i></i></span><span class="win-title">Team activity</span><span class="live-dot"></span></div>
-                        <div class="win-body">
-                            <p class="feed-item"><span class="feed-pin"></span><span><b>Alex</b> visited Microsoft</span><time>now</time></p>
-                            <p class="feed-item"><span class="feed-pin"></span><span><b>Sarah</b> logged a call with Apple</span><time>12m</time></p>
-                            <p class="feed-item"><span class="feed-pin"></span><span><b>James</b> visited Salesforce</span><time>40m</time></p>
-                            <p class="feed-item"><span class="feed-pin"></span><span><b>Alex</b> moved Slack to Won</span><time>1h</time></p>
-                        </div>
+                        <img src="assets/home/win-feed.webp" alt="" width="600" height="529" draggable="false">
                     </div>
 
-                    <div class="win win-visit" data-drag aria-hidden="true">
-                        <div class="win-bar"><span class="win-dots"><i></i><i></i><i></i></span><span class="win-title">Visit · Microsoft</span></div>
-                        <div class="win-body">
-                            <div class="visit-grid">
-                                <p><small>Sales rep</small>Alex Carter</p>
-                                <p><small>Lead score</small>80%</p>
-                                <p><small>Contact</small>Sarah Mitchell</p>
-                                <p><small>Travel time</small>22 min</p>
-                            </div>
-                            <p class="visit-label">AI summary</p>
-                            <p class="visit-summary"><b>Hot opportunity.</b> Procurement confirmed Q2 budget. Next
-                                step: send a detailed proposal by 8 March.</p>
-                        </div>
+                    <div class="win win-shot win-visit" data-drag aria-hidden="true">
+                        <div class="win-bar"><span class="win-dots"><i></i><i></i><i></i></span><span class="win-title">Visit · Seefeld Data Centre</span></div>
+                        <img src="assets/home/win-visit.webp" alt="" width="600" height="475" draggable="false">
                     </div>
                 </div>
             </div>
@@ -337,8 +314,8 @@
                                         <span aria-hidden="true">→</span></a>
                                 </div>
                                 <div class="canvas canvas-wide">
-                                    <img src="assets/home/route.webp" alt="Route planning screen with five stops on a map"
-                                        width="2460" height="1456" loading="lazy">
+                                    <img src="assets/home/route.webp" alt="Route planning screen with five stops in central Zurich on a map"
+                                        width="2000" height="1193" loading="lazy">
                                 </div>
                             </article>
 
@@ -352,8 +329,8 @@
                                 </div>
                                 <div class="canvas canvas-panel">
                                     <img src="assets/home/visit.webp"
-                                        alt="Visit record for Microsoft with lead score, notes and an AI summary"
-                                        width="938" height="1330" loading="lazy">
+                                        alt="Visit record for Seefeld Data Centre with lead score, travel time and notes"
+                                        width="720" height="1050" loading="lazy">
                                 </div>
                             </article>
 
@@ -365,38 +342,10 @@
                                     <a href="pages/features/workflows-feature.html" class="card-link">Workflows
                                         <span aria-hidden="true">→</span></a>
                                 </div>
-                                <div class="canvas canvas-flow">
-                                    <div class="wf" aria-label="Example workflow: when a new opportunity over $500,000 is created, create a proposal task and notify the sales manager">
-                                        <div class="wf-node wf-trigger">
-                                            <span class="wf-tag">Trigger</span>
-                                            <span class="wf-status">Triggered</span>
-                                            <p class="wf-title"><span class="wf-icon wf-blue">+</span>Record created</p>
-                                            <p class="wf-sub">New opportunity</p>
-                                        </div>
-                                        <div class="wf-node">
-                                            <span class="wf-status">Passed</span>
-                                            <p class="wf-title"><span class="wf-icon wf-violet">?</span>Condition</p>
-                                            <p class="wf-sub">Value over $500,000</p>
-                                        </div>
-                                        <div class="wf-node">
-                                            <span class="wf-status">Completed</span>
-                                            <p class="wf-title"><span class="wf-icon wf-amber">✓</span>Create task</p>
-                                            <p class="wf-sub">Send detailed proposal</p>
-                                        </div>
-                                        <div class="wf-node">
-                                            <span class="wf-status">Completed</span>
-                                            <p class="wf-title"><span class="wf-icon wf-pink">!</span>Send notification</p>
-                                            <p class="wf-sub">Notify sales manager</p>
-                                        </div>
-                                        <svg class="wf-lines" width="600" height="340" viewBox="0 0 600 340" aria-hidden="true">
-                                            <path d="M232 78 H364" />
-                                            <path d="M476 116 V164 Q476 172 468 172 H132 Q124 172 124 180 V226" />
-                                            <path d="M232 268 H364" />
-                                            <path class="wf-head" d="M359 73 L365 78 L359 83" />
-                                            <path class="wf-head" d="M119 221 L124 227 L129 221" />
-                                            <path class="wf-head" d="M359 263 L365 268 L359 273" />
-                                        </svg>
-                                    </div>
+                                <div class="canvas canvas-wide">
+                                    <img src="assets/home/workflow.webp"
+                                        alt="Workflow builder: when an opportunity over $100,000 is created, create a task and notify the sales manager"
+                                        width="2000" height="1193" loading="lazy">
                                 </div>
                             </article>
 
@@ -408,43 +357,10 @@
                                     <a href="pages/features/safi-ai-feature.html" class="card-link">Safi AI
                                         <span aria-hidden="true">→</span></a>
                                 </div>
-                                <div class="canvas canvas-chat">
-                                    <div class="chat" role="img"
-                                        aria-label="Safi AI lists three deals that need attention this week">
-                                        <div class="chat-bar">
-                                            <span class="ai-avatar">S</span>
-                                            <p class="chat-name">Safi AI <small>Online</small></p>
-                                            <span class="chat-new">New chat</span>
-                                        </div>
-                                        <div class="chat-body">
-                                            <p class="chat-me">Which deals need attention this week?</p>
-                                            <div class="chat-ai">
-                                                <p>Three deals have something due before Friday:</p>
-                                                <ul class="chat-deals">
-                                                    <li>
-                                                        <span class="deal-logo">A</span>
-                                                        <span class="deal-main"><b>CRM Platform Rollout</b><small>Apple Inc. · legal sign-off stalled 7 days</small></span>
-                                                        <span class="deal-val">$420,000</span>
-                                                    </li>
-                                                    <li>
-                                                        <span class="deal-logo">M</span>
-                                                        <span class="deal-main"><b>Enterprise Licence Expansion</b><small>Microsoft · send catalogue by Fri</small></span>
-                                                        <span class="deal-val">$850,000</span>
-                                                    </li>
-                                                    <li>
-                                                        <span class="deal-logo">H</span>
-                                                        <span class="deal-main"><b>Route Optimisation Deal</b><small>HubSpot · product demo Wed</small></span>
-                                                        <span class="deal-val">$930,000</span>
-                                                    </li>
-                                                </ul>
-                                                <p>Apple has gone the longest without an update, so I'd start there.</p>
-                                            </div>
-                                        </div>
-                                        <div class="chat-input">
-                                            <span>Message Safi AI…</span>
-                                            <span class="chat-send">↑</span>
-                                        </div>
-                                    </div>
+                                <div class="canvas canvas-panel">
+                                    <img src="assets/home/safi-ai.webp"
+                                        alt="Safi AI lists four open deals that need attention this week, worth $711,000 together"
+                                        width="720" height="1191" loading="lazy">
                                 </div>
                             </article>
 
@@ -459,7 +375,7 @@
                                 <div class="canvas canvas-wide">
                                     <img src="assets/home/pipeline.webp"
                                         alt="Opportunities board with lead, in progress, won and lost columns"
-                                        width="2460" height="1406" loading="lazy">
+                                        width="2000" height="1193" loading="lazy">
                                 </div>
                             </article>
                         </div>
