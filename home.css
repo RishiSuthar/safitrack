@@ -810,8 +810,6 @@ blockquote {
 .showcase-frame {
     max-width: 1060px;
     margin: 0 auto;
-    transform-origin: 50% 0;
-    will-change: transform;
 }
 
 .win {
@@ -1137,15 +1135,6 @@ blockquote {
     border-radius: 12px 12px 0 0;
 }
 
-/* home.js moves the screenshots with scroll and the pointer */
-.canvas img {
-    will-change: transform;
-}
-
-.canvas-wide {
-    cursor: crosshair;
-}
-
 /* The rest */
 
 .more {
@@ -1282,7 +1271,18 @@ blockquote {
     -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 52px), #000 calc(100% - 36px), transparent 100%);
     mask: radial-gradient(farthest-side, transparent calc(100% - 52px), #000 calc(100% - 36px), transparent 100%);
     filter: blur(18px);
-    opacity: calc(.1 + var(--p) * .45);
+    opacity: calc(.1 + var(--p) * .45 + var(--flash, 0) * .3);
+    mix-blend-mode: screen;
+}
+
+/* occasional lightning off the horizon, drawn by home.js */
+.intel-sparks {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
     mix-blend-mode: screen;
 }
 
@@ -1331,6 +1331,141 @@ blockquote {
     font-size: 14.5px;
     line-height: 1.5;
     color: #8e9098;
+}
+
+/* ==========================================================
+   Signals (dark): copy + rotating list on the left, orbit on the right
+   ========================================================== */
+
+.signals {
+    background: #0e0e10;
+    color: #fff;
+}
+
+.signals .rail {
+    border-top: 1px solid rgba(255, 255, 255, .09);
+}
+
+.signals-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 640px;
+}
+
+.signals-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 72px;
+    padding: 88px 48px 64px;
+}
+
+.signals-head .split-title {
+    margin-top: 18px;
+    max-width: 520px;
+}
+
+.signals-head .btn {
+    margin-top: 32px;
+}
+
+.signals-list {
+    max-width: 420px;
+}
+
+.signal {
+    display: block;
+    width: 100%;
+    padding: 12px 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.signal:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
+.signal-title {
+    display: block;
+    font-size: 19px;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    color: #6f727a;
+    transition: color .25s ease;
+}
+
+.signal:hover .signal-title,
+.signal.is-active .signal-title {
+    color: #fff;
+}
+
+.signal-text {
+    display: block;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    font-size: 15.5px;
+    line-height: 1.55;
+    color: #8e9098;
+    transition: max-height .45s var(--ease), opacity .3s ease, margin-top .45s var(--ease);
+}
+
+.signal.is-active .signal-text {
+    max-height: 96px;
+    margin-top: 8px;
+    opacity: 1;
+}
+
+.signals-bar {
+    height: 2px;
+    margin-top: 20px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, .1);
+    overflow: hidden;
+}
+
+.signals-bar i {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: #a3acc2;
+}
+
+.signals-art {
+    position: relative;
+    min-height: 560px;
+    border-left: 1px solid rgba(255, 255, 255, .09);
+    overflow: hidden;
+}
+
+.signals-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+@media (max-width: 960px) {
+    .signals-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .signals-copy {
+        gap: 48px;
+        padding: 64px 20px 40px;
+    }
+
+    .signals-art {
+        min-height: 400px;
+        border-left: 0;
+        border-top: 1px solid rgba(255, 255, 255, .09);
+    }
 }
 
 /* ==========================================================
@@ -1393,10 +1528,6 @@ blockquote {
     animation: marquee 42s linear infinite;
 }
 
-.marquee:hover .marquee-track {
-    animation-play-state: paused;
-}
-
 /* three identical sets: shift by one set for a seamless loop */
 @keyframes marquee {
     to {
@@ -1419,23 +1550,6 @@ blockquote {
     width: 34px;
     height: 34px;
     fill: #e6e7ea;
-}
-
-.tile .tile-line {
-    fill: none;
-    stroke: #e6e7ea;
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.tile .tile-line text {
-    fill: #e6e7ea;
-    stroke: none;
-    font-family: inherit;
-    font-size: 5.6px;
-    font-weight: 700;
-    letter-spacing: .02em;
 }
 
 /* Import / export block */
@@ -1513,7 +1627,7 @@ blockquote {
     text-anchor: middle;
 }
 
-.route-stops g {
+.route-stops > g {
     opacity: 0;
     transition: opacity .4s ease;
 }
@@ -1522,15 +1636,87 @@ blockquote {
     stroke-dashoffset: 0;
 }
 
-.route-art.is-run .route-stops g {
+.route-art.is-run .route-stops > g {
     opacity: 1;
 }
 
-.route-art.is-run .route-stops g:nth-of-type(1) { transition-delay: .35s; }
-.route-art.is-run .route-stops g:nth-of-type(2) { transition-delay: .7s; }
-.route-art.is-run .route-stops g:nth-of-type(3) { transition-delay: 1.05s; }
-.route-art.is-run .route-stops g:nth-of-type(4) { transition-delay: 1.4s; }
-.route-art.is-run .route-stops g:nth-of-type(5) { transition-delay: 1.75s; }
+.route-art.is-run .route-stops > g:nth-of-type(1) { transition-delay: .35s; }
+.route-art.is-run .route-stops > g:nth-of-type(2) { transition-delay: .7s; }
+.route-art.is-run .route-stops > g:nth-of-type(3) { transition-delay: 1.05s; }
+.route-art.is-run .route-stops > g:nth-of-type(4) { transition-delay: 1.4s; }
+.route-art.is-run .route-stops > g:nth-of-type(5) { transition-delay: 1.75s; }
+
+/* interactive layer (home.js): cursor glow, near stops grow, a pulse runs the route */
+.connect-art {
+    --mx: 50%;
+    --my: 50%;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.connect-art::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(240px circle at var(--mx) var(--my), rgba(56, 189, 248, .10), transparent 70%);
+    opacity: 0;
+    transition: opacity .3s ease;
+    pointer-events: none;
+}
+
+.connect-art:hover::before {
+    opacity: 1;
+}
+
+.lattice {
+    transition: transform .6s var(--ease);
+}
+
+.route-stops .stop {
+    transition: transform .25s var(--ease);
+}
+
+.route-stops .stop circle {
+    transition: fill .25s ease, stroke .25s ease;
+}
+
+.route-stops .stop.is-near circle {
+    fill: #16202e;
+    stroke: #7dd3fc;
+}
+
+.route-pulse {
+    fill: #fff;
+    opacity: 0;
+    filter: drop-shadow(0 0 4px rgba(125, 211, 252, .95));
+    transition: opacity .4s ease;
+}
+
+.route-art.is-pulsing .route-pulse {
+    opacity: 1;
+}
+
+.route-tip {
+    opacity: 0;
+    transition: opacity .2s ease;
+    pointer-events: none;
+}
+
+.route-tip.is-on {
+    opacity: 1;
+}
+
+.route-tip rect {
+    fill: #1b1b20;
+    stroke: rgba(255, 255, 255, .14);
+}
+
+.route-tip text {
+    fill: #e6e7ea;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+}
 
 /* ==========================================================
    Customers
@@ -2537,14 +2723,12 @@ blockquote {
    Pointer spotlight on cards (home.js sets --mx / --my)
    ========================================================== */
 
-.more-item,
 .plan,
 .intel-item {
     --mx: 50%;
     --my: 50%;
 }
 
-.more-item:hover,
 .plan:hover {
     background-image: radial-gradient(280px circle at var(--mx) var(--my), rgba(47, 95, 208, .08), transparent 70%);
 }
