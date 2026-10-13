@@ -1,0 +1,1015 @@
+/* ═══════════════════════════════════════════════════════════
+   Calls: page, call detail modal, log / schedule modal
+   Markup: modules/features/call-logs.js and #call-log-modal in index.html
+   ═══════════════════════════════════════════════════════════ */
+
+.calls-page {
+  --calls-control-h: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ── Toolbar ───────────────────────────────────────────── */
+
+.calls-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.calls-toolbar-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.calls-toolbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.calls-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 280px;
+  max-width: 100%;
+}
+
+.calls-search svg {
+  position: absolute;
+  left: 10px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.calls-search input {
+  width: 100%;
+  height: var(--calls-control-h);
+  padding: 0 var(--space-3) 0 32px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--btn-radius);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--type-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.calls-search input::placeholder {
+  color: var(--text-muted);
+}
+
+.calls-search input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-bg);
+}
+
+.calls-new-btn {
+  height: var(--calls-control-h);
+  padding: 0 var(--space-3);
+  gap: 6px;
+  font-size: var(--type-sm);
+}
+
+/* Segmented control (direction, scope, modal mode) */
+.calls-seg {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  height: var(--calls-control-h, 32px);
+  padding: 2px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--btn-radius);
+  background: var(--bg-tertiary);
+  box-sizing: border-box;
+}
+
+.calls-seg-btn,
+.calls-radio-seg span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 0 var(--space-3);
+  border: 0;
+  border-radius: var(--radius-xs);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--type-sm);
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.calls-seg-btn:hover,
+.calls-radio-seg label:hover span {
+  color: var(--text-primary);
+}
+
+.calls-seg-btn.is-active,
+.calls-radio-seg input:checked + span {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font-weight: 600;
+  box-shadow: 0 0 0 1px var(--border-color);
+}
+
+.calls-seg-btn:focus-visible,
+.calls-radio-seg input:focus-visible + span {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+/* Dropdowns sized to the toolbar */
+.calls-toolbar .calls-dd .crm-dd-trigger {
+  height: var(--calls-control-h);
+  min-width: 140px;
+  border-radius: var(--btn-radius);
+  font-size: var(--type-sm);
+}
+
+/* Date range: two calendar inputs in one bordered control */
+.calls-range {
+  display: inline-flex;
+  align-items: center;
+  height: var(--calls-control-h);
+  border: 1px solid var(--border-color);
+  border-radius: var(--btn-radius);
+  background: var(--bg-secondary);
+  box-sizing: border-box;
+}
+
+.calls-range:focus-within {
+  border-color: var(--color-primary);
+}
+
+.calls-range input {
+  width: 132px;
+  height: 100%;
+  padding: 0 var(--space-2) 0 var(--space-3);
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--type-sm);
+}
+
+.calls-range input::placeholder {
+  color: var(--text-muted);
+}
+
+.calls-range input:focus {
+  outline: none;
+}
+
+.calls-range .calendar-icon-trigger {
+  right: 8px;
+}
+
+.calls-range .calendar-icon-trigger svg {
+  width: 14px;
+  height: 14px;
+}
+
+.calls-range-sep {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+.calls-toolbar .crm-filter-clear[hidden] {
+  display: none;
+}
+
+.calls-total {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Results ───────────────────────────────────────────── */
+
+.calls-results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  transition: opacity var(--transition-base);
+}
+
+.calls-results.is-loading {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.calls-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.calls-section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--type-sm);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.calls-section-count {
+  color: var(--text-muted);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+.calls-panel {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  overflow: hidden;
+}
+
+.calls-group + .calls-group {
+  border-top: 1px solid var(--border-color);
+}
+
+.calls-group-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.calls-group-head h3 {
+  margin: 0;
+  font-size: var(--type-xs);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.calls-group-head span {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.calls-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Row: one grid so every column lines up across groups */
+.calls-row {
+  --calls-cols: 28px minmax(140px, 1.1fr) minmax(0, 2fr) 116px 56px 64px 64px;
+  display: grid;
+  grid-template-columns: var(--calls-cols);
+  align-items: center;
+  column-gap: var(--space-4);
+  min-height: 52px;
+  padding: var(--space-2) var(--space-4);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.calls-row--upcoming {
+  --calls-cols: 28px minmax(140px, 1.1fr) minmax(0, 2fr) 172px 112px 64px;
+}
+
+.calls-panel--team .calls-row {
+  --calls-cols: 28px minmax(140px, 1.1fr) minmax(0, 1.6fr) 120px 116px 56px 64px 64px;
+}
+
+.calls-panel--team .calls-row--upcoming {
+  --calls-cols: 28px minmax(140px, 1.1fr) minmax(0, 1.6fr) 120px 172px 112px 64px;
+}
+
+.calls-row + .calls-row {
+  border-top: 1px solid var(--border-color-light);
+}
+
+.calls-row:hover {
+  background: var(--bg-hover);
+}
+
+.calls-dir {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--btn-radius);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.calls-dir--scheduled {
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+
+.calls-who {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.calls-name {
+  align-self: flex-start;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--type-md);
+  font-weight: 600;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.calls-name:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.calls-company,
+.calls-note,
+.calls-rep {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+.calls-note {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--type-sm);
+}
+
+.calls-rep {
+  color: var(--text-secondary);
+  font-size: var(--type-sm);
+}
+
+.calls-duration,
+.calls-time {
+  color: var(--text-secondary);
+  font-size: var(--type-sm);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.calls-duration {
+  color: var(--text-muted);
+}
+
+.calls-when {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--type-sm);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.calls-overdue {
+  color: var(--color-danger);
+  font-weight: 600;
+}
+
+.calls-log-outcome {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.calls-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.calls-row:hover .calls-actions,
+.calls-row:focus-within .calls-actions {
+  opacity: 1;
+}
+
+.calls-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--btn-radius);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.calls-icon-btn:hover {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+.calls-icon-btn--danger:hover {
+  color: var(--color-danger);
+}
+
+.calls-icon-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.calls-more {
+  align-self: center;
+}
+
+/* Outcome tag: dot + label, colour carried by the dot */
+.calls-outcome {
+  --tone: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  max-width: 100%;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xs);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: var(--type-xs);
+  font-weight: 550;
+  white-space: nowrap;
+}
+
+.calls-outcome::before {
+  content: '';
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--tone);
+}
+
+.calls-outcome--success { --tone: var(--color-success); }
+.calls-outcome--info { --tone: #6d5bd0; }
+.calls-outcome--warning { --tone: var(--color-warning); }
+.calls-outcome--danger { --tone: var(--color-danger); }
+.calls-outcome--primary { --tone: var(--color-primary); }
+.calls-outcome--neutral { --tone: var(--text-muted); }
+
+/* Empty state */
+.calls-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-9) var(--space-5);
+  border: 1px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  text-align: center;
+}
+
+.calls-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin-bottom: var(--space-1);
+  border-radius: var(--radius-md);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+}
+
+.calls-empty h2 {
+  margin: 0;
+  font-size: var(--type-md);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.calls-empty p {
+  max-width: 340px;
+  margin: 0 0 var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+  line-height: 1.5;
+}
+
+.calls-empty .btn {
+  gap: 6px;
+}
+
+/* ── Call detail modal ─────────────────────────────────── */
+
+#call-log-view-modal .calls-detail {
+  max-width: min(520px, 94vw);
+  outline: none;
+  border-radius: var(--radius-xl);
+  display: flex;
+  flex-direction: column;
+}
+
+.calls-detail-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-5) var(--space-4);
+}
+
+.calls-detail-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font-size: var(--type-sm);
+  font-weight: 600;
+}
+
+.calls-detail-heading {
+  flex: 1;
+  min-width: 0;
+}
+
+.calls-detail-heading h3 {
+  margin: 0;
+  font-size: var(--type-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.calls-detail-heading p {
+  margin: 2px 0 0;
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+}
+
+.calls-detail-head .modal-close {
+  align-self: flex-start;
+}
+
+.calls-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.calls-link:hover {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.calls-link--muted {
+  color: var(--text-secondary);
+}
+
+.calls-detail-facts {
+  display: grid;
+  margin: 0;
+  padding: var(--space-1) var(--space-5);
+  border-top: 1px solid var(--border-color);
+}
+
+.calls-detail-facts div {
+  display: grid;
+  grid-template-columns: 112px 1fr;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 40px;
+}
+
+.calls-detail-facts div + div {
+  border-top: 1px solid var(--border-color-light);
+}
+
+.calls-detail-facts dt {
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+}
+
+.calls-detail-facts dd {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--type-sm);
+  font-weight: 500;
+}
+
+.calls-detail-notes {
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  border-top: 1px solid var(--border-color);
+  overflow-y: auto;
+  max-height: 40vh;
+}
+
+.calls-detail-notes h4 {
+  margin: 0 0 var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+  font-weight: 600;
+}
+
+.calls-detail-notes p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: var(--type-md);
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.calls-muted,
+.calls-detail-notes p.calls-muted {
+  color: var(--text-muted);
+}
+
+.calls-detail-foot {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-5);
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-primary);
+}
+
+.calls-delete-btn {
+  margin-right: auto;
+  gap: 6px;
+  color: var(--text-secondary);
+}
+
+.calls-delete-btn:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-bg, rgba(220, 38, 38, 0.08));
+}
+
+/* ── Log / schedule modal ──────────────────────────────── */
+
+/* The mode switch is the header; the h3 stays for screen readers. */
+.calls-form-head {
+  gap: var(--space-3);
+}
+
+.calls-mode {
+  height: 32px;
+}
+
+.calls-mode .calls-seg-btn {
+  padding: 0 var(--space-4);
+}
+
+/* Label column + field column, one row per property */
+.calls-props {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.calls-prop {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--space-3);
+}
+
+.calls-prop--top {
+  align-items: start;
+}
+
+.calls-prop--top .calls-prop-label {
+  padding-top: 9px;
+}
+
+.calls-prop-label {
+  color: var(--text-secondary);
+  font-size: var(--type-sm);
+  font-weight: 500;
+  line-height: 18px;
+}
+
+.calls-required {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.calls-form.is-scheduling .calls-log-only {
+  display: none;
+}
+
+.calls-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--btn-radius);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--type-md);
+  box-sizing: border-box;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+textarea.calls-input {
+  height: auto;
+  min-height: 96px;
+  padding: var(--space-2) var(--space-3);
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.calls-input::placeholder {
+  color: var(--text-muted);
+}
+
+.calls-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-bg);
+}
+
+#call-log-modal .calls-radio-seg {
+  --calls-control-h: 36px;
+  width: 240px;
+  max-width: 100%;
+}
+
+#call-log-modal .calls-radio-seg label {
+  flex: 1;
+  height: 100%;
+}
+
+#call-log-modal .calls-radio-seg span {
+  width: 100%;
+}
+
+/* Radios stay focusable for the keyboard; the chips are what you see */
+#call-log-modal .calls-radio-seg input,
+#call-log-modal .calls-outcome-options input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* The calendar stores "YYYY-MM-DDTHH:MM"; a readable copy is drawn over it. */
+.calls-when-field .calendar-input-wrapper {
+  position: relative;
+}
+
+.calls-when-field #call-datetime {
+  color: transparent;
+}
+
+.calls-when-text {
+  position: absolute;
+  left: var(--space-3);
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+  font-size: var(--type-md);
+  pointer-events: none;
+}
+
+.calls-duration-field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+}
+
+.calls-duration-field .calls-input {
+  width: 88px;
+  -moz-appearance: textfield;
+}
+
+.calls-duration-field .calls-input::-webkit-inner-spin-button,
+.calls-duration-field .calls-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.calls-outcome-options {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.calls-outcome-options label {
+  position: relative;
+  min-width: 0;
+}
+
+.calls-outcome-options .calls-outcome {
+  width: 100%;
+  height: 36px;
+  padding: 0 var(--space-3);
+  border-radius: var(--btn-radius);
+  font-size: var(--type-sm);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+.calls-outcome-options label:hover .calls-outcome {
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
+.calls-outcome-options input:checked + .calls-outcome {
+  border-color: var(--tone);
+  background: color-mix(in srgb, var(--tone) 10%, var(--bg-secondary));
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.calls-outcome-options input:focus-visible + .calls-outcome {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+/* ── Small screens ─────────────────────────────────────── */
+
+@media (max-width: 767px) {
+  .calls-page {
+    --calls-control-h: 36px;
+    gap: var(--space-4);
+  }
+
+  .calls-toolbar-row:first-child {
+    flex-wrap: nowrap;
+  }
+
+  .calls-search {
+    flex: 1;
+    width: auto;
+  }
+
+  .calls-new-btn span {
+    display: none;
+  }
+
+  .calls-new-btn {
+    width: var(--calls-control-h);
+    padding: 0;
+    justify-content: center;
+  }
+
+  /* Filters scroll sideways instead of stacking */
+  .calls-filters {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 calc(-1 * var(--space-3));
+    padding: 0 var(--space-3) 2px;
+    scrollbar-width: none;
+  }
+
+  .calls-filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .calls-filters > * {
+    flex-shrink: 0;
+  }
+
+  .calls-total {
+    display: none;
+  }
+
+  .calls-group-head {
+    padding: var(--space-2) var(--space-3);
+  }
+
+  /* Row collapses to: icon | name over company | time over status */
+  .calls-row,
+  .calls-row--upcoming,
+  .calls-panel--team .calls-row,
+  .calls-panel--team .calls-row--upcoming {
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    grid-template-rows: auto auto;
+    grid-template-areas:
+      "dir who time"
+      "dir who status";
+    column-gap: var(--space-3);
+    row-gap: 4px;
+    padding: var(--space-3);
+  }
+
+  .calls-dir { grid-area: dir; align-self: start; }
+  .calls-who { grid-area: who; align-self: center; }
+  .calls-time,
+  .calls-when { grid-area: time; justify-self: end; }
+  .calls-status,
+  .calls-log-outcome { grid-area: status; justify-self: end; }
+
+  .calls-when {
+    font-size: var(--type-xs);
+  }
+
+  .calls-note,
+  .calls-duration,
+  .calls-rep,
+  .calls-actions {
+    display: none;
+  }
+
+  /* Form: labels sit above their fields */
+  .calls-prop {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 6px;
+  }
+
+  .calls-prop--top .calls-prop-label {
+    padding-top: 0;
+  }
+
+  .calls-mode {
+    flex: 1;
+  }
+
+  .calls-mode .calls-seg-btn {
+    flex: 1;
+    padding: 0 var(--space-2);
+  }
+
+  #call-log-modal .calls-radio-seg {
+    width: 100%;
+  }
+
+  .calls-outcome-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  #call-log-view-modal .calls-detail {
+    max-width: 100%;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  }
+
+  .calls-detail-head,
+  .calls-detail-facts,
+  .calls-detail-notes,
+  .calls-detail-foot {
+    padding-left: var(--space-4);
+    padding-right: var(--space-4);
+  }
+}
