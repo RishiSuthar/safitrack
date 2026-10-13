@@ -260,7 +260,13 @@ blockquote {
     display: flex;
     align-items: center;
     height: var(--nav-h);
-    gap: 32px;
+    gap: 48px;
+}
+
+/* the bar spans the full window, not the content column */
+.wrap.nav-inner {
+    max-width: none;
+    padding: 0 24px;
 }
 
 .nav-logo img,
@@ -269,6 +275,15 @@ blockquote {
     height: auto;
     /* the logo artwork is white; render it in ink */
     filter: brightness(0);
+}
+
+.nav-logo {
+    display: flex;
+    flex: none;
+}
+
+.nav-logo img {
+    width: 128px;
 }
 
 .nav-links {
@@ -319,6 +334,12 @@ blockquote {
     display: flex;
     align-items: center;
     gap: 6px;
+}
+
+.nav-open {
+    height: 36px;
+    padding: 0 15px;
+    font-size: 14px;
 }
 
 /* Mega menu */
@@ -526,7 +547,7 @@ blockquote {
 
 .mobile-actions {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
     margin-top: 28px;
 }
@@ -565,9 +586,15 @@ blockquote {
     color: #8e9098;
 }
 
-.nav.is-dark:not(.is-open) .nav-actions .btn-dark {
-    background: #fff;
-    color: var(--ink);
+.nav.is-dark:not(.is-open) .nav-actions .btn-light {
+    background: transparent;
+    border-color: rgba(255, 255, 255, .22);
+    color: #fff;
+    box-shadow: none;
+}
+
+.nav.is-dark:not(.is-open) .nav-actions .btn-light:hover {
+    background: rgba(255, 255, 255, .08);
 }
 
 .nav.is-dark:not(.is-open) .nav-burger span {
@@ -827,7 +854,8 @@ blockquote {
     user-select: none;
     -webkit-user-select: none;
     touch-action: none;
-    transform: translate(var(--dx, 0px), var(--dy, 0px));
+    /* --dx/--dy: where the visitor dragged it; --px/--py: mouse parallax */
+    transform: translate(calc(var(--dx, 0px) + var(--px, 0px)), calc(var(--dy, 0px) + var(--py, 0px)));
     animation: win-in .7s var(--ease) both;
     transition: box-shadow .2s ease;
 }
@@ -1274,6 +1302,17 @@ blockquote {
     mix-blend-mode: screen;
 }
 
+/* light dropping down the hairlines onto the horizon, drawn by home.js */
+.intel-sparks {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+}
+
 .planet-body {
     inset: 1px !important;
     background: radial-gradient(circle at 50% 0%, #17171a 0%, var(--dark) 30%);
@@ -1319,6 +1358,141 @@ blockquote {
     font-size: 14.5px;
     line-height: 1.5;
     color: #8e9098;
+}
+
+/* ==========================================================
+   Signals (dark): copy + rotating list on the left, orbit on the right
+   ========================================================== */
+
+.signals {
+    background: #0e0e10;
+    color: #fff;
+}
+
+.signals .rail {
+    border-top: 1px solid rgba(255, 255, 255, .09);
+}
+
+.signals-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 640px;
+}
+
+.signals-copy {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 72px;
+    padding: 88px 48px 64px;
+}
+
+.signals-head .split-title {
+    margin-top: 18px;
+    max-width: 520px;
+}
+
+.signals-head .btn {
+    margin-top: 32px;
+}
+
+.signals-list {
+    max-width: 420px;
+}
+
+.signal {
+    display: block;
+    width: 100%;
+    padding: 12px 0;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.signal:focus-visible {
+    outline: 2px solid #7dd3fc;
+    outline-offset: 4px;
+    border-radius: 4px;
+}
+
+.signal-title {
+    display: block;
+    font-size: 19px;
+    font-weight: 500;
+    letter-spacing: -0.015em;
+    color: #6f727a;
+    transition: color .25s ease;
+}
+
+.signal:hover .signal-title,
+.signal.is-active .signal-title {
+    color: #fff;
+}
+
+.signal-text {
+    display: block;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    font-size: 15.5px;
+    line-height: 1.55;
+    color: #8e9098;
+    transition: max-height .45s var(--ease), opacity .3s ease, margin-top .45s var(--ease);
+}
+
+.signal.is-active .signal-text {
+    max-height: 96px;
+    margin-top: 8px;
+    opacity: 1;
+}
+
+.signals-bar {
+    height: 2px;
+    margin-top: 20px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, .1);
+    overflow: hidden;
+}
+
+.signals-bar i {
+    display: block;
+    width: 0;
+    height: 100%;
+    background: #a3acc2;
+}
+
+.signals-art {
+    position: relative;
+    min-height: 560px;
+    border-left: 1px solid rgba(255, 255, 255, .09);
+    overflow: hidden;
+}
+
+.signals-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+@media (max-width: 960px) {
+    .signals-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .signals-copy {
+        gap: 48px;
+        padding: 64px 20px 40px;
+    }
+
+    .signals-art {
+        min-height: 400px;
+        border-left: 0;
+        border-top: 1px solid rgba(255, 255, 255, .09);
+    }
 }
 
 /* ==========================================================
@@ -1381,10 +1555,6 @@ blockquote {
     animation: marquee 42s linear infinite;
 }
 
-.marquee:hover .marquee-track {
-    animation-play-state: paused;
-}
-
 /* three identical sets: shift by one set for a seamless loop */
 @keyframes marquee {
     to {
@@ -1407,23 +1577,6 @@ blockquote {
     width: 34px;
     height: 34px;
     fill: #e6e7ea;
-}
-
-.tile .tile-line {
-    fill: none;
-    stroke: #e6e7ea;
-    stroke-width: 1.5;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.tile .tile-line text {
-    fill: #e6e7ea;
-    stroke: none;
-    font-family: inherit;
-    font-size: 5.6px;
-    font-weight: 700;
-    letter-spacing: .02em;
 }
 
 /* Import / export block */
@@ -1501,7 +1654,7 @@ blockquote {
     text-anchor: middle;
 }
 
-.route-stops g {
+.route-stops > g {
     opacity: 0;
     transition: opacity .4s ease;
 }
@@ -1510,15 +1663,118 @@ blockquote {
     stroke-dashoffset: 0;
 }
 
-.route-art.is-run .route-stops g {
+.route-art.is-run .route-stops > g {
     opacity: 1;
 }
 
-.route-art.is-run .route-stops g:nth-of-type(1) { transition-delay: .35s; }
-.route-art.is-run .route-stops g:nth-of-type(2) { transition-delay: .7s; }
-.route-art.is-run .route-stops g:nth-of-type(3) { transition-delay: 1.05s; }
-.route-art.is-run .route-stops g:nth-of-type(4) { transition-delay: 1.4s; }
-.route-art.is-run .route-stops g:nth-of-type(5) { transition-delay: 1.75s; }
+.route-art.is-run .route-stops > g:nth-of-type(1) { transition-delay: .35s; }
+.route-art.is-run .route-stops > g:nth-of-type(2) { transition-delay: .7s; }
+.route-art.is-run .route-stops > g:nth-of-type(3) { transition-delay: 1.05s; }
+.route-art.is-run .route-stops > g:nth-of-type(4) { transition-delay: 1.4s; }
+.route-art.is-run .route-stops > g:nth-of-type(5) { transition-delay: 1.75s; }
+
+/* interactive layer (home.js): a pulse runs the route; on hover the
+   pointer scrubs along it, lighting stops and popping a file chip at each */
+.connect-art {
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.lattice {
+    transition: transform .6s var(--ease);
+}
+
+.route-line {
+    transition: stroke-dashoffset 1.8s cubic-bezier(.4, 0, .2, 1), stroke .3s ease;
+}
+
+.connect-art.is-scrubbing .route-line {
+    stroke: rgba(255, 255, 255, .2);
+}
+
+.route-progress {
+    fill: none;
+    stroke: #e0f2fe;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 4px rgba(125, 211, 252, .8));
+    opacity: 0;
+    transition: opacity .3s ease;
+}
+
+.connect-art.is-scrubbing .route-progress {
+    opacity: 1;
+}
+
+.route-stops .stop {
+    transition: transform .3s var(--ease);
+}
+
+.route-stops .stop circle {
+    transition: fill .3s ease, stroke .3s ease;
+}
+
+.route-stops .stop text {
+    transition: fill .3s ease;
+}
+
+.route-stops .stop.is-lit {
+    transform: scale(1.15);
+}
+
+.route-stops .stop.is-lit circle {
+    fill: #e0f2fe;
+    stroke: #e0f2fe;
+}
+
+.route-stops .stop.is-lit text {
+    fill: #0e0e10;
+}
+
+.route-pulse {
+    fill: #fff;
+    opacity: 0;
+    filter: drop-shadow(0 0 5px rgba(125, 211, 252, .95));
+    transition: opacity .4s ease;
+}
+
+.route-art.is-pulsing .route-pulse,
+.connect-art.is-scrubbing .route-pulse {
+    opacity: 1;
+}
+
+.route-chip .chip-in {
+    opacity: 0;
+    transform: translateY(6px) scale(.9);
+    transform-box: fill-box;
+    transform-origin: center;
+    transition: opacity .25s ease, transform .35s var(--ease);
+}
+
+.route-chip.is-on .chip-in {
+    opacity: 1;
+    transform: none;
+}
+
+.route-chip rect.chip-bg {
+    fill: #17171b;
+    stroke: rgba(255, 255, 255, .14);
+}
+
+.route-chip text {
+    font-family: inherit;
+    font-size: 10.5px;
+    font-weight: 500;
+    fill: #d4d5d9;
+}
+
+.route-chip text.chip-badge {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .03em;
+    fill: #0e0e10;
+}
 
 /* ==========================================================
    Customers
@@ -2153,7 +2409,7 @@ blockquote {
     margin-bottom: 14px;
 }
 
-.field span {
+.field > span {
     display: block;
     margin-bottom: 6px;
     font-size: 13px;
@@ -2197,6 +2453,148 @@ blockquote {
 .field.is-invalid input,
 .field.is-invalid select {
     border-color: #d64545;
+}
+
+/* Site dropdown (home.js enhanceSelect) replacing the native select */
+.dd {
+    position: relative;
+}
+
+.dd-native {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0 !important;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.dd-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    width: 100%;
+    height: 42px;
+    padding: 0 12px;
+    border: 1px solid var(--line-2);
+    border-radius: 10px;
+    background: #fff;
+    font: inherit;
+    font-size: 15px;
+    color: var(--ink);
+    text-align: left;
+    cursor: pointer;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.dd-trigger.is-placeholder {
+    color: var(--faint);
+}
+
+.dd-trigger:focus-visible,
+.dd.is-open .dd-trigger {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(47, 95, 208, .14);
+}
+
+.dd-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dd-chevron {
+    flex: none;
+    fill: none;
+    stroke: #686b73;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform .2s var(--ease);
+}
+
+.dd.is-open .dd-chevron {
+    transform: rotate(180deg);
+}
+
+.field.is-invalid .dd-trigger {
+    border-color: #d64545;
+}
+
+.dd-list {
+    position: fixed;
+    z-index: 10;
+    margin: 0;
+    padding: 5px;
+    overflow-y: auto;
+    list-style: none;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(16, 18, 24, .06), 0 16px 40px -12px rgba(16, 18, 24, .24);
+    outline: none;
+    animation: dd-in .16s var(--ease);
+}
+
+.dd.opens-up .dd-list {
+    animation-name: dd-in-up;
+}
+
+@keyframes dd-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+}
+
+@keyframes dd-in-up {
+    from {
+        opacity: 0;
+        transform: translateY(4px);
+    }
+}
+
+.dd-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 14.5px;
+    color: var(--ink-2);
+    cursor: pointer;
+}
+
+.dd-option.is-active {
+    background: var(--bg-soft);
+    color: var(--ink);
+}
+
+.dd-option[aria-selected="true"] {
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.dd-check {
+    flex: none;
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0;
+}
+
+.dd-option[aria-selected="true"] .dd-check {
+    opacity: 1;
 }
 
 .check {
@@ -2519,6 +2917,45 @@ blockquote {
         grid-template-columns: 1fr;
         gap: 0;
     }
+}
+
+/* ==========================================================
+   Pointer spotlight on cards (home.js sets --mx / --my)
+   ========================================================== */
+
+.plan,
+.intel-item {
+    --mx: 50%;
+    --my: 50%;
+}
+
+.plan:hover {
+    background-image: radial-gradient(280px circle at var(--mx) var(--my), rgba(47, 95, 208, .08), transparent 70%);
+}
+
+.intel-item {
+    transition: background-color .2s ease;
+}
+
+.intel-item:hover {
+    background-image: radial-gradient(320px circle at var(--mx) var(--my), rgba(255, 255, 255, .07), transparent 70%);
+}
+
+/* ==========================================================
+   Scroll reveal: only once home.js has marked the page, so
+   content is never hidden if the script doesn't run
+   ========================================================== */
+
+.has-motion [data-reveal] {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity .7s var(--ease), transform .7s var(--ease);
+    transition-delay: var(--reveal-delay, 0s);
+}
+
+.has-motion [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
