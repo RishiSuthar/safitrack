@@ -687,9 +687,11 @@ function renderExecutiveTab() {
   const connectedCalls = callLogs.filter(c => (c.outcome || '').toLowerCase() === 'connected').length;
   const connRate = totalCalls > 0 ? Math.round((connectedCalls / totalCalls) * 100) : 0;
 
-  const completedTasks = tasks.filter(t => t.status === 'done').length;
+  // The Tasks board saves finished tasks as 'completed'; 'done' is kept for older rows.
+  const isTaskDone = (t) => t.status === 'completed' || t.status === 'done';
+  const completedTasks = tasks.filter(isTaskDone).length;
   const taskCompletionRate = tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 100;
-  const overdueTasks = tasks.filter(t => t.status !== 'done' && t.due_date && new Date(t.due_date) < new Date()).length;
+  const overdueTasks = tasks.filter(t => !isTaskDone(t) && t.due_date && new Date(t.due_date) < new Date()).length;
 
   content.innerHTML = `
     <div class="reports-section">
@@ -928,7 +930,7 @@ function renderLeaderboardRows(profiles, opportunities, visits, callLogs, tasks)
 
     const pVisits = visits.filter(v => v.user_id === p.id).length;
     const pCalls = callLogs.filter(c => c.user_id === p.id).length;
-    const pTasksDone = tasks.filter(t => t.assigned_to === p.id && t.status === 'done').length;
+    const pTasksDone = tasks.filter(t => t.assigned_to === p.id && (t.status === 'completed' || t.status === 'done')).length;
 
     return {
       name: `${p.first_name || ''} ${p.last_name || ''}`.trim() || p.email,
