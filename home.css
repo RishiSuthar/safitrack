@@ -277,6 +277,15 @@ blockquote {
     filter: brightness(0);
 }
 
+.nav-logo {
+    display: flex;
+    flex: none;
+}
+
+.nav-logo img {
+    width: 128px;
+}
+
 .nav-links {
     display: flex;
     align-items: center;
