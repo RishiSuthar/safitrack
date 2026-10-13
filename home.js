@@ -819,19 +819,21 @@
         window.addEventListener('resize', request);
         update();
 
-        initHorizonLightning(stage, planet);
+        initHorizonRain(stage, planet);
     }
 
-    // Now and then a soft bolt of light leaves the horizon, coloured like
-    // the rim where it strikes, and the glow swells with it. Every 4-9 s,
-    // only while the section is on screen; nothing draws in between.
-    function initHorizonLightning(stage, planet) {
+    // Light drops fall along the fine vertical hairlines and land on the
+    // horizon, leaving a small glow in the rim's colour where they hit.
+    // Only runs while the section is on screen.
+    function initHorizonRain(stage, planet) {
         const canvas = document.createElement('canvas');
         canvas.className = 'intel-sparks';
         canvas.setAttribute('aria-hidden', 'true');
         stage.insertBefore(canvas, stage.querySelector('.intel-heading'));
         const ctx = canvas.getContext('2d');
-        let dpr = 1, W = 0, H = 0, inView = false, timer = 0;
+        const HAIRLINE = 6;   // matches the 6px repeating gradient on .intel-stage::before
+        let dpr = 1, W = 0, H = 0, inView = false, raf = 0, last = 0, nextDrop = 0;
+        const drops = [], splashes = [];
         const rand = (a, b) => a + Math.random() * (b - a);
 
         const resize = () => {
@@ -842,109 +844,95 @@
 
         // Rim colour at angle a (degrees from the top, clockwise), matching the CSS conic gradient.
         const colourAt = (a) => {
-            if (a > 24) return [56, 189, 248];     // blue
-            if (a > 9) return [94, 234, 212];      // teal
-            if (a < -24) return [249, 115, 22];    // orange
-            if (a < -9) return [250, 204, 21];     // yellow
-            return [214, 220, 235];                // soft white near the top
+            if (a > 24) return [56, 189, 248];
+            if (a > 9) return [94, 234, 212];
+            if (a < -24) return [249, 115, 22];
+            if (a < -9) return [250, 204, 21];
+            return [214, 220, 235];
         };
 
-        // A jagged path leaving the rim, with one small branch.
-        const bolt = (x, y, nx, ny, len) => {
-            const tx = -ny, ty = nx;
-            const pts = [[x, y]];
-            const steps = 9;
-            for (let i = 1; i <= steps; i++) {
-                const d = (len * i) / steps, j = rand(-7, 7) * (i / steps + 0.3);
-                pts.push([x + nx * d + tx * j, y + ny * d + ty * j]);
-            }
-            const k = 3 + Math.floor(Math.random() * 3);
-            const [bx, by] = pts[k];
-            const turn = rand(-1, 1) > 0 ? 1 : -1;
-            const branch = [[bx, by]];
-            for (let i = 1; i <= 4; i++) {
-                const d = len * 0.12 * i;
-                branch.push([bx + (nx * 0.6 + tx * 0.8 * turn) * d + rand(-4, 4), by + (ny * 0.6 + ty * 0.8 * turn) * d + rand(-4, 4)]);
-            }
-            return [pts, branch];
-        };
-
-        const strike = () => {
-            const sr = stage.getBoundingClientRect();
-            const pr = planet.getBoundingClientRect();
+        const horizon = () => {
+            const sr = stage.getBoundingClientRect(), pr = planet.getBoundingClientRect();
             const R = pr.width / 2;
-            const cx = pr.left + R - sr.left, cy = pr.top + R - sr.top;
-            // pick a point on the visible part of the horizon
-            let a, x, y, tries = 0;
-            do {
-                a = rand(-34, 34);
-                x = cx + R * Math.sin(a * Math.PI / 180);
-                y = cy - R * Math.cos(a * Math.PI / 180);
-            } while ((x < 60 || x > W - 60 || y > H - 20) && ++tries < 12);
-            const nx = Math.sin(a * Math.PI / 180), ny = -Math.cos(a * Math.PI / 180);
-            const [r, g, b] = colourAt(a);
-            let shape = bolt(x, y, nx, ny, rand(60, 130));
-            const start = performance.now(), LIFE = 900;
-
-            const draw = (now) => {
-                const t = now - start;
-                // quick flicker, then a soft fade
-                const env = t < 70 ? t / 70 : t < 130 ? 0.35 : t < 200 ? 0.85 : Math.max(0, 1 - (t - 200) / (LIFE - 200));
-                if (t > 130 && t < 140) shape = bolt(x, y, nx, ny, rand(60, 130));
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-                ctx.clearRect(0, 0, W, H);
-                planet.style.setProperty('--flash', (env * 0.8).toFixed(3));
-                if (env > 0) {
-                    ctx.globalCompositeOperation = 'lighter';
-                    // glow along the rim where it strikes
-                    const span = 0.09;
-                    const ang = Math.atan2(y - cy, x - cx);
-                    ctx.beginPath();
-                    ctx.arc(cx, cy, R, ang - span, ang + span);
-                    ctx.strokeStyle = `rgba(${r},${g},${b},${(0.55 * env).toFixed(3)})`;
-                    ctx.lineWidth = 2.5;
-                    ctx.shadowColor = `rgba(${r},${g},${b},1)`;
-                    ctx.shadowBlur = 22;
-                    ctx.stroke();
-                    // the bolt and its branch
-                    shape.forEach((line, i) => {
-                        ctx.beginPath();
-                        line.forEach(([px, py], n) => (n ? ctx.lineTo(px, py) : ctx.moveTo(px, py)));
-                        // wide soft halo, then a bright core
-                        ctx.strokeStyle = `rgba(${r},${g},${b},${((i ? 0.18 : 0.3) * env).toFixed(3)})`;
-                        ctx.lineWidth = i ? 3 : 5;
-                        ctx.shadowBlur = 24;
-                        ctx.stroke();
-                        ctx.strokeStyle = `rgba(${Math.min(255, r + 90)},${Math.min(255, g + 70)},${Math.min(255, b + 60)},${((i ? 0.55 : 0.95) * env).toFixed(3)})`;
-                        ctx.lineWidth = i ? 0.9 : 1.6;
-                        ctx.shadowBlur = 10;
-                        ctx.stroke();
-                    });
-                }
-                if (t < LIFE) requestAnimationFrame(draw);
-                else { ctx.clearRect(0, 0, W, H); planet.style.setProperty('--flash', '0'); }
-            };
-            requestAnimationFrame(draw);
+            return { cx: pr.left + R - sr.left, cy: pr.top + R - sr.top, R };
         };
 
-        const schedule = () => {
-            clearTimeout(timer);
-            if (!inView) return;
-            timer = setTimeout(() => {
-                if (inView && !document.hidden) {
-                    strike();
-                    if (Math.random() < 0.2) setTimeout(strike, rand(250, 500));   // the odd double
+        const spawn = (h) => {
+            // pick a hairline above the visible part of the planet
+            const span = Math.min(h.R * 0.82, W / 2 - 40);
+            const x = Math.round((h.cx + rand(-span, span)) / HAIRLINE) * HAIRLINE + 0.5;
+            const dx = x - h.cx;
+            if (Math.abs(dx) >= h.R) return;
+            const hitY = h.cy - Math.sqrt(h.R * h.R - dx * dx);
+            if (hitY < 60) return;
+            const ang = Math.asin(dx / h.R) * 180 / Math.PI;
+            drops.push({ x, y: rand(-80, hitY * 0.35), hitY, speed: rand(170, 300), len: rand(40, 95), rgb: colourAt(ang), ang });
+        };
+
+        const frame = (now) => {
+            const dt = Math.min((now - (last || now)) / 1000, 0.05);
+            last = now;
+            const h = horizon();
+            if (now > nextDrop) {
+                spawn(h);
+                if (Math.random() < 0.25) spawn(h);
+                nextDrop = now + rand(260, 620);
+            }
+
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            ctx.clearRect(0, 0, W, H);
+            ctx.globalCompositeOperation = 'lighter';
+
+            for (let i = drops.length - 1; i >= 0; i--) {
+                const d = drops[i];
+                d.y += d.speed * dt;
+                const head = Math.min(d.y, d.hitY), tail = head - d.len;
+                const [r, g, b] = d.rgb;
+                const grad = ctx.createLinearGradient(0, tail, 0, head);
+                grad.addColorStop(0, 'rgba(255,255,255,0)');
+                grad.addColorStop(0.75, `rgba(${r},${g},${b},.35)`);
+                grad.addColorStop(1, 'rgba(255,255,255,.85)');
+                ctx.strokeStyle = grad;
+                ctx.lineWidth = 1;
+                ctx.beginPath(); ctx.moveTo(d.x, tail); ctx.lineTo(d.x, head); ctx.stroke();
+                if (d.y >= d.hitY) {
+                    splashes.push({ x: d.x, y: d.hitY, rgb: d.rgb, ang: d.ang, at: now });
+                    drops.splice(i, 1);
                 }
-                schedule();
-            }, rand(4000, 9000));
+            }
+
+            for (let i = splashes.length - 1; i >= 0; i--) {
+                const sp = splashes[i], age = (now - sp.at) / 1100;
+                if (age > 1) { splashes.splice(i, 1); continue; }
+                const [r, g, b] = sp.rgb, fade = 1 - age;
+                // a glow on the rim around the impact, spreading a little as it fades
+                const a0 = (sp.ang - 90) * Math.PI / 180, spread = 0.012 + age * 0.03;
+                ctx.beginPath();
+                ctx.arc(h.cx, h.cy, h.R, a0 - spread, a0 + spread);
+                ctx.strokeStyle = `rgba(${r},${g},${b},${(0.9 * fade).toFixed(3)})`;
+                ctx.lineWidth = 2;
+                ctx.shadowColor = `rgb(${r},${g},${b})`;
+                ctx.shadowBlur = 14;
+                ctx.stroke();
+                ctx.shadowBlur = 0;
+                const glow = ctx.createRadialGradient(sp.x, sp.y, 0, sp.x, sp.y, 26);
+                glow.addColorStop(0, `rgba(${r},${g},${b},${(0.35 * fade).toFixed(3)})`);
+                glow.addColorStop(1, `rgba(${r},${g},${b},0)`);
+                ctx.fillStyle = glow;
+                ctx.beginPath(); ctx.arc(sp.x, sp.y, 26, 0, Math.PI * 2); ctx.fill();
+            }
+            ctx.globalCompositeOperation = 'source-over';
+
+            raf = requestAnimationFrame(frame);
         };
 
         resize();
         window.addEventListener('resize', resize);
         new IntersectionObserver(([entry]) => {
             inView = entry.isIntersecting;
-            if (inView) { setTimeout(strike, 1200); schedule(); } else clearTimeout(timer);
-        }, { threshold: 0.3 }).observe(stage);
+            cancelAnimationFrame(raf);
+            if (inView) { last = 0; raf = requestAnimationFrame(frame); }
+        }, { threshold: 0.15 }).observe(stage);
     }
 
     // ------------------------------------------------------
