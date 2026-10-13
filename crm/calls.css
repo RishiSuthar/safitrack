@@ -138,16 +138,6 @@
   outline-offset: 1px;
 }
 
-.calls-seg--block {
-  display: flex;
-  width: 100%;
-  height: 36px;
-}
-
-.calls-seg--block .calls-seg-btn {
-  flex: 1;
-}
-
 /* Dropdowns sized to the toolbar */
 .calls-toolbar .calls-dd .crm-dd-trigger {
   height: var(--calls-control-h);
@@ -709,46 +699,93 @@
 
 /* ── Log / schedule modal ──────────────────────────────── */
 
-.calls-form .calls-seg--block {
-  margin-bottom: var(--space-4);
+/* The mode switch is the header; the h3 stays for screen readers. */
+.calls-form-head {
+  gap: var(--space-3);
 }
 
-.calls-form-pair,
-.calls-form-meta {
+.calls-mode {
+  height: 32px;
+}
+
+.calls-mode .calls-seg-btn {
+  padding: 0 var(--space-4);
+}
+
+/* Label column + field column, one row per property */
+.calls-props {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.calls-prop {
   display: grid;
-  gap: 0.75rem var(--space-3);
-  margin-bottom: 0.75rem;
+  grid-template-columns: 104px minmax(0, 1fr);
+  align-items: center;
+  column-gap: var(--space-3);
 }
 
-#call-log-modal :is(.calls-form-pair, .calls-form-meta) > .form-field {
-  margin-bottom: 0;
+.calls-prop--top {
+  align-items: start;
 }
 
-.calls-form-pair {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+.calls-prop--top .calls-prop-label {
+  padding-top: 9px;
 }
 
-.calls-form-meta {
-  grid-template-columns: auto minmax(0, 1fr) 104px;
+.calls-prop-label {
+  color: var(--text-secondary);
+  font-size: var(--type-sm);
+  font-weight: 500;
+  line-height: 18px;
 }
 
-.calls-form.is-scheduling .calls-form-meta {
-  grid-template-columns: auto minmax(0, 1fr);
+.calls-required {
+  color: var(--text-muted);
+  font-weight: 400;
 }
 
 .calls-form.is-scheduling .calls-log-only {
   display: none;
 }
 
-.calls-field-label {
-  color: var(--text-secondary);
+.calls-input {
+  width: 100%;
+  height: 36px;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-color);
+  border-radius: var(--btn-radius);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font: inherit;
   font-size: var(--type-md);
-  font-weight: 550;
+  box-sizing: border-box;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+textarea.calls-input {
+  height: auto;
+  min-height: 96px;
+  padding: var(--space-2) var(--space-3);
+  line-height: 1.5;
+  resize: vertical;
+}
+
+.calls-input::placeholder {
+  color: var(--text-muted);
+}
+
+.calls-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-bg);
 }
 
 #call-log-modal .calls-radio-seg {
-  --calls-control-h: 38px;
-  width: 100%;
+  --calls-control-h: 36px;
+  width: 240px;
+  max-width: 100%;
 }
 
 #call-log-modal .calls-radio-seg label {
@@ -766,44 +803,67 @@
   position: absolute;
   width: 1px;
   height: 1px;
-  padding: 0;
   margin: 0;
   opacity: 0;
   pointer-events: none;
 }
 
-.calls-outcome-field {
-  min-width: 0;
-  margin: 0 0 0.75rem;
-  padding: 0;
-  border: 0;
+/* The calendar stores "YYYY-MM-DDTHH:MM"; a readable copy is drawn over it. */
+.calls-when-field .calendar-input-wrapper {
+  position: relative;
 }
 
-.calls-outcome-field legend {
-  margin-bottom: 0.3rem;
-  padding: 0;
-  color: var(--text-secondary);
+.calls-when-field #call-datetime {
+  color: transparent;
+}
+
+.calls-when-text {
+  position: absolute;
+  left: var(--space-3);
+  right: 40px;
+  top: 50%;
+  transform: translateY(-50%);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
   font-size: var(--type-md);
-  font-weight: 550;
+  pointer-events: none;
 }
 
-.calls-outcome-field legend .required-indicator {
+.calls-duration-field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   color: var(--text-muted);
-  font-weight: 400;
+  font-size: var(--type-sm);
+}
+
+.calls-duration-field .calls-input {
+  width: 88px;
+  -moz-appearance: textfield;
+}
+
+.calls-duration-field .calls-input::-webkit-inner-spin-button,
+.calls-duration-field .calls-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .calls-outcome-options {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 6px;
 }
 
 .calls-outcome-options label {
   position: relative;
+  min-width: 0;
 }
 
 .calls-outcome-options .calls-outcome {
-  height: 32px;
+  width: 100%;
+  height: 36px;
   padding: 0 var(--space-3);
   border-radius: var(--btn-radius);
   font-size: var(--type-sm);
@@ -913,17 +973,31 @@
     display: none;
   }
 
-  .calls-form-pair,
-  .calls-form.is-scheduling .calls-form-meta {
+  /* Form: labels sit above their fields */
+  .calls-prop {
     grid-template-columns: minmax(0, 1fr);
+    row-gap: 6px;
   }
 
-  .calls-form-meta {
-    grid-template-columns: minmax(0, 1fr) 96px;
+  .calls-prop--top .calls-prop-label {
+    padding-top: 0;
   }
 
-  .calls-field-direction {
-    grid-column: 1 / -1;
+  .calls-mode {
+    flex: 1;
+  }
+
+  .calls-mode .calls-seg-btn {
+    flex: 1;
+    padding: 0 var(--space-2);
+  }
+
+  #call-log-modal .calls-radio-seg {
+    width: 100%;
+  }
+
+  .calls-outcome-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   #call-log-view-modal .calls-detail {

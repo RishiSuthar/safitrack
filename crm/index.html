@@ -2365,59 +2365,62 @@
   <div id="call-log-modal" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>
     <div class="modal-container calls-form" role="dialog" aria-modal="true" aria-labelledby="call-log-modal-title">
-      <div class="modal-header">
-        <h3 id="call-log-modal-title">Log a call</h3>
+      <div class="modal-header calls-form-head">
+        <h3 id="call-log-modal-title" class="visually-hidden">Log a call</h3>
+        <div class="calls-seg calls-mode" role="group" aria-label="Call type">
+          <button type="button" class="calls-seg-btn is-active" id="clm-mode-log" aria-pressed="true">Log a call</button>
+          <button type="button" class="calls-seg-btn" id="clm-mode-schedule" aria-pressed="false">Schedule a call</button>
+        </div>
         <button type="button" class="modal-close" onclick="closeModal('call-log-modal')" aria-label="Close">
           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
       </div>
 
-      <div class="modal-body">
-        <div class="calls-seg calls-seg--block" role="group" aria-label="Call type">
-          <button type="button" class="calls-seg-btn is-active" id="clm-mode-log" aria-pressed="true">Log a call</button>
-          <button type="button" class="calls-seg-btn" id="clm-mode-schedule" aria-pressed="false">Schedule a call</button>
+      <div class="modal-body calls-props">
+        <div class="calls-prop">
+          <label class="calls-prop-label" for="call-contact-input">Contact <span class="calls-required" aria-hidden="true">*</span></label>
+          <div class="search-input-group">
+            <input type="text" id="call-contact-input" class="calls-input" placeholder="Search people or type a name" autocomplete="off" required>
+            <div id="call-contact-results" class="live-search-results"></div>
+          </div>
+          <input type="hidden" id="call-contact-id">
         </div>
 
-        <div class="calls-form-pair">
-          <div class="form-field">
-            <label for="call-contact-input">Contact <span class="required-indicator" aria-hidden="true">*</span></label>
-            <div class="search-input-group">
-              <input type="text" id="call-contact-input" placeholder="Search people or type a name" autocomplete="off">
-              <div id="call-contact-results" class="live-search-results"></div>
-            </div>
-            <input type="hidden" id="call-contact-id">
+        <div class="calls-prop">
+          <label class="calls-prop-label" for="call-company-input">Company</label>
+          <div class="search-input-group">
+            <input type="text" id="call-company-input" class="calls-input" placeholder="Search companies or type a name" autocomplete="off">
+            <div id="call-company-results" class="live-search-results"></div>
           </div>
-          <div class="form-field">
-            <label for="call-company-input">Company</label>
-            <div class="search-input-group">
-              <input type="text" id="call-company-input" placeholder="Search companies or type a name" autocomplete="off">
-              <div id="call-company-results" class="live-search-results"></div>
-            </div>
-            <input type="hidden" id="call-company-id">
-          </div>
+          <input type="hidden" id="call-company-id">
         </div>
 
-        <div class="calls-form-meta">
-          <div class="form-field calls-field-direction">
-            <span class="calls-field-label" id="call-direction-label">Direction</span>
-            <div class="calls-seg calls-radio-seg" role="radiogroup" aria-labelledby="call-direction-label">
-              <label><input type="radio" name="call-direction-radio" value="Outbound" checked><span>Outbound</span></label>
-              <label><input type="radio" name="call-direction-radio" value="Inbound"><span>Inbound</span></label>
-            </div>
-            <input type="hidden" id="call-direction" value="Outbound">
+        <div class="calls-prop">
+          <span class="calls-prop-label" id="call-direction-label">Direction</span>
+          <div class="calls-seg calls-radio-seg" role="radiogroup" aria-labelledby="call-direction-label">
+            <label><input type="radio" name="call-direction-radio" value="Outbound" checked><span>Outbound</span></label>
+            <label><input type="radio" name="call-direction-radio" value="Inbound"><span>Inbound</span></label>
           </div>
-          <div class="form-field calls-field-when">
-            <label for="call-datetime" id="call-datetime-label">When</label>
-            <input type="datetime-local" id="call-datetime">
-          </div>
-          <div class="form-field calls-log-only">
-            <label for="call-duration">Duration <span class="field-hint">min</span></label>
-            <input type="number" id="call-duration" placeholder="0" min="0" step="1" inputmode="numeric">
+          <input type="hidden" id="call-direction" value="Outbound">
+        </div>
+
+        <div class="calls-prop">
+          <label class="calls-prop-label" for="call-datetime" id="call-datetime-label">When</label>
+          <div class="calls-when-field">
+            <input type="datetime-local" id="call-datetime" class="calls-input">
           </div>
         </div>
 
-        <fieldset class="form-field calls-log-only calls-outcome-field" id="call-outcome-container">
-          <legend>Outcome <span class="required-indicator" aria-hidden="true">*</span></legend>
+        <div class="calls-prop calls-log-only">
+          <label class="calls-prop-label" for="call-duration">Duration</label>
+          <div class="calls-duration-field">
+            <input type="number" id="call-duration" class="calls-input" min="0" step="1" inputmode="numeric">
+            <span>minutes</span>
+          </div>
+        </div>
+
+        <div class="calls-prop calls-prop--top calls-log-only" role="radiogroup" aria-labelledby="call-outcome-label" id="call-outcome-container">
+          <span class="calls-prop-label" id="call-outcome-label">Outcome <span class="calls-required" aria-hidden="true">*</span></span>
           <div class="calls-outcome-options">
             <label><input type="radio" name="call-outcome" value="Connected"><span class="calls-outcome calls-outcome--success">Connected</span></label>
             <label><input type="radio" name="call-outcome" value="Voicemail"><span class="calls-outcome calls-outcome--info">Voicemail</span></label>
@@ -2426,11 +2429,11 @@
             <label><input type="radio" name="call-outcome" value="Wrong Number"><span class="calls-outcome calls-outcome--danger">Wrong number</span></label>
             <label><input type="radio" name="call-outcome" value="Call Failed"><span class="calls-outcome calls-outcome--danger">Call failed</span></label>
           </div>
-        </fieldset>
+        </div>
 
-        <div class="form-field">
-          <label for="call-notes">Notes</label>
-          <textarea id="call-notes" rows="4" placeholder="What was discussed?"></textarea>
+        <div class="calls-prop calls-prop--top">
+          <label class="calls-prop-label" for="call-notes">Notes</label>
+          <textarea id="call-notes" class="calls-input" rows="4" placeholder="What was discussed?"></textarea>
         </div>
       </div>
 

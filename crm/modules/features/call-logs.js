@@ -1257,6 +1257,19 @@ function nextFullHour() {
   return d;
 }
 
+// #call-datetime holds "YYYY-MM-DDTHH:MM" for the calendar; show it as "Today, 14:05".
+function syncWhenText() {
+  const input = document.getElementById('call-datetime');
+  const wrapper = input.parentElement;
+  let text = wrapper.querySelector('.calls-when-text');
+  if (!text) {
+    text = document.createElement('span');
+    text.className = 'calls-when-text';
+    wrapper.appendChild(text);
+  }
+  text.textContent = input.value ? formatWhen(new Date(input.value)) : '';
+}
+
 function setCallModalMode(scheduling) {
   const modal = document.getElementById('call-log-modal');
   const { log } = modalState;
@@ -1282,6 +1295,7 @@ function setCallModalMode(scheduling) {
     when.value = toLocalInputValue(scheduling ? nextFullHour() : new Date());
     modalState.defaultWhen = when.value;
   }
+  syncWhenText();
 }
 
 /**
@@ -1320,6 +1334,7 @@ function openCallLogModal(log = null, options = {}) {
     document.querySelectorAll('input[name="call-direction-radio"]').forEach((r) => {
       r.addEventListener('change', () => { document.getElementById('call-direction').value = r.value; });
     });
+    document.getElementById('call-datetime').addEventListener('change', syncWhenText);
     document.getElementById('save-call-log-btn').addEventListener('click', () => saveCallLog(modalState.log?.id || null, modalState.scheduling));
     initCallLogSearch();
   }
