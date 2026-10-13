@@ -12,6 +12,7 @@
     initRotator();
     initShowcase();
     initWindows();
+    initMotion();
     initStatement();
     initFlow();
     initIntel();
@@ -294,6 +295,176 @@
             win.addEventListener('pointerup', end);
             win.addEventListener('pointercancel', end);
         });
+    }
+
+    // ------------------------------------------------------
+    // Motion: the showcase tilts in as it scrolls up and leans
+    // toward the pointer, the windows drift with the mouse, the
+    // feature screenshots drift on scroll and pan under the
+    // pointer, cards get a spotlight, sections fade up.
+    // One rAF loop eases every value and stops when all settle.
+    // ------------------------------------------------------
+    function initMotion() {
+        if (reducedMotion) return;
+        const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+        const lerp = (a, b, t) => a + (b - a) * t;
+
+        // A value that eases toward a target each frame.
+        const springs = [];
+        const spring = (v = 0) => {
+            const s = { v, to: v };
+            springs.push(s);
+            return s;
+        };
+
+        // ---- Showcase frame + floating windows ----
+        const stage = document.querySelector('.stage');
+        const frame = stage && stage.querySelector('.showcase-frame');
+        const wins = stage ? [...stage.querySelectorAll('.win')] : [];
+        const DEPTHS = [22, -16, 28];           // px of drift at the stage edge, per window
+        const tiltIn = spring(1);               // 1 = fully tilted back, 0 = flat
+        const lean = { x: spring(), y: spring() };   // pointer position over the stage, -1..1
+
+        if (stage && finePointer) {
+            stage.addEventListener('pointermove', (e) => {
+                const r = stage.getBoundingClientRect();
+                lean.x.to = clamp(((e.clientX - r.left) / r.width) * 2 - 1, -1, 1);
+                lean.y.to = clamp(((e.clientY - r.top) / r.height) * 2 - 1, -1, 1);
+                wake();
+            });
+            stage.addEventListener('pointerleave', () => { lean.x.to = 0; lean.y.to = 0; wake(); });
+        }
+
+        // ---- Feature screenshots ----
+        const canvases = [...document.querySelectorAll('.flow .canvas')].map(el => {
+            const img = el.querySelector('img');
+            if (!img) return null;
+            const wide = el.classList.contains('canvas-wide');
+            // Wide shots rest at their top-left crop (0); tall panels rest centred (0.5).
+            const rest = wide ? 0 : 0.5;
+            const c = { el, img, wide, drift: spring(), px: spring(rest), py: spring(rest) };
+            if (finePointer) {
+                el.addEventListener('pointermove', (e) => {
+                    const r = el.getBoundingClientRect();
+                    c.px.to = clamp((e.clientX - r.left) / r.width, 0, 1);
+                    c.py.to = clamp((e.clientY - r.top) / r.height, 0, 1);
+                    wake();
+                });
+                el.addEventListener('pointerleave', () => { c.px.to = rest; c.py.to = rest; wake(); });
+            }
+            return c;
+        }).filter(Boolean);
+
+        // ---- Spotlight cards ----
+        if (finePointer) {
+            document.querySelectorAll('.more-item, .plan, .intel-item').forEach(card => {
+                card.addEventListener('pointermove', (e) => {
+                    const r = card.getBoundingClientRect();
+                    card.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+                    card.style.setProperty('--my', (e.clientY - r.top) + 'px');
+                });
+            });
+        }
+
+        // ---- Scroll reveal ----
+        const revealGroups = [
+            ['.flow-copy', 0],
+            ['.more-title', 0], ['.more-item', 0.05],
+            ['.intel-item', 0.07],
+            ['.plans .plan', 0.07],
+            ['.section-head', 0], ['.flow-head', 0],
+        ];
+        const toReveal = [];
+        revealGroups.forEach(([sel, step]) => {
+            document.querySelectorAll(sel).forEach((el, i) => {
+                el.setAttribute('data-reveal', '');
+                if (step) el.style.setProperty('--reveal-delay', ((i % 6) * step).toFixed(2) + 's');
+                toReveal.push(el);
+            });
+        });
+        if (toReveal.length) {
+            document.documentElement.classList.add('has-motion');
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) return;
+                    entry.target.classList.add('is-revealed');
+                    io.unobserve(entry.target);
+                });
+            }, { rootMargin: '0px 0px -8% 0px' });
+            toReveal.forEach(el => io.observe(el));
+        }
+
+        // ---- Scroll targets ----
+        const readScroll = () => {
+            const vh = window.innerHeight;
+            if (frame) {
+                // Flat once the frame's top reaches 30% of the viewport.
+                const top = frame.getBoundingClientRect().top;
+                tiltIn.to = clamp((top - vh * 0.3) / (vh * 0.6), 0, 1);
+            }
+            canvases.forEach(c => {
+                const r = c.el.getBoundingClientRect();
+                // -1 as the panel enters at the bottom, +1 as it leaves at the top.
+                c.drift.to = clamp(((vh - r.top) / (vh + r.height)) * 2 - 1, -1, 1);
+            });
+            wake();
+        };
+        window.addEventListener('scroll', readScroll, { passive: true });
+        window.addEventListener('resize', readScroll);
+
+        // ---- Render loop ----
+        let running = false;
+        function wake() {
+            if (running) return;
+            running = true;
+            requestAnimationFrame(step);
+        }
+
+        function step() {
+            let moving = false;
+            springs.forEach(s => {
+                s.v = lerp(s.v, s.to, 0.12);
+                if (Math.abs(s.to - s.v) > 0.0005) moving = true; else s.v = s.to;
+            });
+
+            if (frame) {
+                const t = tiltIn.v;
+                const rx = t * 14 - lean.y.v * 2.5;
+                const ry = lean.x.v * 3.5;
+                frame.style.transform = `perspective(1800px) rotateX(${rx.toFixed(3)}deg) rotateY(${ry.toFixed(3)}deg) scale(${(1 - t * 0.06).toFixed(4)})`;
+            }
+            wins.forEach((win, i) => {
+                if (win.classList.contains('is-dragging')) return;
+                const d = DEPTHS[i % DEPTHS.length];
+                win.style.setProperty('--px', (lean.x.v * d).toFixed(2) + 'px');
+                win.style.setProperty('--py', (lean.y.v * d * 0.6).toFixed(2) + 'px');
+            });
+
+            canvases.forEach(c => {
+                const drift = -c.drift.v * 22;   // screenshot rises a little as you scroll past
+                if (c.wide) {
+                    // Pan toward the part of the screenshot that's cropped off.
+                    const hiddenX = Math.max(0, c.img.offsetLeft + c.img.offsetWidth - c.el.clientWidth + 24);
+                    const hiddenY = Math.max(0, c.img.offsetTop + c.img.offsetHeight - c.el.clientHeight + 24);
+                    const x = -c.px.v * hiddenX;
+                    const y = -c.py.v * hiddenY * 0.8;
+                    c.img.style.transform = `translate3d(${x.toFixed(1)}px, ${(y + drift).toFixed(1)}px, 0)`;
+                } else {
+                    // Lean the tall panel toward the pointer.
+                    const nx = c.px.v * 2 - 1;
+                    const ny = c.py.v * 2 - 1;
+                    c.img.style.transform = `translateX(-50%) translateY(${drift.toFixed(1)}px) perspective(1200px) rotateY(${(nx * 6).toFixed(2)}deg) rotateX(${(-ny * 4).toFixed(2)}deg)`;
+                }
+            });
+
+            if (moving) requestAnimationFrame(step);
+            else running = false;
+        }
+
+        readScroll();
+        // Start from the resting pose so nothing jumps on load.
+        springs.forEach(s => { s.v = s.to; });
+        wake();
     }
 
     // ------------------------------------------------------

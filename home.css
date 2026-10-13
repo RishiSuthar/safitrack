@@ -810,6 +810,8 @@ blockquote {
 .showcase-frame {
     max-width: 1060px;
     margin: 0 auto;
+    transform-origin: 50% 0;
+    will-change: transform;
 }
 
 .win {
@@ -827,7 +829,8 @@ blockquote {
     user-select: none;
     -webkit-user-select: none;
     touch-action: none;
-    transform: translate(var(--dx, 0px), var(--dy, 0px));
+    /* --dx/--dy: where the visitor dragged it; --px/--py: mouse parallax */
+    transform: translate(calc(var(--dx, 0px) + var(--px, 0px)), calc(var(--dy, 0px) + var(--py, 0px)));
     animation: win-in .7s var(--ease) both;
     transition: box-shadow .2s ease;
 }
@@ -1132,6 +1135,15 @@ blockquote {
     width: 340px;
     transform: translateX(-50%);
     border-radius: 12px 12px 0 0;
+}
+
+/* home.js moves the screenshots with scroll and the pointer */
+.canvas img {
+    will-change: transform;
+}
+
+.canvas-wide {
+    cursor: crosshair;
 }
 
 /* The rest */
@@ -2519,6 +2531,47 @@ blockquote {
         grid-template-columns: 1fr;
         gap: 0;
     }
+}
+
+/* ==========================================================
+   Pointer spotlight on cards (home.js sets --mx / --my)
+   ========================================================== */
+
+.more-item,
+.plan,
+.intel-item {
+    --mx: 50%;
+    --my: 50%;
+}
+
+.more-item:hover,
+.plan:hover {
+    background-image: radial-gradient(280px circle at var(--mx) var(--my), rgba(47, 95, 208, .08), transparent 70%);
+}
+
+.intel-item {
+    transition: background-color .2s ease;
+}
+
+.intel-item:hover {
+    background-image: radial-gradient(320px circle at var(--mx) var(--my), rgba(255, 255, 255, .07), transparent 70%);
+}
+
+/* ==========================================================
+   Scroll reveal: only once home.js has marked the page, so
+   content is never hidden if the script doesn't run
+   ========================================================== */
+
+.has-motion [data-reveal] {
+    opacity: 0;
+    transform: translateY(18px);
+    transition: opacity .7s var(--ease), transform .7s var(--ease);
+    transition-delay: var(--reveal-delay, 0s);
+}
+
+.has-motion [data-reveal].is-revealed {
+    opacity: 1;
+    transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
