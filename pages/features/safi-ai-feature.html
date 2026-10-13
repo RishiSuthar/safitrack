@@ -215,75 +215,24 @@
                 <div class="demo-shell">
                     <div class="demo-prompts" role="tablist" aria-label="Example questions">
                         <p class="demo-label">Try asking</p>
-                        <button class="demo-prompt is-active" role="tab" aria-selected="true" data-answer="focus">What should I focus on today?</button>
-                        <button class="demo-prompt" role="tab" aria-selected="false" data-answer="attention">Which opportunities need attention?</button>
-                        <button class="demo-prompt" role="tab" aria-selected="false" data-answer="overdue">What tasks are overdue?</button>
-                        <button class="demo-prompt" role="tab" aria-selected="false" data-answer="visits">What visits did I complete this week?</button>
-                        <button class="demo-prompt" role="tab" aria-selected="false" data-answer="month">How did I perform this month?</button>
+                        <button class="demo-prompt is-active" role="tab" aria-selected="true" data-answer="focus"
+                            data-alt="Safi AI answering what to focus on today: two tasks due today, three calendar items and one overdue task">What should I focus on today?</button>
+                        <button class="demo-prompt" role="tab" aria-selected="false" data-answer="attention"
+                            data-alt="Safi AI listing four open deals that need attention this week, worth $711,000 together">Which opportunities need attention?</button>
+                        <button class="demo-prompt" role="tab" aria-selected="false" data-answer="overdue"
+                            data-alt="Safi AI listing the team's two overdue tasks with owner, priority and due date">What tasks are overdue?</button>
+                        <button class="demo-prompt" role="tab" aria-selected="false" data-answer="visits"
+                            data-alt="Safi AI listing the five visits the team logged this week with lead scores">What visits did the team log this week?</button>
+                        <button class="demo-prompt" role="tab" aria-selected="false" data-answer="month"
+                            data-alt="Safi AI summarising the team's month: revenue won, biggest win, visits, calls and top rep">How did the team do this month?</button>
                     </div>
 
-                    <div class="chat demo-chat">
-                        <div class="chat-bar">
-                            <span class="ai-avatar">S</span>
-                            <p class="chat-name">Safi AI <small>Online</small></p>
-                            <span class="chat-new">New chat</span>
-                        </div>
-                        <div class="chat-body demo-body" aria-live="polite">
-                            <p class="chat-me" data-q>What should I focus on today?</p>
-                            <div class="chat-ai" data-a></div>
-                        </div>
-                        <div class="chat-input">
-                            <span>Message Safi AI…</span>
-                            <span class="chat-send">↑</span>
-                        </div>
-                    </div>
+                    <figure class="demo-shot">
+                        <img class="shot" data-shot src="../../assets/product/safi-ai-focus.webp"
+                            alt="Safi AI answering what to focus on today: two tasks due today, three calendar items and one overdue task"
+                            width="798" height="1480">
+                    </figure>
                 </div>
-
-                <!-- Answers for the demo; JS swaps them into the chat -->
-                <template id="answer-focus">
-                    <p>Here's your day, Alex:</p>
-                    <ul class="chat-deals">
-                        <li><span class="deal-logo">3</span><span class="deal-main"><b>Visits planned</b><small>Amazon 9:30 · Microsoft 11:00 · Salesforce 14:00</small></span></li>
-                        <li><span class="deal-logo">2</span><span class="deal-main"><b>Tasks due today</b><small>Send Microsoft the catalogue · confirm HubSpot demo</small></span></li>
-                        <li><span class="deal-logo">!</span><span class="deal-main"><b>CRM Platform Rollout</b><small>Apple Inc. · no activity for 7 days</small></span></li>
-                    </ul>
-                    <p>I'd start with the Microsoft catalogue. It's due before Friday's meeting.</p>
-                </template>
-                <template id="answer-attention">
-                    <p>Three deals have something due before Friday:</p>
-                    <ul class="chat-deals">
-                        <li><span class="deal-logo">A</span><span class="deal-main"><b>CRM Platform Rollout</b><small>Apple Inc. · legal sign-off stalled 7 days</small></span><span class="deal-val">$420,000</span></li>
-                        <li><span class="deal-logo">M</span><span class="deal-main"><b>Enterprise Licence Expansion</b><small>Microsoft · send catalogue by Fri</small></span><span class="deal-val">$850,000</span></li>
-                        <li><span class="deal-logo">H</span><span class="deal-main"><b>Route Optimisation Deal</b><small>HubSpot · product demo Wed</small></span><span class="deal-val">$930,000</span></li>
-                    </ul>
-                    <p>Apple has gone the longest without an update.</p>
-                </template>
-                <template id="answer-overdue">
-                    <p>You have 2 overdue tasks:</p>
-                    <ul class="chat-deals">
-                        <li><span class="deal-logo">S</span><span class="deal-main"><b>Call Slack about the renewal</b><small>Annual Enterprise Renewal · high priority</small></span><span class="deal-due">2 days</span></li>
-                        <li><span class="deal-logo">M</span><span class="deal-main"><b>Send visit notes to Sarah Mitchell</b><small>Microsoft · medium priority</small></span><span class="deal-due">1 day</span></li>
-                    </ul>
-                    <p>Both are assigned to you. Nothing else is past due.</p>
-                </template>
-                <template id="answer-visits">
-                    <p>You completed 3 visits this week:</p>
-                    <ul class="chat-deals">
-                        <li><span class="deal-logo">S</span><span class="deal-main"><b>Salesforce</b><small>Wed · IT security review, pilot going ahead</small></span><span class="deal-val">85%</span></li>
-                        <li><span class="deal-logo">M</span><span class="deal-main"><b>Microsoft</b><small>Tue · Q2 budget confirmed by procurement</small></span><span class="deal-val">80%</span></li>
-                        <li><span class="deal-logo">A</span><span class="deal-main"><b>Apple Inc.</b><small>Mon · demo of route planning, asked for pricing</small></span><span class="deal-val">72%</span></li>
-                    </ul>
-                    <p>Percentages are each visit's lead score.</p>
-                </template>
-                <template id="answer-month">
-                    <p>Here's your month so far:</p>
-                    <ul class="chat-deals chat-stats">
-                        <li><span class="deal-main"><b>Visits logged</b></span><span class="deal-val">18</span></li>
-                        <li><span class="deal-main"><b>Calls made</b></span><span class="deal-val">42</span></li>
-                        <li><span class="deal-main"><b>Deals won</b><small>Slack and Amazon</small></span><span class="deal-val">$1,150,000</span></li>
-                    </ul>
-                    <p>That's 4 more visits than last month.</p>
-                </template>
             </div>
         </section>
 
@@ -301,8 +250,8 @@
                         <div class="ask"><p class="ask-area">Reminders</p><p class="ask-q">“What's coming up this week?”</p></div>
                         <div class="ask"><p class="ask-area">Visits</p><p class="ask-q">“Who did I visit on Tuesday?”</p></div>
                         <div class="ask"><p class="ask-area">Calls</p><p class="ask-q">“How many calls did I make today?”</p></div>
-                        <div class="ask"><p class="ask-area">Notes</p><p class="ask-q">“What did we discuss with Microsoft?”</p></div>
-                        <div class="ask"><p class="ask-area">Contacts</p><p class="ask-q">“Who's our contact at Apple?”</p></div>
+                        <div class="ask"><p class="ask-area">Notes</p><p class="ask-q">“What did we discuss with Seefeld Data Centre?”</p></div>
+                        <div class="ask"><p class="ask-area">Contacts</p><p class="ask-q">“Who's our contact at Limmat Private Clinic?”</p></div>
                         <div class="ask"><p class="ask-area">Team <small>Managers</small></p><p class="ask-q">“Which rep closed the most this month?”</p></div>
                     </div>
                 </div>
@@ -322,25 +271,10 @@
                             chasing anyone.</p>
                         <a href="sales-visits-feature.html" class="card-link">Sales visits <span aria-hidden="true">→</span></a>
                     </div>
-                    <div class="writeup-art" data-writeup>
-                        <div class="note-card">
-                            <p class="note-head">Visit notes · Microsoft</p>
-                            <p class="note-text">met sarah + procurement. want ~40 seats for the field sales team,
-                                budget ok for Q2. need proposal before march 8 then legal review</p>
-                        </div>
-                        <div class="note-arrow" aria-hidden="true"></div>
-                        <div class="note-card summary-card">
-                            <div class="summary-top">
-                                <p class="note-head">AI summary</p>
-                                <p class="score"><span>Lead score</span><b>80</b></p>
-                            </div>
-                            <ul class="summary-list">
-                                <li>Procurement wants about 40 seats for the field sales team.</li>
-                                <li>Q2 budget is confirmed.</li>
-                                <li>Next step: send a proposal by 8 March, then legal review.</li>
-                            </ul>
-                            <div class="score-bar"><i></i></div>
-                        </div>
+                    <div class="writeup-art">
+                        <img class="shot" src="../../assets/product/safi-ai-writeup.webp"
+                            alt="A logged visit to Seefeld Data Centre: the rep's notes and the AI summary written from them"
+                            width="960" height="1000" loading="lazy">
                     </div>
                 </div>
             </div>
@@ -355,13 +289,10 @@
                         <h2 class="trust-title">Reads everything. Changes nothing.</h2>
                     </div>
 
-                    <div class="trust-chat">
-                        <p class="chat-me">Delete the Stripe deal.</p>
-                        <div class="trust-reply">
-                            <span class="ai-avatar">S</span>
-                            <p>I'm read-only, so I can't create, edit or delete records. You can delete the deal from
-                                its page in Opportunities.</p>
-                        </div>
+                    <div class="trust-shot">
+                        <img class="shot shot-dark" src="../../assets/product/safi-ai-read-only.webp"
+                            alt="Asked to delete an opportunity, Safi AI explains it is read-only and points to where the record can be managed"
+                            width="798" height="600" loading="lazy">
                     </div>
 
                     <div class="intel-grid trust-grid">
@@ -403,29 +334,10 @@
                             fit.</p>
                         <a href="route-plans-feature.html" class="card-link">Route plans <span aria-hidden="true">→</span></a>
                     </div>
-                    <div class="writeup-art plan-art" aria-hidden="true">
-                        <svg class="plan-svg" viewBox="0 0 520 380">
-                            <g class="plan-route r1">
-                                <path d="M260 190 L178 150 L120 96 L74 120" />
-                                <circle cx="178" cy="150" r="6" /><circle cx="120" cy="96" r="6" /><circle cx="74" cy="120" r="6" />
-                            </g>
-                            <g class="plan-route r2">
-                                <path d="M260 190 L330 120 L402 92 L452 140" />
-                                <circle cx="330" cy="120" r="6" /><circle cx="402" cy="92" r="6" /><circle cx="452" cy="140" r="6" />
-                            </g>
-                            <g class="plan-route r3">
-                                <path d="M260 190 L292 262 L232 310 L156 290" />
-                                <circle cx="292" cy="262" r="6" /><circle cx="232" cy="310" r="6" /><circle cx="156" cy="290" r="6" />
-                            </g>
-                            <circle class="plan-far" cx="488" cy="330" r="6" />
-                            <text class="plan-far-label" x="478" y="356" text-anchor="end">Too far · left out</text>
-                            <circle class="plan-hub" cx="260" cy="190" r="8" />
-                        </svg>
-                        <ul class="plan-legend">
-                            <li><i class="l1"></i>Alex · 3 stops</li>
-                            <li><i class="l2"></i>Sarah · 3 stops</li>
-                            <li><i class="l3"></i>James · 3 stops</li>
-                        </ul>
+                    <div class="writeup-art">
+                        <img class="shot" src="../../assets/product/auto-plan.webp"
+                            alt="Auto Plan review: accounts split into one route per rep, ordered by distance"
+                            width="1800" height="1126" loading="lazy">
                     </div>
                 </div>
             </div>

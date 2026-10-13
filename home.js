@@ -294,26 +294,10 @@
             win.addEventListener('pointerup', end);
             win.addEventListener('pointercancel', end);
         });
-
-        // Team activity: a new entry arrives every few seconds.
-        const feed = document.querySelector('.win-feed .win-body');
-        if (!feed || reducedMotion) return;
-        const times = [...feed.querySelectorAll('time')].map(t => t.textContent);
-
-        setInterval(() => {
-            if (document.hidden || getComputedStyle(feed.closest('.win')).display === 'none') return;
-            const items = feed.querySelectorAll('.feed-item');
-            const last = items[items.length - 1];
-            last.classList.remove('is-new');
-            feed.prepend(last);
-            void last.offsetWidth;
-            last.classList.add('is-new');
-            feed.querySelectorAll('time').forEach((t, i) => (t.textContent = times[i]));
-        }, 3600);
     }
 
     // ------------------------------------------------------
-    // Features: highlight the panel in view; run the workflow demo
+    // Features: highlight the panel in view
     // ------------------------------------------------------
     function initFlow() {
         const links = [...document.querySelectorAll('.flow-nav a')];
@@ -338,15 +322,6 @@
                 route.classList.add('is-run');
                 obs.disconnect();
             }, { threshold: 0.5 }).observe(route);
-        }
-
-        const wf = document.querySelector('.wf');
-        if (wf) {
-            new IntersectionObserver(([entry], obs) => {
-                if (!entry.isIntersecting) return;
-                wf.classList.add('is-run');
-                obs.disconnect();
-            }, { threshold: 0.6 }).observe(wf);
         }
     }
 
