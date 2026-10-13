@@ -651,7 +651,7 @@ async function openPersonViewModal(personOrId) {
       oppQueries.push(supabaseClient.from('opportunities').select('*').or(`contact_id.eq.${person.id},person_id.eq.${person.id}`).limit(50));
 
       const [callsResult, visitsResult, ...oppResults] = await Promise.all([
-        supabaseClient.from('call_logs').select('*, people(*), profiles(*)').eq('person_id', person.id).order('call_at', { ascending: false }).limit(50),
+        supabaseClient.from('call_logs').select('*, people(*), profiles(*)').eq('contact_id', person.id).order('call_at', { ascending: false }).limit(50),
         supabaseClient.from('visits').select('*, user:profiles(first_name,last_name)').eq('person_id', person.id).order('created_at', { ascending: false }).limit(10),
         ...oppQueries
       ]);
