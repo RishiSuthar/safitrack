@@ -1101,6 +1101,159 @@
     // ------------------------------------------------------
     // Contact dialog (EmailJS)
     // ------------------------------------------------------
+    // ------------------------------------------------------
+    // Site-styled dropdown in place of a native <select>. The select
+    // stays in the form (hidden) so validation and submission read it
+    // as before; this only draws the control and keeps the two in sync.
+    // ------------------------------------------------------
+    function enhanceSelect(select) {
+        const id = 'dd-' + select.name.replace(/\W/g, '');
+        const field = select.closest('.field');
+        const labelText = field && field.querySelector('span');
+        if (labelText && !labelText.id) labelText.id = id + '-label';
+        const options = [...select.options];
+        const placeholder = options.find(o => o.value === '' && o.disabled);
+        const choices = options.filter(o => o !== placeholder);
+
+        const wrap = document.createElement('div');
+        wrap.className = 'dd';
+        wrap.innerHTML = `
+            <button type="button" class="dd-trigger" aria-haspopup="listbox" aria-expanded="false"
+                aria-controls="${id}-list" ${labelText ? `aria-labelledby="${labelText.id} ${id}-value"` : ''}>
+                <span class="dd-value" id="${id}-value"></span>
+                <svg class="dd-chevron" width="10" height="6" viewBox="0 0 10 6" aria-hidden="true"><path d="M1 1l4 4 4-4" /></svg>
+            </button>
+            <ul class="dd-list" id="${id}-list" role="listbox" tabindex="-1" hidden
+                ${labelText ? `aria-labelledby="${labelText.id}"` : ''}></ul>`;
+        const trigger = wrap.querySelector('.dd-trigger');
+        const valueEl = wrap.querySelector('.dd-value');
+        const list = wrap.querySelector('.dd-list');
+        const items = choices.map((o, i) => {
+            const li = document.createElement('li');
+            li.id = `${id}-opt-${i}`;
+            li.className = 'dd-option';
+            li.setAttribute('role', 'option');
+            li.dataset.value = o.value;
+            li.innerHTML = `<span></span><svg class="dd-check" width="12" height="12" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6 9 17l-5-5" /></svg>`;
+            li.firstChild.textContent = o.textContent;
+            list.appendChild(li);
+            return li;
+        });
+
+        select.parentNode.insertBefore(wrap, select);
+        select.classList.add('dd-native');
+        select.tabIndex = -1;
+        select.setAttribute('aria-hidden', 'true');
+        select.ddTrigger = trigger;
+
+        let active = -1;
+        const sync = () => {
+            const i = choices.findIndex(o => o.value === select.value && select.value !== '');
+            valueEl.textContent = i >= 0 ? choices[i].textContent : (placeholder ? placeholder.textContent : '');
+            trigger.classList.toggle('is-placeholder', i < 0);
+            items.forEach((li, n) => li.setAttribute('aria-selected', String(n === i)));
+            return i;
+        };
+        const setActive = (i) => {
+            active = clamp(i, 0, items.length - 1);
+            items.forEach((li, n) => li.classList.toggle('is-active', n === active));
+            list.setAttribute('aria-activedescendant', items[active].id);
+            const li = items[active];
+            if (li.offsetTop < list.scrollTop) list.scrollTop = li.offsetTop - 4;
+            else if (li.offsetTop + li.offsetHeight > list.scrollTop + list.clientHeight) list.scrollTop = li.offsetTop + li.offsetHeight - list.clientHeight + 4;
+        };
+        const place = () => {
+            // Fixed to the viewport so the dialog's own scrolling can't clip it; flips up when needed.
+            const r = trigger.getBoundingClientRect();
+            list.style.width = r.width + 'px';
+            list.style.left = r.left + 'px';
+            const below = window.innerHeight - r.bottom - 12, above = r.top - 12;
+            const h = Math.min(list.scrollHeight, 260);
+            const up = below < h && above > below;
+            list.style.maxHeight = Math.max(120, Math.min(260, up ? above : below)) + 'px';
+            list.style.top = up ? '' : (r.bottom + 6) + 'px';
+            list.style.bottom = up ? (window.innerHeight - r.top + 6) + 'px' : '';
+            wrap.classList.toggle('opens-up', up);
+        };
+        const isOpen = () => !list.hidden;
+        const open = () => {
+            if (isOpen()) return;
+            list.hidden = false;
+            place();
+            wrap.classList.add('is-open');
+            trigger.setAttribute('aria-expanded', 'true');
+            const i = sync();
+            setActive(i >= 0 ? i : 0);
+            list.focus({ preventScroll: true });
+        };
+        const close = (refocus = true) => {
+            if (!isOpen()) return;
+            list.hidden = true;
+            wrap.classList.remove('is-open');
+            trigger.setAttribute('aria-expanded', 'false');
+            if (refocus) trigger.focus({ preventScroll: true });
+        };
+        const choose = (i) => {
+            select.value = choices[i].value;
+            sync();
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            close();
+        };
+
+        // Type a few letters to jump to a matching option.
+        let typed = '', typedAt = 0;
+        const typeahead = (ch) => {
+            const now = performance.now();
+            typed = (now - typedAt > 700 ? '' : typed) + ch.toLowerCase();
+            typedAt = now;
+            const start = typed.length === 1 ? active + 1 : active;
+            for (let k = 0; k < items.length; k++) {
+                const n = (Math.max(start, 0) + k) % items.length;
+                if (choices[n].textContent.toLowerCase().startsWith(typed)) return n;
+            }
+            return -1;
+        };
+
+        trigger.addEventListener('click', () => (isOpen() ? close() : open()));
+        trigger.addEventListener('keydown', (e) => {
+            if (['ArrowDown', 'ArrowUp', 'Enter', ' '].includes(e.key)) { e.preventDefault(); open(); }
+            else if (e.key.length === 1 && /\S/.test(e.key)) {
+                const n = typeahead(e.key);
+                if (n >= 0) { select.value = choices[n].value; sync(); select.dispatchEvent(new Event('change', { bubbles: true })); }
+            }
+        });
+        list.addEventListener('keydown', (e) => {
+            const keys = { ArrowDown: active + 1, ArrowUp: active - 1, Home: 0, End: items.length - 1, PageDown: active + 5, PageUp: active - 5 };
+            if (e.key in keys) { e.preventDefault(); setActive(keys[e.key]); }
+            else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); choose(active); }
+            else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); close(); }   // keep the dialog open
+            else if (e.key === 'Tab') close(false);
+            else if (e.key.length === 1 && /\S/.test(e.key)) { const n = typeahead(e.key); if (n >= 0) setActive(n); }
+        });
+        list.addEventListener('pointermove', (e) => {
+            const li = e.target.closest('.dd-option');
+            if (li) setActive(items.indexOf(li));
+        });
+        list.addEventListener('click', (e) => {
+            const li = e.target.closest('.dd-option');
+            if (li) choose(items.indexOf(li));
+        });
+        // The label wraps the control; don't let a click on it toggle the list twice.
+        if (field) field.addEventListener('click', (e) => { if (wrap.contains(e.target)) e.preventDefault(); });
+
+        document.addEventListener('pointerdown', (e) => { if (isOpen() && !wrap.contains(e.target)) close(false); });
+        list.addEventListener('blur', (e) => { if (!wrap.contains(e.relatedTarget)) close(false); });
+        window.addEventListener('resize', () => close(false));
+        const scroller = select.closest('dialog');
+        if (scroller) {
+            scroller.addEventListener('scroll', () => close(false));
+            scroller.addEventListener('close', () => close(false));
+        }
+        const form = select.form;
+        if (form) form.addEventListener('reset', () => setTimeout(sync, 0));
+        sync();
+    }
+
     function initContact() {
         const dialog = document.getElementById('contact');
         const form = document.getElementById('contact-form');
@@ -1113,6 +1266,7 @@
         let emailReady = false;
 
         const show = (name) => states.forEach(s => (s.hidden = s.dataset.state !== name));
+        form.querySelectorAll('.field select').forEach(enhanceSelect);
 
         const open = (plan) => {
             planInput.value = plan || 'General';
@@ -1159,7 +1313,7 @@
                 input.closest('.field, .check').classList.toggle('is-invalid', !ok);
                 if (!ok && !first) first = input;
             });
-            if (first) first.focus();
+            if (first) (first.ddTrigger || first).focus();
             return !first;
         };
 
