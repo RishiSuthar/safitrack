@@ -260,7 +260,13 @@ blockquote {
     display: flex;
     align-items: center;
     height: var(--nav-h);
-    gap: 32px;
+    gap: 48px;
+}
+
+/* the bar spans the full window, not the content column */
+.wrap.nav-inner {
+    max-width: none;
+    padding: 0 24px;
 }
 
 .nav-logo img,
@@ -319,6 +325,12 @@ blockquote {
     display: flex;
     align-items: center;
     gap: 6px;
+}
+
+.nav-open {
+    height: 36px;
+    padding: 0 15px;
+    font-size: 14px;
 }
 
 /* Mega menu */
@@ -526,7 +538,7 @@ blockquote {
 
 .mobile-actions {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 10px;
     margin-top: 28px;
 }
@@ -565,9 +577,15 @@ blockquote {
     color: #8e9098;
 }
 
-.nav.is-dark:not(.is-open) .nav-actions .btn-dark {
-    background: #fff;
-    color: var(--ink);
+.nav.is-dark:not(.is-open) .nav-actions .btn-light {
+    background: transparent;
+    border-color: rgba(255, 255, 255, .22);
+    color: #fff;
+    box-shadow: none;
+}
+
+.nav.is-dark:not(.is-open) .nav-actions .btn-light:hover {
+    background: rgba(255, 255, 255, .08);
 }
 
 .nav.is-dark:not(.is-open) .nav-burger span {
