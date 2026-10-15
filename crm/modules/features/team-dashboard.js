@@ -1010,13 +1010,22 @@ function renderVisitPanel() {
     : userName;
   const reviewerName = visit.fare_reviewed_by ? getProfileDisplayNameById(visit.fare_reviewed_by) : null;
   const showFareSection = fareTrackingEnabled && fareApprovalWorkflowEnabled && hasFare;
+  // A fare of 0 starts collapsed (and below the notes); anything else starts open.
+  // Opening or closing it sticks while this visit stays open.
+  const fareIsZero = hasFare && Number(visit.fare_amount) === 0;
+  const fareOpen = visitView.fareOpen ?? !fareIsZero;
+  const fareOnTop = canManagerDecideFare && !fareIsZero;
 
   const fareSection = showFareSection ? `
-    <section class="td-section vd-fare">
-      <div class="vd-section-head">
-        <h3 class="td-section-title">Fare approval</h3>
+    <details class="td-section vd-fare" id="vd-fare"${fareOpen ? ' open' : ''}>
+      <summary class="vd-section-head vd-fare-summary">
+        <span class="vd-fare-heading">
+          <svg class="vd-fare-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          <span class="td-section-title">Fare approval</span>
+          <span class="od-muted">${escapeHtml(fareCurrency)} ${Number(visit.fare_amount).toFixed(2)}</span>
+        </span>
         <span class="visit-fare-status fare-${fareStatusRaw || 'none'}"><span class="visit-fare-status-dot"></span>${fareStatusLabel}</span>
-      </div>
+      </summary>
       <dl class="od-props">
         ${rpProp('fare-amount', 'Requested', 'pipeline', `<span class="od-readonly">${escapeHtml(fareCurrency)} ${Number(visit.fare_amount).toFixed(2)}</span>`)}
         ${rpProp('fare-by', 'Requested by', 'person', `<span class="od-readonly">${escapeHtml(requesterName)}</span><span class="od-muted">${formatShortDateTime(visit.fare_requested_at || visit.created_at)}</span>`)}
@@ -1039,7 +1048,7 @@ function renderVisitPanel() {
             <button type="button" class="btn btn-primary btn-sm" id="visit-fare-approve-btn">Approve fare</button>
           </div>
         </div>` : ''}
-    </section>` : '';
+    </details>` : '';
 
   // Location check
   let locationHtml;
@@ -1105,14 +1114,14 @@ function renderVisitPanel() {
         ${String(visit.subsector || '').trim() ? rpProp('subsector', 'Subsector', 'sector', `<span class="od-readonly">${escapeHtml(String(visit.subsector).trim())}</span>`) : ''}
       </dl>
 
-      ${canManagerDecideFare ? fareSection : ''}
+      ${fareOnTop ? fareSection : ''}
 
       <section class="td-section">
         <h3 class="td-section-title">Notes</h3>
         <div class="od-notes is-readonly${notes ? '' : ' is-empty'}">${notes ? escapeHtml(softenCaps(notes, 'sentence')) : 'No notes for this visit.'}</div>
       </section>
 
-      ${canManagerDecideFare ? '' : fareSection}
+      ${fareOnTop ? '' : fareSection}
 
       ${visit.ai_summary ? `
         <section class="td-section">
@@ -1148,6 +1157,10 @@ function renderVisitPanel() {
 
   const body = panel.querySelector('.od-body');
   if (body) body.scrollTop = scrollTop;
+
+  document.getElementById('vd-fare')?.addEventListener('toggle', (e) => {
+    visitView.fareOpen = e.target.open;
+  });
 
   const approveBtn = document.getElementById('visit-fare-approve-btn');
   const rejectBtn = document.getElementById('visit-fare-reject-btn');
