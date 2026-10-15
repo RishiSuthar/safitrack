@@ -2220,10 +2220,23 @@ function canDeleteOpportunity(opportunity) {
 async function deleteOpportunity(opportunity) {
   if (!canDeleteOpportunity(opportunity)) return false;
 
+  // The deal's tasks and notes are deleted with it (the database cascades),
+  // so say how many before asking
+  const countLinked = (table) => supabaseClient
+    .from(table)
+    .select('id', { count: 'exact', head: true })
+    .eq('opportunity_id', opportunity.id)
+    .then(({ count, error }) => (error ? 0 : count || 0));
+  const [taskCount, noteCount] = await Promise.all([countLinked('tasks'), countLinked('notes')]);
+  const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+  const linked = [taskCount && plural(taskCount, 'task'), noteCount && plural(noteCount, 'note')].filter(Boolean);
+
   const ownerName = fullName(opportunity.profiles);
-  const message = opportunity.user_id !== state.currentUser.id && ownerName
-    ? `Are you sure you want to delete ${opportunity.name}? This deal belongs to ${ownerName}.`
-    : `Are you sure you want to delete ${opportunity.name}?`;
+  const message = [
+    `Are you sure you want to delete ${opportunity.name}?`,
+    opportunity.user_id !== state.currentUser.id && ownerName ? `This deal belongs to ${ownerName}.` : '',
+    linked.length ? `Its ${linked.join(' and ')} will be deleted too.` : '',
+  ].filter(Boolean).join(' ');
 
   const confirmed = await showConfirmDialog('Delete Opportunity', message);
   if (!confirmed) return false;
@@ -2244,7 +2257,11 @@ async function deleteOpportunity(opportunity) {
     return false;
   }
 
-  showToast('Opportunity deleted successfully', 'success');
+  showToast(linked.length ? `Deal deleted, with its ${linked.join(' and ')}` : 'Deal deleted', 'success');
+  if (taskCount) {
+    // Task counts and reminders elsewhere in the app drop the deleted tasks
+    document.dispatchEvent(new CustomEvent('safitrack:notification-refresh'));
+  }
   // Remove just this card so columns the user expanded with "Load more"
   // stay expanded; fall back to a full render if it isn't on the board.
   if (!removeOpportunityFromBoard(opportunity.id)) refreshPipelineIfVisible();
