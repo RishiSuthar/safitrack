@@ -12,6 +12,8 @@ class CustomCalendar {
 
         this.options = {
             type: 'datetime-local',
+            // With type 'datetime-local': offer "All day", which picks just a date ("2026-10-20")
+            allDay: false,
             onSelect: null,
             ...options
         };
@@ -19,6 +21,7 @@ class CustomCalendar {
         this.isOpen = false;
         this.currentView = 'days'; // days, months, years
         this.selectedDate = this.parseInputValue(this.input.value);
+        this.isAllDay = this.readAllDay(this.input.value);
 
         this.viewDate = new Date(this.selectedDate);
         this.viewDate.setDate(1);
@@ -86,6 +89,7 @@ class CustomCalendar {
             this.viewDate = new Date(this.selectedDate);
             this.viewDate.setDate(1);
         }
+        this.isAllDay = this.readAllDay(this.input.value);
 
         this.currentView = 'days';
         this.isOpen = true;
@@ -143,6 +147,11 @@ class CustomCalendar {
             if (left < 8) left = 8;
         }
         this.picker.style.left = `${left}px`;
+    }
+
+    /** A value with no time is all day; an empty one starts as all day too */
+    readAllDay(value) {
+        return Boolean(this.options.allDay) && this.options.type === 'datetime-local' && !String(value || '').includes('T');
     }
 
     parseInputValue(value) {
@@ -242,9 +251,17 @@ class CustomCalendar {
             const minutes = this.selectedDate.getMinutes();
             const ampm = hours >= 12 ? 'PM' : 'AM';
 
+            const allDayToggle = this.options.allDay ? `
+                    <label class="calendar-all-day">
+                        <input type="checkbox" class="calendar-all-day-input" ${this.isAllDay ? 'checked' : ''}>
+                        <span>All day</span>
+                    </label>` : '';
+
             html += `
-                <div class="calendar-time-picker">
-                    <div class="time-picker-label">Select Time</div>
+                <div class="calendar-time-picker${this.isAllDay ? ' is-all-day' : ''}">
+                    <div class="time-picker-head">
+                        <div class="time-picker-label">${this.isAllDay ? 'No set time' : 'Select Time'}</div>${allDayToggle}
+                    </div>
                     <div class="time-inputs">
                         <div class="time-input-group">
                             <input type="number" class="time-hour" value="${displayHours}" min="1" max="12">
@@ -378,6 +395,12 @@ class CustomCalendar {
                     this.selectedDate.setMinutes(minutes);
                 };
 
+                this.picker.querySelector('.calendar-all-day-input')?.addEventListener('change', (e) => {
+                    e.stopPropagation();
+                    this.isAllDay = e.target.checked;
+                    this.render();
+                });
+
                 hourInput.addEventListener('change', updateTime);
                 minuteInput.addEventListener('change', updateTime);
                 ampmBtns.forEach(btn => {
@@ -424,6 +447,11 @@ class CustomCalendar {
         const date = this.selectedDate;
 
         if (this.options.type === 'date') {
+            const y = date.getFullYear();
+            const m = String(date.getMonth() + 1).padStart(2, '0');
+            const d = String(date.getDate()).padStart(2, '0');
+            value = `${y}-${m}-${d}`;
+        } else if (this.options.type === 'datetime-local' && this.isAllDay) {
             const y = date.getFullYear();
             const m = String(date.getMonth() + 1).padStart(2, '0');
             const d = String(date.getDate()).padStart(2, '0');

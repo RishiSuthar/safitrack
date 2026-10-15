@@ -200,7 +200,7 @@ async function initApp() {
   }
 
   // Initialize custom calendar for all date/time inputs
-  initCustomCalendar('#task-due-date', { type: 'datetime-local' });
+  initCustomCalendar('#task-due-date', { type: 'datetime-local', allDay: true });
   initCustomCalendar('#reminder-date', { type: 'datetime-local' });
   initCustomCalendar('#call-datetime', { type: 'datetime-local' });
   initCustomCalendar('#opportunity-next-step-date', { type: 'date' });

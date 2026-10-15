@@ -1,7 +1,7 @@
 // modules/notifications/types.js
 // Normalized types, category configurations, SVG icons, and formatting utilities.
 
-import { dueDeadline, isAllDay } from '../utils/due-dates.js';
+import { daysUntilDue, dueDeadline, dueStart, isAllDay } from '../utils/due-dates.js';
 
 export const NOTIFICATION_CATEGORIES = {
   TASK: 'task',
@@ -48,24 +48,17 @@ export const CATEGORY_LABELS = {
 
 // ── Status & Urgency Evaluation ───────────────────────────────────────────────
 
-export function evaluateDueStatus(dueAt) {
-  if (!dueAt || !(dueAt instanceof Date) || Number.isNaN(dueAt.getTime())) {
-    return NOTIFICATION_STATUSES.ACTIVE;
-  }
-  const now = Date.now();
-  const dueTs = dueAt.getTime();
+// Due values are as stored (see utils/due-dates.js). allDay: true for a calendar
+// date (an all-day task, a deal's next-step date), false for an instant, and
+// unknown (undefined) to treat local midnight as all day.
 
-  // A date with no time is due all day, so it's overdue only once the day ends
-  if (dueDeadline(dueAt).getTime() <= now) return NOTIFICATION_STATUSES.OVERDUE;
+export function evaluateDueStatus(value, allDay) {
+  const deadline = dueDeadline(value, allDay);
+  if (!deadline) return NOTIFICATION_STATUSES.ACTIVE;
 
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
-  const todayEnd = new Date(todayStart);
-  todayEnd.setDate(todayEnd.getDate() + 1);
-
-  if (dueTs >= todayStart.getTime() && dueTs < todayEnd.getTime()) {
-    return NOTIFICATION_STATUSES.DUE_TODAY;
-  }
+  // An all-day date is overdue only once the day ends
+  if (deadline.getTime() <= Date.now()) return NOTIFICATION_STATUSES.OVERDUE;
+  if (daysUntilDue(value, allDay) === 0) return NOTIFICATION_STATUSES.DUE_TODAY;
   return NOTIFICATION_STATUSES.DUE_SOON;
 }
 
@@ -115,9 +108,10 @@ export function formatRelativeTime(date) {
   });
 }
 
-export function formatDueLabel(dateObj) {
-  if (!dateObj || !(dateObj instanceof Date) || Number.isNaN(dateObj.getTime())) return '';
-  if (isAllDay(dateObj)) return dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
+export function formatDueLabel(value, allDay) {
+  const dateObj = dueStart(value, allDay);
+  if (!dateObj) return '';
+  if (isAllDay(value, allDay)) return dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
   return dateObj.toLocaleString([], {
     month: 'short',
     day: 'numeric',
