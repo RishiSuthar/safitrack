@@ -23000,10 +23000,23 @@ button svg {
 }
 
 /* ── Deal form (new / edit) ───────────────────────────────────────── */
+/* One control style for every field: text inputs, dropdowns, the date picker,
+   the note box and the two tag fields share height, surface, border, type and
+   focus ring. Scoped by id because the shared modal rules use ids too. */
+#opportunity-modal .opp-form {
+  --opp-control-h: 40px;
+  --opp-control-radius: 8px;
+  --opp-control-font: 0.875rem;
+}
+
 #opportunity-modal .opp-form .form-field label {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: 6px;
+  gap: 2px 6px;
+  font-size: 0.8125rem;
+  font-weight: 550;
+  color: var(--text-secondary);
 }
 
 #opportunity-modal .opp-form .field-hint {
@@ -23014,13 +23027,148 @@ button svg {
 
 #opportunity-modal .opp-form .field-group {
   gap: 0.75rem;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.875rem;
+}
+
+#opportunity-modal .opp-form .form-field {
+  gap: 6px;
+  margin-bottom: 0.875rem;
 }
 
 #opportunity-modal .opp-form .field-group > .form-field {
   margin-bottom: 0;
 }
 
+/* Text inputs, the note box, and the dropdown triggers */
+#opportunity-modal .opp-form .form-field input:not(.opp-token-input),
+#opportunity-modal .opp-form .form-field textarea,
+#opportunity-modal .opp-form .crm-dd-trigger,
+#opportunity-modal .opp-form .opp-token-field {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: var(--opp-control-radius);
+  background: var(--bg-secondary);
+  font-family: inherit;
+  font-size: var(--opp-control-font);
+  font-weight: 500;
+  color: var(--text-primary);
+  box-shadow: none;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+
+#opportunity-modal .opp-form .form-field input:not(.opp-token-input),
+#opportunity-modal .opp-form .crm-dd-trigger {
+  height: var(--opp-control-h);
+  min-height: var(--opp-control-h);
+  padding: 0 12px;
+}
+
+#opportunity-modal .opp-form .form-field textarea {
+  min-height: 84px;
+  padding: 10px 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+#opportunity-modal .opp-form .form-field input::placeholder,
+#opportunity-modal .opp-form .form-field textarea::placeholder {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+#opportunity-modal .opp-form .form-field input:not(.opp-token-input):hover,
+#opportunity-modal .opp-form .form-field textarea:hover,
+#opportunity-modal .opp-form .crm-dd-trigger:hover,
+#opportunity-modal .opp-form .opp-token-field:hover {
+  border-color: color-mix(in srgb, var(--border-color) 65%, var(--text-muted));
+  background: var(--bg-secondary);
+}
+
+#opportunity-modal .opp-form .form-field input:not(.opp-token-input):focus,
+#opportunity-modal .opp-form .form-field textarea:focus,
+#opportunity-modal .opp-form .crm-dd.is-open .crm-dd-trigger,
+#opportunity-modal .opp-form .crm-dd-trigger:focus-visible,
+#opportunity-modal .opp-form .opp-token-field:focus-within {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+/* Dropdowns fill their column like the inputs beside them */
+#opportunity-modal .opp-form .crm-dd {
+  display: flex;
+  width: 100%;
+}
+
+#opportunity-modal .opp-form .crm-dd-label {
+  font-weight: 500;
+}
+
+/* Company search: no icon, same padding as every other field */
+#opportunity-modal .opp-form .search-container input {
+  padding: 0 12px !important;
+}
+
+#opportunity-modal .opp-form .search-results {
+  max-height: 248px;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+/* Company sits in the left column; let its suggestions span the whole row so
+   long names (and the branch at the end of them) stay readable */
+@media (min-width: 641px) {
+  #opportunity-modal .opp-form .field-group .search-results {
+    right: auto;
+    width: calc(200% + 0.75rem);
+  }
+}
+
+#opportunity-modal .opp-form .search-results .search-result-item {
+  gap: 10px;
+  min-height: 36px;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+#opportunity-modal .opp-form .search-results .search-result-item:hover,
+#opportunity-modal .opp-form .search-results .search-result-item.is-active {
+  background: var(--bg-tertiary);
+}
+
+#opportunity-modal .opp-form .search-results .opp-suggest-avatar {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+}
+
+#opportunity-modal .opp-form .search-results .search-result-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+#opportunity-modal .opp-form .search-result-item--custom {
+  margin-top: 4px;
+  border-top: 1px solid var(--border-color-light);
+  border-radius: 0 0 6px 6px;
+}
+
+#opportunity-modal .opp-form .search-result-item:first-child.search-result-item--custom {
+  margin-top: 0;
+  border-top: 0;
+}
+
+#opportunity-modal .opp-form .search-result-hint {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* Win chance: number box with a % suffix and no spinner */
 #opportunity-modal .opp-form input[type="number"] {
   -moz-appearance: textfield;
   appearance: textfield;
@@ -23036,38 +23184,210 @@ button svg {
   position: relative;
 }
 
-#opportunity-modal .opp-percent-input input {
-  width: 100%;
+#opportunity-modal .opp-form .opp-percent-input input {
   padding-right: 2rem;
 }
 
-#opportunity-modal .opp-percent-input input:disabled {
-  opacity: 0.6;
+#opportunity-modal .opp-form .opp-percent-input input:disabled {
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
   cursor: not-allowed;
 }
 
 #opportunity-modal .opp-percent-input span {
   position: absolute;
   top: 50%;
-  right: 0.75rem;
+  right: 12px;
   transform: translateY(-50%);
-  font-size: var(--type-md);
+  font-size: var(--opp-control-font);
   color: var(--text-muted);
   pointer-events: none;
 }
 
+#opportunity-modal .opp-form .probability-reset-btn {
+  margin-left: auto;
+}
+
+/* Next step: task title and due date on one row; the date uses the app's picker */
 #opportunity-modal .opp-next-step-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 170px;
+  grid-template-columns: minmax(0, 1fr) 172px;
   gap: 0.5rem;
 }
 
-#opportunity-modal .opp-next-step-row input {
-  width: 100%;
+#opportunity-modal .opp-form .calendar-input-wrapper .calendar-icon-trigger svg {
+  width: 16px;
+  height: 16px;
 }
 
+/* Tag fields (competitors, teammates): one box that looks like an input, with
+   chips and a borderless text entry inside it */
+#opportunity-modal .opp-form .opp-token-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--opp-control-h);
+  padding: 5px 6px;
+  cursor: text;
+}
+
+#opportunity-modal .opp-token-list {
+  display: contents;
+}
+
+#opportunity-modal .opp-form .opp-token-input {
+  flex: 1 1 140px;
+  min-width: 120px;
+  height: 28px;
+  min-height: 0;
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  font-family: inherit;
+  font-size: var(--opp-control-font);
+  font-weight: 500;
+  color: var(--text-primary);
+  outline: none;
+}
+
+#opportunity-modal .opp-form .opp-token-input::placeholder {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+#opportunity-modal .opp-token {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  height: 28px;
+  padding: 0 3px 0 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+#opportunity-modal .opp-token:has(.opp-token-avatar) {
+  padding-left: 3px;
+}
+
+#opportunity-modal .opp-token--owner {
+  padding-right: 8px;
+}
+
+.opp-token-avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  overflow: hidden;
+  font-size: 0.55rem;
+  font-weight: 650;
+  color: #fff;
+}
+
+.opp-token-avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#opportunity-modal .opp-token-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#opportunity-modal .opp-token-meta {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+#opportunity-modal .opp-token-remove {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+#opportunity-modal .opp-token-remove:hover {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+#opportunity-modal .opp-token-remove:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 0;
+}
+
+/* Teammate suggestions: one compact line per person */
+#opportunity-modal .opp-assignees-dropdown {
+  max-height: 248px;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+#opportunity-modal .opp-assignee-option {
+  gap: 10px;
+  min-height: 36px;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+#opportunity-modal .opp-assignee-option:hover,
+#opportunity-modal .opp-assignee-option.is-active {
+  background: var(--bg-tertiary);
+}
+
+#opportunity-modal .opp-assignee-option.is-selected {
+  background: transparent;
+}
+
+#opportunity-modal .opp-assignee-option.is-selected:hover,
+#opportunity-modal .opp-assignee-option.is-selected.is-active {
+  background: var(--bg-tertiary);
+}
+
+#opportunity-modal .opp-assignee-option .opp-assignee-opt-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+#opportunity-modal .opp-assignee-option.is-selected .opp-assignee-opt-name {
+  color: var(--text-primary);
+}
+
+#opportunity-modal .opp-assignee-option .opp-assignee-opt-role {
+  margin: 0;
+  font-size: 0.75rem;
+  text-transform: none;
+}
+
+/* More: competitors and teammates */
 #opportunity-modal .opp-form-more {
-  padding-top: 0.75rem;
+  padding-top: 0.875rem;
   margin-top: 0.25rem;
   border-top: 1px solid var(--border-color);
 }
@@ -23077,10 +23397,14 @@ button svg {
   align-items: center;
   gap: 8px;
   list-style: none;
-  font-size: var(--type-md);
+  font-size: 0.8125rem;
   font-weight: 550;
   color: var(--text-secondary);
   cursor: pointer;
+}
+
+#opportunity-modal .opp-form-more > summary:hover {
+  color: var(--text-primary);
 }
 
 #opportunity-modal .opp-form-more > summary::-webkit-details-marker {
@@ -23098,16 +23422,30 @@ button svg {
 }
 
 #opportunity-modal .opp-form-more[open] > summary {
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.875rem;
 }
 
 #opportunity-modal .opp-form-more[open] > summary::before {
   transform: rotate(45deg);
 }
 
+#opportunity-modal .opp-form-more .form-field:last-child {
+  margin-bottom: 0;
+}
+
+/* Phones: taller controls, and 16px text so iOS doesn't zoom into fields */
 @media (max-width: 640px) {
+  #opportunity-modal .opp-form {
+    --opp-control-h: 44px;
+    --opp-control-font: 1rem;
+  }
+
   #opportunity-modal .opp-next-step-row {
     grid-template-columns: 1fr;
+  }
+
+  #opportunity-modal .opp-token {
+    height: 32px;
   }
 }
 

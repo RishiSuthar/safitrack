@@ -1478,19 +1478,16 @@
             <summary>Competitors and teammates</summary>
             <div class="form-field">
               <label for="competitors-input">Competitors</label>
-              <div class="competitors-input-container" id="competitors-container">
-                <input type="text" class="competitors-input" id="competitors-input" placeholder="Type a name and press Enter">
+              <div class="opp-token-field" id="competitors-container">
+                <input type="text" class="opp-token-input" id="competitors-input" placeholder="Add a competitor" autocomplete="off">
               </div>
             </div>
             <div class="form-field">
-              <label for="opp-assignees-input">Teammates</label>
-              <div class="opp-assignees-picker" id="opp-assignees-picker">
-                <div class="opp-assignees-chips" id="opp-assignees-chips"></div>
-                <div class="opp-assignees-search-wrap">
-                  <input type="text" class="opp-assignees-input" id="opp-assignees-input"
-                    placeholder="Tag a sales rep or manager" autocomplete="off">
-                  <div class="opp-assignees-dropdown" id="opp-assignees-dropdown" style="display:none;"></div>
-                </div>
+              <label for="opp-assignees-input">Teammates <span class="field-hint">can view and edit the deal</span></label>
+              <div class="opp-token-field" id="opp-assignees-picker">
+                <div class="opp-token-list" id="opp-assignees-chips"></div>
+                <input type="text" class="opp-token-input" id="opp-assignees-input" placeholder="Add a teammate" autocomplete="off">
+                <div class="opp-assignees-dropdown" id="opp-assignees-dropdown" style="display:none;"></div>
               </div>
             </div>
           </details>

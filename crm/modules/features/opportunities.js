@@ -1288,7 +1288,7 @@ async function openOpportunityModal(opportunity = null, options = {}) {
   }
 
   // Clear competitors
-  document.getElementById('competitors-container').innerHTML = '<input type="text" class="competitors-input" id="competitors-input" placeholder="Type a name and press Enter">';
+  document.getElementById('competitors-container').innerHTML = '<input type="text" class="opp-token-input" id="competitors-input" placeholder="Add a competitor" autocomplete="off">';
 
   // Reset mentioned people
   state.mentionedPeople = opportunity && opportunity.mentioned_people ? [...opportunity.mentioned_people] : [];
@@ -1309,7 +1309,8 @@ async function openOpportunityModal(opportunity = null, options = {}) {
     // When editing: show the owner as a non-removable chip first so the full
     // team is always visible. Owner is NOT stored in state.opportunityAssignees
     // (they're tracked via opportunity.user_id), so saving never overwrites them.
-    if (opportunity && opportunity.profiles && opportunity.user_id) {
+    // Managers see the owner in the Owner dropdown instead.
+    if (!state.isManager && opportunity && opportunity.profiles && opportunity.user_id) {
       _prependOwnerChip(opportunity.user_id, opportunity.profiles);
     }
     // Append tagged assignees (owner excluded from this list)
@@ -2311,14 +2312,12 @@ function initOpportunityModalListeners(opportunity) {
   }, { signal });
   updateProbabilityHint(stageInput?.value, stages);
 
-  // Changing the owner moves the owner chip; the new owner is no longer a tagged teammate
+  // The new owner is no longer also a tagged teammate
   document.getElementById('opportunity-owner')?.addEventListener('change', (e) => {
-    const member = (window._orgTeamMembers || []).find(m => m.id === e.target.value);
-    document.querySelector('.opp-assignee-chip--owner')?.remove();
-    if (!member) return;
-    state.opportunityAssignees = state.opportunityAssignees.filter(a => a.user_id !== member.id);
-    document.querySelector(`#opp-assignees-chips .opp-assignee-chip[data-user-id="${CSS.escape(member.id)}"]`)?.remove();
-    _prependOwnerChip(member.id, member);
+    const ownerId = e.target.value;
+    if (!ownerId) return;
+    state.opportunityAssignees = state.opportunityAssignees.filter(a => a.user_id !== ownerId);
+    document.querySelector(`#opp-assignees-chips .opp-token[data-user-id="${CSS.escape(ownerId)}"]`)?.remove();
   }, { signal });
 
   // Company search
@@ -2378,40 +2377,50 @@ function initOpportunityModalListeners(opportunity) {
           const avatarInner = logoUrl
             ? `<img src="${escapeHtml(logoUrl)}" class="opp-suggest-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><span class="opp-suggest-initials" style="display:none">${escapeHtml(initials)}</span>`
             : `<span class="opp-suggest-initials">${escapeHtml(initials)}</span>`;
+          // Name only: descriptions hold phone numbers and delivery notes that crowd the list
           return `
-          <div class="search-result-item" data-company-name="${escapeHtml(company.name)}" data-company-id="${escapeHtml(company.id)}">
+          <div class="search-result-item" role="option" data-company-name="${escapeHtml(company.name)}" data-company-id="${escapeHtml(company.id)}" title="${escapeHtml(company.name)}">
             <div class="opp-suggest-avatar">${avatarInner}</div>
-            <div>
-              <div class="search-result-name">${escapeHtml(company.name)}</div>
-              <div class="search-result-role">${escapeHtml(company.description || company.domain || 'Company')}</div>
-            </div>
+            <span class="search-result-name">${escapeHtml(company.name)}</span>
           </div>`;
         }).join('');
       }
 
-      // Always show option to use custom name if it's different from found companies
-      const customNameOption = `
-        <div class="search-result-item" data-company-name="${escapeHtml(e.target.value.trim())}" data-company-id="">
-          <div class="opp-suggest-avatar opp-suggest-avatar--custom">
-            <span>+</span>
-          </div>
-          <div>
-            <div class="search-result-name">Use "${escapeHtml(e.target.value.trim())}"</div>
-            <div class="search-result-role">Add as custom company name</div>
-          </div>
-        </div>
-      `;
+      // Offer the typed name as-is, unless it exactly matches a company above
+      const typed = e.target.value.trim();
+      const typedKey = typed.toLowerCase();
+      const customNameOption = filteredCompanies.some(c => String(c.name || '').trim().toLowerCase() === typedKey) ? '' : `
+        <div class="search-result-item search-result-item--custom" role="option" data-company-name="${escapeHtml(typed)}" data-company-id="">
+          <div class="opp-suggest-avatar opp-suggest-avatar--custom"><span>+</span></div>
+          <span class="search-result-name">Use “${escapeHtml(typed)}”<span class="search-result-hint"> · not in Companies</span></span>
+        </div>`;
 
       companySearchResults.innerHTML = resultsHTML + customNameOption;
       companySearchResults.style.display = 'block';
     }, 300);
   });
 
-  // Allow pressing Enter to confirm custom company name
+  // Arrow keys move through the suggestions, Enter picks one (or keeps the typed name)
   newCompanyInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && newCompanyInput.value.trim()) {
+    const items = companySearchResults.style.display === 'none'
+      ? []
+      : Array.from(companySearchResults.querySelectorAll('.search-result-item[data-company-name]'));
+    const active = items.findIndex(item => item.classList.contains('is-active'));
+    if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && items.length) {
       e.preventDefault();
-      selectOpportunityCompany(newCompanyInput.value.trim());
+      const next = e.key === 'ArrowDown'
+        ? (active + 1) % items.length
+        : (active <= 0 ? items.length - 1 : active - 1);
+      items.forEach((item, i) => item.classList.toggle('is-active', i === next));
+      items[next].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter' && newCompanyInput.value.trim()) {
+      e.preventDefault();
+      const item = items[active];
+      if (item) selectOpportunityCompany(item.dataset.companyName, item.dataset.companyId);
+      else selectOpportunityCompany(newCompanyInput.value.trim());
+    } else if (e.key === 'Escape' && companySearchResults.style.display !== 'none') {
+      e.stopPropagation();
+      companySearchResults.style.display = 'none';
     }
   });
 
@@ -2511,16 +2520,44 @@ function initOpportunityModalListeners(opportunity) {
     }
   }, { signal });
 
-  // Competitors input
+  // Competitors: Enter or comma adds a chip, Backspace in an empty box removes the last one
   const competitorsInput = document.getElementById('competitors-input');
+  const competitorsField = document.getElementById('competitors-container');
 
   competitorsInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && competitorsInput.value.trim()) {
+    if ((e.key === 'Enter' || e.key === ',') && competitorsInput.value.trim()) {
       e.preventDefault();
-      addCompetitor(competitorsInput.value.trim());
+      addCompetitor(competitorsInput.value);
+      competitorsInput.value = '';
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+    } else if (e.key === 'Backspace' && !competitorsInput.value) {
+      competitorsField.querySelector('.opp-token:last-of-type')?.remove();
+    }
+  });
+  // Commas split names however they arrive (typed, pasted, autocorrected)
+  competitorsInput.addEventListener('input', () => {
+    if (!competitorsInput.value.includes(',')) return;
+    const parts = competitorsInput.value.split(',');
+    competitorsInput.value = parts.pop().trimStart();
+    parts.forEach(part => addCompetitor(part));
+  });
+  // A name typed and then left (without Enter) still counts
+  competitorsInput.addEventListener('blur', () => {
+    if (competitorsInput.value.trim()) {
+      addCompetitor(competitorsInput.value);
       competitorsInput.value = '';
     }
   });
+  competitorsField.addEventListener('click', (e) => {
+    const remove = e.target.closest('.opp-token-remove');
+    if (remove) {
+      remove.closest('.opp-token').remove();
+      competitorsInput.focus();
+    } else if (e.target === competitorsField) {
+      competitorsInput.focus();
+    }
+  }, { signal });
 
   // Save opportunity
   const saveBtn = document.getElementById('save-opportunity-btn');
@@ -2541,11 +2578,10 @@ function initOpportunityModalListeners(opportunity) {
     const nextStepDate = document.getElementById('opportunity-next-step-date').value;
     const noteText = document.getElementById('opportunity-notes').value.trim();
 
-    // Get competitors
-    const competitorTags = document.querySelectorAll('#competitors-container .competitor-tag');
-    const competitors = Array.from(competitorTags).map(tag =>
-      tag.textContent.replace('×', '').trim()
-    );
+    // Get competitors, including one typed but not yet added
+    const pendingCompetitor = document.getElementById('competitors-input')?.value.trim();
+    if (pendingCompetitor) addCompetitor(pendingCompetitor);
+    const competitors = Array.from(document.querySelectorAll('#competitors-container .opp-token'), tag => tag.dataset.name);
 
     // Validate — deal value is optional
     if (!name || !companyName) {
@@ -2686,33 +2722,25 @@ async function saveFormNextStep(deal, existingTask, title, day, previousDeal) {
   await createDealTask(deal, { title, day });
 }
 
-function addCompetitor(name) {
+const TOKEN_REMOVE_ICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+
+function addCompetitor(rawName) {
   const container = document.getElementById('competitors-container');
   const input = document.getElementById('competitors-input');
+  const name = String(rawName || '').replace(/,/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!name || !container || !input) return;
 
-  // Check if competitor already exists
-  const existingTags = container.querySelectorAll('.competitor-tag');
-  for (const tag of existingTags) {
-    if (tag.textContent.replace('×', '').trim() === name) {
-      return; // Already exists
-    }
-  }
+  // Skip a competitor that's already there (ignoring case)
+  const exists = Array.from(container.querySelectorAll('.opp-token'))
+    .some(tag => tag.dataset.name.toLowerCase() === name.toLowerCase());
+  if (exists) return;
 
-  // Create competitor tag
   const tag = document.createElement('span');
-  tag.className = 'competitor-tag';
-  tag.innerHTML = `
-    ${escapeHtml(name)}
-    <button class="remove" type="button" onclick="removeCompetitor(this)">×</button>
-  `;
-
-  // Insert before input
+  tag.className = 'opp-token';
+  tag.dataset.name = name;
+  tag.innerHTML = `<span class="opp-token-label">${escapeHtml(name)}</span><button type="button" class="opp-token-remove" aria-label="Remove ${escapeHtml(name)}">${TOKEN_REMOVE_ICON}</button>`;
   container.insertBefore(tag, input);
 }
-
-window.removeCompetitor = function (element) {
-  element.parentElement.remove();
-};
 
 window.selectOpportunityCompany = function (name, companyId = '') {
   document.getElementById('opportunity-company').value = name;
@@ -2799,23 +2827,15 @@ function _prependOwnerChip(ownerId, ownerProfile) {
   if (!chipsEl || !ownerProfile) return;
 
   const name = fullName(ownerProfile) || 'Owner';
-  const color = getAssigneeColor(ownerId);
-  const initialsOrImage = ownerProfile.avatar_url 
-    ? `<span style="position:relative;z-index:1;display:none;">${getInitials(name)}</span><img src="${ownerProfile.avatar_url}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />` 
-    : getInitials(name);
-
-  const chip = document.createElement('div');
-  chip.className = 'opp-assignee-chip opp-assignee-chip--owner';
+  const chip = document.createElement('span');
+  chip.className = 'opp-token opp-token--owner';
   chip.dataset.userId = ownerId;
   chip.dataset.isOwner = 'true';
+  chip.title = `${name} owns this deal`;
   chip.innerHTML = `
-    <div class="opp-assignee-chip-avatar" style="background:${color}">${initialsOrImage}</div>
-    <div class="opp-assignee-chip-info">
-      <span class="opp-assignee-chip-name">${escapeHtml(name)}</span>
-      <span class="opp-assignee-chip-role">Owner</span>
-    </div>
-    <svg class="opp-owner-chip-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" title="Opportunity owner"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>`;
-
+    <span class="opp-token-avatar" style="background:${getAssigneeColor(ownerId)}">${renderAvatarContent(name, ownerProfile.avatar_url)}</span>
+    <span class="opp-token-label">${escapeHtml(name)}</span>
+    <span class="opp-token-meta">Owner</span>`;
   chipsEl.insertBefore(chip, chipsEl.firstChild);
 }
 
@@ -2824,31 +2844,22 @@ function _appendAssigneeChip(member) {
   const chipsEl = document.getElementById('opp-assignees-chips');
   if (!chipsEl) return;
 
-  const chip = document.createElement('div');
-  chip.className = 'opp-assignee-chip';
-  chip.dataset.userId = member.user_id;
-
   const name = fullName(member) || 'Member';
   const roleLabel = member.role === 'manager' ? 'Manager' : member.role === 'technician' ? 'Technician' : 'Sales Rep';
-  const color = getAssigneeColor(member.user_id);
-  const initialsOrImage = member.avatar_url 
-    ? `<span style="position:relative;z-index:1;display:none;">${getInitials(name)}</span><img src="${member.avatar_url}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />` 
-    : getInitials(name);
-
+  const chip = document.createElement('span');
+  chip.className = 'opp-token';
+  chip.dataset.userId = member.user_id;
+  chip.title = `${name} · ${roleLabel}`;
   chip.innerHTML = `
-    <div class="opp-assignee-chip-avatar" style="background:${color}">${initialsOrImage}</div>
-    <div class="opp-assignee-chip-info">
-      <span class="opp-assignee-chip-name">${escapeHtml(name)}</span>
-      <span class="opp-assignee-chip-role">${escapeHtml(roleLabel)}</span>
-    </div>
-    <button class="opp-assignee-chip-remove" title="Remove ${escapeHtml(name)}" type="button">
-      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-    </button>`;
+    <span class="opp-token-avatar" style="background:${getAssigneeColor(member.user_id)}">${renderAvatarContent(name, member.avatar_url)}</span>
+    <span class="opp-token-label">${escapeHtml(name)}</span>
+    <button type="button" class="opp-token-remove" aria-label="Remove ${escapeHtml(name)}">${TOKEN_REMOVE_ICON}</button>`;
 
-  chip.querySelector('.opp-assignee-chip-remove').addEventListener('click', (e) => {
+  chip.querySelector('.opp-token-remove').addEventListener('click', (e) => {
     e.stopPropagation();
     state.opportunityAssignees = state.opportunityAssignees.filter(a => a.user_id !== member.user_id);
     chip.remove();
+    document.getElementById('opp-assignees-input')?.focus();
   });
 
   chipsEl.appendChild(chip);
@@ -2858,119 +2869,149 @@ function _appendAssigneeChip(member) {
 function initAssigneesPicker(signal) {
   const input = document.getElementById('opp-assignees-input');
   const dropdown = document.getElementById('opp-assignees-dropdown');
-  if (!input || !dropdown) return;
+  const field = document.getElementById('opp-assignees-picker');
+  if (!input || !dropdown || !field) return;
 
   // Clone input to strip old listeners
   const freshInput = input.cloneNode(true);
   input.parentNode.replaceChild(freshInput, input);
 
   let allMembers = [];
+  let options = [];
+  let activeIndex = -1;
 
-  const renderDropdown = (members) => {
-    const query = freshInput.value.trim().toLowerCase();
-    // Exclude the opportunity owner from the picker — they're shown as a
-    // non-removable chip and are not stored in opportunity_assignees.
-    const ownerChip = document.querySelector('.opp-assignee-chip--owner');
-    const ownerUserId = ownerChip?.dataset.userId;
+  const roleLabel = (role) => (role === 'manager' ? 'Manager' : role === 'technician' ? 'Technician' : 'Sales Rep');
 
-    const filtered = members.filter(m => {
-      if (m.id === ownerUserId) return false;
-      const name = fullName(m).toLowerCase();
-      return !query || name.includes(query) || (m.email || '').toLowerCase().includes(query);
-    });
+  // The owner isn't a teammate: managers pick them in the Owner dropdown, others see the owner chip
+  const getOwnerId = () => (state.isManager
+    ? document.getElementById('opportunity-owner')?.value
+    : document.querySelector('#opp-assignees-chips .opp-token--owner')?.dataset.userId) || null;
 
-    if (filtered.length === 0) {
-      dropdown.innerHTML = `<div class="opp-assignees-empty">No team members found.</div>`;
-      dropdown.style.display = 'block';
-      return;
+  const toggleMember = (member) => {
+    const index = state.opportunityAssignees.findIndex(a => a.user_id === member.id);
+    if (index >= 0) {
+      state.opportunityAssignees.splice(index, 1);
+      document.querySelector(`#opp-assignees-chips .opp-token[data-user-id="${CSS.escape(member.id)}"]`)?.remove();
+    } else {
+      const assignee = {
+        user_id: member.id,
+        first_name: member.first_name,
+        last_name: member.last_name,
+        role: member.role,
+        avatar_url: member.avatar_url,
+      };
+      state.opportunityAssignees.push(assignee);
+      _appendAssigneeChip(assignee);
     }
-
-    dropdown.innerHTML = filtered.map(m => {
-      const name = fullName(m) || m.email;
-      const isSelected = state.opportunityAssignees.some(a => a.user_id === m.id);
-      const roleLabel = m.role === 'manager' ? 'Manager' : m.role === 'technician' ? 'Technician' : 'Sales Rep';
-      const color = getAssigneeColor(m.id);
-      const initialsOrImage = m.avatar_url 
-        ? `<span style="position:relative;z-index:1;display:none;">${getInitials(name)}</span><img src="${m.avatar_url}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />` 
-        : getInitials(name);
-        
-      return `
-        <div class="opp-assignee-option${isSelected ? ' is-selected' : ''}" data-user-id="${escapeHtml(m.id)}">
-          <div class="opp-assignee-opt-avatar" style="background:${color}">${initialsOrImage}</div>
-          <div class="opp-assignee-opt-info">
-            <div class="opp-assignee-opt-name">${escapeHtml(name)}</div>
-            <div class="opp-assignee-opt-role">${escapeHtml(roleLabel)}</div>
-          </div>
-          <svg class="opp-assignee-opt-check" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-        </div>`;
-    }).join('');
-
-    dropdown.querySelectorAll('.opp-assignee-option').forEach(opt => {
-      opt.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        const uid = opt.dataset.userId;
-        const member = allMembers.find(m => m.id === uid);
-        if (!member) return;
-
-        const alreadyIdx = state.opportunityAssignees.findIndex(a => a.user_id === uid);
-        if (alreadyIdx >= 0) {
-          // Deselect — remove chip
-          state.opportunityAssignees.splice(alreadyIdx, 1);
-          document.querySelector(`.opp-assignee-chip[data-user-id="${uid}"]`)?.remove();
-        } else {
-          // Select — add chip
-          const assignee = {
-            user_id: member.id,
-            first_name: member.first_name,
-            last_name: member.last_name,
-            role: member.role,
-            avatar_url: member.avatar_url,
-          };
-          state.opportunityAssignees.push(assignee);
-          _appendAssigneeChip(assignee);
-        }
-
-        freshInput.value = '';
-        dropdown.style.display = 'none';
-      });
-    });
-
-    dropdown.style.display = 'block';
   };
 
   const positionDropdown = () => {
-    const rect = freshInput.getBoundingClientRect();
-    dropdown.style.top    = `${rect.bottom + 4}px`;
-    dropdown.style.left   = `${rect.left}px`;
-    dropdown.style.width  = `${rect.width}px`;
+    // Below the whole field, or above it when the form runs out of room
+    const rect = field.getBoundingClientRect();
+    const roomBelow = window.innerHeight - rect.bottom;
+    dropdown.style.left = `${rect.left}px`;
+    dropdown.style.width = `${rect.width}px`;
+    if (roomBelow < 260 && rect.top > roomBelow) {
+      dropdown.style.top = 'auto';
+      dropdown.style.bottom = `${window.innerHeight - rect.top + 4}px`;
+    } else {
+      dropdown.style.bottom = 'auto';
+      dropdown.style.top = `${rect.bottom + 4}px`;
+    }
   };
+
+  const renderDropdown = () => {
+    const query = freshInput.value.trim().toLowerCase();
+    const ownerId = getOwnerId();
+    options = allMembers.filter(m => {
+      if (m.id === ownerId) return false;
+      const name = fullName(m).toLowerCase();
+      return !query || name.includes(query) || (m.email || '').toLowerCase().includes(query);
+    });
+    activeIndex = Math.min(activeIndex, options.length - 1);
+    if (query && activeIndex < 0 && options.length) activeIndex = 0;
+
+    dropdown.innerHTML = options.length
+      ? options.map((m, i) => {
+        const name = fullName(m) || m.email || 'Team member';
+        const isSelected = state.opportunityAssignees.some(a => a.user_id === m.id);
+        return `
+          <div class="opp-assignee-option${isSelected ? ' is-selected' : ''}${i === activeIndex ? ' is-active' : ''}" role="option" aria-selected="${isSelected}" data-index="${i}">
+            <span class="opp-token-avatar" style="background:${getAssigneeColor(m.id)}">${renderAvatarContent(name, m.avatar_url)}</span>
+            <span class="opp-assignee-opt-name">${escapeHtml(name)}</span>
+            <span class="opp-assignee-opt-role">${escapeHtml(roleLabel(m.role))}</span>
+            <svg class="opp-assignee-opt-check" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>`;
+      }).join('')
+      : '<div class="opp-assignees-empty">No one matches</div>';
+    dropdown.style.display = 'block';
+    positionDropdown();
+    dropdown.querySelector('.is-active')?.scrollIntoView({ block: 'nearest' });
+  };
+
+  // Picking someone keeps the list open so several people can be tagged in a row
+  dropdown.addEventListener('mousedown', (e) => {
+    const option = e.target.closest('.opp-assignee-option');
+    if (!option) return;
+    e.preventDefault();
+    toggleMember(options[Number(option.dataset.index)]);
+    freshInput.value = '';
+    activeIndex = Number(option.dataset.index);
+    renderDropdown();
+  }, { signal });
+
+  field.addEventListener('click', (e) => {
+    if (e.target === field || e.target.id === 'opp-assignees-chips') freshInput.focus();
+  }, { signal });
 
   freshInput.addEventListener('focus', async () => {
     if (allMembers.length === 0) allMembers = await loadOrgTeamMembers();
-    positionDropdown();
-    renderDropdown(allMembers);
+    activeIndex = -1;
+    renderDropdown();
   });
 
   freshInput.addEventListener('input', () => {
-    positionDropdown();
-    renderDropdown(allMembers);
+    activeIndex = -1;
+    renderDropdown();
   });
 
   freshInput.addEventListener('blur', () => {
-    setTimeout(() => {
-      dropdown.style.display = 'none';
-    }, 150);
+    setTimeout(() => { dropdown.style.display = 'none'; }, 120);
   });
 
   freshInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
+    const isOpen = dropdown.style.display !== 'none';
+    if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && options.length) {
+      e.preventDefault();
+      if (!isOpen) return renderDropdown();
+      activeIndex = e.key === 'ArrowDown'
+        ? (activeIndex + 1) % options.length
+        : (activeIndex <= 0 ? options.length - 1 : activeIndex - 1);
+      renderDropdown();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (isOpen && options[activeIndex]) {
+        toggleMember(options[activeIndex]);
+        freshInput.value = '';
+        renderDropdown();
+      }
+    } else if (e.key === 'Backspace' && !freshInput.value) {
+      // Remove the last teammate chip (never the owner)
+      const last = Array.from(document.querySelectorAll('#opp-assignees-chips .opp-token:not(.opp-token--owner)')).pop();
+      if (!last) return;
+      state.opportunityAssignees = state.opportunityAssignees.filter(a => a.user_id !== last.dataset.userId);
+      last.remove();
+      if (isOpen) renderDropdown();
+    } else if (e.key === 'Escape' && isOpen) {
+      e.stopPropagation();
       dropdown.style.display = 'none';
-      freshInput.blur();
     }
   });
 
-  // Reposition if modal scrolls while dropdown is open
-  document.querySelector('#opportunity-modal .modal-body')?.addEventListener('scroll', positionDropdown, { passive: true, signal });
+  // Keep the list attached to the field while the form scrolls
+  document.querySelector('#opportunity-modal .modal-body')?.addEventListener('scroll', () => {
+    if (dropdown.style.display !== 'none') positionDropdown();
+  }, { passive: true, signal });
 }
 
 
