@@ -1379,7 +1379,7 @@
     <div class="modal-backdrop"></div>
     <div class="modal-container modal-size-md">
       <div class="modal-header">
-        <h3 id="opportunity-modal-title">New Opportunity</h3>
+        <h3 id="opportunity-modal-title">New deal</h3>
         <button class="modal-close" onclick="closeModal('opportunity-modal')">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
@@ -1390,128 +1390,115 @@
         </button>
       </div>
       <div class="modal-body">
-        <div class="form-section">
+        <div class="form-section opp-form">
           <div class="form-field">
-            <label for="opportunity-name">
-              Opportunity Name <span class="required-indicator">(required)</span>
-            </label>
-            <input type="text" id="opportunity-name" placeholder="e.g., Q1 2024 Enterprise Software Deal" required>
-          </div>
-
-          <div class="form-field">
-            <label for="opportunity-company">
-              Company <span class="required-indicator">(required)</span>
-            </label>
-            <div class="search-container">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-              <input type="text" id="opportunity-company" placeholder="Search or enter company name..."
-                autocomplete="off" required>
-              <div id="opportunity-company-search-results" class="search-results" style="display: none;"></div>
-            </div>
-          </div>
-
-          <div class="form-field">
-            <label for="opportunity-subsector">Subsector <span class="field-hint">(optional)</span></label>
-            <input type="text" id="opportunity-subsector" placeholder="Auto-filled from selected company (editable)">
+            <label for="opportunity-name">Deal name</label>
+            <input type="text" id="opportunity-name" placeholder="e.g. Diapers supply for Ojomax" autocomplete="off" required>
           </div>
 
           <div class="field-group">
             <div class="form-field">
-              <label for="opportunity-value">
-                Deal Value <span class="field-hint">(optional)</span>
-              </label>
-              <input type="number" id="opportunity-value" placeholder="Not known yet" min="0" step="0.01">
+              <label for="opportunity-company">Company</label>
+              <div class="search-container">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
+                <input type="text" id="opportunity-company" placeholder="Search or type a name" autocomplete="off" required>
+                <div id="opportunity-company-search-results" class="search-results" style="display: none;"></div>
+              </div>
             </div>
-
             <div class="form-field">
-              <label for="opportunity-stage">
-                Pipeline Stage <span class="required-indicator">(required)</span>
-              </label>
+              <label for="opportunity-subsector">Subsector <span class="field-hint">optional</span></label>
+              <input type="text" id="opportunity-subsector" placeholder="From the company">
+            </div>
+          </div>
+
+          <div class="field-group">
+            <div class="form-field">
+              <label for="opportunity-stage">Stage</label>
               <div class="crm-dd crm-dd--form" data-dd-id="opportunity-stage" data-dd-required="true">
                 <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
                   <span class="crm-dd-label">Lead</span>
                   <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
                 </button>
                 <div class="crm-dd-panel" role="listbox">
-                  <ul class="crm-dd-list">
-                    <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="prospecting" data-label="Lead" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Lead</li>
-                    <li class="crm-dd-option" role="option" data-value="qualification" data-label="In Progress" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>In Progress</li>
-                    <li class="crm-dd-option" role="option" data-value="closed-won" data-label="Won" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Won</li>
-                    <li class="crm-dd-option" role="option" data-value="closed-lost" data-label="Lost" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Lost</li>
-                  </ul>
+                  <ul class="crm-dd-list"></ul>
                 </div>
                 <input class="crm-dd-value-input" type="hidden" id="opportunity-stage" name="opportunity-stage" value="prospecting" required>
               </div>
             </div>
-          </div>
-
-          <div class="form-field">
-            <label for="opportunity-probability">
-              Win Probability (%)
-              <span class="field-hint" id="probability-stage-hint"></span>
-              <button type="button" class="probability-reset-btn" id="probability-reset-btn" hidden>Reset</button>
-            </label>
-            <div class="probability-slider-container">
-              <input type="range" id="opportunity-probability" min="0" max="100" value="50" class="probability-slider">
-              <div class="probability-value"><span id="probability-display">50</span>%</div>
+            <div class="form-field">
+              <label for="opportunity-value">Value <span class="field-hint">optional</span></label>
+              <input type="number" id="opportunity-value" placeholder="Not known yet" min="0" step="0.01" inputmode="decimal">
             </div>
           </div>
 
-          <div class="form-field">
-            <label for="opportunity-next-step">Next Step</label>
-            <input type="text" id="opportunity-next-step" placeholder="e.g., Schedule demo with decision makers">
-          </div>
-
-          <div class="form-field">
-            <label for="opportunity-next-step-date">Next Step Due Date</label>
-            <input type="date" id="opportunity-next-step-date">
-          </div>
-
-          <div class="form-field">
-            <label>Competitors</label>
-            <div class="competitors-input-container" id="competitors-container">
-              <input type="text" class="competitors-input" id="competitors-input" placeholder="Add competitor name...">
-            </div>
-          </div>
-
-          <div class="form-field" id="opportunity-owner-field" style="display:none;">
-            <label for="opportunity-owner">Deal Owner</label>
-            <div class="crm-dd crm-dd--form" data-dd-id="opportunity-owner">
-              <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
-                <span class="crm-dd-label">Select owner</span>
-                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-              </button>
-              <div class="crm-dd-panel" role="listbox">
-                <ul class="crm-dd-list"></ul>
+          <div class="field-group">
+            <div class="form-field">
+              <label for="opportunity-probability">
+                Win chance
+                <span class="field-hint" id="probability-stage-hint"></span>
+                <button type="button" class="probability-reset-btn" id="probability-reset-btn" hidden>Reset</button>
+              </label>
+              <div class="opp-percent-input">
+                <input type="number" id="opportunity-probability" min="0" max="100" step="1" value="10" inputmode="numeric">
+                <span aria-hidden="true">%</span>
               </div>
-              <input class="crm-dd-value-input" type="hidden" id="opportunity-owner" name="opportunity-owner" value="">
             </div>
-          </div>
-
-          <div class="form-field">
-            <label for="opp-assignees-input">Team Members</label>
-            <div class="opp-assignees-picker" id="opp-assignees-picker">
-              <div class="opp-assignees-chips" id="opp-assignees-chips"></div>
-              <div class="opp-assignees-search-wrap">
-                <input type="text" class="opp-assignees-input" id="opp-assignees-input"
-                  placeholder="Tag a sales rep or manager..." autocomplete="off">
-                <div class="opp-assignees-dropdown" id="opp-assignees-dropdown" style="display:none;"></div>
+            <div class="form-field" id="opportunity-owner-field" style="display:none;">
+              <label for="opportunity-owner">Owner</label>
+              <div class="crm-dd crm-dd--form" data-dd-id="opportunity-owner">
+                <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="crm-dd-label">Select owner</span>
+                  <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+                </button>
+                <div class="crm-dd-panel" role="listbox">
+                  <ul class="crm-dd-list"></ul>
+                </div>
+                <input class="crm-dd-value-input" type="hidden" id="opportunity-owner" name="opportunity-owner" value="">
               </div>
             </div>
           </div>
 
           <div class="form-field">
-            <label for="opportunity-notes">Notes</label>
+            <label for="opportunity-next-step">Next step <span class="field-hint" id="opportunity-next-step-hint">Added to Tasks for the deal owner</span></label>
+            <div class="opp-next-step-row">
+              <input type="text" id="opportunity-next-step" placeholder="e.g. Send the price list" autocomplete="off">
+              <input type="date" id="opportunity-next-step-date" aria-label="Next step due date">
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="opportunity-notes">Add a note <span class="field-hint">Saved to Notes · type @ to mention someone</span></label>
             <div class="mention-container">
-              <textarea id="opportunity-notes" placeholder="Additional details..." rows="2"></textarea>
+              <textarea id="opportunity-notes" placeholder="What happened, what they need…" rows="3"></textarea>
               <div id="opportunity-mention-suggestions" class="mention-suggestions" style="display: none;"></div>
             </div>
           </div>
+
+          <details class="opp-form-more" id="opportunity-more">
+            <summary>Competitors and teammates</summary>
+            <div class="form-field">
+              <label for="competitors-input">Competitors</label>
+              <div class="competitors-input-container" id="competitors-container">
+                <input type="text" class="competitors-input" id="competitors-input" placeholder="Type a name and press Enter">
+              </div>
+            </div>
+            <div class="form-field">
+              <label for="opp-assignees-input">Teammates</label>
+              <div class="opp-assignees-picker" id="opp-assignees-picker">
+                <div class="opp-assignees-chips" id="opp-assignees-chips"></div>
+                <div class="opp-assignees-search-wrap">
+                  <input type="text" class="opp-assignees-input" id="opp-assignees-input"
+                    placeholder="Tag a sales rep or manager" autocomplete="off">
+                  <div class="opp-assignees-dropdown" id="opp-assignees-dropdown" style="display:none;"></div>
+                </div>
+              </div>
+            </div>
+          </details>
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('opportunity-modal')">Cancel</button>
-        <button class="btn btn-primary" id="save-opportunity-btn">Save Opportunity</button>
+        <button class="btn btn-primary" id="save-opportunity-btn">Create deal</button>
       </div>
     </div>
   </div>

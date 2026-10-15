@@ -589,6 +589,28 @@ async function renderOpportunityPipelineView({ preserveView = false } = {}) {
     opp.assignees = assigneesByOppId[opp.id] || [];
   });
 
+  // A deal's next step is its earliest open task. Deals with no tasks the viewer
+  // can see keep the next step stored on the deal.
+  if (opportunities.length > 0) {
+    const { data: taskRows, error: taskError } = await supabaseClient
+      .from('tasks')
+      .select('opportunity_id, title, due_date, status, created_at, updated_at')
+      .in('opportunity_id', opportunities.map(o => o.id));
+    if (taskError) {
+      console.warn('Deal tasks:', taskError.message);
+    } else if (taskRows?.length) {
+      const tasksByOppId = new Map();
+      taskRows.forEach(t => {
+        if (!tasksByOppId.has(t.opportunity_id)) tasksByOppId.set(t.opportunity_id, []);
+        tasksByOppId.get(t.opportunity_id).push(t);
+      });
+      opportunities.forEach(opp => {
+        const tasks = tasksByOppId.get(opp.id);
+        if (tasks) Object.assign(opp, nextStepFieldsFromTasks(tasks));
+      });
+    }
+  }
+
   // ── Filter to the active pipeline and place each deal in a column ────────
   const pipelineStages = getPipelineStages(activePipeline);
   opportunities = opportunities.filter(opp => oppMatchesPipeline(opp, activePipeline));
@@ -1266,16 +1288,19 @@ async function openOpportunityModal(opportunity = null, options = {}) {
   }
 
   // Clear competitors
-  document.getElementById('competitors-container').innerHTML = '<input type="text" class="competitors-input" id="competitors-input" placeholder="Add competitor...">';
+  document.getElementById('competitors-container').innerHTML = '<input type="text" class="competitors-input" id="competitors-input" placeholder="Type a name and press Enter">';
 
   // Reset mentioned people
   state.mentionedPeople = opportunity && opportunity.mentioned_people ? [...opportunity.mentioned_people] : [];
 
   // Fetch fresh assignees from DB (or empty for new opportunity)
   // Always fetches from DB to avoid stale/missing data on edit.
-  state.opportunityAssignees = opportunity
-    ? await fetchOpportunityAssignees(opportunity.id)
-    : [];
+  // The next step edits the deal's earliest open task, if it has one.
+  const [assignees, dealTasks] = opportunity
+    ? await Promise.all([fetchOpportunityAssignees(opportunity.id), fetchDealTasks(opportunity.id)])
+    : [[], []];
+  state.opportunityAssignees = assignees;
+  state.opportunityFormNextTask = getNextOpenTask(dealTasks || []);
 
   // Reset assignees picker UI
   const chipsEl = document.getElementById('opp-assignees-chips');
@@ -1299,7 +1324,8 @@ async function openOpportunityModal(opportunity = null, options = {}) {
 
   // Set modal title
   if (opportunity) {
-    modalTitle.innerHTML = `Edit Opportunity`;
+    modalTitle.textContent = 'Edit deal';
+    saveBtn.textContent = 'Save changes';
 
     // Fill form with opportunity data
     document.getElementById('opportunity-name').value = opportunity.name || '';
@@ -1316,13 +1342,16 @@ async function openOpportunityModal(opportunity = null, options = {}) {
       ? getStageProbability(stageId, pipelineStages)
       : dealProbability(opportunity));
 
-    document.getElementById('opportunity-next-step').value = opportunity.next_step || '';
-    document.getElementById('opportunity-next-step-date').value = opportunity.next_step_date || '';
-    document.getElementById('opportunity-notes').value = opportunity.notes || '';
+    const nextTask = state.opportunityFormNextTask;
+    document.getElementById('opportunity-next-step').value = nextTask ? nextTask.title : (opportunity.next_step || '');
+    document.getElementById('opportunity-next-step-date').value = nextTask
+      ? timestampToDay(nextTask.due_date)
+      : (opportunity.next_step_date ? String(opportunity.next_step_date).slice(0, 10) : '');
 
     parseCompetitors(opportunity.competitors).forEach(comp => addCompetitor(comp));
   } else {
-    modalTitle.innerHTML = 'New Opportunity';
+    modalTitle.textContent = 'New deal';
+    saveBtn.textContent = 'Create deal';
     window.selectedOpportunityCompanyData = null;
 
     // "+ New" in a column starts the deal in that column
@@ -1349,10 +1378,17 @@ async function openOpportunityModal(opportunity = null, options = {}) {
     window.setCrmDropdownValue?.('opportunity-owner', ownerId);
   }
 
+  document.getElementById('opportunity-next-step-hint').textContent = state.opportunityFormNextTask
+    ? 'Changes update its task in Tasks'
+    : 'Added to Tasks for the deal owner';
+  // Competitors and teammates sit under "More" unless the deal already has some
+  const more = document.getElementById('opportunity-more');
+  if (more) more.open = Boolean(opportunity && (parseCompetitors(opportunity.competitors).length || state.opportunityAssignees.length));
+
   document.querySelectorAll('#opportunity-modal input, #opportunity-modal select, #opportunity-modal textarea').forEach(el => {
     el.disabled = false;
   });
-  saveBtn.style.display = 'block';
+  saveBtn.style.display = '';
 
   // Show modal
   modal.style.display = 'flex';
@@ -1360,6 +1396,112 @@ async function openOpportunityModal(opportunity = null, options = {}) {
 
   // Initialize event listeners
   initOpportunityModalListeners(opportunity);
+}
+
+// ── Deal tasks and notes ──────────────────────────────────────────────────────
+// A deal's next step is its earliest open task, and notes written on a deal are
+// CRM notes, so both also show on the Tasks and Notes pages. The deal's
+// next_step / next_step_date columns mirror that task for the board, filters
+// and reports.
+
+const DEAL_TASK_SELECT = '*, assigned_to_profile:profiles!tasks_assigned_to_fkey(first_name, last_name, email), created_by_profile:profiles!tasks_created_by_fkey(first_name, last_name, email)';
+
+const pad2 = (n) => String(n).padStart(2, '0');
+
+/** A date picked for a task ("2026-10-14") as 09:00 that day, local time */
+function dueDateToTimestamp(day) {
+  return day ? new Date(`${day}T09:00:00`).toISOString() : null;
+}
+
+/** A task's due timestamp as the local day ("2026-10-14"), or '' */
+function timestampToDay(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return '';
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+}
+
+/** Open tasks soonest first (undated after dated), then finished ones */
+function sortDealTasks(tasks) {
+  const dueTime = (t) => (t.due_date ? new Date(t.due_date).getTime() : Infinity);
+  return [...tasks].sort((a, b) => {
+    const doneA = a.status === 'completed';
+    const doneB = b.status === 'completed';
+    if (doneA !== doneB) return doneA ? 1 : -1;
+    if (doneA) return new Date(b.updated_at || 0) - new Date(a.updated_at || 0);
+    return dueTime(a) - dueTime(b) || new Date(a.created_at || 0) - new Date(b.created_at || 0);
+  });
+}
+
+function getNextOpenTask(tasks) {
+  return sortDealTasks(tasks || []).find(t => t.status !== 'completed') || null;
+}
+
+function nextStepFieldsFromTasks(tasks) {
+  const next = getNextOpenTask(tasks);
+  return { next_step: next?.title || null, next_step_date: next ? (timestampToDay(next.due_date) || null) : null };
+}
+
+/** The deal's tasks, or null when they can't be loaded */
+async function fetchDealTasks(opportunityId) {
+  const { data, error } = await supabaseClient.from('tasks').select(DEAL_TASK_SELECT).eq('opportunity_id', opportunityId);
+  if (error) {
+    console.warn('Deal tasks:', error.message);
+    return null;
+  }
+  return data || [];
+}
+
+/** The deal's notes, newest first, or null when they can't be loaded */
+async function fetchDealNotes(opportunityId) {
+  const { data, error } = await supabaseClient
+    .from('notes')
+    .select('*')
+    .eq('opportunity_id', opportunityId)
+    .order('created_at', { ascending: false });
+  if (error) {
+    console.warn('Deal notes:', error.message);
+    return null;
+  }
+  return data || [];
+}
+
+/** A task on the deal, assigned to the deal owner */
+async function createDealTask(deal, { title, day }) {
+  const { data, error } = await supabaseClient
+    .from('tasks')
+    .insert([{
+      title,
+      description: `Next step on the deal "${deal.name || 'Untitled deal'}"`,
+      assigned_to: deal.user_id || state.currentUser.id,
+      created_by: state.currentUser.id,
+      due_date: dueDateToTimestamp(day),
+      priority: 'medium',
+      status: 'pending',
+      organization_id: state.currentOrganization?.id,
+      opportunity_id: deal.id,
+    }])
+    .select(DEAL_TASK_SELECT)
+    .single();
+  if (error) throw error;
+  document.dispatchEvent(new CustomEvent('safitrack:notification-refresh'));
+  return data;
+}
+
+/** A CRM note on the deal; it shows on the author's Notes page too */
+async function createDealNote(deal, content) {
+  const { data, error } = await supabaseClient
+    .from('notes')
+    .insert([{
+      title: `Deal: ${deal.name || 'Untitled deal'}`,
+      content,
+      user_id: state.currentUser.id,
+      organization_id: state.currentOrganization?.id,
+      opportunity_id: deal.id,
+    }])
+    .select('*')
+    .single();
+  if (error) throw error;
+  return data;
 }
 
 // ── Deal detail ───────────────────────────────────────────────────────────────
@@ -1378,7 +1520,6 @@ const DETAIL_ICONS = {
   probability: '<path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
   owner: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
   nextStep: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="m9 12 2 2 4-4"/>',
-  due: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
   contact: '<path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
   competitors: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
   team: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
@@ -1418,12 +1559,19 @@ function openOpportunityViewModal(opportunity) {
   if (!modal || !panel || !opportunity) return;
 
   detail?.listeners.abort();
-  detail = { opportunity, tab: 'notes', calls: [], tasks: [], listeners: new AbortController() };
+  // tasks / notes: undefined while loading, null if they couldn't be loaded
+  detail = { opportunity, tab: 'notes', calls: [], tasks: undefined, notes: undefined, drafts: {}, listeners: new AbortController() };
   const { signal } = detail.listeners;
 
   panel.addEventListener('click', onDetailClick, { signal });
+  panel.addEventListener('submit', onDetailSubmit, { signal });
   panel.addEventListener('keydown', (e) => {
-    // The notes block is a div, so give it button-like keyboard access
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && e.target.matches('[data-composer="note"] textarea')) {
+      e.preventDefault();
+      e.target.form.requestSubmit();
+      return;
+    }
+    // The earlier-notes block is a div, so give it button-like keyboard access
     if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.od-notes[data-edit]')) {
       e.preventDefault();
       startDetailEdit('notes', e.target);
@@ -1439,6 +1587,11 @@ function openOpportunityViewModal(opportunity) {
     if (e.key !== 'Escape' || modal.style.display === 'none') return;
     if (document.querySelector('.crm-dd.is-open')) return;
     if (document.activeElement?.classList.contains('od-input')) return;
+    // In an add box, Escape just leaves the box so a half-typed note isn't lost
+    if (document.activeElement?.closest?.('[data-composer]')) {
+      document.activeElement.blur();
+      return;
+    }
     if (document.getElementById('confirm-dialog')?.style.display === 'flex') return;
     closeModal('opportunity-view-modal');
   }, { capture: true, signal });
@@ -1448,11 +1601,18 @@ function openOpportunityViewModal(opportunity) {
   document.body.classList.add('modal-active');
   panel.querySelector('.od-body')?.scrollTo(0, 0);
 
-  // Managers pick owners from the team; load it once, then show the picker
-  if (state.isManager && canEditOpportunity(opportunity) && !getCachedTeamMembers()) {
-    const current = detail;
-    loadOrgTeamMembers().then(() => { if (detail === current) renderOpportunityDetail(); });
-  }
+  // Tasks, notes and the team (owner picker, note authors) load after the panel shows
+  const current = detail;
+  Promise.all([
+    fetchDealTasks(opportunity.id),
+    fetchDealNotes(opportunity.id),
+    getCachedTeamMembers() || loadOrgTeamMembers(),
+  ]).then(([tasks, notes]) => {
+    if (detail !== current) return;
+    detail.tasks = tasks;
+    detail.notes = notes;
+    renderOpportunityDetail();
+  });
 }
 
 function renderOpportunityDetail() {
@@ -1538,10 +1698,32 @@ function renderOpportunityDetail() {
       : '<span class="od-readonly is-empty">No owner</span>';
   }
 
-  // Next step and when it's due
-  const dueStatus = getDueStatus(opp.next_step_date);
-  const dueLabel = formatDueDate(opp.next_step_date);
-  const dueHtml = editable('next_step_date', dueLabel ? `<span class="od-due${dueStatus ? ` is-${dueStatus}` : ''}">${escapeHtml(dueLabel)}${dueStatus === 'overdue' ? ' · overdue' : ''}</span>` : '', 'Add date');
+  // Next step: the earliest open task on the deal
+  const dueHtml = (day) => {
+    const label = formatDueDate(day);
+    if (!label) return '';
+    const status = getDueStatus(day);
+    return `<span class="od-due${status ? ` is-${status}` : ''}">${escapeHtml(label)}${status === 'overdue' ? ' · overdue' : ''}</span>`;
+  };
+  const nextTask = Array.isArray(detail.tasks) ? getNextOpenTask(detail.tasks) : null;
+  let nextStepHtml;
+  if (nextTask) {
+    nextStepHtml = `
+      <span class="od-next-step">
+        ${canEdit ? `<button type="button" class="od-check" data-action="toggle-task" data-task-id="${escapeHtml(nextTask.id)}" title="Mark done" aria-label="Mark “${escapeHtml(nextTask.title)}” done"></button>` : ''}
+        <button type="button" class="od-plain-link" data-action="open-task-id" data-task-id="${escapeHtml(nextTask.id)}">${escapeHtml(nextTask.title)}</button>
+      </span>${dueHtml(timestampToDay(nextTask.due_date))}`;
+  } else if (opp.next_step && detail.tasks !== undefined) {
+    // Typed on the deal before next steps were tasks
+    nextStepHtml = `<span class="od-readonly">${escapeHtml(opp.next_step)}</span>${dueHtml(opp.next_step_date)}`
+      + (canEdit ? '<button type="button" class="od-link" data-action="add-next-step">Make it a task</button>' : '');
+  } else if (detail.tasks === undefined) {
+    nextStepHtml = `<span class="od-readonly is-empty">${opp.next_step ? escapeHtml(opp.next_step) : 'Loading…'}</span>`;
+  } else {
+    nextStepHtml = canEdit
+      ? '<button type="button" class="od-editable is-empty" data-action="add-next-step">Add next step</button>'
+      : '<span class="od-readonly is-empty">None</span>';
+  }
 
   // Only someone actually tagged on the deal, never a guess from whoever works at the company
   const contact = Array.isArray(opp.mentioned_people) ? opp.mentioned_people.find(p => p?.name) : null;
@@ -1559,16 +1741,17 @@ function renderOpportunityDetail() {
     ? teammates.map(a => renderPersonChip(a.user_id, fullName(a.profiles) || 'Team member', a.profiles?.avatar_url)).join('')
     : '<span class="od-readonly is-empty">None</span>';
 
-  // Calls and tasks for this deal or its company
+  // Calls for the deal's company
   const matchesCompany = (companyId, name) => (isCrmCompany && companyId != null && String(companyId) === String(company.id))
     || (!isCrmCompany && opp.company_name && name && name.trim().toLowerCase() === opp.company_name.trim().toLowerCase());
   detail.calls = Array.isArray(window.allCallLogsData)
     ? window.allCallLogsData.filter(c => matchesCompany(c.company_id, c.company_name))
     : [];
-  detail.tasks = Array.isArray(window.allTasksData)
-    ? window.allTasksData.filter(t => (t.opportunity_id && String(t.opportunity_id) === String(opp.id))
-      || (isCrmCompany && t.company_id && String(t.company_id) === String(company.id)))
-    : [];
+
+  const loadingHtml = '<p class="od-empty">Loading…</p>';
+  const memberFullName = (userId) => fullName((getCachedTeamMembers() || []).find(m => m.id === userId))
+    || (userId === state.currentUser?.id ? 'You' : 'Teammate');
+  const memberName = (userId) => (userId === state.currentUser?.id ? 'You' : memberFullName(userId));
 
   let tabHtml;
   if (detail.tab === 'activity') {
@@ -1584,25 +1767,72 @@ function renderOpportunityDetail() {
           </button>`).join('')}</div>`
       : `<p class="od-empty">No calls logged for ${companyName ? escapeHtml(companyName) : 'this company'} yet.</p>`;
   } else if (detail.tab === 'tasks') {
-    tabHtml = detail.tasks.length
-      ? `<div class="od-list">${detail.tasks.map((t, i) => {
-          const done = t.status === 'completed';
-          return `
-          <button type="button" class="od-item${done ? ' is-done' : ''}" data-action="open-task" data-index="${i}">
-            <span class="od-item-dot" style="background:${done ? 'var(--color-success)' : t.priority === 'high' ? 'var(--color-danger)' : 'var(--color-warning)'}"></span>
-            <span class="od-item-main">
+    const composer = canEdit ? `
+      <form class="od-composer od-composer--task" data-composer="task" autocomplete="off">
+        <input type="text" name="title" class="od-composer-input" data-draft="task-title" placeholder="Add a task, e.g. Send the price list" aria-label="New task" required>
+        <input type="date" name="day" class="od-composer-date" data-draft="task-day" aria-label="Due date">
+        <button type="submit" class="od-composer-btn">Add</button>
+      </form>` : '';
+    let list;
+    if (detail.tasks === undefined) list = loadingHtml;
+    else if (detail.tasks === null) list = '<p class="od-empty">Couldn\'t load tasks for this deal.</p>';
+    else if (!detail.tasks.length) list = `<p class="od-empty">${canEdit ? 'No tasks yet. The first open task is the deal\'s next step.' : 'No tasks yet.'}</p>`;
+    else {
+      list = `<div class="od-list">${sortDealTasks(detail.tasks).map(t => {
+        const done = t.status === 'completed';
+        const day = timestampToDay(t.due_date);
+        const assignee = t.assigned_to ? memberName(t.assigned_to) : '';
+        return `
+          <div class="od-task${done ? ' is-done' : ''}">
+            ${canEdit ? `<button type="button" class="od-check${done ? ' is-checked' : ''}" data-action="toggle-task" data-task-id="${escapeHtml(t.id)}" title="${done ? 'Mark not done' : 'Mark done'}" aria-label="${done ? 'Mark not done' : 'Mark done'}: ${escapeHtml(t.title)}"></button>` : ''}
+            <button type="button" class="od-task-main" data-action="open-task-id" data-task-id="${escapeHtml(t.id)}">
               <span class="od-item-title">${escapeHtml(t.title)}</span>
-              <span class="od-item-meta">${[t.status || 'pending', t.due_date ? `Due ${formatDueDate(t.due_date)}` : 'No due date', `${t.priority || 'medium'} priority`].map(escapeHtml).join(' · ')}</span>
-            </span>
-          </button>`;
-        }).join('')}</div>`
-      : '<p class="od-empty">No tasks for this deal yet.</p>';
+              <span class="od-item-meta">${[day ? (done ? formatDueDate(day) : dueHtml(day)) : 'No due date', assignee ? escapeHtml(assignee) : ''].filter(Boolean).join(' · ')}</span>
+            </button>
+          </div>`;
+      }).join('')}</div>`;
+    }
+    tabHtml = composer + list;
   } else {
-    const notesHtml = renderNotesHtml(opp);
-    tabHtml = canEdit
-      ? `<div class="od-notes${notesHtml ? '' : ' is-empty'}" data-edit="notes" role="button" tabindex="0" aria-label="Edit notes">${notesHtml || 'Add notes…'}</div>`
-      : `<div class="od-notes is-readonly${notesHtml ? '' : ' is-empty'}">${notesHtml || 'No notes yet.'}</div>`;
+    const composer = canEdit ? `
+      <form class="od-composer od-composer--note" data-composer="note">
+        <textarea name="content" class="od-composer-input" data-draft="note" rows="2" placeholder="Write a note…" aria-label="New note" required></textarea>
+        <div class="od-composer-actions">
+          <span class="od-muted">Saved to Notes · ⌘↵ to add</span>
+          <button type="submit" class="od-composer-btn">Add note</button>
+        </div>
+      </form>` : '';
+    let list;
+    if (detail.notes === undefined) list = loadingHtml;
+    else if (detail.notes === null) list = '<p class="od-empty">Couldn\'t load notes for this deal.</p>';
+    else {
+      list = detail.notes.map(n => `
+        <article class="od-note">
+          <header class="od-note-head">
+            <span class="od-person-avatar" style="background:${getAssigneeColor(n.user_id)}">${escapeHtml(getInitials(memberFullName(n.user_id)))}</span>
+            <span class="od-note-author">${escapeHtml(memberName(n.user_id))}</span>
+            <span class="od-muted">${escapeHtml(formatDateWithTime(n.created_at))}</span>
+            ${n.user_id === state.currentUser?.id ? `<button type="button" class="od-icon-btn od-note-delete is-danger" data-action="delete-note" data-note-id="${escapeHtml(n.id)}" title="Delete note" aria-label="Delete note">${detailIcon(DETAIL_ICONS.trash)}</button>` : ''}
+          </header>
+          <div class="od-note-body">${escapeHtml(n.content)}</div>
+        </article>`).join('');
+    }
+    // Notes typed on the deal itself before notes were linked
+    const legacyHtml = renderNotesHtml(opp);
+    if (legacyHtml) {
+      list += `
+        <article class="od-note od-note--legacy">
+          <header class="od-note-head"><span class="od-note-author">Earlier notes on this deal</span></header>
+          ${canEdit
+            ? `<div class="od-notes" data-edit="notes" role="button" tabindex="0" aria-label="Edit earlier notes">${legacyHtml}</div>`
+            : `<div class="od-notes is-readonly">${legacyHtml}</div>`}
+        </article>`;
+    }
+    if (!list) list = '<p class="od-empty">No notes yet.</p>';
+    tabHtml = composer + `<div class="od-notes-list">${list}</div>`;
   }
+  const openTaskCount = Array.isArray(detail.tasks) ? detail.tasks.filter(t => t.status !== 'completed').length : null;
+  const noteCount = Array.isArray(detail.notes) ? detail.notes.length + (opp.notes ? 1 : 0) : null;
   const tab = (key, label, count) => `<button type="button" role="tab" class="od-tab${detail.tab === key ? ' is-active' : ''}" data-tab="${key}" aria-selected="${detail.tab === key}">${label}${count != null ? `<span class="od-count">${count}</span>` : ''}</button>`;
 
   const showCompany = companyName && (isCrmCompany || !dealNameRepeatsCompany(opp.name, companyName));
@@ -1614,8 +1844,10 @@ function renderOpportunityDetail() {
   const title = escapeHtml(opp.name || 'Untitled deal');
   const updated = opp.updated_at || opp.created_at;
 
-  // Keep the scroll position when a save re-renders the panel
+  // Keep the scroll position, and anything typed in the add boxes, when a save re-renders the panel
   const scrollTop = panel.querySelector('.od-body')?.scrollTop || 0;
+  panel.querySelectorAll('[data-draft]').forEach(el => { detail.drafts[el.dataset.draft] = el.value; });
+  const focusedDraft = panel.contains(document.activeElement) ? document.activeElement.dataset?.draft : null;
 
   panel.innerHTML = `
     <header class="od-header">
@@ -1643,17 +1875,16 @@ function renderOpportunityDetail() {
         ${prop('value', 'Value', 'value', valueHtml)}
         ${prop('probability', 'Win chance', 'probability', probabilityHtml)}
         ${prop('owner', 'Owner', 'owner', ownerHtml)}
-        ${prop('next_step', 'Next step', 'nextStep', editable('next_step', escapeHtml(opp.next_step || ''), 'Add next step'))}
-        ${prop('next_step_date', 'Due', 'due', dueHtml)}
+        ${prop('next_step', 'Next step', 'nextStep', nextStepHtml)}
         ${prop('contact', 'Contact', 'contact', contactHtml)}
         ${prop('competitors', 'Competitors', 'competitors', competitorsHtml)}
         ${prop('team', 'Teammates', 'team', teamHtml)}
       </dl>
 
       <div class="od-tabs" role="tablist">
-        ${tab('notes', 'Notes')}
+        ${tab('notes', 'Notes', noteCount)}
+        ${tab('tasks', 'Tasks', openTaskCount)}
         ${tab('activity', 'Calls', detail.calls.length)}
-        ${tab('tasks', 'Tasks', detail.tasks.length)}
       </div>
       <div class="od-tab-panel" role="tabpanel">${tabHtml}</div>
     </div>
@@ -1664,6 +1895,8 @@ function renderOpportunityDetail() {
     </footer>`;
 
   window.initAllCrmDropdowns?.(panel);
+  panel.querySelectorAll('[data-draft]').forEach(el => { el.value = detail.drafts[el.dataset.draft] || ''; });
+  if (focusedDraft) panel.querySelector(`[data-draft="${focusedDraft}"]`)?.focus();
   const body = panel.querySelector('.od-body');
   if (body) body.scrollTop = scrollTop;
 }
@@ -1722,11 +1955,111 @@ function onDetailClick(e) {
     const call = detail.calls[index];
     closeModal('opportunity-view-modal');
     setTimeout(() => openCallLogViewModal(call), 120);
-  } else if (action === 'open-task' && detail.tasks[index]) {
-    const task = detail.tasks[index];
+  } else if (action === 'add-next-step') {
+    // Next steps are tasks: open the Tasks tab with the old next step ready to add
+    detail.tab = 'tasks';
+    if (!detail.drafts['task-title'] && opp.next_step && !getNextOpenTask(detail.tasks || [])) {
+      detail.drafts['task-title'] = opp.next_step;
+      detail.drafts['task-day'] = opp.next_step_date ? String(opp.next_step_date).slice(0, 10) : '';
+    }
+    renderOpportunityDetail();
+    document.querySelector('#opportunity-detail [data-draft="task-title"]')?.focus();
+  } else if (action === 'toggle-task') {
+    toggleDealTask(e.target.closest('[data-task-id]').dataset.taskId);
+  } else if (action === 'open-task-id') {
+    const task = (detail.tasks || []).find(t => t.id === e.target.closest('[data-task-id]').dataset.taskId);
+    if (!task) return;
     closeModal('opportunity-view-modal');
     setTimeout(() => showTaskDetail(task, window.salesRepsData || []), 120);
+  } else if (action === 'delete-note') {
+    deleteDealNote(e.target.closest('[data-note-id]').dataset.noteId);
   }
+}
+
+/** The add-task and add-note boxes */
+async function onDetailSubmit(e) {
+  const form = e.target.closest('[data-composer]');
+  if (!form || !detail) return;
+  e.preventDefault();
+  const opp = detail.opportunity;
+  const button = form.querySelector('[type="submit"]');
+  const kind = form.dataset.composer;
+
+  if (kind === 'task') {
+    const title = form.elements.title.value.trim();
+    const day = form.elements.day.value;
+    if (!title) return;
+    button.disabled = true;
+    try {
+      const task = await createDealTask(opp, { title, day });
+      detail.tasks = [...(detail.tasks || []), task];
+      detail.drafts['task-title'] = '';
+      detail.drafts['task-day'] = '';
+      form.reset();
+      showToast('Task added', 'success');
+      await syncDealNextStep();
+    } catch (err) {
+      showToast(`Couldn't add the task: ${err.message}`, 'error');
+    }
+  } else if (kind === 'note') {
+    const content = form.elements.content.value.trim();
+    if (!content) return;
+    button.disabled = true;
+    try {
+      const note = await createDealNote(opp, content);
+      detail.notes = [note, ...(detail.notes || [])];
+      detail.drafts.note = '';
+      form.reset();
+      showToast('Note added', 'success');
+    } catch (err) {
+      showToast(`Couldn't add the note: ${err.message}`, 'error');
+    }
+  }
+  button.disabled = false;
+  renderOpportunityDetail();
+}
+
+async function toggleDealTask(taskId) {
+  const task = (detail?.tasks || []).find(t => t.id === taskId);
+  if (!task) return;
+  const status = task.status === 'completed' ? 'pending' : 'completed';
+  const updated_at = new Date().toISOString();
+  const { data, error } = await supabaseClient.from('tasks').update({ status, updated_at }).eq('id', taskId).select('id');
+  if (error || !data?.length) {
+    showToast(error ? `Couldn't update the task: ${error.message}` : "You can't change this task.", 'error');
+    return;
+  }
+  Object.assign(task, { status, updated_at });
+  if (status === 'completed') showToast('Task done', 'success');
+  document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: status === 'completed' ? 'complete' : 'update', id: taskId } }));
+  await syncDealNextStep();
+  renderOpportunityDetail();
+}
+
+async function deleteDealNote(noteId) {
+  if (!detail?.notes) return;
+  if (!await showConfirmDialog('Delete note', 'Delete this note? It will also be removed from Notes.')) return;
+  const { data, error } = await supabaseClient.from('notes').delete().eq('id', noteId).select('id');
+  if (error || !data?.length) {
+    showToast(error ? `Couldn't delete the note: ${error.message}` : "This note couldn't be deleted.", 'error');
+    return;
+  }
+  detail.notes = detail.notes.filter(n => n.id !== noteId);
+  renderOpportunityDetail();
+}
+
+/** Copy the earliest open task onto the deal's next_step fields, which the board,
+ *  filters and reports read */
+async function syncDealNextStep() {
+  const opp = detail?.opportunity;
+  if (!opp || !Array.isArray(detail.tasks)) return;
+  const fields = nextStepFieldsFromTasks(detail.tasks);
+  const currentDay = opp.next_step_date ? String(opp.next_step_date).slice(0, 10) : null;
+  if ((opp.next_step || null) === fields.next_step && currentDay === fields.next_step_date) {
+    refreshPipelineIfVisible();
+    return;
+  }
+  await saveDealPatch(fields);
 }
 
 /** Swap a value for an input. Enter or leaving the field saves, Escape cancels. */
@@ -1738,8 +2071,6 @@ function startDetailEdit(field, anchor) {
     name: { type: 'text', value: opp.name || '', placeholder: 'Deal name' },
     value: { type: 'number', value: hasDealValue(opp) ? String(opp.value) : '', placeholder: 'e.g. 25000', min: '0', step: '0.01' },
     probability: { type: 'number', value: String(dealProbability(opp)), min: '0', max: '100', step: '1' },
-    next_step: { type: 'text', value: opp.next_step || '', placeholder: 'What happens next?' },
-    next_step_date: { type: 'date', value: opp.next_step_date ? String(opp.next_step_date).slice(0, 10) : '' },
     notes: { type: 'textarea', value: opp.notes || '', placeholder: 'Add notes…' },
   }[field];
   if (!config) return;
@@ -1803,12 +2134,6 @@ function parseDetailEdit(field, raw, opp) {
     const p = parseInt(text, 10);
     if (Number.isNaN(p) || p < 0 || p > 100) { showToast('Win chance must be between 0 and 100', 'error'); return null; }
     return p === dealProbability(opp) ? null : { probability: p };
-  }
-  if (field === 'next_step') {
-    return text === (opp.next_step || '') ? null : { next_step: text || null };
-  }
-  if (field === 'next_step_date') {
-    return text === (opp.next_step_date ? String(opp.next_step_date).slice(0, 10) : '') ? null : { next_step_date: text || null };
   }
   if (field === 'notes') {
     if (text === (opp.notes || '').trim()) return null;
@@ -1927,23 +2252,22 @@ function removeOpportunityFromBoard(opportunityId) {
 
 
 function setProbabilityInput(value) {
-  const slider = document.getElementById('opportunity-probability');
-  if (slider) slider.value = value;
-  document.getElementById('probability-display').textContent = String(value);
+  const input = document.getElementById('opportunity-probability');
+  if (input) input.value = value;
 }
 
 /** "Lead default: 10%", plus a Reset button once the win chance was set by hand.
- *  Won and Lost fix the win chance, so the slider is locked there. */
+ *  Won and Lost fix the win chance, so the input is locked there. */
 function updateProbabilityHint(stageId, stages) {
   const hint = document.getElementById('probability-stage-hint');
   const resetBtn = document.getElementById('probability-reset-btn');
-  const slider = document.getElementById('opportunity-probability');
+  const input = document.getElementById('opportunity-probability');
   const stage = stages.find(s => s.id === stageId);
   const stageProbability = getStageProbability(stageId, stages);
   const isClosed = Boolean(getStageOutcome(stageId));
-  if (hint) hint.textContent = stage ? `${plainStageTitle(stage.title)} ${isClosed ? 'is always' : 'default:'} ${stageProbability}%` : '';
-  if (resetBtn) resetBtn.hidden = isClosed || Number(slider?.value) === stageProbability;
-  if (slider) slider.disabled = isClosed;
+  if (hint) hint.textContent = stage ? `${plainStageTitle(stage.title)} ${isClosed ? 'is always' : 'default'} ${stageProbability}%` : '';
+  if (resetBtn) resetBtn.hidden = isClosed || Number(input?.value) === stageProbability;
+  if (input) input.disabled = isClosed;
 }
 
 function initOpportunityModalListeners(opportunity) {
@@ -1954,20 +2278,12 @@ function initOpportunityModalListeners(opportunity) {
   // Initialize assignees picker
   initAssigneesPicker(signal);
 
-  // Probability slider
-  const probabilitySlider = document.getElementById('opportunity-probability');
-  const probabilityDisplay = document.getElementById('probability-display');
+  // Win chance
   const stages = getPipelineStages(getCachedActivePipeline());
   const stageInput = document.getElementById('opportunity-stage');
-
-  if (probabilitySlider) {
-    const newSlider = probabilitySlider.cloneNode(true);
-    probabilitySlider.parentNode.replaceChild(newSlider, probabilitySlider);
-    newSlider.addEventListener('input', () => {
-      probabilityDisplay.textContent = newSlider.value;
-      updateProbabilityHint(stageInput?.value, stages);
-    });
-  }
+  document.getElementById('opportunity-probability')?.addEventListener('input', () => {
+    updateProbabilityHint(stageInput?.value, stages);
+  }, { signal });
 
   document.getElementById('probability-reset-btn')?.addEventListener('click', () => {
     setProbabilityInput(getStageProbability(stageInput?.value, stages));
@@ -2208,11 +2524,14 @@ function initOpportunityModalListeners(opportunity) {
     const value = document.getElementById('opportunity-value').value;
     const stage = document.getElementById('opportunity-stage').value;
     const outcome = getStageOutcome(stage);
-    // Won and Lost deals always carry 100% / 0%
-    const probability = outcome === 'won' ? 100 : outcome === 'lost' ? 0 : document.getElementById('opportunity-probability').value;
+    // Won and Lost deals always carry 100% / 0%; an empty or odd entry falls back to the stage
+    const typedProbability = parseInt(document.getElementById('opportunity-probability').value, 10);
+    const probability = outcome || Number.isNaN(typedProbability)
+      ? getStageProbability(stage, stages)
+      : Math.min(100, Math.max(0, typedProbability));
     const nextStep = document.getElementById('opportunity-next-step').value.trim();
     const nextStepDate = document.getElementById('opportunity-next-step-date').value;
-    const notes = document.getElementById('opportunity-notes').value.trim();
+    const noteText = document.getElementById('opportunity-notes').value.trim();
 
     // Get competitors
     const competitorTags = document.querySelectorAll('#competitors-container .competitor-tag');
@@ -2222,7 +2541,8 @@ function initOpportunityModalListeners(opportunity) {
 
     // Validate — deal value is optional
     if (!name || !companyName) {
-      showToast('Please fill in all required fields', 'error');
+      showToast(!name ? 'Give the deal a name' : 'Pick or type a company', 'error');
+      document.getElementById(!name ? 'opportunity-name' : 'opportunity-company')?.focus();
       return;
     }
     if (value !== '' && !(parseFloat(value) >= 0)) {
@@ -2233,8 +2553,9 @@ function initOpportunityModalListeners(opportunity) {
     // Only managers pick the owner; a new deal otherwise belongs to whoever creates it
     const ownerId = state.isManager ? (document.getElementById('opportunity-owner')?.value || null) : undefined;
 
+    const idleLabel = saveBtn.textContent;
     saveBtn.disabled = true;
-    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    saveBtn.textContent = 'Saving…';
 
     try {
       // Fields that are safe to update. user_id only changes when a manager
@@ -2253,7 +2574,6 @@ function initOpportunityModalListeners(opportunity) {
         stage,
         next_step: nextStep || null,
         next_step_date: nextStepDate || null,
-        notes: notes || null,
         competitors: competitors.length > 0 ? JSON.stringify(competitors) : null,
         mentioned_people: state.mentionedPeople,
         updated_at: new Date().toISOString(),
@@ -2292,7 +2612,30 @@ function initOpportunityModalListeners(opportunity) {
         await syncOpportunityAssignees(savedOpportunityId, state.opportunityAssignees);
       }
 
-      showToast(`Opportunity ${opportunity ? 'updated' : 'created'} successfully!`, 'success');
+      // The next step is a task on the deal, and the note goes to Notes. The deal
+      // is already saved, so a failure here is reported without losing it.
+      const savedDeal = { id: savedOpportunityId, name, user_id: editableFields.user_id || opportunity?.user_id || ownerId || state.currentUser.id };
+      const followUpErrors = [];
+      if (savedOpportunityId) {
+        try {
+          await saveFormNextStep(savedDeal, state.opportunityFormNextTask, nextStep, nextStepDate, opportunity);
+        } catch (err) {
+          followUpErrors.push(`the next step task (${err.message})`);
+        }
+        if (noteText) {
+          try {
+            await createDealNote(savedDeal, noteText);
+          } catch (err) {
+            followUpErrors.push(`the note (${err.message})`);
+          }
+        }
+      }
+
+      if (followUpErrors.length) {
+        showToast(`Deal saved, but couldn't save ${followUpErrors.join(' or ')}`, 'error');
+      } else {
+        showToast(opportunity ? 'Deal updated' : 'Deal created', 'success');
+      }
       const wasWon = opportunity && getStageOutcome(opportunity.mappedStage || opportunity.stage) === 'won';
       if (outcome === 'won' && !wasWon) triggerConfetti();
       closeModal('opportunity-modal');
@@ -2303,12 +2646,36 @@ function initOpportunityModalListeners(opportunity) {
         scheduleNextStepReminder(name, nextStep, nextStepDate);
       }
     } catch (error) {
-      showToast(`Error ${opportunity ? 'updating' : 'creating'} opportunity: ${error.message}`, 'error');
+      showToast(`Couldn't ${opportunity ? 'save' : 'create'} the deal: ${error.message}`, 'error');
     } finally {
       saveBtn.disabled = false;
-      saveBtn.innerHTML = 'Save Opportunity';
+      saveBtn.textContent = idleLabel;
     }
   };
+}
+
+/** The form's next step becomes (or edits) the deal's open task. A next step that
+ *  was only ever typed on the deal becomes a task once it's changed. */
+async function saveFormNextStep(deal, existingTask, title, day, previousDeal) {
+  if (existingTask) {
+    if (!title) return;
+    const changes = {};
+    if (title !== existingTask.title) changes.title = title;
+    if (day !== timestampToDay(existingTask.due_date)) changes.due_date = dueDateToTimestamp(day);
+    if (!Object.keys(changes).length) return;
+    const { error } = await supabaseClient
+      .from('tasks')
+      .update({ ...changes, updated_at: new Date().toISOString() })
+      .eq('id', existingTask.id);
+    if (error) throw error;
+    return;
+  }
+  if (!title) return;
+  const unchanged = previousDeal
+    && title === (previousDeal.next_step || '')
+    && day === (previousDeal.next_step_date ? String(previousDeal.next_step_date).slice(0, 10) : '');
+  if (unchanged) return;
+  await createDealTask(deal, { title, day });
 }
 
 function addCompetitor(name) {

@@ -22696,6 +22696,405 @@ button svg {
   }
 }
 
+/* Deal panel: next step, tasks and notes */
+.od-next-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.od-plain-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--text-primary);
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.od-plain-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.od-check {
+  position: relative;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1.5px solid var(--text-muted);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+
+.od-check::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid transparent;
+  border-width: 0 1.75px 1.75px 0;
+  transform: rotate(45deg);
+}
+
+.od-check:hover {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.od-check:hover::after {
+  border-color: var(--color-success);
+}
+
+.od-check.is-checked {
+  border-color: var(--color-success);
+  background: var(--color-success);
+}
+
+.od-check.is-checked::after {
+  border-color: #fff;
+}
+
+.od-check:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Add-task and add-note boxes */
+.od-composer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.od-composer-input,
+.od-composer-date {
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+
+.od-composer-input:focus,
+.od-composer-date:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.od-composer--task .od-composer-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.od-composer-date {
+  flex-shrink: 0;
+  width: 150px;
+}
+
+.od-composer-btn {
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--color-primary);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+}
+
+.od-composer--task .od-composer-btn {
+  height: 34px;
+}
+
+.od-composer-btn:hover {
+  background: var(--color-primary-dark);
+}
+
+.od-composer-btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.od-composer--note {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+
+.od-composer--note:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.od-composer--note .od-composer-input,
+.od-composer--note .od-composer-input:focus {
+  height: auto;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.od-composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Task rows */
+.od-task {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+.od-task:hover {
+  background: var(--bg-hover);
+}
+
+.od-task .od-check {
+  margin-top: 2px;
+}
+
+.od-task-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.od-task.is-done .od-item-title {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* Notes */
+.od-notes-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.od-note {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+.od-note:last-child {
+  border-bottom: 0;
+}
+
+.od-note-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 0.8125rem;
+}
+
+.od-note-author {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.od-note-delete {
+  width: 26px;
+  height: 26px;
+  margin-left: auto;
+  opacity: 0;
+}
+
+.od-note:hover .od-note-delete,
+.od-note-delete:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .od-note-delete {
+    opacity: 1;
+  }
+}
+
+.od-note-body {
+  padding-left: 28px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.od-note--legacy .od-note-author {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.od-note--legacy .od-notes {
+  min-height: 0;
+}
+
+@media (max-width: 640px) {
+  .od-composer--task {
+    flex-wrap: wrap;
+  }
+
+  .od-composer--task .od-composer-input {
+    flex-basis: 100%;
+  }
+
+  .od-composer-date {
+    flex: 1;
+    width: auto;
+  }
+}
+
+/* ── Deal form (new / edit) ───────────────────────────────────────── */
+#opportunity-modal .opp-form .form-field label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+#opportunity-modal .opp-form .field-hint {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+#opportunity-modal .opp-form .field-group {
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+#opportunity-modal .opp-form .field-group > .form-field {
+  margin-bottom: 0;
+}
+
+#opportunity-modal .opp-form input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+#opportunity-modal .opp-form input[type="number"]::-webkit-inner-spin-button,
+#opportunity-modal .opp-form input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+#opportunity-modal .opp-percent-input {
+  position: relative;
+}
+
+#opportunity-modal .opp-percent-input input {
+  width: 100%;
+  padding-right: 2rem;
+}
+
+#opportunity-modal .opp-percent-input input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+#opportunity-modal .opp-percent-input span {
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-50%);
+  font-size: var(--type-md);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+#opportunity-modal .opp-next-step-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 170px;
+  gap: 0.5rem;
+}
+
+#opportunity-modal .opp-next-step-row input {
+  width: 100%;
+}
+
+#opportunity-modal .opp-form-more {
+  padding-top: 0.75rem;
+  margin-top: 0.25rem;
+  border-top: 1px solid var(--border-color);
+}
+
+#opportunity-modal .opp-form-more > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  font-size: var(--type-md);
+  font-weight: 550;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+#opportunity-modal .opp-form-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+#opportunity-modal .opp-form-more > summary::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.15s;
+}
+
+#opportunity-modal .opp-form-more[open] > summary {
+  margin-bottom: 0.75rem;
+}
+
+#opportunity-modal .opp-form-more[open] > summary::before {
+  transform: rotate(45deg);
+}
+
+@media (max-width: 640px) {
+  #opportunity-modal .opp-next-step-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .ov-competitors-list {
   display: flex;
   flex-wrap: wrap;
