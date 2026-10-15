@@ -10325,6 +10325,47 @@ select {
   border-color: var(--card-bg);
 }
 
+/* Owner: photo and short name, pushed to the right of the value */
+.opp-owner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin-left: auto;
+}
+
+.opp-value-row .opp-owner-avatar {
+  width: 22px;
+  height: 22px;
+  margin-left: 0;
+  border: 0;
+}
+
+.opp-value-row .opp-owner-avatar:hover {
+  transform: none;
+}
+
+.opp-owner-name {
+  min-width: 0;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.opp-owner-more {
+  flex-shrink: 0;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
 /* Next step */
 .opp-next-step {
   display: flex;

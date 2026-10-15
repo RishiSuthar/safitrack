@@ -435,15 +435,25 @@ function renderOpportunityCard(opp, companyLookup) {
       </div>`;
   }
 
+  // Owner's photo and short name ("Jane S."); tagged teammates as "+N", everyone in the tooltip
   const team = getOpportunityTeam(opp);
   let teamHtml = '';
   if (team.length > 0) {
-    const overflow = team.length - 3;
+    const lead = team[0];
+    const others = team.slice(1);
+    const isOwner = Boolean(opp.profiles) && lead.user_id === opp.user_id;
+    const [first, ...rest] = String(lead.name || '').trim().split(/\s+/);
+    const shortName = rest.length ? `${first} ${rest[rest.length - 1][0]}.` : (first || 'Teammate');
+    const tooltip = [
+      `${isOwner ? 'Owner' : 'Teammate'}: ${lead.name}`,
+      others.length ? `With ${others.map(m => m.name).join(', ')}` : '',
+    ].filter(Boolean).join(' · ');
     teamHtml = `
-      <div class="opp-assignees-stack">
-        ${team.slice(0, 3).map((m, i) => `<div class="opp-assignee-bubble" title="${escapeHtml(m.name)}" style="background:${getAssigneeColor(m.user_id)};z-index:${10 - i}">${renderAvatarContent(m.name, m.avatar_url)}</div>`).join('')}
-        ${overflow > 0 ? `<div class="opp-assignee-bubble opp-assignee-overflow" title="${overflow} more">+${overflow}</div>` : ''}
-      </div>`;
+      <span class="opp-owner" title="${escapeHtml(tooltip)}">
+        <span class="opp-assignee-bubble opp-owner-avatar" style="background:${getAssigneeColor(lead.user_id)}">${renderAvatarContent(lead.name, lead.avatar_url)}</span>
+        <span class="opp-owner-name">${escapeHtml(shortName)}</span>
+        ${others.length ? `<span class="opp-owner-more">+${others.length}</span>` : ''}
+      </span>`;
   }
 
   return `
