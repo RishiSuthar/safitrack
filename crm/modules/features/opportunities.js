@@ -1498,13 +1498,28 @@ async function createDealTask(deal, { title, day }) {
   return data;
 }
 
+/** Notes are rich text (HTML) on the Notes page; show them here as plain text with line breaks */
+function noteContentToText(content) {
+  const raw = String(content || '');
+  if (!/[<&]/.test(raw)) return raw;
+  const withBreaks = raw
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(div|p|li|h[1-6])>/gi, '\n')
+    .replace(/<(ul|ol)[^>]*>/gi, '\n')
+    .replace(/<li[^>]*>/gi, '• ');
+  // DOMParser doesn't run scripts or load images, so it's a safe way to decode the text
+  const text = new DOMParser().parseFromString(withBreaks, 'text/html').body.textContent || '';
+  return text.replace(/\n{3,}/g, '\n\n').trim();
+}
+
 /** A CRM note on the deal; it shows on the author's Notes page too */
-async function createDealNote(deal, content) {
+async function createDealNote(deal, text) {
   const { data, error } = await supabaseClient
     .from('notes')
     .insert([{
       title: `Deal: ${deal.name || 'Untitled deal'}`,
-      content,
+      // The Notes page edits notes as HTML, so keep line breaks as <br>
+      content: escapeHtml(text).replace(/\n/g, '<br>'),
       user_id: state.currentUser.id,
       organization_id: state.currentOrganization?.id,
       opportunity_id: deal.id,
@@ -1866,7 +1881,7 @@ function renderOpportunityDetail() {
             <span class="od-muted">${escapeHtml(formatDateWithTime(n.created_at))}</span>
             ${n.user_id === state.currentUser?.id ? `<button type="button" class="od-icon-btn od-note-delete is-danger" data-action="delete-note" data-note-id="${escapeHtml(n.id)}" title="Delete note" aria-label="Delete note">${detailIcon(DETAIL_ICONS.trash)}</button>` : ''}
           </header>
-          <div class="od-note-body">${escapeHtml(n.content)}</div>
+          <div class="od-note-body">${escapeHtml(noteContentToText(n.content))}</div>
         </article>`).join('');
     }
     // Notes typed on the deal itself before notes were linked

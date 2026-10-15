@@ -14030,6 +14030,78 @@ button svg {
   height: 14px;
 }
 
+/* The deal a note was written on: a label on the card, a link in the open note */
+.nc-mentions {
+  min-width: 0;
+}
+
+.nc-deal,
+.nso-deal-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  font: inherit;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.nc-deal {
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.nc-deal span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nso-deal-link {
+  padding: 4px 10px;
+  font-size: 0.8125rem;
+}
+
+.nso-deal-link strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.nc-deal:hover,
+.nso-deal-link:hover {
+  border-color: color-mix(in srgb, var(--border-color) 60%, var(--text-muted));
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.nc-deal:focus-visible,
+.nso-deal-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.nso-deal-link.is-static {
+  cursor: default;
+}
+
+.nc-deal-icon,
+.nso-deal-open {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
 .nso-editor-toolbar {
   display: flex;
   align-items: center;
