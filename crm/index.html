@@ -1418,9 +1418,9 @@
           <div class="field-group">
             <div class="form-field">
               <label for="opportunity-value">
-                Deal Value <span class="required-indicator">(required)</span>
+                Deal Value <span class="field-hint">(optional)</span>
               </label>
-              <input type="number" id="opportunity-value" placeholder="0.00" min="0" step="0.01" required>
+              <input type="number" id="opportunity-value" placeholder="Not known yet" min="0" step="0.01">
             </div>
 
             <div class="form-field">
@@ -1446,7 +1446,11 @@
           </div>
 
           <div class="form-field">
-            <label for="opportunity-probability">Win Probability (%)</label>
+            <label for="opportunity-probability">
+              Win Probability (%)
+              <span class="field-hint" id="probability-stage-hint"></span>
+              <button type="button" class="probability-reset-btn" id="probability-reset-btn" hidden>Reset</button>
+            </label>
             <div class="probability-slider-container">
               <input type="range" id="opportunity-probability" min="0" max="100" value="50" class="probability-slider">
               <div class="probability-value"><span id="probability-display">50</span>%</div>
@@ -1467,6 +1471,20 @@
             <label>Competitors</label>
             <div class="competitors-input-container" id="competitors-container">
               <input type="text" class="competitors-input" id="competitors-input" placeholder="Add competitor name...">
+            </div>
+          </div>
+
+          <div class="form-field" id="opportunity-owner-field" style="display:none;">
+            <label for="opportunity-owner">Deal Owner</label>
+            <div class="crm-dd crm-dd--form" data-dd-id="opportunity-owner">
+              <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
+                <span class="crm-dd-label">Select owner</span>
+                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+              </button>
+              <div class="crm-dd-panel" role="listbox">
+                <ul class="crm-dd-list"></ul>
+              </div>
+              <input class="crm-dd-value-input" type="hidden" id="opportunity-owner" name="opportunity-owner" value="">
             </div>
           </div>
 

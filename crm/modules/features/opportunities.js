@@ -204,9 +204,41 @@ function dealValue(opp) {
   return parseFloat(opp?.value) || 0;
 }
 
+/** Deal value is optional; a deal without one shows "—" rather than 0. */
+function hasDealValue(opp) {
+  return !Number.isNaN(parseFloat(opp?.value));
+}
+
+function formatDealValue(opp) {
+  return hasDealValue(opp) ? formatCurrency(dealValue(opp)) : '—';
+}
+
 function dealProbability(opp) {
   const p = parseInt(opp?.probability, 10);
   return Number.isNaN(p) ? 0 : Math.min(100, Math.max(0, p));
+}
+
+// Win chance for the built-in open stages; other open stages are spread between 10% and 90%.
+const STAGE_DEFAULT_PROBABILITY = { prospecting: 10, qualification: 50 };
+
+/** The win chance a stage gives a deal: Won 100%, Lost 0%, open stages from the
+ *  stage's own setting, the built-in defaults, or their place in the pipeline. */
+function getStageProbability(stageId, stages) {
+  const outcome = getStageOutcome(stageId);
+  if (outcome) return outcome === 'won' ? 100 : 0;
+  const own = parseInt(stages.find(s => s.id === stageId)?.probability, 10);
+  if (!Number.isNaN(own)) return Math.min(100, Math.max(0, own));
+  if (STAGE_DEFAULT_PROBABILITY[stageId] !== undefined) return STAGE_DEFAULT_PROBABILITY[stageId];
+  const openStages = stages.filter(s => !getStageOutcome(s.id));
+  const index = openStages.findIndex(s => s.id === stageId);
+  if (index < 0 || openStages.length < 2) return 50;
+  return Math.round(10 + (80 * index) / (openStages.length - 1));
+}
+
+/** A deal's win chance follows its stage until someone sets it by hand. */
+function probabilityFollowsStage(opp, stageId, stages) {
+  if (opp.probability == null || opp.probability === '') return true;
+  return Boolean(getStageOutcome(stageId)) || dealProbability(opp) === getStageProbability(stageId, stages);
 }
 
 /** Totals are shown rounded; card values keep their decimals. */
@@ -438,7 +470,7 @@ function renderOpportunityCard(opp, companyLookup) {
       </div>
 
       <div class="opp-value-row">
-        <span class="opp-value">${formatCurrency(dealValue(opp))}</span>
+        <span class="opp-value${hasDealValue(opp) ? '' : ' is-empty'}"${hasDealValue(opp) ? '' : ' title="No deal value yet"'}>${formatDealValue(opp)}</span>
         <span class="opp-prob-label" title="Win chance"${isClosed ? ' hidden' : ''}>${probability}%</span>
         ${teamHtml}
       </div>
@@ -922,12 +954,15 @@ function initPipelineDragAndDrop() {
 
         if (newStage === oldStage) return;
 
-        // Closing a deal settles its win chance
+        // The win chance moves with the stage (Won/Lost always settle it),
+        // unless someone set it by hand
         const outcome = getStageOutcome(newStage);
+        const stages = getPipelineStages(getCachedActivePipeline());
         const now = new Date().toISOString();
         const updates = { stage: newStage, updated_at: now };
-        if (outcome === 'won') updates.probability = 100;
-        if (outcome === 'lost') updates.probability = 0;
+        if (outcome || (opportunity && probabilityFollowsStage(opportunity, oldStage, stages))) {
+          updates.probability = getStageProbability(newStage, stages);
+        }
 
         updatePipelineStageCounts();
 
@@ -1214,8 +1249,6 @@ async function openOpportunityModal(opportunity = null, options = {}) {
   document.getElementById('opportunity-company').value = '';
   document.getElementById('opportunity-subsector').value = '';
   document.getElementById('opportunity-value').value = '';
-  document.getElementById('opportunity-probability').value = 50;
-  document.getElementById('probability-display').textContent = '50';
 
   // Rebuild stage dropdown for this pipeline's stages
   updateStageDropdownForPipeline(activePipeline, firstStageId);
@@ -1274,13 +1307,14 @@ async function openOpportunityModal(opportunity = null, options = {}) {
     const matchedCompany = findCompanyForOpportunityFast(opportunity, buildCompanyLookup(window.allCompaniesData));
     window.selectedOpportunityCompanyData = matchedCompany || null;
     document.getElementById('opportunity-subsector').value = opportunity.subsector || matchedCompany?.subsector || '';
-    document.getElementById('opportunity-value').value = opportunity.value || '';
-    // 0% is a real value (lost deals), so only default when nothing is stored
-    const probability = opportunity.probability == null || opportunity.probability === '' ? 50 : dealProbability(opportunity);
-    document.getElementById('opportunity-probability').value = probability;
-    document.getElementById('probability-display').textContent = String(probability);
+    document.getElementById('opportunity-value').value = hasDealValue(opportunity) ? opportunity.value : '';
 
-    updateStageDropdownForPipeline(activePipeline, resolveStageId(opportunity.stage, pipelineStages, activePipeline.is_default));
+    const stageId = resolveStageId(opportunity.stage, pipelineStages, activePipeline.is_default);
+    updateStageDropdownForPipeline(activePipeline, stageId);
+    // 0% is a real value (lost deals), so only fall back to the stage when nothing is stored
+    setProbabilityInput(opportunity.probability == null || opportunity.probability === ''
+      ? getStageProbability(stageId, pipelineStages)
+      : dealProbability(opportunity));
 
     document.getElementById('opportunity-next-step').value = opportunity.next_step || '';
     document.getElementById('opportunity-next-step-date').value = opportunity.next_step_date || '';
@@ -1292,14 +1326,27 @@ async function openOpportunityModal(opportunity = null, options = {}) {
     window.selectedOpportunityCompanyData = null;
 
     // "+ New" in a column starts the deal in that column
-    if (options?.stageId && pipelineStages.some(s => s.id === options.stageId)) {
-      updateStageDropdownForPipeline(activePipeline, options.stageId);
-      const outcomeProbability = { won: 100, lost: 0 }[getStageOutcome(options.stageId)];
-      if (outcomeProbability !== undefined) {
-        document.getElementById('opportunity-probability').value = outcomeProbability;
-        document.getElementById('probability-display').textContent = String(outcomeProbability);
-      }
+    const stageId = options?.stageId && pipelineStages.some(s => s.id === options.stageId)
+      ? options.stageId
+      : firstStageId;
+    updateStageDropdownForPipeline(activePipeline, stageId);
+    setProbabilityInput(getStageProbability(stageId, pipelineStages));
+  }
+
+  // Managers can hand a deal to someone else; everyone else owns what they create
+  const ownerField = document.getElementById('opportunity-owner-field');
+  if (ownerField) ownerField.style.display = state.isManager ? '' : 'none';
+  if (state.isManager) {
+    const members = await loadOrgTeamMembers();
+    const ownerId = opportunity ? (opportunity.user_id || '') : state.currentUser.id;
+    const ownerOptions = members.map(m => ({ value: m.id, label: fullName(m) || m.email || 'Team member' }));
+    // Keep an owner who has left selectable, so saving doesn't quietly reassign the deal
+    if (ownerId && !members.some(m => m.id === ownerId)) {
+      ownerOptions.unshift({ value: ownerId, label: fullName(opportunity?.profiles) || 'Former team member' });
     }
+    if (!ownerId) ownerOptions.unshift({ value: '', label: 'No owner' });
+    window.updateCrmDropdownOptions?.('opportunity-owner', ownerOptions, false);
+    window.setCrmDropdownValue?.('opportunity-owner', ownerId);
   }
 
   document.querySelectorAll('#opportunity-modal input, #opportunity-modal select, #opportunity-modal textarea').forEach(el => {
@@ -1370,9 +1417,9 @@ function openOpportunityViewModal(opportunity) {
   // Stats: value, win chance and weighted value (open deals only), days in stage
   const value = dealValue(opportunity);
   const probability = dealProbability(opportunity);
-  document.getElementById('opportunity-view-value').textContent = formatCurrency(value);
+  document.getElementById('opportunity-view-value').textContent = formatDealValue(opportunity);
   document.getElementById('opportunity-view-probability').textContent = `${probability}%`;
-  document.getElementById('opportunity-view-weighted').textContent = formatMoney(value * probability / 100);
+  document.getElementById('opportunity-view-weighted').textContent = hasDealValue(opportunity) ? formatMoney(value * probability / 100) : '—';
   modal.querySelectorAll('.opp-view-open-stat').forEach(el => { el.hidden = isClosed; });
 
   const stageAgeEl = document.getElementById('opportunity-view-stage-age');
@@ -1507,11 +1554,11 @@ function openOpportunityViewModal(opportunity) {
   const defaultTab = modal.querySelector('.opp-view-tab[data-tab="overview"]');
   if (defaultTab) defaultTab.click();
 
-  // Sidebar: primary contact
+  // Sidebar: primary contact — only someone actually tagged on the deal, never
+  // a guess from whoever happens to work at the company
   const sidebarContactEl = document.getElementById('opportunity-sidebar-contact');
   if (sidebarContactEl) {
-    const primaryPerson = (opportunity.mentioned_people && opportunity.mentioned_people[0]) ||
-      (isCrmCompany && Array.isArray(window.allPeopleData) && window.allPeopleData.find(p => String(p.company_id) === String(companyObj.id)));
+    const primaryPerson = Array.isArray(opportunity.mentioned_people) && opportunity.mentioned_people.find(p => p?.name);
 
     if (primaryPerson) {
       sidebarContactEl.innerHTML = `<a href="#" class="opp-view-link">${escapeHtml(primaryPerson.name)}</a>`;
@@ -1640,6 +1687,26 @@ function removeOpportunityFromBoard(opportunityId) {
 }
 
 
+function setProbabilityInput(value) {
+  const slider = document.getElementById('opportunity-probability');
+  if (slider) slider.value = value;
+  document.getElementById('probability-display').textContent = String(value);
+}
+
+/** "Lead default: 10%", plus a Reset button once the win chance was set by hand.
+ *  Won and Lost fix the win chance, so the slider is locked there. */
+function updateProbabilityHint(stageId, stages) {
+  const hint = document.getElementById('probability-stage-hint');
+  const resetBtn = document.getElementById('probability-reset-btn');
+  const slider = document.getElementById('opportunity-probability');
+  const stage = stages.find(s => s.id === stageId);
+  const stageProbability = getStageProbability(stageId, stages);
+  const isClosed = Boolean(getStageOutcome(stageId));
+  if (hint) hint.textContent = stage ? `${plainStageTitle(stage.title)} ${isClosed ? 'is always' : 'default:'} ${stageProbability}%` : '';
+  if (resetBtn) resetBtn.hidden = isClosed || Number(slider?.value) === stageProbability;
+  if (slider) slider.disabled = isClosed;
+}
+
 function initOpportunityModalListeners(opportunity) {
   opportunityModalListeners?.abort();
   opportunityModalListeners = new AbortController();
@@ -1651,22 +1718,44 @@ function initOpportunityModalListeners(opportunity) {
   // Probability slider
   const probabilitySlider = document.getElementById('opportunity-probability');
   const probabilityDisplay = document.getElementById('probability-display');
+  const stages = getPipelineStages(getCachedActivePipeline());
+  const stageInput = document.getElementById('opportunity-stage');
 
   if (probabilitySlider) {
     const newSlider = probabilitySlider.cloneNode(true);
     probabilitySlider.parentNode.replaceChild(newSlider, probabilitySlider);
     newSlider.addEventListener('input', () => {
       probabilityDisplay.textContent = newSlider.value;
+      updateProbabilityHint(stageInput?.value, stages);
     });
   }
 
-  // Picking Won or Lost settles the win chance
-  document.getElementById('opportunity-stage')?.addEventListener('change', (e) => {
-    const outcomeProbability = { won: 100, lost: 0 }[getStageOutcome(e.target.value)];
-    if (outcomeProbability === undefined) return;
-    const slider = document.getElementById('opportunity-probability');
-    if (slider) slider.value = outcomeProbability;
-    probabilityDisplay.textContent = String(outcomeProbability);
+  document.getElementById('probability-reset-btn')?.addEventListener('click', () => {
+    setProbabilityInput(getStageProbability(stageInput?.value, stages));
+    updateProbabilityHint(stageInput?.value, stages);
+  }, { signal });
+
+  // The win chance follows the stage unless it was set by hand; Won and Lost always settle it
+  let previousStage = stageInput?.value;
+  stageInput?.addEventListener('change', (e) => {
+    const newStage = e.target.value;
+    const current = Number(document.getElementById('opportunity-probability')?.value);
+    if (probabilityFollowsStage({ probability: current }, previousStage, stages) || getStageOutcome(newStage)) {
+      setProbabilityInput(getStageProbability(newStage, stages));
+    }
+    previousStage = newStage;
+    updateProbabilityHint(newStage, stages);
+  }, { signal });
+  updateProbabilityHint(stageInput?.value, stages);
+
+  // Changing the owner moves the owner chip; the new owner is no longer a tagged teammate
+  document.getElementById('opportunity-owner')?.addEventListener('change', (e) => {
+    const member = (window._orgTeamMembers || []).find(m => m.id === e.target.value);
+    document.querySelector('.opp-assignee-chip--owner')?.remove();
+    if (!member) return;
+    state.opportunityAssignees = state.opportunityAssignees.filter(a => a.user_id !== member.id);
+    document.querySelector(`#opp-assignees-chips .opp-assignee-chip[data-user-id="${CSS.escape(member.id)}"]`)?.remove();
+    _prependOwnerChip(member.id, member);
   }, { signal });
 
   // Company search
@@ -1892,19 +1981,26 @@ function initOpportunityModalListeners(opportunity) {
       tag.textContent.replace('×', '').trim()
     );
 
-    // Validate
-    if (!name || !companyName || !value) {
+    // Validate — deal value is optional
+    if (!name || !companyName) {
       showToast('Please fill in all required fields', 'error');
       return;
     }
+    if (value !== '' && !(parseFloat(value) >= 0)) {
+      showToast('Deal value must be a positive number', 'error');
+      return;
+    }
+
+    // Only managers pick the owner; a new deal otherwise belongs to whoever creates it
+    const ownerId = state.isManager ? (document.getElementById('opportunity-owner')?.value || null) : undefined;
 
     saveBtn.disabled = true;
     saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
 
     try {
-      // Fields that are safe to update — user_id is intentionally excluded so
-      // that editing never transfers ownership away from the original creator.
-      // pipeline_id is NOT updated on edit — the opportunity stays in the pipeline it was created in.
+      // Fields that are safe to update. user_id only changes when a manager
+      // picks a different owner. pipeline_id is NOT updated on edit — the
+      // opportunity stays in the pipeline it was created in.
       const activePipelineId = state.activePipelineId && state.activePipelineId !== '__default__'
         ? state.activePipelineId
         : null;
@@ -1913,7 +2009,7 @@ function initOpportunityModalListeners(opportunity) {
         name,
         company_name: companyName,
         subsector: formSubsector || window.selectedOpportunityCompanyData?.subsector || null,
-        value,
+        value: value === '' ? null : value,
         probability,
         stage,
         next_step: nextStep || null,
@@ -1928,19 +2024,19 @@ function initOpportunityModalListeners(opportunity) {
       let savedOpportunityId;
 
       if (opportunity) {
-        // Update — preserve original owner (user_id stays unchanged)
+        if (ownerId !== undefined && ownerId !== (opportunity.user_id || null)) editableFields.user_id = ownerId;
         result = await supabaseClient
           .from('opportunities')
           .update(editableFields)
           .eq('id', opportunity.id);
         savedOpportunityId = opportunity.id;
       } else {
-        // Create — set the creator as owner and tag the pipeline
+        // Create — owned by the creator unless a manager picked someone, and tag the pipeline
         result = await supabaseClient
           .from('opportunities')
           .insert([{
             ...editableFields,
-            user_id: state.currentUser.id,
+            user_id: ownerId || state.currentUser.id,
             organization_id: state.currentOrganization?.id,
             pipeline_id: activePipelineId,
           }])

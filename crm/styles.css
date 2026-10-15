@@ -6867,6 +6867,27 @@ select {
   color: var(--text-muted);
 }
 
+.form-field label .probability-reset-btn {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.form-field label .probability-reset-btn:hover {
+  text-decoration: underline;
+}
+
+.probability-slider:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .form-field label .optional-badge {
   font-size: 0.65rem;
   font-weight: 550;
@@ -10280,6 +10301,11 @@ select {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   color: var(--text-primary);
+}
+
+.opp-value.is-empty {
+  font-weight: 500;
+  color: var(--text-muted);
 }
 
 .opp-prob-label {
