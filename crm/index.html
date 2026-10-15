@@ -1505,6 +1505,12 @@
     <div class="od-panel" id="opportunity-detail" role="dialog" aria-modal="true" aria-labelledby="od-title"></div>
   </div>
 
+  <!-- Task detail: rendered by showTaskDetail; here (not on the Tasks page) so a deal's tasks open from anywhere -->
+  <div id="task-detail-modal" class="modal od-modal" style="display:none;">
+    <div class="modal-backdrop" onclick="window.closeTaskDetail?.()"></div>
+    <div class="od-panel td-panel" id="task-detail-content" role="dialog" aria-modal="true" aria-labelledby="td-title"></div>
+  </div>
+
   <!-- Manage Pipelines Modal -->
   <div id="manage-pipelines-modal" class="modal" style="display:none;">
     <div class="modal-backdrop" onclick="closeModal('manage-pipelines-modal')"></div>

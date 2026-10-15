@@ -22446,7 +22446,8 @@ button svg {
 
 /* A closed dropdown's menu waits inside the panel (it moves to <body> when open);
    keep it from widening the panel on narrow screens */
-#opportunity-detail .crm-dd-panel {
+#opportunity-detail .crm-dd-panel,
+#task-detail-content .crm-dd-panel {
   display: none;
 }
 
@@ -22997,6 +22998,240 @@ button svg {
     flex: 1;
     width: auto;
   }
+}
+
+/* ── Task detail: the deal panel's layout, plus a done checkbox and its source ── */
+.td-panel {
+  width: min(600px, 100%);
+}
+
+.td-check {
+  position: relative;
+  flex: 0 0 26px;
+  width: 26px;
+  height: 26px;
+  margin-top: 2px;
+  padding: 0;
+  border: 2px solid color-mix(in srgb, var(--text-muted) 70%, transparent);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+
+.td-check::after {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 3px;
+  width: 6px;
+  height: 11px;
+  border: solid transparent;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.td-check:hover {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.td-check:hover::after {
+  border-color: var(--color-success);
+}
+
+.td-check.is-checked {
+  border-color: var(--color-success);
+  background: var(--color-success);
+}
+
+.td-check.is-checked::after {
+  border-color: #fff;
+}
+
+.td-check.is-static {
+  cursor: default;
+}
+
+/* Touch screens give every button a 40px minimum height; inline controls in
+   these panels keep their size (the checkbox gets a larger invisible tap area) */
+.td-check,
+.od-subtitle button,
+.od-panel .od-link,
+.od-panel .od-plain-link {
+  min-height: 0;
+  min-width: 0;
+}
+
+.td-check::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+.td-check:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.od-title.is-done {
+  color: var(--text-muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+
+/* Reads as one sentence and wraps like text on narrow screens */
+.td-source {
+  display: block;
+  line-height: 1.55;
+}
+
+.td-source > * {
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.td-source .od-icon {
+  width: 13px;
+  height: 13px;
+  margin-top: -2px;
+  color: var(--text-muted);
+}
+
+/* Due: the app's date picker opens from a transparent input laid over the value */
+.td-due {
+  position: relative;
+  display: inline-flex;
+}
+
+.td-due .calendar-input-wrapper {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.td-due .calendar-input-wrapper input {
+  width: 100%;
+  height: 100%;
+  padding: 0 !important;
+  border: 0;
+  cursor: pointer;
+}
+
+.td-due .calendar-icon-trigger {
+  display: none;
+}
+
+.td-due .od-editable {
+  white-space: nowrap;
+}
+
+.td-due:hover .od-editable {
+  background: var(--bg-active);
+}
+
+.td-due:focus-within .od-editable {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 0;
+}
+
+/* The deal this task belongs to, as a card you can open */
+.td-deal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-height: 30px;
+  padding: 4px 8px 4px 10px;
+  margin-left: -2px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.td-deal:hover {
+  border-color: color-mix(in srgb, var(--border-color) 60%, var(--text-muted));
+  background: var(--bg-tertiary);
+}
+
+.td-deal:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.td-deal-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 550;
+}
+
+.td-deal-meta {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+
+.td-deal .od-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+}
+
+.td-section {
+  padding: 14px 24px 18px;
+  margin: 2px -24px 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.td-section-title {
+  margin: 0 0 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+  .td-section {
+    padding: 14px 16px 18px;
+    margin: 2px -16px 0;
+  }
+}
+
+/* Task cards on the Tasks page: the deal they belong to */
+.task-card-deal {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  padding: 2px 7px;
+  margin-top: 6px;
+  border-radius: 5px;
+  background: var(--bg-tertiary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.task-card-deal svg {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.task-card-deal span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 /* ── Deal form (new / edit) ───────────────────────────────────────── */

@@ -41,7 +41,8 @@ async function renderTasksView() {
       .select(`
         *,
         assigned_to_profile:profiles!tasks_assigned_to_fkey(first_name, last_name, email),
-        created_by_profile:profiles!tasks_created_by_fkey(first_name, last_name, email)
+        created_by_profile:profiles!tasks_created_by_fkey(first_name, last_name, email),
+        opportunity:opportunities!tasks_opportunity_id_fkey(id, name, company_name, stage)
       `)
       .order('created_at', { ascending: false });
     if (state.currentOrganization?.id) tasksQ = tasksQ.eq('organization_id', state.currentOrganization.id);
@@ -54,7 +55,8 @@ async function renderTasksView() {
       .select(`
         *,
         assigned_to_profile:profiles!tasks_assigned_to_fkey(first_name, last_name, email),
-        created_by_profile:profiles!tasks_created_by_fkey(first_name, last_name, email)
+        created_by_profile:profiles!tasks_created_by_fkey(first_name, last_name, email),
+        opportunity:opportunities!tasks_opportunity_id_fkey(id, name, company_name, stage)
       `)
       .or(`assigned_to.eq.${state.currentUser.id},created_by.eq.${state.currentUser.id}`)
       .order('created_at', { ascending: false });
@@ -207,16 +209,6 @@ async function renderTasksView() {
     </div>
   `;
 
-  // Add Task Modal Container (Unified Attio Redesign)
-  html += `
-    <div class="modal record-view-modal" id="task-detail-modal" style="display:none;">
-      <div class="modal-backdrop" onclick="window.closeTaskDetail()"></div>
-      <div class="record-modal-panel" id="task-detail-content">
-        <!-- Content will be populated dynamically -->
-      </div>
-    </div>
-  `;
-
   viewContainer.innerHTML = html;
 
   if (window.lucide) {
@@ -271,7 +263,13 @@ function renderKanbanTaskCard(task, isManager) {
         </div>
       </div>
       <div class="task-card-title">${escapeHtml(task.title)}</div>
-      ${task.description ? `
+      ${task.opportunity ? `
+        <div class="task-card-deal" title="From the deal ${escapeHtml(task.opportunity.name || '')}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2.1 0 2.9 6 1.5 6 4.3 0 1.2-1.3 2.1-3 2.1-1.4 0-2.6-.6-3-1.6M12 6.5v1.5M12 16v1.5"/></svg>
+          <span>${escapeHtml(task.opportunity.name || 'Deal')}</span>
+        </div>
+      ` : ''}
+      ${task.description && !DEAL_DESCRIPTION.test(task.description) ? `
         <div class="task-card-description">${escapeHtml(task.description)}</div>
       ` : ''}
       <div class="task-card-footer">
@@ -353,6 +351,8 @@ function initKanbanBoard(tasks, salesReps) {
             // Update DOM attributes
             evt.item.dataset.status = newStatus;
             showInlineSuccess(evt.item);
+            const movedTask = window.allTasksData?.find(t => t.id === taskId);
+            if (movedTask?.opportunity_id) window.refreshDealNextStep?.(movedTask.opportunity_id);
             document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: newStatus === 'completed' ? 'complete' : 'update', id: taskId } }));
 
             // If the card has a status badge/text that needs updating, we can do it here
@@ -555,258 +555,456 @@ function updateColumnCounts() {
   if (statDone) statDone.textContent = `${counts.completed || 0} done`;
 }
 
-function showTaskDetail(task, salesReps) {
+// ── Task detail ───────────────────────────────────────────────────────────────
+// The same quiet panel as a deal: title with a done checkbox, where the task
+// came from (a deal, a workflow or a person), a property list that edits in
+// place, then the description. The pencil still opens the full task form.
+
+// The task on screen and listeners removed when another task opens
+let taskDetail = null;
+
+const TASK_STATUSES = [
+  { value: 'pending', label: 'To Do', color: '#94a3b8' },
+  { value: 'in_progress', label: 'In Progress', color: '#2f5fd0' },
+  { value: 'completed', label: 'Done', color: '#16a34a' },
+];
+
+const TASK_PRIORITIES = [
+  { value: 'high', label: 'High', color: '#dc2626' },
+  { value: 'medium', label: 'Medium', color: '#d97706' },
+  { value: 'low', label: 'Low', color: '#94a3b8' },
+];
+
+const tdIcon = (paths) => `<svg class="od-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
+
+const TD_ICONS = {
+  status: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/>',
+  priority: '<path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.33 2q2 0 3.07-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.53"/>',
+  due: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  assignee: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  deal: '<circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2.1 0 2.9 6 1.5 6 4.3 0 1.2-1.3 2.1-3 2.1-1.4 0-2.6-.6-3-1.6M12 6.5v1.5M12 16v1.5"/>',
+  workflow: '<path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/>',
+  open: '<path d="M7 17 17 7"/><path d="M8 7h9v9"/>',
+  edit: '<path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/>',
+  trash: '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  close: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+};
+
+const WORKFLOW_DESCRIPTION = /^Auto-generated by workflow\. Trigger: (\w+) on (\w+)/;
+// Deal tasks used to carry this generated line; the task now links to its deal instead
+const DEAL_DESCRIPTION = /^Next step on the deal ".*"$/;
+
+function tdFullName(profile) {
+  return profile ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') : '';
+}
+
+function tdColor(userId) {
+  const palette = ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#06b6d4', '#ef4444', '#84cc16', '#f97316', '#6366f1'];
+  let hash = 0;
+  for (const ch of String(userId || '')) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+  return palette[hash % palette.length];
+}
+
+function tdPerson(userId, name) {
+  return `<span class="od-person"><span class="od-person-avatar" style="background:${tdColor(userId)}">${escapeHtml(getInitials(name))}</span>${escapeHtml(name)}</span>`;
+}
+
+/** "YYYY-MM-DDTHH:mm" in local time, the format the date picker reads and writes */
+function toLocalDateTimeValue(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return '';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+/** "Today, 9:00 AM", "Tomorrow", "Mon 20 Oct" … with overdue / today flags */
+function describeDue(value, isDone) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const day = new Date(date);
+  day.setHours(0, 0, 0, 0);
+  const diff = Math.round((day - today) / 86400000);
+  let label;
+  if (diff === 0) label = 'Today';
+  else if (diff === 1) label = 'Tomorrow';
+  else if (diff === -1) label = 'Yesterday';
+  else {
+    label = date.toLocaleDateString(undefined, {
+      weekday: Math.abs(diff) < 7 ? 'short' : undefined,
+      day: 'numeric',
+      month: 'short',
+      ...(date.getFullYear() !== today.getFullYear() ? { year: 'numeric' } : {}),
+    });
+  }
+  // Midnight means "no particular time"
+  if (date.getHours() || date.getMinutes()) {
+    label += `, ${date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`;
+  }
+  // Overdue once the day (or, for today, the time) has passed
+  let status = null;
+  if (!isDone && (diff < 0 || (diff === 0 && date < new Date() && (date.getHours() || date.getMinutes())))) status = 'overdue';
+  else if (!isDone && diff === 0) status = 'today';
+  return { label, status };
+}
+
+/** Everyone in the org, for the assignee picker (cached like the deal panel's) */
+async function loadTaskTeam() {
+  if (window._orgTeamMembers && window._orgTeamMembersOrgId === state.currentOrganization?.id) return window._orgTeamMembers;
+  let q = supabaseClient.from('profiles').select('id, first_name, last_name, role, email, avatar_url').eq('status', 'active').order('first_name');
+  if (state.currentOrganization?.id) q = q.eq('organization_id', state.currentOrganization.id);
+  const { data } = await q;
+  window._orgTeamMembers = data || [];
+  window._orgTeamMembersOrgId = state.currentOrganization?.id;
+  return window._orgTeamMembers;
+}
+
+function canEditTask(task) {
+  return state.isManager || task.created_by === state.currentUser.id;
+}
+
+function canCompleteTask(task) {
+  return canEditTask(task) || task.assigned_to === state.currentUser.id;
+}
+
+function showTaskDetail(task) {
   const modal = document.getElementById('task-detail-modal');
-  const content = document.getElementById('task-detail-content');
-  if (!modal || !content) return;
+  const panel = document.getElementById('task-detail-content');
+  if (!modal || !panel || !task) return;
 
-  const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== 'completed';
+  taskDetail?.listeners.abort();
+  taskDetail = { task, listeners: new AbortController() };
+  const { signal } = taskDetail.listeners;
 
-  // Assignee
-  let assigneeName = 'Unassigned';
-  let assigneeInitials = '—';
-  if (task.assigned_to_profile) {
-    assigneeName = `${task.assigned_to_profile.first_name} ${task.assigned_to_profile.last_name}`;
-    const initials = (task.assigned_to_profile.first_name?.[0] || '') + (task.assigned_to_profile.last_name?.[0] || '');
-    assigneeInitials = initials;
-  } else if (task.assigned_to === state.currentUser.id) {
-    assigneeName = 'Me';
-    assigneeInitials = 'Me';
-  }
+  panel.addEventListener('click', onTaskDetailClick, { signal });
+  panel.addEventListener('change', (e) => {
+    if (e.target.id === 'td-status') saveTaskPatch({ status: e.target.value });
+    if (e.target.id === 'td-priority') saveTaskPatch({ priority: e.target.value });
+    if (e.target.id === 'td-assignee') saveTaskAssignee(e.target.value);
+    if (e.target.id === 'td-due-input') {
+      const value = e.target.value;
+      saveTaskPatch({ due_date: value ? new Date(value).toISOString() : null });
+    }
+  }, { signal });
+  panel.addEventListener('keydown', (e) => {
+    // The due date opens its picker from the keyboard too
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.id === 'td-due-input') {
+      e.preventDefault();
+      e.target._customCalendar?.open();
+    } else if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.od-notes[data-edit]')) {
+      e.preventDefault();
+      startTaskEdit(e.target.dataset.edit, e.target);
+    }
+  }, { signal });
+  // Escape closes the task, unless it is closing a dropdown, the date picker, an editor or a dialog
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || modal.style.display === 'none') return;
+    if (document.querySelector('.crm-dd.is-open')) return;
+    const picker = document.getElementById('td-due-input')?._customCalendar;
+    if (picker?.isOpen) {
+      picker.close();
+      return;
+    }
+    if (document.activeElement?.classList.contains('od-input')) return;
+    if (document.getElementById('confirm-dialog')?.style.display === 'flex') return;
+    window.closeTaskDetail();
+  }, { capture: true, signal });
 
-  // Assigned By (visible when a manager assigned the task)
-  let assignedByHtml = '';
-  let assignerName = '';
-  if (task.created_by !== state.currentUser.id && task.created_by_profile) {
-    assignerName = `${task.created_by_profile.first_name} ${task.created_by_profile.last_name}`;
-    const assignerInitials = (task.created_by_profile.first_name?.[0] || '') + (task.created_by_profile.last_name?.[0] || '');
-    assignedByHtml = `
-      <div class="record-field-card">
-        <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>
-        <div class="rfc-body">
-          <div class="rfc-label">Assigned By</div>
-          <div class="rfc-value">${escapeHtml(assignerName)}</div>
-        </div>
-      </div>`;
-  }
-
-  // Permission: manager always edits; sales rep only if they created it
-  const canEditDetails = state.isManager || task.created_by === state.currentUser.id;
-
-  // Status config
-  const statusMap = {
-    pending:     { label: 'To Do',       cls: 'tdv-status-pending',     color: '#f59e0b' },
-    in_progress: { label: 'In Progress', cls: 'tdv-status-in_progress', color: 'var(--color-primary)' },
-    completed:   { label: 'Done',        cls: 'tdv-status-completed',   color: '#10b981' },
-  };
-  const sc = statusMap[task.status] || statusMap.pending;
-
-  // Priority config
-  const priorityMap = {
-    high:   { label: 'High Priority',   cls: 'tdv-pill-priority-high',   color: '#ef4444' },
-    medium: { label: 'Medium Priority', cls: 'tdv-pill-priority-medium', color: '#f59e0b' },
-    low:    { label: 'Low Priority',    cls: 'tdv-pill-priority-low',    color: '#6b7280' },
-  };
-  const pc = priorityMap[task.priority] || priorityMap.medium;
-
-  // Due date text & pill
-  const dueDateText = task.due_date ? formatDate(task.due_date) : 'No due date';
-
-  content.innerHTML = `
-    <!-- Hero Section -->
-    <div class="record-hero" id="task-view-hero">
-      <div class="record-hero-avatar" style="background:${task.status === 'completed' ? '#10b981' : pc.color};">
-        ${task.status === 'completed' 
-          ? `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>`
-          : `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="3" rx="4"/><path d="m9 12 2 2 4-4"/></svg>`
-        }
-      </div>
-      <div class="record-hero-info">
-        <div class="record-hero-name-row">
-          <h2 class="record-hero-name" style="${task.status === 'completed' ? 'text-decoration:line-through; opacity:0.8;' : ''}">${escapeHtml(task.title)}</h2>
-          <span class="record-hero-type-badge ${sc.cls}">${sc.label}</span>
-          <span class="record-hero-type-badge ${pc.cls}">${pc.label}</span>
-        </div>
-        <div class="record-hero-meta-row" style="margin-top: 4px;">
-          <span class="record-hero-cat-chip" style="${isOverdue ? 'color:#ef4444; border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.08);' : ''}">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:4px;"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-            ${isOverdue ? 'Overdue · ' : ''}${dueDateText}
-          </span>
-          <span class="record-hero-subtitle" style="margin-left: 6px;">
-            Assigned to <strong>${escapeHtml(assigneeName)}</strong>
-          </span>
-        </div>
-      </div>
-      <div class="record-hero-actions">
-        ${canEditDetails ? `
-          <button class="record-hero-edit-btn" id="task-view-edit-btn" onclick="editTask('${task.id}')" title="Edit task" aria-label="Edit task">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-          </button>
-          <button class="record-hero-edit-btn" onclick="deleteTask('${task.id}')" title="Delete task" aria-label="Delete task" style="color:var(--color-danger); border-color:rgba(239,68,68,0.3);">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          </button>
-        ` : ''}
-        <button class="modal-close" onclick="window.closeTaskDetail()" title="Close">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- Stats Bar -->
-    <div class="record-stats-bar">
-      <div class="record-stat-item">
-        <div class="record-stat-value record-stat-value--primary">${sc.label}</div>
-        <div class="record-stat-label">Status</div>
-      </div>
-      <div class="record-stat-item">
-        <div class="record-stat-value">${(task.priority || 'medium').toUpperCase()}</div>
-        <div class="record-stat-label">Priority</div>
-      </div>
-      <div class="record-stat-item">
-        <div class="record-stat-value" style="${isOverdue ? 'color:#ef4444;' : ''}">${dueDateText}</div>
-        <div class="record-stat-label">Due Date</div>
-      </div>
-      <div class="record-stat-item">
-        <div class="record-stat-value">${escapeHtml(assigneeName)}</div>
-        <div class="record-stat-label">Assignee</div>
-      </div>
-    </div>
-
-    <!-- Body: Main Content + Sidebar -->
-    <div class="record-body">
-      <div class="record-main">
-        <div class="record-tabs">
-          <button class="record-tab active">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-            Task Details &amp; Actions
-          </button>
-        </div>
-        <div class="record-tab-panels">
-          <div class="record-tab-panel">
-            <!-- Quick Action Toggle -->
-            <div style="display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:var(--bg-primary); border:1px solid var(--border-color); border-radius:10px; margin-bottom:18px;">
-              <div>
-                <div style="font-size:0.875rem; font-weight:700; color:var(--text-primary);">Status: ${sc.label}</div>
-                <div style="font-size:0.78rem; color:var(--text-muted); margin-top:2px;">${task.status === 'completed' ? 'This task has been completed.' : 'Click to mark this task complete.'}</div>
-              </div>
-              <button class="btn btn-sm ${task.status === 'completed' ? 'btn-secondary' : 'btn-primary'}" onclick="window.toggleTaskCompleteFromDetail('${task.id}', '${task.status === 'completed' ? 'pending' : 'completed'}')">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:5px;"><path d="M20 6 9 17l-5-5"/></svg>
-                ${task.status === 'completed' ? 'Mark Incomplete' : 'Mark as Done'}
-              </button>
-            </div>
-
-            <div class="record-sidebar-title" style="margin-bottom:8px;">Description</div>
-            <div class="ov-notes-container" style="font-size:0.92rem; line-height:1.7; min-height:140px;">
-              ${task.description ? escapeHtml(task.description) : '<span class="text-muted" style="font-style:italic;">No description provided for this task.</span>'}
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <aside class="record-sidebar">
-        <div class="record-sidebar-section">
-          <div class="record-sidebar-title">People</div>
-          <div class="record-field-card">
-            <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg></div>
-            <div class="rfc-body">
-              <div class="rfc-label">Assigned To</div>
-              <div class="rfc-value">${escapeHtml(assigneeName)}</div>
-            </div>
-          </div>
-          ${assignedByHtml}
-        </div>
-
-        <div class="record-sidebar-section">
-          <div class="record-sidebar-title">Task Info</div>
-          <div class="record-field-card">
-            <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg></div>
-            <div class="rfc-body">
-              <div class="rfc-label">Due Date</div>
-              <div class="rfc-value">${dueDateText}</div>
-            </div>
-          </div>
-          <div class="record-field-card">
-            <div class="rfc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg></div>
-            <div class="rfc-body">
-              <div class="rfc-label">Priority</div>
-              <div class="rfc-value" style="text-transform:capitalize;">${escapeHtml(task.priority || 'medium')}</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="record-sidebar-section">
-          <div class="record-sidebar-title">Record Info</div>
-          <div class="ov-meta-item">
-            <span class="ov-meta-label">Task ID</span>
-            <span class="ov-meta-value rfc-mono">${escapeHtml(task.id || '—')}</span>
-          </div>
-          <div class="ov-meta-item">
-            <span class="ov-meta-label">Created</span>
-            <span class="ov-meta-value">${formatDate(task.created_at)}</span>
-          </div>
-        </div>
-      </aside>
-    </div>
-  `;
-
+  renderTaskDetail();
   modal.style.display = 'flex';
   document.body.classList.add('modal-active');
 
-  modal.onclick = (e) => {
-    if (e.target === modal || e.target.classList.contains('modal-backdrop')) {
-      window.closeTaskDetail();
-    }
-  };
+  // The deal it belongs to, and the team for the assignee picker, load after the panel shows
+  const current = taskDetail;
+  const loads = [];
+  if (task.opportunity_id && !task.opportunity) {
+    loads.push(supabaseClient
+      .from('opportunities')
+      .select('id, name, company_name, stage')
+      .eq('id', task.opportunity_id)
+      .maybeSingle()
+      .then(({ data }) => { task.opportunity = data || null; }));
+  }
+  if (state.isManager) loads.push(loadTaskTeam());
+  if (loads.length) Promise.all(loads).then(() => { if (taskDetail === current) renderTaskDetail(); });
 }
 
-// Global functions for task actions
-window.closeTaskDetail = function () {
-  const modal = document.getElementById('task-detail-modal');
-  if (modal) modal.style.display = 'none';
-  document.body.classList.remove('modal-active');
-};
+function renderTaskDetail() {
+  const panel = document.getElementById('task-detail-content');
+  if (!panel || !taskDetail) return;
+  const task = taskDetail.task;
+  const canEdit = canEditTask(task);
+  const canComplete = canCompleteTask(task);
+  const isDone = task.status === 'completed';
+  const me = state.currentUser.id;
 
-window.toggleTaskCompleteFromDetail = async function (taskId, newStatus) {
-  const { error } = await supabaseClient
-    .from('tasks')
-    .update({ status: newStatus, updated_at: new Date().toISOString() })
-    .eq('id', taskId);
+  const prop = (key, label, iconKey, valueHtml) => `
+    <div class="od-prop" data-prop="${key}">
+      <dt class="od-prop-label">${tdIcon(TD_ICONS[iconKey])}${label}</dt>
+      <dd class="od-prop-value">${valueHtml}</dd>
+    </div>`;
+  const pill = (id, options, value, editable) => {
+    const option = options.find(o => o.value === value) || options[0];
+    const control = editable
+      ? window.buildCrmDropdown({ id, options: options.map(o => ({ value: o.value, label: o.label })), value: option.value, variant: 'inline' })
+      : `<span class="od-readonly">${escapeHtml(option.label)}</span>`;
+    return `<span class="od-stage" style="--stage-color:${option.color}">${control}</span>`;
+  };
 
-  if (error) {
-    showToast('Error updating task: ' + error.message, 'error');
+  // Where the task came from
+  const creatorName = task.created_by === me ? 'you' : (tdFullName(task.created_by_profile) || 'a teammate');
+  const workflow = WORKFLOW_DESCRIPTION.exec(task.description || '');
+  let sourceHtml;
+  if (task.opportunity_id) {
+    const dealName = task.opportunity?.name;
+    sourceHtml = `${tdIcon(TD_ICONS.deal)}<span>From the deal</span>`
+      + (dealName
+        ? `<button type="button" class="od-company is-link" data-action="open-deal">${escapeHtml(dealName)}</button>`
+        : `<span>${task.opportunity === null ? '(not visible to you)' : '…'}</span>`)
+      + `<span class="od-dot">·</span><span>added by ${escapeHtml(creatorName)}</span>`;
+  } else if (workflow) {
+    const verbs = { INSERT: 'added', UPDATE: 'updated', DELETE: 'deleted' };
+    const nouns = { opportunities: 'deal', companies: 'company', people: 'person', tasks: 'task', call_logs: 'call', visits: 'visit' };
+    sourceHtml = `${tdIcon(TD_ICONS.workflow)}<span>Created by a workflow when a ${escapeHtml(nouns[workflow[2]] || 'record')} was ${escapeHtml(verbs[workflow[1]] || 'changed')}</span>`;
+  } else {
+    sourceHtml = `<span>Added by ${escapeHtml(creatorName)}</span>`;
+  }
+
+  // Due date: the app's date picker opens from a transparent input over the value
+  const due = describeDue(task.due_date, isDone);
+  const dueText = due
+    ? `<span class="od-due${due.status ? ` is-${due.status}` : ''}">${escapeHtml(due.label)}${due.status === 'overdue' ? ' · overdue' : ''}</span>`
+    : '';
+  const dueHtml = canEdit
+    ? `<span class="td-due">
+        <span class="od-editable${due ? '' : ' is-empty'}" aria-hidden="true">${dueText || 'Add due date'}</span>
+        <input type="text" id="td-due-input" class="td-due-input" value="${escapeHtml(toLocalDateTimeValue(task.due_date))}" aria-label="Due date">
+      </span>${due ? '<button type="button" class="od-link" data-action="clear-due">Clear</button>' : ''}`
+    : (dueText || '<span class="od-readonly is-empty">No due date</span>');
+
+  // Assignee: managers can reassign
+  const assigneeName = task.assigned_to === me ? 'You' : (tdFullName(task.assigned_to_profile) || '');
+  const team = state.isManager && window._orgTeamMembersOrgId === state.currentOrganization?.id ? window._orgTeamMembers : null;
+  let assigneeHtml;
+  if (team) {
+    const options = team.map(m => ({ value: m.id, label: m.id === me ? `${tdFullName(m) || 'You'} (you)` : (tdFullName(m) || m.email || 'Team member') }));
+    if (task.assigned_to && !team.some(m => m.id === task.assigned_to)) options.unshift({ value: task.assigned_to, label: tdFullName(task.assigned_to_profile) || 'Former team member' });
+    options.unshift({ value: '', label: 'Unassigned' });
+    assigneeHtml = window.buildCrmDropdown({ id: 'td-assignee', options, value: task.assigned_to || '', placeholder: 'Unassigned', variant: 'inline', searchable: options.length > 8, searchPlaceholder: 'Search team…' });
+  } else {
+    assigneeHtml = task.assigned_to
+      ? tdPerson(task.assigned_to, assigneeName || 'Teammate')
+      : '<span class="od-readonly is-empty">Unassigned</span>';
+  }
+
+  // The deal, as a card you can open
+  let dealHtml = '';
+  if (task.opportunity_id) {
+    const deal = task.opportunity;
+    dealHtml = deal
+      ? `<button type="button" class="td-deal" data-action="open-deal" title="Open ${escapeHtml(deal.name || 'deal')}">
+          <span class="td-deal-name">${escapeHtml(deal.name || 'Untitled deal')}</span>
+          ${deal.company_name && deal.company_name !== deal.name ? `<span class="td-deal-meta">${escapeHtml(deal.company_name)}</span>` : ''}
+          ${tdIcon(TD_ICONS.open)}
+        </button>`
+      : `<span class="od-readonly is-empty">${deal === null ? 'Not visible to you' : 'Loading…'}</span>`;
+  }
+
+  // Description, minus text that only said where the task came from
+  const description = (task.description || '').trim();
+  const shownDescription = WORKFLOW_DESCRIPTION.test(description) || DEAL_DESCRIPTION.test(description) ? '' : description;
+  const descriptionHtml = canEdit
+    ? `<div class="od-notes${shownDescription ? '' : ' is-empty'}" data-edit="description" role="button" tabindex="0" aria-label="Edit description">${shownDescription ? escapeHtml(shownDescription) : 'Add a description…'}</div>`
+    : `<div class="od-notes is-readonly${shownDescription ? '' : ' is-empty'}">${shownDescription ? escapeHtml(shownDescription) : 'No description.'}</div>`;
+
+  const title = escapeHtml(task.title || 'Untitled task');
+  const updated = task.updated_at && task.updated_at !== task.created_at ? task.updated_at : null;
+
+  panel.innerHTML = `
+    <header class="od-header td-header">
+      ${canComplete
+        ? `<button type="button" class="td-check${isDone ? ' is-checked' : ''}" data-action="toggle-done" title="${isDone ? 'Mark not done' : 'Mark done'}" aria-label="${isDone ? 'Mark not done' : 'Mark done'}" aria-pressed="${isDone}"></button>`
+        : `<span class="td-check${isDone ? ' is-checked' : ''} is-static" aria-hidden="true"></span>`}
+      <div class="od-heading">
+        ${canEdit
+          ? `<button type="button" class="od-title od-editable${isDone ? ' is-done' : ''}" id="td-title" data-edit="title">${title}</button>`
+          : `<h2 class="od-title${isDone ? ' is-done' : ''}" id="td-title">${title}</h2>`}
+        <div class="od-subtitle td-source">${sourceHtml}</div>
+      </div>
+      <div class="od-actions">
+        ${canEdit ? `
+          <button type="button" class="od-icon-btn" data-action="edit" title="Edit all fields" aria-label="Edit all fields">${tdIcon(TD_ICONS.edit)}</button>
+          <button type="button" class="od-icon-btn is-danger" data-action="delete" title="Delete task" aria-label="Delete task">${tdIcon(TD_ICONS.trash)}</button>` : ''}
+        <button type="button" class="od-icon-btn" data-action="close" title="Close" aria-label="Close">${tdIcon(TD_ICONS.close)}</button>
+      </div>
+    </header>
+
+    <div class="od-body">
+      <dl class="od-props">
+        ${prop('status', 'Status', 'status', pill('td-status', TASK_STATUSES, task.status, canComplete))}
+        ${prop('priority', 'Priority', 'priority', pill('td-priority', TASK_PRIORITIES, task.priority || 'medium', canEdit))}
+        ${prop('due', 'Due', 'due', dueHtml)}
+        ${prop('assignee', 'Assignee', 'assignee', assigneeHtml)}
+        ${task.opportunity_id ? prop('deal', 'Deal', 'deal', dealHtml) : ''}
+      </dl>
+
+      <section class="td-section">
+        <h3 class="td-section-title">Description</h3>
+        ${descriptionHtml}
+      </section>
+    </div>
+
+    <footer class="od-footer">
+      <span>Created ${escapeHtml(formatDate(task.created_at))}</span>
+      ${updated ? `<span class="od-dot">·</span><span>Updated ${escapeHtml(formatDate(updated))}</span>` : ''}
+    </footer>`;
+
+  window.initAllCrmDropdowns?.(panel);
+  if (canEdit) window.initCustomCalendar?.('#td-due-input', { type: 'datetime-local' });
+}
+
+function onTaskDetailClick(e) {
+  if (!taskDetail) return;
+  const task = taskDetail.task;
+
+  const editTarget = e.target.closest('[data-edit]');
+  if (editTarget) {
+    startTaskEdit(editTarget.dataset.edit, editTarget);
     return;
   }
 
-  showToast(newStatus === 'completed' ? 'Task marked as done' : 'Task marked as to-do', 'success');
-  window.closeTaskDetail();
-  document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: 'update', id: taskId } }));
-  renderTasksView();
-};
-
-window.editTask = function (taskId) {
-  window.closeTaskDetail();
-  const task = window.allTasksData?.find(t => t.id === taskId);
-  if (task) {
-    openTaskModal(task, window.salesRepsData || []);
-  }
-};
-
-window.deleteTask = async function (taskId) {
-  const confirmed = await showConfirmDialog('Delete Task', 'Are you sure you want to delete this task?');
-  if (!confirmed) return;
-
-  const { error } = await supabaseClient
-    .from('tasks')
-    .delete()
-    .eq('id', taskId);
-
-  if (error) {
-    showToast('Error deleting task', 'error');
-  } else {
-    showToast('Task deleted successfully', 'success');
+  const action = e.target.closest('[data-action]')?.dataset.action;
+  if (action === 'close') {
     window.closeTaskDetail();
-    document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: 'delete', id: taskId } }));
-    renderTasksView();
+  } else if (action === 'toggle-done') {
+    saveTaskPatch({ status: task.status === 'completed' ? 'pending' : 'completed' });
+  } else if (action === 'clear-due') {
+    saveTaskPatch({ due_date: null });
+  } else if (action === 'open-deal') {
+    window.closeTaskDetail();
+    setTimeout(() => window.openOpportunityById(task.opportunity_id), 120);
+  } else if (action === 'edit') {
+    window.closeTaskDetail();
+    openTaskModal(task, window.salesRepsData || []);
+  } else if (action === 'delete') {
+    deleteTaskFromDetail();
+  }
+}
+
+/** Swap the title or description for an input. Enter (⌘↵ for the description)
+ *  or leaving the field saves, Escape cancels. */
+function startTaskEdit(field, anchor) {
+  const task = taskDetail?.task;
+  if (!task || !canEditTask(task)) return;
+  const isDescription = field === 'description';
+  const current = isDescription
+    ? (WORKFLOW_DESCRIPTION.test(task.description || '') || DEAL_DESCRIPTION.test(task.description || '') ? '' : (task.description || ''))
+    : (task.title || '');
+
+  const input = document.createElement(isDescription ? 'textarea' : 'input');
+  if (!isDescription) input.type = 'text';
+  input.className = `od-input ${isDescription ? 'od-input--notes' : 'od-input--name'}`;
+  input.value = current;
+  input.placeholder = isDescription ? 'Add a description…' : 'Task title';
+  if (isDescription) input.rows = Math.max(4, current.split('\n').length + 1);
+  anchor.replaceWith(input);
+  input.focus();
+  if (!isDescription) input.select();
+
+  let finished = false;
+  const finish = async (save, refocus = false) => {
+    if (finished) return;
+    finished = true;
+    const text = input.value.trim();
+    if (!save || text === current.trim()) {
+      input.replaceWith(anchor);
+      if (refocus) anchor.focus();
+      return;
+    }
+    if (!isDescription && !text) {
+      showToast("A task needs a title", 'error');
+      input.replaceWith(anchor);
+      return;
+    }
+    input.disabled = true;
+    await saveTaskPatch(isDescription ? { description: text || null } : { title: text });
+  };
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      finish(false, true);
+    } else if (e.key === 'Enter' && (!isDescription || e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      finish(true, true);
+    }
+  });
+  input.addEventListener('blur', () => finish(true));
+}
+
+/** Save fields on the open task, then refresh what shows it */
+async function saveTaskPatch(patch) {
+  const task = taskDetail?.task;
+  if (!task) return false;
+  const updates = { ...patch, updated_at: new Date().toISOString() };
+  const { data, error } = await supabaseClient.from('tasks').update(updates).eq('id', task.id).select('id');
+  if (error || !data?.length) {
+    showToast(error ? `Couldn't save the task: ${error.message}` : "You can't change this task.", 'error');
+    renderTaskDetail();
+    return false;
+  }
+  Object.assign(task, updates);
+  const cached = window.allTasksData?.find(t => t.id === task.id);
+  if (cached && cached !== task) Object.assign(cached, updates);
+
+  if ('status' in patch) {
+    showToast(patch.status === 'completed' ? 'Task done' : `Moved to ${TASK_STATUSES.find(s => s.value === patch.status)?.label || 'To Do'}`, 'success');
+  }
+  document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: patch.status === 'completed' ? 'complete' : 'update', id: task.id } }));
+  document.dispatchEvent(new CustomEvent('safitrack:notification-refresh'));
+  // A deal's next step is its earliest open task
+  if (task.opportunity_id && ('status' in patch || 'title' in patch || 'due_date' in patch)) {
+    window.refreshDealNextStep?.(task.opportunity_id);
+  }
+  if (state.currentView === 'tasks') renderTasksView();
+  renderTaskDetail();
+  return true;
+}
+
+async function saveTaskAssignee(userId) {
+  const task = taskDetail?.task;
+  if (!task || (userId || null) === (task.assigned_to || null)) return;
+  const member = (window._orgTeamMembers || []).find(m => m.id === userId);
+  const previousProfile = task.assigned_to_profile;
+  task.assigned_to_profile = member ? { first_name: member.first_name, last_name: member.last_name, email: member.email } : null;
+  if (!await saveTaskPatch({ assigned_to: userId || null })) task.assigned_to_profile = previousProfile;
+}
+
+async function deleteTaskFromDetail() {
+  const task = taskDetail?.task;
+  if (!task) return;
+  if (!await showConfirmDialog('Delete task', `Delete "${task.title}"?`)) return;
+  const { data, error } = await supabaseClient.from('tasks').delete().eq('id', task.id).select('id');
+  if (error || !data?.length) {
+    showToast(error ? `Couldn't delete the task: ${error.message}` : "You can't delete this task.", 'error');
+    return;
+  }
+  showToast('Task deleted', 'success');
+  window.closeTaskDetail();
+  document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: 'delete', id: task.id } }));
+  document.dispatchEvent(new CustomEvent('safitrack:notification-refresh'));
+  if (task.opportunity_id) window.refreshDealNextStep?.(task.opportunity_id);
+  if (state.currentView === 'tasks') renderTasksView();
+}
+
+window.closeTaskDetail = function () {
+  const modal = document.getElementById('task-detail-modal');
+  if (modal) modal.style.display = 'none';
+  document.getElementById('td-due-input')?._customCalendar?.close();
+  taskDetail?.listeners.abort();
+  taskDetail = null;
+  if (!Array.from(document.querySelectorAll('.modal')).some(m => m.style.display !== 'none')) {
+    document.body.classList.remove('modal-active');
   }
 };
 
@@ -981,6 +1179,8 @@ function initTaskActionButtons(tasks, salesReps) {
 
       showToast('Task completed successfully', 'success');
       document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: 'complete', id: taskId } }));
+      const completedTask = tasks.find(t => t.id === taskId);
+      if (completedTask?.opportunity_id) window.refreshDealNextStep?.(completedTask.opportunity_id);
       renderTasksView();
     });
   });
@@ -1009,6 +1209,8 @@ function initTaskActionButtons(tasks, salesReps) {
       }
 
       showToast('Task deleted successfully', 'success');
+      const deletedTask = tasks.find(t => t.id === taskId);
+      if (deletedTask?.opportunity_id) window.refreshDealNextStep?.(deletedTask.opportunity_id);
       renderTasksView();
     });
   });
@@ -1156,6 +1358,8 @@ function initTaskModalListeners(task) {
       if (result.error) throw result.error;
 
       showToast(`Task ${task ? 'updated' : 'created'} successfully!`, 'success');
+      // A deal's next step is its earliest open task
+      if (task?.opportunity_id) window.refreshDealNextStep?.(task.opportunity_id);
       closeModal('task-modal');
       document.dispatchEvent(new CustomEvent('safitrack:notification-refresh'));
       renderTasksView();

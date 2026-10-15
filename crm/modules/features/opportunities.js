@@ -1472,7 +1472,7 @@ async function createDealTask(deal, { title, day }) {
     .from('tasks')
     .insert([{
       title,
-      description: `Next step on the deal "${deal.name || 'Untitled deal'}"`,
+      description: null,
       assigned_to: deal.user_id || state.currentUser.id,
       created_by: state.currentUser.id,
       due_date: dueDateToTimestamp(day),
@@ -1503,6 +1503,41 @@ async function createDealNote(deal, content) {
     .single();
   if (error) throw error;
   return data;
+}
+
+/** Re-derive a deal's next step from its tasks after one changed elsewhere
+ *  (the Tasks page, the task panel). Quietly skips deals the viewer can't edit. */
+async function refreshDealNextStep(opportunityId) {
+  if (!opportunityId) return;
+  const [{ data: tasks, error }, { data: deal }] = await Promise.all([
+    supabaseClient.from('tasks').select('title, due_date, status, created_at, updated_at').eq('opportunity_id', opportunityId),
+    supabaseClient.from('opportunities').select('id, next_step, next_step_date').eq('id', opportunityId).maybeSingle(),
+  ]);
+  if (error || !deal) return;
+  const fields = nextStepFieldsFromTasks(tasks || []);
+  const currentDay = deal.next_step_date ? String(deal.next_step_date).slice(0, 10) : null;
+  if ((deal.next_step || null) === fields.next_step && currentDay === fields.next_step_date) return;
+  await supabaseClient.from('opportunities').update(fields).eq('id', opportunityId);
+  refreshPipelineIfVisible();
+}
+
+/** Open a deal's panel from just its id (e.g. from one of its tasks) */
+async function openOpportunityById(opportunityId) {
+  const { data: opportunity, error } = await supabaseClient
+    .from('opportunities')
+    .select(OPPORTUNITY_SELECT)
+    .eq('id', opportunityId)
+    .maybeSingle();
+  if (error || !opportunity) {
+    showToast("This deal couldn't be opened. It may have been deleted, or you may not have access.", 'error');
+    return;
+  }
+  // The panel reads teammates as { user_id, profiles }
+  opportunity.assignees = (await fetchOpportunityAssignees(opportunity.id)).map(a => ({
+    user_id: a.user_id,
+    profiles: { first_name: a.first_name, last_name: a.last_name, role: a.role, avatar_url: a.avatar_url },
+  }));
+  openOpportunityViewModal(opportunity);
 }
 
 // ── Deal detail ───────────────────────────────────────────────────────────────
@@ -3392,6 +3427,8 @@ export {
   initPipelineFilters,
   openOpportunityModal,
   openOpportunityViewModal,
+  openOpportunityById,
+  refreshDealNextStep,
   initOpportunityModalListeners,
   addCompetitor,
   getProbabilityColor,
