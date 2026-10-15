@@ -6867,6 +6867,27 @@ select {
   color: var(--text-muted);
 }
 
+.form-field label .probability-reset-btn {
+  margin-left: auto;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.form-field label .probability-reset-btn:hover {
+  text-decoration: underline;
+}
+
+.probability-slider:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .form-field label .optional-badge {
   font-size: 0.65rem;
   font-weight: 550;
@@ -10282,6 +10303,11 @@ select {
   color: var(--text-primary);
 }
 
+.opp-value.is-empty {
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
 .opp-prob-label {
   font-size: 0.75rem;
   font-weight: 500;
@@ -10297,6 +10323,47 @@ select {
   width: 22px;
   height: 22px;
   border-color: var(--card-bg);
+}
+
+/* Owner: photo and short name, pushed to the right of the value */
+.opp-owner {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin-left: auto;
+}
+
+.opp-value-row .opp-owner-avatar {
+  width: 22px;
+  height: 22px;
+  margin-left: 0;
+  border: 0;
+}
+
+.opp-value-row .opp-owner-avatar:hover {
+  transform: none;
+}
+
+.opp-owner-name {
+  min-width: 0;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.opp-owner-more {
+  flex-shrink: 0;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  color: var(--text-muted);
 }
 
 /* Next step */
@@ -13961,6 +14028,78 @@ button svg {
 .nso-meta-item i {
   width: 14px;
   height: 14px;
+}
+
+/* The deal a note was written on: a label on the card, a link in the open note */
+.nc-mentions {
+  min-width: 0;
+}
+
+.nc-deal,
+.nso-deal-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  font: inherit;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.nc-deal {
+  padding: 3px 8px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.nc-deal span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nso-deal-link {
+  padding: 4px 10px;
+  font-size: 0.8125rem;
+}
+
+.nso-deal-link strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.nc-deal:hover,
+.nso-deal-link:hover {
+  border-color: color-mix(in srgb, var(--border-color) 60%, var(--text-muted));
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.nc-deal:focus-visible,
+.nso-deal-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.nso-deal-link.is-static {
+  cursor: default;
+}
+
+.nc-deal-icon,
+.nso-deal-open {
+  flex-shrink: 0;
+  color: var(--text-muted);
 }
 
 .nso-editor-toolbar {
@@ -22007,189 +22146,1654 @@ button svg {
   border: 1px solid var(--border-color);
 }
 
-/* ── Opportunity view: quieter header, stats and next step ───────── */
-/* Scoped by id: the record-* classes are shared with other record views. */
-#opportunity-view-modal .record-hero-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 11px;
+/* ── Deal detail: one quiet panel, fields edit in place ─────────────── */
+.od-modal {
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.od-panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: min(680px, 100%);
+  max-height: min(820px, 92vh);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 24px 64px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  animation: recordModalPop 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme="dark"] .od-panel {
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+}
+
+.od-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+/* Header */
+.od-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 22px 16px 16px 24px;
+}
+
+.od-avatar {
+  position: relative;
+  flex: 0 0 40px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
   background: var(--bg-tertiary);
+  overflow: hidden;
+  font-size: 0.8rem;
+  font-weight: 600;
   color: var(--text-secondary);
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0;
 }
 
-[data-theme="dark"] #opportunity-view-modal .record-hero-avatar {
-  background: #2a303a;
-}
-
-#opportunity-view-modal .record-hero-avatar .opp-avatar-initials {
-  font-size: inherit;
-}
-
-#opportunity-view-modal .record-hero-avatar img {
-  display: block;
+.od-avatar img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  border-radius: 0;
-  background: #ffffff;
-}
-
-#opportunity-view-modal .record-hero-name {
-  font-size: 1.3rem;
-  font-weight: 700;
-  max-width: 100%;
-}
-
-#opportunity-view-modal .record-hero-type-badge {
-  gap: 6px;
-  padding: 2px 9px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--text-secondary);
+  padding: 6px;
+  object-fit: contain;
   background: var(--bg-secondary);
-  border-color: var(--border-color);
 }
 
-#opportunity-view-modal .record-hero-type-badge::before {
+.od-heading {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.od-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.od-title.od-editable {
+  min-height: 0;
+  padding: 1px 6px;
+  margin-left: -6px;
+  font-size: 1.25rem;
+  font-weight: 650;
+}
+
+.od-subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.od-company {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--text-secondary);
+}
+
+.od-company .od-icon {
+  width: 13px;
+  height: 13px;
+  color: var(--text-muted);
+}
+
+.od-company.is-link {
+  cursor: pointer;
+}
+
+.od-company.is-link:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.od-dot {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.od-actions {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.od-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.od-icon-btn .od-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.od-icon-btn:hover {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+.od-icon-btn.is-danger:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.od-icon-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+/* Body: properties, then notes / calls / tasks */
+.od-body {
+  flex: 1;
+  min-height: 0;
+  padding: 0 24px 4px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.od-props {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 2px 0 14px;
+}
+
+.od-prop {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+}
+
+.od-prop-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.od-prop-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  min-width: 0;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+}
+
+/* A value you can click to edit */
+.od-editable {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 28px;
+  padding: 3px 8px;
+  margin-left: -8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.od-editable:hover {
+  background: var(--bg-active);
+}
+
+.od-editable:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 0;
+}
+
+.od-readonly {
+  padding: 3px 0;
+}
+
+.od-editable.is-empty,
+.od-readonly.is-empty {
+  color: var(--text-muted);
+}
+
+.od-input {
+  width: 100%;
+  min-height: 30px;
+  padding: 4px 8px;
+  margin-left: -8px;
+  border: 1px solid var(--color-primary);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.od-input:disabled {
+  opacity: 0.6;
+}
+
+.od-input--name {
+  padding: 1px 6px;
+  margin-left: -6px;
+  font-size: 1.25rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.od-input--value,
+.od-input--probability {
+  max-width: 160px;
+}
+
+.od-input--next_step_date {
+  max-width: 180px;
+}
+
+.od-input--notes {
+  display: block;
+  width: calc(100% + 24px);
+  min-height: 120px;
+  padding: 10px 12px;
+  margin: 0 -12px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.od-muted {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.od-muted.is-warning {
+  color: var(--color-warning);
+}
+
+.od-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.78rem;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.od-link:hover {
+  text-decoration: underline;
+}
+
+.od-link--strong {
+  font-size: 0.8125rem;
+  font-weight: 550;
+}
+
+.od-due.is-overdue {
+  font-weight: 550;
+  color: var(--color-danger);
+}
+
+.od-due.is-today {
+  font-weight: 550;
+  color: var(--color-warning);
+}
+
+.od-tag {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.od-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+}
+
+.od-person-avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  overflow: hidden;
+  font-size: 0.55rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.od-person-avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Stage: a pill in the stage's color, with the shared dropdown inside */
+.od-stage {
+  display: inline-flex;
+}
+
+.od-stage .crm-dd-trigger,
+.od-stage .od-readonly {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 9px;
+  border: 1px solid color-mix(in srgb, var(--stage-color) 24%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--stage-color) 10%, transparent);
+  font-size: 0.8125rem;
+  font-weight: 550;
+  color: var(--text-primary);
+}
+
+.od-stage .crm-dd-trigger::before,
+.od-stage .od-readonly::before {
   content: '';
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--stage-color, var(--text-muted));
+  background: var(--stage-color);
+  flex-shrink: 0;
 }
 
-#opportunity-view-modal .record-hero-domain a {
-  padding: 0;
-  border: 0;
-  border-radius: 0;
-  background: none;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  pointer-events: none;
+.od-stage .crm-dd-trigger:hover:not(.is-disabled),
+.od-stage .crm-dd.is-open .crm-dd-trigger {
+  border-color: color-mix(in srgb, var(--stage-color) 45%, transparent);
+  background: color-mix(in srgb, var(--stage-color) 16%, transparent);
+  color: var(--text-primary);
 }
 
-#opportunity-view-modal .record-hero-domain {
-  min-width: 0;
-  max-width: 100%;
-}
-
-#opportunity-view-modal .record-hero-domain a {
-  max-width: 100%;
-}
-
-#opportunity-view-modal #opportunity-view-company-name {
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#opportunity-view-modal .record-hero-domain a.is-link {
-  color: var(--color-primary);
-  pointer-events: auto;
-}
-
-#opportunity-view-modal .record-hero-domain a:hover {
-  background: none;
-  transform: none;
-  text-decoration: underline;
-}
-
-#opportunity-view-modal .record-stat-item {
-  align-items: flex-start;
-  padding: 12px 20px;
-}
-
-#opportunity-view-modal .record-stat-item:hover {
-  background: var(--bg-primary);
-}
-
-#opportunity-view-modal .record-stat-item[hidden] {
+/* A closed dropdown's menu waits inside the panel (it moves to <body> when open);
+   keep it from widening the panel on narrow screens */
+#opportunity-detail .crm-dd-panel,
+#task-detail-content .crm-dd-panel {
   display: none;
 }
 
-#opportunity-view-modal .record-stat-label {
-  order: -1;
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
+/* Owner: the shared dropdown, styled as plain text until hovered */
+.od-prop-value > .crm-dd--inline {
+  margin-left: -8px;
 }
 
-#opportunity-view-modal .record-stat-value {
-  font-size: 1.1rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
+.od-prop-value > .crm-dd--inline .crm-dd-trigger {
+  height: 28px;
+  padding: 0 8px;
+  border-color: transparent;
+  background: transparent;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-primary);
 }
 
-#opportunity-view-modal .record-stat-value.is-stale {
-  color: var(--color-warning);
+.od-prop-value > .crm-dd--inline .crm-dd-trigger:hover:not(.is-disabled),
+.od-prop-value > .crm-dd--inline.is-open .crm-dd-trigger {
+  border-color: transparent;
+  background: var(--bg-active);
 }
 
-#opportunity-view-modal .ov-next-step-box {
-  background: var(--bg-primary);
-  border-color: var(--border-color);
+/* Tabs */
+.od-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  gap: 20px;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  margin: 0 -24px;
+  padding: 0 24px;
+  background: var(--bg-secondary);
 }
 
-#opportunity-view-modal .ov-next-step-header {
-  align-items: baseline;
+.od-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
 }
 
-#opportunity-view-modal .ov-next-step-label {
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+.od-tab:hover,
+.od-tab.is-active {
+  color: var(--text-primary);
+}
+
+.od-tab.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text-primary);
+}
+
+.od-tab:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.od-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+  font-size: 0.7rem;
   color: var(--text-muted);
 }
 
-#opportunity-view-modal .ov-next-step-date {
-  padding: 0;
+.od-tab-panel {
+  padding: 14px 0 18px;
+}
+
+.od-notes {
+  min-height: 96px;
+  padding: 10px 12px;
+  margin: 0 -12px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  cursor: text;
+  transition: background 0.12s;
+}
+
+.od-notes:hover {
+  background: var(--bg-hover);
+}
+
+.od-notes:focus-visible {
+  outline: 2px solid var(--color-primary);
+}
+
+.od-notes.is-empty {
+  color: var(--text-muted);
+}
+
+.od-notes.is-readonly {
+  cursor: default;
+}
+
+.od-notes.is-readonly:hover {
   background: none;
-  font-size: 0.8rem;
+}
+
+.od-notes .mentioned-person {
+  padding: 0 2px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--color-primary-bg);
+  font: inherit;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.od-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0 -10px;
+}
+
+.od-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.od-item:hover {
+  background: var(--bg-hover);
+}
+
+.od-item-dot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  margin-top: 6px;
+  border-radius: 50%;
+}
+
+.od-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.od-item-title {
+  font-size: 0.8125rem;
+  font-weight: 550;
+  color: var(--text-primary);
+}
+
+.od-item.is-done .od-item-title {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.od-item-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.od-item-note {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.od-empty {
+  margin: 0;
+  padding: 28px 0;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.od-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 24px;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Phones: a bottom sheet */
+@media (max-width: 640px) {
+  .od-modal {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .od-panel {
+    width: 100%;
+    max-height: 92vh;
+    border-bottom: 0;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .od-header {
+    padding: 18px 8px 12px 16px;
+  }
+
+  .od-body {
+    padding: 0 16px 4px;
+  }
+
+  .od-tabs {
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+
+  .od-footer {
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  }
+
+  .od-prop {
+    grid-template-columns: 108px minmax(0, 1fr);
+  }
+
+  .od-title,
+  .od-title.od-editable,
+  .od-input--name {
+    font-size: 1.125rem;
+  }
+}
+
+/* Deal panel: next step, tasks and notes */
+.od-next-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.od-plain-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--text-primary);
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.od-plain-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.od-check {
+  position: relative;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 1.5px solid var(--text-muted);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+
+.od-check::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 4px;
+  height: 8px;
+  border: solid transparent;
+  border-width: 0 1.75px 1.75px 0;
+  transform: rotate(45deg);
+}
+
+.od-check:hover {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.od-check:hover::after {
+  border-color: var(--color-success);
+}
+
+.od-check.is-checked {
+  border-color: var(--color-success);
+  background: var(--color-success);
+}
+
+.od-check.is-checked::after {
+  border-color: #fff;
+}
+
+.od-check:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Add-task and add-note boxes */
+.od-composer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.od-composer-input,
+.od-composer-date {
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+
+.od-composer-input:focus,
+.od-composer-date:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.od-composer--task .od-composer-input {
+  flex: 1;
+  min-width: 0;
+}
+
+.od-composer-date {
+  flex-shrink: 0;
+  width: 150px;
+}
+
+/* The app's date picker wraps the input; size the wrapper instead */
+.od-composer .calendar-input-wrapper {
+  flex: 0 0 160px;
+}
+
+.od-composer .calendar-input-wrapper .od-composer-date {
+  width: 100%;
+}
+
+.od-composer-btn {
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--color-primary);
+  font: inherit;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+}
+
+.od-composer--task .od-composer-btn {
+  height: 34px;
+}
+
+.od-composer-btn:hover {
+  background: var(--color-primary-dark);
+}
+
+.od-composer-btn:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.od-composer--note {
+  flex-direction: column;
+  align-items: stretch;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-secondary);
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+
+.od-composer--note:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.od-composer--note .od-composer-input,
+.od-composer--note .od-composer-input:focus {
+  height: auto;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  resize: vertical;
+}
+
+.od-composer-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Task rows */
+.od-task {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+.od-task:hover {
+  background: var(--bg-hover);
+}
+
+.od-task .od-check {
+  margin-top: 2px;
+}
+
+.od-task-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.od-task.is-done .od-item-title {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* Notes */
+.od-notes-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.od-note {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+.od-note:last-child {
+  border-bottom: 0;
+}
+
+.od-note-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+  font-size: 0.8125rem;
+}
+
+.od-note-author {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.od-note-delete {
+  width: 26px;
+  height: 26px;
+  margin-left: auto;
+  opacity: 0;
+}
+
+.od-note:hover .od-note-delete,
+.od-note-delete:focus-visible {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .od-note-delete {
+    opacity: 1;
+  }
+}
+
+.od-note-body {
+  padding-left: 28px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.od-note--legacy .od-note-author {
   font-weight: 500;
   color: var(--text-muted);
 }
 
-#opportunity-view-modal .ov-next-step-box.is-due-today .ov-next-step-date {
-  color: var(--color-warning);
-  font-weight: 600;
+.od-note--legacy .od-notes {
+  min-height: 0;
 }
 
-#opportunity-view-modal .ov-next-step-box.is-overdue .ov-next-step-date {
-  color: var(--color-danger);
-  font-weight: 600;
+@media (max-width: 640px) {
+  .od-composer--task {
+    flex-wrap: wrap;
+  }
+
+  .od-composer--task .od-composer-input {
+    flex-basis: 100%;
+  }
+
+  .od-composer-date,
+  .od-composer .calendar-input-wrapper {
+    flex: 1;
+    width: auto;
+  }
 }
 
-#opportunity-view-modal .ov-next-step-box.is-empty .ov-next-step-content {
+/* ── Task detail: the deal panel's layout, plus a done checkbox and its source ── */
+.td-panel {
+  width: min(600px, 100%);
+}
+
+.td-check {
+  position: relative;
+  flex: 0 0 26px;
+  width: 26px;
+  height: 26px;
+  margin-top: 2px;
+  padding: 0;
+  border: 2px solid color-mix(in srgb, var(--text-muted) 70%, transparent);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: border-color 0.12s, background 0.12s;
+}
+
+.td-check::after {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 3px;
+  width: 6px;
+  height: 11px;
+  border: solid transparent;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.td-check:hover {
+  border-color: var(--color-success);
+  background: var(--color-success-bg);
+}
+
+.td-check:hover::after {
+  border-color: var(--color-success);
+}
+
+.td-check.is-checked {
+  border-color: var(--color-success);
+  background: var(--color-success);
+}
+
+.td-check.is-checked::after {
+  border-color: #fff;
+}
+
+.td-check.is-static {
+  cursor: default;
+}
+
+/* Touch screens give every button a 40px minimum height; inline controls in
+   these panels keep their size (the checkbox gets a larger invisible tap area) */
+.td-check,
+.od-subtitle button,
+.od-panel .od-link,
+.od-panel .od-plain-link {
+  min-height: 0;
+  min-width: 0;
+}
+
+.td-check::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+.td-check:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.od-title.is-done {
+  color: var(--text-muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+
+/* Reads as one sentence and wraps like text on narrow screens */
+.td-source {
+  display: block;
+  line-height: 1.55;
+}
+
+.td-source > * {
+  margin-right: 5px;
+  vertical-align: middle;
+}
+
+.td-source .od-icon {
+  width: 13px;
+  height: 13px;
+  margin-top: -2px;
+  color: var(--text-muted);
+}
+
+/* Due: the app's date picker opens from a transparent input laid over the value */
+.td-due {
+  position: relative;
+  display: inline-flex;
+}
+
+.td-due .calendar-input-wrapper {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+
+.td-due .calendar-input-wrapper input {
+  width: 100%;
+  height: 100%;
+  padding: 0 !important;
+  border: 0;
+  cursor: pointer;
+}
+
+.td-due .calendar-icon-trigger {
+  display: none;
+}
+
+.td-due .od-editable {
+  white-space: nowrap;
+}
+
+.td-due:hover .od-editable {
+  background: var(--bg-active);
+}
+
+.td-due:focus-within .od-editable {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 0;
+}
+
+/* The deal this task belongs to, as a card you can open */
+.td-deal {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: 100%;
+  min-height: 30px;
+  padding: 4px 8px 4px 10px;
+  margin-left: -2px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s;
+}
+
+.td-deal:hover {
+  border-color: color-mix(in srgb, var(--border-color) 60%, var(--text-muted));
+  background: var(--bg-tertiary);
+}
+
+.td-deal:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.td-deal-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 550;
+}
+
+.td-deal-meta {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+
+.td-deal .od-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+}
+
+.td-section {
+  padding: 14px 24px 18px;
+  margin: 2px -24px 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.td-section-title {
+  margin: 0 0 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+  .td-section {
+    padding: 14px 16px 18px;
+    margin: 2px -16px 0;
+  }
+}
+
+/* Task cards on the Tasks page: the deal they belong to */
+.task-card-deal {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  max-width: 100%;
+  padding: 2px 7px;
+  margin-top: 6px;
+  border-radius: 5px;
+  background: var(--bg-tertiary);
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.task-card-deal svg {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.task-card-deal span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Deal form (new / edit) ───────────────────────────────────────── */
+/* One control style for every field: text inputs, dropdowns, the date picker,
+   the note box and the two tag fields share height, surface, border, type and
+   focus ring. Scoped by id because the shared modal rules use ids too. */
+#opportunity-modal .opp-form {
+  --opp-control-h: 40px;
+  --opp-control-radius: 8px;
+  --opp-control-font: 0.875rem;
+}
+
+#opportunity-modal .opp-form .form-field label {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 6px;
+  font-size: 0.8125rem;
+  font-weight: 550;
+  color: var(--text-secondary);
+}
+
+#opportunity-modal .opp-form .field-hint {
+  font-size: 0.75rem;
   font-weight: 400;
   color: var(--text-muted);
 }
 
-.opp-view-link {
-  font-weight: 600;
-  color: var(--color-primary);
-  text-decoration: none;
+#opportunity-modal .opp-form .field-group {
+  gap: 0.75rem;
+  margin-bottom: 0.875rem;
 }
 
-.opp-view-link:hover {
-  text-decoration: underline;
+#opportunity-modal .opp-form .form-field {
+  gap: 6px;
+  margin-bottom: 0.875rem;
 }
 
-.opp-view-empty {
+#opportunity-modal .opp-form .field-group > .form-field {
+  margin-bottom: 0;
+}
+
+/* Text inputs, the note box, and the dropdown triggers */
+#opportunity-modal .opp-form .form-field input:not(.opp-token-input),
+#opportunity-modal .opp-form .form-field textarea,
+#opportunity-modal .opp-form .crm-dd-trigger,
+#opportunity-modal .opp-form .opp-token-field {
+  width: 100%;
+  border: 1px solid var(--border-color);
+  border-radius: var(--opp-control-radius);
+  background: var(--bg-secondary);
+  font-family: inherit;
+  font-size: var(--opp-control-font);
+  font-weight: 500;
+  color: var(--text-primary);
+  box-shadow: none;
+  transition: border-color 0.12s, box-shadow 0.12s;
+}
+
+#opportunity-modal .opp-form .form-field input:not(.opp-token-input),
+#opportunity-modal .opp-form .crm-dd-trigger {
+  height: var(--opp-control-h);
+  min-height: var(--opp-control-h);
+  padding: 0 12px;
+}
+
+#opportunity-modal .opp-form .form-field textarea {
+  min-height: 84px;
+  padding: 10px 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+#opportunity-modal .opp-form .form-field input::placeholder,
+#opportunity-modal .opp-form .form-field textarea::placeholder {
+  font-weight: 400;
   color: var(--text-muted);
 }
 
-@media (max-width: 768px) {
-  #opportunity-view-modal .record-hero-name {
-    font-size: 1.15rem;
+#opportunity-modal .opp-form .form-field input:not(.opp-token-input):hover,
+#opportunity-modal .opp-form .form-field textarea:hover,
+#opportunity-modal .opp-form .crm-dd-trigger:hover,
+#opportunity-modal .opp-form .opp-token-field:hover {
+  border-color: color-mix(in srgb, var(--border-color) 65%, var(--text-muted));
+  background: var(--bg-secondary);
+}
+
+#opportunity-modal .opp-form .form-field input:not(.opp-token-input):focus,
+#opportunity-modal .opp-form .form-field textarea:focus,
+#opportunity-modal .opp-form .crm-dd.is-open .crm-dd-trigger,
+#opportunity-modal .opp-form .crm-dd-trigger:focus-visible,
+#opportunity-modal .opp-form .opp-token-field:focus-within {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+/* Dropdowns fill their column like the inputs beside them */
+#opportunity-modal .opp-form .crm-dd {
+  display: flex;
+  width: 100%;
+}
+
+#opportunity-modal .opp-form .crm-dd-label {
+  font-weight: 500;
+}
+
+/* Company search: no icon, same padding as every other field */
+#opportunity-modal .opp-form .search-container input {
+  padding: 0 12px !important;
+}
+
+#opportunity-modal .opp-form .search-results {
+  max-height: 248px;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+/* Company sits in the left column; let its suggestions span the whole row so
+   long names (and the branch at the end of them) stay readable */
+@media (min-width: 641px) {
+  #opportunity-modal .opp-form .field-group .search-results {
+    right: auto;
+    width: calc(200% + 0.75rem);
+  }
+}
+
+#opportunity-modal .opp-form .search-results .search-result-item {
+  gap: 10px;
+  min-height: 36px;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+#opportunity-modal .opp-form .search-results .search-result-item:hover,
+#opportunity-modal .opp-form .search-results .search-result-item.is-active {
+  background: var(--bg-tertiary);
+}
+
+#opportunity-modal .opp-form .search-results .opp-suggest-avatar {
+  flex-shrink: 0;
+  width: 22px;
+  height: 22px;
+}
+
+#opportunity-modal .opp-form .search-results .search-result-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+#opportunity-modal .opp-form .search-result-item--custom {
+  margin-top: 4px;
+  border-top: 1px solid var(--border-color-light);
+  border-radius: 0 0 6px 6px;
+}
+
+#opportunity-modal .opp-form .search-result-item:first-child.search-result-item--custom {
+  margin-top: 0;
+  border-top: 0;
+}
+
+#opportunity-modal .opp-form .search-result-hint {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+/* Win chance: number box with a % suffix and no spinner */
+#opportunity-modal .opp-form input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+#opportunity-modal .opp-form input[type="number"]::-webkit-inner-spin-button,
+#opportunity-modal .opp-form input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+#opportunity-modal .opp-percent-input {
+  position: relative;
+}
+
+#opportunity-modal .opp-form .opp-percent-input input {
+  padding-right: 2rem;
+}
+
+#opportunity-modal .opp-form .opp-percent-input input:disabled {
+  color: var(--text-muted);
+  background: var(--bg-tertiary);
+  cursor: not-allowed;
+}
+
+#opportunity-modal .opp-percent-input span {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  font-size: var(--opp-control-font);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+#opportunity-modal .opp-form .probability-reset-btn {
+  margin-left: auto;
+}
+
+/* Next step: task title and due date on one row; the date uses the app's picker */
+#opportunity-modal .opp-next-step-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 172px;
+  gap: 0.5rem;
+}
+
+#opportunity-modal .opp-form .calendar-input-wrapper .calendar-icon-trigger svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Tag fields (competitors, teammates): one box that looks like an input, with
+   chips and a borderless text entry inside it */
+#opportunity-modal .opp-form .opp-token-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--opp-control-h);
+  padding: 5px 6px;
+  cursor: text;
+}
+
+#opportunity-modal .opp-token-list {
+  display: contents;
+}
+
+#opportunity-modal .opp-form .opp-token-input {
+  flex: 1 1 140px;
+  min-width: 120px;
+  height: 28px;
+  min-height: 0;
+  padding: 0 6px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  font-family: inherit;
+  font-size: var(--opp-control-font);
+  font-weight: 500;
+  color: var(--text-primary);
+  outline: none;
+}
+
+#opportunity-modal .opp-form .opp-token-input::placeholder {
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+#opportunity-modal .opp-token {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  height: 28px;
+  padding: 0 3px 0 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--text-primary);
+}
+
+#opportunity-modal .opp-token:has(.opp-token-avatar) {
+  padding-left: 3px;
+}
+
+#opportunity-modal .opp-token--owner {
+  padding-right: 8px;
+}
+
+.opp-token-avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  overflow: hidden;
+  font-size: 0.55rem;
+  font-weight: 650;
+  color: #fff;
+}
+
+.opp-token-avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#opportunity-modal .opp-token-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+#opportunity-modal .opp-token-meta {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+#opportunity-modal .opp-token-remove {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+#opportunity-modal .opp-token-remove:hover {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+#opportunity-modal .opp-token-remove:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 0;
+}
+
+/* Teammate suggestions: one compact line per person */
+#opportunity-modal .opp-assignees-dropdown {
+  max-height: 248px;
+  padding: 4px;
+  border-radius: 10px;
+}
+
+#opportunity-modal .opp-assignee-option {
+  gap: 10px;
+  min-height: 36px;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+#opportunity-modal .opp-assignee-option:hover,
+#opportunity-modal .opp-assignee-option.is-active {
+  background: var(--bg-tertiary);
+}
+
+#opportunity-modal .opp-assignee-option.is-selected {
+  background: transparent;
+}
+
+#opportunity-modal .opp-assignee-option.is-selected:hover,
+#opportunity-modal .opp-assignee-option.is-selected.is-active {
+  background: var(--bg-tertiary);
+}
+
+#opportunity-modal .opp-assignee-option .opp-assignee-opt-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+#opportunity-modal .opp-assignee-option.is-selected .opp-assignee-opt-name {
+  color: var(--text-primary);
+}
+
+#opportunity-modal .opp-assignee-option .opp-assignee-opt-role {
+  margin: 0;
+  font-size: 0.75rem;
+  text-transform: none;
+}
+
+/* More: competitors and teammates */
+#opportunity-modal .opp-form-more {
+  padding-top: 0.875rem;
+  margin-top: 0.25rem;
+  border-top: 1px solid var(--border-color);
+}
+
+#opportunity-modal .opp-form-more > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  font-size: 0.8125rem;
+  font-weight: 550;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+#opportunity-modal .opp-form-more > summary:hover {
+  color: var(--text-primary);
+}
+
+#opportunity-modal .opp-form-more > summary::-webkit-details-marker {
+  display: none;
+}
+
+#opportunity-modal .opp-form-more > summary::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(-45deg);
+  transition: transform 0.15s;
+}
+
+#opportunity-modal .opp-form-more[open] > summary {
+  margin-bottom: 0.875rem;
+}
+
+#opportunity-modal .opp-form-more[open] > summary::before {
+  transform: rotate(45deg);
+}
+
+#opportunity-modal .opp-form-more .form-field:last-child {
+  margin-bottom: 0;
+}
+
+/* Phones: taller controls, and 16px text so iOS doesn't zoom into fields */
+@media (max-width: 640px) {
+  #opportunity-modal .opp-form {
+    --opp-control-h: 44px;
+    --opp-control-font: 1rem;
   }
 
-  #opportunity-view-modal .record-stat-item {
-    padding: 10px 16px;
+  #opportunity-modal .opp-next-step-row {
+    grid-template-columns: 1fr;
+  }
+
+  #opportunity-modal .opp-token {
+    height: 32px;
   }
 }
 

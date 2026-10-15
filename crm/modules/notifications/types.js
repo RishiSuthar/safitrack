@@ -1,6 +1,8 @@
 // modules/notifications/types.js
 // Normalized types, category configurations, SVG icons, and formatting utilities.
 
+import { dueDeadline, isAllDay } from '../utils/due-dates.js';
+
 export const NOTIFICATION_CATEGORIES = {
   TASK: 'task',
   REMINDER: 'reminder',
@@ -53,7 +55,8 @@ export function evaluateDueStatus(dueAt) {
   const now = Date.now();
   const dueTs = dueAt.getTime();
 
-  if (dueTs < now) return NOTIFICATION_STATUSES.OVERDUE;
+  // A date with no time is due all day, so it's overdue only once the day ends
+  if (dueDeadline(dueAt).getTime() <= now) return NOTIFICATION_STATUSES.OVERDUE;
 
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
@@ -114,6 +117,7 @@ export function formatRelativeTime(date) {
 
 export function formatDueLabel(dateObj) {
   if (!dateObj || !(dateObj instanceof Date) || Number.isNaN(dateObj.getTime())) return '';
+  if (isAllDay(dateObj)) return dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' });
   return dateObj.toLocaleString([], {
     month: 'short',
     day: 'numeric',

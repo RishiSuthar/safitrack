@@ -204,9 +204,41 @@ function dealValue(opp) {
   return parseFloat(opp?.value) || 0;
 }
 
+/** Deal value is optional; a deal without one shows "—" rather than 0. */
+function hasDealValue(opp) {
+  return !Number.isNaN(parseFloat(opp?.value));
+}
+
+function formatDealValue(opp) {
+  return hasDealValue(opp) ? formatCurrency(dealValue(opp)) : '—';
+}
+
 function dealProbability(opp) {
   const p = parseInt(opp?.probability, 10);
   return Number.isNaN(p) ? 0 : Math.min(100, Math.max(0, p));
+}
+
+// Win chance for the built-in open stages; other open stages are spread between 10% and 90%.
+const STAGE_DEFAULT_PROBABILITY = { prospecting: 10, qualification: 50 };
+
+/** The win chance a stage gives a deal: Won 100%, Lost 0%, open stages from the
+ *  stage's own setting, the built-in defaults, or their place in the pipeline. */
+function getStageProbability(stageId, stages) {
+  const outcome = getStageOutcome(stageId);
+  if (outcome) return outcome === 'won' ? 100 : 0;
+  const own = parseInt(stages.find(s => s.id === stageId)?.probability, 10);
+  if (!Number.isNaN(own)) return Math.min(100, Math.max(0, own));
+  if (STAGE_DEFAULT_PROBABILITY[stageId] !== undefined) return STAGE_DEFAULT_PROBABILITY[stageId];
+  const openStages = stages.filter(s => !getStageOutcome(s.id));
+  const index = openStages.findIndex(s => s.id === stageId);
+  if (index < 0 || openStages.length < 2) return 50;
+  return Math.round(10 + (80 * index) / (openStages.length - 1));
+}
+
+/** A deal's win chance follows its stage until someone sets it by hand. */
+function probabilityFollowsStage(opp, stageId, stages) {
+  if (opp.probability == null || opp.probability === '') return true;
+  return Boolean(getStageOutcome(stageId)) || dealProbability(opp) === getStageProbability(stageId, stages);
 }
 
 /** Totals are shown rounded; card values keep their decimals. */
@@ -403,15 +435,25 @@ function renderOpportunityCard(opp, companyLookup) {
       </div>`;
   }
 
+  // Owner's photo and short name ("Jane S."); tagged teammates as "+N", everyone in the tooltip
   const team = getOpportunityTeam(opp);
   let teamHtml = '';
   if (team.length > 0) {
-    const overflow = team.length - 3;
+    const lead = team[0];
+    const others = team.slice(1);
+    const isOwner = Boolean(opp.profiles) && lead.user_id === opp.user_id;
+    const [first, ...rest] = String(lead.name || '').trim().split(/\s+/);
+    const shortName = rest.length ? `${first} ${rest[rest.length - 1][0]}.` : (first || 'Teammate');
+    const tooltip = [
+      `${isOwner ? 'Owner' : 'Teammate'}: ${lead.name}`,
+      others.length ? `With ${others.map(m => m.name).join(', ')}` : '',
+    ].filter(Boolean).join(' · ');
     teamHtml = `
-      <div class="opp-assignees-stack">
-        ${team.slice(0, 3).map((m, i) => `<div class="opp-assignee-bubble" title="${escapeHtml(m.name)}" style="background:${getAssigneeColor(m.user_id)};z-index:${10 - i}">${renderAvatarContent(m.name, m.avatar_url)}</div>`).join('')}
-        ${overflow > 0 ? `<div class="opp-assignee-bubble opp-assignee-overflow" title="${overflow} more">+${overflow}</div>` : ''}
-      </div>`;
+      <span class="opp-owner" title="${escapeHtml(tooltip)}">
+        <span class="opp-assignee-bubble opp-owner-avatar" style="background:${getAssigneeColor(lead.user_id)}">${renderAvatarContent(lead.name, lead.avatar_url)}</span>
+        <span class="opp-owner-name">${escapeHtml(shortName)}</span>
+        ${others.length ? `<span class="opp-owner-more">+${others.length}</span>` : ''}
+      </span>`;
   }
 
   return `
@@ -438,7 +480,7 @@ function renderOpportunityCard(opp, companyLookup) {
       </div>
 
       <div class="opp-value-row">
-        <span class="opp-value">${formatCurrency(dealValue(opp))}</span>
+        <span class="opp-value${hasDealValue(opp) ? '' : ' is-empty'}"${hasDealValue(opp) ? '' : ' title="No deal value yet"'}>${formatDealValue(opp)}</span>
         <span class="opp-prob-label" title="Win chance"${isClosed ? ' hidden' : ''}>${probability}%</span>
         ${teamHtml}
       </div>
@@ -556,6 +598,28 @@ async function renderOpportunityPipelineView({ preserveView = false } = {}) {
   opportunities.forEach(opp => {
     opp.assignees = assigneesByOppId[opp.id] || [];
   });
+
+  // A deal's next step is its earliest open task. Deals with no tasks the viewer
+  // can see keep the next step stored on the deal.
+  if (opportunities.length > 0) {
+    const { data: taskRows, error: taskError } = await supabaseClient
+      .from('tasks')
+      .select('opportunity_id, title, due_date, status, created_at, updated_at')
+      .in('opportunity_id', opportunities.map(o => o.id));
+    if (taskError) {
+      console.warn('Deal tasks:', taskError.message);
+    } else if (taskRows?.length) {
+      const tasksByOppId = new Map();
+      taskRows.forEach(t => {
+        if (!tasksByOppId.has(t.opportunity_id)) tasksByOppId.set(t.opportunity_id, []);
+        tasksByOppId.get(t.opportunity_id).push(t);
+      });
+      opportunities.forEach(opp => {
+        const tasks = tasksByOppId.get(opp.id);
+        if (tasks) Object.assign(opp, nextStepFieldsFromTasks(tasks));
+      });
+    }
+  }
 
   // ── Filter to the active pipeline and place each deal in a column ────────
   const pipelineStages = getPipelineStages(activePipeline);
@@ -922,12 +986,15 @@ function initPipelineDragAndDrop() {
 
         if (newStage === oldStage) return;
 
-        // Closing a deal settles its win chance
+        // The win chance moves with the stage (Won/Lost always settle it),
+        // unless someone set it by hand
         const outcome = getStageOutcome(newStage);
+        const stages = getPipelineStages(getCachedActivePipeline());
         const now = new Date().toISOString();
         const updates = { stage: newStage, updated_at: now };
-        if (outcome === 'won') updates.probability = 100;
-        if (outcome === 'lost') updates.probability = 0;
+        if (outcome || (opportunity && probabilityFollowsStage(opportunity, oldStage, stages))) {
+          updates.probability = getStageProbability(newStage, stages);
+        }
 
         updatePipelineStageCounts();
 
@@ -1214,8 +1281,6 @@ async function openOpportunityModal(opportunity = null, options = {}) {
   document.getElementById('opportunity-company').value = '';
   document.getElementById('opportunity-subsector').value = '';
   document.getElementById('opportunity-value').value = '';
-  document.getElementById('opportunity-probability').value = 50;
-  document.getElementById('probability-display').textContent = '50';
 
   // Rebuild stage dropdown for this pipeline's stages
   updateStageDropdownForPipeline(activePipeline, firstStageId);
@@ -1233,16 +1298,19 @@ async function openOpportunityModal(opportunity = null, options = {}) {
   }
 
   // Clear competitors
-  document.getElementById('competitors-container').innerHTML = '<input type="text" class="competitors-input" id="competitors-input" placeholder="Add competitor...">';
+  document.getElementById('competitors-container').innerHTML = '<input type="text" class="opp-token-input" id="competitors-input" placeholder="Add a competitor" autocomplete="off">';
 
   // Reset mentioned people
   state.mentionedPeople = opportunity && opportunity.mentioned_people ? [...opportunity.mentioned_people] : [];
 
   // Fetch fresh assignees from DB (or empty for new opportunity)
   // Always fetches from DB to avoid stale/missing data on edit.
-  state.opportunityAssignees = opportunity
-    ? await fetchOpportunityAssignees(opportunity.id)
-    : [];
+  // The next step edits the deal's earliest open task, if it has one.
+  const [assignees, dealTasks] = opportunity
+    ? await Promise.all([fetchOpportunityAssignees(opportunity.id), fetchDealTasks(opportunity.id)])
+    : [[], []];
+  state.opportunityAssignees = assignees;
+  state.opportunityFormNextTask = getNextOpenTask(dealTasks || []);
 
   // Reset assignees picker UI
   const chipsEl = document.getElementById('opp-assignees-chips');
@@ -1251,7 +1319,8 @@ async function openOpportunityModal(opportunity = null, options = {}) {
     // When editing: show the owner as a non-removable chip first so the full
     // team is always visible. Owner is NOT stored in state.opportunityAssignees
     // (they're tracked via opportunity.user_id), so saving never overwrites them.
-    if (opportunity && opportunity.profiles && opportunity.user_id) {
+    // Managers see the owner in the Owner dropdown instead.
+    if (!state.isManager && opportunity && opportunity.profiles && opportunity.user_id) {
       _prependOwnerChip(opportunity.user_id, opportunity.profiles);
     }
     // Append tagged assignees (owner excluded from this list)
@@ -1266,7 +1335,8 @@ async function openOpportunityModal(opportunity = null, options = {}) {
 
   // Set modal title
   if (opportunity) {
-    modalTitle.innerHTML = `Edit Opportunity`;
+    modalTitle.textContent = 'Edit deal';
+    saveBtn.textContent = 'Save changes';
 
     // Fill form with opportunity data
     document.getElementById('opportunity-name').value = opportunity.name || '';
@@ -1274,38 +1344,62 @@ async function openOpportunityModal(opportunity = null, options = {}) {
     const matchedCompany = findCompanyForOpportunityFast(opportunity, buildCompanyLookup(window.allCompaniesData));
     window.selectedOpportunityCompanyData = matchedCompany || null;
     document.getElementById('opportunity-subsector').value = opportunity.subsector || matchedCompany?.subsector || '';
-    document.getElementById('opportunity-value').value = opportunity.value || '';
-    // 0% is a real value (lost deals), so only default when nothing is stored
-    const probability = opportunity.probability == null || opportunity.probability === '' ? 50 : dealProbability(opportunity);
-    document.getElementById('opportunity-probability').value = probability;
-    document.getElementById('probability-display').textContent = String(probability);
+    document.getElementById('opportunity-value').value = hasDealValue(opportunity) ? opportunity.value : '';
 
-    updateStageDropdownForPipeline(activePipeline, resolveStageId(opportunity.stage, pipelineStages, activePipeline.is_default));
+    const stageId = resolveStageId(opportunity.stage, pipelineStages, activePipeline.is_default);
+    updateStageDropdownForPipeline(activePipeline, stageId);
+    // 0% is a real value (lost deals), so only fall back to the stage when nothing is stored
+    setProbabilityInput(opportunity.probability == null || opportunity.probability === ''
+      ? getStageProbability(stageId, pipelineStages)
+      : dealProbability(opportunity));
 
-    document.getElementById('opportunity-next-step').value = opportunity.next_step || '';
-    document.getElementById('opportunity-next-step-date').value = opportunity.next_step_date || '';
-    document.getElementById('opportunity-notes').value = opportunity.notes || '';
+    const nextTask = state.opportunityFormNextTask;
+    document.getElementById('opportunity-next-step').value = nextTask ? nextTask.title : (opportunity.next_step || '');
+    document.getElementById('opportunity-next-step-date').value = nextTask
+      ? timestampToDay(nextTask.due_date)
+      : (opportunity.next_step_date ? String(opportunity.next_step_date).slice(0, 10) : '');
 
     parseCompetitors(opportunity.competitors).forEach(comp => addCompetitor(comp));
   } else {
-    modalTitle.innerHTML = 'New Opportunity';
+    modalTitle.textContent = 'New deal';
+    saveBtn.textContent = 'Create deal';
     window.selectedOpportunityCompanyData = null;
 
     // "+ New" in a column starts the deal in that column
-    if (options?.stageId && pipelineStages.some(s => s.id === options.stageId)) {
-      updateStageDropdownForPipeline(activePipeline, options.stageId);
-      const outcomeProbability = { won: 100, lost: 0 }[getStageOutcome(options.stageId)];
-      if (outcomeProbability !== undefined) {
-        document.getElementById('opportunity-probability').value = outcomeProbability;
-        document.getElementById('probability-display').textContent = String(outcomeProbability);
-      }
-    }
+    const stageId = options?.stageId && pipelineStages.some(s => s.id === options.stageId)
+      ? options.stageId
+      : firstStageId;
+    updateStageDropdownForPipeline(activePipeline, stageId);
+    setProbabilityInput(getStageProbability(stageId, pipelineStages));
   }
+
+  // Managers can hand a deal to someone else; everyone else owns what they create
+  const ownerField = document.getElementById('opportunity-owner-field');
+  if (ownerField) ownerField.style.display = state.isManager ? '' : 'none';
+  if (state.isManager) {
+    const members = await loadOrgTeamMembers();
+    const ownerId = opportunity ? (opportunity.user_id || '') : state.currentUser.id;
+    const ownerOptions = members.map(m => ({ value: m.id, label: fullName(m) || m.email || 'Team member' }));
+    // Keep an owner who has left selectable, so saving doesn't quietly reassign the deal
+    if (ownerId && !members.some(m => m.id === ownerId)) {
+      ownerOptions.unshift({ value: ownerId, label: fullName(opportunity?.profiles) || 'Former team member' });
+    }
+    if (!ownerId) ownerOptions.unshift({ value: '', label: 'No owner' });
+    window.updateCrmDropdownOptions?.('opportunity-owner', ownerOptions, false);
+    window.setCrmDropdownValue?.('opportunity-owner', ownerId);
+  }
+
+  document.getElementById('opportunity-next-step-hint').textContent = state.opportunityFormNextTask
+    ? 'Changes update its task in Tasks'
+    : 'Added to Tasks for the deal owner';
+  // Competitors and teammates sit under "More" unless the deal already has some
+  const more = document.getElementById('opportunity-more');
+  if (more) more.open = Boolean(opportunity && (parseCompetitors(opportunity.competitors).length || state.opportunityAssignees.length));
 
   document.querySelectorAll('#opportunity-modal input, #opportunity-modal select, #opportunity-modal textarea').forEach(el => {
     el.disabled = false;
   });
-  saveBtn.style.display = 'block';
+  saveBtn.style.display = '';
 
   // Show modal
   modal.style.display = 'flex';
@@ -1315,280 +1409,866 @@ async function openOpportunityModal(opportunity = null, options = {}) {
   initOpportunityModalListeners(opportunity);
 }
 
-function openOpportunityViewModal(opportunity) {
-  const modal = document.getElementById('opportunity-view-modal');
-  if (!modal) return;
+// ── Deal tasks and notes ──────────────────────────────────────────────────────
+// A deal's next step is its earliest open task, and notes written on a deal are
+// CRM notes, so both also show on the Tasks and Notes pages. The deal's
+// next_step / next_step_date columns mirror that task for the board, filters
+// and reports.
 
-  const companyObj = findCompanyForOpportunity(opportunity);
-  const isCrmCompany = Boolean(companyObj && companyObj.id);
+const DEAL_TASK_SELECT = '*, assigned_to_profile:profiles!tasks_assigned_to_fkey(first_name, last_name, email), created_by_profile:profiles!tasks_created_by_fkey(first_name, last_name, email)';
 
-  const viewPipeline = getCachedActivePipeline();
-  const pipelineStages = getPipelineStages(viewPipeline);
-  const stageId = opportunity.mappedStage || resolveStageId(opportunity.stage, pipelineStages, viewPipeline.is_default);
-  const stageInfo = pipelineStages.find(s => s.id === stageId) || pipelineStages[0];
-  const isClosed = Boolean(getStageOutcome(stageId));
-  const companyName = opportunity.company_name || companyObj?.name || '';
+const pad2 = (n) => String(n).padStart(2, '0');
 
-  // Header: logo, deal name, stage, company · subsector
-  document.getElementById('opportunity-view-title').textContent = opportunity.name || 'Untitled deal';
+/** A date picked for a task ("2026-10-14") as local midnight: due that day, no particular time */
+function dueDateToTimestamp(day) {
+  return day ? new Date(`${day}T00:00:00`).toISOString() : null;
+}
 
-  const stageEl = document.getElementById('opportunity-view-stage-badge');
-  if (stageEl) {
-    stageEl.textContent = plainStageTitle(stageInfo.title);
-    stageEl.style.setProperty('--stage-color', stageInfo.color || '#94a3b8');
+/** A task's due timestamp as the local day ("2026-10-14"), or '' */
+function timestampToDay(value) {
+  const date = value ? new Date(value) : null;
+  if (!date || Number.isNaN(date.getTime())) return '';
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+}
+
+/** Open tasks soonest first (undated after dated), then finished ones */
+function sortDealTasks(tasks) {
+  const dueTime = (t) => (t.due_date ? new Date(t.due_date).getTime() : Infinity);
+  return [...tasks].sort((a, b) => {
+    const doneA = a.status === 'completed';
+    const doneB = b.status === 'completed';
+    if (doneA !== doneB) return doneA ? 1 : -1;
+    if (doneA) return new Date(b.updated_at || 0) - new Date(a.updated_at || 0);
+    return dueTime(a) - dueTime(b) || new Date(a.created_at || 0) - new Date(b.created_at || 0);
+  });
+}
+
+function getNextOpenTask(tasks) {
+  return sortDealTasks(tasks || []).find(t => t.status !== 'completed') || null;
+}
+
+function nextStepFieldsFromTasks(tasks) {
+  const next = getNextOpenTask(tasks);
+  return { next_step: next?.title || null, next_step_date: next ? (timestampToDay(next.due_date) || null) : null };
+}
+
+/** The deal's tasks, or null when they can't be loaded */
+async function fetchDealTasks(opportunityId) {
+  const { data, error } = await supabaseClient.from('tasks').select(DEAL_TASK_SELECT).eq('opportunity_id', opportunityId);
+  if (error) {
+    console.warn('Deal tasks:', error.message);
+    return null;
   }
+  return data || [];
+}
 
-  const avatarEl = document.getElementById('opportunity-view-avatar');
-  if (avatarEl) {
-    const logoUrl = getOpportunityLogoUrl(companyObj);
-    avatarEl.removeAttribute('style');
-    avatarEl.innerHTML = `
-      <span class="opp-avatar-initials">${escapeHtml(getInitials(companyName || opportunity.name || '?'))}</span>
-      ${logoUrl ? `<img src="${escapeHtml(logoUrl)}" alt="" onload="this.previousElementSibling.style.visibility='hidden'" onerror="this.remove()" />` : ''}`;
+/** The deal's notes, newest first, or null when they can't be loaded */
+async function fetchDealNotes(opportunityId) {
+  const { data, error } = await supabaseClient
+    .from('notes')
+    .select('*')
+    .eq('opportunity_id', opportunityId)
+    .order('created_at', { ascending: false });
+  if (error) {
+    console.warn('Deal notes:', error.message);
+    return null;
   }
+  return data || [];
+}
 
-  const companyLinkEl = document.getElementById('opportunity-view-company-link');
-  document.getElementById('opportunity-view-company-name').textContent = companyName || 'No company';
-  if (companyLinkEl) {
-    // Only companies in the CRM have a page to open
-    companyLinkEl.classList.toggle('is-link', isCrmCompany);
-    companyLinkEl.title = isCrmCompany ? `Open ${companyName}` : companyName;
-    companyLinkEl.onclick = (e) => {
-      e.preventDefault();
-      if (!isCrmCompany) return;
-      closeModal('opportunity-view-modal');
-      setTimeout(() => openCompanyViewModal(companyObj.id), 120);
-    };
+/** A task on the deal, assigned to the deal owner */
+async function createDealTask(deal, { title, day }) {
+  const { data, error } = await supabaseClient
+    .from('tasks')
+    .insert([{
+      title,
+      description: null,
+      assigned_to: deal.user_id || state.currentUser.id,
+      created_by: state.currentUser.id,
+      due_date: dueDateToTimestamp(day),
+      priority: 'medium',
+      status: 'pending',
+      organization_id: state.currentOrganization?.id,
+      opportunity_id: deal.id,
+    }])
+    .select(DEAL_TASK_SELECT)
+    .single();
+  if (error) throw error;
+  document.dispatchEvent(new CustomEvent('safitrack:notification-refresh'));
+  return data;
+}
+
+/** Notes are rich text (HTML) on the Notes page; show them here as plain text with line breaks */
+function noteContentToText(content) {
+  const raw = String(content || '');
+  if (!/[<&]/.test(raw)) return raw;
+  const withBreaks = raw
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/(div|p|li|h[1-6])>/gi, '\n')
+    .replace(/<(ul|ol)[^>]*>/gi, '\n')
+    .replace(/<li[^>]*>/gi, '• ');
+  // DOMParser doesn't run scripts or load images, so it's a safe way to decode the text
+  const text = new DOMParser().parseFromString(withBreaks, 'text/html').body.textContent || '';
+  return text.replace(/\n{3,}/g, '\n\n').trim();
+}
+
+/** A CRM note on the deal; it shows on the author's Notes page too */
+async function createDealNote(deal, text) {
+  const { data, error } = await supabaseClient
+    .from('notes')
+    .insert([{
+      title: `Deal: ${deal.name || 'Untitled deal'}`,
+      // The Notes page edits notes as HTML, so keep line breaks as <br>
+      content: escapeHtml(text).replace(/\n/g, '<br>'),
+      user_id: state.currentUser.id,
+      organization_id: state.currentOrganization?.id,
+      opportunity_id: deal.id,
+    }])
+    .select('*')
+    .single();
+  if (error) throw error;
+  return data;
+}
+
+/** Re-derive a deal's next step from its tasks after one changed elsewhere
+ *  (the Tasks page, the task panel). Quietly skips deals the viewer can't edit. */
+async function refreshDealNextStep(opportunityId) {
+  if (!opportunityId) return;
+  const [{ data: tasks, error }, { data: deal }] = await Promise.all([
+    supabaseClient.from('tasks').select('title, due_date, status, created_at, updated_at').eq('opportunity_id', opportunityId),
+    supabaseClient.from('opportunities').select('id, next_step, next_step_date').eq('id', opportunityId).maybeSingle(),
+  ]);
+  if (error || !deal) return;
+  const fields = nextStepFieldsFromTasks(tasks || []);
+  const currentDay = deal.next_step_date ? String(deal.next_step_date).slice(0, 10) : null;
+  if ((deal.next_step || null) === fields.next_step && currentDay === fields.next_step_date) return;
+  await supabaseClient.from('opportunities').update(fields).eq('id', opportunityId);
+  refreshPipelineIfVisible();
+}
+
+/** Open a deal's panel from just its id (e.g. from one of its tasks) */
+async function openOpportunityById(opportunityId) {
+  const { data: opportunity, error } = await supabaseClient
+    .from('opportunities')
+    .select(OPPORTUNITY_SELECT)
+    .eq('id', opportunityId)
+    .maybeSingle();
+  if (error || !opportunity) {
+    showToast("This deal couldn't be opened. It may have been deleted, or you may not have access.", 'error');
+    return;
   }
+  // The panel reads teammates as { user_id, profiles }
+  opportunity.assignees = (await fetchOpportunityAssignees(opportunity.id)).map(a => ({
+    user_id: a.user_id,
+    profiles: { first_name: a.first_name, last_name: a.last_name, role: a.role, avatar_url: a.avatar_url },
+  }));
+  openOpportunityViewModal(opportunity);
+}
 
-  const subsector = (opportunity.subsector || companyObj?.subsector || '').trim();
-  const metaChipsEl = document.getElementById('opportunity-view-meta-chips');
-  if (metaChipsEl) {
-    metaChipsEl.innerHTML = subsector ? `<span class="record-hero-cat-chip">${escapeHtml(subsector)}</span>` : '';
-  }
+// ── Deal detail ───────────────────────────────────────────────────────────────
+// One panel: header, a property list whose fields edit in place, then notes,
+// activity and tasks. The full form (pencil) stays for company, competitors
+// and teammates.
 
-  // Stats: value, win chance and weighted value (open deals only), days in stage
-  const value = dealValue(opportunity);
-  const probability = dealProbability(opportunity);
-  document.getElementById('opportunity-view-value').textContent = formatCurrency(value);
-  document.getElementById('opportunity-view-probability').textContent = `${probability}%`;
-  document.getElementById('opportunity-view-weighted').textContent = formatMoney(value * probability / 100);
-  modal.querySelectorAll('.opp-view-open-stat').forEach(el => { el.hidden = isClosed; });
+// The deal on screen, the open tab, and listeners removed when another deal opens
+let detail = null;
 
-  const stageAgeEl = document.getElementById('opportunity-view-stage-age');
-  if (stageAgeEl) {
-    const days = daysSince(getStageEnteredAt(opportunity));
-    stageAgeEl.textContent = days === 0 ? 'Today' : `${days} day${days === 1 ? '' : 's'}`;
-    stageAgeEl.classList.toggle('is-stale', !isClosed && days >= STALE_STAGE_DAYS);
-  }
+const detailIcon = (paths) => `<svg class="od-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
 
-  // Next step
-  const nextStepBox = document.getElementById('opportunity-view-next-step-box');
-  const dueStatus = getDueStatus(opportunity.next_step_date);
-  if (nextStepBox) {
-    nextStepBox.classList.toggle('is-overdue', dueStatus === 'overdue');
-    nextStepBox.classList.toggle('is-due-today', dueStatus === 'today');
-    nextStepBox.classList.toggle('is-empty', !opportunity.next_step);
-  }
-  document.getElementById('opportunity-view-next-step').textContent = opportunity.next_step || 'No next step yet';
-  document.getElementById('opportunity-view-next-step-date').textContent = formatDueDate(opportunity.next_step_date) || 'No due date';
+const DETAIL_ICONS = {
+  stage: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/>',
+  value: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>',
+  probability: '<path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+  owner: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  nextStep: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="m9 12 2 2 4-4"/>',
+  contact: '<path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  competitors: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  team: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  company: '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4M10 10h4M10 14h4M10 18h4"/>',
+  edit: '<path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/>',
+  trash: '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  close: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+};
 
-  // Notes & Mentions
-  const notesEl = document.getElementById('opportunity-view-notes');
-  if (notesEl) {
-    let notesHtml = escapeHtml(opportunity.notes || '');
-    if (opportunity.mentioned_people && Array.isArray(opportunity.mentioned_people)) {
-      opportunity.mentioned_people.forEach(person => {
-        if (!person || !person.name) return;
-        // The notes are already escaped, so match the escaped form of the name
-        const safeName = escapeHtml(person.name.trim());
-        const pattern = new RegExp(`@${escapeRegExp(safeName)}\\b`, 'gi');
-        notesHtml = notesHtml.replace(pattern, `<span class="mentioned-person" data-person-id="${escapeHtml(person.id)}">@${safeName}</span>`);
-      });
-    } else {
-      notesHtml = notesHtml.replace(/@([A-Za-z0-9_\-]+)\b/g, '<span class="mentioned-person" data-person-name="$1">@$1</span>');
-    }
-    notesEl.innerHTML = notesHtml || '<div class="text-muted" style="font-size:0.85rem; opacity:0.6;">No internal notes added to this deal.</div>';
+/** Team members for the owner picker, if already loaded for this org */
+function getCachedTeamMembers() {
+  return window._orgTeamMembersOrgId === state.currentOrganization?.id ? window._orgTeamMembers : null;
+}
 
-    notesEl.querySelectorAll('.mentioned-person').forEach(el => {
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const pid = el.dataset.personId;
-        const pname = el.dataset.personName || el.textContent.replace(/^@/, '').trim();
-        closeModal('opportunity-view-modal');
-        if (pid) return setTimeout(() => openPersonViewModal(pid), 120);
-        const p = (window.allPeopleData || state.allPeople || []).find(p => String(p.name).trim().toLowerCase() === String(pname).toLowerCase());
-        if (p) setTimeout(() => openPersonViewModal(p), 120);
-      });
+function renderPersonChip(userId, name, avatarUrl) {
+  return `<span class="od-person"><span class="od-person-avatar" style="background:${getAssigneeColor(userId)}">${renderAvatarContent(name, avatarUrl)}</span>${escapeHtml(name)}</span>`;
+}
+
+/** Notes with @mentions turned into links to the person */
+function renderNotesHtml(opportunity) {
+  let html = escapeHtml(opportunity.notes || '');
+  if (Array.isArray(opportunity.mentioned_people)) {
+    opportunity.mentioned_people.forEach(person => {
+      if (!person?.name) return;
+      // The notes are already escaped, so match the escaped form of the name
+      const safeName = escapeHtml(person.name.trim());
+      const pattern = new RegExp(`@${escapeRegExp(safeName)}\\b`, 'gi');
+      html = html.replace(pattern, `<button type="button" class="mentioned-person" data-person-id="${escapeHtml(person.id)}">@${safeName}</button>`);
     });
   }
+  return html;
+}
 
-  // Activity Tab (Call logs & Visits)
-  const activityPanel = document.getElementById('opp-panel-activity');
-  const activityCountEl = document.getElementById('opp-tab-activity-count');
-  const relatedCalls = Array.isArray(window.allCallLogsData)
-    ? window.allCallLogsData.filter(c => 
-        (isCrmCompany && String(c.company_id) === String(companyObj.id)) ||
-        (!isCrmCompany && opportunity.company_name && c.company_name && c.company_name.trim().toLowerCase() === opportunity.company_name.trim().toLowerCase())
-      )
-    : [];
+function openOpportunityViewModal(opportunity) {
+  const modal = document.getElementById('opportunity-view-modal');
+  const panel = document.getElementById('opportunity-detail');
+  if (!modal || !panel || !opportunity) return;
 
-  if (activityCountEl) activityCountEl.textContent = String(relatedCalls.length);
-  if (activityPanel) {
-    if (relatedCalls.length === 0) {
-      activityPanel.innerHTML = '<div class="text-muted" style="text-align:center; padding:32px 16px; font-size:0.88rem;">No call logs or recorded activity for this company yet.</div>';
-    } else {
-      activityPanel.innerHTML = relatedCalls.map(c => `
-        <div class="record-opp-card" style="cursor:pointer;" onclick="closeModal('opportunity-view-modal'); setTimeout(() => openCallLogViewModal(${JSON.stringify(c).replace(/"/g, '&quot;')}), 120)">
-          <div class="record-opp-card-stage" style="background:${c.direction === 'Inbound' ? '#10b981' : '#3b82f6'};"></div>
-          <div class="record-opp-card-body">
-            <div class="record-opp-card-name">${escapeHtml(c.contact_name || c.people?.name || 'Call Log')} · <span style="font-weight:500; font-size:0.8rem; color:var(--text-muted);">${formatDateWithTime(c.call_at)}</span></div>
-            <div class="record-opp-card-meta">
-              <span class="stage-pill">${escapeHtml(c.outcome || 'Logged')}</span>
-              <span>${c.duration_seconds ? Math.round(c.duration_seconds / 60) + ' min' : '—'}</span>
-              <span>${escapeHtml(c.profiles ? c.profiles.first_name + ' ' + c.profiles.last_name : '')}</span>
-            </div>
-            ${c.notes ? `<div style="font-size:0.82rem; color:var(--text-secondary); margin-top:4px;">${escapeHtml(c.notes.slice(0, 100))}${c.notes.length > 100 ? '…' : ''}</div>` : ''}
-          </div>
-          <button class="btn btn-sm btn-ghost" style="flex-shrink:0;">View</button>
-        </div>
-      `).join('');
+  detail?.listeners.abort();
+  // tasks / notes: undefined while loading, null if they couldn't be loaded
+  detail = { opportunity, tab: 'notes', calls: [], tasks: undefined, notes: undefined, drafts: {}, listeners: new AbortController() };
+  const { signal } = detail.listeners;
+
+  panel.addEventListener('click', onDetailClick, { signal });
+  panel.addEventListener('submit', onDetailSubmit, { signal });
+  panel.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && e.target.matches('[data-composer="note"] textarea')) {
+      e.preventDefault();
+      e.target.form.requestSubmit();
+      return;
     }
-  }
-
-  // Tasks Tab
-  const tasksPanel = document.getElementById('opp-panel-tasks');
-  const tasksCountEl = document.getElementById('opp-tab-tasks-count');
-  const relatedTasks = Array.isArray(window.allTasksData)
-    ? window.allTasksData.filter(t => 
-        (t.opportunity_id && String(t.opportunity_id) === String(opportunity.id)) ||
-        (isCrmCompany && t.company_id && String(t.company_id) === String(companyObj.id))
-      )
-    : [];
-
-  if (tasksCountEl) tasksCountEl.textContent = String(relatedTasks.length);
-  if (tasksPanel) {
-    if (relatedTasks.length === 0) {
-      tasksPanel.innerHTML = '<div class="text-muted" style="text-align:center; padding:32px 16px; font-size:0.88rem;">No tasks scheduled for this opportunity.</div>';
-    } else {
-      tasksPanel.innerHTML = relatedTasks.map(t => `
-        <div class="record-opp-card" style="cursor:pointer;" onclick="closeModal('opportunity-view-modal'); setTimeout(() => { const sReps = window.salesRepsData || []; showTaskDetail(${JSON.stringify(t).replace(/"/g, '&quot;')}, sReps); }, 120)">
-          <div class="record-opp-card-stage" style="background:${t.status === 'completed' ? '#10b981' : t.priority === 'high' ? '#ef4444' : '#f59e0b'};"></div>
-          <div class="record-opp-card-body">
-            <div class="record-opp-card-name" style="${t.status === 'completed' ? 'text-decoration:line-through; opacity:0.7;' : ''}">${escapeHtml(t.title)}</div>
-            <div class="record-opp-card-meta">
-              <span class="stage-pill">${escapeHtml(t.status || 'pending')}</span>
-              ${t.due_date ? `<span>Due: ${formatDate(t.due_date)}</span>` : '<span>No due date</span>'}
-              <span style="text-transform:capitalize;">${escapeHtml(t.priority || 'medium')} priority</span>
-            </div>
-          </div>
-          <button class="btn btn-sm btn-ghost" style="flex-shrink:0;">View</button>
-        </div>
-      `).join('');
+    // The earlier-notes block is a div, so give it button-like keyboard access
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.od-notes[data-edit]')) {
+      e.preventDefault();
+      startDetailEdit('notes', e.target);
     }
-  }
-
-  // Wire Tab switching
-  const tabs = modal.querySelectorAll('.opp-view-tab');
-  tabs.forEach(tab => {
-    tab.onclick = () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      const tabKey = tab.dataset.tab;
-      const pOverview = document.getElementById('opp-panel-overview');
-      const pActivity = document.getElementById('opp-panel-activity');
-      const pTasks = document.getElementById('opp-panel-tasks');
-      if (pOverview) pOverview.style.display = tabKey === 'overview' ? 'block' : 'none';
-      if (pActivity) pActivity.style.display = tabKey === 'activity' ? 'block' : 'none';
-      if (pTasks) pTasks.style.display = tabKey === 'tasks' ? 'block' : 'none';
-    };
-  });
-  // Reset active tab to overview
-  const defaultTab = modal.querySelector('.opp-view-tab[data-tab="overview"]');
-  if (defaultTab) defaultTab.click();
-
-  // Sidebar: primary contact
-  const sidebarContactEl = document.getElementById('opportunity-sidebar-contact');
-  if (sidebarContactEl) {
-    const primaryPerson = (opportunity.mentioned_people && opportunity.mentioned_people[0]) ||
-      (isCrmCompany && Array.isArray(window.allPeopleData) && window.allPeopleData.find(p => String(p.company_id) === String(companyObj.id)));
-
-    if (primaryPerson) {
-      sidebarContactEl.innerHTML = `<a href="#" class="opp-view-link">${escapeHtml(primaryPerson.name)}</a>`;
-      sidebarContactEl.querySelector('a').addEventListener('click', (e) => {
-        e.preventDefault();
-        closeModal('opportunity-view-modal');
-        setTimeout(() => openPersonViewModal(primaryPerson.id || primaryPerson), 120);
-      });
-    } else {
-      sidebarContactEl.innerHTML = '<span class="opp-view-empty">None</span>';
+  }, { signal });
+  // Stage and owner use the shared dropdown, which reports picks as a change on its hidden input
+  panel.addEventListener('change', (e) => {
+    if (e.target.id === 'od-stage') saveDetailStage(e.target.value);
+    if (e.target.id === 'od-owner') saveDetailOwner(e.target.value);
+  }, { signal });
+  // Escape closes the deal, unless it is closing a dropdown, an editor or a dialog on top
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || modal.style.display === 'none') return;
+    if (document.querySelector('.crm-dd.is-open')) return;
+    // An open date picker closes first
+    const dayPicker = document.querySelector('#opportunity-detail [data-draft="task-day"]')?._customCalendar;
+    if (dayPicker?.isOpen) {
+      dayPicker.close();
+      return;
     }
-  }
-
-  // Sidebar: competitors
-  const competitorsEl = document.getElementById('opportunity-view-competitors');
-  if (competitorsEl) {
-    const competitors = parseCompetitors(opportunity.competitors);
-    competitorsEl.innerHTML = competitors.length > 0
-      ? `<div class="ov-competitors-list">${competitors.map(c => `<span class="ov-comp-tag">${escapeHtml(c)}</span>`).join('')}</div>`
-      : '<span class="opp-view-empty">None</span>';
-  }
-
-  // Sidebar: record info
-  const createdDays = daysSince(opportunity.created_at);
-  document.getElementById('opportunity-view-created').textContent =
-    `${formatDate(opportunity.created_at)}${createdDays > 6 ? ` · ${createdDays} days ago` : ''}`;
-  document.getElementById('opportunity-view-updated').textContent = formatDate(opportunity.updated_at || opportunity.created_at);
-
-  // Sidebar: owner first, then tagged teammates
-  const assigneesEl = document.getElementById('opportunity-view-assignees');
-  if (assigneesEl) {
-    const roleLabel = (role) => (role === 'manager' ? 'Manager' : role === 'technician' ? 'Technician' : 'Sales Rep');
-    const members = [];
-    if (opportunity.profiles) {
-      members.push({ user_id: opportunity.user_id, profile: opportunity.profiles, isOwner: true });
+    if (document.activeElement?.classList.contains('od-input')) return;
+    // In an add box, Escape just leaves the box so a half-typed note isn't lost
+    if (document.activeElement?.closest?.('[data-composer]')) {
+      document.activeElement.blur();
+      return;
     }
-    (opportunity.assignees || [])
-      .filter(a => a.user_id !== opportunity.user_id)
-      .forEach(a => members.push({ user_id: a.user_id, profile: a.profiles, isOwner: false }));
+    if (document.getElementById('confirm-dialog')?.style.display === 'flex') return;
+    closeModal('opportunity-view-modal');
+  }, { capture: true, signal });
 
-    assigneesEl.innerHTML = members.map(({ user_id, profile, isOwner }) => {
-      const name = fullName(profile) || 'Team member';
-      const role = profile?.role || 'sales_rep';
-      return `
-        <div class="ov-assignee-row">
-          <div class="ov-assignee-avatar" style="background:${getAssigneeColor(user_id)}">${renderAvatarContent(name, profile?.avatar_url)}</div>
-          <div class="ov-assignee-info">
-            <div class="ov-assignee-name">${escapeHtml(name)}</div>
-            <span class="ov-assignee-role-badge role-${escapeHtml(role)}">${isOwner ? 'Owner · ' : ''}${escapeHtml(roleLabel(role))}</span>
-          </div>
-        </div>`;
-    }).join('') || '<span class="ov-assignees-empty">No team members.</span>';
-  }
-
-  // Edit Action
-  const editBtn = document.getElementById('opportunity-view-edit-btn');
-  if (editBtn) {
-    editBtn.style.display = canEditOpportunity(opportunity) ? 'flex' : 'none';
-    editBtn.onclick = () => {
-      closeModal('opportunity-view-modal');
-      openOpportunityModal(opportunity);
-    };
-  }
-
-  // Delete Action
-  const deleteBtn = document.getElementById('opportunity-view-delete-btn');
-  if (deleteBtn) {
-    deleteBtn.style.display = canDeleteOpportunity(opportunity) ? 'flex' : 'none';
-    deleteBtn.onclick = async () => {
-      if (await deleteOpportunity(opportunity)) closeModal('opportunity-view-modal');
-    };
-  }
-
-  // Show modal
+  renderOpportunityDetail();
   modal.style.display = 'flex';
   document.body.classList.add('modal-active');
-  if (window.lucide) lucide.createIcons();
+  panel.querySelector('.od-body')?.scrollTo(0, 0);
+
+  // Tasks, notes and the team (owner picker, note authors) load after the panel shows
+  const current = detail;
+  Promise.all([
+    fetchDealTasks(opportunity.id),
+    fetchDealNotes(opportunity.id),
+    getCachedTeamMembers() || loadOrgTeamMembers(),
+  ]).then(([tasks, notes]) => {
+    if (detail !== current) return;
+    detail.tasks = tasks;
+    detail.notes = notes;
+    renderOpportunityDetail();
+  });
+}
+
+function renderOpportunityDetail() {
+  const panel = document.getElementById('opportunity-detail');
+  if (!panel || !detail) return;
+  const opp = detail.opportunity;
+
+  const pipeline = getCachedActivePipeline();
+  const stages = getPipelineStages(pipeline);
+  const stageId = opp.mappedStage || resolveStageId(opp.stage, stages, pipeline.is_default);
+  const stage = stages.find(s => s.id === stageId) || stages[0];
+  const stageTitle = plainStageTitle(stage?.title);
+  const isClosed = Boolean(getStageOutcome(stageId));
+  const canEdit = canEditOpportunity(opp);
+
+  const company = findCompanyForOpportunity(opp);
+  const isCrmCompany = Boolean(company?.id);
+  const companyName = opp.company_name || company?.name || '';
+  const subsector = (opp.subsector || company?.subsector || '').trim();
+  const logoUrl = getOpportunityLogoUrl(company);
+
+  // A value the user can click to edit, or plain text for people who can't edit
+  const editable = (field, html, emptyText) => {
+    if (!canEdit) return `<span class="od-readonly${html ? '' : ' is-empty'}">${html || '—'}</span>`;
+    return `<button type="button" class="od-editable${html ? '' : ' is-empty'}" data-edit="${field}">${html || escapeHtml(emptyText)}</button>`;
+  };
+  const prop = (key, label, iconKey, valueHtml) => `
+    <div class="od-prop" data-prop="${key}">
+      <dt class="od-prop-label">${detailIcon(DETAIL_ICONS[iconKey])}${label}</dt>
+      <dd class="od-prop-value">${valueHtml}</dd>
+    </div>`;
+
+  // Stage, and how long the deal has sat in it
+  const stageDays = daysSince(getStageEnteredAt(opp));
+  const isStale = !isClosed && stageDays >= STALE_STAGE_DAYS;
+  const stageAge = `<span class="od-muted${isStale ? ' is-warning' : ''}"${isStale ? ' title="No stage change in a while, may be stuck"' : ''}>${stageDays === 0 ? 'since today' : `for ${stageDays} day${stageDays === 1 ? '' : 's'}`}</span>`;
+  const stageControl = canEdit
+    ? window.buildCrmDropdown({
+      id: 'od-stage',
+      options: stages.map(s => ({ value: s.id, label: plainStageTitle(s.title) })),
+      value: stageId,
+      variant: 'inline',
+    })
+    : `<span class="od-readonly">${escapeHtml(stageTitle)}</span>`;
+  const stageHtml = `<span class="od-stage" style="--stage-color:${escapeHtml(stage?.color || '#94a3b8')}">${stageControl}</span>${stageAge}`;
+
+  // Value, with the weighted amount for open deals
+  const value = dealValue(opp);
+  const probability = dealProbability(opp);
+  const weighted = !isClosed && hasDealValue(opp)
+    ? `<span class="od-muted">${escapeHtml(formatMoney(value * probability / 100))} weighted</span>`
+    : '';
+  const valueHtml = editable('value', hasDealValue(opp) ? escapeHtml(formatCurrency(value)) : '', 'Add value') + weighted;
+
+  // Win chance: set by the stage, editable on open deals
+  const stageProbability = getStageProbability(stageId, stages);
+  let probabilityHtml;
+  if (isClosed) {
+    probabilityHtml = `<span class="od-readonly">${probability}%</span><span class="od-muted">set by stage</span>`;
+  } else {
+    probabilityHtml = editable('probability', `${probability}%`, '');
+    if (canEdit && probability !== stageProbability) {
+      probabilityHtml += `<button type="button" class="od-link" data-action="reset-probability">Reset to ${stageProbability}%</button>`;
+    } else if (probability === stageProbability) {
+      probabilityHtml += `<span class="od-muted">${escapeHtml(stageTitle)} default</span>`;
+    }
+  }
+
+  // Owner: managers can reassign
+  const ownerName = fullName(opp.profiles);
+  const members = state.isManager && canEdit ? getCachedTeamMembers() : null;
+  let ownerHtml;
+  if (members) {
+    const ownerId = opp.user_id || '';
+    const options = members.map(m => ({ value: m.id, label: fullName(m) || m.email || 'Team member' }));
+    // Keep an owner who has left selectable, so the picker shows who it is
+    if (ownerId && !members.some(m => m.id === ownerId)) options.unshift({ value: ownerId, label: ownerName || 'Former team member' });
+    if (!ownerId) options.unshift({ value: '', label: 'No owner' });
+    ownerHtml = window.buildCrmDropdown({ id: 'od-owner', options, value: ownerId, placeholder: 'No owner', variant: 'inline', searchable: options.length > 8, searchPlaceholder: 'Search team…' });
+  } else {
+    ownerHtml = ownerName
+      ? renderPersonChip(opp.user_id, ownerName, opp.profiles?.avatar_url)
+      : '<span class="od-readonly is-empty">No owner</span>';
+  }
+
+  // Next step: the earliest open task on the deal
+  const dueHtml = (day) => {
+    const label = formatDueDate(day);
+    if (!label) return '';
+    const status = getDueStatus(day);
+    return `<span class="od-due${status ? ` is-${status}` : ''}">${escapeHtml(label)}${status === 'overdue' ? ' · overdue' : ''}</span>`;
+  };
+  const nextTask = Array.isArray(detail.tasks) ? getNextOpenTask(detail.tasks) : null;
+  let nextStepHtml;
+  if (nextTask) {
+    nextStepHtml = `
+      <span class="od-next-step">
+        ${canEdit ? `<button type="button" class="od-check" data-action="toggle-task" data-task-id="${escapeHtml(nextTask.id)}" title="Mark done" aria-label="Mark “${escapeHtml(nextTask.title)}” done"></button>` : ''}
+        <button type="button" class="od-plain-link" data-action="open-task-id" data-task-id="${escapeHtml(nextTask.id)}">${escapeHtml(nextTask.title)}</button>
+      </span>${dueHtml(timestampToDay(nextTask.due_date))}`;
+  } else if (opp.next_step && detail.tasks !== undefined) {
+    // Typed on the deal before next steps were tasks
+    nextStepHtml = `<span class="od-readonly">${escapeHtml(opp.next_step)}</span>${dueHtml(opp.next_step_date)}`
+      + (canEdit ? '<button type="button" class="od-link" data-action="add-next-step">Make it a task</button>' : '');
+  } else if (detail.tasks === undefined) {
+    nextStepHtml = `<span class="od-readonly is-empty">${opp.next_step ? escapeHtml(opp.next_step) : 'Loading…'}</span>`;
+  } else {
+    nextStepHtml = canEdit
+      ? '<button type="button" class="od-editable is-empty" data-action="add-next-step">Add next step</button>'
+      : '<span class="od-readonly is-empty">None</span>';
+  }
+
+  // Only someone actually tagged on the deal, never a guess from whoever works at the company
+  const contact = Array.isArray(opp.mentioned_people) ? opp.mentioned_people.find(p => p?.name) : null;
+  const contactHtml = contact
+    ? `<button type="button" class="od-link od-link--strong" data-action="open-contact">${escapeHtml(contact.name)}</button>`
+    : '<span class="od-readonly is-empty">None</span>';
+
+  const competitors = parseCompetitors(opp.competitors);
+  const competitorsHtml = competitors.length
+    ? competitors.map(c => `<span class="od-tag">${escapeHtml(c)}</span>`).join('')
+    : '<span class="od-readonly is-empty">None</span>';
+
+  const teammates = (opp.assignees || []).filter(a => a.user_id !== opp.user_id);
+  const teamHtml = teammates.length
+    ? teammates.map(a => renderPersonChip(a.user_id, fullName(a.profiles) || 'Team member', a.profiles?.avatar_url)).join('')
+    : '<span class="od-readonly is-empty">None</span>';
+
+  // Calls for the deal's company
+  const matchesCompany = (companyId, name) => (isCrmCompany && companyId != null && String(companyId) === String(company.id))
+    || (!isCrmCompany && opp.company_name && name && name.trim().toLowerCase() === opp.company_name.trim().toLowerCase());
+  detail.calls = Array.isArray(window.allCallLogsData)
+    ? window.allCallLogsData.filter(c => matchesCompany(c.company_id, c.company_name))
+    : [];
+
+  const loadingHtml = '<p class="od-empty">Loading…</p>';
+  const memberFullName = (userId) => fullName((getCachedTeamMembers() || []).find(m => m.id === userId))
+    || (userId === state.currentUser?.id ? 'You' : 'Teammate');
+  const memberName = (userId) => (userId === state.currentUser?.id ? 'You' : memberFullName(userId));
+
+  let tabHtml;
+  if (detail.tab === 'activity') {
+    tabHtml = detail.calls.length
+      ? `<div class="od-list">${detail.calls.map((c, i) => `
+          <button type="button" class="od-item" data-action="open-call" data-index="${i}">
+            <span class="od-item-dot" style="background:${c.direction === 'Inbound' ? 'var(--color-success)' : 'var(--color-primary)'}"></span>
+            <span class="od-item-main">
+              <span class="od-item-title">${escapeHtml(c.contact_name || c.people?.name || 'Call')}</span>
+              <span class="od-item-meta">${[c.outcome || 'Logged', c.duration_seconds ? `${Math.round(c.duration_seconds / 60)} min` : '', fullName(c.profiles), formatDateWithTime(c.call_at)].filter(Boolean).map(escapeHtml).join(' · ')}</span>
+              ${c.notes ? `<span class="od-item-note">${escapeHtml(c.notes.slice(0, 140))}${c.notes.length > 140 ? '…' : ''}</span>` : ''}
+            </span>
+          </button>`).join('')}</div>`
+      : `<p class="od-empty">No calls logged for ${companyName ? escapeHtml(companyName) : 'this company'} yet.</p>`;
+  } else if (detail.tab === 'tasks') {
+    const composer = canEdit ? `
+      <form class="od-composer od-composer--task" data-composer="task" autocomplete="off">
+        <input type="text" name="title" class="od-composer-input" data-draft="task-title" placeholder="Add a task, e.g. Send the price list" aria-label="New task" required>
+        <input type="date" name="day" class="od-composer-date" data-draft="task-day" aria-label="Due date">
+        <button type="submit" class="od-composer-btn">Add</button>
+      </form>` : '';
+    let list;
+    if (detail.tasks === undefined) list = loadingHtml;
+    else if (detail.tasks === null) list = '<p class="od-empty">Couldn\'t load tasks for this deal.</p>';
+    else if (!detail.tasks.length) list = `<p class="od-empty">${canEdit ? 'No tasks yet. The first open task is the deal\'s next step.' : 'No tasks yet.'}</p>`;
+    else {
+      list = `<div class="od-list">${sortDealTasks(detail.tasks).map(t => {
+        const done = t.status === 'completed';
+        const day = timestampToDay(t.due_date);
+        const assignee = t.assigned_to ? memberName(t.assigned_to) : '';
+        return `
+          <div class="od-task${done ? ' is-done' : ''}">
+            ${canEdit ? `<button type="button" class="od-check${done ? ' is-checked' : ''}" data-action="toggle-task" data-task-id="${escapeHtml(t.id)}" title="${done ? 'Mark not done' : 'Mark done'}" aria-label="${done ? 'Mark not done' : 'Mark done'}: ${escapeHtml(t.title)}"></button>` : ''}
+            <button type="button" class="od-task-main" data-action="open-task-id" data-task-id="${escapeHtml(t.id)}">
+              <span class="od-item-title">${escapeHtml(t.title)}</span>
+              <span class="od-item-meta">${[day ? (done ? formatDueDate(day) : dueHtml(day)) : 'No due date', assignee ? escapeHtml(assignee) : ''].filter(Boolean).join(' · ')}</span>
+            </button>
+          </div>`;
+      }).join('')}</div>`;
+    }
+    tabHtml = composer + list;
+  } else {
+    const composer = canEdit ? `
+      <form class="od-composer od-composer--note" data-composer="note">
+        <textarea name="content" class="od-composer-input" data-draft="note" rows="2" placeholder="Write a note…" aria-label="New note" required></textarea>
+        <div class="od-composer-actions">
+          <span class="od-muted">Saved to Notes · ⌘↵ to add</span>
+          <button type="submit" class="od-composer-btn">Add note</button>
+        </div>
+      </form>` : '';
+    let list;
+    if (detail.notes === undefined) list = loadingHtml;
+    else if (detail.notes === null) list = '<p class="od-empty">Couldn\'t load notes for this deal.</p>';
+    else {
+      list = detail.notes.map(n => `
+        <article class="od-note">
+          <header class="od-note-head">
+            <span class="od-person-avatar" style="background:${getAssigneeColor(n.user_id)}">${escapeHtml(getInitials(memberFullName(n.user_id)))}</span>
+            <span class="od-note-author">${escapeHtml(memberName(n.user_id))}</span>
+            <span class="od-muted">${escapeHtml(formatDateWithTime(n.created_at))}</span>
+            ${n.user_id === state.currentUser?.id ? `<button type="button" class="od-icon-btn od-note-delete is-danger" data-action="delete-note" data-note-id="${escapeHtml(n.id)}" title="Delete note" aria-label="Delete note">${detailIcon(DETAIL_ICONS.trash)}</button>` : ''}
+          </header>
+          <div class="od-note-body">${escapeHtml(noteContentToText(n.content))}</div>
+        </article>`).join('');
+    }
+    // Notes typed on the deal itself before notes were linked
+    const legacyHtml = renderNotesHtml(opp);
+    if (legacyHtml) {
+      list += `
+        <article class="od-note od-note--legacy">
+          <header class="od-note-head"><span class="od-note-author">Earlier notes on this deal</span></header>
+          ${canEdit
+            ? `<div class="od-notes" data-edit="notes" role="button" tabindex="0" aria-label="Edit earlier notes">${legacyHtml}</div>`
+            : `<div class="od-notes is-readonly">${legacyHtml}</div>`}
+        </article>`;
+    }
+    if (!list) list = '<p class="od-empty">No notes yet.</p>';
+    tabHtml = composer + `<div class="od-notes-list">${list}</div>`;
+  }
+  const openTaskCount = Array.isArray(detail.tasks) ? detail.tasks.filter(t => t.status !== 'completed').length : null;
+  const noteCount = Array.isArray(detail.notes) ? detail.notes.length + (opp.notes ? 1 : 0) : null;
+  const tab = (key, label, count) => `<button type="button" role="tab" class="od-tab${detail.tab === key ? ' is-active' : ''}" data-tab="${key}" aria-selected="${detail.tab === key}">${label}${count != null ? `<span class="od-count">${count}</span>` : ''}</button>`;
+
+  const showCompany = companyName && (isCrmCompany || !dealNameRepeatsCompany(opp.name, companyName));
+  const companyHtml = !showCompany ? '' : isCrmCompany
+    ? `<button type="button" class="od-company is-link" data-action="open-company" title="Open ${escapeHtml(companyName)}">${detailIcon(DETAIL_ICONS.company)}${escapeHtml(companyName)}</button>`
+    : `<span class="od-company">${detailIcon(DETAIL_ICONS.company)}${escapeHtml(companyName)}</span>`;
+  const subtitle = [companyHtml, subsector ? `<span>${escapeHtml(subsector)}</span>` : ''].filter(Boolean).join('<span class="od-dot">·</span>');
+
+  const title = escapeHtml(opp.name || 'Untitled deal');
+  const updated = opp.updated_at || opp.created_at;
+
+  // Keep the scroll position, and anything typed in the add boxes, when a save re-renders the panel
+  const scrollTop = panel.querySelector('.od-body')?.scrollTop || 0;
+  panel.querySelectorAll('[data-draft]').forEach(el => { detail.drafts[el.dataset.draft] = el.value; });
+  const focusedDraft = panel.contains(document.activeElement) ? document.activeElement.dataset?.draft : null;
+
+  panel.innerHTML = `
+    <header class="od-header">
+      <span class="od-avatar" aria-hidden="true">
+        <span class="opp-avatar-initials">${escapeHtml(getInitials(companyName || opp.name || '?'))}</span>
+        ${logoUrl ? `<img src="${escapeHtml(logoUrl)}" alt="" onload="this.previousElementSibling.style.visibility='hidden'" onerror="this.remove()" />` : ''}
+      </span>
+      <div class="od-heading">
+        ${canEdit
+          ? `<button type="button" class="od-title od-editable" id="od-title" data-edit="name">${title}</button>`
+          : `<h2 class="od-title" id="od-title">${title}</h2>`}
+        ${subtitle ? `<div class="od-subtitle">${subtitle}</div>` : ''}
+      </div>
+      <div class="od-actions">
+        ${canEdit ? `
+          <button type="button" class="od-icon-btn" data-action="edit" title="Edit all fields" aria-label="Edit all fields">${detailIcon(DETAIL_ICONS.edit)}</button>
+          <button type="button" class="od-icon-btn is-danger" data-action="delete" title="Delete deal" aria-label="Delete deal">${detailIcon(DETAIL_ICONS.trash)}</button>` : ''}
+        <button type="button" class="od-icon-btn" data-action="close" title="Close" aria-label="Close">${detailIcon(DETAIL_ICONS.close)}</button>
+      </div>
+    </header>
+
+    <div class="od-body">
+      <dl class="od-props">
+        ${prop('stage', 'Stage', 'stage', stageHtml)}
+        ${prop('value', 'Value', 'value', valueHtml)}
+        ${prop('probability', 'Win chance', 'probability', probabilityHtml)}
+        ${prop('owner', 'Owner', 'owner', ownerHtml)}
+        ${prop('next_step', 'Next step', 'nextStep', nextStepHtml)}
+        ${prop('contact', 'Contact', 'contact', contactHtml)}
+        ${prop('competitors', 'Competitors', 'competitors', competitorsHtml)}
+        ${prop('team', 'Teammates', 'team', teamHtml)}
+      </dl>
+
+      <div class="od-tabs" role="tablist">
+        ${tab('notes', 'Notes', noteCount)}
+        ${tab('tasks', 'Tasks', openTaskCount)}
+        ${tab('activity', 'Calls', detail.calls.length)}
+      </div>
+      <div class="od-tab-panel" role="tabpanel">${tabHtml}</div>
+    </div>
+
+    <footer class="od-footer">
+      <span>Created ${escapeHtml(formatDate(opp.created_at))}</span>
+      ${updated && updated !== opp.created_at ? `<span class="od-dot">·</span><span>Updated ${escapeHtml(formatDate(updated))}</span>` : ''}
+    </footer>`;
+
+  window.initAllCrmDropdowns?.(panel);
+  panel.querySelectorAll('[data-draft]').forEach(el => { el.value = detail.drafts[el.dataset.draft] || ''; });
+  // The task due date uses the app's date picker, like the deal form
+  window.initCustomCalendar?.('#opportunity-detail [data-draft="task-day"]', { type: 'date' });
+  if (focusedDraft) panel.querySelector(`[data-draft="${focusedDraft}"]`)?.focus();
+  const body = panel.querySelector('.od-body');
+  if (body) body.scrollTop = scrollTop;
+}
+
+function onDetailClick(e) {
+  if (!detail) return;
+  const opp = detail.opportunity;
+
+  const mention = e.target.closest('.mentioned-person');
+  if (mention) {
+    e.stopPropagation();
+    closeModal('opportunity-view-modal');
+    setTimeout(() => openPersonViewModal(mention.dataset.personId), 120);
+    return;
+  }
+
+  const tabBtn = e.target.closest('[data-tab]');
+  if (tabBtn) {
+    detail.tab = tabBtn.dataset.tab;
+    renderOpportunityDetail();
+    return;
+  }
+
+  const editTarget = e.target.closest('[data-edit]');
+  if (editTarget) {
+    startDetailEdit(editTarget.dataset.edit, editTarget);
+    return;
+  }
+
+  const action = e.target.closest('[data-action]')?.dataset.action;
+  if (!action) return;
+  const index = Number(e.target.closest('[data-index]')?.dataset.index);
+
+  if (action === 'close') {
+    closeModal('opportunity-view-modal');
+  } else if (action === 'edit') {
+    closeModal('opportunity-view-modal');
+    openOpportunityModal(opp);
+  } else if (action === 'delete') {
+    deleteOpportunity(opp).then(deleted => { if (deleted) closeModal('opportunity-view-modal'); });
+  } else if (action === 'open-company') {
+    const company = findCompanyForOpportunity(opp);
+    if (!company?.id) return;
+    closeModal('opportunity-view-modal');
+    setTimeout(() => openCompanyViewModal(company.id), 120);
+  } else if (action === 'open-contact') {
+    const contact = (opp.mentioned_people || []).find(p => p?.name);
+    if (!contact) return;
+    closeModal('opportunity-view-modal');
+    setTimeout(() => openPersonViewModal(contact.id || contact), 120);
+  } else if (action === 'reset-probability') {
+    const stages = getPipelineStages(getCachedActivePipeline());
+    const stageId = opp.mappedStage || opp.stage;
+    saveDealPatch({ probability: getStageProbability(stageId, stages) }).then(renderOpportunityDetail);
+  } else if (action === 'open-call' && detail.calls[index]) {
+    const call = detail.calls[index];
+    closeModal('opportunity-view-modal');
+    setTimeout(() => openCallLogViewModal(call), 120);
+  } else if (action === 'add-next-step') {
+    // Next steps are tasks: open the Tasks tab with the old next step ready to add
+    detail.tab = 'tasks';
+    if (!detail.drafts['task-title'] && opp.next_step && !getNextOpenTask(detail.tasks || [])) {
+      detail.drafts['task-title'] = opp.next_step;
+      detail.drafts['task-day'] = opp.next_step_date ? String(opp.next_step_date).slice(0, 10) : '';
+    }
+    renderOpportunityDetail();
+    document.querySelector('#opportunity-detail [data-draft="task-title"]')?.focus();
+  } else if (action === 'toggle-task') {
+    toggleDealTask(e.target.closest('[data-task-id]').dataset.taskId);
+  } else if (action === 'open-task-id') {
+    const task = (detail.tasks || []).find(t => t.id === e.target.closest('[data-task-id]').dataset.taskId);
+    if (!task) return;
+    closeModal('opportunity-view-modal');
+    setTimeout(() => showTaskDetail(task, window.salesRepsData || []), 120);
+  } else if (action === 'delete-note') {
+    deleteDealNote(e.target.closest('[data-note-id]').dataset.noteId);
+  }
+}
+
+/** The add-task and add-note boxes */
+async function onDetailSubmit(e) {
+  const form = e.target.closest('[data-composer]');
+  if (!form || !detail) return;
+  e.preventDefault();
+  const opp = detail.opportunity;
+  const button = form.querySelector('[type="submit"]');
+  const kind = form.dataset.composer;
+
+  if (kind === 'task') {
+    const title = form.elements.title.value.trim();
+    const day = form.elements.day.value;
+    if (!title) return;
+    button.disabled = true;
+    try {
+      const task = await createDealTask(opp, { title, day });
+      detail.tasks = [...(detail.tasks || []), task];
+      detail.drafts['task-title'] = '';
+      detail.drafts['task-day'] = '';
+      form.reset();
+      showToast('Task added', 'success');
+      await syncDealNextStep();
+    } catch (err) {
+      showToast(`Couldn't add the task: ${err.message}`, 'error');
+    }
+  } else if (kind === 'note') {
+    const content = form.elements.content.value.trim();
+    if (!content) return;
+    button.disabled = true;
+    try {
+      const note = await createDealNote(opp, content);
+      detail.notes = [note, ...(detail.notes || [])];
+      detail.drafts.note = '';
+      form.reset();
+      showToast('Note added', 'success');
+    } catch (err) {
+      showToast(`Couldn't add the note: ${err.message}`, 'error');
+    }
+  }
+  button.disabled = false;
+  renderOpportunityDetail();
+}
+
+async function toggleDealTask(taskId) {
+  const task = (detail?.tasks || []).find(t => t.id === taskId);
+  if (!task) return;
+  const status = task.status === 'completed' ? 'pending' : 'completed';
+  const updated_at = new Date().toISOString();
+  const { data, error } = await supabaseClient.from('tasks').update({ status, updated_at }).eq('id', taskId).select('id');
+  if (error || !data?.length) {
+    showToast(error ? `Couldn't update the task: ${error.message}` : "You can't change this task.", 'error');
+    return;
+  }
+  Object.assign(task, { status, updated_at });
+  if (status === 'completed') showToast('Task done', 'success');
+  document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: status === 'completed' ? 'complete' : 'update', id: taskId } }));
+  await syncDealNextStep();
+  renderOpportunityDetail();
+}
+
+async function deleteDealNote(noteId) {
+  if (!detail?.notes) return;
+  if (!await showConfirmDialog('Delete note', 'Delete this note? It will also be removed from Notes.')) return;
+  const { data, error } = await supabaseClient.from('notes').delete().eq('id', noteId).select('id');
+  if (error || !data?.length) {
+    showToast(error ? `Couldn't delete the note: ${error.message}` : "This note couldn't be deleted.", 'error');
+    return;
+  }
+  detail.notes = detail.notes.filter(n => n.id !== noteId);
+  renderOpportunityDetail();
+}
+
+/** Copy the earliest open task onto the deal's next_step fields, which the board,
+ *  filters and reports read */
+async function syncDealNextStep() {
+  const opp = detail?.opportunity;
+  if (!opp || !Array.isArray(detail.tasks)) return;
+  const fields = nextStepFieldsFromTasks(detail.tasks);
+  const currentDay = opp.next_step_date ? String(opp.next_step_date).slice(0, 10) : null;
+  if ((opp.next_step || null) === fields.next_step && currentDay === fields.next_step_date) {
+    refreshPipelineIfVisible();
+    return;
+  }
+  await saveDealPatch(fields);
+}
+
+/** Swap a value for an input. Enter or leaving the field saves, Escape cancels. */
+function startDetailEdit(field, anchor) {
+  const opp = detail?.opportunity;
+  if (!opp || !canEditOpportunity(opp)) return;
+
+  const config = {
+    name: { type: 'text', value: opp.name || '', placeholder: 'Deal name' },
+    value: { type: 'number', value: hasDealValue(opp) ? String(opp.value) : '', placeholder: 'e.g. 25000', min: '0', step: '0.01' },
+    probability: { type: 'number', value: String(dealProbability(opp)), min: '0', max: '100', step: '1' },
+    notes: { type: 'textarea', value: opp.notes || '', placeholder: 'Add notes…' },
+  }[field];
+  if (!config) return;
+
+  const input = document.createElement(config.type === 'textarea' ? 'textarea' : 'input');
+  if (config.type !== 'textarea') input.type = config.type;
+  input.className = `od-input od-input--${field}`;
+  input.value = config.value;
+  if (config.placeholder) input.placeholder = config.placeholder;
+  ['min', 'max', 'step'].forEach(attr => { if (config[attr]) input.setAttribute(attr, config[attr]); });
+  if (config.type === 'textarea') input.rows = Math.max(5, config.value.split('\n').length + 1);
+
+  anchor.replaceWith(input);
+  input.focus();
+  if (config.type === 'text' || config.type === 'number') input.select();
+
+  let finished = false;
+  const finish = async (save, { refocus = false } = {}) => {
+    if (finished) return;
+    finished = true;
+    const patch = save ? parseDetailEdit(field, input.value, opp) : null;
+    if (!patch) {
+      // Nothing to save: put the value back without redrawing, so a click that
+      // moved focus to another field still lands on it
+      input.replaceWith(anchor);
+      if (refocus) anchor.focus();
+      return;
+    }
+    input.disabled = true;
+    await saveDealPatch(patch);
+    // If another field was opened meanwhile, it redraws the panel when it closes
+    if (!document.querySelector('#opportunity-detail .od-input:not(:disabled)')) renderOpportunityDetail();
+  };
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      finish(false, { refocus: true });
+    } else if (e.key === 'Enter' && (config.type !== 'textarea' || e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      finish(true, { refocus: true });
+    }
+  });
+  input.addEventListener('blur', () => finish(true));
+}
+
+/** The update for an edited field, or nothing when it's unchanged or invalid */
+function parseDetailEdit(field, raw, opp) {
+  const text = raw.trim();
+  if (field === 'name') {
+    if (!text) { showToast("Deal name can't be empty", 'error'); return null; }
+    return text === opp.name ? null : { name: text };
+  }
+  if (field === 'value') {
+    if (!text) return hasDealValue(opp) ? { value: null } : null;
+    const amount = parseFloat(text);
+    if (!(amount >= 0)) { showToast('Deal value must be a positive number', 'error'); return null; }
+    return hasDealValue(opp) && amount === dealValue(opp) ? null : { value: amount };
+  }
+  if (field === 'probability') {
+    const p = parseInt(text, 10);
+    if (Number.isNaN(p) || p < 0 || p > 100) { showToast('Win chance must be between 0 and 100', 'error'); return null; }
+    return p === dealProbability(opp) ? null : { probability: p };
+  }
+  if (field === 'notes') {
+    if (text === (opp.notes || '').trim()) return null;
+    // Drop links to people whose @mention was deleted from the text
+    const mentioned = (opp.mentioned_people || []).filter(p => p?.name && text.toLowerCase().includes(`@${p.name.trim().toLowerCase()}`));
+    return { notes: text || null, mentioned_people: mentioned };
+  }
+  return null;
+}
+
+/** Save fields on the open deal, then refresh the board behind it */
+async function saveDealPatch(patch) {
+  const opp = detail?.opportunity;
+  if (!opp) return false;
+  const updates = { ...patch, updated_at: new Date().toISOString() };
+
+  const { data, error } = await supabaseClient
+    .from('opportunities')
+    .update(updates)
+    .eq('id', opp.id)
+    .select('id');
+  if (error) {
+    showToast(`Couldn't save: ${error.message}`, 'error');
+    return false;
+  }
+  // Row-level security skips rows it won't update instead of returning an error
+  if (!data || data.length === 0) {
+    showToast("This deal couldn't be saved. You may not have permission.", 'error');
+    return false;
+  }
+
+  Object.assign(opp, updates);
+  // stage_changed_at is set by the database trigger; mirror it locally
+  if ('stage' in patch) Object.assign(opp, { mappedStage: patch.stage, stage_changed_at: updates.updated_at });
+  refreshPipelineIfVisible();
+  return true;
+}
+
+async function saveDetailStage(newStage) {
+  const opp = detail?.opportunity;
+  if (!opp) return;
+  const pipeline = getCachedActivePipeline();
+  const stages = getPipelineStages(pipeline);
+  const oldStage = opp.mappedStage || resolveStageId(opp.stage, stages, pipeline.is_default);
+  if (!newStage || newStage === oldStage) return;
+
+  // The win chance moves with the stage (Won/Lost always settle it), unless it was set by hand
+  const patch = { stage: newStage };
+  if (getStageOutcome(newStage) || probabilityFollowsStage(opp, oldStage, stages)) {
+    patch.probability = getStageProbability(newStage, stages);
+  }
+  if (await saveDealPatch(patch) && getStageOutcome(newStage) === 'won') triggerConfetti();
+  renderOpportunityDetail();
+}
+
+async function saveDetailOwner(ownerId) {
+  const opp = detail?.opportunity;
+  if (!opp || (ownerId || null) === (opp.user_id || null)) return;
+  const member = (getCachedTeamMembers() || []).find(m => m.id === ownerId);
+  if (await saveDealPatch({ user_id: ownerId || null })) {
+    opp.profiles = member
+      ? { id: member.id, first_name: member.first_name, last_name: member.last_name, email: member.email, role: member.role, avatar_url: member.avatar_url }
+      : null;
+    showToast(member ? `Deal moved to ${fullName(member) || 'new owner'}` : 'Owner removed', 'success');
+  }
+  renderOpportunityDetail();
 }
 
 /** Deleting follows the same rule as editing. */
@@ -1600,10 +2280,23 @@ function canDeleteOpportunity(opportunity) {
 async function deleteOpportunity(opportunity) {
   if (!canDeleteOpportunity(opportunity)) return false;
 
+  // The deal's tasks and notes are deleted with it (the database cascades),
+  // so say how many before asking
+  const countLinked = (table) => supabaseClient
+    .from(table)
+    .select('id', { count: 'exact', head: true })
+    .eq('opportunity_id', opportunity.id)
+    .then(({ count, error }) => (error ? 0 : count || 0));
+  const [taskCount, noteCount] = await Promise.all([countLinked('tasks'), countLinked('notes')]);
+  const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
+  const linked = [taskCount && plural(taskCount, 'task'), noteCount && plural(noteCount, 'note')].filter(Boolean);
+
   const ownerName = fullName(opportunity.profiles);
-  const message = opportunity.user_id !== state.currentUser.id && ownerName
-    ? `Are you sure you want to delete ${opportunity.name}? This deal belongs to ${ownerName}.`
-    : `Are you sure you want to delete ${opportunity.name}?`;
+  const message = [
+    `Are you sure you want to delete ${opportunity.name}?`,
+    opportunity.user_id !== state.currentUser.id && ownerName ? `This deal belongs to ${ownerName}.` : '',
+    linked.length ? `Its ${linked.join(' and ')} will be deleted too.` : '',
+  ].filter(Boolean).join(' ');
 
   const confirmed = await showConfirmDialog('Delete Opportunity', message);
   if (!confirmed) return false;
@@ -1624,7 +2317,11 @@ async function deleteOpportunity(opportunity) {
     return false;
   }
 
-  showToast('Opportunity deleted successfully', 'success');
+  showToast(linked.length ? `Deal deleted, with its ${linked.join(' and ')}` : 'Deal deleted', 'success');
+  if (taskCount) {
+    // Task counts and reminders elsewhere in the app drop the deleted tasks
+    document.dispatchEvent(new CustomEvent('safitrack:notification-refresh'));
+  }
   // Remove just this card so columns the user expanded with "Load more"
   // stay expanded; fall back to a full render if it isn't on the board.
   if (!removeOpportunityFromBoard(opportunity.id)) refreshPipelineIfVisible();
@@ -1640,6 +2337,25 @@ function removeOpportunityFromBoard(opportunityId) {
 }
 
 
+function setProbabilityInput(value) {
+  const input = document.getElementById('opportunity-probability');
+  if (input) input.value = value;
+}
+
+/** "Lead default: 10%", plus a Reset button once the win chance was set by hand.
+ *  Won and Lost fix the win chance, so the input is locked there. */
+function updateProbabilityHint(stageId, stages) {
+  const hint = document.getElementById('probability-stage-hint');
+  const resetBtn = document.getElementById('probability-reset-btn');
+  const input = document.getElementById('opportunity-probability');
+  const stage = stages.find(s => s.id === stageId);
+  const stageProbability = getStageProbability(stageId, stages);
+  const isClosed = Boolean(getStageOutcome(stageId));
+  if (hint) hint.textContent = stage ? `${plainStageTitle(stage.title)} ${isClosed ? 'is always' : 'default'} ${stageProbability}%` : '';
+  if (resetBtn) resetBtn.hidden = isClosed || Number(input?.value) === stageProbability;
+  if (input) input.disabled = isClosed;
+}
+
 function initOpportunityModalListeners(opportunity) {
   opportunityModalListeners?.abort();
   opportunityModalListeners = new AbortController();
@@ -1648,25 +2364,37 @@ function initOpportunityModalListeners(opportunity) {
   // Initialize assignees picker
   initAssigneesPicker(signal);
 
-  // Probability slider
-  const probabilitySlider = document.getElementById('opportunity-probability');
-  const probabilityDisplay = document.getElementById('probability-display');
+  // Win chance
+  const stages = getPipelineStages(getCachedActivePipeline());
+  const stageInput = document.getElementById('opportunity-stage');
+  document.getElementById('opportunity-probability')?.addEventListener('input', () => {
+    updateProbabilityHint(stageInput?.value, stages);
+  }, { signal });
 
-  if (probabilitySlider) {
-    const newSlider = probabilitySlider.cloneNode(true);
-    probabilitySlider.parentNode.replaceChild(newSlider, probabilitySlider);
-    newSlider.addEventListener('input', () => {
-      probabilityDisplay.textContent = newSlider.value;
-    });
-  }
+  document.getElementById('probability-reset-btn')?.addEventListener('click', () => {
+    setProbabilityInput(getStageProbability(stageInput?.value, stages));
+    updateProbabilityHint(stageInput?.value, stages);
+  }, { signal });
 
-  // Picking Won or Lost settles the win chance
-  document.getElementById('opportunity-stage')?.addEventListener('change', (e) => {
-    const outcomeProbability = { won: 100, lost: 0 }[getStageOutcome(e.target.value)];
-    if (outcomeProbability === undefined) return;
-    const slider = document.getElementById('opportunity-probability');
-    if (slider) slider.value = outcomeProbability;
-    probabilityDisplay.textContent = String(outcomeProbability);
+  // The win chance follows the stage unless it was set by hand; Won and Lost always settle it
+  let previousStage = stageInput?.value;
+  stageInput?.addEventListener('change', (e) => {
+    const newStage = e.target.value;
+    const current = Number(document.getElementById('opportunity-probability')?.value);
+    if (probabilityFollowsStage({ probability: current }, previousStage, stages) || getStageOutcome(newStage)) {
+      setProbabilityInput(getStageProbability(newStage, stages));
+    }
+    previousStage = newStage;
+    updateProbabilityHint(newStage, stages);
+  }, { signal });
+  updateProbabilityHint(stageInput?.value, stages);
+
+  // The new owner is no longer also a tagged teammate
+  document.getElementById('opportunity-owner')?.addEventListener('change', (e) => {
+    const ownerId = e.target.value;
+    if (!ownerId) return;
+    state.opportunityAssignees = state.opportunityAssignees.filter(a => a.user_id !== ownerId);
+    document.querySelector(`#opp-assignees-chips .opp-token[data-user-id="${CSS.escape(ownerId)}"]`)?.remove();
   }, { signal });
 
   // Company search
@@ -1726,40 +2454,50 @@ function initOpportunityModalListeners(opportunity) {
           const avatarInner = logoUrl
             ? `<img src="${escapeHtml(logoUrl)}" class="opp-suggest-logo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'" /><span class="opp-suggest-initials" style="display:none">${escapeHtml(initials)}</span>`
             : `<span class="opp-suggest-initials">${escapeHtml(initials)}</span>`;
+          // Name only: descriptions hold phone numbers and delivery notes that crowd the list
           return `
-          <div class="search-result-item" data-company-name="${escapeHtml(company.name)}" data-company-id="${escapeHtml(company.id)}">
+          <div class="search-result-item" role="option" data-company-name="${escapeHtml(company.name)}" data-company-id="${escapeHtml(company.id)}" title="${escapeHtml(company.name)}">
             <div class="opp-suggest-avatar">${avatarInner}</div>
-            <div>
-              <div class="search-result-name">${escapeHtml(company.name)}</div>
-              <div class="search-result-role">${escapeHtml(company.description || company.domain || 'Company')}</div>
-            </div>
+            <span class="search-result-name">${escapeHtml(company.name)}</span>
           </div>`;
         }).join('');
       }
 
-      // Always show option to use custom name if it's different from found companies
-      const customNameOption = `
-        <div class="search-result-item" data-company-name="${escapeHtml(e.target.value.trim())}" data-company-id="">
-          <div class="opp-suggest-avatar opp-suggest-avatar--custom">
-            <span>+</span>
-          </div>
-          <div>
-            <div class="search-result-name">Use "${escapeHtml(e.target.value.trim())}"</div>
-            <div class="search-result-role">Add as custom company name</div>
-          </div>
-        </div>
-      `;
+      // Offer the typed name as-is, unless it exactly matches a company above
+      const typed = e.target.value.trim();
+      const typedKey = typed.toLowerCase();
+      const customNameOption = filteredCompanies.some(c => String(c.name || '').trim().toLowerCase() === typedKey) ? '' : `
+        <div class="search-result-item search-result-item--custom" role="option" data-company-name="${escapeHtml(typed)}" data-company-id="">
+          <div class="opp-suggest-avatar opp-suggest-avatar--custom"><span>+</span></div>
+          <span class="search-result-name">Use “${escapeHtml(typed)}”<span class="search-result-hint"> · not in Companies</span></span>
+        </div>`;
 
       companySearchResults.innerHTML = resultsHTML + customNameOption;
       companySearchResults.style.display = 'block';
     }, 300);
   });
 
-  // Allow pressing Enter to confirm custom company name
+  // Arrow keys move through the suggestions, Enter picks one (or keeps the typed name)
   newCompanyInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && newCompanyInput.value.trim()) {
+    const items = companySearchResults.style.display === 'none'
+      ? []
+      : Array.from(companySearchResults.querySelectorAll('.search-result-item[data-company-name]'));
+    const active = items.findIndex(item => item.classList.contains('is-active'));
+    if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && items.length) {
       e.preventDefault();
-      selectOpportunityCompany(newCompanyInput.value.trim());
+      const next = e.key === 'ArrowDown'
+        ? (active + 1) % items.length
+        : (active <= 0 ? items.length - 1 : active - 1);
+      items.forEach((item, i) => item.classList.toggle('is-active', i === next));
+      items[next].scrollIntoView({ block: 'nearest' });
+    } else if (e.key === 'Enter' && newCompanyInput.value.trim()) {
+      e.preventDefault();
+      const item = items[active];
+      if (item) selectOpportunityCompany(item.dataset.companyName, item.dataset.companyId);
+      else selectOpportunityCompany(newCompanyInput.value.trim());
+    } else if (e.key === 'Escape' && companySearchResults.style.display !== 'none') {
+      e.stopPropagation();
+      companySearchResults.style.display = 'none';
     }
   });
 
@@ -1859,16 +2597,44 @@ function initOpportunityModalListeners(opportunity) {
     }
   }, { signal });
 
-  // Competitors input
+  // Competitors: Enter or comma adds a chip, Backspace in an empty box removes the last one
   const competitorsInput = document.getElementById('competitors-input');
+  const competitorsField = document.getElementById('competitors-container');
 
   competitorsInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && competitorsInput.value.trim()) {
+    if ((e.key === 'Enter' || e.key === ',') && competitorsInput.value.trim()) {
       e.preventDefault();
-      addCompetitor(competitorsInput.value.trim());
+      addCompetitor(competitorsInput.value);
+      competitorsInput.value = '';
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+    } else if (e.key === 'Backspace' && !competitorsInput.value) {
+      competitorsField.querySelector('.opp-token:last-of-type')?.remove();
+    }
+  });
+  // Commas split names however they arrive (typed, pasted, autocorrected)
+  competitorsInput.addEventListener('input', () => {
+    if (!competitorsInput.value.includes(',')) return;
+    const parts = competitorsInput.value.split(',');
+    competitorsInput.value = parts.pop().trimStart();
+    parts.forEach(part => addCompetitor(part));
+  });
+  // A name typed and then left (without Enter) still counts
+  competitorsInput.addEventListener('blur', () => {
+    if (competitorsInput.value.trim()) {
+      addCompetitor(competitorsInput.value);
       competitorsInput.value = '';
     }
   });
+  competitorsField.addEventListener('click', (e) => {
+    const remove = e.target.closest('.opp-token-remove');
+    if (remove) {
+      remove.closest('.opp-token').remove();
+      competitorsInput.focus();
+    } else if (e.target === competitorsField) {
+      competitorsInput.focus();
+    }
+  }, { signal });
 
   // Save opportunity
   const saveBtn = document.getElementById('save-opportunity-btn');
@@ -1880,31 +2646,42 @@ function initOpportunityModalListeners(opportunity) {
     const value = document.getElementById('opportunity-value').value;
     const stage = document.getElementById('opportunity-stage').value;
     const outcome = getStageOutcome(stage);
-    // Won and Lost deals always carry 100% / 0%
-    const probability = outcome === 'won' ? 100 : outcome === 'lost' ? 0 : document.getElementById('opportunity-probability').value;
+    // Won and Lost deals always carry 100% / 0%; an empty or odd entry falls back to the stage
+    const typedProbability = parseInt(document.getElementById('opportunity-probability').value, 10);
+    const probability = outcome || Number.isNaN(typedProbability)
+      ? getStageProbability(stage, stages)
+      : Math.min(100, Math.max(0, typedProbability));
     const nextStep = document.getElementById('opportunity-next-step').value.trim();
     const nextStepDate = document.getElementById('opportunity-next-step-date').value;
-    const notes = document.getElementById('opportunity-notes').value.trim();
+    const noteText = document.getElementById('opportunity-notes').value.trim();
 
-    // Get competitors
-    const competitorTags = document.querySelectorAll('#competitors-container .competitor-tag');
-    const competitors = Array.from(competitorTags).map(tag =>
-      tag.textContent.replace('×', '').trim()
-    );
+    // Get competitors, including one typed but not yet added
+    const pendingCompetitor = document.getElementById('competitors-input')?.value.trim();
+    if (pendingCompetitor) addCompetitor(pendingCompetitor);
+    const competitors = Array.from(document.querySelectorAll('#competitors-container .opp-token'), tag => tag.dataset.name);
 
-    // Validate
-    if (!name || !companyName || !value) {
-      showToast('Please fill in all required fields', 'error');
+    // Validate — deal value is optional
+    if (!name || !companyName) {
+      showToast(!name ? 'Give the deal a name' : 'Pick or type a company', 'error');
+      document.getElementById(!name ? 'opportunity-name' : 'opportunity-company')?.focus();
+      return;
+    }
+    if (value !== '' && !(parseFloat(value) >= 0)) {
+      showToast('Deal value must be a positive number', 'error');
       return;
     }
 
+    // Only managers pick the owner; a new deal otherwise belongs to whoever creates it
+    const ownerId = state.isManager ? (document.getElementById('opportunity-owner')?.value || null) : undefined;
+
+    const idleLabel = saveBtn.textContent;
     saveBtn.disabled = true;
-    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    saveBtn.textContent = 'Saving…';
 
     try {
-      // Fields that are safe to update — user_id is intentionally excluded so
-      // that editing never transfers ownership away from the original creator.
-      // pipeline_id is NOT updated on edit — the opportunity stays in the pipeline it was created in.
+      // Fields that are safe to update. user_id only changes when a manager
+      // picks a different owner. pipeline_id is NOT updated on edit — the
+      // opportunity stays in the pipeline it was created in.
       const activePipelineId = state.activePipelineId && state.activePipelineId !== '__default__'
         ? state.activePipelineId
         : null;
@@ -1913,12 +2690,11 @@ function initOpportunityModalListeners(opportunity) {
         name,
         company_name: companyName,
         subsector: formSubsector || window.selectedOpportunityCompanyData?.subsector || null,
-        value,
+        value: value === '' ? null : value,
         probability,
         stage,
         next_step: nextStep || null,
         next_step_date: nextStepDate || null,
-        notes: notes || null,
         competitors: competitors.length > 0 ? JSON.stringify(competitors) : null,
         mentioned_people: state.mentionedPeople,
         updated_at: new Date().toISOString(),
@@ -1928,19 +2704,19 @@ function initOpportunityModalListeners(opportunity) {
       let savedOpportunityId;
 
       if (opportunity) {
-        // Update — preserve original owner (user_id stays unchanged)
+        if (ownerId !== undefined && ownerId !== (opportunity.user_id || null)) editableFields.user_id = ownerId;
         result = await supabaseClient
           .from('opportunities')
           .update(editableFields)
           .eq('id', opportunity.id);
         savedOpportunityId = opportunity.id;
       } else {
-        // Create — set the creator as owner and tag the pipeline
+        // Create — owned by the creator unless a manager picked someone, and tag the pipeline
         result = await supabaseClient
           .from('opportunities')
           .insert([{
             ...editableFields,
-            user_id: state.currentUser.id,
+            user_id: ownerId || state.currentUser.id,
             organization_id: state.currentOrganization?.id,
             pipeline_id: activePipelineId,
           }])
@@ -1957,7 +2733,30 @@ function initOpportunityModalListeners(opportunity) {
         await syncOpportunityAssignees(savedOpportunityId, state.opportunityAssignees);
       }
 
-      showToast(`Opportunity ${opportunity ? 'updated' : 'created'} successfully!`, 'success');
+      // The next step is a task on the deal, and the note goes to Notes. The deal
+      // is already saved, so a failure here is reported without losing it.
+      const savedDeal = { id: savedOpportunityId, name, user_id: editableFields.user_id || opportunity?.user_id || ownerId || state.currentUser.id };
+      const followUpErrors = [];
+      if (savedOpportunityId) {
+        try {
+          await saveFormNextStep(savedDeal, state.opportunityFormNextTask, nextStep, nextStepDate, opportunity);
+        } catch (err) {
+          followUpErrors.push(`the next step task (${err.message})`);
+        }
+        if (noteText) {
+          try {
+            await createDealNote(savedDeal, noteText);
+          } catch (err) {
+            followUpErrors.push(`the note (${err.message})`);
+          }
+        }
+      }
+
+      if (followUpErrors.length) {
+        showToast(`Deal saved, but couldn't save ${followUpErrors.join(' or ')}`, 'error');
+      } else {
+        showToast(opportunity ? 'Deal updated' : 'Deal created', 'success');
+      }
       const wasWon = opportunity && getStageOutcome(opportunity.mappedStage || opportunity.stage) === 'won';
       if (outcome === 'won' && !wasWon) triggerConfetti();
       closeModal('opportunity-modal');
@@ -1968,41 +2767,57 @@ function initOpportunityModalListeners(opportunity) {
         scheduleNextStepReminder(name, nextStep, nextStepDate);
       }
     } catch (error) {
-      showToast(`Error ${opportunity ? 'updating' : 'creating'} opportunity: ${error.message}`, 'error');
+      showToast(`Couldn't ${opportunity ? 'save' : 'create'} the deal: ${error.message}`, 'error');
     } finally {
       saveBtn.disabled = false;
-      saveBtn.innerHTML = 'Save Opportunity';
+      saveBtn.textContent = idleLabel;
     }
   };
 }
 
-function addCompetitor(name) {
-  const container = document.getElementById('competitors-container');
-  const input = document.getElementById('competitors-input');
-
-  // Check if competitor already exists
-  const existingTags = container.querySelectorAll('.competitor-tag');
-  for (const tag of existingTags) {
-    if (tag.textContent.replace('×', '').trim() === name) {
-      return; // Already exists
-    }
+/** The form's next step becomes (or edits) the deal's open task. A next step that
+ *  was only ever typed on the deal becomes a task once it's changed. */
+async function saveFormNextStep(deal, existingTask, title, day, previousDeal) {
+  if (existingTask) {
+    if (!title) return;
+    const changes = {};
+    if (title !== existingTask.title) changes.title = title;
+    if (day !== timestampToDay(existingTask.due_date)) changes.due_date = dueDateToTimestamp(day);
+    if (!Object.keys(changes).length) return;
+    const { error } = await supabaseClient
+      .from('tasks')
+      .update({ ...changes, updated_at: new Date().toISOString() })
+      .eq('id', existingTask.id);
+    if (error) throw error;
+    return;
   }
-
-  // Create competitor tag
-  const tag = document.createElement('span');
-  tag.className = 'competitor-tag';
-  tag.innerHTML = `
-    ${escapeHtml(name)}
-    <button class="remove" type="button" onclick="removeCompetitor(this)">×</button>
-  `;
-
-  // Insert before input
-  container.insertBefore(tag, input);
+  if (!title) return;
+  const unchanged = previousDeal
+    && title === (previousDeal.next_step || '')
+    && day === (previousDeal.next_step_date ? String(previousDeal.next_step_date).slice(0, 10) : '');
+  if (unchanged) return;
+  await createDealTask(deal, { title, day });
 }
 
-window.removeCompetitor = function (element) {
-  element.parentElement.remove();
-};
+const TOKEN_REMOVE_ICON = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>';
+
+function addCompetitor(rawName) {
+  const container = document.getElementById('competitors-container');
+  const input = document.getElementById('competitors-input');
+  const name = String(rawName || '').replace(/,/g, ' ').replace(/\s+/g, ' ').trim();
+  if (!name || !container || !input) return;
+
+  // Skip a competitor that's already there (ignoring case)
+  const exists = Array.from(container.querySelectorAll('.opp-token'))
+    .some(tag => tag.dataset.name.toLowerCase() === name.toLowerCase());
+  if (exists) return;
+
+  const tag = document.createElement('span');
+  tag.className = 'opp-token';
+  tag.dataset.name = name;
+  tag.innerHTML = `<span class="opp-token-label">${escapeHtml(name)}</span><button type="button" class="opp-token-remove" aria-label="Remove ${escapeHtml(name)}">${TOKEN_REMOVE_ICON}</button>`;
+  container.insertBefore(tag, input);
+}
 
 window.selectOpportunityCompany = function (name, companyId = '') {
   document.getElementById('opportunity-company').value = name;
@@ -2089,23 +2904,15 @@ function _prependOwnerChip(ownerId, ownerProfile) {
   if (!chipsEl || !ownerProfile) return;
 
   const name = fullName(ownerProfile) || 'Owner';
-  const color = getAssigneeColor(ownerId);
-  const initialsOrImage = ownerProfile.avatar_url 
-    ? `<span style="position:relative;z-index:1;display:none;">${getInitials(name)}</span><img src="${ownerProfile.avatar_url}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />` 
-    : getInitials(name);
-
-  const chip = document.createElement('div');
-  chip.className = 'opp-assignee-chip opp-assignee-chip--owner';
+  const chip = document.createElement('span');
+  chip.className = 'opp-token opp-token--owner';
   chip.dataset.userId = ownerId;
   chip.dataset.isOwner = 'true';
+  chip.title = `${name} owns this deal`;
   chip.innerHTML = `
-    <div class="opp-assignee-chip-avatar" style="background:${color}">${initialsOrImage}</div>
-    <div class="opp-assignee-chip-info">
-      <span class="opp-assignee-chip-name">${escapeHtml(name)}</span>
-      <span class="opp-assignee-chip-role">Owner</span>
-    </div>
-    <svg class="opp-owner-chip-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" title="Opportunity owner"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>`;
-
+    <span class="opp-token-avatar" style="background:${getAssigneeColor(ownerId)}">${renderAvatarContent(name, ownerProfile.avatar_url)}</span>
+    <span class="opp-token-label">${escapeHtml(name)}</span>
+    <span class="opp-token-meta">Owner</span>`;
   chipsEl.insertBefore(chip, chipsEl.firstChild);
 }
 
@@ -2114,31 +2921,22 @@ function _appendAssigneeChip(member) {
   const chipsEl = document.getElementById('opp-assignees-chips');
   if (!chipsEl) return;
 
-  const chip = document.createElement('div');
-  chip.className = 'opp-assignee-chip';
-  chip.dataset.userId = member.user_id;
-
   const name = fullName(member) || 'Member';
   const roleLabel = member.role === 'manager' ? 'Manager' : member.role === 'technician' ? 'Technician' : 'Sales Rep';
-  const color = getAssigneeColor(member.user_id);
-  const initialsOrImage = member.avatar_url 
-    ? `<span style="position:relative;z-index:1;display:none;">${getInitials(name)}</span><img src="${member.avatar_url}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />` 
-    : getInitials(name);
-
+  const chip = document.createElement('span');
+  chip.className = 'opp-token';
+  chip.dataset.userId = member.user_id;
+  chip.title = `${name} · ${roleLabel}`;
   chip.innerHTML = `
-    <div class="opp-assignee-chip-avatar" style="background:${color}">${initialsOrImage}</div>
-    <div class="opp-assignee-chip-info">
-      <span class="opp-assignee-chip-name">${escapeHtml(name)}</span>
-      <span class="opp-assignee-chip-role">${escapeHtml(roleLabel)}</span>
-    </div>
-    <button class="opp-assignee-chip-remove" title="Remove ${escapeHtml(name)}" type="button">
-      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-    </button>`;
+    <span class="opp-token-avatar" style="background:${getAssigneeColor(member.user_id)}">${renderAvatarContent(name, member.avatar_url)}</span>
+    <span class="opp-token-label">${escapeHtml(name)}</span>
+    <button type="button" class="opp-token-remove" aria-label="Remove ${escapeHtml(name)}">${TOKEN_REMOVE_ICON}</button>`;
 
-  chip.querySelector('.opp-assignee-chip-remove').addEventListener('click', (e) => {
+  chip.querySelector('.opp-token-remove').addEventListener('click', (e) => {
     e.stopPropagation();
     state.opportunityAssignees = state.opportunityAssignees.filter(a => a.user_id !== member.user_id);
     chip.remove();
+    document.getElementById('opp-assignees-input')?.focus();
   });
 
   chipsEl.appendChild(chip);
@@ -2148,119 +2946,149 @@ function _appendAssigneeChip(member) {
 function initAssigneesPicker(signal) {
   const input = document.getElementById('opp-assignees-input');
   const dropdown = document.getElementById('opp-assignees-dropdown');
-  if (!input || !dropdown) return;
+  const field = document.getElementById('opp-assignees-picker');
+  if (!input || !dropdown || !field) return;
 
   // Clone input to strip old listeners
   const freshInput = input.cloneNode(true);
   input.parentNode.replaceChild(freshInput, input);
 
   let allMembers = [];
+  let options = [];
+  let activeIndex = -1;
 
-  const renderDropdown = (members) => {
-    const query = freshInput.value.trim().toLowerCase();
-    // Exclude the opportunity owner from the picker — they're shown as a
-    // non-removable chip and are not stored in opportunity_assignees.
-    const ownerChip = document.querySelector('.opp-assignee-chip--owner');
-    const ownerUserId = ownerChip?.dataset.userId;
+  const roleLabel = (role) => (role === 'manager' ? 'Manager' : role === 'technician' ? 'Technician' : 'Sales Rep');
 
-    const filtered = members.filter(m => {
-      if (m.id === ownerUserId) return false;
-      const name = fullName(m).toLowerCase();
-      return !query || name.includes(query) || (m.email || '').toLowerCase().includes(query);
-    });
+  // The owner isn't a teammate: managers pick them in the Owner dropdown, others see the owner chip
+  const getOwnerId = () => (state.isManager
+    ? document.getElementById('opportunity-owner')?.value
+    : document.querySelector('#opp-assignees-chips .opp-token--owner')?.dataset.userId) || null;
 
-    if (filtered.length === 0) {
-      dropdown.innerHTML = `<div class="opp-assignees-empty">No team members found.</div>`;
-      dropdown.style.display = 'block';
-      return;
+  const toggleMember = (member) => {
+    const index = state.opportunityAssignees.findIndex(a => a.user_id === member.id);
+    if (index >= 0) {
+      state.opportunityAssignees.splice(index, 1);
+      document.querySelector(`#opp-assignees-chips .opp-token[data-user-id="${CSS.escape(member.id)}"]`)?.remove();
+    } else {
+      const assignee = {
+        user_id: member.id,
+        first_name: member.first_name,
+        last_name: member.last_name,
+        role: member.role,
+        avatar_url: member.avatar_url,
+      };
+      state.opportunityAssignees.push(assignee);
+      _appendAssigneeChip(assignee);
     }
-
-    dropdown.innerHTML = filtered.map(m => {
-      const name = fullName(m) || m.email;
-      const isSelected = state.opportunityAssignees.some(a => a.user_id === m.id);
-      const roleLabel = m.role === 'manager' ? 'Manager' : m.role === 'technician' ? 'Technician' : 'Sales Rep';
-      const color = getAssigneeColor(m.id);
-      const initialsOrImage = m.avatar_url 
-        ? `<span style="position:relative;z-index:1;display:none;">${getInitials(name)}</span><img src="${m.avatar_url}" alt="" onload="this.style.display='block'" onerror="this.style.display='none';var p=this.previousElementSibling;if(p)p.style.display='block'" />` 
-        : getInitials(name);
-        
-      return `
-        <div class="opp-assignee-option${isSelected ? ' is-selected' : ''}" data-user-id="${escapeHtml(m.id)}">
-          <div class="opp-assignee-opt-avatar" style="background:${color}">${initialsOrImage}</div>
-          <div class="opp-assignee-opt-info">
-            <div class="opp-assignee-opt-name">${escapeHtml(name)}</div>
-            <div class="opp-assignee-opt-role">${escapeHtml(roleLabel)}</div>
-          </div>
-          <svg class="opp-assignee-opt-check" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-        </div>`;
-    }).join('');
-
-    dropdown.querySelectorAll('.opp-assignee-option').forEach(opt => {
-      opt.addEventListener('mousedown', (e) => {
-        e.preventDefault();
-        const uid = opt.dataset.userId;
-        const member = allMembers.find(m => m.id === uid);
-        if (!member) return;
-
-        const alreadyIdx = state.opportunityAssignees.findIndex(a => a.user_id === uid);
-        if (alreadyIdx >= 0) {
-          // Deselect — remove chip
-          state.opportunityAssignees.splice(alreadyIdx, 1);
-          document.querySelector(`.opp-assignee-chip[data-user-id="${uid}"]`)?.remove();
-        } else {
-          // Select — add chip
-          const assignee = {
-            user_id: member.id,
-            first_name: member.first_name,
-            last_name: member.last_name,
-            role: member.role,
-            avatar_url: member.avatar_url,
-          };
-          state.opportunityAssignees.push(assignee);
-          _appendAssigneeChip(assignee);
-        }
-
-        freshInput.value = '';
-        dropdown.style.display = 'none';
-      });
-    });
-
-    dropdown.style.display = 'block';
   };
 
   const positionDropdown = () => {
-    const rect = freshInput.getBoundingClientRect();
-    dropdown.style.top    = `${rect.bottom + 4}px`;
-    dropdown.style.left   = `${rect.left}px`;
-    dropdown.style.width  = `${rect.width}px`;
+    // Below the whole field, or above it when the form runs out of room
+    const rect = field.getBoundingClientRect();
+    const roomBelow = window.innerHeight - rect.bottom;
+    dropdown.style.left = `${rect.left}px`;
+    dropdown.style.width = `${rect.width}px`;
+    if (roomBelow < 260 && rect.top > roomBelow) {
+      dropdown.style.top = 'auto';
+      dropdown.style.bottom = `${window.innerHeight - rect.top + 4}px`;
+    } else {
+      dropdown.style.bottom = 'auto';
+      dropdown.style.top = `${rect.bottom + 4}px`;
+    }
   };
+
+  const renderDropdown = () => {
+    const query = freshInput.value.trim().toLowerCase();
+    const ownerId = getOwnerId();
+    options = allMembers.filter(m => {
+      if (m.id === ownerId) return false;
+      const name = fullName(m).toLowerCase();
+      return !query || name.includes(query) || (m.email || '').toLowerCase().includes(query);
+    });
+    activeIndex = Math.min(activeIndex, options.length - 1);
+    if (query && activeIndex < 0 && options.length) activeIndex = 0;
+
+    dropdown.innerHTML = options.length
+      ? options.map((m, i) => {
+        const name = fullName(m) || m.email || 'Team member';
+        const isSelected = state.opportunityAssignees.some(a => a.user_id === m.id);
+        return `
+          <div class="opp-assignee-option${isSelected ? ' is-selected' : ''}${i === activeIndex ? ' is-active' : ''}" role="option" aria-selected="${isSelected}" data-index="${i}">
+            <span class="opp-token-avatar" style="background:${getAssigneeColor(m.id)}">${renderAvatarContent(name, m.avatar_url)}</span>
+            <span class="opp-assignee-opt-name">${escapeHtml(name)}</span>
+            <span class="opp-assignee-opt-role">${escapeHtml(roleLabel(m.role))}</span>
+            <svg class="opp-assignee-opt-check" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+          </div>`;
+      }).join('')
+      : '<div class="opp-assignees-empty">No one matches</div>';
+    dropdown.style.display = 'block';
+    positionDropdown();
+    dropdown.querySelector('.is-active')?.scrollIntoView({ block: 'nearest' });
+  };
+
+  // Picking someone keeps the list open so several people can be tagged in a row
+  dropdown.addEventListener('mousedown', (e) => {
+    const option = e.target.closest('.opp-assignee-option');
+    if (!option) return;
+    e.preventDefault();
+    toggleMember(options[Number(option.dataset.index)]);
+    freshInput.value = '';
+    activeIndex = Number(option.dataset.index);
+    renderDropdown();
+  }, { signal });
+
+  field.addEventListener('click', (e) => {
+    if (e.target === field || e.target.id === 'opp-assignees-chips') freshInput.focus();
+  }, { signal });
 
   freshInput.addEventListener('focus', async () => {
     if (allMembers.length === 0) allMembers = await loadOrgTeamMembers();
-    positionDropdown();
-    renderDropdown(allMembers);
+    activeIndex = -1;
+    renderDropdown();
   });
 
   freshInput.addEventListener('input', () => {
-    positionDropdown();
-    renderDropdown(allMembers);
+    activeIndex = -1;
+    renderDropdown();
   });
 
   freshInput.addEventListener('blur', () => {
-    setTimeout(() => {
-      dropdown.style.display = 'none';
-    }, 150);
+    setTimeout(() => { dropdown.style.display = 'none'; }, 120);
   });
 
   freshInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
+    const isOpen = dropdown.style.display !== 'none';
+    if ((e.key === 'ArrowDown' || e.key === 'ArrowUp') && options.length) {
+      e.preventDefault();
+      if (!isOpen) return renderDropdown();
+      activeIndex = e.key === 'ArrowDown'
+        ? (activeIndex + 1) % options.length
+        : (activeIndex <= 0 ? options.length - 1 : activeIndex - 1);
+      renderDropdown();
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (isOpen && options[activeIndex]) {
+        toggleMember(options[activeIndex]);
+        freshInput.value = '';
+        renderDropdown();
+      }
+    } else if (e.key === 'Backspace' && !freshInput.value) {
+      // Remove the last teammate chip (never the owner)
+      const last = Array.from(document.querySelectorAll('#opp-assignees-chips .opp-token:not(.opp-token--owner)')).pop();
+      if (!last) return;
+      state.opportunityAssignees = state.opportunityAssignees.filter(a => a.user_id !== last.dataset.userId);
+      last.remove();
+      if (isOpen) renderDropdown();
+    } else if (e.key === 'Escape' && isOpen) {
+      e.stopPropagation();
       dropdown.style.display = 'none';
-      freshInput.blur();
     }
   });
 
-  // Reposition if modal scrolls while dropdown is open
-  document.querySelector('#opportunity-modal .modal-body')?.addEventListener('scroll', positionDropdown, { passive: true, signal });
+  // Keep the list attached to the field while the form scrolls
+  document.querySelector('#opportunity-modal .modal-body')?.addEventListener('scroll', () => {
+    if (dropdown.style.display !== 'none') positionDropdown();
+  }, { passive: true, signal });
 }
 
 
@@ -2624,6 +3452,8 @@ export {
   initPipelineFilters,
   openOpportunityModal,
   openOpportunityViewModal,
+  openOpportunityById,
+  refreshDealNextStep,
   initOpportunityModalListeners,
   addCompetitor,
   getProbabilityColor,

@@ -5,6 +5,8 @@ import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml } from '../ui/toast.js';
 import { renderSkeletonCards } from '../utils/helpers.js';
 
+const DEAL_ICON = '<svg class="nc-deal-icon" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2.1 0 2.9 6 1.5 6 4.3 0 1.2-1.3 2.1-3 2.1-1.4 0-2.6-.6-3-1.6M12 6.5v1.5M12 16v1.5"/></svg>';
+
 let currentNotesFilter = 'all';
 let currentNotesSearch = '';
 let activeNoteId = null;
@@ -22,7 +24,7 @@ async function renderNotesView() {
   // Fetch data
   let notesQ = supabaseClient
     .from('notes')
-    .select('*')
+    .select('*, opportunity:opportunities!notes_opportunity_id_fkey(id, name, company_name)')
     .eq('user_id', state.currentUser.id)
     .order('is_pinned', { ascending: false })
     .order('updated_at', { ascending: false });
@@ -104,7 +106,8 @@ function renderNotesGrid() {
     const query = currentNotesSearch.toLowerCase();
     filtered = filtered.filter(n => 
       (n.title || '').toLowerCase().includes(query) || 
-      (n.content || '').toLowerCase().includes(query)
+      (n.content || '').toLowerCase().includes(query) ||
+      (n.opportunity?.name || '').toLowerCase().includes(query)
     );
   }
 
@@ -137,7 +140,10 @@ function renderNotesGrid() {
         </div>
         <div class="nc-content">${escapeHtml(finalContent)}${finalContent.length >= 150 ? '...' : ''}</div>
         <div class="nc-footer">
-          <div class="nc-mentions"></div>
+          <div class="nc-mentions">${note.opportunity ? `
+            <button type="button" class="nc-deal" data-opportunity-id="${escapeHtml(note.opportunity.id)}" title="Open the deal ${escapeHtml(note.opportunity.name || '')}">
+              ${DEAL_ICON}<span>${escapeHtml(note.opportunity.name || 'Deal')}</span>
+            </button>` : ''}</div>
           <span class="nc-date">${date}</span>
         </div>
       </article>
@@ -147,7 +153,16 @@ function renderNotesGrid() {
   if (window.lucide) lucide.createIcons();
 
   grid.querySelectorAll('.note-card').forEach(card => {
-    card.addEventListener('click', () => openNoteSlideOver(card.dataset.id));
+    card.addEventListener('click', (e) => {
+      // The deal label opens the deal; the rest of the card opens the note
+      const dealBtn = e.target.closest('.nc-deal');
+      if (dealBtn) {
+        e.stopPropagation();
+        window.openOpportunityById?.(dealBtn.dataset.opportunityId);
+        return;
+      }
+      openNoteSlideOver(card.dataset.id);
+    });
   });
 }
 
@@ -208,6 +223,19 @@ async function openNoteSlideOver(noteId) {
 
   if (titleInput) titleInput.value = note.title || '';
   if (dateSpan) dateSpan.textContent = formatDate(note.updated_at);
+
+  // A note written on a deal links back to it; the deal opens on top of the note
+  const dealSlot = document.getElementById('nso-mentions-indicator');
+  if (dealSlot) {
+    if (note.opportunity_id) {
+      dealSlot.innerHTML = note.opportunity
+        ? `<button type="button" class="nso-deal-link" title="Open the deal">${DEAL_ICON}<span>From the deal</span><strong>${escapeHtml(note.opportunity.name || 'Untitled deal')}</strong><svg class="nso-deal-open" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg></button>`
+        : `<span class="nso-deal-link is-static">${DEAL_ICON}<span>From a deal you can't open</span></span>`;
+      dealSlot.querySelector('button')?.addEventListener('click', () => window.openOpportunityById?.(note.opportunity_id));
+    } else {
+      dealSlot.innerHTML = '';
+    }
+  }
   if (editor) editor.innerHTML = note.content || '';
   if (pinBtn) {
     pinBtn.classList.toggle('active', !!note.is_pinned);
