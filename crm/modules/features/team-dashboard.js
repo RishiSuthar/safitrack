@@ -5,6 +5,9 @@ import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards } from '../utils/helpers.js';
 import { fetchAllPages } from '../utils/analytics.js';
+import { getCompanyLogoUrl } from '../ui/spreadsheet.js';
+import { rpIcon, rpProp, rpList, rpColor, rpAgo, openRecordModal } from '../ui/record-panel.js';
+import { renderDealRow, dealStage } from './record-views.js';
 
 // VISITS HUB - PREMIUM MANAGER VIEW
 // ======================
@@ -320,24 +323,6 @@ async function renderTeamDashboardView() {
       </div>
     </div>
 
-    <!-- Visit Detail Panel -->
-    <div class="visit-detail-backdrop" id="visit-detail-backdrop"></div>
-    <div class="visit-detail-panel" id="visit-detail-panel">
-      <div class="visit-detail-header">
-        <button class="visit-detail-close" id="close-visit-detail">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-        </button>
-        <div class="visit-detail-actions">
-          <button class="btn btn-ghost btn-sm" id="visit-detail-pdf">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
-            PDF
-          </button>
-        </div>
-      </div>
-      <div class="visit-detail-body" id="visit-detail-body">
-        <!-- Content loaded dynamically -->
-      </div>
-    </div>
   `;
 
   // Initialize interactions
@@ -728,26 +713,6 @@ function initVisitsHub() {
       document.getElementById('leaderboard-tab-content').style.display = tabName === 'leaderboard' ? 'block' : 'none';
     });
   });
-
-  // Visit detail panel
-  const closeDetailBtn = document.getElementById('close-visit-detail');
-  const backdrop = document.getElementById('visit-detail-backdrop');
-  if (closeDetailBtn) {
-    closeDetailBtn.addEventListener('click', closeVisitDetail);
-  }
-  if (backdrop) {
-    backdrop.addEventListener('click', closeVisitDetail);
-  }
-
-  // PDF button in detail panel
-  const pdfBtn = document.getElementById('visit-detail-pdf');
-  if (pdfBtn) {
-    pdfBtn.addEventListener('click', () => {
-      if (visitsHubState.selectedVisitId) {
-        generateVisitPDF(visitsHubState.selectedVisitId);
-      }
-    });
-  }
 }
 
 function switchVisitsView(view, save = true) {
@@ -923,31 +888,110 @@ function getProfileDisplayNameById(userId) {
   return full || row.email || 'Unknown';
 }
 
+// ── Visit detail ──────────────────────────────────────────────────────────────
+// The same panel as deals, tasks, companies and people. A visit is field
+// evidence (who was where, when, how far from the site), so it's read-only;
+// the company, contact and the company's open deals link to their panels, and
+// fare approval works exactly as before.
+
+const VISIT_TYPE_LABELS = {
+  new_lead: 'New Lead',
+  follow_up: 'Follow-up',
+  demo: 'Product Demo',
+  closing: 'Closing',
+  support: 'Customer Support',
+};
+
+// The visit on screen, plus what was found for it in the CRM
+let visitView = null;
+
+/** For ilike: match the text exactly, ignoring case */
+function exactPattern(text) {
+  return String(text || '').replace(/[\\%_]/g, (ch) => `\\${ch}`);
+}
+
+/** The CRM company a visit was at (visits store the name, not an id) */
+function findVisitCompany(visit) {
+  const key = String(visit.company_name || '').trim().toLowerCase();
+  if (!key) return null;
+  return (Array.isArray(window.allCompaniesData) ? window.allCompaniesData : [])
+    .find(c => String(c.name || '').trim().toLowerCase() === key) || null;
+}
+
 window.openVisitDetail = function (visitId) {
-  const visit = visitsHubState.visits.find(v => v.id === visitId || v.id === parseInt(visitId));
+  const visit = (visitsHubState.visits || []).find(v => String(v.id) === String(visitId));
   if (!visit) {
     showToast('Visit not found', 'error');
     return;
   }
-  visitsHubState.selectedVisitId = visitId;
+  const panel = document.getElementById('visit-detail');
+  if (!panel) return;
+  visitsHubState.selectedVisitId = visit.id;
 
-  const userName = visit.user ? `${visit.user.first_name} ${visit.user.last_name}` : 'Unknown';
-  const dateStr = new Date(visit.created_at).toLocaleDateString('en-US', {
-    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: '2-digit'
-  });
+  // Re-opening the same visit (after a fare decision) keeps what was already looked up
+  const isNew = String(visitView?.visit?.id) !== String(visit.id);
+  if (isNew) visitView = { visit, company: findVisitCompany(visit), contact: undefined, deals: undefined, map: null };
+  else visitView.visit = visit;
 
-    const visitTypeLabels = {
-    'new_lead': 'New Lead',
-    'follow_up': 'Follow-up',
-    'demo': 'Product Demo',
-    'closing': 'Closing',
-    'support': 'Customer Support'
-  };
-  
+  openRecordModal({ modalId: 'visit-view-modal', panel, onClick: onVisitClick });
+  renderVisitPanel();
+  if (isNew) {
+    panel.querySelector('.od-body')?.scrollTo(0, 0);
+    loadVisitLinks(visitView);
+  }
+};
+
+/** Find the visit's company, contact and the company's open deals in the CRM */
+async function loadVisitLinks(view) {
+  const { visit } = view;
+  const orgId = state.currentOrganization?.id;
+  const scoped = (q) => (orgId ? q.eq('organization_id', orgId) : q);
+  const companyName = String(visit.company_name || '').trim();
+  const tagged = Array.isArray(visit.mentioned_people) ? visit.mentioned_people.find(p => p?.id) : null;
+  const contactName = String(visit.contact_name || '').trim();
+
+  const [companyRes, dealsRes, contactRes] = await Promise.all([
+    view.company || !companyName
+      ? Promise.resolve({ data: view.company })
+      : scoped(supabaseClient.from('companies').select('id, name, domain').ilike('name', exactPattern(companyName))).limit(1).maybeSingle(),
+    companyName
+      ? scoped(supabaseClient.from('opportunities')
+        .select('id, name, company_name, stage, value, pipeline_id, user_id, updated_at, profiles(first_name, last_name)')
+        .ilike('company_name', exactPattern(companyName)))
+        .order('updated_at', { ascending: false })
+        .limit(25)
+      : Promise.resolve({ data: [] }),
+    tagged
+      ? supabaseClient.from('people').select('id, name, job_title').eq('id', tagged.id).maybeSingle()
+      : (contactName
+        ? scoped(supabaseClient.from('people').select('id, name, job_title').ilike('name', exactPattern(contactName))).limit(1).maybeSingle()
+        : Promise.resolve({ data: null })),
+  ]);
+  if (visitView !== view) return;
+
+  view.company = companyRes.data || null;
+  view.contact = contactRes.data || null;
+  view.deals = dealsRes.error ? null : (dealsRes.data || []).filter(d => !dealStage(d).closed);
+  renderVisitPanel();
+}
+
+function renderVisitPanel() {
+  const panel = document.getElementById('visit-detail');
+  if (!panel || !visitView) return;
+  const { visit, company, contact, deals } = visitView;
+
+  const userName = visit.user ? `${visit.user.first_name || ''} ${visit.user.last_name || ''}`.trim() || 'Unknown' : 'Unknown';
+  const when = new Date(visit.created_at);
+  const dateStr = when.toLocaleDateString(undefined, { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  const timeStr = when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+  const typeLabel = VISIT_TYPE_LABELS[visit.visit_type] || '';
+
   const distanceTag = (visit.tags || []).find(t => typeof t === 'string' && t.startsWith('__distance:'));
   const distanceVal = distanceTag ? distanceTag.split(':')[1] : null;
   const isUnverified = (visit.tags || []).includes('location-unverified');
   const displayTags = (visit.tags || []).filter(t => typeof t !== 'string' || (!t.startsWith('__distance:') && t !== 'location-unverified'));
+
+  // Fare approval: the same rules as before
   const fareTrackingEnabled = Boolean(state.currentOrganization?.settings?.additional_features?.fare_tracking);
   const fareApprovalWorkflowEnabled = fareTrackingEnabled && Boolean(state.currentOrganization?.settings?.additional_features?.fare_approval_workflow);
   const hasFare = Number.isFinite(Number(visit.fare_amount)) && Number(visit.fare_amount) >= 0;
@@ -963,198 +1007,160 @@ window.openVisitDetail = function (visitId) {
   const canManagerDecideFare = state.isManager && fareApprovalWorkflowEnabled && hasFare && (fareStatusRaw === 'requested' || fareStatusRaw === '');
   const requesterName = visit.fare_requested_by
     ? getProfileDisplayNameById(visit.fare_requested_by)
-    : (visit.user ? `${visit.user.first_name || ''} ${visit.user.last_name || ''}`.trim() || 'Unknown' : 'Unknown');
+    : userName;
   const reviewerName = visit.fare_reviewed_by ? getProfileDisplayNameById(visit.fare_reviewed_by) : null;
-
-  const detailBody = document.getElementById('visit-detail-body');
-  if (!detailBody) {
-    console.error('Detail body element not found!');
-    return;
-  }
   const showFareSection = fareTrackingEnabled && fareApprovalWorkflowEnabled && hasFare;
-  const fareStatusPill = `<span class="visit-fare-status fare-${fareStatusRaw || 'none'}"><span class="visit-fare-status-dot"></span>${fareStatusLabel}</span>`;
+  // A fare of 0 starts collapsed (and below the notes); anything else starts open.
+  // Opening or closing it sticks while this visit stays open.
+  const fareIsZero = hasFare && Number(visit.fare_amount) === 0;
+  const fareOpen = visitView.fareOpen ?? !fareIsZero;
+  const fareOnTop = canManagerDecideFare && !fareIsZero;
+
   const fareSection = showFareSection ? `
-      <div class="visit-detail-section visit-fare-card">
-        <div class="visit-fare-card-head">
-          <h4 class="visit-detail-section-title">Fare Approval</h4>
-          ${fareStatusPill}
-        </div>
-        <div class="visit-detail-meta-grid">
-          <div class="visit-detail-meta-item">
-            <span class="visit-detail-meta-label">Requested Amount</span>
-            <span class="visit-detail-meta-value">${escapeHtml(fareCurrency)} ${Number(visit.fare_amount).toFixed(2)}</span>
+    <details class="td-section vd-fare" id="vd-fare"${fareOpen ? ' open' : ''}>
+      <summary class="vd-section-head vd-fare-summary">
+        <span class="vd-fare-heading">
+          <svg class="vd-fare-chevron" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
+          <span class="td-section-title">Fare approval</span>
+          <span class="od-muted">${escapeHtml(fareCurrency)} ${Number(visit.fare_amount).toFixed(2)}</span>
+        </span>
+        <span class="visit-fare-status fare-${fareStatusRaw || 'none'}"><span class="visit-fare-status-dot"></span>${fareStatusLabel}</span>
+      </summary>
+      <dl class="od-props">
+        ${rpProp('fare-amount', 'Requested', 'pipeline', `<span class="od-readonly">${escapeHtml(fareCurrency)} ${Number(visit.fare_amount).toFixed(2)}</span>`)}
+        ${rpProp('fare-by', 'Requested by', 'person', `<span class="od-readonly">${escapeHtml(requesterName)}</span><span class="od-muted">${formatShortDateTime(visit.fare_requested_at || visit.created_at)}</span>`)}
+        ${reviewerName || visit.fare_reviewed_at ? rpProp('fare-reviewed', 'Reviewed by', 'check', `<span class="od-readonly">${reviewerName ? escapeHtml(reviewerName) : '—'}</span>${visit.fare_reviewed_at ? `<span class="od-muted">${formatShortDateTime(visit.fare_reviewed_at)}</span>` : ''}`) : ''}
+        ${fareStatusRaw === 'approved' && Number.isFinite(Number(visit.fare_approved_amount)) ? rpProp('fare-approved', 'Approved', 'pipeline', `<span class="od-readonly">${escapeHtml(visit.fare_approved_currency || fareCurrency)} ${Number(visit.fare_approved_amount).toFixed(2)}</span>`) : ''}
+        ${fareStatusRaw === 'rejected' && visit.fare_rejection_reason ? rpProp('fare-reason', 'Reason', 'note', `<span class="od-readonly">${escapeHtml(visit.fare_rejection_reason)}</span>`) : ''}
+      </dl>
+      ${canManagerDecideFare ? `
+        <div class="vd-fare-form">
+          <label class="vd-fare-field">
+            <span>Approved amount (${escapeHtml(fareCurrency)})</span>
+            <input id="visit-fare-approval-amount" type="number" min="0" step="0.01" value="${Number(visit.fare_amount).toFixed(2)}" class="vd-fare-input">
+          </label>
+          <label class="vd-fare-field">
+            <span>Note to rep <span class="od-muted">· required to reject</span></span>
+            <textarea id="visit-fare-reject-reason" class="vd-fare-input" rows="2" placeholder="Add a short reason for the rep..."></textarea>
+          </label>
+          <div class="vd-fare-actions">
+            <button type="button" class="btn btn-secondary btn-sm" id="visit-fare-reject-btn">Reject</button>
+            <button type="button" class="btn btn-primary btn-sm" id="visit-fare-approve-btn">Approve fare</button>
           </div>
-          <div class="visit-detail-meta-item">
-            <span class="visit-detail-meta-label">Requested By</span>
-            <span class="visit-detail-meta-value">${escapeHtml(requesterName)}</span>
-          </div>
-          <div class="visit-detail-meta-item">
-            <span class="visit-detail-meta-label">Requested At</span>
-            <span class="visit-detail-meta-value">${formatShortDateTime(visit.fare_requested_at || visit.created_at)}</span>
-          </div>
-          ${reviewerName || visit.fare_reviewed_at ? `
-            <div class="visit-detail-meta-item">
-              <span class="visit-detail-meta-label">Reviewed</span>
-              <span class="visit-detail-meta-value">${reviewerName ? escapeHtml(reviewerName) : '—'}${visit.fare_reviewed_at ? `<span class="visit-detail-meta-sub">${formatShortDateTime(visit.fare_reviewed_at)}</span>` : ''}</span>
-            </div>
-          ` : ''}
-          ${fareStatusRaw === 'approved' && Number.isFinite(Number(visit.fare_approved_amount)) ? `
-            <div class="visit-detail-meta-item">
-              <span class="visit-detail-meta-label">Approved Amount</span>
-              <span class="visit-detail-meta-value">${escapeHtml(visit.fare_approved_currency || fareCurrency)} ${Number(visit.fare_approved_amount).toFixed(2)}</span>
-            </div>
-          ` : ''}
-        </div>
+        </div>` : ''}
+    </details>` : '';
 
-        ${fareStatusRaw === 'rejected' && visit.fare_rejection_reason ? `
-          <div class="visit-fare-reason">
-            <div class="visit-detail-meta-label">Rejection Reason</div>
-            <div class="visit-detail-meta-value">${escapeHtml(visit.fare_rejection_reason)}</div>
-          </div>
-        ` : ''}
-
-        ${canManagerDecideFare ? `
-          <div class="visit-fare-form">
-            <div class="visit-fare-field">
-              <label for="visit-fare-approval-amount" class="visit-detail-meta-label">Approved amount (${escapeHtml(fareCurrency)})</label>
-              <input id="visit-fare-approval-amount" type="number" min="0" step="0.01" value="${Number(visit.fare_amount).toFixed(2)}" class="sv-input">
-            </div>
-            <div class="visit-fare-field">
-              <label for="visit-fare-reject-reason" class="visit-detail-meta-label">Note to rep <span class="visit-fare-hint">· required to reject</span></label>
-              <textarea id="visit-fare-reject-reason" class="sv-input" rows="2" placeholder="Add a short reason for the rep..."></textarea>
-            </div>
-            <div class="visit-fare-actions">
-              <button type="button" class="btn btn-secondary btn-sm" id="visit-fare-reject-btn">Reject</button>
-              <button type="button" class="btn btn-primary btn-sm" id="visit-fare-approve-btn">Approve fare</button>
-            </div>
-          </div>
-        ` : ''}
-      </div>
-    ` : '';
-
-  detailBody.innerHTML = `
-    <div class="visit-detail-section">
-      <div class="visit-detail-company">${escapeHtml(softenCaps(visit.company_name || 'Unknown Company'))}</div>
-      <p class="text-muted">${dateStr}</p>
-    </div>
-
-    ${canManagerDecideFare ? fareSection : ''}
-
-    <div class="visit-detail-section">
-      <h4 class="visit-detail-section-title">Visit Information</h4>
-      <div class="visit-detail-meta-grid">
-        <div class="visit-detail-meta-item">
-          <span class="visit-detail-meta-label">Sales Rep</span>
-          <span class="visit-detail-meta-value">${escapeHtml(userName)}</span>
-        </div>
-        <div class="visit-detail-meta-item">
-          <span class="visit-detail-meta-label">Visit Type</span>
-          <span class="visit-detail-meta-value">${visitTypeLabels[visit.visit_type] || 'N/A'}</span>
-        </div>
-        ${String(visit.subsector || '').trim() ? `
-          <div class="visit-detail-meta-item">
-            <span class="visit-detail-meta-label">Subsector</span>
-            <span class="visit-detail-meta-value">${escapeHtml(String(visit.subsector).trim())}</span>
-          </div>
-        ` : ''}
-        ${visit.contact_name ? `
-          <div class="visit-detail-meta-item">
-            <span class="visit-detail-meta-label">Contact Person</span>
-            <span class="visit-detail-meta-value">${escapeHtml(softenCaps(visit.contact_name))}</span>
-          </div>
-        ` : ''}
-        ${visit.lead_score ? `
-          <div class="visit-detail-meta-item">
-            <span class="visit-detail-meta-label">Lead Score</span>
-            <span class="visit-detail-meta-value">${visit.lead_score}%</span>
-          </div>
-        ` : ''}
-        ${visit.travel_time ? `
-          <div class="visit-detail-meta-item">
-            <span class="visit-detail-meta-label">Travel Time</span>
-            <span class="visit-detail-meta-value">${escapeHtml(visit.travel_time)} minutes</span>
-          </div>
-        ` : ''}
-        ${fareTrackingEnabled && hasFare && !showFareSection ? `
-          <div class="visit-detail-meta-item">
-            <span class="visit-detail-meta-label">Fare Used</span>
-            <span class="visit-detail-meta-value">${escapeHtml(fareCurrency)} ${Number(visit.fare_amount).toFixed(2)}</span>
-          </div>
-        ` : ''}
-        <div class="visit-detail-meta-item">
-          <span class="visit-detail-meta-label">Distance from Site</span>
-          <span class="visit-detail-meta-value">${isUnverified ? '<span style="color: #ef4444;">Location not verified</span>' : (distanceVal != null ? `${escapeHtml(distanceVal)}m` : 'Unknown')}</span>
-        </div>
-      </div>
-    </div>
-
-    ${visit.notes ? `
-      <div class="visit-detail-section">
-        <h4 class="visit-detail-section-title">Notes</h4>
-        <div class="visit-detail-notes">${escapeHtml(softenCaps(visit.notes, 'sentence'))}</div>
-      </div>
-    ` : ''}
-
-    ${canManagerDecideFare ? '' : fareSection}
-
-    ${visit.ai_summary ? `
-      <div class="visit-detail-section">
-        <h4 class="visit-detail-section-title">AI Summary</h4>
-        <div class="ai-insight">
-          <div class="ai-insight-content">${parseMarkdown(visit.ai_summary)}</div>
-        </div>
-      </div>
-    ` : ''}
-
-    ${displayTags.length > 0 ? `
-      <div class="visit-detail-section">
-        <h4 class="visit-detail-section-title">Tags</h4>
-        <div class="visit-card-tags" style="gap: 0.5rem;">
-          ${displayTags.map(tag => `<span class="tag">${escapeHtml(tag)}</span>`).join('')}
-        </div>
-      </div>
-    ` : ''}
-
-    ${visit.photo_url ? `
-      <div class="visit-detail-section">
-        <h4 class="visit-detail-section-title">Photo</h4>
-        <div class="visit-detail-photo">
-          <img src="${visit.photo_url}" alt="Visit photo" onclick="openPhotoModal('${visit.photo_url}')" style="cursor: pointer;">
-        </div>
-      </div>
-    ` : ''}
-    
-    ${visit.latitude && visit.longitude && !isUnverified ? `
-      <div class="visit-detail-section">
-        <h4 class="visit-detail-section-title">Location</h4>
-        <div id="visit-detail-map" style="height: 200px; border-radius: var(--radius-md); overflow: hidden;"></div>
-        <p class="text-muted text-center mt-2" style="font-size: 0.75rem;">${visit.latitude.toFixed(6)}, ${visit.longitude.toFixed(6)}</p>
-      </div>
-    ` : ''}
-    ${isUnverified ? `
-      <div class="visit-detail-section">
-        <h4 class="visit-detail-section-title">Location</h4>
-        <div style="background: var(--bg-secondary); padding: 1.5rem; border-radius: var(--radius-md); text-align: center; color: #ef4444; font-weight: 500; font-size: 0.875rem;">
-          Location not verified
-        </div>
-      </div>
-    ` : ''}
-  `;
-
-  // Show panel
-  const panel = document.getElementById('visit-detail-panel');
-  const backdrop = document.getElementById('visit-detail-backdrop');
-
-  if (!panel || !backdrop) {
-    console.error('Detail panel elements not found!');
-    console.log('Panel:', panel);
-    console.log('Backdrop:', backdrop);
-    return;
+  // Location check
+  let locationHtml;
+  if (isUnverified) locationHtml = '<span class="od-readonly vd-warning">Not verified</span>';
+  else if (distanceVal != null) locationHtml = `<span class="od-readonly">${escapeHtml(distanceVal)} m from the site</span>`;
+  else locationHtml = '<span class="od-readonly is-empty">Unknown</span>';
+  const hasCoords = visit.latitude && visit.longitude;
+  if (hasCoords) {
+    locationHtml += `<a class="od-link" href="https://www.google.com/maps?q=${encodeURIComponent(`${visit.latitude},${visit.longitude}`)}" target="_blank" rel="noopener noreferrer">Open map</a>`;
   }
 
-  panel.classList.add('open');
-  backdrop.classList.add('open');
-  document.body.style.overflow = 'hidden'; // prevent background scroll on mobile
+  const companyLabel = softenCaps(visit.company_name || 'Unknown company');
+  const companyHtml = company?.id
+    ? `<button type="button" class="od-company is-link" data-action="open-company">${rpIcon('company')}${escapeHtml(companyLabel)}</button>`
+    : `<span class="od-readonly">${escapeHtml(companyLabel)}</span>`;
+  const contactHtml = contact?.id
+    ? `<button type="button" class="od-link od-link--strong" data-action="open-contact">${escapeHtml(contact.name)}</button>${contact.job_title ? `<span class="od-muted">${escapeHtml(contact.job_title)}</span>` : ''}`
+    : (visit.contact_name
+      ? `<span class="od-readonly">${escapeHtml(softenCaps(visit.contact_name))}</span>`
+      : '<span class="od-readonly is-empty">None</span>');
+
+  const logoUrl = company?.domain ? getCompanyLogoUrl(company.domain) : '';
+  const notes = String(visit.notes || '').trim();
+
+  const dealsSection = String(visit.company_name || '').trim() ? `
+    <section class="td-section">
+      <h3 class="td-section-title">Open deals at ${escapeHtml(companyLabel)}</h3>
+      ${rpList(deals, 'No open deals with this company.', renderDealRow)}
+    </section>` : '';
+
+  const scrollTop = panel.querySelector('.od-body')?.scrollTop || 0;
+  visitView.map?.remove();
+  visitView.map = null;
+
+  panel.innerHTML = `
+    <header class="od-header">
+      <span class="od-avatar" aria-hidden="true">
+        <span class="opp-avatar-initials">${escapeHtml(getInitials(companyLabel))}</span>
+        ${logoUrl ? `<img src="${escapeHtml(logoUrl)}" alt="" onload="this.previousElementSibling.style.visibility='hidden'" onerror="this.remove()" />` : ''}
+      </span>
+      <div class="od-heading">
+        ${company?.id
+          ? `<button type="button" class="od-title od-title-link" id="vd-title" data-action="open-company">${escapeHtml(companyLabel)}</button>`
+          : `<h2 class="od-title" id="vd-title">${escapeHtml(companyLabel)}</h2>`}
+        <div class="od-subtitle">${[typeLabel ? `<span>${escapeHtml(typeLabel)}</span>` : '', `<span>${escapeHtml(dateStr)}, ${escapeHtml(timeStr)}</span>`, `<span>by ${escapeHtml(userName)}</span>`].filter(Boolean).join('<span class="od-dot">·</span>')}</div>
+      </div>
+      <div class="od-actions">
+        <button type="button" class="od-icon-btn" data-action="pdf" title="Download PDF" aria-label="Download PDF">${rpIcon('pdf')}</button>
+        <button type="button" class="od-icon-btn" data-action="close" title="Close" aria-label="Close">${rpIcon('close')}</button>
+      </div>
+    </header>
+
+    <div class="od-body">
+      <dl class="od-props">
+        ${rpProp('company', 'Company', 'company', companyHtml)}
+        ${rpProp('contact', 'Contact', 'person', contactHtml)}
+        ${rpProp('rep', 'Visited by', 'job', `<span class="od-person"><span class="od-person-avatar" style="background:${rpColor(visit.user_id)}">${escapeHtml(getInitials(userName))}</span>${escapeHtml(userName)}</span>`)}
+        ${rpProp('when', 'When', 'activity', `<span class="od-readonly">${escapeHtml(dateStr)}, ${escapeHtml(timeStr)}</span><span class="od-muted">${escapeHtml(rpAgo(visit.created_at))}</span>`)}
+        ${rpProp('location', 'Location', 'address', locationHtml)}
+        ${visit.lead_score ? rpProp('score', 'Lead score', 'activity', `<span class="od-readonly">${escapeHtml(String(visit.lead_score))}%</span>`) : ''}
+        ${visit.travel_time ? rpProp('travel', 'Travel time', 'directions', `<span class="od-readonly">${escapeHtml(String(visit.travel_time))} min</span>`) : ''}
+        ${fareTrackingEnabled && hasFare && !showFareSection ? rpProp('fare', 'Fare used', 'pipeline', `<span class="od-readonly">${escapeHtml(fareCurrency)} ${Number(visit.fare_amount).toFixed(2)}</span>`) : ''}
+        ${String(visit.subsector || '').trim() ? rpProp('subsector', 'Subsector', 'sector', `<span class="od-readonly">${escapeHtml(String(visit.subsector).trim())}</span>`) : ''}
+      </dl>
+
+      ${fareOnTop ? fareSection : ''}
+
+      <section class="td-section">
+        <h3 class="td-section-title">Notes</h3>
+        <div class="od-notes is-readonly${notes ? '' : ' is-empty'}">${notes ? escapeHtml(softenCaps(notes, 'sentence')) : 'No notes for this visit.'}</div>
+      </section>
+
+      ${fareOnTop ? '' : fareSection}
+
+      ${visit.ai_summary ? `
+        <section class="td-section">
+          <h3 class="td-section-title">AI summary</h3>
+          <div class="vd-ai">${parseMarkdown(visit.ai_summary)}</div>
+        </section>` : ''}
+
+      ${displayTags.length ? `
+        <section class="td-section">
+          <h3 class="td-section-title">Tags</h3>
+          <div class="vd-tags">${displayTags.map(tag => `<span class="od-tag">${escapeHtml(String(tag))}</span>`).join('')}</div>
+        </section>` : ''}
+
+      ${visit.photo_url ? `
+        <section class="td-section">
+          <h3 class="td-section-title">Photo</h3>
+          <button type="button" class="vd-photo" data-action="photo" aria-label="View photo full size"><img src="${escapeHtml(visit.photo_url)}" alt="Visit photo"></button>
+        </section>` : ''}
+
+      ${hasCoords && !isUnverified ? `
+        <section class="td-section">
+          <h3 class="td-section-title">Where</h3>
+          <div id="visit-detail-map" class="vd-map"></div>
+          <p class="od-muted vd-coords">${Number(visit.latitude).toFixed(6)}, ${Number(visit.longitude).toFixed(6)}</p>
+        </section>` : ''}
+
+      ${dealsSection}
+    </div>
+
+    <footer class="od-footer">
+      <span>Logged ${escapeHtml(formatDate(visit.created_at))}</span>
+    </footer>`;
+
+  const body = panel.querySelector('.od-body');
+  if (body) body.scrollTop = scrollTop;
+
+  document.getElementById('vd-fare')?.addEventListener('toggle', (e) => {
+    visitView.fareOpen = e.target.open;
+  });
 
   const approveBtn = document.getElementById('visit-fare-approve-btn');
   const rejectBtn = document.getElementById('visit-fare-reject-btn');
@@ -1205,20 +1211,43 @@ window.openVisitDetail = function (visitId) {
     });
   }
 
-  // Initialize mini map if coordinates exist
-  if (visit.latitude && visit.longitude) {
+  // Mini map where the visit was logged
+  if (hasCoords && !isUnverified) {
+    const view = visitView;
     setTimeout(() => {
       const mapEl = document.getElementById('visit-detail-map');
-      if (mapEl && typeof L !== 'undefined') {
-        const miniMap = L.map(mapEl).setView([visit.latitude, visit.longitude], 15);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '© OpenStreetMap'
-        }).addTo(miniMap);
-        L.marker([visit.latitude, visit.longitude]).addTo(miniMap);
-      }
-    }, 300);
+      if (!mapEl || typeof L === 'undefined' || visitView !== view || view.map) return;
+      view.map = L.map(mapEl, { scrollWheelZoom: false }).setView([visit.latitude, visit.longitude], 15);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap'
+      }).addTo(view.map);
+      L.marker([visit.latitude, visit.longitude]).addTo(view.map);
+    }, 250);
   }
-};
+}
+
+function onVisitClick(e) {
+  if (!visitView) return;
+  const { visit, company, contact, deals } = visitView;
+  const actionEl = e.target.closest('[data-action]');
+  const action = actionEl?.dataset.action;
+  if (!action) return;
+
+  // Moving to another record closes this panel first (panels don't stack)
+  const goTo = (open) => {
+    closeVisitDetail();
+    setTimeout(open, 120);
+  };
+  if (action === 'close') closeVisitDetail();
+  else if (action === 'pdf') generateVisitPDF(visit.id);
+  else if (action === 'photo') openPhotoModal(visit.photo_url);
+  else if (action === 'open-company' && company?.id) goTo(() => window.openCompanyViewModal?.(company.id));
+  else if (action === 'open-contact' && contact?.id) goTo(() => window.openPersonViewModal?.(contact.id));
+  else if (action === 'open-deal') {
+    const deal = deals?.[Number(actionEl.dataset.index)];
+    if (deal) goTo(() => window.openOpportunityById?.(deal.id));
+  }
+}
 
 async function saveFareDecision(visitId, payload, successMessage) {
   try {
@@ -1246,70 +1275,24 @@ async function saveFareDecision(visitId, payload, successMessage) {
 }
 
 function closeVisitDetail() {
-  const panel = document.getElementById('visit-detail-panel');
-  const backdrop = document.getElementById('visit-detail-backdrop');
-  if (panel) panel.classList.remove('open');
-  if (backdrop) backdrop.classList.remove('open');
-  document.body.style.overflow = ''; // restore scrolling
+  window.closeModal('visit-view-modal');
+  visitView?.map?.remove();
+  if (visitView) visitView.map = null;
   visitsHubState.selectedVisitId = null;
 }
 
-// Ensure a visit exists in the visitsHubState; fetch from server when missing, then open detail.
+/** Open a visit from anywhere (a company or person panel): load it if it isn't cached */
 async function fetchAndOpenVisit(visitId) {
-  // normalize
   const vid = String(visitId);
-  let visit = (visitsHubState.visits || []).find(v => String(v.id) === vid);
-  if (!visit) {
-    try {
-      const { data, error } = await supabaseClient.from('visits').select('*, user:profiles(first_name,last_name)').eq('id', visitId).single();
-      if (error || !data) {
-        showToast('Visit not found', 'error');
-        return;
-      }
-      // add to local cache so openVisitDetail can find it
-      visitsHubState.visits = visitsHubState.visits || [];
-      visitsHubState.visits.push(data);
-      visit = data;
-    } catch (e) {
-      showToast('Error loading visit', 'error');
+  if (!(visitsHubState.visits || []).some(v => String(v.id) === vid)) {
+    const { data, error } = await supabaseClient.from('visits').select('*, user:profiles(first_name,last_name)').eq('id', visitId).maybeSingle();
+    if (error || !data) {
+      showToast('Visit not found', 'error');
       return;
     }
+    visitsHubState.visits = [...(visitsHubState.visits || []), data];
   }
-  // If the Visits side-panel exists, use it. Otherwise create the same side-panel UI so behavior is consistent.
-  const detailBody = document.getElementById('visit-detail-body');
-  if (!detailBody) {
-    // create backdrop if missing
-    let backdrop = document.getElementById('visit-detail-backdrop');
-    if (!backdrop) {
-      backdrop = document.createElement('div');
-      backdrop.id = 'visit-detail-backdrop';
-      backdrop.className = 'visit-detail-backdrop';
-      backdrop.onclick = closeVisitDetail;
-      document.body.appendChild(backdrop);
-    }
-
-    // create panel if missing
-    let panel = document.getElementById('visit-detail-panel');
-    if (!panel) {
-      panel = document.createElement('div');
-      panel.id = 'visit-detail-panel';
-      panel.className = 'visit-detail-panel';
-      panel.innerHTML = `
-        <div class="visit-detail-header">
-          <button class="visit-detail-close" id="close-visit-detail" onclick="closeVisitDetail()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-          </button>
-        </div>
-        <div class="visit-detail-body" id="visit-detail-body"></div>
-      `;
-      document.body.appendChild(panel);
-    }
-  }
-
-  // Now open the side-panel view
-  if (window.openVisitDetail) {
-    openVisitDetail(visitId);
-  }
+  window.openVisitDetail(visitId);
 }
 
 function openPhotoModal(photoUrl) {

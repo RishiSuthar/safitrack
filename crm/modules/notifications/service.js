@@ -11,6 +11,7 @@ import {
   formatDueLabel,
 } from './types.js';
 import { notificationStore } from './store.js';
+import { dueStart } from '../utils/due-dates.js';
 import { showNotificationToast } from './toast.js';
 import { sendBrowserNotification } from './browser.js';
 import { playNotificationChime } from './sound.js';
@@ -100,7 +101,7 @@ class NotificationService {
     // 1. Tasks
     let tasksQ = supabaseClient
       .from('tasks')
-      .select('id, title, due_date, status, assigned_to, created_by, priority')
+      .select('id, title, due_date, due_all_day, status, assigned_to, created_by, priority')
       .not('due_date', 'is', null)
       .neq('status', 'completed')
       .lte('due_date', horizonIso)
@@ -157,9 +158,10 @@ class NotificationService {
   // ── Mappers ────────────────────────────────────────────────────────────────
 
   _mapTask(task) {
-    const dueAt = task.due_date ? new Date(task.due_date) : null;
-    if (!dueAt || Number.isNaN(dueAt.getTime())) return null;
-    const status = evaluateDueStatus(dueAt);
+    // An all-day task is due on its calendar date wherever the viewer is
+    const dueAt = dueStart(task.due_date, task.due_all_day);
+    if (!dueAt) return null;
+    const status = evaluateDueStatus(task.due_date, task.due_all_day);
     const urgency = evaluateUrgency(status, NOTIFICATION_CATEGORIES.TASK);
 
     return {
@@ -167,9 +169,11 @@ class NotificationService {
       entityType: NOTIFICATION_CATEGORIES.TASK,
       entityId: String(task.id),
       title: task.title || 'Task due',
-      message: `Due ${formatDueLabel(dueAt)}`,
+      message: `Due ${formatDueLabel(task.due_date, task.due_all_day)}`,
       timestamp: dueAt.getTime(),
       dueAt,
+      dueValue: task.due_date,
+      dueAllDay: task.due_all_day,
       status,
       urgency,
       view: 'tasks',
@@ -205,9 +209,10 @@ class NotificationService {
   }
 
   _mapOpportunity(opp) {
-    const dueAt = opp.next_step_date ? new Date(opp.next_step_date) : null;
-    if (!dueAt || Number.isNaN(dueAt.getTime())) return null;
-    const status = evaluateDueStatus(dueAt);
+    // next_step_date is a calendar date ("2026-10-20"), due all that day
+    const dueAt = dueStart(opp.next_step_date, true);
+    if (!dueAt) return null;
+    const status = evaluateDueStatus(opp.next_step_date, true);
     const urgency = evaluateUrgency(status, NOTIFICATION_CATEGORIES.DEAL);
     const company = opp.company_name || opp.name || 'Deal';
     const nextStep = opp.next_step || 'Next action due';
@@ -217,9 +222,11 @@ class NotificationService {
       entityType: NOTIFICATION_CATEGORIES.DEAL,
       entityId: String(opp.id),
       title: company,
-      message: `${nextStep} — due ${formatDueLabel(dueAt)}`,
+      message: `${nextStep} — due ${formatDueLabel(opp.next_step_date, true)}`,
       timestamp: dueAt.getTime(),
       dueAt,
+      dueValue: opp.next_step_date,
+      dueAllDay: true,
       status,
       urgency,
       view: 'opportunity-pipeline',

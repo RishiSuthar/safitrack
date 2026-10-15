@@ -22678,6 +22678,7 @@ button svg {
 }
 
 .od-notes.is-readonly {
+  min-height: 0;
   cursor: default;
 }
 
@@ -23113,6 +23114,243 @@ button svg {
   }
 }
 
+/* ── Company and person panels (record-views.js): the same layout ──────────── */
+.od-avatar.rp-person-avatar {
+  border: 0;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  color: #fff;
+}
+
+/* Links that look like the subtitle's company button */
+a.od-company,
+a.od-icon-btn,
+a.od-link {
+  text-decoration: none;
+}
+
+a.od-company.is-link:hover,
+a.od-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* A small "open" arrow beside an editable value (website, email) */
+.od-icon-link {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-left: -4px;
+  border-radius: 6px;
+  color: var(--text-muted);
+}
+
+.od-icon-link .od-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.od-icon-link:hover {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+.od-icon-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.od-item.is-muted .od-item-title {
+  color: var(--text-muted);
+}
+
+/* People in related lists: initials instead of a dot */
+.od-item .rp-item-avatar {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin-top: 0;
+  font-size: 0.6rem;
+}
+
+/* ── Visit panel (team-dashboard.js): read-only, same layout ────────────────── */
+.od-title-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 1.25rem;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+}
+
+.od-title-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.vd-warning {
+  font-weight: 550;
+  color: var(--color-danger);
+}
+
+.vd-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.vd-section-head .td-section-title {
+  margin: 0;
+}
+
+.vd-fare .od-props {
+  padding-bottom: 4px;
+}
+
+/* Fare approval folds open and closed; the summary keeps the amount and status in view */
+.vd-fare-summary {
+  margin-bottom: 0;
+  list-style: none;
+  cursor: pointer;
+  user-select: none;
+}
+
+.vd-fare-summary::-webkit-details-marker {
+  display: none;
+}
+
+.vd-fare[open] > .vd-fare-summary {
+  margin-bottom: 6px;
+}
+
+.vd-fare-heading {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.vd-fare-heading .td-section-title {
+  margin: 0;
+}
+
+.vd-fare-chevron {
+  flex-shrink: 0;
+  color: var(--text-muted);
+  transition: transform 0.15s;
+}
+
+.vd-fare[open] .vd-fare-chevron {
+  transform: rotate(90deg);
+}
+
+.vd-fare-summary:hover .td-section-title {
+  color: var(--text-primary);
+}
+
+.vd-fare-summary:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.vd-fare-form {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  margin-top: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-primary);
+}
+
+.vd-fare-field {
+  display: grid;
+  gap: 4px;
+  font-size: 0.8125rem;
+  font-weight: 550;
+  color: var(--text-secondary);
+}
+
+.vd-fare-input {
+  width: 100%;
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  outline: none;
+  resize: vertical;
+}
+
+.vd-fare-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.vd-fare-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.vd-ai {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.vd-ai > :first-child {
+  margin-top: 0;
+}
+
+.vd-ai > :last-child {
+  margin-bottom: 0;
+}
+
+.vd-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.vd-photo {
+  display: block;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: none;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.vd-photo img {
+  display: block;
+  max-width: 100%;
+  max-height: 260px;
+  object-fit: cover;
+}
+
+.vd-map {
+  height: 200px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.vd-coords {
+  margin: 6px 0 0;
+}
+
 /* ── Task detail: the deal panel's layout, plus a done checkbox and its source ── */
 .td-panel {
   width: min(600px, 100%);
@@ -23170,8 +23408,10 @@ button svg {
    these panels keep their size (the checkbox gets a larger invisible tap area) */
 .td-check,
 .od-subtitle button,
+.od-subtitle a,
 .od-panel .od-link,
-.od-panel .od-plain-link {
+.od-panel .od-plain-link,
+.od-panel .od-icon-link {
   min-height: 0;
   min-width: 0;
 }
@@ -23193,12 +23433,14 @@ button svg {
   text-decoration-thickness: 1.5px;
 }
 
-/* Reads as one sentence and wraps like text on narrow screens */
+/* Subtitles read as one sentence and wrap like text on narrow screens */
+.od-subtitle,
 .td-source {
   display: block;
   line-height: 1.55;
 }
 
+.od-subtitle > *,
 .td-source > * {
   margin-right: 5px;
   vertical-align: middle;

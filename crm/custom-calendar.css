@@ -257,6 +257,36 @@ input[type="datetime-local"]::-webkit-inner-spin-button {
     text-transform: uppercase;
 }
 
+.time-picker-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+}
+
+.calendar-all-day {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    cursor: pointer;
+    user-select: none;
+}
+
+.calendar-all-day input {
+    width: 15px;
+    height: 15px;
+    margin: 0;
+    accent-color: var(--color-primary);
+    cursor: pointer;
+}
+
+.calendar-time-picker.is-all-day .time-inputs {
+    display: none;
+}
+
 .time-inputs {
     display: flex;
     align-items: center;
