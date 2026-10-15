@@ -22678,6 +22678,7 @@ button svg {
 }
 
 .od-notes.is-readonly {
+  min-height: 0;
   cursor: default;
 }
 
@@ -23171,6 +23172,136 @@ a.od-link:hover {
   height: 24px;
   margin-top: 0;
   font-size: 0.6rem;
+}
+
+/* ── Visit panel (team-dashboard.js): read-only, same layout ────────────────── */
+.od-title-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 1.25rem;
+  font-weight: 650;
+  text-align: left;
+  cursor: pointer;
+}
+
+.od-title-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.vd-warning {
+  font-weight: 550;
+  color: var(--color-danger);
+}
+
+.vd-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.vd-section-head .td-section-title {
+  margin: 0;
+}
+
+.vd-fare .od-props {
+  padding-bottom: 4px;
+}
+
+.vd-fare-form {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  margin-top: 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: var(--bg-primary);
+}
+
+.vd-fare-field {
+  display: grid;
+  gap: 4px;
+  font-size: 0.8125rem;
+  font-weight: 550;
+  color: var(--text-secondary);
+}
+
+.vd-fare-input {
+  width: 100%;
+  min-height: 36px;
+  padding: 7px 10px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-secondary);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  outline: none;
+  resize: vertical;
+}
+
+.vd-fare-input:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+}
+
+.vd-fare-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.vd-ai {
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.vd-ai > :first-child {
+  margin-top: 0;
+}
+
+.vd-ai > :last-child {
+  margin-bottom: 0;
+}
+
+.vd-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.vd-photo {
+  display: block;
+  padding: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  background: none;
+  overflow: hidden;
+  cursor: zoom-in;
+}
+
+.vd-photo img {
+  display: block;
+  max-width: 100%;
+  max-height: 260px;
+  object-fit: cover;
+}
+
+.vd-map {
+  height: 200px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.vd-coords {
+  margin: 6px 0 0;
 }
 
 /* ── Task detail: the deal panel's layout, plus a done checkbox and its source ── */

@@ -559,4 +559,4 @@ function onPersonClick(e) {
   else if (action === 'open-visit') openRelated('visit', personView.visits[index]);
 }
 
-export { openCompanyPanel, openPersonPanel };
+export { openCompanyPanel, openPersonPanel, renderDealRow, dealStage };

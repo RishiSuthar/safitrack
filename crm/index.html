@@ -1883,6 +1883,12 @@
     </div>
   </div>
 
+  <!-- Visit detail: rendered by openVisitDetail (modules/features/team-dashboard.js); opens from any page -->
+  <div id="visit-view-modal" class="modal od-modal" style="display:none;">
+    <div class="modal-backdrop" onclick="closeVisitDetail()"></div>
+    <div class="od-panel" id="visit-detail" role="dialog" aria-modal="true" aria-labelledby="vd-title"></div>
+  </div>
+
   <!-- Person detail: rendered by openPersonPanel (modules/features/record-views.js) -->
   <div id="person-view-modal" class="modal od-modal" style="display:none;">
     <div class="modal-backdrop" onclick="closeModal('person-view-modal')"></div>
