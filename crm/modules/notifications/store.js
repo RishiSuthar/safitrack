@@ -203,7 +203,7 @@ class NotificationStore {
       .filter((item) => !this.dismissedMap[item.id])
       .map((item) => {
         const isRead = Boolean(this.readMap[item.id]);
-        const status = item.dueAt ? evaluateDueStatus(item.dueAt) : item.status || 'active';
+        const status = item.dueAt ? evaluateDueStatus(item.dueValue ?? item.dueAt, item.dueAllDay) : item.status || 'active';
         const urgency = evaluateUrgency(status, item.entityType);
         return {
           ...item,

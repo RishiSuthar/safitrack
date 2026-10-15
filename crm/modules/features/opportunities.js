@@ -7,6 +7,7 @@ import { renderError, formatCurrency } from '../utils/helpers.js';
 import { getCompanyLogoUrl } from '../ui/spreadsheet.js';
 import { getDefaultSalesStages, LEGACY_STAGE_TO_CANONICAL } from '../utils/pipeline-stages.js';
 import { fetchAllPages } from '../utils/analytics.js';
+import { allDayDueFields, dueDay, dueStart } from '../utils/due-dates.js';
 
 // ── Pipeline helpers ──────────────────────────────────────────────────────────
 
@@ -604,7 +605,7 @@ async function renderOpportunityPipelineView({ preserveView = false } = {}) {
   if (opportunities.length > 0) {
     const { data: taskRows, error: taskError } = await supabaseClient
       .from('tasks')
-      .select('opportunity_id, title, due_date, status, created_at, updated_at')
+      .select('opportunity_id, title, due_date, due_all_day, status, created_at, updated_at')
       .in('opportunity_id', opportunities.map(o => o.id));
     if (taskError) {
       console.warn('Deal tasks:', taskError.message);
@@ -1356,7 +1357,7 @@ async function openOpportunityModal(opportunity = null, options = {}) {
     const nextTask = state.opportunityFormNextTask;
     document.getElementById('opportunity-next-step').value = nextTask ? nextTask.title : (opportunity.next_step || '');
     document.getElementById('opportunity-next-step-date').value = nextTask
-      ? timestampToDay(nextTask.due_date)
+      ? dueDay(nextTask.due_date, nextTask.due_all_day)
       : (opportunity.next_step_date ? String(opportunity.next_step_date).slice(0, 10) : '');
 
     parseCompetitors(opportunity.competitors).forEach(comp => addCompetitor(comp));
@@ -1417,23 +1418,9 @@ async function openOpportunityModal(opportunity = null, options = {}) {
 
 const DEAL_TASK_SELECT = '*, assigned_to_profile:profiles!tasks_assigned_to_fkey(first_name, last_name, email), created_by_profile:profiles!tasks_created_by_fkey(first_name, last_name, email)';
 
-const pad2 = (n) => String(n).padStart(2, '0');
-
-/** A date picked for a task ("2026-10-14") as local midnight: due that day, no particular time */
-function dueDateToTimestamp(day) {
-  return day ? new Date(`${day}T00:00:00`).toISOString() : null;
-}
-
-/** A task's due timestamp as the local day ("2026-10-14"), or '' */
-function timestampToDay(value) {
-  const date = value ? new Date(value) : null;
-  if (!date || Number.isNaN(date.getTime())) return '';
-  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
-}
-
-/** Open tasks soonest first (undated after dated), then finished ones */
+/** Open tasks soonest first (undated after dated, all-day before timed that day), then finished ones */
 function sortDealTasks(tasks) {
-  const dueTime = (t) => (t.due_date ? new Date(t.due_date).getTime() : Infinity);
+  const dueTime = (t) => dueStart(t.due_date, t.due_all_day)?.getTime() ?? Infinity;
   return [...tasks].sort((a, b) => {
     const doneA = a.status === 'completed';
     const doneB = b.status === 'completed';
@@ -1449,7 +1436,7 @@ function getNextOpenTask(tasks) {
 
 function nextStepFieldsFromTasks(tasks) {
   const next = getNextOpenTask(tasks);
-  return { next_step: next?.title || null, next_step_date: next ? (timestampToDay(next.due_date) || null) : null };
+  return { next_step: next?.title || null, next_step_date: next ? (dueDay(next.due_date, next.due_all_day) || null) : null };
 }
 
 /** The deal's tasks, or null when they can't be loaded */
@@ -1485,7 +1472,8 @@ async function createDealTask(deal, { title, day }) {
       description: null,
       assigned_to: deal.user_id || state.currentUser.id,
       created_by: state.currentUser.id,
-      due_date: dueDateToTimestamp(day),
+      // A day picked on the deal: due all that day, the same day in every timezone
+      ...allDayDueFields(day),
       priority: 'medium',
       status: 'pending',
       organization_id: state.currentOrganization?.id,
@@ -1535,7 +1523,7 @@ async function createDealNote(deal, text) {
 async function refreshDealNextStep(opportunityId) {
   if (!opportunityId) return;
   const [{ data: tasks, error }, { data: deal }] = await Promise.all([
-    supabaseClient.from('tasks').select('title, due_date, status, created_at, updated_at').eq('opportunity_id', opportunityId),
+    supabaseClient.from('tasks').select('title, due_date, due_all_day, status, created_at, updated_at').eq('opportunity_id', opportunityId),
     supabaseClient.from('opportunities').select('id, next_step, next_step_date').eq('id', opportunityId).maybeSingle(),
   ]);
   if (error || !deal) return;
@@ -1779,7 +1767,7 @@ function renderOpportunityDetail() {
       <span class="od-next-step">
         ${canEdit ? `<button type="button" class="od-check" data-action="toggle-task" data-task-id="${escapeHtml(nextTask.id)}" title="Mark done" aria-label="Mark “${escapeHtml(nextTask.title)}” done"></button>` : ''}
         <button type="button" class="od-plain-link" data-action="open-task-id" data-task-id="${escapeHtml(nextTask.id)}">${escapeHtml(nextTask.title)}</button>
-      </span>${dueHtml(timestampToDay(nextTask.due_date))}`;
+      </span>${dueHtml(dueDay(nextTask.due_date, nextTask.due_all_day))}`;
   } else if (opp.next_step && detail.tasks !== undefined) {
     // Typed on the deal before next steps were tasks
     nextStepHtml = `<span class="od-readonly">${escapeHtml(opp.next_step)}</span>${dueHtml(opp.next_step_date)}`
@@ -1847,7 +1835,7 @@ function renderOpportunityDetail() {
     else {
       list = `<div class="od-list">${sortDealTasks(detail.tasks).map(t => {
         const done = t.status === 'completed';
-        const day = timestampToDay(t.due_date);
+        const day = dueDay(t.due_date, t.due_all_day);
         const assignee = t.assigned_to ? memberName(t.assigned_to) : '';
         return `
           <div class="od-task${done ? ' is-done' : ''}">
@@ -2782,7 +2770,7 @@ async function saveFormNextStep(deal, existingTask, title, day, previousDeal) {
     if (!title) return;
     const changes = {};
     if (title !== existingTask.title) changes.title = title;
-    if (day !== timestampToDay(existingTask.due_date)) changes.due_date = dueDateToTimestamp(day);
+    if (day !== dueDay(existingTask.due_date, existingTask.due_all_day)) Object.assign(changes, allDayDueFields(day));
     if (!Object.keys(changes).length) return;
     const { error } = await supabaseClient
       .from('tasks')
