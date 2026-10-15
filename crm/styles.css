@@ -23113,6 +23113,66 @@ button svg {
   }
 }
 
+/* ── Company and person panels (record-views.js): the same layout ──────────── */
+.od-avatar.rp-person-avatar {
+  border: 0;
+  border-radius: 50%;
+  font-size: 0.875rem;
+  color: #fff;
+}
+
+/* Links that look like the subtitle's company button */
+a.od-company,
+a.od-icon-btn,
+a.od-link {
+  text-decoration: none;
+}
+
+a.od-company.is-link:hover,
+a.od-link:hover {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* A small "open" arrow beside an editable value (website, email) */
+.od-icon-link {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-left: -4px;
+  border-radius: 6px;
+  color: var(--text-muted);
+}
+
+.od-icon-link .od-icon {
+  width: 14px;
+  height: 14px;
+}
+
+.od-icon-link:hover {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+.od-icon-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.od-item.is-muted .od-item-title {
+  color: var(--text-muted);
+}
+
+/* People in related lists: initials instead of a dot */
+.od-item .rp-item-avatar {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  margin-top: 0;
+  font-size: 0.6rem;
+}
+
 /* ── Task detail: the deal panel's layout, plus a done checkbox and its source ── */
 .td-panel {
   width: min(600px, 100%);
@@ -23170,8 +23230,10 @@ button svg {
    these panels keep their size (the checkbox gets a larger invisible tap area) */
 .td-check,
 .od-subtitle button,
+.od-subtitle a,
 .od-panel .od-link,
-.od-panel .od-plain-link {
+.od-panel .od-plain-link,
+.od-panel .od-icon-link {
   min-height: 0;
   min-width: 0;
 }
@@ -23193,12 +23255,14 @@ button svg {
   text-decoration-thickness: 1.5px;
 }
 
-/* Reads as one sentence and wraps like text on narrow screens */
+/* Subtitles read as one sentence and wrap like text on narrow screens */
+.od-subtitle,
 .td-source {
   display: block;
   line-height: 1.55;
 }
 
+.od-subtitle > *,
 .td-source > * {
   margin-right: 5px;
   vertical-align: middle;

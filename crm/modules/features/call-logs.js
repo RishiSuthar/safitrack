@@ -563,247 +563,110 @@ document.addEventListener('keydown', (e) => {
  * Accepts a company object or company id.
  */
 async function openCompanyViewModal(companyOrId) {
-  const modal = document.getElementById('company-view-modal');
-  if (!modal) {
-    showToast('Company view modal not found', 'error');
+  // The company panel lives with the person panel in record-views.js
+  const { openCompanyPanel } = await import('./record-views.js');
+  return openCompanyPanel(companyOrId);
+}
+
+/** SafiFind: search the map around a company for businesses not yet in the CRM */
+function openSafiFindForCompany(company) {
+  if (!company) return;
+  wireSafiFindSearch();
+  try { closeModal('safifind-modal'); } catch (e) { /* ignore */ }
+  const safiModal = document.getElementById('safifind-modal');
+  if (!safiModal) {
+    showToast('SafiFind modal not available', 'error');
     return;
   }
 
-  // Resolve company object
-  let company = companyOrId;
-  if (!company || (typeof company === 'string' || typeof company === 'number')) {
-    const companyId = company || companyOrId;
-    company = (Array.isArray(window.allCompaniesData) ? window.allCompaniesData.find(c => String(c.id) === String(companyId)) : null);
-    if (!company) {
-      const { data, error } = await supabaseClient.from('companies').select('*, company_categories(categories(id,name))').eq('id', companyId).single();
-      if (error) {
-        showToast('Unable to load company', 'error');
-        return;
-      }
-      company = data;
+  // Store company coords on the modal dataset
+  if (company && company.latitude && company.longitude) {
+    safiModal.dataset.lat = company.latitude;
+    safiModal.dataset.lon = company.longitude;
+    const coordsEl = safiModal.querySelector('#safifind-coords');
+    if (coordsEl) coordsEl.textContent = `${company.latitude.toFixed(6)}, ${company.longitude.toFixed(6)}`;
+  } else {
+    safiModal.dataset.lat = '';
+    safiModal.dataset.lon = '';
+    const coordsEl = safiModal.querySelector('#safifind-coords');
+    if (coordsEl) coordsEl.textContent = 'Not available for this company';
+  }
+
+  // Prefill defaults
+  const radiusInput = safiModal.querySelector('#safifind-radius');
+  const filterSelect = safiModal.querySelector('#safifind-filter');
+  if (radiusInput) radiusInput.value = company.radius || 2000;
+  if (filterSelect) filterSelect.value = 'both';
+
+  // Clear previous results
+  document.getElementById('safifind-results').innerHTML = '';
+
+  safiModal.style.display = 'flex';
+
+  // Initialize Map
+  setTimeout(() => {
+    if (window.safifindMap) {
+      window.safifindMap.remove();
+      window.safifindMap = null;
     }
-  }
 
-  // ── Populate Hero Section ──
-  const heroTitle = document.getElementById('company-view-modal-title');
-  if (heroTitle) heroTitle.textContent = company.name || 'Company';
-
-  // Hero Avatar (logo or initials)
-  const heroAvatar = document.getElementById('company-view-hero-avatar');
-  if (heroAvatar) {
-    const initials = getInitials(company.name || 'C');
-    const resolvedLogoUrl = company.logo_url || getCompanyLogoUrl(company.domain || '');
-    heroAvatar.innerHTML = `<span style="position:relative;z-index:1">${initials}</span>${resolvedLogoUrl ? `<img src="${resolvedLogoUrl}" alt="${escapeHtml(company.name || '')}" onload="this.style.display='block';this.previousElementSibling.style.display='none'" onerror="this.style.display='none'" />` : ''}`;
-  }
-
-  // Hero type badge
-  const heroBadge = document.getElementById('company-view-hero-type');
-  if (heroBadge) {
-    if (company.company_type) {
-      heroBadge.textContent = company.company_type;
-      heroBadge.style.display = 'inline-flex';
-    } else {
-      heroBadge.style.display = 'none';
+    const lat = parseFloat(safiModal.dataset.lat);
+    const lon = parseFloat(safiModal.dataset.lon);
+    const mapEl = document.getElementById('safifind-map');
+    if (!mapEl) {
+      console.error('SafiFind map container not found in DOM');
+      return;
     }
-  }
 
-  // Hero domain link
-  const heroDomain = document.getElementById('company-view-hero-domain');
-  if (heroDomain) {
-    const rawDomain = company.domain ? String(company.domain).trim() : '';
-    if (rawDomain) {
-      let url = rawDomain;
-      if (!/^https?:\/\//i.test(url)) url = 'https://' + url;
-      const safeUrl = url.replace(/"/g, '&quot;');
-      const displayDomain = rawDomain.replace(/^https?:\/\//i, '').replace(/^www\./i, '');
-      heroDomain.innerHTML = `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(displayDomain)}<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-left:3px"><path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg></a>`;
-    } else {
-      heroDomain.innerHTML = '';
+    if (!isNaN(lat) && !isNaN(lon)) {
+      window.safifindMap = L.map('safifind-map').setView([lat, lon], 14);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(window.safifindMap);
+
+      // Force redraw to handle flex sizing
+      setTimeout(() => window.safifindMap.invalidateSize(), 50);
+
+      // Add center marker (enhanced)
+      L.marker([lat, lon], {
+        icon: L.divIcon({
+          className: 'custom-div-icon',
+          html: `
+            <div style="position:relative; width:16px; height:16px;">
+              <div style="position:absolute; top:0; left:0; background:var(--color-primary); width:16px; height:16px; border:2.5px solid #fff; border-radius:50%; box-shadow:0 0 15px var(--color-primary); z-index:2;"></div>
+              <div style="position:absolute; top:0; left:0; width:16px; height:16px; background:var(--color-primary); border-radius:50%; animation: pulse-marker 2s infinite; opacity:0.5; z-index:1;"></div>
+            </div>
+            <style>
+              @keyframes pulse-marker {
+                0% { transform: scale(1); opacity: 0.5; }
+                70% { transform: scale(3); opacity: 0; }
+                100% { transform: scale(3); opacity: 0; }
+              }
+            </style>`,
+          iconSize: [16, 16],
+          iconAnchor: [8, 8]
+        })
+      }).addTo(window.safifindMap).bindPopup('Current Location');
+
+      // Add radius circle
+      window.safifindRadiusCircle = L.circle([lat, lon], {
+        radius: parseInt(radiusInput.value) || 2000,
+        color: 'var(--color-primary)',
+        fillColor: 'var(--color-primary)',
+        fillOpacity: 0.1,
+        weight: 1
+      }).addTo(window.safifindMap);
+
+      radiusInput.oninput = () => {
+        const r = parseInt(radiusInput.value) || 2000;
+        if (window.safifindRadiusCircle) window.safifindRadiusCircle.setRadius(r);
+      };
     }
-  }
+  }, 100);
+}
+window.openSafiFindForCompany = openSafiFindForCompany;
 
-  // Hero category chips
-  const heroCats = document.getElementById('company-view-hero-cats');
-  if (heroCats) {
-    const cats = (company.company_categories && company.company_categories.length)
-      ? company.company_categories.map(c => c.categories && c.categories.name ? c.categories.name : (c.name || '')).filter(Boolean)
-      : [];
-    heroCats.innerHTML = cats.map(cat => `<span class="record-hero-cat-chip">${escapeHtml(cat)}</span>`).join('');
-  }
-
-  // Wire Edit button
-  const editBtn = document.getElementById('company-view-edit-btn');
-  if (editBtn) {
-    editBtn.onclick = () => {
-      closeModal('company-view-modal');
-      setTimeout(() => openCompanyModal(company), 100);
-    };
-  }
-
-  // ── Populate Sidebar Fields ──
-  const addressEl = document.getElementById('company-view-address'); if (addressEl) addressEl.textContent = company.address || '—';
-  const coordsEl = document.getElementById('company-view-coordinates');
-  if (coordsEl) {
-    if (company.latitude && company.longitude) {
-      const lat = company.latitude.toFixed(6);
-      const lng = company.longitude.toFixed(6);
-      coordsEl.innerHTML = `
-        <a href="https://www.google.com/maps?q=${lat},${lng}" 
-           target="_blank" 
-           rel="noopener noreferrer" 
-           style="display:inline-flex;align-items:center;gap:4px;padding:4px 8px;background:var(--bg-secondary);color:var(--color-primary);border-radius:6px;font-size:0.8rem;font-weight:600;text-decoration:none;transition:all 0.2s;border:1px solid var(--border-color);" 
-           onmouseover="this.style.background='var(--bg-tertiary)';this.style.borderColor='var(--color-primary)';this.style.transform='translateY(-1px)'" 
-           onmouseout="this.style.background='var(--bg-secondary)';this.style.borderColor='var(--border-color)';this.style.transform='none'">
-          ${lat}, ${lng}
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.7"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
-        </a>`;
-    } else {
-      coordsEl.textContent = '—';
-    }
-  }
-  const descEl = document.getElementById('company-view-desc'); if (descEl) descEl.textContent = company.description || '—';
-  const catsEl = document.getElementById('company-view-categories');
-  if (catsEl) {
-    const catNames = (company.company_categories && company.company_categories.length)
-      ? company.company_categories.map(c => c.categories && c.categories.name ? c.categories.name : (c.name || '')).filter(Boolean)
-      : [];
-    catsEl.innerHTML = catNames.length ? catNames.map(n => `<span class="record-hero-cat-chip">${escapeHtml(n)}</span>`).join(' ') : '—';
-  }
-
-  // Domain in sidebar (show/hide card)
-  const domainEl = document.getElementById('company-view-domain');
-  const domainCard = document.getElementById('company-view-domain-card');
-  if (domainEl) {
-    const rawDomainSidebar = company.domain ? String(company.domain).trim() : '';
-    if (rawDomainSidebar) {
-      let url2 = rawDomainSidebar;
-      if (!/^https?:\/\//i.test(url2)) url2 = 'https://' + url2;
-      const safeUrl2 = url2.replace(/"/g, '&quot;');
-      domainEl.innerHTML = `<a href="${safeUrl2}" target="_blank" rel="noopener noreferrer">${rawDomainSidebar}</a>`;
-      if (domainCard) domainCard.style.display = 'flex';
-    } else {
-      domainEl.textContent = '—';
-      if (domainCard) domainCard.style.display = 'none';
-    }
-  }
-
-  // Render custom fields in sidebar
-  renderCustomFieldsDisplay('company', 'company-view-custom-fields', company.id);
-
-  // Add a SafiFind button that opens a dedicated modal for searching nearby companies
-  try {
-    const headerActions = document.getElementById('company-view-header-actions');
-    if (headerActions) {
-      headerActions.innerHTML = '';
-      const safiBtn = document.createElement('button');
-      safiBtn.type = 'button';
-      safiBtn.id = 'company-view-safifind-btn';
-      safiBtn.className = 'btn btn-primary btn-sm';
-      safiBtn.setAttribute('aria-label', 'Open SafiFind');
-      safiBtn.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 17v4"/><path d="M14 3v8a2 2 0 0 0 2 2h5.865"/><path d="M17 17v4"/><path d="M18 17a4 4 0 0 0 4-4 8 6 0 0 0-8-6 6 5 0 0 0-6 5v3a2 2 0 0 0 2 2z"/><path d="M2 10v5"/><path d="M6 3h16"/><path d="M7 21h14"/><path d="M8 13H2"/></svg>
-        SafiFind`;
-
-      headerActions.appendChild(safiBtn);
-
-      safiBtn.addEventListener('click', () => {
-        try { closeModal('safifind-modal'); } catch (e) { /* ignore */ }
-        const safiModal = document.getElementById('safifind-modal');
-        if (!safiModal) {
-          showToast('SafiFind modal not available', 'error');
-          return;
-        }
-
-        // Store company coords on the modal dataset
-        if (company && company.latitude && company.longitude) {
-          safiModal.dataset.lat = company.latitude;
-          safiModal.dataset.lon = company.longitude;
-          const coordsEl = safiModal.querySelector('#safifind-coords');
-          if (coordsEl) coordsEl.textContent = `${company.latitude.toFixed(6)}, ${company.longitude.toFixed(6)}`;
-        } else {
-          safiModal.dataset.lat = '';
-          safiModal.dataset.lon = '';
-          const coordsEl = safiModal.querySelector('#safifind-coords');
-          if (coordsEl) coordsEl.textContent = 'Not available for this company';
-        }
-
-        // Prefill defaults
-        const radiusInput = safiModal.querySelector('#safifind-radius');
-        const filterSelect = safiModal.querySelector('#safifind-filter');
-        if (radiusInput) radiusInput.value = company.radius || 2000;
-        if (filterSelect) filterSelect.value = 'both';
-
-        // Clear previous results
-        document.getElementById('safifind-results').innerHTML = '';
-
-        safiModal.style.display = 'flex';
-
-        // Initialize Map
-        setTimeout(() => {
-          if (window.safifindMap) {
-            window.safifindMap.remove();
-            window.safifindMap = null;
-          }
-
-          const lat = parseFloat(safiModal.dataset.lat);
-          const lon = parseFloat(safiModal.dataset.lon);
-          const mapEl = document.getElementById('safifind-map');
-          if (!mapEl) {
-            console.error('SafiFind map container not found in DOM');
-            return;
-          }
-
-          if (!isNaN(lat) && !isNaN(lon)) {
-            window.safifindMap = L.map('safifind-map').setView([lat, lon], 14);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-              attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(window.safifindMap);
-
-            // Force redraw to handle flex sizing
-            setTimeout(() => window.safifindMap.invalidateSize(), 50);
-
-            // Add center marker (enhanced)
-            L.marker([lat, lon], {
-              icon: L.divIcon({
-                className: 'custom-div-icon',
-                html: `
-                  <div style="position:relative; width:16px; height:16px;">
-                    <div style="position:absolute; top:0; left:0; background:var(--color-primary); width:16px; height:16px; border:2.5px solid #fff; border-radius:50%; box-shadow:0 0 15px var(--color-primary); z-index:2;"></div>
-                    <div style="position:absolute; top:0; left:0; width:16px; height:16px; background:var(--color-primary); border-radius:50%; animation: pulse-marker 2s infinite; opacity:0.5; z-index:1;"></div>
-                  </div>
-                  <style>
-                    @keyframes pulse-marker {
-                      0% { transform: scale(1); opacity: 0.5; }
-                      70% { transform: scale(3); opacity: 0; }
-                      100% { transform: scale(3); opacity: 0; }
-                    }
-                  </style>`,
-                iconSize: [16, 16],
-                iconAnchor: [8, 8]
-              })
-            }).addTo(window.safifindMap).bindPopup('Current Location');
-
-            // Add radius circle
-            window.safifindRadiusCircle = L.circle([lat, lon], {
-              radius: parseInt(radiusInput.value) || 2000,
-              color: 'var(--color-primary)',
-              fillColor: 'var(--color-primary)',
-              fillOpacity: 0.1,
-              weight: 1
-            }).addTo(window.safifindMap);
-
-            radiusInput.oninput = () => {
-              const r = parseInt(radiusInput.value) || 2000;
-              if (window.safifindRadiusCircle) window.safifindRadiusCircle.setRadius(r);
-            };
-          }
-        }, 100);
-      });
-    }
-  } catch (e) {
-    console.warn('Failed to init SafiFind button', e);
-  }
-
+function wireSafiFindSearch() {
   // Wire up find button
   try {
     const safiModal = document.getElementById('safifind-modal');
@@ -914,338 +777,7 @@ async function openCompanyViewModal(companyOrId) {
   }
 
 
-  // Loading placeholders for tabs
-  document.getElementById('company-view-opps').innerHTML = '<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="record-empty-title">Loading...</div></div>';
-  const employeesContainer = document.getElementById('company-view-employees');
-  if (employeesContainer) employeesContainer.innerHTML = '<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="record-empty-title">Loading...</div></div>';
-  document.getElementById('company-view-calls').innerHTML = '<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19"/></svg></div><div class="record-empty-title">Loading...</div></div>';
-  document.getElementById('company-view-visits').innerHTML = '<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/></svg></div><div class="record-empty-title">Loading...</div></div>';
-
-  // Reset stats bar and tab counts
-  ['company-stat-pipeline', 'company-stat-opps', 'company-stat-people', 'company-stat-activity'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '—'; });
-  ['company-tab-opps-count', 'company-tab-people-count', 'company-tab-calls-count', 'company-tab-visits-count'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = '0'; });
-
-  // Reset tabs to first tab active
-  modal.querySelectorAll('.company-view-tab').forEach((t, i) => t.classList.toggle('active', i === 0));
-  document.getElementById('company-view-opps').style.display = 'block';
-  const empResetEl = document.getElementById('company-view-employees'); if (empResetEl) empResetEl.style.display = 'none';
-  document.getElementById('company-view-calls').style.display = 'none';
-  document.getElementById('company-view-visits').style.display = 'none';
-
-  modal.style.display = 'flex';
-
-  // Tab switching for the company view modal
-  const companyTabs = modal.querySelectorAll('.company-view-tab');
-  companyTabs.forEach(tab => {
-    tab.onclick = () => {
-      companyTabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      const name = tab.dataset.tab;
-      document.getElementById('company-view-opps').style.display = name === 'opps' ? 'block' : 'none';
-      const employeesEl = document.getElementById('company-view-employees');
-      if (employeesEl) employeesEl.style.display = name === 'employees' ? 'block' : 'none';
-      document.getElementById('company-view-calls').style.display = name === 'calls' ? 'block' : 'none';
-      document.getElementById('company-view-visits').style.display = name === 'visits' ? 'block' : 'none';
-    };
-  });
-
-
-
-  // Fetch related records in parallel (by id and by name to be safe)
-  const orgId = state.currentOrganization?.id;
-  const [oppsById, oppsByName, callsById, callsByName, visitsById, visitsByName, peopleById, peopleByName] = await Promise.all([
-    (() => { let q = supabaseClient.from('opportunities').select('*').eq('company_id', company.id); if (orgId) q = q.eq('organization_id', orgId); return q; })(),
-    (() => { let q = supabaseClient.from('opportunities').select('*').eq('company_name', company.name); if (orgId) q = q.eq('organization_id', orgId); return q; })(),
-    (() => { let q = supabaseClient.from('call_logs').select('*, people(*), profiles(*)').eq('company_id', company.id).order('call_at', { ascending: false }).limit(50); if (orgId) q = q.eq('organization_id', orgId); return q; })(),
-    (() => { let q = supabaseClient.from('call_logs').select('*, people(*), profiles(*)').eq('company_name', company.name).order('call_at', { ascending: false }).limit(50); if (orgId) q = q.eq('organization_id', orgId); return q; })(),
-    (() => { let q = supabaseClient.from('visits').select('*, user:profiles(first_name,last_name)').eq('company_id', company.id).order('created_at', { ascending: false }).limit(10); if (orgId) q = q.eq('organization_id', orgId); return q; })(),
-    (() => { let q = supabaseClient.from('visits').select('*, user:profiles(first_name,last_name)').eq('company_name', company.name).order('created_at', { ascending: false }).limit(10); if (orgId) q = q.eq('organization_id', orgId); return q; })(),
-    // Query people by company_id (most reliable). Avoid ordering by potentially missing columns.
-    (() => { let q = supabaseClient.from('people').select('*').eq('company_id', company.id).limit(200); if (orgId) q = q.eq('organization_id', orgId); return q; })(),
-    // Fallback: try to find people where the name contains the company name (less reliable but avoids using non-existent company_name column).
-    (() => { let q = supabaseClient.from('people').select('*').ilike('name', `%${String(company.name || '').replace(/%/g, '')}%`).limit(200); if (orgId) q = q.eq('organization_id', orgId); return q; })()
-  ]);
-
-  const dedupeById = (arr) => {
-    const map = new Map();
-    (arr || []).forEach(i => { if (i && i.id) map.set(String(i.id), i); });
-    return Array.from(map.values());
-  };
-
-  const opportunities = dedupeById([...(oppsById.data || []), ...(oppsByName.data || [])]);
-  const calls = (dedupeById([...(callsById.data || []), ...(callsByName.data || [])]) || []).slice(0, 50);
-  const visits = (dedupeById([...(visitsById.data || []), ...(visitsByName.data || [])]) || []).slice(0, 10);
-  console.debug('openCompanyViewModal called for company', { id: company.id, name: company.name });
-  const peopleFromWindow = Array.isArray(window.allPeopleData) ? (window.allPeopleData.filter(p => String(p.company_id || '') === String(company.id) || String((p.company_name || '')).trim() === String((company.name || '')).trim())) : [];
-
-  let employees = dedupeById([...(peopleFromWindow || []), ...(peopleById.data || []), ...(peopleByName.data || [])]);
-
-
-  // If the combined list is empty, try a more forgiving fallback query
-  if ((!employees || employees.length === 0) && typeof supabaseClient !== 'undefined') {
-    try {
-      const nameFilter = String(company.name || '').replace(/'/g, "''");
-      const orFilter = `company_id.eq.${company.id},company_name.ilike.%${nameFilter}%`;
-      const { data: peopleFallback, error: peopleFallbackError } = await supabaseClient.from('people').select('*').or(orFilter).limit(200);
-      if (!peopleFallbackError && Array.isArray(peopleFallback) && peopleFallback.length > 0) {
-        employees = dedupeById([...(employees || []), ...peopleFallback]);
-      }
-    } catch (err) {
-      crmDebugLog('company-view-people-fallback-error', err);
-    }
-  }
-
-  // ── Populate Stats Bar ──
-  try {
-    const totalPipeline = opportunities.reduce((sum, o) => sum + (parseFloat(o.value || o.amount || 0) || 0), 0);
-    const pipelineStatEl = document.getElementById('company-stat-pipeline');
-    if (pipelineStatEl) pipelineStatEl.textContent = totalPipeline ? `${getCurrencySymbol()} ${totalPipeline.toLocaleString()}` : '0';
-    const oppsStatEl = document.getElementById('company-stat-opps');
-    if (oppsStatEl) oppsStatEl.textContent = String(opportunities.length);
-    const peopleStatEl = document.getElementById('company-stat-people');
-    if (peopleStatEl) peopleStatEl.textContent = String(employees.length);
-
-    // Determine last activity date
-    const activityDates = [];
-    if (calls.length && calls[0].call_at) activityDates.push(new Date(calls[0].call_at));
-    if (visits.length && visits[0].created_at) activityDates.push(new Date(visits[0].created_at));
-    opportunities.forEach(o => { if (o.updated_at) activityDates.push(new Date(o.updated_at)); });
-    const activityStatEl = document.getElementById('company-stat-activity');
-    if (activityDates.length && activityStatEl) {
-      const latest = new Date(Math.max(...activityDates.map(d => d.getTime())));
-      const daysAgo = Math.floor((Date.now() - latest.getTime()) / (1000 * 60 * 60 * 24));
-      activityStatEl.textContent = daysAgo === 0 ? 'Today' : daysAgo === 1 ? 'Yesterday' : `${daysAgo}d ago`;
-    }
-  } catch (statsErr) {
-    crmDebugLog('company-view-stats-error', statsErr);
-  }
-
-  // ── Update Tab Count Badges ──
-  const companyOppsCountEl = document.getElementById('company-tab-opps-count'); if (companyOppsCountEl) companyOppsCountEl.textContent = String(opportunities.length);
-  const companyPeopleCountEl = document.getElementById('company-tab-people-count'); if (companyPeopleCountEl) companyPeopleCountEl.textContent = String(employees.length);
-  const companyCallsCountEl = document.getElementById('company-tab-calls-count'); if (companyCallsCountEl) companyCallsCountEl.textContent = String(calls.length);
-  const companyVisitsCountEl = document.getElementById('company-tab-visits-count'); if (companyVisitsCountEl) companyVisitsCountEl.textContent = String(visits.length);
-
-  // ── Quick Action Buttons in Sidebar ──
-  const companyQuickActions = document.getElementById('company-view-quick-actions');
-  if (companyQuickActions) {
-    let actionsHtml = '';
-    if (company.address && company.latitude && company.longitude) {
-      actionsHtml += `<a class="record-quick-action record-quick-action--directions" href="https://www.google.com/maps/dir/?api=1&destination=${company.latitude},${company.longitude}" target="_blank" rel="noopener noreferrer" title="Get directions"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Directions</a>`;
-    }
-    if (company.domain) {
-      let domainUrl = String(company.domain).trim();
-      if (!/^https?:\/\//i.test(domainUrl)) domainUrl = 'https://' + domainUrl;
-      actionsHtml += `<a class="record-quick-action" href="${domainUrl.replace(/"/g, '&quot;')}" target="_blank" rel="noopener noreferrer" title="Visit website"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>Website</a>`;
-    }
-    companyQuickActions.innerHTML = actionsHtml;
-  }
-
-  // Render a richer summary area with avatar, key stats and actions
-  try {
-    const summaryEl = document.getElementById('company-view-summary');
-    if (summaryEl) {
-      const resolvedLogoUrl = company.logo_url || getCompanyLogoUrl(company.domain || '');
-      const initials = getInitials(company.name || 'U');
-      const logoHtml = `
-        <div style="position:relative;width:48px;height:48px;">
-          <div class="company-summary-initials" style="width:48px;height:48px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:600">${initials}</div>
-          ${resolvedLogoUrl ? `<img src="${resolvedLogoUrl}" alt="${company.name}" style="display:none;width:48px;height:48px;object-fit:contain;border-radius:6px;position:absolute;left:0;top:0;" onload="this.style.display='block'; this.previousElementSibling.style.display='none'" onerror="this.style.display='none'" />` : ''}
-        </div>
-      `;
-      const shortAddress = company.address ? (String(company.address).split(',')[0]) : '—';
-      const cats = (company.company_categories && company.company_categories.length) ? company.company_categories.map(c => c.categories && c.categories.name ? c.categories.name : (c.name || '')).filter(Boolean) : [];
-
-      // Keep the summary read-only: show only primary identity (name + type).
-      // Full description, address and categories are shown in the right-hand sidebar to avoid duplication.
-      // Render domain link next to name (no explicit label)
-      const rawDomain = company.domain ? String(company.domain).trim() : '';
-      let domainHtml = '';
-      if (rawDomain) {
-        let domainUrl = rawDomain;
-        if (!/^https?:\/\//i.test(domainUrl)) domainUrl = 'https://' + domainUrl;
-        const safeUrl = domainUrl.replace(/"/g, '&quot;');
-        const displayDomain = rawDomain.replace(/^https?:\/\//i, '').replace(/^www\./i, '');
-        // Render as a distinct pill with a small external-link icon
-        domainHtml = `<span class="company-summary-domain"><a class="company-summary-domain-link" href="${safeUrl}" target="_blank" rel="noopener noreferrer">${escapeHtml(displayDomain)} <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg></a></span>`;
-      }
-
-      summaryEl.innerHTML = `
-        <div class="company-summary">
-          <div class="company-summary-head">
-            <div class="company-summary-avatar">${logoHtml}</div>
-            <div class="company-summary-main">
-              <div style="display:flex;align-items:center;gap:8px;">
-                <div class="company-summary-name">${escapeHtml(company.name || '—')}</div>
-                ${domainHtml}
-              </div>
-              <div class="company-summary-meta">${escapeHtml(company.company_type || '—')}</div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-  } catch (e) {
-    crmDebugLog('company-view-summary-render-error', e);
-  }
-
-
-  // Render Opportunities tab (premium cards)
-  const oppsEl = document.getElementById('company-view-opps');
-  if (!opportunities || opportunities.length === 0) {
-    oppsEl.innerHTML = `<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="record-empty-title">No opportunities linked</div><div class="record-empty-desc">This company is not linked to any active opportunities yet.</div></div>`;
-  } else {
-    const stageColors = { prospecting: '#6366f1', qualification: '#f59e0b', proposal: '#3b82f6', negotiation: '#f97316', won: '#22c55e', lost: '#ef4444' };
-    oppsEl.innerHTML = opportunities.map(opp => {
-      const stageKey = (opp.stage || '').toLowerCase();
-      const stageColor = stageColors[stageKey] || 'var(--color-primary)';
-      const val = parseFloat(opp.value || 0);
-      return `
-        <div class="record-opp-card" data-id="${opp.id}">
-          <div class="record-opp-card-stage" style="background:${stageColor}"></div>
-          <div class="record-opp-card-body">
-            <div class="record-opp-card-name">${escapeHtml(opp.name || '—')}</div>
-            <div class="record-opp-card-meta">
-              <span class="stage-pill" style="background:${stageColor}1a;color:${stageColor};border-color:${stageColor}40">${escapeHtml(opp.stage || '—')}</span>
-              <span>${opp.probability || 0}% probability</span>
-            </div>
-          </div>
-          <div class="record-opp-card-value">${getCurrencySymbol()} ${val.toLocaleString()}</div>
-          <div class="record-opp-card-action"><button class="btn btn-sm btn-ghost view-opportunity" data-id="${opp.id}">View</button></div>
-        </div>
-      `;
-    }).join('');
-
-    // Attach view handlers
-    oppsEl.querySelectorAll('.view-opportunity').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const id = btn.dataset.id;
-        const opp = opportunities.find(o => String(o.id) === String(id));
-        if (opp) {
-          closeModal('company-view-modal');
-          const isOwnOpportunity = !state.isManager || opp.user_id === state.currentUser.id;
-          openOpportunityModal(opp, !isOwnOpportunity);
-        }
-      });
-    });
-  }
-
-  // Render Call Logs tab (premium rows)
-  const callsEl = document.getElementById('company-view-calls');
-  if (!calls || calls.length === 0) {
-    callsEl.innerHTML = `<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72"/></svg></div><div class="record-empty-title">No calls</div><div class="record-empty-desc">No call records found for this company.</div></div>`;
-  } else {
-    callsEl.innerHTML = calls.map(log => {
-      const isInbound = (log.direction || '').toLowerCase() === 'inbound';
-      const phoneIcon = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.63 19a19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3"/></svg>`;
-      const contactName = escapeHtml(log.people ? (log.people.name || '') : (log.contact_name || 'Unknown'));
-      const repName = escapeHtml(log.profiles ? `${log.profiles.first_name || ''} ${log.profiles.last_name || ''}`.trim() : '');
-      return `
-        <div class="record-call-row" data-id="${log.id}">
-          <div class="record-call-icon${isInbound ? ' record-call-icon--inbound' : ''}">${phoneIcon}</div>
-          <div class="record-call-body">
-            <div class="record-call-contact">${contactName}</div>
-            <div class="record-call-meta">${formatDateWithTime(log.call_at)}${repName ? ` · ${repName}` : ''}</div>
-          </div>
-          <div class="record-call-right">
-            <span class="record-call-outcome-pill">${escapeHtml(log.outcome || 'N/A')}</span>
-            <button class="btn btn-sm btn-ghost view-call-log" data-id="${log.id}">View</button>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    callsEl.querySelectorAll('.view-call-log').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const id = btn.dataset.id;
-        const log = calls.find(l => String(l.id) === String(id));
-        if (log) {
-          closeModal('company-view-modal');
-          openCallLogViewModal(log);
-        }
-      });
-    });
-  }
-
-  // Render Recent Visits tab (premium rows)
-  const visitsEl = document.getElementById('company-view-visits');
-  if (!visits || visits.length === 0) {
-    visitsEl.innerHTML = `<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div class="record-empty-title">No recent visits</div><div class="record-empty-desc">No visits have been recorded for this company yet.</div></div>`;
-  } else {
-    const pinSvg = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>`;
-    visitsEl.innerHTML = visits.map(v => {
-      const repName = v.user ? `${v.user.first_name || ''} ${v.user.last_name || ''}`.trim() : '';
-      return `
-        <div class="record-visit-row" data-id="${v.id}">
-          <div class="record-visit-dot">${pinSvg}</div>
-          <div class="record-visit-body">
-            <div class="record-visit-type">${escapeHtml(v.contact_name || v.visit_type || 'Visit')}</div>
-            <div class="record-visit-meta">${escapeHtml(v.visit_type || '')} · ${formatDate(v.created_at)}${repName ? ` · ${repName}` : ''}</div>
-            ${v.notes ? `<div class="record-visit-notes">${escapeHtml(v.notes)}</div>` : ''}
-          </div>
-          <div class="record-visit-action"><button class="btn btn-sm btn-ghost view-visit" data-id="${v.id}">View</button></div>
-        </div>
-      `;
-    }).join('');
-
-    // Attach visit view handlers
-    visitsEl.querySelectorAll('.view-visit').forEach(btn => {
-      btn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const id = btn.dataset.id;
-        closeModal('company-view-modal');
-        await fetchAndOpenVisit(id);
-      });
-    });
-  }
-
-  // Render Employees tab (premium rows)
-  try {
-    const employeesEl = document.getElementById('company-view-employees');
-    if (employeesEl) {
-      if (!employees || employees.length === 0) {
-        employeesEl.innerHTML = `<div class="record-empty-state"><div class="record-empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="record-empty-title">No people linked</div><div class="record-empty-desc">No contacts are linked to this company yet.</div></div>`;
-      } else {
-        employeesEl.innerHTML = employees.map(p => {
-          const fullName = escapeHtml(p.name || (p.first_name ? `${p.first_name} ${p.last_name}` : '—'));
-          const initials = getInitials(p.name || (p.first_name ? `${p.first_name} ${p.last_name}` : ''));
-          return `
-            <div class="record-employee-row" data-id="${p.id}">
-              <div class="record-employee-avatar">${initials}</div>
-              <div class="record-employee-body">
-                <div class="record-employee-name">${fullName}</div>
-                <div class="record-employee-role">${escapeHtml(p.job_title || p.role || '—')}</div>
-              </div>
-              <div class="record-employee-action"><button class="btn btn-sm btn-ghost view-employee" data-id="${p.id}">View</button></div>
-            </div>
-          `;
-        }).join('');
-
-        employeesEl.querySelectorAll('.view-employee').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const id = btn.dataset.id;
-            const personObj = (employees || []).find(p => String(p.id) === String(id));
-            if (personObj) {
-              closeModal('company-view-modal');
-              openPersonViewModal(personObj);
-            } else {
-              closeModal('company-view-modal');
-              openPersonViewModal(id);
-            }
-          });
-        });
-      }
-    }
-  } catch (err) {
-    crmDebugLog('company-view-employees-render-error', err);
-  }
-
-  if (window.lucide) lucide.createIcons();
 }
-
 
 // ── Log / schedule modal ───────────────────────────────────────
 
