@@ -11,6 +11,7 @@ import {
   parseDate, startOfDay, addDays, calendarDaysFrom, relTime, shortDate,
   readStoredChoice, storeChoice, fetchAllRows,
 } from '../utils/analytics.js';
+import { dueStart } from '../utils/due-dates.js';
 
 // ── Constants ───────────────────────────────────────────────────
 
@@ -99,7 +100,7 @@ async function fetchDashboardData() {
       .order('created_at', { ascending: false })),
     fetchAllRows(() => supabaseClient
       .from('tasks')
-      .select('id, title, status, priority, due_date, assigned_to')
+      .select('id, title, status, priority, due_date, due_all_day, assigned_to')
       .eq('organization_id', orgId)
       .not('due_date', 'is', null)
       .order('due_date', { ascending: true })),
@@ -245,7 +246,8 @@ function buildModel(data, periodKey) {
   const attention = [];
   data.tasks.forEach((t) => {
     if (String(t.status || '').toLowerCase() === 'completed') return;
-    const due = parseDate(t.due_date);
+    // An all-day task is due on its calendar date wherever the viewer is
+    const due = dueStart(t.due_date, t.due_all_day);
     if (!due) return;
     const late = calendarDaysFrom(due, now);
     if (late < 0) return;

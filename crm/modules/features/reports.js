@@ -6,7 +6,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { state, supabaseClient } from '../state.js';
-import { isPastDue } from '../utils/due-dates.js';
+import { isPastDue, dueStart } from '../utils/due-dates.js';
 import { showToast } from '../ui/toast.js';
 import { renderError, getCurrencySymbol } from '../utils/helpers.js';
 import { fetchAllPages } from '../utils/analytics.js';
@@ -293,7 +293,7 @@ async function loadAllReportsData(forceRefresh = false) {
 
   let tasksQ = supabaseClient
     .from('tasks')
-    .select('id, title, status, priority, due_date, assigned_to, created_by, created_at')
+    .select('id, title, status, priority, due_date, due_all_day, assigned_to, created_by, created_at')
     .eq('organization_id', orgId)
     .order('created_at', { ascending: false });
 
@@ -692,7 +692,7 @@ function renderExecutiveTab() {
   const isTaskDone = (t) => t.status === 'completed' || t.status === 'done';
   const completedTasks = tasks.filter(isTaskDone).length;
   const taskCompletionRate = tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 100;
-  const overdueTasks = tasks.filter(t => !isTaskDone(t) && t.due_date && isPastDue(t.due_date)).length;
+  const overdueTasks = tasks.filter(t => !isTaskDone(t) && t.due_date && isPastDue(t.due_date, t.due_all_day)).length;
 
   content.innerHTML = `
     <div class="reports-section">
@@ -2075,7 +2075,7 @@ function renderRawBuilderOutput(container, rows, profiles, companies, people) {
       { key: 'status', label: 'Status' },
       { key: 'priority', label: 'Priority' },
       { key: 'assigned_to', label: 'Assignee', fmt: uid => getProfileName(profiles, uid) },
-      { key: 'due_date', label: 'Due Date', fmt: d => fmtDate(d) },
+      { key: 'due_date', label: 'Due Date', fmt: (d, r) => fmtDate(dueStart(d, r.due_all_day)) },
     ];
   } else if (dataset === 'companies') {
     columns = [

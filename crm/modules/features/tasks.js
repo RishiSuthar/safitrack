@@ -5,7 +5,7 @@ import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards, renderError, getLeadScoreBadge } from '../utils/helpers.js';
 import { fetchAllPages } from '../utils/analytics.js';
-import { isPastDue, daysUntilDue, formatDue } from '../utils/due-dates.js';
+import { isPastDue, daysUntilDue, formatDue, dueDay, dueFieldsFromPicker, duePickerValue } from '../utils/due-dates.js';
 
 function renderKanbanEmptyState(status, isVisible = true) {
   let iconSvg, text, subtext;
@@ -226,7 +226,7 @@ async function renderTasksView() {
 
 function renderKanbanTaskCard(task, isManager) {
   // A date with no time is due all day, so it isn't overdue until the day ends
-  const isOverdue = task.due_date && isPastDue(task.due_date) && task.status !== 'completed';
+  const isOverdue = task.due_date && isPastDue(task.due_date, task.due_all_day) && task.status !== 'completed';
 
   // Robust Assignee Logic
   let assigneeHtml = '<span class="task-card-unassigned">Unassigned</span>';
@@ -277,7 +277,7 @@ function renderKanbanTaskCard(task, isManager) {
       <div class="task-card-footer">
         <div class="task-card-due-date ${isOverdue ? 'overdue' : (!task.due_date ? 'no-date' : '')}">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          <span>${task.due_date ? escapeHtml(formatDue(task.due_date)) : 'No due date'}</span>
+          <span>${task.due_date ? escapeHtml(formatDue(task.due_date, task.due_all_day)) : 'No due date'}</span>
           ${isOverdue ? '<span class="task-overdue-badge">Overdue</span>' : ''}
         </div>
         <div class="task-card-meta">
@@ -447,15 +447,11 @@ function initKanbanBoard(tasks, salesReps) {
       // Priority filter
       if (activePriority !== 'all' && task.priority !== activePriority) show = false;
 
-      // Date range filter
+      // Date range filter, by due day ("2026-10-20" strings compare in date order)
       if (show && (dateFrom || dateTo) && task.due_date) {
-        const dueDate = new Date(task.due_date);
-        if (dateFrom && dueDate < new Date(dateFrom)) show = false;
-        if (dateTo) {
-          const toEnd = new Date(dateTo);
-          toEnd.setHours(23, 59, 59, 999);
-          if (dueDate > toEnd) show = false;
-        }
+        const day = dueDay(task.due_date, task.due_all_day);
+        if (dateFrom && day < dateFrom) show = false;
+        if (dateTo && day > dateTo) show = false;
       } else if (show && (dateFrom || dateTo) && !task.due_date) {
         show = false; // no due date, but date filter is active
       }
@@ -611,21 +607,14 @@ function tdPerson(userId, name) {
   return `<span class="od-person"><span class="od-person-avatar" style="background:${tdColor(userId)}">${escapeHtml(getInitials(name))}</span>${escapeHtml(name)}</span>`;
 }
 
-/** "YYYY-MM-DDTHH:mm" in local time, the format the date picker reads and writes */
-function toLocalDateTimeValue(value) {
-  const date = value ? new Date(value) : null;
-  if (!date || Number.isNaN(date.getTime())) return '';
-  const pad = (n) => String(n).padStart(2, '0');
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
-}
-
-/** The due label, and whether it's overdue or due today (a date with no time is due all day) */
-function describeDue(value, isDone) {
+/** The task's due label, and whether it's overdue or due today (an all-day task is due all day) */
+function describeDue(task, isDone) {
+  const { due_date: value, due_all_day: allDay } = task;
   if (!value || Number.isNaN(new Date(value).getTime())) return null;
   let status = null;
-  if (!isDone && isPastDue(value)) status = 'overdue';
-  else if (!isDone && daysUntilDue(value) === 0) status = 'today';
-  return { label: formatDue(value), status };
+  if (!isDone && isPastDue(value, allDay)) status = 'overdue';
+  else if (!isDone && daysUntilDue(value, allDay) === 0) status = 'today';
+  return { label: formatDue(value, allDay), status };
 }
 
 /** Everyone in the org, for the assignee picker (cached like the deal panel's) */
@@ -662,8 +651,8 @@ function showTaskDetail(task) {
     if (e.target.id === 'td-priority') saveTaskPatch({ priority: e.target.value });
     if (e.target.id === 'td-assignee') saveTaskAssignee(e.target.value);
     if (e.target.id === 'td-due-input') {
-      const value = e.target.value;
-      saveTaskPatch({ due_date: value ? new Date(value).toISOString() : null });
+      // "2026-10-20" (All day) or "2026-10-20T15:00"
+      saveTaskPatch(dueFieldsFromPicker(e.target.value));
     }
   }, { signal });
   panel.addEventListener('keydown', (e) => {
@@ -751,14 +740,14 @@ function renderTaskDetail() {
   }
 
   // Due date: the app's date picker opens from a transparent input over the value
-  const due = describeDue(task.due_date, isDone);
+  const due = describeDue(task, isDone);
   const dueText = due
     ? `<span class="od-due${due.status ? ` is-${due.status}` : ''}">${escapeHtml(due.label)}${due.status === 'overdue' ? ' · overdue' : ''}</span>`
     : '';
   const dueHtml = canEdit
     ? `<span class="td-due">
         <span class="od-editable${due ? '' : ' is-empty'}" aria-hidden="true">${dueText || 'Add due date'}</span>
-        <input type="text" id="td-due-input" class="td-due-input" value="${escapeHtml(toLocalDateTimeValue(task.due_date))}" aria-label="Due date">
+        <input type="text" id="td-due-input" class="td-due-input" value="${escapeHtml(duePickerValue(task.due_date, task.due_all_day))}" aria-label="Due date">
       </span>${due ? '<button type="button" class="od-link" data-action="clear-due">Clear</button>' : ''}`
     : (dueText || '<span class="od-readonly is-empty">No due date</span>');
 
@@ -840,7 +829,7 @@ function renderTaskDetail() {
     </footer>`;
 
   window.initAllCrmDropdowns?.(panel);
-  if (canEdit) window.initCustomCalendar?.('#td-due-input', { type: 'datetime-local' });
+  if (canEdit) window.initCustomCalendar?.('#td-due-input', { type: 'datetime-local', allDay: true });
 }
 
 function onTaskDetailClick(e) {
@@ -859,7 +848,7 @@ function onTaskDetailClick(e) {
   } else if (action === 'toggle-done') {
     saveTaskPatch({ status: task.status === 'completed' ? 'pending' : 'completed' });
   } else if (action === 'clear-due') {
-    saveTaskPatch({ due_date: null });
+    saveTaskPatch(dueFieldsFromPicker(''));
   } else if (action === 'open-deal') {
     window.closeTaskDetail();
     setTimeout(() => window.openOpportunityById(task.opportunity_id), 120);
@@ -1002,9 +991,8 @@ function renderTaskCard(task, isManager) {
   // - Sales reps can mark a task complete if it is assigned to them or if they created it.
   const canComplete = state.isManager || isAssignedToMe || isCreatedByMe;
 
-  const dueDate = task.due_date ? new Date(task.due_date) : null;
-  const isOverdue = dueDate && isPastDue(dueDate) && task.status !== 'completed';
-  const dueDateStr = dueDate ? formatDue(dueDate) : '';
+  const isOverdue = task.due_date && isPastDue(task.due_date, task.due_all_day) && task.status !== 'completed';
+  const dueDateStr = task.due_date ? formatDue(task.due_date, task.due_all_day) : '';
 
   // Get assigned to name
   let assignedToName = 'Unassigned';
@@ -1241,20 +1229,8 @@ function openTaskModal(task = null, salesReps = [], initialStatus = 'pending') {
     document.getElementById('task-title').value = task.title || '';
     document.getElementById('task-description').value = task.description || '';
 
-    // Fix for time display issue
-    if (task.due_date) {
-      const dueDate = new Date(task.due_date);
-      // Format as YYYY-MM-DDTHH:MM for datetime-local input
-      const year = dueDate.getFullYear();
-      const month = String(dueDate.getMonth() + 1).padStart(2, '0');
-      const day = String(dueDate.getDate()).padStart(2, '0');
-      const hours = String(dueDate.getHours()).padStart(2, '0');
-      const minutes = String(dueDate.getMinutes()).padStart(2, '0');
-
-      document.getElementById('task-due-date').value = `${year}-${month}-${day}T${hours}:${minutes}`;
-    } else {
-      document.getElementById('task-due-date').value = '';
-    }
+    // "2026-10-20" for an all-day task, "2026-10-20T15:00" (local time) for a timed one
+    document.getElementById('task-due-date').value = duePickerValue(task.due_date, task.due_all_day);
 
     document.getElementById('task-priority').value = task.priority || 'medium';
     document.getElementById('task-status').value = task.status || 'pending';
@@ -1313,7 +1289,7 @@ function initTaskModalListeners(task) {
         description: description || null,
         assigned_to: assignedTo,
         created_by: state.currentUser.id,
-        due_date: dueDate ? new Date(dueDate).toISOString() : null,
+        ...dueFieldsFromPicker(dueDate),
         priority,
         status,
         organization_id: state.currentOrganization?.id
