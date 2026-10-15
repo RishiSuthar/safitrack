@@ -1586,6 +1586,12 @@ function openOpportunityViewModal(opportunity) {
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape' || modal.style.display === 'none') return;
     if (document.querySelector('.crm-dd.is-open')) return;
+    // An open date picker closes first
+    const dayPicker = document.querySelector('#opportunity-detail [data-draft="task-day"]')?._customCalendar;
+    if (dayPicker?.isOpen) {
+      dayPicker.close();
+      return;
+    }
     if (document.activeElement?.classList.contains('od-input')) return;
     // In an add box, Escape just leaves the box so a half-typed note isn't lost
     if (document.activeElement?.closest?.('[data-composer]')) {
@@ -1896,6 +1902,8 @@ function renderOpportunityDetail() {
 
   window.initAllCrmDropdowns?.(panel);
   panel.querySelectorAll('[data-draft]').forEach(el => { el.value = detail.drafts[el.dataset.draft] || ''; });
+  // The task due date uses the app's date picker, like the deal form
+  window.initCustomCalendar?.('#opportunity-detail [data-draft="task-day"]', { type: 'date' });
   if (focusedDraft) panel.querySelector(`[data-draft="${focusedDraft}"]`)?.focus();
   const body = panel.querySelector('.od-body');
   if (body) body.scrollTop = scrollTop;

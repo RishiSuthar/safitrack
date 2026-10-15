@@ -22444,6 +22444,12 @@ button svg {
   color: var(--text-primary);
 }
 
+/* A closed dropdown's menu waits inside the panel (it moves to <body> when open);
+   keep it from widening the panel on narrow screens */
+#opportunity-detail .crm-dd-panel {
+  display: none;
+}
+
 /* Owner: the shared dropdown, styled as plain text until hovered */
 .od-prop-value > .crm-dd--inline {
   margin-left: -8px;
@@ -22806,6 +22812,15 @@ button svg {
   width: 150px;
 }
 
+/* The app's date picker wraps the input; size the wrapper instead */
+.od-composer .calendar-input-wrapper {
+  flex: 0 0 160px;
+}
+
+.od-composer .calendar-input-wrapper .od-composer-date {
+  width: 100%;
+}
+
 .od-composer-btn {
   flex-shrink: 0;
   height: 32px;
@@ -22977,7 +22992,8 @@ button svg {
     flex-basis: 100%;
   }
 
-  .od-composer-date {
+  .od-composer-date,
+  .od-composer .calendar-input-wrapper {
     flex: 1;
     width: auto;
   }
