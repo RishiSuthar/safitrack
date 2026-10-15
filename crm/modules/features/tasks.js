@@ -5,6 +5,7 @@ import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards, renderError, getLeadScoreBadge } from '../utils/helpers.js';
 import { fetchAllPages } from '../utils/analytics.js';
+import { isPastDue, daysUntilDue, formatDue } from '../utils/due-dates.js';
 
 function renderKanbanEmptyState(status, isVisible = true) {
   let iconSvg, text, subtext;
@@ -224,7 +225,8 @@ async function renderTasksView() {
 }
 
 function renderKanbanTaskCard(task, isManager) {
-  const isOverdue = task.due_date && new Date(task.due_date) < new Date() && task.status !== 'completed';
+  // A date with no time is due all day, so it isn't overdue until the day ends
+  const isOverdue = task.due_date && isPastDue(task.due_date) && task.status !== 'completed';
 
   // Robust Assignee Logic
   let assigneeHtml = '<span class="task-card-unassigned">Unassigned</span>';
@@ -275,7 +277,7 @@ function renderKanbanTaskCard(task, isManager) {
       <div class="task-card-footer">
         <div class="task-card-due-date ${isOverdue ? 'overdue' : (!task.due_date ? 'no-date' : '')}">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          <span>${task.due_date ? formatDate(task.due_date) : 'No due date'}</span>
+          <span>${task.due_date ? escapeHtml(formatDue(task.due_date)) : 'No due date'}</span>
           ${isOverdue ? '<span class="task-overdue-badge">Overdue</span>' : ''}
         </div>
         <div class="task-card-meta">
@@ -617,36 +619,13 @@ function toLocalDateTimeValue(value) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
-/** "Today, 9:00 AM", "Tomorrow", "Mon 20 Oct" … with overdue / today flags */
+/** The due label, and whether it's overdue or due today (a date with no time is due all day) */
 function describeDue(value, isDone) {
-  const date = value ? new Date(value) : null;
-  if (!date || Number.isNaN(date.getTime())) return null;
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const day = new Date(date);
-  day.setHours(0, 0, 0, 0);
-  const diff = Math.round((day - today) / 86400000);
-  let label;
-  if (diff === 0) label = 'Today';
-  else if (diff === 1) label = 'Tomorrow';
-  else if (diff === -1) label = 'Yesterday';
-  else {
-    label = date.toLocaleDateString(undefined, {
-      weekday: Math.abs(diff) < 7 ? 'short' : undefined,
-      day: 'numeric',
-      month: 'short',
-      ...(date.getFullYear() !== today.getFullYear() ? { year: 'numeric' } : {}),
-    });
-  }
-  // Midnight means "no particular time"
-  if (date.getHours() || date.getMinutes()) {
-    label += `, ${date.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}`;
-  }
-  // Overdue once the day (or, for today, the time) has passed
+  if (!value || Number.isNaN(new Date(value).getTime())) return null;
   let status = null;
-  if (!isDone && (diff < 0 || (diff === 0 && date < new Date() && (date.getHours() || date.getMinutes())))) status = 'overdue';
-  else if (!isDone && diff === 0) status = 'today';
-  return { label, status };
+  if (!isDone && isPastDue(value)) status = 'overdue';
+  else if (!isDone && daysUntilDue(value) === 0) status = 'today';
+  return { label: formatDue(value), status };
 }
 
 /** Everyone in the org, for the assignee picker (cached like the deal panel's) */
@@ -1024,8 +1003,8 @@ function renderTaskCard(task, isManager) {
   const canComplete = state.isManager || isAssignedToMe || isCreatedByMe;
 
   const dueDate = task.due_date ? new Date(task.due_date) : null;
-  const isOverdue = dueDate && dueDate < new Date();
-  const dueDateStr = dueDate ? formatDate(dueDate) : '';
+  const isOverdue = dueDate && isPastDue(dueDate) && task.status !== 'completed';
+  const dueDateStr = dueDate ? formatDue(dueDate) : '';
 
   // Get assigned to name
   let assignedToName = 'Unassigned';

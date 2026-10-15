@@ -6,6 +6,7 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 import { state, supabaseClient } from '../state.js';
+import { isPastDue } from '../utils/due-dates.js';
 import { showToast } from '../ui/toast.js';
 import { renderError, getCurrencySymbol } from '../utils/helpers.js';
 import { fetchAllPages } from '../utils/analytics.js';
@@ -691,7 +692,7 @@ function renderExecutiveTab() {
   const isTaskDone = (t) => t.status === 'completed' || t.status === 'done';
   const completedTasks = tasks.filter(isTaskDone).length;
   const taskCompletionRate = tasks.length > 0 ? Math.round((completedTasks / tasks.length) * 100) : 100;
-  const overdueTasks = tasks.filter(t => !isTaskDone(t) && t.due_date && new Date(t.due_date) < new Date()).length;
+  const overdueTasks = tasks.filter(t => !isTaskDone(t) && t.due_date && isPastDue(t.due_date)).length;
 
   content.innerHTML = `
     <div class="reports-section">

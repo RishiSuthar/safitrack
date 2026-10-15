@@ -1419,9 +1419,9 @@ const DEAL_TASK_SELECT = '*, assigned_to_profile:profiles!tasks_assigned_to_fkey
 
 const pad2 = (n) => String(n).padStart(2, '0');
 
-/** A date picked for a task ("2026-10-14") as 09:00 that day, local time */
+/** A date picked for a task ("2026-10-14") as local midnight: due that day, no particular time */
 function dueDateToTimestamp(day) {
-  return day ? new Date(`${day}T09:00:00`).toISOString() : null;
+  return day ? new Date(`${day}T00:00:00`).toISOString() : null;
 }
 
 /** A task's due timestamp as the local day ("2026-10-14"), or '' */
