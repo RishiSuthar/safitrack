@@ -22033,189 +22033,666 @@ button svg {
   border: 1px solid var(--border-color);
 }
 
-/* ── Opportunity view: quieter header, stats and next step ───────── */
-/* Scoped by id: the record-* classes are shared with other record views. */
-#opportunity-view-modal .record-hero-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 11px;
+/* ── Deal detail: one quiet panel, fields edit in place ─────────────── */
+.od-modal {
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.od-panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: min(680px, 100%);
+  max-height: min(820px, 92vh);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 24px 64px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  animation: recordModalPop 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme="dark"] .od-panel {
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.55);
+}
+
+.od-icon {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+/* Header */
+.od-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 22px 16px 16px 24px;
+}
+
+.od-avatar {
+  position: relative;
+  flex: 0 0 40px;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
   background: var(--bg-tertiary);
+  overflow: hidden;
+  font-size: 0.8rem;
+  font-weight: 600;
   color: var(--text-secondary);
-  font-size: 0.95rem;
-  font-weight: 700;
-  letter-spacing: 0;
 }
 
-[data-theme="dark"] #opportunity-view-modal .record-hero-avatar {
-  background: #2a303a;
-}
-
-#opportunity-view-modal .record-hero-avatar .opp-avatar-initials {
-  font-size: inherit;
-}
-
-#opportunity-view-modal .record-hero-avatar img {
-  display: block;
+.od-avatar img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  border-radius: 0;
-  background: #ffffff;
-}
-
-#opportunity-view-modal .record-hero-name {
-  font-size: 1.3rem;
-  font-weight: 700;
-  max-width: 100%;
-}
-
-#opportunity-view-modal .record-hero-type-badge {
-  gap: 6px;
-  padding: 2px 9px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0;
-  text-transform: none;
-  color: var(--text-secondary);
+  padding: 6px;
+  object-fit: contain;
   background: var(--bg-secondary);
-  border-color: var(--border-color);
 }
 
-#opportunity-view-modal .record-hero-type-badge::before {
+.od-heading {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.od-title {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 650;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: var(--text-primary);
+  overflow-wrap: anywhere;
+}
+
+.od-title.od-editable {
+  min-height: 0;
+  padding: 1px 6px;
+  margin-left: -6px;
+  font-size: 1.25rem;
+  font-weight: 650;
+}
+
+.od-subtitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.od-company {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--text-secondary);
+}
+
+.od-company .od-icon {
+  width: 13px;
+  height: 13px;
+  color: var(--text-muted);
+}
+
+.od-company.is-link {
+  cursor: pointer;
+}
+
+.od-company.is-link:hover {
+  color: var(--text-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.od-dot {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.od-actions {
+  display: flex;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.od-icon-btn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+
+.od-icon-btn .od-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.od-icon-btn:hover {
+  background: var(--bg-active);
+  color: var(--text-primary);
+}
+
+.od-icon-btn.is-danger:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.od-icon-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+/* Body: properties, then notes / calls / tasks */
+.od-body {
+  flex: 1;
+  min-height: 0;
+  padding: 0 24px 4px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.od-props {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 2px 0 14px;
+}
+
+.od-prop {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+}
+
+.od-prop-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.od-prop-value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  min-width: 0;
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+}
+
+/* A value you can click to edit */
+.od-editable {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  min-height: 28px;
+  padding: 3px 8px;
+  margin-left: -8px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.od-editable:hover {
+  background: var(--bg-active);
+}
+
+.od-editable:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 0;
+}
+
+.od-readonly {
+  padding: 3px 0;
+}
+
+.od-editable.is-empty,
+.od-readonly.is-empty {
+  color: var(--text-muted);
+}
+
+.od-input {
+  width: 100%;
+  min-height: 30px;
+  padding: 4px 8px;
+  margin-left: -8px;
+  border: 1px solid var(--color-primary);
+  border-radius: 6px;
+  background: var(--bg-secondary);
+  box-shadow: 0 0 0 3px var(--color-primary-bg);
+  font: inherit;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.od-input:disabled {
+  opacity: 0.6;
+}
+
+.od-input--name {
+  padding: 1px 6px;
+  margin-left: -6px;
+  font-size: 1.25rem;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+}
+
+.od-input--value,
+.od-input--probability {
+  max-width: 160px;
+}
+
+.od-input--next_step_date {
+  max-width: 180px;
+}
+
+.od-input--notes {
+  display: block;
+  width: calc(100% + 24px);
+  min-height: 120px;
+  padding: 10px 12px;
+  margin: 0 -12px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.od-muted {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.od-muted.is-warning {
+  color: var(--color-warning);
+}
+
+.od-link {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.78rem;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.od-link:hover {
+  text-decoration: underline;
+}
+
+.od-link--strong {
+  font-size: 0.8125rem;
+  font-weight: 550;
+}
+
+.od-due.is-overdue {
+  font-weight: 550;
+  color: var(--color-danger);
+}
+
+.od-due.is-today {
+  font-weight: 550;
+  color: var(--color-warning);
+}
+
+.od-tag {
+  padding: 2px 8px;
+  border-radius: 6px;
+  background: var(--bg-tertiary);
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.od-person {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 0;
+}
+
+.od-person-avatar {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  overflow: hidden;
+  font-size: 0.55rem;
+  font-weight: 600;
+  color: #fff;
+}
+
+.od-person-avatar img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Stage: a pill in the stage's color, with the shared dropdown inside */
+.od-stage {
+  display: inline-flex;
+}
+
+.od-stage .crm-dd-trigger,
+.od-stage .od-readonly {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 9px;
+  border: 1px solid color-mix(in srgb, var(--stage-color) 24%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--stage-color) 10%, transparent);
+  font-size: 0.8125rem;
+  font-weight: 550;
+  color: var(--text-primary);
+}
+
+.od-stage .crm-dd-trigger::before,
+.od-stage .od-readonly::before {
   content: '';
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--stage-color, var(--text-muted));
+  background: var(--stage-color);
+  flex-shrink: 0;
 }
 
-#opportunity-view-modal .record-hero-domain a {
-  padding: 0;
+.od-stage .crm-dd-trigger:hover:not(.is-disabled),
+.od-stage .crm-dd.is-open .crm-dd-trigger {
+  border-color: color-mix(in srgb, var(--stage-color) 45%, transparent);
+  background: color-mix(in srgb, var(--stage-color) 16%, transparent);
+  color: var(--text-primary);
+}
+
+/* Owner: the shared dropdown, styled as plain text until hovered */
+.od-prop-value > .crm-dd--inline {
+  margin-left: -8px;
+}
+
+.od-prop-value > .crm-dd--inline .crm-dd-trigger {
+  height: 28px;
+  padding: 0 8px;
+  border-color: transparent;
+  background: transparent;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.od-prop-value > .crm-dd--inline .crm-dd-trigger:hover:not(.is-disabled),
+.od-prop-value > .crm-dd--inline.is-open .crm-dd-trigger {
+  border-color: transparent;
+  background: var(--bg-active);
+}
+
+/* Tabs */
+.od-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  gap: 20px;
+  border-top: 1px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+  margin: 0 -24px;
+  padding: 0 24px;
+  background: var(--bg-secondary);
+}
+
+.od-tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 11px 0;
   border: 0;
-  border-radius: 0;
   background: none;
-  font-size: 0.875rem;
-  color: var(--text-secondary);
-  pointer-events: none;
-}
-
-#opportunity-view-modal .record-hero-domain {
-  min-width: 0;
-  max-width: 100%;
-}
-
-#opportunity-view-modal .record-hero-domain a {
-  max-width: 100%;
-}
-
-#opportunity-view-modal #opportunity-view-company-name {
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-#opportunity-view-modal .record-hero-domain a.is-link {
-  color: var(--color-primary);
-  pointer-events: auto;
-}
-
-#opportunity-view-modal .record-hero-domain a:hover {
-  background: none;
-  transform: none;
-  text-decoration: underline;
-}
-
-#opportunity-view-modal .record-stat-item {
-  align-items: flex-start;
-  padding: 12px 20px;
-}
-
-#opportunity-view-modal .record-stat-item:hover {
-  background: var(--bg-primary);
-}
-
-#opportunity-view-modal .record-stat-item[hidden] {
-  display: none;
-}
-
-#opportunity-view-modal .record-stat-label {
-  order: -1;
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-}
-
-#opportunity-view-modal .record-stat-value {
-  font-size: 1.1rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-
-#opportunity-view-modal .record-stat-value.is-stale {
-  color: var(--color-warning);
-}
-
-#opportunity-view-modal .ov-next-step-box {
-  background: var(--bg-primary);
-  border-color: var(--border-color);
-}
-
-#opportunity-view-modal .ov-next-step-header {
-  align-items: baseline;
-}
-
-#opportunity-view-modal .ov-next-step-label {
-  font-size: 0.68rem;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-#opportunity-view-modal .ov-next-step-date {
-  padding: 0;
-  background: none;
-  font-size: 0.8rem;
+  font: inherit;
+  font-size: 0.8125rem;
   font-weight: 500;
   color: var(--text-muted);
+  cursor: pointer;
 }
 
-#opportunity-view-modal .ov-next-step-box.is-due-today .ov-next-step-date {
-  color: var(--color-warning);
-  font-weight: 600;
+.od-tab:hover,
+.od-tab.is-active {
+  color: var(--text-primary);
 }
 
-#opportunity-view-modal .ov-next-step-box.is-overdue .ov-next-step-date {
-  color: var(--color-danger);
-  font-weight: 600;
+.od-tab.is-active::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text-primary);
 }
 
-#opportunity-view-modal .ov-next-step-box.is-empty .ov-next-step-content {
-  font-weight: 400;
+.od-tab:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.od-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: var(--bg-tertiary);
+  font-size: 0.7rem;
   color: var(--text-muted);
 }
 
-.opp-view-link {
-  font-weight: 600;
+.od-tab-panel {
+  padding: 14px 0 18px;
+}
+
+.od-notes {
+  min-height: 96px;
+  padding: 10px 12px;
+  margin: 0 -12px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  cursor: text;
+  transition: background 0.12s;
+}
+
+.od-notes:hover {
+  background: var(--bg-hover);
+}
+
+.od-notes:focus-visible {
+  outline: 2px solid var(--color-primary);
+}
+
+.od-notes.is-empty {
+  color: var(--text-muted);
+}
+
+.od-notes.is-readonly {
+  cursor: default;
+}
+
+.od-notes.is-readonly:hover {
+  background: none;
+}
+
+.od-notes .mentioned-person {
+  padding: 0 2px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--color-primary-bg);
+  font: inherit;
   color: var(--color-primary);
-  text-decoration: none;
+  cursor: pointer;
 }
 
-.opp-view-link:hover {
-  text-decoration: underline;
+.od-list {
+  display: flex;
+  flex-direction: column;
+  margin: 0 -10px;
 }
 
-.opp-view-empty {
+.od-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.od-item:hover {
+  background: var(--bg-hover);
+}
+
+.od-item-dot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  margin-top: 6px;
+  border-radius: 50%;
+}
+
+.od-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.od-item-title {
+  font-size: 0.8125rem;
+  font-weight: 550;
+  color: var(--text-primary);
+}
+
+.od-item.is-done .od-item-title {
+  text-decoration: line-through;
   color: var(--text-muted);
 }
 
-@media (max-width: 768px) {
-  #opportunity-view-modal .record-hero-name {
-    font-size: 1.15rem;
+.od-item-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.od-item-note {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.od-empty {
+  margin: 0;
+  padding: 28px 0;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.od-footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 24px;
+  border-top: 1px solid var(--border-color);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Phones: a bottom sheet */
+@media (max-width: 640px) {
+  .od-modal {
+    align-items: flex-end;
+    padding: 0;
   }
 
-  #opportunity-view-modal .record-stat-item {
-    padding: 10px 16px;
+  .od-panel {
+    width: 100%;
+    max-height: 92vh;
+    border-bottom: 0;
+    border-radius: 16px 16px 0 0;
+  }
+
+  .od-header {
+    padding: 18px 8px 12px 16px;
+  }
+
+  .od-body {
+    padding: 0 16px 4px;
+  }
+
+  .od-tabs {
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+
+  .od-footer {
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  }
+
+  .od-prop {
+    grid-template-columns: 108px minmax(0, 1fr);
+  }
+
+  .od-title,
+  .od-title.od-editable,
+  .od-input--name {
+    font-size: 1.125rem;
   }
 }
 

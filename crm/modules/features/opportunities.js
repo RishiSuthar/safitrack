@@ -1362,280 +1362,519 @@ async function openOpportunityModal(opportunity = null, options = {}) {
   initOpportunityModalListeners(opportunity);
 }
 
-function openOpportunityViewModal(opportunity) {
-  const modal = document.getElementById('opportunity-view-modal');
-  if (!modal) return;
+// ── Deal detail ───────────────────────────────────────────────────────────────
+// One panel: header, a property list whose fields edit in place, then notes,
+// activity and tasks. The full form (pencil) stays for company, competitors
+// and teammates.
 
-  const companyObj = findCompanyForOpportunity(opportunity);
-  const isCrmCompany = Boolean(companyObj && companyObj.id);
+// The deal on screen, the open tab, and listeners removed when another deal opens
+let detail = null;
 
-  const viewPipeline = getCachedActivePipeline();
-  const pipelineStages = getPipelineStages(viewPipeline);
-  const stageId = opportunity.mappedStage || resolveStageId(opportunity.stage, pipelineStages, viewPipeline.is_default);
-  const stageInfo = pipelineStages.find(s => s.id === stageId) || pipelineStages[0];
-  const isClosed = Boolean(getStageOutcome(stageId));
-  const companyName = opportunity.company_name || companyObj?.name || '';
+const detailIcon = (paths) => `<svg class="od-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
 
-  // Header: logo, deal name, stage, company · subsector
-  document.getElementById('opportunity-view-title').textContent = opportunity.name || 'Untitled deal';
+const DETAIL_ICONS = {
+  stage: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/>',
+  value: '<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>',
+  probability: '<path d="M19 5 5 19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/>',
+  owner: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  nextStep: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="m9 12 2 2 4-4"/>',
+  due: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  contact: '<path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>',
+  competitors: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+  team: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+  company: '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4M10 10h4M10 14h4M10 18h4"/>',
+  edit: '<path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.4 2.6a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/>',
+  trash: '<path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  close: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
+};
 
-  const stageEl = document.getElementById('opportunity-view-stage-badge');
-  if (stageEl) {
-    stageEl.textContent = plainStageTitle(stageInfo.title);
-    stageEl.style.setProperty('--stage-color', stageInfo.color || '#94a3b8');
-  }
+/** Team members for the owner picker, if already loaded for this org */
+function getCachedTeamMembers() {
+  return window._orgTeamMembersOrgId === state.currentOrganization?.id ? window._orgTeamMembers : null;
+}
 
-  const avatarEl = document.getElementById('opportunity-view-avatar');
-  if (avatarEl) {
-    const logoUrl = getOpportunityLogoUrl(companyObj);
-    avatarEl.removeAttribute('style');
-    avatarEl.innerHTML = `
-      <span class="opp-avatar-initials">${escapeHtml(getInitials(companyName || opportunity.name || '?'))}</span>
-      ${logoUrl ? `<img src="${escapeHtml(logoUrl)}" alt="" onload="this.previousElementSibling.style.visibility='hidden'" onerror="this.remove()" />` : ''}`;
-  }
+function renderPersonChip(userId, name, avatarUrl) {
+  return `<span class="od-person"><span class="od-person-avatar" style="background:${getAssigneeColor(userId)}">${renderAvatarContent(name, avatarUrl)}</span>${escapeHtml(name)}</span>`;
+}
 
-  const companyLinkEl = document.getElementById('opportunity-view-company-link');
-  document.getElementById('opportunity-view-company-name').textContent = companyName || 'No company';
-  if (companyLinkEl) {
-    // Only companies in the CRM have a page to open
-    companyLinkEl.classList.toggle('is-link', isCrmCompany);
-    companyLinkEl.title = isCrmCompany ? `Open ${companyName}` : companyName;
-    companyLinkEl.onclick = (e) => {
-      e.preventDefault();
-      if (!isCrmCompany) return;
-      closeModal('opportunity-view-modal');
-      setTimeout(() => openCompanyViewModal(companyObj.id), 120);
-    };
-  }
-
-  const subsector = (opportunity.subsector || companyObj?.subsector || '').trim();
-  const metaChipsEl = document.getElementById('opportunity-view-meta-chips');
-  if (metaChipsEl) {
-    metaChipsEl.innerHTML = subsector ? `<span class="record-hero-cat-chip">${escapeHtml(subsector)}</span>` : '';
-  }
-
-  // Stats: value, win chance and weighted value (open deals only), days in stage
-  const value = dealValue(opportunity);
-  const probability = dealProbability(opportunity);
-  document.getElementById('opportunity-view-value').textContent = formatDealValue(opportunity);
-  document.getElementById('opportunity-view-probability').textContent = `${probability}%`;
-  document.getElementById('opportunity-view-weighted').textContent = hasDealValue(opportunity) ? formatMoney(value * probability / 100) : '—';
-  modal.querySelectorAll('.opp-view-open-stat').forEach(el => { el.hidden = isClosed; });
-
-  const stageAgeEl = document.getElementById('opportunity-view-stage-age');
-  if (stageAgeEl) {
-    const days = daysSince(getStageEnteredAt(opportunity));
-    stageAgeEl.textContent = days === 0 ? 'Today' : `${days} day${days === 1 ? '' : 's'}`;
-    stageAgeEl.classList.toggle('is-stale', !isClosed && days >= STALE_STAGE_DAYS);
-  }
-
-  // Next step
-  const nextStepBox = document.getElementById('opportunity-view-next-step-box');
-  const dueStatus = getDueStatus(opportunity.next_step_date);
-  if (nextStepBox) {
-    nextStepBox.classList.toggle('is-overdue', dueStatus === 'overdue');
-    nextStepBox.classList.toggle('is-due-today', dueStatus === 'today');
-    nextStepBox.classList.toggle('is-empty', !opportunity.next_step);
-  }
-  document.getElementById('opportunity-view-next-step').textContent = opportunity.next_step || 'No next step yet';
-  document.getElementById('opportunity-view-next-step-date').textContent = formatDueDate(opportunity.next_step_date) || 'No due date';
-
-  // Notes & Mentions
-  const notesEl = document.getElementById('opportunity-view-notes');
-  if (notesEl) {
-    let notesHtml = escapeHtml(opportunity.notes || '');
-    if (opportunity.mentioned_people && Array.isArray(opportunity.mentioned_people)) {
-      opportunity.mentioned_people.forEach(person => {
-        if (!person || !person.name) return;
-        // The notes are already escaped, so match the escaped form of the name
-        const safeName = escapeHtml(person.name.trim());
-        const pattern = new RegExp(`@${escapeRegExp(safeName)}\\b`, 'gi');
-        notesHtml = notesHtml.replace(pattern, `<span class="mentioned-person" data-person-id="${escapeHtml(person.id)}">@${safeName}</span>`);
-      });
-    } else {
-      notesHtml = notesHtml.replace(/@([A-Za-z0-9_\-]+)\b/g, '<span class="mentioned-person" data-person-name="$1">@$1</span>');
-    }
-    notesEl.innerHTML = notesHtml || '<div class="text-muted" style="font-size:0.85rem; opacity:0.6;">No internal notes added to this deal.</div>';
-
-    notesEl.querySelectorAll('.mentioned-person').forEach(el => {
-      el.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const pid = el.dataset.personId;
-        const pname = el.dataset.personName || el.textContent.replace(/^@/, '').trim();
-        closeModal('opportunity-view-modal');
-        if (pid) return setTimeout(() => openPersonViewModal(pid), 120);
-        const p = (window.allPeopleData || state.allPeople || []).find(p => String(p.name).trim().toLowerCase() === String(pname).toLowerCase());
-        if (p) setTimeout(() => openPersonViewModal(p), 120);
-      });
+/** Notes with @mentions turned into links to the person */
+function renderNotesHtml(opportunity) {
+  let html = escapeHtml(opportunity.notes || '');
+  if (Array.isArray(opportunity.mentioned_people)) {
+    opportunity.mentioned_people.forEach(person => {
+      if (!person?.name) return;
+      // The notes are already escaped, so match the escaped form of the name
+      const safeName = escapeHtml(person.name.trim());
+      const pattern = new RegExp(`@${escapeRegExp(safeName)}\\b`, 'gi');
+      html = html.replace(pattern, `<button type="button" class="mentioned-person" data-person-id="${escapeHtml(person.id)}">@${safeName}</button>`);
     });
   }
+  return html;
+}
 
-  // Activity Tab (Call logs & Visits)
-  const activityPanel = document.getElementById('opp-panel-activity');
-  const activityCountEl = document.getElementById('opp-tab-activity-count');
-  const relatedCalls = Array.isArray(window.allCallLogsData)
-    ? window.allCallLogsData.filter(c => 
-        (isCrmCompany && String(c.company_id) === String(companyObj.id)) ||
-        (!isCrmCompany && opportunity.company_name && c.company_name && c.company_name.trim().toLowerCase() === opportunity.company_name.trim().toLowerCase())
-      )
-    : [];
+function openOpportunityViewModal(opportunity) {
+  const modal = document.getElementById('opportunity-view-modal');
+  const panel = document.getElementById('opportunity-detail');
+  if (!modal || !panel || !opportunity) return;
 
-  if (activityCountEl) activityCountEl.textContent = String(relatedCalls.length);
-  if (activityPanel) {
-    if (relatedCalls.length === 0) {
-      activityPanel.innerHTML = '<div class="text-muted" style="text-align:center; padding:32px 16px; font-size:0.88rem;">No call logs or recorded activity for this company yet.</div>';
-    } else {
-      activityPanel.innerHTML = relatedCalls.map(c => `
-        <div class="record-opp-card" style="cursor:pointer;" onclick="closeModal('opportunity-view-modal'); setTimeout(() => openCallLogViewModal(${JSON.stringify(c).replace(/"/g, '&quot;')}), 120)">
-          <div class="record-opp-card-stage" style="background:${c.direction === 'Inbound' ? '#10b981' : '#3b82f6'};"></div>
-          <div class="record-opp-card-body">
-            <div class="record-opp-card-name">${escapeHtml(c.contact_name || c.people?.name || 'Call Log')} · <span style="font-weight:500; font-size:0.8rem; color:var(--text-muted);">${formatDateWithTime(c.call_at)}</span></div>
-            <div class="record-opp-card-meta">
-              <span class="stage-pill">${escapeHtml(c.outcome || 'Logged')}</span>
-              <span>${c.duration_seconds ? Math.round(c.duration_seconds / 60) + ' min' : '—'}</span>
-              <span>${escapeHtml(c.profiles ? c.profiles.first_name + ' ' + c.profiles.last_name : '')}</span>
-            </div>
-            ${c.notes ? `<div style="font-size:0.82rem; color:var(--text-secondary); margin-top:4px;">${escapeHtml(c.notes.slice(0, 100))}${c.notes.length > 100 ? '…' : ''}</div>` : ''}
-          </div>
-          <button class="btn btn-sm btn-ghost" style="flex-shrink:0;">View</button>
-        </div>
-      `).join('');
+  detail?.listeners.abort();
+  detail = { opportunity, tab: 'notes', calls: [], tasks: [], listeners: new AbortController() };
+  const { signal } = detail.listeners;
+
+  panel.addEventListener('click', onDetailClick, { signal });
+  panel.addEventListener('keydown', (e) => {
+    // The notes block is a div, so give it button-like keyboard access
+    if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.od-notes[data-edit]')) {
+      e.preventDefault();
+      startDetailEdit('notes', e.target);
     }
-  }
+  }, { signal });
+  // Stage and owner use the shared dropdown, which reports picks as a change on its hidden input
+  panel.addEventListener('change', (e) => {
+    if (e.target.id === 'od-stage') saveDetailStage(e.target.value);
+    if (e.target.id === 'od-owner') saveDetailOwner(e.target.value);
+  }, { signal });
+  // Escape closes the deal, unless it is closing a dropdown, an editor or a dialog on top
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape' || modal.style.display === 'none') return;
+    if (document.querySelector('.crm-dd.is-open')) return;
+    if (document.activeElement?.classList.contains('od-input')) return;
+    if (document.getElementById('confirm-dialog')?.style.display === 'flex') return;
+    closeModal('opportunity-view-modal');
+  }, { capture: true, signal });
 
-  // Tasks Tab
-  const tasksPanel = document.getElementById('opp-panel-tasks');
-  const tasksCountEl = document.getElementById('opp-tab-tasks-count');
-  const relatedTasks = Array.isArray(window.allTasksData)
-    ? window.allTasksData.filter(t => 
-        (t.opportunity_id && String(t.opportunity_id) === String(opportunity.id)) ||
-        (isCrmCompany && t.company_id && String(t.company_id) === String(companyObj.id))
-      )
-    : [];
-
-  if (tasksCountEl) tasksCountEl.textContent = String(relatedTasks.length);
-  if (tasksPanel) {
-    if (relatedTasks.length === 0) {
-      tasksPanel.innerHTML = '<div class="text-muted" style="text-align:center; padding:32px 16px; font-size:0.88rem;">No tasks scheduled for this opportunity.</div>';
-    } else {
-      tasksPanel.innerHTML = relatedTasks.map(t => `
-        <div class="record-opp-card" style="cursor:pointer;" onclick="closeModal('opportunity-view-modal'); setTimeout(() => { const sReps = window.salesRepsData || []; showTaskDetail(${JSON.stringify(t).replace(/"/g, '&quot;')}, sReps); }, 120)">
-          <div class="record-opp-card-stage" style="background:${t.status === 'completed' ? '#10b981' : t.priority === 'high' ? '#ef4444' : '#f59e0b'};"></div>
-          <div class="record-opp-card-body">
-            <div class="record-opp-card-name" style="${t.status === 'completed' ? 'text-decoration:line-through; opacity:0.7;' : ''}">${escapeHtml(t.title)}</div>
-            <div class="record-opp-card-meta">
-              <span class="stage-pill">${escapeHtml(t.status || 'pending')}</span>
-              ${t.due_date ? `<span>Due: ${formatDate(t.due_date)}</span>` : '<span>No due date</span>'}
-              <span style="text-transform:capitalize;">${escapeHtml(t.priority || 'medium')} priority</span>
-            </div>
-          </div>
-          <button class="btn btn-sm btn-ghost" style="flex-shrink:0;">View</button>
-        </div>
-      `).join('');
-    }
-  }
-
-  // Wire Tab switching
-  const tabs = modal.querySelectorAll('.opp-view-tab');
-  tabs.forEach(tab => {
-    tab.onclick = () => {
-      tabs.forEach(t => t.classList.remove('active'));
-      tab.classList.add('active');
-      const tabKey = tab.dataset.tab;
-      const pOverview = document.getElementById('opp-panel-overview');
-      const pActivity = document.getElementById('opp-panel-activity');
-      const pTasks = document.getElementById('opp-panel-tasks');
-      if (pOverview) pOverview.style.display = tabKey === 'overview' ? 'block' : 'none';
-      if (pActivity) pActivity.style.display = tabKey === 'activity' ? 'block' : 'none';
-      if (pTasks) pTasks.style.display = tabKey === 'tasks' ? 'block' : 'none';
-    };
-  });
-  // Reset active tab to overview
-  const defaultTab = modal.querySelector('.opp-view-tab[data-tab="overview"]');
-  if (defaultTab) defaultTab.click();
-
-  // Sidebar: primary contact — only someone actually tagged on the deal, never
-  // a guess from whoever happens to work at the company
-  const sidebarContactEl = document.getElementById('opportunity-sidebar-contact');
-  if (sidebarContactEl) {
-    const primaryPerson = Array.isArray(opportunity.mentioned_people) && opportunity.mentioned_people.find(p => p?.name);
-
-    if (primaryPerson) {
-      sidebarContactEl.innerHTML = `<a href="#" class="opp-view-link">${escapeHtml(primaryPerson.name)}</a>`;
-      sidebarContactEl.querySelector('a').addEventListener('click', (e) => {
-        e.preventDefault();
-        closeModal('opportunity-view-modal');
-        setTimeout(() => openPersonViewModal(primaryPerson.id || primaryPerson), 120);
-      });
-    } else {
-      sidebarContactEl.innerHTML = '<span class="opp-view-empty">None</span>';
-    }
-  }
-
-  // Sidebar: competitors
-  const competitorsEl = document.getElementById('opportunity-view-competitors');
-  if (competitorsEl) {
-    const competitors = parseCompetitors(opportunity.competitors);
-    competitorsEl.innerHTML = competitors.length > 0
-      ? `<div class="ov-competitors-list">${competitors.map(c => `<span class="ov-comp-tag">${escapeHtml(c)}</span>`).join('')}</div>`
-      : '<span class="opp-view-empty">None</span>';
-  }
-
-  // Sidebar: record info
-  const createdDays = daysSince(opportunity.created_at);
-  document.getElementById('opportunity-view-created').textContent =
-    `${formatDate(opportunity.created_at)}${createdDays > 6 ? ` · ${createdDays} days ago` : ''}`;
-  document.getElementById('opportunity-view-updated').textContent = formatDate(opportunity.updated_at || opportunity.created_at);
-
-  // Sidebar: owner first, then tagged teammates
-  const assigneesEl = document.getElementById('opportunity-view-assignees');
-  if (assigneesEl) {
-    const roleLabel = (role) => (role === 'manager' ? 'Manager' : role === 'technician' ? 'Technician' : 'Sales Rep');
-    const members = [];
-    if (opportunity.profiles) {
-      members.push({ user_id: opportunity.user_id, profile: opportunity.profiles, isOwner: true });
-    }
-    (opportunity.assignees || [])
-      .filter(a => a.user_id !== opportunity.user_id)
-      .forEach(a => members.push({ user_id: a.user_id, profile: a.profiles, isOwner: false }));
-
-    assigneesEl.innerHTML = members.map(({ user_id, profile, isOwner }) => {
-      const name = fullName(profile) || 'Team member';
-      const role = profile?.role || 'sales_rep';
-      return `
-        <div class="ov-assignee-row">
-          <div class="ov-assignee-avatar" style="background:${getAssigneeColor(user_id)}">${renderAvatarContent(name, profile?.avatar_url)}</div>
-          <div class="ov-assignee-info">
-            <div class="ov-assignee-name">${escapeHtml(name)}</div>
-            <span class="ov-assignee-role-badge role-${escapeHtml(role)}">${isOwner ? 'Owner · ' : ''}${escapeHtml(roleLabel(role))}</span>
-          </div>
-        </div>`;
-    }).join('') || '<span class="ov-assignees-empty">No team members.</span>';
-  }
-
-  // Edit Action
-  const editBtn = document.getElementById('opportunity-view-edit-btn');
-  if (editBtn) {
-    editBtn.style.display = canEditOpportunity(opportunity) ? 'flex' : 'none';
-    editBtn.onclick = () => {
-      closeModal('opportunity-view-modal');
-      openOpportunityModal(opportunity);
-    };
-  }
-
-  // Delete Action
-  const deleteBtn = document.getElementById('opportunity-view-delete-btn');
-  if (deleteBtn) {
-    deleteBtn.style.display = canDeleteOpportunity(opportunity) ? 'flex' : 'none';
-    deleteBtn.onclick = async () => {
-      if (await deleteOpportunity(opportunity)) closeModal('opportunity-view-modal');
-    };
-  }
-
-  // Show modal
+  renderOpportunityDetail();
   modal.style.display = 'flex';
   document.body.classList.add('modal-active');
-  if (window.lucide) lucide.createIcons();
+  panel.querySelector('.od-body')?.scrollTo(0, 0);
+
+  // Managers pick owners from the team; load it once, then show the picker
+  if (state.isManager && canEditOpportunity(opportunity) && !getCachedTeamMembers()) {
+    const current = detail;
+    loadOrgTeamMembers().then(() => { if (detail === current) renderOpportunityDetail(); });
+  }
+}
+
+function renderOpportunityDetail() {
+  const panel = document.getElementById('opportunity-detail');
+  if (!panel || !detail) return;
+  const opp = detail.opportunity;
+
+  const pipeline = getCachedActivePipeline();
+  const stages = getPipelineStages(pipeline);
+  const stageId = opp.mappedStage || resolveStageId(opp.stage, stages, pipeline.is_default);
+  const stage = stages.find(s => s.id === stageId) || stages[0];
+  const stageTitle = plainStageTitle(stage?.title);
+  const isClosed = Boolean(getStageOutcome(stageId));
+  const canEdit = canEditOpportunity(opp);
+
+  const company = findCompanyForOpportunity(opp);
+  const isCrmCompany = Boolean(company?.id);
+  const companyName = opp.company_name || company?.name || '';
+  const subsector = (opp.subsector || company?.subsector || '').trim();
+  const logoUrl = getOpportunityLogoUrl(company);
+
+  // A value the user can click to edit, or plain text for people who can't edit
+  const editable = (field, html, emptyText) => {
+    if (!canEdit) return `<span class="od-readonly${html ? '' : ' is-empty'}">${html || '—'}</span>`;
+    return `<button type="button" class="od-editable${html ? '' : ' is-empty'}" data-edit="${field}">${html || escapeHtml(emptyText)}</button>`;
+  };
+  const prop = (key, label, iconKey, valueHtml) => `
+    <div class="od-prop" data-prop="${key}">
+      <dt class="od-prop-label">${detailIcon(DETAIL_ICONS[iconKey])}${label}</dt>
+      <dd class="od-prop-value">${valueHtml}</dd>
+    </div>`;
+
+  // Stage, and how long the deal has sat in it
+  const stageDays = daysSince(getStageEnteredAt(opp));
+  const isStale = !isClosed && stageDays >= STALE_STAGE_DAYS;
+  const stageAge = `<span class="od-muted${isStale ? ' is-warning' : ''}"${isStale ? ' title="No stage change in a while, may be stuck"' : ''}>${stageDays === 0 ? 'since today' : `for ${stageDays} day${stageDays === 1 ? '' : 's'}`}</span>`;
+  const stageControl = canEdit
+    ? window.buildCrmDropdown({
+      id: 'od-stage',
+      options: stages.map(s => ({ value: s.id, label: plainStageTitle(s.title) })),
+      value: stageId,
+      variant: 'inline',
+    })
+    : `<span class="od-readonly">${escapeHtml(stageTitle)}</span>`;
+  const stageHtml = `<span class="od-stage" style="--stage-color:${escapeHtml(stage?.color || '#94a3b8')}">${stageControl}</span>${stageAge}`;
+
+  // Value, with the weighted amount for open deals
+  const value = dealValue(opp);
+  const probability = dealProbability(opp);
+  const weighted = !isClosed && hasDealValue(opp)
+    ? `<span class="od-muted">${escapeHtml(formatMoney(value * probability / 100))} weighted</span>`
+    : '';
+  const valueHtml = editable('value', hasDealValue(opp) ? escapeHtml(formatCurrency(value)) : '', 'Add value') + weighted;
+
+  // Win chance: set by the stage, editable on open deals
+  const stageProbability = getStageProbability(stageId, stages);
+  let probabilityHtml;
+  if (isClosed) {
+    probabilityHtml = `<span class="od-readonly">${probability}%</span><span class="od-muted">set by stage</span>`;
+  } else {
+    probabilityHtml = editable('probability', `${probability}%`, '');
+    if (canEdit && probability !== stageProbability) {
+      probabilityHtml += `<button type="button" class="od-link" data-action="reset-probability">Reset to ${stageProbability}%</button>`;
+    } else if (probability === stageProbability) {
+      probabilityHtml += `<span class="od-muted">${escapeHtml(stageTitle)} default</span>`;
+    }
+  }
+
+  // Owner: managers can reassign
+  const ownerName = fullName(opp.profiles);
+  const members = state.isManager && canEdit ? getCachedTeamMembers() : null;
+  let ownerHtml;
+  if (members) {
+    const ownerId = opp.user_id || '';
+    const options = members.map(m => ({ value: m.id, label: fullName(m) || m.email || 'Team member' }));
+    // Keep an owner who has left selectable, so the picker shows who it is
+    if (ownerId && !members.some(m => m.id === ownerId)) options.unshift({ value: ownerId, label: ownerName || 'Former team member' });
+    if (!ownerId) options.unshift({ value: '', label: 'No owner' });
+    ownerHtml = window.buildCrmDropdown({ id: 'od-owner', options, value: ownerId, placeholder: 'No owner', variant: 'inline', searchable: options.length > 8, searchPlaceholder: 'Search team…' });
+  } else {
+    ownerHtml = ownerName
+      ? renderPersonChip(opp.user_id, ownerName, opp.profiles?.avatar_url)
+      : '<span class="od-readonly is-empty">No owner</span>';
+  }
+
+  // Next step and when it's due
+  const dueStatus = getDueStatus(opp.next_step_date);
+  const dueLabel = formatDueDate(opp.next_step_date);
+  const dueHtml = editable('next_step_date', dueLabel ? `<span class="od-due${dueStatus ? ` is-${dueStatus}` : ''}">${escapeHtml(dueLabel)}${dueStatus === 'overdue' ? ' · overdue' : ''}</span>` : '', 'Add date');
+
+  // Only someone actually tagged on the deal, never a guess from whoever works at the company
+  const contact = Array.isArray(opp.mentioned_people) ? opp.mentioned_people.find(p => p?.name) : null;
+  const contactHtml = contact
+    ? `<button type="button" class="od-link od-link--strong" data-action="open-contact">${escapeHtml(contact.name)}</button>`
+    : '<span class="od-readonly is-empty">None</span>';
+
+  const competitors = parseCompetitors(opp.competitors);
+  const competitorsHtml = competitors.length
+    ? competitors.map(c => `<span class="od-tag">${escapeHtml(c)}</span>`).join('')
+    : '<span class="od-readonly is-empty">None</span>';
+
+  const teammates = (opp.assignees || []).filter(a => a.user_id !== opp.user_id);
+  const teamHtml = teammates.length
+    ? teammates.map(a => renderPersonChip(a.user_id, fullName(a.profiles) || 'Team member', a.profiles?.avatar_url)).join('')
+    : '<span class="od-readonly is-empty">None</span>';
+
+  // Calls and tasks for this deal or its company
+  const matchesCompany = (companyId, name) => (isCrmCompany && companyId != null && String(companyId) === String(company.id))
+    || (!isCrmCompany && opp.company_name && name && name.trim().toLowerCase() === opp.company_name.trim().toLowerCase());
+  detail.calls = Array.isArray(window.allCallLogsData)
+    ? window.allCallLogsData.filter(c => matchesCompany(c.company_id, c.company_name))
+    : [];
+  detail.tasks = Array.isArray(window.allTasksData)
+    ? window.allTasksData.filter(t => (t.opportunity_id && String(t.opportunity_id) === String(opp.id))
+      || (isCrmCompany && t.company_id && String(t.company_id) === String(company.id)))
+    : [];
+
+  let tabHtml;
+  if (detail.tab === 'activity') {
+    tabHtml = detail.calls.length
+      ? `<div class="od-list">${detail.calls.map((c, i) => `
+          <button type="button" class="od-item" data-action="open-call" data-index="${i}">
+            <span class="od-item-dot" style="background:${c.direction === 'Inbound' ? 'var(--color-success)' : 'var(--color-primary)'}"></span>
+            <span class="od-item-main">
+              <span class="od-item-title">${escapeHtml(c.contact_name || c.people?.name || 'Call')}</span>
+              <span class="od-item-meta">${[c.outcome || 'Logged', c.duration_seconds ? `${Math.round(c.duration_seconds / 60)} min` : '', fullName(c.profiles), formatDateWithTime(c.call_at)].filter(Boolean).map(escapeHtml).join(' · ')}</span>
+              ${c.notes ? `<span class="od-item-note">${escapeHtml(c.notes.slice(0, 140))}${c.notes.length > 140 ? '…' : ''}</span>` : ''}
+            </span>
+          </button>`).join('')}</div>`
+      : `<p class="od-empty">No calls logged for ${companyName ? escapeHtml(companyName) : 'this company'} yet.</p>`;
+  } else if (detail.tab === 'tasks') {
+    tabHtml = detail.tasks.length
+      ? `<div class="od-list">${detail.tasks.map((t, i) => {
+          const done = t.status === 'completed';
+          return `
+          <button type="button" class="od-item${done ? ' is-done' : ''}" data-action="open-task" data-index="${i}">
+            <span class="od-item-dot" style="background:${done ? 'var(--color-success)' : t.priority === 'high' ? 'var(--color-danger)' : 'var(--color-warning)'}"></span>
+            <span class="od-item-main">
+              <span class="od-item-title">${escapeHtml(t.title)}</span>
+              <span class="od-item-meta">${[t.status || 'pending', t.due_date ? `Due ${formatDueDate(t.due_date)}` : 'No due date', `${t.priority || 'medium'} priority`].map(escapeHtml).join(' · ')}</span>
+            </span>
+          </button>`;
+        }).join('')}</div>`
+      : '<p class="od-empty">No tasks for this deal yet.</p>';
+  } else {
+    const notesHtml = renderNotesHtml(opp);
+    tabHtml = canEdit
+      ? `<div class="od-notes${notesHtml ? '' : ' is-empty'}" data-edit="notes" role="button" tabindex="0" aria-label="Edit notes">${notesHtml || 'Add notes…'}</div>`
+      : `<div class="od-notes is-readonly${notesHtml ? '' : ' is-empty'}">${notesHtml || 'No notes yet.'}</div>`;
+  }
+  const tab = (key, label, count) => `<button type="button" role="tab" class="od-tab${detail.tab === key ? ' is-active' : ''}" data-tab="${key}" aria-selected="${detail.tab === key}">${label}${count != null ? `<span class="od-count">${count}</span>` : ''}</button>`;
+
+  const showCompany = companyName && (isCrmCompany || !dealNameRepeatsCompany(opp.name, companyName));
+  const companyHtml = !showCompany ? '' : isCrmCompany
+    ? `<button type="button" class="od-company is-link" data-action="open-company" title="Open ${escapeHtml(companyName)}">${detailIcon(DETAIL_ICONS.company)}${escapeHtml(companyName)}</button>`
+    : `<span class="od-company">${detailIcon(DETAIL_ICONS.company)}${escapeHtml(companyName)}</span>`;
+  const subtitle = [companyHtml, subsector ? `<span>${escapeHtml(subsector)}</span>` : ''].filter(Boolean).join('<span class="od-dot">·</span>');
+
+  const title = escapeHtml(opp.name || 'Untitled deal');
+  const updated = opp.updated_at || opp.created_at;
+
+  // Keep the scroll position when a save re-renders the panel
+  const scrollTop = panel.querySelector('.od-body')?.scrollTop || 0;
+
+  panel.innerHTML = `
+    <header class="od-header">
+      <span class="od-avatar" aria-hidden="true">
+        <span class="opp-avatar-initials">${escapeHtml(getInitials(companyName || opp.name || '?'))}</span>
+        ${logoUrl ? `<img src="${escapeHtml(logoUrl)}" alt="" onload="this.previousElementSibling.style.visibility='hidden'" onerror="this.remove()" />` : ''}
+      </span>
+      <div class="od-heading">
+        ${canEdit
+          ? `<button type="button" class="od-title od-editable" id="od-title" data-edit="name">${title}</button>`
+          : `<h2 class="od-title" id="od-title">${title}</h2>`}
+        ${subtitle ? `<div class="od-subtitle">${subtitle}</div>` : ''}
+      </div>
+      <div class="od-actions">
+        ${canEdit ? `
+          <button type="button" class="od-icon-btn" data-action="edit" title="Edit all fields" aria-label="Edit all fields">${detailIcon(DETAIL_ICONS.edit)}</button>
+          <button type="button" class="od-icon-btn is-danger" data-action="delete" title="Delete deal" aria-label="Delete deal">${detailIcon(DETAIL_ICONS.trash)}</button>` : ''}
+        <button type="button" class="od-icon-btn" data-action="close" title="Close" aria-label="Close">${detailIcon(DETAIL_ICONS.close)}</button>
+      </div>
+    </header>
+
+    <div class="od-body">
+      <dl class="od-props">
+        ${prop('stage', 'Stage', 'stage', stageHtml)}
+        ${prop('value', 'Value', 'value', valueHtml)}
+        ${prop('probability', 'Win chance', 'probability', probabilityHtml)}
+        ${prop('owner', 'Owner', 'owner', ownerHtml)}
+        ${prop('next_step', 'Next step', 'nextStep', editable('next_step', escapeHtml(opp.next_step || ''), 'Add next step'))}
+        ${prop('next_step_date', 'Due', 'due', dueHtml)}
+        ${prop('contact', 'Contact', 'contact', contactHtml)}
+        ${prop('competitors', 'Competitors', 'competitors', competitorsHtml)}
+        ${prop('team', 'Teammates', 'team', teamHtml)}
+      </dl>
+
+      <div class="od-tabs" role="tablist">
+        ${tab('notes', 'Notes')}
+        ${tab('activity', 'Calls', detail.calls.length)}
+        ${tab('tasks', 'Tasks', detail.tasks.length)}
+      </div>
+      <div class="od-tab-panel" role="tabpanel">${tabHtml}</div>
+    </div>
+
+    <footer class="od-footer">
+      <span>Created ${escapeHtml(formatDate(opp.created_at))}</span>
+      ${updated && updated !== opp.created_at ? `<span class="od-dot">·</span><span>Updated ${escapeHtml(formatDate(updated))}</span>` : ''}
+    </footer>`;
+
+  window.initAllCrmDropdowns?.(panel);
+  const body = panel.querySelector('.od-body');
+  if (body) body.scrollTop = scrollTop;
+}
+
+function onDetailClick(e) {
+  if (!detail) return;
+  const opp = detail.opportunity;
+
+  const mention = e.target.closest('.mentioned-person');
+  if (mention) {
+    e.stopPropagation();
+    closeModal('opportunity-view-modal');
+    setTimeout(() => openPersonViewModal(mention.dataset.personId), 120);
+    return;
+  }
+
+  const tabBtn = e.target.closest('[data-tab]');
+  if (tabBtn) {
+    detail.tab = tabBtn.dataset.tab;
+    renderOpportunityDetail();
+    return;
+  }
+
+  const editTarget = e.target.closest('[data-edit]');
+  if (editTarget) {
+    startDetailEdit(editTarget.dataset.edit, editTarget);
+    return;
+  }
+
+  const action = e.target.closest('[data-action]')?.dataset.action;
+  if (!action) return;
+  const index = Number(e.target.closest('[data-index]')?.dataset.index);
+
+  if (action === 'close') {
+    closeModal('opportunity-view-modal');
+  } else if (action === 'edit') {
+    closeModal('opportunity-view-modal');
+    openOpportunityModal(opp);
+  } else if (action === 'delete') {
+    deleteOpportunity(opp).then(deleted => { if (deleted) closeModal('opportunity-view-modal'); });
+  } else if (action === 'open-company') {
+    const company = findCompanyForOpportunity(opp);
+    if (!company?.id) return;
+    closeModal('opportunity-view-modal');
+    setTimeout(() => openCompanyViewModal(company.id), 120);
+  } else if (action === 'open-contact') {
+    const contact = (opp.mentioned_people || []).find(p => p?.name);
+    if (!contact) return;
+    closeModal('opportunity-view-modal');
+    setTimeout(() => openPersonViewModal(contact.id || contact), 120);
+  } else if (action === 'reset-probability') {
+    const stages = getPipelineStages(getCachedActivePipeline());
+    const stageId = opp.mappedStage || opp.stage;
+    saveDealPatch({ probability: getStageProbability(stageId, stages) }).then(renderOpportunityDetail);
+  } else if (action === 'open-call' && detail.calls[index]) {
+    const call = detail.calls[index];
+    closeModal('opportunity-view-modal');
+    setTimeout(() => openCallLogViewModal(call), 120);
+  } else if (action === 'open-task' && detail.tasks[index]) {
+    const task = detail.tasks[index];
+    closeModal('opportunity-view-modal');
+    setTimeout(() => showTaskDetail(task, window.salesRepsData || []), 120);
+  }
+}
+
+/** Swap a value for an input. Enter or leaving the field saves, Escape cancels. */
+function startDetailEdit(field, anchor) {
+  const opp = detail?.opportunity;
+  if (!opp || !canEditOpportunity(opp)) return;
+
+  const config = {
+    name: { type: 'text', value: opp.name || '', placeholder: 'Deal name' },
+    value: { type: 'number', value: hasDealValue(opp) ? String(opp.value) : '', placeholder: 'e.g. 25000', min: '0', step: '0.01' },
+    probability: { type: 'number', value: String(dealProbability(opp)), min: '0', max: '100', step: '1' },
+    next_step: { type: 'text', value: opp.next_step || '', placeholder: 'What happens next?' },
+    next_step_date: { type: 'date', value: opp.next_step_date ? String(opp.next_step_date).slice(0, 10) : '' },
+    notes: { type: 'textarea', value: opp.notes || '', placeholder: 'Add notes…' },
+  }[field];
+  if (!config) return;
+
+  const input = document.createElement(config.type === 'textarea' ? 'textarea' : 'input');
+  if (config.type !== 'textarea') input.type = config.type;
+  input.className = `od-input od-input--${field}`;
+  input.value = config.value;
+  if (config.placeholder) input.placeholder = config.placeholder;
+  ['min', 'max', 'step'].forEach(attr => { if (config[attr]) input.setAttribute(attr, config[attr]); });
+  if (config.type === 'textarea') input.rows = Math.max(5, config.value.split('\n').length + 1);
+
+  anchor.replaceWith(input);
+  input.focus();
+  if (config.type === 'text' || config.type === 'number') input.select();
+
+  let finished = false;
+  const finish = async (save, { refocus = false } = {}) => {
+    if (finished) return;
+    finished = true;
+    const patch = save ? parseDetailEdit(field, input.value, opp) : null;
+    if (!patch) {
+      // Nothing to save: put the value back without redrawing, so a click that
+      // moved focus to another field still lands on it
+      input.replaceWith(anchor);
+      if (refocus) anchor.focus();
+      return;
+    }
+    input.disabled = true;
+    await saveDealPatch(patch);
+    // If another field was opened meanwhile, it redraws the panel when it closes
+    if (!document.querySelector('#opportunity-detail .od-input:not(:disabled)')) renderOpportunityDetail();
+  };
+
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      finish(false, { refocus: true });
+    } else if (e.key === 'Enter' && (config.type !== 'textarea' || e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      finish(true, { refocus: true });
+    }
+  });
+  input.addEventListener('blur', () => finish(true));
+}
+
+/** The update for an edited field, or nothing when it's unchanged or invalid */
+function parseDetailEdit(field, raw, opp) {
+  const text = raw.trim();
+  if (field === 'name') {
+    if (!text) { showToast("Deal name can't be empty", 'error'); return null; }
+    return text === opp.name ? null : { name: text };
+  }
+  if (field === 'value') {
+    if (!text) return hasDealValue(opp) ? { value: null } : null;
+    const amount = parseFloat(text);
+    if (!(amount >= 0)) { showToast('Deal value must be a positive number', 'error'); return null; }
+    return hasDealValue(opp) && amount === dealValue(opp) ? null : { value: amount };
+  }
+  if (field === 'probability') {
+    const p = parseInt(text, 10);
+    if (Number.isNaN(p) || p < 0 || p > 100) { showToast('Win chance must be between 0 and 100', 'error'); return null; }
+    return p === dealProbability(opp) ? null : { probability: p };
+  }
+  if (field === 'next_step') {
+    return text === (opp.next_step || '') ? null : { next_step: text || null };
+  }
+  if (field === 'next_step_date') {
+    return text === (opp.next_step_date ? String(opp.next_step_date).slice(0, 10) : '') ? null : { next_step_date: text || null };
+  }
+  if (field === 'notes') {
+    if (text === (opp.notes || '').trim()) return null;
+    // Drop links to people whose @mention was deleted from the text
+    const mentioned = (opp.mentioned_people || []).filter(p => p?.name && text.toLowerCase().includes(`@${p.name.trim().toLowerCase()}`));
+    return { notes: text || null, mentioned_people: mentioned };
+  }
+  return null;
+}
+
+/** Save fields on the open deal, then refresh the board behind it */
+async function saveDealPatch(patch) {
+  const opp = detail?.opportunity;
+  if (!opp) return false;
+  const updates = { ...patch, updated_at: new Date().toISOString() };
+
+  const { data, error } = await supabaseClient
+    .from('opportunities')
+    .update(updates)
+    .eq('id', opp.id)
+    .select('id');
+  if (error) {
+    showToast(`Couldn't save: ${error.message}`, 'error');
+    return false;
+  }
+  // Row-level security skips rows it won't update instead of returning an error
+  if (!data || data.length === 0) {
+    showToast("This deal couldn't be saved. You may not have permission.", 'error');
+    return false;
+  }
+
+  Object.assign(opp, updates);
+  // stage_changed_at is set by the database trigger; mirror it locally
+  if ('stage' in patch) Object.assign(opp, { mappedStage: patch.stage, stage_changed_at: updates.updated_at });
+  refreshPipelineIfVisible();
+  return true;
+}
+
+async function saveDetailStage(newStage) {
+  const opp = detail?.opportunity;
+  if (!opp) return;
+  const pipeline = getCachedActivePipeline();
+  const stages = getPipelineStages(pipeline);
+  const oldStage = opp.mappedStage || resolveStageId(opp.stage, stages, pipeline.is_default);
+  if (!newStage || newStage === oldStage) return;
+
+  // The win chance moves with the stage (Won/Lost always settle it), unless it was set by hand
+  const patch = { stage: newStage };
+  if (getStageOutcome(newStage) || probabilityFollowsStage(opp, oldStage, stages)) {
+    patch.probability = getStageProbability(newStage, stages);
+  }
+  if (await saveDealPatch(patch) && getStageOutcome(newStage) === 'won') triggerConfetti();
+  renderOpportunityDetail();
+}
+
+async function saveDetailOwner(ownerId) {
+  const opp = detail?.opportunity;
+  if (!opp || (ownerId || null) === (opp.user_id || null)) return;
+  const member = (getCachedTeamMembers() || []).find(m => m.id === ownerId);
+  if (await saveDealPatch({ user_id: ownerId || null })) {
+    opp.profiles = member
+      ? { id: member.id, first_name: member.first_name, last_name: member.last_name, email: member.email, role: member.role, avatar_url: member.avatar_url }
+      : null;
+    showToast(member ? `Deal moved to ${fullName(member) || 'new owner'}` : 'Owner removed', 'success');
+  }
+  renderOpportunityDetail();
 }
 
 /** Deleting follows the same rule as editing. */
