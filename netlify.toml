@@ -4,6 +4,12 @@
   to = "/"
   status = 301
 
+# Reminders were removed from the product; tasks cover follow-ups.
+[[redirects]]
+  from = "/pages/features/reminders-feature.html"
+  to = "/pages/features/tasks-feature.html"
+  status = 301
+
 # Database and edge-function source is not part of the website.
 [[redirects]]
   from = "/supabase/*"

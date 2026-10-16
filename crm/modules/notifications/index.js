@@ -136,7 +136,6 @@ export const stopDueNotificationsMonitor = () => stopNotifications();
 export const markAllDueNotificationsRead = () => notificationStore.markAllRead();
 export const markSingleNotificationRead = (id) => notificationStore.markRead(id);
 export const requestNotificationPermission = () => requestBrowserPermission();
-export const checkDueReminders = () => notificationService.refresh();
 export const getDueStatus = evaluateDueStatus;
 export const pushDeviceNotification = (item) => sendBrowserNotification(item);
 export const showDuePopup = (items) => {

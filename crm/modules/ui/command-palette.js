@@ -9,7 +9,6 @@ import { navigateView } from '../core/router.js';
 const quickActions = [
   { id: 'search-records', title: 'Search records', icon: 'search', shortcut: '/', action: () => { closeQuickActions(); openSearchRecords(); } },
   { id: 'create-task', title: 'Create task', icon: 'check-square', shortcut: 'T', action: () => { closeQuickActions(); navigateView('tasks'); setTimeout(() => window.openTaskModal?.(), 200); } },
-  { id: 'create-reminder', title: 'Create reminder', icon: 'bell', shortcut: '', action: () => { closeQuickActions(); navigateView('reminders'); setTimeout(() => window.openReminderModal?.(), 200); } },
   { id: 'create-note', title: 'Create note', icon: 'file-text', shortcut: 'N', action: () => { closeQuickActions(); navigateView('notes'); setTimeout(() => window.createNewNoteV2?.(), 200); } },
   { id: 'log-visit', title: 'Log visit', icon: 'clipboard', shortcut: '', action: () => { closeQuickActions(); navigateView('log-visit'); } },
   { id: 'settings', title: 'Open account settings', icon: 'settings', shortcut: '', action: () => { closeQuickActions(); navigateView('settings'); } },

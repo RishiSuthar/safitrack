@@ -59,20 +59,13 @@ function updateBadges(storeState) {
     bellBtn.classList.toggle('has-unread', unreadCount > 0);
   }
 
-  // Sidebar badge indicators for tasks & reminders
+  // Sidebar badge indicator for tasks
   const tasksDue = storeState.items.filter((i) => i.entityType === 'task' && !i.isRead).length;
-  const remindersDue = storeState.items.filter((i) => i.entityType === 'reminder' && !i.isRead).length;
 
   const taskBadge = getEl('nav-badge-tasks');
   if (taskBadge) {
     taskBadge.textContent = tasksDue > 99 ? '99+' : String(tasksDue);
     taskBadge.style.display = tasksDue > 0 ? 'inline-flex' : 'none';
-  }
-
-  const reminderBadge = getEl('nav-badge-reminders');
-  if (reminderBadge) {
-    reminderBadge.textContent = remindersDue > 99 ? '99+' : String(remindersDue);
-    reminderBadge.style.display = remindersDue > 0 ? 'inline-flex' : 'none';
   }
 }
 
@@ -294,7 +287,7 @@ function renderItemsList(filteredItems, groupedItems, activeFilter) {
         ? "You've read all your notifications."
         : activeFilter === 'urgent'
         ? 'Nothing requires immediate action right now.'
-        : 'New tasks, reminders, and alerts will appear here.';
+        : 'New tasks and alerts will appear here.';
 
     return `
       <div class="sn-empty-state">

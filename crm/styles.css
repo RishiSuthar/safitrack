@@ -2672,7 +2672,7 @@ body {
 }
 
 /* Shared interaction for all interactive controls */
-:where(.btn, .toolbar-btn, .toolbar-btn-primary, .task-filter, .reminder-filter, .toggle-btn, .filter-select, .action-btn) {
+:where(.btn, .toolbar-btn, .toolbar-btn-primary, .task-filter, .toggle-btn, .filter-select, .action-btn) {
   transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
@@ -2680,7 +2680,6 @@ body {
 .toolbar-btn,
 .toolbar-btn-primary,
 .task-filter,
-.reminder-filter,
 .toggle-btn,
 .action-btn {
   font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -2688,7 +2687,7 @@ body {
   font-weight: 550;
 }
 
-:where(.btn, .toolbar-btn, .toolbar-btn-primary, .task-filter, .reminder-filter, .toggle-btn, .filter-select, .action-btn):active:not(:disabled) {
+:where(.btn, .toolbar-btn, .toolbar-btn-primary, .task-filter, .toggle-btn, .filter-select, .action-btn):active:not(:disabled) {
   transform: translateY(var(--motion-distance-press));
 }
 
@@ -7196,43 +7195,43 @@ select {
    CRM Add-Entity Modals — Attio-inspired minimal design
    (Company, Person, Opportunity, Task, Reminder, Call-Log)
    ========================================================== */
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .modal-container {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .modal-container {
   max-width: min(560px, 94vw) !important;
   border-radius: var(--radius-xl);
   border: 1px solid var(--border-color);
   box-shadow: 0 24px 64px -12px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0, 0, 0, 0.05);
 }
 
-[data-theme="dark"] :is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .modal-container {
+[data-theme="dark"] :is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .modal-container {
   box-shadow: 0 28px 70px -12px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.08);
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .modal-header {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .modal-header {
   padding: 0.875rem 1.25rem;
   background: var(--bg-primary);
   border-bottom: 1px solid var(--border-color);
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .modal-header h3 {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .modal-header h3 {
   font-size: 0.9375rem;
   font-weight: 600;
   gap: 0;
 }
 
 /* Hide icons inside modal header titles */
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .modal-header h3 svg,
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .modal-header h3 i {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .modal-header h3 svg,
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .modal-header h3 i {
   display: none;
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .modal-body {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .modal-body {
   padding: 1rem 1.25rem 1.25rem;
   background: var(--bg-primary);
   max-height: calc(85vh - 130px);
 }
 
 /* Flatten form sections */
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-section {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-section {
   border-radius: 0;
   border: none;
   box-shadow: none;
@@ -7241,33 +7240,33 @@ select {
   background: transparent;
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-section + .form-section {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-section + .form-section {
   margin-top: 0.25rem;
   padding-top: 0;
   border-top: none;
 }
 
 /* Hide section headers entirely (icons + titles) */
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-section-header {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-section-header {
   display: none;
 }
 
 /* Compact field spacing */
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-field {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-field {
   margin-bottom: 0.75rem;
   gap: 0.3rem;
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-field:last-child {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-field:last-child {
   margin-bottom: 0;
 }
 
 /* Labels: small, normal case, muted color */
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-field {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-field {
   gap: 0.1rem;
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-field label {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-field label {
   font-size: var(--type-md);
   font-weight: 550;
   text-transform: none;
@@ -7276,24 +7275,24 @@ select {
 }
 
 /* Required indicator: "(required)" text style */
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-field label .required-indicator {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-field label .required-indicator {
   color: var(--text-muted);
   font-weight: 400;
   font-size: 0.75rem;
 }
 
 /* Optional badge: minimal */
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-field label .optional-badge {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-field label .optional-badge {
   display: none;
 }
 
 /* Compact inputs */
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-field input,
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-field select,
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-field textarea,
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .categories-input,
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .competitors-input,
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .phone-number {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-field input,
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-field select,
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-field textarea,
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .categories-input,
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .competitors-input,
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .phone-number {
   border-radius: var(--btn-radius);
   border: 1px solid var(--border-color);
   padding: 0.5rem 0.75rem;
@@ -7303,33 +7302,33 @@ select {
   background: var(--bg-primary);
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-field input:focus,
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-field select:focus,
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-field textarea:focus,
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .categories-input:focus,
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .competitors-input:focus,
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .phone-number:focus {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-field input:focus,
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-field select:focus,
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-field textarea:focus,
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .categories-input:focus,
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .competitors-input:focus,
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .phone-number:focus {
   border-color: var(--color-primary);
   box-shadow: 0 0 0 2px var(--color-primary-bg);
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-field input::placeholder,
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .form-field textarea::placeholder {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-field input::placeholder,
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .form-field textarea::placeholder {
   font-style: normal;
   color: var(--text-muted);
 }
 
 /* Hide field helpers for cleaner look */
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .field-helper {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .field-helper {
   display: none;
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .field-group {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .field-group {
   gap: 0.75rem;
 }
 
 /* Compact footer */
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .modal-footer {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .modal-footer {
   position: sticky;
   bottom: 0;
   z-index: 2;
@@ -7338,84 +7337,84 @@ select {
   border-top: 1px solid var(--border-color);
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .modal-footer .btn {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .modal-footer .btn {
   padding: 0.4rem 0.875rem;
   font-size: var(--type-md);
   border-radius: var(--btn-radius);
 }
 
 /* Category suggestions: compact */
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal) .category-suggestions {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal) .category-suggestions {
   margin-top: 0.375rem;
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal) .tag-suggestion {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal) .tag-suggestion {
   font-size: 0.75rem;
   padding: 0.2rem 0.5rem;
 }
 
 /* Search dropdowns inside modals: compact, unified */
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .search-container {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .search-container {
   margin-bottom: 0;
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .search-container i,
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .search-container svg {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .search-container i,
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .search-container svg {
   display: none;
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .search-container input {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .search-container input {
   padding-left: 0.75rem !important;
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .search-results {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .search-results {
   top: calc(100% + 0.25rem);
   border-radius: 8px;
   max-height: 200px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .search-results .search-result-item {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .search-results .search-result-item {
   padding: 0.5rem 0.75rem;
   gap: 0.5rem;
   font-size: 0.8125rem;
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .search-results .search-result-avatar {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .search-results .search-result-avatar {
   width: 26px;
   height: 26px;
   font-size: 0.6875rem;
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .search-results .opp-suggest-avatar {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .search-results .opp-suggest-avatar {
   width: 24px;
   height: 24px;
   border-radius: 6px;
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .search-results .search-result-name {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .search-results .search-result-name {
   font-size: 0.8125rem;
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .live-search-results {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .live-search-results {
   top: calc(100% + 0.25rem);
   border-radius: 8px;
   max-height: 200px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .live-search-results .search-result-item {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .live-search-results .search-result-item {
   padding: 0.5rem 0.75rem;
   gap: 0.5rem;
   font-size: 0.8125rem;
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .live-search-results .search-result-item .title {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .live-search-results .search-result-item .title {
   font-size: 0.8125rem;
   font-weight: 550;
 }
 
-:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .live-search-results .search-result-item .subtitle {
+:is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .live-search-results .search-result-item .subtitle {
   font-size: 0.6875rem;
 }
 
@@ -7742,169 +7741,7 @@ select {
   gap: 1rem;
 }
 
-/* ===== REMINDERS REDESIGN ===== */
-.reminder-workspace {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.reminder-topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-}
-
-.reminder-stats-redesign {
-  margin-bottom: 0;
-}
-
-.reminder-stat-card {
-  position: relative;
-}
-
-.reminder-stat-meta {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.reminder-stat-card-overdue {
-  border-color: var(--color-danger);
-  background: color-mix(in srgb, var(--color-danger-bg) 50%, transparent);
-}
-
-.reminder-panel {
-  background: var(--bg-primary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 1rem;
-}
-
-.reminder-panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.75rem;
-}
-
-.reminder-panel-subtitle {
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-}
-
-.reminder-filters {
-  margin-bottom: 1rem;
-}
-
-.reminders-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.85rem;
-}
-
-.reminder-card {
-  margin-bottom: 0;
-  border-radius: 14px;
-  padding: 1rem;
-}
-
-.reminder-card.is-completed {
-  border-color: var(--color-success);
-  background: color-mix(in srgb, var(--color-success-bg) 50%, transparent);
-}
-
-.reminder-card.is-overdue {
-  border-color: var(--color-danger);
-}
-
-.reminder-header {
-  margin-bottom: 0.4rem;
-}
-
-.reminder-title {
-  font-size: 1.02rem;
-}
-
-.reminder-status.pending {
-  background: var(--color-warning-bg);
-  color: var(--color-warning);
-}
-
-.reminder-card.is-overdue .reminder-status.pending {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
-}
-
-.reminder-description {
-  margin-bottom: 0.55rem;
-}
-
-.reminder-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  margin-bottom: 0.75rem;
-}
-
-.reminder-meta-item {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 0.35rem 0.55rem;
-  font-size: 0.79rem;
-}
-
-.reminder-meta-item svg,
-.reminder-meta-item i {
-  width: 14px;
-  height: 14px;
-}
-
-.reminder-actions {
-  border-top: 1px dashed var(--border-color);
-  padding-top: 0.65rem;
-}
-
-.reminder-date {
-  font-size: 0.75rem;
-}
-
-.reminder-action-buttons {
-  gap: 0.35rem;
-}
-
-.reminder-action-btn {
-  width: 34px;
-  height: 34px;
-}
-
-.reminder-assigned-to {
-  margin-top: 0.6rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--border-color-light);
-}
-
-.reminder-empty-state {
-  margin-top: 0.5rem;
-}
-
-.reminder-notification {
-  border-radius: var(--radius-lg);
-  margin-bottom: 0.85rem;
-}
-
 @media (max-width: 900px) {
-  .reminder-topbar {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .reminder-panel-header {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 }
 
 /* Companies import/export transfer modal */
@@ -10689,8 +10526,7 @@ body.is-dragging * {
 
 /* Mobile styles */
 /* ===== TASKS AND REMINDERS ===== */
-.task-card,
-.reminder-card {
+.task-card {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
@@ -10700,30 +10536,26 @@ body.is-dragging * {
   position: relative;
 }
 
-.task-card:hover,
-.reminder-card:hover {
+.task-card:hover {
   border-color: var(--color-primary);
   box-shadow: var(--shadow-md);
 }
 
-.task-header,
-.reminder-header {
+.task-header {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 0.75rem;
 }
 
-.task-title,
-.reminder-title {
+.task-title {
   font-size: 1rem;
   font-weight: 600;
   color: var(--text-primary);
   flex: 1;
 }
 
-.task-status,
-.reminder-status {
+.task-status {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -10748,26 +10580,14 @@ body.is-dragging * {
   color: var(--color-success);
 }
 
-.reminder-status.pending {
-  background: var(--bg-tertiary);
-  color: var(--text-secondary);
-}
-
-.reminder-status.completed {
-  background: var(--color-success-bg);
-  color: var(--color-success);
-}
-
-.task-meta,
-.reminder-meta {
+.task-meta {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
 }
 
-.task-meta-item,
-.reminder-meta-item {
+.task-meta-item {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -10775,24 +10595,21 @@ body.is-dragging * {
   color: var(--text-secondary);
 }
 
-.task-meta-item i,
-.reminder-meta-item i {
+.task-meta-item i {
   color: var(--text-muted);
   font-size: 0.875rem;
   width: 20px;
   text-align: center;
 }
 
-.task-description,
-.reminder-description {
+.task-description {
   font-size: 0.9375rem;
   color: var(--text-secondary);
   line-height: 1.5;
   margin-bottom: 0.75rem;
 }
 
-.task-actions,
-.reminder-actions {
+.task-actions {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -11058,8 +10875,7 @@ body.is-dragging * {
   }
 }
 
-.task-priority,
-.reminder-date {
+.task-priority {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
@@ -11084,19 +10900,12 @@ body.is-dragging * {
   color: var(--color-danger);
 }
 
-.reminder-date {
-  background: var(--color-primary-bg);
-  color: var(--color-primary);
-}
-
-.task-action-buttons,
-.reminder-action-buttons {
+.task-action-buttons {
   display: flex;
   gap: 0.5rem;
 }
 
-.task-action-btn,
-.reminder-action-btn {
+.task-action-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -11111,21 +10920,18 @@ body.is-dragging * {
   transition: all var(--transition-base);
 }
 
-.task-action-btn:hover,
-.reminder-action-btn:hover {
+.task-action-btn:hover {
   background: var(--bg-tertiary);
   color: var(--color-primary);
   border-color: var(--border-color);
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
-.task-action-btn:active,
-.reminder-action-btn:active {
+.task-action-btn:active {
   transform: scale(0.95);
 }
 
-.task-assigned-to,
-.reminder-assigned-to {
+.task-assigned-to {
   font-size: 0.75rem;
   color: var(--text-muted);
   margin-top: 0.5rem;
@@ -11134,13 +10940,11 @@ body.is-dragging * {
   gap: 0.375rem;
 }
 
-.task-assigned-to i,
-.reminder-assigned-to i {
+.task-assigned-to i {
   color: var(--text-muted);
 }
 
-.task-filters,
-.reminder-filters {
+.task-filters {
   display: flex;
   gap: var(--space-3);
   margin-bottom: var(--space-4);
@@ -11148,8 +10952,7 @@ body.is-dragging * {
   align-items: center;
 }
 
-.task-filter,
-.reminder-filter {
+.task-filter {
   height: 36px;
   padding: 0 16px;
   border: 1px solid var(--border-color);
@@ -11165,29 +10968,25 @@ body.is-dragging * {
   transition: var(--transition-fast);
 }
 
-.task-filter:hover,
-.reminder-filter:hover {
+.task-filter:hover {
   border-color: var(--color-primary);
   color: var(--color-primary);
 }
 
-.task-filter.active,
-.reminder-filter.active {
+.task-filter.active {
   background: var(--color-primary);
   border-color: var(--color-primary);
   color: white;
 }
 
-.task-stats,
-.reminder-stats {
+.task-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
 
-.task-stat-card,
-.reminder-stat-card {
+.task-stat-card {
   background: var(--bg-primary);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
@@ -11197,28 +10996,24 @@ body.is-dragging * {
   gap: 0.5rem;
 }
 
-.task-stat-title,
-.reminder-stat-title {
+.task-stat-title {
   font-size: 0.8125rem;
   color: var(--text-muted);
   font-weight: 550;
 }
 
-.task-stat-value,
-.reminder-stat-value {
+.task-stat-value {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-primary);
 }
 
-.task-overdue,
-.reminder-overdue {
+.task-overdue {
   color: var(--color-danger);
   font-weight: 550;
 }
 
-.task-creator,
-.reminder-creator {
+.task-creator {
   font-size: 0.75rem;
   color: var(--text-muted);
   margin-top: 0.5rem;
@@ -11227,19 +11022,16 @@ body.is-dragging * {
   gap: 0.375rem;
 }
 
-.task-creator i,
-.reminder-creator i {
+.task-creator i {
   color: var(--text-muted);
 }
 
-/* Task and reminder modals */
-.task-form-field,
-.reminder-form-field {
+/* Task modals */
+.task-form-field {
   margin-bottom: 1rem;
 }
 
-.task-form-label,
-.reminder-form-label {
+.task-form-label {
   display: block;
   font-size: 0.875rem;
   font-weight: 550;
@@ -11248,11 +11040,8 @@ body.is-dragging * {
 }
 
 .task-form-input,
-.reminder-form-input,
 .task-form-select,
-.reminder-form-select,
-.task-form-textarea,
-.reminder-form-textarea {
+.task-form-textarea {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid var(--border-color);
@@ -11265,31 +11054,26 @@ body.is-dragging * {
 }
 
 .task-form-input:focus,
-.reminder-form-input:focus,
 .task-form-select:focus,
-.reminder-form-select:focus,
-.task-form-textarea:focus,
-.reminder-form-textarea:focus {
+.task-form-textarea:focus {
   outline: none;
   border-color: var(--color-primary);
   box-shadow: 0 0 0 3px var(--color-primary-bg);
 }
 
-.task-form-textarea,
-.reminder-form-textarea {
+.task-form-textarea {
   resize: vertical;
   min-height: 100px;
 }
 
-.task-form-buttons,
-.reminder-form-buttons {
+.task-form-buttons {
   display: flex;
   gap: 0.75rem;
   justify-content: flex-end;
   margin-top: 1.5rem;
 }
 
-/* Responsive adjustments for tasks and reminders */
+/* Responsive adjustments for tasks */
 /* ===== AI CHAT ASSISTANT - SAFI AI ===== */
 
 /* header AI button with generative-style animated gradient border */
@@ -11934,17 +11718,6 @@ body.is-dragging * {
   background: var(--bg-tertiary);
 }
 
-/* ---- Mobile ---- */
-/* ===== TASKS AND REMINDERS NOTIFICATION ===== */
-.reminder-notification {
-  background: rgba(47, 95, 208, 0.07);
-  border: 1px solid rgba(79, 70, 229, 0.3);
-  border-radius: var(--radius-lg);
-  margin-bottom: 1.5rem;
-  overflow: hidden;
-  animation: slideDown 0.3s ease;
-}
-
 @keyframes slideDown {
   from {
     opacity: 0;
@@ -11955,72 +11728,6 @@ body.is-dragging * {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.reminder-notification-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  background: rgba(79, 70, 229, 0.1);
-  border-bottom: 1px solid rgba(79, 70, 229, 0.2);
-}
-
-.reminder-notification-header span {
-  font-weight: 600;
-  color: var(--color-primary);
-}
-
-.reminder-notification-close {
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
-  padding: 0.25rem;
-  border-radius: var(--radius-sm);
-  transition: var(--transition-fast);
-}
-
-.reminder-notification-close:hover {
-  background: rgba(0, 0, 0, 0.05);
-  color: var(--text-primary);
-}
-
-.reminder-notification-content {
-  padding: 0 1.5rem 1rem;
-}
-
-.reminder-notification-item {
-  padding: 0.75rem 0;
-  border-bottom: 1px solid rgba(79, 70, 229, 0.1);
-}
-
-.reminder-notification-item:last-child {
-  border-bottom: none;
-}
-
-.reminder-notification-title {
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-}
-
-.reminder-notification-time {
-  font-size: 0.875rem;
-  color: var(--text-muted);
-  margin-bottom: 0.5rem;
-}
-
-.reminder-notification-actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.reminder-notification-more {
-  text-align: center;
-  padding: 0.5rem 0;
-  font-size: 0.875rem;
-  color: var(--text-muted);
-  font-style: italic;
 }
 
 /* ===== FORCE CONFIRM DIALOG TO TOP ===== */
@@ -18551,600 +18258,6 @@ button svg {
   color: var(--text-muted);
 }
 
-/* ===== REMINDERS V2 WORKSPACE ===== */
-/* ================================================================
-   REMINDERS v2 — Redesigned from scratch
-   Clean timeline layout, status-driven visual language.
-   Uses existing design tokens throughout.
-   ================================================================ */
-
-/* ── Page shell ── */
-.rem-page {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
-  padding-bottom: 2rem;
-}
-
-/* ── Page header ── */
-.rem-page-head {
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 0.75rem;
-  margin-bottom: 0;
-  flex-wrap: wrap;
-}
-
-.rem-page-head .rem-search-wrap {
-  flex-shrink: 0;
-}
-
-.rem-page-head .rem-filters {
-  flex: 1;
-}
-
-.rem-page-head .btn {
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
-.rem-page-head-text {
-  min-width: 0;
-}
-
-.rem-page-title {
-  font-size: 1.375rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: -0.015em;
-  line-height: 1.2;
-  margin: 0;
-}
-
-.rem-page-sub {
-  margin: 0.25rem 0 0;
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-  line-height: 1.4;
-}
-
-/* ── KPI strip ── */
-.rem-kpis {
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 0.625rem;
-}
-
-.rem-kpi {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  padding: 0.75rem 1rem;
-  transition: border-color var(--transition-base);
-}
-
-.rem-kpi:hover {
-  border-color: rgba(var(--color-primary-rgb), 0.35);
-}
-
-.rem-kpi.is-danger {
-  border-color: rgba(200, 58, 58, 0.5);
-  background: color-mix(in srgb, var(--color-danger-bg) 50%, transparent);
-}
-
-.rem-kpi.is-danger .rem-kpi-icon {
-  color: var(--color-danger);
-  background: var(--color-danger-bg);
-}
-
-.rem-kpi.is-danger .rem-kpi-val {
-  color: var(--color-danger);
-}
-
-.rem-kpi-icon {
-  flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: var(--bg-tertiary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-muted);
-}
-
-.rem-kpi-icon svg,
-.rem-kpi-icon i {
-  width: 16px;
-  height: 16px;
-}
-
-.rem-kpi-body {
-  min-width: 0;
-}
-
-.rem-kpi-val {
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1;
-  color: var(--text-primary);
-  letter-spacing: -0.025em;
-}
-
-.rem-kpi-label {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  margin-top: 0.25rem;
-  white-space: nowrap;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  font-weight: 550;
-}
-
-/* ── Body two-column layout ── */
-.rem-body {
-  display: grid;
-  grid-template-columns: 252px minmax(0, 1fr);
-  gap: 1rem;
-  align-items: start;
-}
-
-/* ── Sidebar ── */
-.rem-sidebar {
-  position: sticky;
-  top: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.rem-sidebar-panel {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-}
-
-.rem-sidebar-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border-color-light);
-  background: var(--bg-primary);
-}
-
-.rem-sidebar-title {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-.rem-sidebar-badge {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-full);
-  min-width: 22px;
-  height: 22px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 0.4rem;
-}
-
-.rem-sidebar-empty {
-  padding: 1rem;
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-  line-height: 1.55;
-}
-
-.rem-sidebar-list {
-  display: flex;
-  flex-direction: column;
-}
-
-.rem-sidebar-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 1rem;
-  border-bottom: 1px solid var(--border-color-light);
-  transition: background var(--transition-fast);
-}
-
-.rem-sidebar-item:last-child {
-  border-bottom: none;
-}
-
-.rem-sidebar-item:hover {
-  background: var(--bg-tertiary);
-}
-
-.rem-sidebar-item-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.rem-sidebar-item-title {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.rem-sidebar-item-time {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.72rem;
-  color: var(--color-danger);
-  margin-top: 0.2rem;
-  font-weight: 550;
-}
-
-/* ── Main content ── */
-.rem-main {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-/* ── Toolbar ── */
-.rem-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-}
-
-/* Filter pills */
-.rem-filters {
-  display: flex;
-  align-items: center;
-  gap: 0.3rem;
-  flex-wrap: wrap;
-}
-
-/* Override base .reminder-filter styles inside the new layout */
-.rem-filters .reminder-filter {
-  height: 36px;
-  padding: 0 16px;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  color: var(--text-secondary);
-  font-size: 0.875rem;
-  font-weight: 550;
-  font-family: inherit;
-  cursor: pointer;
-  transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-}
-
-.rem-filters .reminder-filter:hover {
-  border-color: rgba(var(--color-primary-rgb), 0.45);
-  color: var(--color-primary);
-}
-
-.rem-filters .reminder-filter.active {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: #fff;
-}
-
-/* Search */
-.rem-search-wrap {
-  position: relative;
-  flex: 1;
-  min-width: 250px;
-  max-width: 400px;
-}
-
-.rem-search-icon {
-  position: absolute;
-  left: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 16px;
-  height: 16px;
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
-.rem-search-input {
-  width: 100%;
-  height: 36px;
-  padding: 0 0.75rem 0 2.5rem;
-  border-radius: 10px;
-  border: 1px solid var(--border-color);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font-size: 0.875rem;
-  font-family: inherit;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.rem-search-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-bg);
-}
-
-.rem-search-input::placeholder {
-  color: var(--text-muted);
-}
-
-/* ── Empty filter hint ── */
-.rem-empty-msg {
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-  padding: 0.875rem 1rem;
-  border: 1px dashed var(--border-color);
-  border-radius: var(--radius-md);
-}
-
-/* ── Card list ── */
-.rem-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.4rem;
-}
-
-/* ── Individual reminder card ── */
-.rem-card {
-  display: flex;
-  background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  transition: border-color var(--transition-base), box-shadow var(--transition-base);
-}
-
-/* Reset base .reminder-card padding/margin that would double up */
-.rem-card.reminder-card {
-  padding: 0;
-  margin-bottom: 0;
-}
-
-.rem-card:hover {
-  border-color: rgba(var(--color-primary-rgb), 0.4);
-  box-shadow: 0 2px 12px rgba(16, 24, 40, 0.07);
-}
-
-/* Colored left status stripe */
-.rem-card-stripe {
-  width: 3px;
-  flex-shrink: 0;
-  background: var(--border-color);
-  transition: background var(--transition-base);
-}
-
-.rem-card.is-overdue .rem-card-stripe {
-  background: var(--color-danger);
-}
-
-.rem-card.is-today .rem-card-stripe {
-  background: var(--color-warning);
-}
-
-.rem-card.is-done .rem-card-stripe {
-  background: var(--color-success);
-}
-
-/* Subtle background tints per status */
-.rem-card.is-overdue {
-  border-color: rgba(200, 58, 58, 0.3);
-  background: rgba(200, 58, 58, 0.03);
-}
-
-.rem-card.is-today {
-  border-color: rgba(198, 132, 26, 0.3);
-  background: rgba(198, 132, 26, 0.03);
-}
-
-.rem-card.is-done {
-  border-color: rgba(31, 157, 110, 0.22);
-  background: rgba(31, 157, 110, 0.03);
-  opacity: 0.72;
-}
-
-/* Card inner layout */
-.rem-card-inner {
-  flex: 1;
-  min-width: 0;
-  padding: 0.8rem 1rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-/* Top row: status badge + action buttons */
-.rem-card-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-bottom: 0.15rem;
-}
-
-/* Status badge */
-.rem-badge {
-  display: inline-flex;
-  align-items: center;
-  height: 18px;
-  padding: 0 0.5rem;
-  border-radius: var(--radius-full);
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  flex-shrink: 0;
-}
-
-.rem-badge.pending {
-  background: rgba(var(--color-primary-rgb), 0.1);
-  color: var(--color-primary);
-}
-
-.rem-badge.overdue {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
-}
-
-.rem-badge.today {
-  background: var(--color-warning-bg);
-  color: var(--color-warning);
-}
-
-.rem-badge.done {
-  background: var(--color-success-bg);
-  color: var(--color-success);
-}
-
-/* Action buttons — revealed on card hover */
-.rem-card-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  opacity: 0;
-  transition: opacity var(--transition-fast);
-}
-
-.rem-card:hover .rem-card-actions {
-  opacity: 1;
-}
-
-.rem-action-btn {
-  width: 26px;
-  height: 26px;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-color);
-  background: var(--bg-primary);
-  color: var(--text-muted);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: background var(--transition-fast), color var(--transition-fast), border-color var(--transition-fast);
-  flex-shrink: 0;
-  padding: 0;
-  font-size: 0;
-  line-height: 0;
-}
-
-.rem-action-btn svg,
-.rem-action-btn i {
-  width: 12px;
-  height: 12px;
-}
-
-.rem-action-btn:hover {
-  background: var(--bg-tertiary);
-  color: var(--text-primary);
-  border-color: var(--border-color);
-}
-
-.rem-action-btn.complete-reminder:hover {
-  background: var(--color-success-bg);
-  color: var(--color-success);
-  border-color: var(--color-success);
-}
-
-.rem-action-btn.delete-reminder:hover {
-  background: var(--color-danger-bg);
-  color: var(--color-danger);
-  border-color: var(--color-danger);
-}
-
-.rem-action-btn.is-small {
-  width: 22px;
-  height: 22px;
-}
-
-.rem-action-btn.is-small svg,
-.rem-action-btn.is-small i {
-  width: 11px;
-  height: 11px;
-}
-
-.rem-action-btn.is-lg {
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-md);
-  margin-left: auto;
-}
-
-.rem-action-btn.is-lg svg,
-.rem-action-btn.is-lg i {
-  width: 15px;
-  height: 15px;
-}
-
-/* Card title */
-.rem-card-title {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  line-height: 1.35;
-  margin: 0;
-}
-
-.rem-card.is-done .rem-card-title {
-  text-decoration: line-through;
-  color: var(--text-muted);
-}
-
-/* Description */
-.rem-card-desc {
-  font-size: 0.8125rem;
-  color: var(--text-muted);
-  line-height: 1.5;
-  margin: 0;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-/* Footer meta row */
-.rem-card-foot {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  flex-wrap: wrap;
-  margin-top: 0.2rem;
-}
-
-.rem-card-meta {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.rem-meta-icon {
-  width: 11px;
-  height: 11px;
-  flex-shrink: 0;
-  opacity: 0.65;
-}
-
 /* Stray rule preserved from previous block */
 .view-toolbar+.spreadsheet-container .spreadsheet-cell {
   font-weight: 550;
@@ -19152,22 +18265,6 @@ button svg {
 
 /* ── Responsive ── */
 @media (max-width: 1080px) {
-  .rem-body {
-    grid-template-columns: 1fr;
-  }
-
-  .rem-sidebar {
-    position: static;
-    order: 2;
-  }
-
-  .rem-main {
-    order: 1;
-  }
-
-  .rem-kpis {
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
 
 /* ===== GLOBAL MOBILE HARDENING ===== */
@@ -19182,9 +18279,7 @@ button svg {
 :is(.form-field input,
   .form-field select,
   .task-form-input,
-  .reminder-form-input,
   .task-form-select,
-  .reminder-form-select,
   .categories-input,
   .competitors-input,
   .phone-number,
@@ -19196,8 +18291,7 @@ button svg {
 }
 
 :is(.form-field textarea,
-  .task-form-textarea,
-  .reminder-form-textarea) {
+  .task-form-textarea) {
   border-radius: var(--form-control-radius);
   font-size: var(--form-control-font-size);
   line-height: 1.45;
@@ -19208,11 +18302,8 @@ button svg {
   .form-field select,
   .form-field textarea,
   .task-form-input,
-  .reminder-form-input,
   .task-form-select,
-  .reminder-form-select,
   .task-form-textarea,
-  .reminder-form-textarea,
   .categories-input,
   .competitors-input,
   .phone-number,
@@ -19225,11 +18316,8 @@ button svg {
   .form-field select,
   .form-field textarea,
   .task-form-input,
-  .reminder-form-input,
   .task-form-select,
-  .reminder-form-select,
   .task-form-textarea,
-  .reminder-form-textarea,
   .categories-input,
   .competitors-input,
   .phone-number,
@@ -19243,11 +18331,8 @@ button svg {
   .form-field select,
   .form-field textarea,
   .task-form-input,
-  .reminder-form-input,
   .task-form-select,
-  .reminder-form-select,
   .task-form-textarea,
-  .reminder-form-textarea,
   .categories-input,
   .competitors-input,
   .phone-number,
@@ -19256,11 +18341,8 @@ button svg {
   .form-field select,
   .form-field textarea,
   .task-form-input,
-  .reminder-form-input,
   .task-form-select,
-  .reminder-form-select,
   .task-form-textarea,
-  .reminder-form-textarea,
   .categories-input,
   .competitors-input,
   .phone-number,
@@ -19270,8 +18352,7 @@ button svg {
 }
 
 .form-field label,
-.task-form-label,
-.reminder-form-label {
+.task-form-label {
   font-weight: 600;
   letter-spacing: 0.1px;
 }
@@ -20989,7 +20070,6 @@ button svg {
 
   /* Remove hover effects that cause sticky states on touch */
   .visit-card:hover,
-  .reminder-card:hover,
   .kanban-task-card:hover,
   .card:hover,
   .stat-card:hover {

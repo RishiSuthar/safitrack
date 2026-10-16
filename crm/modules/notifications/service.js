@@ -108,17 +108,7 @@ class NotificationService {
       .or(`assigned_to.eq.${userId},created_by.eq.${userId}`);
     if (orgId) tasksQ = tasksQ.eq('organization_id', orgId);
 
-    // 2. Reminders
-    let remindersQ = supabaseClient
-      .from('reminders')
-      .select('id, title, reminder_date, is_completed, assigned_to, created_by')
-      .not('reminder_date', 'is', null)
-      .neq('is_completed', true)
-      .lte('reminder_date', horizonIso)
-      .or(`assigned_to.eq.${userId},created_by.eq.${userId}`);
-    if (orgId) remindersQ = remindersQ.eq('organization_id', orgId);
-
-    // 3. Opportunities
+    // 2. Opportunities
     let oppsQ = supabaseClient
       .from('opportunities')
       .select('id, name, company_name, next_step, next_step_date, stage, user_id, value')
@@ -129,7 +119,7 @@ class NotificationService {
     if (!state.isManager) oppsQ = oppsQ.eq('user_id', userId);
     if (orgId) oppsQ = oppsQ.eq('organization_id', orgId);
 
-    // 4. Service Contracts
+    // 3. Service Contracts
     let contractsQ = supabaseClient
       .from('service_contracts')
       .select(
@@ -139,20 +129,18 @@ class NotificationService {
       .neq('reminder_days', '{}');
     if (orgId) contractsQ = contractsQ.eq('organization_id', orgId);
 
-    const [tasksRes, remindersRes, oppsRes, contractsRes] = await Promise.all([
+    const [tasksRes, oppsRes, contractsRes] = await Promise.all([
       tasksQ,
-      remindersQ,
       oppsQ,
       contractsQ,
     ]);
 
     const mappedTasks = (tasksRes.data || []).map((t) => this._mapTask(t)).filter(Boolean);
-    const mappedReminders = (remindersRes.data || []).map((r) => this._mapReminder(r)).filter(Boolean);
     const mappedOpps = (oppsRes.data || []).map((o) => this._mapOpportunity(o)).filter(Boolean);
     const mappedContracts = (contractsRes.data || []).map((c) => this._mapContract(c)).filter(Boolean);
 
     // Combine and limit
-    return [...mappedTasks, ...mappedReminders, ...mappedOpps, ...mappedContracts].slice(0, MAX_ITEMS);
+    return [...mappedTasks, ...mappedOpps, ...mappedContracts].slice(0, MAX_ITEMS);
   }
 
   // ── Mappers ────────────────────────────────────────────────────────────────
@@ -180,30 +168,6 @@ class NotificationService {
       actionPayload: {
         type: 'task',
         id: task.id,
-      },
-    };
-  }
-
-  _mapReminder(reminder) {
-    const dueAt = reminder.reminder_date ? new Date(reminder.reminder_date) : null;
-    if (!dueAt || Number.isNaN(dueAt.getTime())) return null;
-    const status = evaluateDueStatus(dueAt);
-    const urgency = evaluateUrgency(status, NOTIFICATION_CATEGORIES.REMINDER);
-
-    return {
-      id: `reminder:${reminder.id}`,
-      entityType: NOTIFICATION_CATEGORIES.REMINDER,
-      entityId: String(reminder.id),
-      title: reminder.title || 'Reminder',
-      message: `Scheduled for ${formatDueLabel(dueAt)}`,
-      timestamp: dueAt.getTime(),
-      dueAt,
-      status,
-      urgency,
-      view: 'reminders',
-      actionPayload: {
-        type: 'reminder',
-        id: reminder.id,
       },
     };
   }

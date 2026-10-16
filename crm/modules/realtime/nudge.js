@@ -421,20 +421,12 @@ async function populateSafiNudgeRecipients(selectEl, preselectedUserId = null) {
   // All queries are org-scoped to prevent cross-org profile bleed via FK joins.
   if (teammateMap.size === 0) {
 
-    const [tasksRes, remindersRes, routesRes] = await Promise.all([
+    const [tasksRes, routesRes] = await Promise.all([
       supabaseClient
         .from('tasks')
         .select(`
           assigned_to_profile:profiles!tasks_assigned_to_fkey(id, first_name, last_name, email, organization_id),
           created_by_profile:profiles!tasks_created_by_fkey(id, first_name, last_name, email, organization_id)
-        `)
-        .eq('organization_id', orgId)
-        .limit(400),
-      supabaseClient
-        .from('reminders')
-        .select(`
-          assigned_to_profile:profiles!reminders_assigned_to_fkey(id, first_name, last_name, email, organization_id),
-          created_by_profile:profiles!reminders_created_by_fkey(id, first_name, last_name, email, organization_id)
         `)
         .eq('organization_id', orgId)
         .limit(400),
@@ -449,11 +441,6 @@ async function populateSafiNudgeRecipients(selectEl, preselectedUserId = null) {
     ]);
 
     (tasksRes.data || []).forEach((item) => {
-      addTeammate(item.assigned_to_profile);
-      addTeammate(item.created_by_profile);
-    });
-
-    (remindersRes.data || []).forEach((item) => {
       addTeammate(item.assigned_to_profile);
       addTeammate(item.created_by_profile);
     });

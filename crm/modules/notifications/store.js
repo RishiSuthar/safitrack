@@ -11,7 +11,6 @@ const DEFAULT_PREFERENCES = {
   browserPushEnabled: false,
   soundEnabled: false,
   notifyTasks: true,
-  notifyReminders: true,
   notifyDeals: true,
   notifyContracts: true,
   notifyNudges: true,

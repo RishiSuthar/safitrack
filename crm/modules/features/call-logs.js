@@ -1,6 +1,6 @@
 // modules/features/call-logs.js
 // Calls page, call detail and log/schedule modals. Also hosts the company record modal.
-import { state, supabaseClient, crmDebugLog, saveViewState } from '../state.js';
+import { state, supabaseClient, saveViewState } from '../state.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderError, getCurrencySymbol } from '../utils/helpers.js';
 import { matchesTokenizedQuery } from '../ui/spreadsheet.js';
@@ -349,7 +349,7 @@ function renderResults() {
       action: '<button type="button" class="btn btn-secondary" data-action="clear-filters">Clear filters</button>',
     }) : renderEmpty({
       title: isTeamMode() ? 'Your team has not logged any calls' : 'No calls yet',
-      body: 'Log a call when you hang up, or schedule one and get a reminder.',
+      body: 'Log a call when you hang up, or schedule one for later.',
       action: `<button type="button" class="btn btn-primary" data-action="log-first">${ICONS.plus}<span>Log a call</span></button>`,
     });
     return;
@@ -1003,22 +1003,6 @@ async function saveCallLog(logId = null, isScheduling = false) {
     ? await supabaseClient.from('call_logs').update(logData).eq('id', logId)
     : await supabaseClient.from('call_logs').insert([logData]);
 
-  if (!error && !logId && isScheduling) {
-    const { error: reminderError } = await supabaseClient.from('reminders').insert([{
-      title: `Call ${contactName}`,
-      description: notes,
-      reminder_date: logData.call_at,
-      is_completed: false,
-      user_id: state.currentUser.id,
-      assigned_to: state.currentUser.id,
-      created_by: state.currentUser.id,
-      organization_id: state.currentOrganization?.id,
-    }]);
-    if (reminderError) {
-      crmDebugLog('call-reminder-insert-error', reminderError);
-      showToast('Call scheduled, but the reminder could not be created', 'warning');
-    }
-  }
   saveBtn.disabled = false;
 
   if (error) {

@@ -233,9 +233,6 @@ async function loadView(viewName, options = {}) {
     case 'contracts':
       await window.renderContractsView();
       break;
-    case 'reminders':
-      await window.renderRemindersView();
-      break;
     case 'call-logs':
       await window.renderCallLogsView();
       break;

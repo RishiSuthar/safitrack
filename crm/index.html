@@ -451,7 +451,7 @@
                         stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                         <polyline points="20 6 9 17 4 12" />
                       </svg>
-                      Tasks, reminders &amp; notes
+                      Tasks &amp; notes
                     </li>
                     <li>
                       <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -753,12 +753,6 @@
               </svg>
               <span>Tasks</span>
               <span class="nav-badge" id="nav-badge-tasks" style="display:none;"></span>
-            </button>
-
-            <button data-view="reminders" class="nav-item">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0"/></svg>
-              <span>Reminders</span>
-              <span class="nav-badge" id="nav-badge-reminders" style="display:none;"></span>
             </button>
 
             <button data-view="notes" class="nav-item">
@@ -1667,65 +1661,6 @@
     </div>
   </div>
 
-  <div id="reminder-modal" class="modal" style="display:none;">
-    <div class="modal-backdrop"></div>
-    <div class="modal-container modal-size-md">
-      <div class="modal-header">
-        <h3 id="reminder-modal-title">New Reminder</h3>
-        <button class="modal-close" onclick="closeModal('reminder-modal')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
-            class="lucide lucide-x-icon lucide-x">
-            <path d="M18 6 6 18" />
-            <path d="m6 6 12 12" />
-          </svg>
-        </button>
-      </div>
-      <div class="modal-body">
-        <div class="form-section">
-          <div class="form-field">
-            <label for="reminder-title">
-              Title <span class="required-indicator">(required)</span>
-            </label>
-            <input type="text" id="reminder-title" placeholder="e.g., Call client about contract renewal" required>
-          </div>
-
-          <div class="form-field">
-            <label for="reminder-description">Description</label>
-            <textarea id="reminder-description" placeholder="Add additional context..." rows="2"></textarea>
-          </div>
-
-          <div class="form-field">
-            <label for="reminder-date">
-              Date & Time <span class="required-indicator">(required)</span>
-            </label>
-            <input type="datetime-local" id="reminder-date" required>
-          </div>
-
-          <div class="form-field" id="reminder-assign-field" style="display:none;">
-            <label for="reminder-assign-to">Assign To</label>
-            <div class="crm-dd crm-dd--form" data-dd-id="reminder-assign-to">
-              <button type="button" class="crm-dd-trigger" aria-haspopup="listbox" aria-expanded="false">
-                <span class="crm-dd-label" style="color:var(--text-muted)">Select a team member</span>
-                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-              </button>
-              <div class="crm-dd-panel" role="listbox">
-                <ul class="crm-dd-list" id="reminder-assign-to-list">
-                  <li class="crm-dd-option" role="option" data-value="" data-label="Select a team member" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Select a team member</li>
-                </ul>
-              </div>
-              <input class="crm-dd-value-input" type="hidden" id="reminder-assign-to" name="reminder-assign-to" value="">
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="closeModal('reminder-modal')">Cancel</button>
-        <button class="btn btn-primary" id="save-reminder-btn">Save Reminder</button>
-      </div>
-    </div>
-  </div>
-
   <div id="confirm-dialog" class="modal" style="display:none;">
     <div class="modal-backdrop"></div>
     <div class="modal-container confirm-dialog-container" role="dialog" aria-modal="true"
@@ -2050,9 +1985,6 @@
           </button>
           <button class="ai-prompt-item" data-prompt="What tasks are overdue?" data-label="Overdue tasks">
             <i class="ai-prompt-icon fas fa-clock"></i><span>Overdue tasks</span>
-          </button>
-          <button class="ai-prompt-item" data-prompt="What reminders do I have coming up?" data-label="Upcoming reminders">
-            <i class="ai-prompt-icon fas fa-bell"></i><span>Upcoming reminders</span>
           </button>
           <button class="ai-prompt-item" data-prompt="What visits did I complete this week?" data-label="Visits completed this week">
             <i class="ai-prompt-icon fas fa-map-pin"></i><span>Visits this week</span>

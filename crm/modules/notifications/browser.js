@@ -45,7 +45,7 @@ export async function requestBrowserPermission() {
         id: 'welcome',
         entityType: 'system',
         title: 'SafiTrack Notifications Active',
-        message: 'You will receive timely alerts for urgent tasks and reminders.',
+        message: 'You will receive timely alerts for urgent tasks and due dates.',
         view: 'main-dashboard',
       }, { force: true });
     } else if (permission === 'denied') {

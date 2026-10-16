@@ -157,7 +157,7 @@ async function initApp() {
   // Show a welcome toast if not already done today
   // ... (code below remains untouched)
 
-  // Start sitewide due notifications monitor (tasks, reminders, deals)
+  // Start sitewide due notifications monitor (tasks, deals, contracts)
   notificationStore.start();
   startSafiNudgeRealtime();
 
@@ -201,7 +201,6 @@ async function initApp() {
 
   // Initialize custom calendar for all date/time inputs
   initCustomCalendar('#task-due-date', { type: 'datetime-local', allDay: true });
-  initCustomCalendar('#reminder-date', { type: 'datetime-local' });
   initCustomCalendar('#call-datetime', { type: 'datetime-local' });
   initCustomCalendar('#opportunity-next-step-date', { type: 'date' });
   initCustomCalendar('#export-date-from', { type: 'date' });
