@@ -701,15 +701,15 @@ class SafiOnboardingManager {
         {
           targetSelector: "button[data-view='tasks']",
           viewToActivate: 'tasks',
-          title: 'Daily Tasks & Follow-up Reminders',
-          desc: 'Never miss a scheduled call, proposal submission, or client check-in. Set reminders and track all your pending action items in one place.',
+          title: 'Daily Tasks & Follow-ups',
+          desc: 'Never miss a scheduled call, proposal submission, or client check-in. Set due dates and track all your pending action items in one place.',
           preferredPosition: 'right'
         },
         {
           targetSelector: "button[data-view='call-logs']",
           viewToActivate: 'call-logs',
           title: 'Call Logs & Communication History',
-          desc: 'Keep track of client telephone touchpoints, log call outcomes, and queue follow-up reminders immediately after concluding meetings.',
+          desc: 'Keep track of client telephone touchpoints, log call outcomes, and schedule follow-up calls right after concluding meetings.',
           preferredPosition: 'right'
         },
         {

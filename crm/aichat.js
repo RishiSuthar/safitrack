@@ -1,7 +1,7 @@
 // aichat.js
 // SafAI Chat Assistant for SafiTrack CRM
 // Provides a secure, read-only conversational interface for CRM-wide analytics,
-// pipeline intelligence, task/reminder briefings, customer lookups, and team metrics.
+// pipeline intelligence, task briefings, customer lookups, and team metrics.
 // Dispatches queries directly to the serverless safai-assistant Supabase Edge Function.
 
 // conversation state
@@ -266,9 +266,9 @@ async function handleUserMessage(text) {
   // Intercept explicit write requests on the client side immediately
   const lower = text.toLowerCase();
   const isExplicitWrite =
-    /\b(create|add|insert|make a new|log a new|set a new)\s+(task|reminder|opportunity|deal|company|customer|contact|visit|call|note|workflow)\b/i.test(lower) ||
-    /\b(delete|remove|erase|drop|cancel)\s+(task|reminder|opportunity|deal|company|customer|contact|visit|call|note|workflow)\b/i.test(lower) ||
-    /\b(update|edit|modify|change stage|mark as|complete)\s+(task|reminder|opportunity|deal|company|customer|contact|visit|call|note|workflow)\b/i.test(lower);
+    /\b(create|add|insert|make a new|log a new|set a new)\s+(task|opportunity|deal|company|customer|contact|visit|call|note|workflow)\b/i.test(lower) ||
+    /\b(delete|remove|erase|drop|cancel)\s+(task|opportunity|deal|company|customer|contact|visit|call|note|workflow)\b/i.test(lower) ||
+    /\b(update|edit|modify|change stage|mark as|complete)\s+(task|opportunity|deal|company|customer|contact|visit|call|note|workflow)\b/i.test(lower);
   const isQuestionAboutCreation = /\b(how many|who created|when was|what was|list of|show me|which)\b/i.test(lower);
 
   if (isExplicitWrite && !isQuestionAboutCreation) {

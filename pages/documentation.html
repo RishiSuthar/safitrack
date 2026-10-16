@@ -98,10 +98,6 @@
                                     <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" /><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" /></svg></span>
                                     <span><strong>Notes</strong><small>Meeting notes next to the deal</small></span>
                                 </a>
-                                <a href="../pages/features/reminders-feature.html" class="menu-link">
-                                    <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" /><path d="M13.73 21a2 2 0 0 1-3.46 0" /></svg></span>
-                                    <span><strong>Reminders</strong><small>Never miss a follow-up</small></span>
-                                </a>
                                 <a href="../pages/features/reports-feature.html" class="menu-link">
                                     <span class="menu-icon"><svg viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6" /></svg></span>
                                     <span><strong>Reports</strong><small>Dashboards for the whole team</small></span>
@@ -204,7 +200,7 @@
                     <a href="#visits">Sales Visits</a>
                     <a href="#routes">Route Plans</a>
                     <a href="#opportunities">Opportunities</a>
-                    <a href="#reminders">Reminders &amp; Tasks</a>
+                    <a href="#tasks">Tasks</a>
                     <p>API</p>
                     <a href="apireference.html">REST API Reference</a>
                     <a href="#webhooks">Webhooks</a>
@@ -429,22 +425,21 @@ const { data } = await supabase
 <p>Opportunity fields include <code>title</code>, <code>value</code> (currency amount), <code>stage</code>,
         <code>close_date</code>, <code>probability</code> (0–100), and <code>notes</code>. The Intelligence Hub surfaces
         stalled opportunities automatically when a deal hasn't moved stages in 14+ days.</p>
-<!-- Reminders -->
+<!-- Tasks -->
 
-<h2 id="reminders">Reminders &amp; Tasks</h2>
-<p>Reminders are time-based notifications attached to contacts, companies, or opportunities. Tasks are checklist
-        items within a visit or deal. Both are synced to the mobile app and can optionally fire email or push
-        notifications.</p>
-<div class="code"><div class="code-head"><span>javascript</span><button class="code-copy" data-copy="" type="button">Copy</button></div><pre><code>// Create a follow-up reminder
+<h2 id="tasks">Tasks</h2>
+<p>Tasks are follow-ups with an owner and a due date, optionally linked to a deal. A due date can be a
+        specific time or a whole day. Due and overdue tasks show up in the notification centre and, if enabled,
+        as browser push notifications.</p>
+<div class="code"><div class="code-head"><span>javascript</span><button class="code-copy" data-copy="" type="button">Copy</button></div><pre><code>// Create a follow-up task
 const { data } = await supabase
-  .from('reminders')
+  .from('tasks')
   .insert({
-    title:       'Follow up on demo',
-    contact_id:  'ct_111',
-    company_id:  'co_001',
-    due_at:      '2026-03-06T09:00:00Z',
-    notify_push: true,
-    notify_email: false
+    title:        'Follow up on demo',
+    priority:     'high',
+    due_date:     '2026-03-06T09:00:00Z',
+    due_all_day:  false,
+    assigned_to:  'usr_042'
   })
   .select()
   .single();</code></pre></div>
@@ -478,10 +473,6 @@ const { data } = await supabase
 <tr>
 <td><code>route_plan.started</code></td>
 <td>A rep begins navigating a route plan</td>
-</tr>
-<tr>
-<td><code>reminder.due</code></td>
-<td>A reminder's <code>due_at</code> timestamp is reached</td>
 </tr>
 </tbody>
 </table>
@@ -562,7 +553,7 @@ print(response.data)</code></pre></div>
 <ul>
 <li>Route plan optimisation engine (TSP-based, up to 25 stops)</li>
 <li>Territory management UI with polygon drawing on maps</li>
-<li>Google Calendar two-way sync for reminders and tasks</li>
+<li>Google Calendar two-way sync for tasks</li>
 <li>Custom pipeline stages in <em>Settings → Pipeline</em></li>
 </ul>
 </div>
@@ -603,7 +594,7 @@ print(response.data)</code></pre></div>
                     <a href="#visits">Sales Visits</a>
                     <a href="#routes">Route Plans</a>
                     <a href="#opportunities">Opportunities</a>
-                    <a href="#reminders">Reminders &amp; Tasks</a>
+                    <a href="#tasks">Tasks</a>
                     <a href="#webhooks">Webhooks</a>
                     <a href="#sdks">SDKs</a>
                     <a href="#changelog">Changelog</a>

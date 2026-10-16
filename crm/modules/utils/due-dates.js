@@ -1,5 +1,5 @@
 // modules/utils/due-dates.js
-// Due dates for tasks and reminders come in two kinds:
+// Due dates for tasks come in two kinds:
 //
 // - All day (tasks.due_all_day = true): due on a calendar date, the same date
 //   whatever the viewer's timezone. due_date holds UTC midnight of that date
@@ -9,7 +9,7 @@
 //   viewer's local time.
 //
 // Every helper takes the stored value plus the all-day flag. When the flag is
-// unknown (null / undefined: reminders, rows from before the column existed), a
+// unknown (null / undefined: rows from before the column existed), a
 // due time of exactly local midnight counts as all day.
 
 const pad2 = (n) => String(n).padStart(2, '0');

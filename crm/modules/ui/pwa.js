@@ -31,9 +31,6 @@ function initPWA() {
           if (entityType === 'task' && window.openTaskModal && window.allTasksData) {
             const task = window.allTasksData.find(t => String(t.id) === String(entityId));
             if (task) window.openTaskModal(task, window.salesRepsData || []);
-          } else if (entityType === 'reminder' && window.openReminderModal && window.allRemindersData) {
-            const rem = window.allRemindersData.find(r => String(r.id) === String(entityId));
-            if (rem) window.openReminderModal(rem, window.salesRepsData || []);
           }
         }, 300);
       }

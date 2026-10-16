@@ -38,7 +38,7 @@
   .safi-nudge-bubble {
     margin-bottom: 12px;
   }
-  :is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #reminder-modal, #call-log-modal) .modal-footer {
+  :is(#company-modal, #person-modal, #opportunity-modal, #task-modal, #call-log-modal) .modal-footer {
     padding-left: 1rem;
     padding-right: 1rem;
   }
@@ -120,16 +120,6 @@
   }
   .auth-logo img {
     max-width: 180px !important;
-  }
-  .reminder-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  .reminder-filters {
-    flex-direction: column;
-    width: 100%;
-  }
-  .reminder-filter {
-    width: 100%;
   }
   .form-steps {
     flex-direction: column;
@@ -371,58 +361,6 @@
   }
   .tdv-person {
     min-width: 0;
-  }
-  .reminder-workspace {
-    gap: 0.875rem;
-  }
-  .reminder-topbar {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  .reminder-stats-redesign {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.625rem;
-    width: 100%;
-  }
-  .reminder-stat-card {
-    padding: 0.75rem;
-  }
-  .reminder-panel {
-    padding: 0.875rem;
-  }
-  .reminder-panel-header {
-    align-items: flex-start;
-    margin-bottom: 0.75rem;
-  }
-  .reminders-grid {
-    gap: 0.75rem;
-  }
-  .reminder-card {
-    padding: 0.875rem;
-    border-radius: var(--radius-md);
-  }
-  .reminder-title {
-    font-size: 0.9375rem;
-  }
-  .reminder-description {
-    font-size: 0.8125rem;
-    margin-bottom: 0.5rem;
-  }
-  .reminder-meta {
-    gap: 0.375rem;
-    margin-bottom: 0.625rem;
-  }
-  .reminder-meta-item {
-    padding: 0.3rem 0.5rem;
-    font-size: 0.75rem;
-  }
-  .reminder-actions {
-    padding-top: 0.5rem;
-  }
-  .reminder-action-btn {
-    width: 32px;
-    height: 32px;
   }
   .routes-list {
     gap: 0.75rem;
@@ -2108,8 +2046,7 @@
   }
 
   /* Task & Reminder modals */
-  #task-modal .modal-container,
-  #reminder-modal .modal-container {
+  #task-modal .modal-container {
     max-height: 88vh;
   }
 
@@ -3204,453 +3141,9 @@
    20. REMINDERS — Mobile layout (COMPREHENSIVE)
    ────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  /* Main page container */
-  .rem-page {
-    display: flex;
-    flex-direction: column;
-    padding: 0.875rem;
-    gap: 0.875rem;
-    width: 100%;
-    box-sizing: border-box;
-  }
-
-  /* Header with search, filters, add button */
-  .rem-page-head {
-    display: flex;
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-    width: 100%;
-  }
-
-  /* Search wrapper - full width with proper padding */
-  .rem-search-wrap {
-    position: relative;
-    width: 100%;
-    display: flex;
-    align-items: center;
-  }
-
-  .rem-search-icon {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 16px;
-    height: 16px;
-    color: var(--text-muted);
-    flex-shrink: 0;
-  }
-
-  .rem-search-input {
-    width: 100%;
-    height: 44px;
-    min-height: 44px;
-    padding: 0 12px 0 40px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    background: var(--bg-secondary);
-    color: var(--text-primary);
-    font-size: 16px;
-    font-family: inherit;
-    box-sizing: border-box;
-  }
-
-  .rem-search-input::placeholder {
-    color: var(--text-muted);
-  }
-
-  /* Filter buttons - horizontal scroll */
-  .rem-filters {
-    display: flex;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    gap: 0.5rem;
-    padding-bottom: 8px;
-    scrollbar-width: none;
-    scroll-snap-type: x mandatory;
-  }
-
-  .rem-filters::-webkit-scrollbar {
-    display: none;
-  }
-
-  .reminder-filter {
-    flex-shrink: 0;
-    height: 36px;
-    min-width: 80px;
-    padding: 0 12px;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-md);
-    background: var(--bg-secondary);
-    color: var(--text-secondary);
-    font-size: 0.8125rem;
-    font-weight: 500;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: all 150ms ease;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
-
-  .reminder-filter:active {
-    transform: scale(0.95);
-  }
-
-  .reminder-filter.active {
-    background: var(--color-primary);
-    color: var(--text-inverse);
-    border-color: var(--color-primary);
-  }
-
-  /* Add reminder button */
-  #add-reminder-btn {
-    width: 100%;
-    height: 44px;
-    min-height: 44px;
-    border-radius: var(--radius-md);
-    font-size: 0.95rem;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-
-  /* Body layout - sidebar moved below on mobile */
-  .rem-body {
-    display: flex;
-    flex-direction: column;
-    gap: 0.875rem;
-    width: 100%;
-  }
-
-  /* Sidebar - full width, moves below content on mobile */
-  .rem-sidebar {
-    position: static;
-    width: 100%;
-    order: 2;
-  }
-
-  .rem-sidebar-panel {
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    background: var(--bg-secondary);
-    padding: 0.875rem;
-    overflow: hidden;
-  }
-
-  .rem-sidebar-head {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.75rem;
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .rem-sidebar-title {
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: var(--text-primary);
-  }
-
-  .rem-sidebar-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 24px;
-    height: 24px;
-    padding: 0 6px;
-    background: var(--color-primary);
-    color: var(--text-inverse);
-    border-radius: var(--radius-full);
-    font-size: 0.75rem;
-    font-weight: 600;
-  }
-
-  .rem-sidebar-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    max-height: 300px;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  .rem-sidebar-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.75rem;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-sm);
-    background: var(--bg-primary);
-    min-height: 44px;
-  }
-
-  .rem-sidebar-item-body {
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-    min-width: 0;
-    flex: 1;
-  }
-
-  .rem-sidebar-item-title {
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .rem-sidebar-item-time {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-  }
-
-  .rem-sidebar-empty {
-    padding: 1rem;
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 0.875rem;
-    line-height: 1.5;
-  }
-
-  /* Main content area */
-  .rem-main {
-    order: 1;
-    width: 100%;
-  }
-
-  /* Reminders list */
-  .rem-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    width: 100%;
-  }
-
-  /* KPIs grid */
-  .rem-kpis {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.75rem;
-    width: 100%;
-    margin-bottom: 0.5rem;
-  }
-
-  /* Reminder cards - proper mobile sizing */
-  .rem-card {
-    display: flex;
-    background: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    padding: 0;
-    margin: 0;
-    min-height: 60px;
-  }
-
-  .rem-card-stripe {
-    width: 4px;
-    flex-shrink: 0;
-    background: var(--border-color);
-    transition: background 150ms ease;
-  }
-
-  .rem-card-inner {
-    flex: 1;
-    min-width: 0;
-    padding: 0.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  /* Card top row - badge and actions */
-  .rem-card-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    margin-bottom: 0;
-  }
-
-  .rem-badge {
-    display: inline-flex;
-    align-items: center;
-    height: 22px;
-    padding: 0 8px;
-    border-radius: var(--radius-full);
-    font-size: 0.6875rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    flex-shrink: 0;
-  }
-
-  /* Action buttons - ALWAYS VISIBLE on mobile */
-  .rem-card-actions {
-    display: flex;
-    align-items: center;
-    gap: 0.375rem;
-    opacity: 1 !important;
-  }
-
-  .rem-action-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    min-width: 36px;
-    min-height: 36px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border-color);
-    background: var(--bg-primary);
-    color: var(--text-muted);
-    cursor: pointer;
-    transition: all 150ms ease;
-    flex-shrink: 0;
-    padding: 0;
-  }
-
-  .rem-action-btn svg,
-  .rem-action-btn i {
-    width: 16px;
-    height: 16px;
-  }
-
-  .rem-action-btn:active {
-    background: var(--bg-active);
-    transform: scale(0.95);
-  }
-
-  .rem-action-btn.is-lg {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
-  }
-
-  .rem-action-btn.is-small {
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    min-height: 32px;
-  }
-
-  /* Card title */
-  .rem-card-title {
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    line-height: 1.4;
-    margin: 0;
-    padding: 0;
-  }
-
-  .rem-card.is-done .rem-card-title {
-    opacity: 0.72;
-    text-decoration: line-through;
-  }
-
-  /* Card description */
-  .rem-card-desc {
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-    line-height: 1.4;
-    margin: 0;
-    padding: 0;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  /* Card footer - meta information */
-  .rem-card-foot {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    font-size: 0.75rem;
-    color: var(--text-muted);
-    margin-top: 0.25rem;
-  }
-
-  .rem-card-meta {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
-  }
-
-  .rem-meta-icon {
-    width: 12px;
-    height: 12px;
-    flex-shrink: 0;
-  }
-
-  /* Empty state */
-  .rem-empty-msg {
-    padding: 2rem 1rem;
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 0.9375rem;
-  }
 }
 
 @media (max-width: 480px) {
-  .rem-page {
-    padding: 0.5rem;
-    gap: 0.5rem;
-  }
-
-  .rem-page-head {
-    gap: 0.5rem;
-  }
-
-  .rem-body {
-    gap: 0.5rem;
-  }
-
-  .rem-kpis {
-    grid-template-columns: 1fr;
-    gap: 0.5rem;
-  }
-
-  .rem-sidebar-list {
-    max-height: 250px;
-  }
-
-  .rem-list {
-    gap: 0.5rem;
-  }
-
-  .rem-card-inner {
-    padding: 0.625rem;
-    gap: 0.375rem;
-  }
-
-  .rem-card-title {
-    font-size: 0.875rem;
-  }
-
-  .rem-action-btn {
-    width: 32px;
-    height: 32px;
-    min-width: 32px;
-    min-height: 32px;
-  }
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -5092,8 +4585,6 @@
   .card:hover,
   .visit-card:hover,
   .visit-card-premium:hover,
-  .reminder-card:hover,
-  .rem-card:hover,
   .kanban-task-card:hover,
   .nav-item:hover,
   .bottom-nav-item:hover,
@@ -5138,7 +4629,6 @@
 
   /* Smooth scroll areas */
   .pipeline-filters,
-  .rem-filters,
   .settings-nav,
   .record-tabs {
     scroll-snap-type: x proximity;
@@ -5154,7 +4644,6 @@
   /* Always show card actions on touch (no hover reveal) */
   .visit-card-actions,
   .visit-card-action,
-  .rem-card-actions,
   .task-card-actions,
   .route-card-actions {
     opacity: 1 !important;

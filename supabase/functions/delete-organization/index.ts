@@ -7,7 +7,7 @@
  *   1. Authenticates the caller and confirms they are the org owner.
  *   2. Collects every auth user ID that belongs to the organization.
  *   3. Deletes the organization row — Postgres CASCADE handles all child data:
- *      profiles, companies, people, visits, tasks, reminders, opportunities,
+ *      profiles, companies, people, visits, tasks, opportunities,
  *      call_logs, technician_visits, routes, notes, invitations.
  *   4. Deletes every collected auth.users row via the Admin API so no
  *      orphan auth accounts remain.

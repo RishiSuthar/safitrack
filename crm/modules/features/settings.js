@@ -370,7 +370,7 @@ async function renderSettingsView() {
             <div class="sv-field-row">
               <div class="sv-field-meta">
                 <div class="sv-field-label">Browser push notifications</div>
-                <div class="sv-field-hint">Instant alerts for reminders and due dates in your browser or PWA.</div>
+                <div class="sv-field-hint">Instant alerts for due dates in your browser or PWA.</div>
               </div>
               <div class="sv-field-control" style="display:flex;align-items:center;gap:8px;">
                 <button id="enable-browser-notifs" class="sv-ghost-btn">
@@ -408,19 +408,6 @@ async function renderSettingsView() {
               <div class="sv-field-control">
                 <label class="sv-toggle">
                   <input id="pref-notif-tasks" type="checkbox" ${notificationStore.preferences?.notifyTasks !== false ? 'checked' : ''}>
-                  <span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span>
-                </label>
-              </div>
-            </div>
-
-            <div class="sv-field-row">
-              <div class="sv-field-meta">
-                <div class="sv-field-label">Reminders</div>
-                <div class="sv-field-hint">Scheduled customer reminders and follow-up alerts.</div>
-              </div>
-              <div class="sv-field-control">
-                <label class="sv-toggle">
-                  <input id="pref-notif-reminders" type="checkbox" ${notificationStore.preferences?.notifyReminders !== false ? 'checked' : ''}>
                   <span class="sv-toggle-track"><span class="sv-toggle-thumb"></span></span>
                 </label>
               </div>
@@ -2346,10 +2333,6 @@ async function renderSettingsView() {
     notificationStore.updatePreferences({ notifyTasks: e.target.checked });
   });
 
-  document.getElementById('pref-notif-reminders')?.addEventListener('change', (e) => {
-    notificationStore.updatePreferences({ notifyReminders: e.target.checked });
-  });
-
   document.getElementById('pref-notif-deals')?.addEventListener('change', (e) => {
     notificationStore.updatePreferences({ notifyDeals: e.target.checked });
   });
@@ -2507,7 +2490,7 @@ async function renderSettingsView() {
                 ${[
                   ['All team members & their accounts', 'users'],
                   ['Contacts — people & companies', 'book-open'],
-                  ['Sales visits, tasks & reminders', 'check-square'],
+                  ['Sales visits & tasks', 'check-square'],
                   ['Opportunities & calls', 'phone'],
                   ['Routes, notes & workflows', 'map'],
                   ['Pending invitations', 'mail'],

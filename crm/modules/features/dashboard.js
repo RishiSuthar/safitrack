@@ -37,7 +37,6 @@ const METRICS = [
 const ICONS = {
   task: '<rect width="18" height="18" x="3" y="3" rx="2"/><path d="m9 12 2 2 4-4"/>',
   deal: '<path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/><rect width="20" height="14" x="2" y="6" rx="2"/>',
-  reminder: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/>',
   stale: '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
   refresh: '<path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>',
   arrow: '<path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>',
@@ -86,7 +85,7 @@ async function fetchDashboardData() {
   const orgId = state.currentOrganization?.id || '00000000-0000-0000-0000-000000000000';
   const visitsSince = addDays(startOfDay(new Date()), -VISIT_LOOKBACK_DAYS).toISOString();
 
-  const [opps, visits, tasks, profilesRes, remindersRes] = await Promise.all([
+  const [opps, visits, tasks, profilesRes] = await Promise.all([
     fetchAllRows(() => supabaseClient
       .from('opportunities')
       .select('id, name, company_name, value, probability, stage, user_id, next_step, next_step_date, created_at, updated_at')
@@ -108,24 +107,15 @@ async function fetchDashboardData() {
       .from('profiles')
       .select('id, first_name, last_name, role')
       .eq('organization_id', orgId),
-    supabaseClient
-      .from('reminders')
-      .select('id, title, reminder_date, is_completed')
-      .eq('organization_id', orgId)
-      .eq('is_completed', false)
-      .order('reminder_date', { ascending: true })
-      .limit(50),
   ]);
 
-  const failed = [profilesRes, remindersRes].find((r) => r.error);
-  if (failed) throw new Error(failed.error.message);
+  if (profilesRes.error) throw new Error(profilesRes.error.message);
 
   return {
     opps,
     visits,
     tasks,
     profiles: profilesRes.data || [],
-    reminders: remindersRes.data || [],
     fetchedAt: new Date(),
   };
 }
@@ -284,18 +274,6 @@ function buildModel(data, periodKey) {
         tone: 'muted',
       });
     }
-  });
-  data.reminders.forEach((r) => {
-    const at = parseDate(r.reminder_date);
-    if (!at || at > now) return;
-    const late = calendarDaysFrom(at, now);
-    attention.push({
-      type: 'reminder', view: 'reminders', late, urgent: true,
-      title: r.title || 'Reminder',
-      meta: 'Reminder',
-      due: late === 0 ? 'Today' : `${late}d overdue`,
-      tone: late === 0 ? 'warn' : 'danger',
-    });
   });
   // Missed dates first (most overdue on top), then stalled deals.
   attention.sort((a, b) => (b.urgent - a.urgent) || (b.late - a.late));

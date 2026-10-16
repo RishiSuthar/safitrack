@@ -20,7 +20,8 @@ const ROUTE_ALIAS_TO_VIEW = {
   activity: 'my-activity',
   'my-routes': 'my-routes',
   routes: 'my-routes',
-  reminders: 'reminders',
+  // Reminders were removed; old links land on Tasks.
+  reminders: 'tasks',
   notes: 'notes',
   'sales-funnel': 'sales-funnel',
   funnel: 'sales-funnel',
@@ -36,7 +37,7 @@ const ROUTE_ALIAS_TO_VIEW = {
   contacts: 'people',
   tasks: 'tasks',
   deals: 'opportunity-pipeline',
-  calendar: 'reminders',
+  calendar: 'tasks',
 
   // Manager / admin
   'main-dashboard': 'main-dashboard',
@@ -66,7 +67,6 @@ const FRIENDLY_ROUTE_TO_PAGE = {
   companies: () => import('../pages/companies.js').then((m) => m.renderCompaniesPage()),
   deals: () => import('../pages/deals.js').then((m) => m.renderDealsPage()),
   tasks: () => import('../pages/tasks.js').then((m) => m.renderTasksPage()),
-  calendar: () => import('../pages/calendar.js').then((m) => m.renderCalendarPage()),
   reports: () => import('../pages/reports.js').then((m) => m.renderReportsPage()),
   settings: () => import('../pages/settings.js').then((m) => m.renderSettingsPage()),
 };
@@ -76,7 +76,6 @@ const VIEW_TO_PATH = {
   companies: '/companies',
   'opportunity-pipeline': '/deals',
   tasks: '/tasks',
-  reminders: '/calendar',
   reports: '/reports',
   settings: '/settings',
   'main-dashboard': '/dashboard',

@@ -2750,9 +2750,9 @@ function initOpportunityModalListeners(opportunity) {
       closeModal('opportunity-modal');
       refreshPipelineIfVisible();
 
-      // Set reminder for next step if date is provided
+      // Surface the next step date in notifications right away
       if (nextStepDate) {
-        scheduleNextStepReminder(name, nextStep, nextStepDate);
+        document.dispatchEvent(new CustomEvent('safitrack:notification-refresh', { detail: { forcePopup: true } }));
       }
     } catch (error) {
       showToast(`Couldn't ${opportunity ? 'save' : 'create'} the deal: ${error.message}`, 'error');
@@ -2832,23 +2832,6 @@ function getProbabilityColor(probability) {
   if (probability >= 70) return 'var(--color-success)';
   if (probability >= 40) return 'var(--color-warning)';
   return 'var(--color-danger)';
-}
-
-function scheduleNextStepReminder(opportunityName, nextStep, dueDate) {
-  // Keep legacy local reminder support for existing flows
-  const reminders = JSON.parse(localStorage.getItem('opportunityReminders') || '[]');
-
-  reminders.push({
-    opportunityName,
-    nextStep,
-    dueDate,
-    acknowledged: false
-  });
-
-  localStorage.setItem('opportunityReminders', JSON.stringify(reminders));
-
-  // Dispatch a refresh event so the notification store picks up the new reminder
-  document.dispatchEvent(new CustomEvent('safitrack:notification-refresh', { detail: { forcePopup: true } }));
 }
 
 
@@ -3445,7 +3428,6 @@ export {
   initOpportunityModalListeners,
   addCompetitor,
   getProbabilityColor,
-  scheduleNextStepReminder,
   loadPipelines,
   openManagePipelinesModal,
   openPipelineEditorModal,

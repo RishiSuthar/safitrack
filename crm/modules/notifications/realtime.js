@@ -60,14 +60,6 @@ class NotificationRealtimeManager {
           this._handleTableChange('tasks', payload);
         }
       )
-      // Listen to reminders changes
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'reminders' },
-        (payload) => {
-          this._handleTableChange('reminders', payload);
-        }
-      )
       // Listen to opportunities changes
       .on(
         'postgres_changes',
@@ -94,14 +86,13 @@ class NotificationRealtimeManager {
   _handleTableChange(table, payload) {
     const { eventType, new: newRec, old: oldRec } = payload;
 
-    // Fast path: if task/reminder was marked completed or deleted, remove from store immediately
+    // Fast path: if a task was marked completed or deleted, remove from store immediately
     if (eventType === 'DELETE' && oldRec?.id) {
-      const prefix = table === 'tasks' ? 'task' : table === 'reminders' ? 'reminder' : table === 'opportunities' ? 'deal' : 'contract';
+      const prefix = table === 'tasks' ? 'task' : table === 'opportunities' ? 'deal' : 'contract';
       notificationStore.dismiss(`${prefix}:${oldRec.id}`);
     } else if (eventType === 'UPDATE' && newRec) {
-      if ((table === 'tasks' && newRec.status === 'completed') || (table === 'reminders' && newRec.is_completed)) {
-        const prefix = table === 'tasks' ? 'task' : 'reminder';
-        notificationStore.dismiss(`${prefix}:${newRec.id}`);
+      if (table === 'tasks' && newRec.status === 'completed') {
+        notificationStore.dismiss(`task:${newRec.id}`);
       }
     }
 
@@ -142,18 +133,17 @@ class NotificationRealtimeManager {
   }
 
   /**
-   * Called by feature modules (tasks, reminders, opps) when local mutations occur.
+   * Called by feature modules (tasks, opps) when local mutations occur.
    * Provides zero-latency optimistic updates before server round-trip.
    */
   notifyMutation({ table, action, id, record }) {
     if (!table) return;
 
     if (action === 'delete' && id) {
-      const prefix = table === 'tasks' ? 'task' : table === 'reminders' ? 'reminder' : table === 'opportunities' ? 'deal' : 'contract';
+      const prefix = table === 'tasks' ? 'task' : table === 'opportunities' ? 'deal' : 'contract';
       notificationStore.dismiss(`${prefix}:${id}`);
-    } else if (action === 'complete' && id) {
-      const prefix = table === 'tasks' ? 'task' : 'reminder';
-      notificationStore.dismiss(`${prefix}:${id}`);
+    } else if (action === 'complete' && id && table === 'tasks') {
+      notificationStore.dismiss(`task:${id}`);
     }
 
     scheduleDebouncedRefresh(250);

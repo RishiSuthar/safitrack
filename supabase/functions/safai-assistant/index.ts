@@ -95,9 +95,9 @@ serve(async (req: Request) => {
     // ── 2. Read-Only Interceptor ──────────────────────────────────────────────
     const lowerMsg = userMessage.toLowerCase();
     const isExplicitWriteIntent =
-      /\b(create|add|insert|make a new|log a new|set a new)\s+(task|reminder|opportunity|deal|company|customer|contact|visit|call|note|workflow)\b/i.test(lowerMsg) ||
-      /\b(delete|remove|erase|drop|cancel)\s+(task|reminder|opportunity|deal|company|customer|contact|visit|call|note|workflow)\b/i.test(lowerMsg) ||
-      /\b(update|edit|modify|change stage|mark as|complete)\s+(task|reminder|opportunity|deal|company|customer|contact|visit|call|note|workflow)\b/i.test(lowerMsg);
+      /\b(create|add|insert|make a new|log a new|set a new)\s+(task|opportunity|deal|company|customer|contact|visit|call|note|workflow)\b/i.test(lowerMsg) ||
+      /\b(delete|remove|erase|drop|cancel)\s+(task|opportunity|deal|company|customer|contact|visit|call|note|workflow)\b/i.test(lowerMsg) ||
+      /\b(update|edit|modify|change stage|mark as|complete)\s+(task|opportunity|deal|company|customer|contact|visit|call|note|workflow)\b/i.test(lowerMsg);
 
     const isQuestionAboutCreation = /\b(how many|who created|when was|what was|list of|show me|which)\b/i.test(lowerMsg);
 
@@ -123,7 +123,6 @@ serve(async (req: Request) => {
     const hasWord = (regex: RegExp) => regex.test(lowerMsg);
 
     const wantsTasks = hasWord(/\b(task|tasks|todo|to-do|todos|pending|overdue|priority|prioritize|assigned)\b/);
-    const wantsReminders = hasWord(/\b(reminder|reminders|remind|alert|alerts|remember)\b/);
     const wantsOpps = hasWord(/\b(opportunity|opportunities|deal|deals|pipeline|funnel|stage|revenue|value|closing|close|probability|forecast|biggest|win rate|won|lost)\b/);
     const wantsVisits = hasWord(/\b(visit|visits|visited|field|meeting|meetings|travel|fare)\b/);
     const wantsCalls = hasWord(/\b(call|calls|called|phone|outbound|inbound|outcome)\b/);
@@ -141,7 +140,7 @@ serve(async (req: Request) => {
       'find', 'about', 'with', 'from', 'have', 'been', 'this', 'that', 'these', 'those',
       'today', 'week', 'month', 'year', 'overdue', 'pending', 'active', 'biggest',
       'opportunities', 'opportunity', 'deals', 'deal', 'tasks', 'task', 'pipeline',
-      'calls', 'call', 'visits', 'visit', 'reminders', 'reminder', 'notes', 'note',
+      'calls', 'call', 'visits', 'visit', 'notes', 'note',
       'customer', 'customers', 'company', 'companies', 'contacts', 'contact', 'performance'
     ]);
 
@@ -173,7 +172,6 @@ serve(async (req: Request) => {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
     const fetchTasks = isOverview || wantsTasks || Boolean(matchedCompany);
-    const fetchReminders = isOverview || wantsReminders || Boolean(matchedCompany);
     const fetchOpps = isOverview || wantsOpps || wantsReports || Boolean(matchedCompany);
     const fetchVisits = isOverview || wantsVisits || wantsReports || Boolean(matchedCompany);
     const fetchCalls = isOverview || wantsCalls || wantsReports || Boolean(matchedCompany);
@@ -194,19 +192,6 @@ serve(async (req: Request) => {
     // Non-managers only ever see their own tasks, deals and visits (matches RLS).
     if (!isManager) {
       tasksQuery = tasksQuery.or(`assigned_to.eq.${user.id},created_by.eq.${user.id}`);
-    }
-
-    // Build reminders query
-    let remindersQuery = supabaseAdmin
-      .from('reminders')
-      .select('id, title, description, reminder_date, is_completed, assigned_to')
-      .eq('organization_id', orgId)
-      .eq('is_completed', false)
-      .order('reminder_date', { ascending: true, nullsFirst: false })
-      .limit(40);
-
-    if (!isManager && hasWord(/\b(my|mine|assigned to me)\b/)) {
-      remindersQuery = remindersQuery.or(`assigned_to.eq.${user.id},created_by.eq.${user.id}`);
     }
 
     let oppsQuery = supabaseAdmin
@@ -237,7 +222,6 @@ serve(async (req: Request) => {
     // Parallel queries without risky foreign key joins
     const [
       tasksRes,
-      remindersRes,
       oppsRes,
       visitsRes,
       callsRes,
@@ -247,7 +231,6 @@ serve(async (req: Request) => {
       peopleRes
     ] = await Promise.all([
       fetchTasks ? tasksQuery : Promise.resolve({ data: null, error: null }),
-      fetchReminders ? remindersQuery : Promise.resolve({ data: null, error: null }),
 
       fetchOpps ? oppsQuery : Promise.resolve({ data: null, error: null }),
 
@@ -439,27 +422,6 @@ serve(async (req: Request) => {
         contextSections.push(`Upcoming Tasks:`);
         pendingList.forEach((t: any) => {
           contextSections.push(`  - ${t.title} [Priority: ${t.priority || 'medium'}] — Due: ${t.due_date?.split('T')[0] || 'No date'}`);
-        });
-      }
-    }
-
-    // Reminders calculations
-    if (remindersRes.data && remindersRes.data.length > 0) {
-      const allReminders = remindersRes.data;
-      const upcomingReminders = allReminders.filter((r: any) => r.reminder_date && new Date(r.reminder_date) >= now);
-      const overdueReminders = allReminders.filter((r: any) => r.reminder_date && new Date(r.reminder_date) < now);
-
-      contextSections.push(`\n=== REMINDERS (Active: ${allReminders.length}) ===`);
-      if (overdueReminders.length > 0) {
-        contextSections.push(`Overdue Reminders:`);
-        overdueReminders.slice(0, 5).forEach((r: any) => {
-          contextSections.push(`  - ${r.title} (Date: ${r.reminder_date}) [OVERDUE]`);
-        });
-      }
-      if (upcomingReminders.length > 0) {
-        contextSections.push(`Upcoming Reminders:`);
-        upcomingReminders.slice(0, 6).forEach((r: any) => {
-          contextSections.push(`  - ${r.title} (Scheduled: ${r.reminder_date})`);
         });
       }
     }
