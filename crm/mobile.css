@@ -222,25 +222,6 @@
     align-items: stretch;
     gap: 0.5rem;
   }
-  .tasks-kanban-container {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-    margin-top: 1rem;
-  }
-  .kanban-column {
-    min-height: auto;
-    padding: 0.875rem;
-  }
-  .tasks-kanban-header {
-    flex-direction: column;
-    align-items: stretch;
-    margin-bottom: 1rem;
-    gap: 0.75rem;
-  }
-  .tasks-search-bar {
-    max-width: 100%;
-    min-width: 100%;
-  }
   body {
     max-width: 100%;
   }
@@ -287,64 +268,6 @@
     width: 1.375rem;
     height: 1.375rem;
     font-size: 0.7rem;
-  }
-  .tasks-search-bar input {
-    height: 40px;
-    padding: 0 0.75rem 0 2.5rem;
-    font-size: 0.9375rem;
-  }
-  .tasks-header-actions {
-    width: 100%;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-  .kanban-column-header {
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.625rem;
-  }
-  .kanban-column-title {
-    font-size: 0.875rem;
-  }
-  .kanban-column-icon {
-    width: 22px;
-    height: 22px;
-    font-size: 0.8125rem;
-  }
-  .task-card-title {
-    font-size: 0.875rem;
-  }
-  .task-card-description {
-    font-size: 0.75rem;
-  }
-  .task-card-footer {
-    padding-top: 0.625rem;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  .task-card-due-date {
-    font-size: 0.75rem;
-  }
-  .task-card-assignee {
-    width: 22px;
-    height: 22px;
-    font-size: 0.6875rem;
-  }
-  .task-card-assignee-name {
-    font-size: 0.75rem;
-    max-width: 70px;
-  }
-  .task-tag {
-    padding: 0.2rem 0.5rem;
-    font-size: 0.6875rem;
-  }
-  .task-detail-container {
-    max-width: 100%;
-    max-height: 100%;
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
   }
   .tdv-header {
     padding: 1rem;
@@ -437,8 +360,7 @@
   .pipeline-filters {
     flex-wrap: nowrap;
   }
-  .pipeline-add-btn,
-  .tasks-add-btn {
+  .pipeline-add-btn {
     width: 100%;
   }
   .pipeline-stage-header {
@@ -2557,8 +2479,7 @@
     min-width: 0;
   }
 
-  .pipeline-add-btn,
-  .tasks-add-btn {
+  .pipeline-add-btn {
     flex: 2;
     width: auto !important;
     min-width: 0;
@@ -2611,22 +2532,6 @@
     scroll-snap-align: start;
     border-radius: var(--radius-md);
     padding: 0.75rem;
-  }
-
-  /* Opportunity / task cards in kanban */
-  .kanban-task-card {
-    padding: 0.875rem;
-    border-radius: var(--radius-lg);
-    margin-bottom: 0.5rem;
-  }
-
-  .kanban-task-card:hover {
-    transform: none;
-  }
-
-  .kanban-task-title {
-    font-size: 0.875rem;
-    font-weight: 600;
   }
 
 }
@@ -3138,73 +3043,12 @@
 }
 
 /* ──────────────────────────────────────────────────────────────
-   20. REMINDERS — Mobile layout (COMPREHENSIVE)
-   ────────────────────────────────────────────────────────────── */
-@media (max-width: 768px) {
-}
-
-@media (max-width: 480px) {
-}
-
-/* ──────────────────────────────────────────────────────────────
    21. TASKS — Mobile kanban & list
    ────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .tasks-header-actions {
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .tasks-header-actions .btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  /* Task stats */
-  .task-stats {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 0.5rem;
-  }
-
-  /* Kanban columns — horizontal scroll */
-  .task-kanban-columns,
-  .tasks-kanban-board {
-    display: flex !important;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-    gap: 0.75rem;
-    padding-bottom: 0.5rem;
-  }
-
-  .task-kanban-column,
-  .kanban-column {
-    flex: 0 0 85vw;
-    max-width: 85vw;
-    scroll-snap-align: start;
-    border-radius: var(--radius-md);
-  }
-
-  .kanban-task-card {
-    padding: 0.875rem;
-    border-radius: var(--radius-lg);
-  }
-
-  .kanban-task-card:hover {
-    transform: none;
-  }
 }
 
 @media (max-width: 480px) {
-  .task-stats {
-    grid-template-columns: 1fr;
-  }
-
-  .task-kanban-column,
-  .kanban-column {
-    flex: 0 0 92vw;
-    max-width: 92vw;
-  }
 }
 
 /* ──────────────────────────────────────────────────────────────
@@ -3401,8 +3245,7 @@
   }
 
   /* Add opportunity & add task buttons */
-  .pipeline-add-btn,
-  .tasks-add-btn {
+  .pipeline-add-btn {
     width: 100%;
     height: 44px;
     border-radius: var(--radius-md);
@@ -3420,8 +3263,7 @@
   }
 
   /* Pipeline board - horizontal scroll */
-  .opportunity-kanban-board,
-  .tasks-kanban-board {
+  .opportunity-kanban-board {
     display: flex !important;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -3431,8 +3273,7 @@
     flex: 1;
   }
 
-  .opportunity-kanban-board::-webkit-scrollbar,
-  .tasks-kanban-board::-webkit-scrollbar {
+  .opportunity-kanban-board::-webkit-scrollbar {
     display: none;
   }
 
@@ -4585,7 +4426,6 @@
   .card:hover,
   .visit-card:hover,
   .visit-card-premium:hover,
-  .kanban-task-card:hover,
   .nav-item:hover,
   .bottom-nav-item:hover,
   .btn:hover,
@@ -4644,7 +4484,6 @@
   /* Always show card actions on touch (no hover reveal) */
   .visit-card-actions,
   .visit-card-action,
-  .task-card-actions,
   .route-card-actions {
     opacity: 1 !important;
   }
@@ -4696,9 +4535,7 @@
   }
 
   /* Pipeline/kanban columns wider in landscape */
-  .pipeline-stage,
-  .task-kanban-column,
-  .kanban-column {
+  .pipeline-stage {
     flex: 0 0 60vw;
     max-width: 60vw;
   }
@@ -4822,16 +4659,12 @@
    47. SCROLLBAR HIDING FOR HORIZONTAL SCROLL AREAS
    ────────────────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .pipeline-stages::-webkit-scrollbar,
-  .task-kanban-columns::-webkit-scrollbar,
-  .tasks-kanban-board::-webkit-scrollbar {
+  .pipeline-stages::-webkit-scrollbar {
     height: 0;
     display: none;
   }
 
-  .pipeline-stages,
-  .task-kanban-columns,
-  .tasks-kanban-board {
+  .pipeline-stages {
     scrollbar-width: none;
   }
 }

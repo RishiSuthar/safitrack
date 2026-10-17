@@ -50,7 +50,7 @@ const TASK_FIELDS = [
   { key: 'description', label: 'Description', type: 'textarea' },
   { key: 'assigned_to', label: 'Assign To', type: 'assignee' },
   { key: 'priority', label: 'Priority', type: 'select', options: ['low', 'medium', 'high'] },
-  { key: 'status', label: 'Status', type: 'select', options: ['pending', 'in_progress', 'completed'] },
+  { key: 'status', label: 'Status', type: 'select', options: ['pending', 'completed'], optionLabels: { pending: 'To do', completed: 'Done' } },
   { key: 'due_date', label: 'Due Date', type: 'date' },
 ];
 
