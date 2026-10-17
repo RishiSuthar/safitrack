@@ -6,6 +6,7 @@ import { renderError, getCurrencySymbol } from '../utils/helpers.js';
 import { matchesTokenizedQuery } from '../ui/spreadsheet.js';
 import { renderCustomFieldsDisplay } from './custom-fields.js';
 import { fetchAllPages } from '../utils/analytics.js';
+import { fbSearch, fbSelect, fbDate, fbClear, fbDateRange, fbInRange, initFilterBar, PAST_DATE_PRESETS } from '../ui/filter-bar.js';
 import { memberAvatarStyle } from '../ui/member-color.js';
 
 const OUTCOMES = ['Connected', 'Voicemail', 'No Answer', 'Busy', 'Wrong Number', 'Call Failed'];
@@ -19,7 +20,7 @@ const OUTCOME_TONES = {
   'Call Failed': 'danger',
   Scheduled: 'primary',
 };
-const EMPTY_FILTERS = { search: '', direction: '', outcome: '', dateFrom: '', dateTo: '' };
+const EMPTY_FILTERS = { search: '', direction: '', outcome: '', datePreset: '', dateFrom: '', dateTo: '' };
 const HISTORY_PAGE_SIZE = 200;
 
 const icon = (paths, size = 16) =>
@@ -62,12 +63,6 @@ function startOfDay(date) {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
-// 'YYYY-MM-DD' as local midnight (new Date('YYYY-MM-DD') would be UTC).
-function parseDateInput(value) {
-  const [y, m, d] = value.split('-').map(Number);
-  return new Date(y, m - 1, d);
-}
-
 function toLocalInputValue(date) {
   const pad = (n) => String(n).padStart(2, '0');
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
@@ -107,24 +102,26 @@ function outcomeTag(outcome, label = outcome) {
   return `<span class="calls-outcome calls-outcome--${tone}">${escapeHtml(label || '—')}</span>`;
 }
 
+// Filters saved before the date presets had only from/to: they become a custom range
+function datePresetOf(f) {
+  return f.datePreset || (f.dateFrom || f.dateTo ? 'custom' : '');
+}
+
 function hasActiveFilters() {
   const f = state.callLogFilters;
-  return !!(f.search || f.direction || f.outcome || f.dateFrom || f.dateTo || (isTeamMode() && state.selectedRepId));
+  return !!(f.search || f.direction || f.outcome || datePresetOf(f) || (isTeamMode() && state.selectedRepId));
 }
 
 function applyFilters(rows) {
   const f = state.callLogFilters;
-  const from = f.dateFrom ? parseDateInput(f.dateFrom) : null;
-  const to = f.dateTo ? new Date(parseDateInput(f.dateTo).getTime() + 864e5 - 1) : null;
+  const range = fbDateRange(datePresetOf(f), f.dateFrom, f.dateTo);
   const repId = isTeamMode() ? state.selectedRepId : null;
 
   return rows.filter((log) => {
     if (repId && log.user_id !== repId) return false;
     if (f.direction && log.direction !== f.direction) return false;
     if (f.outcome && log.outcome !== f.outcome) return false;
-    const at = new Date(log.call_at);
-    if (from && at < from) return false;
-    if (to && at > to) return false;
+    if (!fbInRange(range, log.call_at)) return false;
     return !f.search || matchesTokenizedQuery(f.search, contactNameOf(log), companyNameOf(log), log.notes, repNameOf(log));
   });
 }
@@ -193,41 +190,36 @@ function renderToolbar() {
 
   return `
     <div class="calls-toolbar">
-      <div class="calls-toolbar-row">
-        <label class="calls-search">
-          ${ICONS.search}
-          <input type="search" id="call-search" placeholder="Search calls" value="${escapeHtml(f.search)}" autocomplete="off" aria-label="Search calls">
-        </label>
-        <div class="calls-toolbar-actions">
+      <div class="fb" id="calls-fb">
+        ${fbSearch({ id: 'call-search', placeholder: 'Search calls', value: f.search })}
+        <div class="fb-filters">
+          ${fbSelect({
+            id: 'call-direction-filter',
+            label: 'Direction',
+            value: f.direction,
+            options: [{ value: '', label: 'Any direction' }, { value: 'Outbound', label: 'Outbound' }, { value: 'Inbound', label: 'Inbound' }],
+          })}
+          ${fbSelect({
+            id: 'call-outcome-filter',
+            label: 'Outcome',
+            value: f.outcome,
+            options: [{ value: '', label: 'Any outcome' }, ...OUTCOMES.map((o) => ({ value: o, label: o }))],
+          })}
+          ${team ? fbSelect({
+            id: 'call-rep-filter',
+            label: 'Rep',
+            value: state.selectedRepId || '',
+            options: [{ value: '', label: 'Everyone' }, ...repOptions],
+            searchable: repOptions.length > 8,
+          }) : ''}
+          ${fbDate({ id: 'call-date', label: 'Date', presets: PAST_DATE_PRESETS, value: { preset: datePresetOf(f), from: f.dateFrom, to: f.dateTo } })}
+          ${fbClear('calls-clear-filters')}
+        </div>
+        <div class="fb-actions">
+          <span class="fb-count" id="calls-total"></span>
           ${state.isManager ? seg('scope', [['my', 'My calls'], ['team', 'Team']], state.managerCallLogViewMode, 'Whose calls') : ''}
           <button type="button" class="btn btn-primary calls-new-btn" id="log-call-btn">${ICONS.plus}<span>Log Call</span></button>
         </div>
-      </div>
-      <div class="calls-toolbar-row calls-filters">
-        ${seg('direction', [['', 'All'], ['Outbound', 'Outbound'], ['Inbound', 'Inbound']], f.direction, 'Direction')}
-        ${window.buildCrmDropdown({
-          id: 'call-outcome-filter',
-          variant: 'filter',
-          className: 'calls-dd',
-          value: f.outcome,
-          placeholder: 'Any outcome',
-          options: [{ value: '', label: 'Any outcome' }, ...OUTCOMES.map((o) => ({ value: o, label: o }))],
-        })}
-        ${team ? window.buildCrmDropdown({
-          id: 'call-rep-filter',
-          variant: 'filter',
-          className: 'calls-dd',
-          value: state.selectedRepId || '',
-          placeholder: 'Everyone',
-          options: [{ value: '', label: 'Everyone' }, ...repOptions],
-        }) : ''}
-        <div class="calls-range" role="group" aria-label="Date range">
-          <input type="date" id="call-date-from" value="${escapeHtml(f.dateFrom)}" aria-label="From date">
-          <span class="calls-range-sep">to</span>
-          <input type="date" id="call-date-to" value="${escapeHtml(f.dateTo)}" aria-label="To date">
-        </div>
-        <button type="button" class="crm-filter-clear" id="calls-clear-filters"${hasActiveFilters() ? '' : ' hidden'}>Clear</button>
-        <span class="calls-total" id="calls-total"></span>
       </div>
     </div>`;
 }
@@ -249,16 +241,9 @@ function bindToolbar(container) {
     searchTimer = setTimeout(rerender, 120);
   });
 
-  container.querySelectorAll('[data-direction]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      filters.direction = btn.dataset.direction;
-      container.querySelectorAll('[data-direction]').forEach((b) => {
-        const active = b === btn;
-        b.classList.toggle('is-active', active);
-        b.setAttribute('aria-pressed', String(active));
-      });
-      rerender();
-    });
+  container.querySelector('#call-direction-filter').addEventListener('change', (e) => {
+    filters.direction = e.target.value;
+    rerender();
   });
 
   container.querySelectorAll('[data-scope]').forEach((btn) => {
@@ -280,10 +265,14 @@ function bindToolbar(container) {
     rerender();
   });
 
-  if (window.initCustomCalendar) {
-    window.initCustomCalendar('#call-date-from', { type: 'date' });
-    window.initCustomCalendar('#call-date-to', { type: 'date' });
-  }
+  container.querySelector('#call-date').addEventListener('change', (e) => {
+    filters.datePreset = e.target.value;
+    if (filters.datePreset !== 'custom') {
+      filters.dateFrom = '';
+      filters.dateTo = '';
+    }
+    rerender();
+  });
   container.querySelector('#call-date-from').addEventListener('change', (e) => {
     filters.dateFrom = e.target.value;
     rerender();
@@ -293,7 +282,7 @@ function bindToolbar(container) {
     rerender();
   });
 
-  container.querySelector('#calls-clear-filters').addEventListener('click', clearFilters);
+  initFilterBar(container.querySelector('#calls-fb'), { onClear: clearFilters });
 
   // One delegated handler for every row, rebuilt or not.
   const results = container.querySelector('#calls-results');
@@ -338,9 +327,8 @@ function renderResults() {
   const history = rows.filter((log) => !isScheduled(log));
   const filtered = hasActiveFilters();
 
-  document.getElementById('calls-clear-filters')?.toggleAttribute('hidden', !filtered);
   const total = document.getElementById('calls-total');
-  if (total) total.textContent = rows.length ? `${rows.length} ${rows.length === 1 ? 'call' : 'calls'}` : '';
+  if (total) total.textContent = `${rows.length} ${rows.length === 1 ? 'call' : 'calls'}`;
 
   el.classList.remove('is-loading');
   if (!rows.length) {

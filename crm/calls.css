@@ -30,58 +30,6 @@
   border-bottom: 1px solid var(--border-color);
 }
 
-.calls-toolbar-row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
-.calls-toolbar-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  margin-left: auto;
-}
-
-.calls-search {
-  position: relative;
-  display: flex;
-  align-items: center;
-  width: 280px;
-  max-width: 100%;
-}
-
-.calls-search svg {
-  position: absolute;
-  left: 10px;
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
-.calls-search input {
-  width: 100%;
-  height: var(--calls-control-h);
-  padding: 0 var(--space-3) 0 32px;
-  border: 1px solid var(--border-color);
-  border-radius: var(--btn-radius);
-  background: var(--bg-secondary);
-  color: var(--text-primary);
-  font: inherit;
-  font-size: var(--type-sm);
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-}
-
-.calls-search input::placeholder {
-  color: var(--text-muted);
-}
-
-.calls-search input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 2px var(--color-primary-bg);
-}
-
 /* Segmented control (direction, scope, modal mode) */
 .calls-seg {
   display: inline-flex;
@@ -131,73 +79,6 @@
 .calls-radio-seg input:focus-visible + span {
   outline: 2px solid var(--color-primary);
   outline-offset: 1px;
-}
-
-/* Dropdowns sized to the toolbar */
-.calls-toolbar .calls-dd .crm-dd-trigger {
-  height: var(--calls-control-h);
-  min-width: 140px;
-  border-radius: var(--btn-radius);
-  font-size: var(--type-sm);
-}
-
-/* Date range: two calendar inputs in one bordered control */
-.calls-range {
-  display: inline-flex;
-  align-items: center;
-  height: var(--calls-control-h);
-  border: 1px solid var(--border-color);
-  border-radius: var(--btn-radius);
-  background: var(--bg-secondary);
-  box-sizing: border-box;
-}
-
-.calls-range:focus-within {
-  border-color: var(--color-primary);
-}
-
-.calls-range input {
-  width: 132px;
-  height: 100%;
-  padding: 0 var(--space-2) 0 var(--space-3);
-  border: 0;
-  background: transparent;
-  color: var(--text-primary);
-  font: inherit;
-  font-size: var(--type-sm);
-}
-
-.calls-range input::placeholder {
-  color: var(--text-muted);
-}
-
-.calls-range input:focus {
-  outline: none;
-}
-
-.calls-range .calendar-icon-trigger {
-  right: 8px;
-}
-
-.calls-range .calendar-icon-trigger svg {
-  width: 14px;
-  height: 14px;
-}
-
-.calls-range-sep {
-  color: var(--text-muted);
-  font-size: var(--type-xs);
-}
-
-.calls-toolbar .crm-filter-clear[hidden] {
-  display: none;
-}
-
-.calls-total {
-  margin-left: auto;
-  color: var(--text-muted);
-  font-size: var(--type-xs);
-  font-variant-numeric: tabular-nums;
 }
 
 /* ── Results ───────────────────────────────────────────── */
@@ -908,15 +789,6 @@ textarea.calls-input {
     --calls-control-h: 36px;
   }
 
-  .calls-toolbar-row:first-child {
-    flex-wrap: nowrap;
-  }
-
-  .calls-search {
-    flex: 1;
-    width: auto;
-  }
-
   .calls-new-btn span {
     display: none;
   }
@@ -925,27 +797,6 @@ textarea.calls-input {
     width: var(--calls-control-h);
     padding: 0;
     justify-content: center;
-  }
-
-  /* Filters scroll sideways instead of stacking */
-  .calls-filters {
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    margin: 0 calc(-1 * var(--page-gutter));
-    padding: 0 var(--page-gutter) 2px;
-    scrollbar-width: none;
-  }
-
-  .calls-filters::-webkit-scrollbar {
-    display: none;
-  }
-
-  .calls-filters > * {
-    flex-shrink: 0;
-  }
-
-  .calls-total {
-    display: none;
   }
 
   .calls-group-head {

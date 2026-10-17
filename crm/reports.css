@@ -38,20 +38,6 @@
   width: 100%;
 }
 
-.reports-toolbar-filters {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-2, 8px);
-}
-
-.reports-toolbar-actions {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: var(--space-2, 8px);
-}
-
 /* ── Controls (Inputs, Selects, Buttons) ─────────────────────────────────────── */
 
 .reports-select {
@@ -648,21 +634,6 @@
   .reports-header {
     flex-direction: column;
     align-items: stretch;
-  }
-  .reports-toolbar {
-    width: 100%;
-    flex-direction: column;
-    align-items: stretch;
-    gap: var(--space-2, 8px);
-  }
-  .reports-toolbar-filters,
-  .reports-toolbar-actions {
-    width: 100%;
-    justify-content: flex-start;
-  }
-  .reports-select {
-    flex: 1;
-    min-width: 140px;
   }
   .reports-kpi-grid {
     grid-template-columns: repeat(2, 1fr);

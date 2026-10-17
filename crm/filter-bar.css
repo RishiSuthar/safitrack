@@ -1,0 +1,226 @@
+/* ═══════════════════════════════════════════════════════════
+   Filter bar: the same search, filter dropdowns, date filter
+   and Clear on every list page.
+   Markup: modules/ui/filter-bar.js
+   ═══════════════════════════════════════════════════════════ */
+
+.fb {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  width: 100%;
+  min-width: 0;
+}
+
+.fb-filters {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.fb-spacer {
+  flex: 1;
+}
+
+.fb-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.fb-count {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Search */
+.fb-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 240px;
+  max-width: 100%;
+  flex-shrink: 0;
+}
+
+.fb-search-icon {
+  position: absolute;
+  left: 10px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.fb-search input {
+  width: 100%;
+  height: var(--control-height-md);
+  padding: 0 var(--space-3) 0 30px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--btn-radius);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--type-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.fb-search input::placeholder {
+  color: var(--text-muted);
+}
+
+.fb-search input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-bg);
+}
+
+/* Filter dropdown buttons: the name until something is picked, then tinted */
+.fb-dd .crm-dd-trigger {
+  height: var(--control-height-md);
+  min-width: 0;
+  padding: 0 10px;
+  gap: 6px;
+  border-radius: var(--btn-radius);
+  font-size: var(--type-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.fb-dd .crm-dd-trigger:hover {
+  color: var(--text-primary);
+  border-color: var(--text-muted);
+}
+
+.fb-dd .crm-dd-label {
+  overflow: visible;
+}
+
+.fb-dd.is-active .crm-dd-trigger {
+  border-color: rgba(var(--color-primary-rgb), 0.45);
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+
+[data-theme="dark"] .fb-dd.is-active .crm-dd-trigger {
+  color: var(--color-primary-light);
+}
+
+.fb-dd[data-fb-kind="sort"] .crm-dd-trigger,
+.fb-dd[data-fb-kind="setting"] .crm-dd-trigger {
+  color: var(--text-primary);
+}
+
+/* Custom date range: two date boxes in one control */
+.fb-range {
+  display: inline-flex;
+  align-items: center;
+  height: var(--control-height-md);
+  border: 1px solid var(--border-color);
+  border-radius: var(--btn-radius);
+  background: var(--bg-secondary);
+  box-sizing: border-box;
+}
+
+.fb-range[hidden] {
+  display: none;
+}
+
+.fb-range:focus-within {
+  border-color: var(--color-primary);
+}
+
+.fb-range input {
+  width: 124px;
+  height: 100%;
+  padding: 0 var(--space-2) 0 var(--space-3);
+  border: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--type-sm);
+}
+
+.fb-range input::placeholder {
+  color: var(--text-muted);
+}
+
+.fb-range input:focus {
+  outline: none;
+}
+
+.fb-range .calendar-icon-trigger {
+  right: 8px;
+}
+
+.fb-range .calendar-icon-trigger svg {
+  width: 14px;
+  height: 14px;
+}
+
+.fb-range-sep {
+  color: var(--text-muted);
+  font-size: var(--type-xs);
+}
+
+/* Clear */
+.fb-clear {
+  height: var(--control-height-md);
+  padding: 0 var(--space-2);
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--type-sm);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.fb-clear:hover {
+  color: var(--text-primary);
+}
+
+.fb-clear[hidden] {
+  display: none;
+}
+
+/* Phones: search takes the row, filters scroll sideways instead of stacking */
+@media (max-width: 640px) {
+  .fb-search {
+    flex: 1 1 100%;
+    width: auto;
+  }
+
+  /* Bigger tap targets */
+  .fb-search input,
+  .fb-dd .crm-dd-trigger,
+  .fb-range,
+  .fb-clear {
+    height: 36px;
+  }
+
+  .fb-filters {
+    flex: 1 1 100%;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .fb-filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .fb-filters > * {
+    flex-shrink: 0;
+  }
+
+  .fb-actions {
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}

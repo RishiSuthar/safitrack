@@ -2,6 +2,7 @@
 // Technician-specific views: UPS maintenance report form + manager report viewer.
 import { state, supabaseClient, crmDebugLog, loadPersistedState as _loadPersistedState, saveViewState } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
+import { fbSearch, fbSelect, fbDate, fbClear, fbDateRange, fbInRange, initFilterBar, PAST_DATE_PRESETS } from '../ui/filter-bar.js';
 import { showToast, escapeHtml, getInitials, handleImageError } from '../ui/toast.js';
 import { renderSkeletonCards, renderError } from '../utils/helpers.js';
 import { getPdfHeader } from './forms.js';
@@ -1756,45 +1757,27 @@ async function renderTechniciansDashboardView() {
   viewContainer.innerHTML = `
     <div class="ups-reports-section" id="ups-reports-section" style="margin-top: 0;">
       <div class="ups-reports-header">
-        <h3 class="ups-reports-title">
-          Submissions
-        </h3>
-        <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1; justify-content:flex-end; align-items:center;">
-          <div class="crm-dd crm-dd--filter" data-dd-id="ups-reports-filter-type" id="ups-reports-filter-type-dd">
-            <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
-              <span class="crm-dd-label">All Forms</span>
-              <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-            </button>
-            <div class="crm-dd-panel" role="listbox">
-              <ul class="crm-dd-list" id="ups-reports-filter-type-list">
-                <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="All Forms" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Forms</li>
-              </ul>
-            </div>
-            <input class="crm-dd-value-input ups-reports-search" type="hidden" id="ups-reports-filter-type" value="">
+        <div class="fb" id="subs-fb">
+          ${fbSearch({ id: 'ups-reports-search', placeholder: 'Search submissions' })}
+          <div class="fb-filters">
+            <span class="fb-slot" id="subs-form-slot">${renderSubmissionFormFilter([])}</span>
+            ${fbSelect({
+              id: 'ups-reports-filter-status',
+              label: 'Status',
+              options: [
+                { value: '', label: 'Any status' },
+                { value: 'Pending', label: 'Pending' },
+                { value: 'Approved', label: 'Approved' },
+                { value: 'Denied', label: 'Denied' },
+              ],
+              value: '',
+            })}
+            ${fbDate({ id: 'ups-reports-filter-date', label: 'Date', presets: PAST_DATE_PRESETS })}
+            ${fbClear('ups-reports-clear')}
           </div>
-          <div class="crm-dd crm-dd--filter" data-dd-id="ups-reports-filter-status">
-            <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
-              <span class="crm-dd-label">All Statuses</span>
-              <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-            </button>
-            <div class="crm-dd-panel" role="listbox">
-              <ul class="crm-dd-list">
-                <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="All Statuses" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Statuses</li>
-                <li class="crm-dd-option" role="option" data-value="Approved" data-label="Approved" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Approved</li>
-                <li class="crm-dd-option" role="option" data-value="Pending" data-label="Pending" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Pending</li>
-                <li class="crm-dd-option" role="option" data-value="Denied" data-label="Denied" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Denied</li>
-              </ul>
-            </div>
-            <input class="crm-dd-value-input ups-reports-search" type="hidden" id="ups-reports-filter-status" value="">
+          <div class="fb-actions">
+            <span class="fb-count" id="ups-reports-count"></span>
           </div>
-          <div style="display:inline-flex; align-items:center; gap:6px;">
-            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:550;">Date:</span>
-            <input type="date" class="ups-reports-search" id="ups-reports-filter-date-from" placeholder="From" style="width:130px; padding:8px;">
-            <span style="font-size:0.75rem; color:var(--text-muted); font-weight:550;">to</span>
-            <input type="date" class="ups-reports-search" id="ups-reports-filter-date-to" placeholder="To" style="width:130px; padding:8px;">
-            <button class="crm-filter-clear" id="ups-reports-date-clear" style="display:none;">✕ Clear dates</button>
-          </div>
-          <input type="text" class="ups-reports-search" id="ups-reports-search" placeholder="Search ID, Site, or Location…" autocomplete="off">
         </div>
       </div>
 
@@ -1856,92 +1839,62 @@ async function renderTechniciansDashboardView() {
 
   renderReportsTable(allReports, allReports);
 
-  // Build form filter options dynamically
-  const _checkSvg = `<svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`;
-  const filterList = document.getElementById('ups-reports-filter-type-list');
-  if (filterList) {
-    const orgForms = resForms.data || [];
-    // Add each custom form as an option
-    orgForms.forEach(form => {
-      const li = document.createElement('li');
-      li.className = 'crm-dd-option';
-      li.setAttribute('role', 'option');
-      li.setAttribute('data-value', form.id);
-      li.setAttribute('data-label', form.name);
-      li.setAttribute('tabindex', '-1');
-      li.innerHTML = `${_checkSvg}${form.name}`;
-      filterList.appendChild(li);
-    });
-    // Re-init the dropdown now that options are populated
-    const ddEl = document.getElementById('ups-reports-filter-type-dd');
-    if (ddEl && window.initCrmDropdown) window.initCrmDropdown(ddEl);
+  // The form filter lists the built-in report types that have reports, then the org's forms
+  const formSlot = document.getElementById('subs-form-slot');
+  if (formSlot) {
+    const formOptions = [
+      ...(upsReports.length ? [{ value: 'UPS', label: 'UPS maintenance' }] : []),
+      ...(solarReports.length ? [{ value: 'SOLAR', label: 'Solar survey' }] : []),
+      ...(resForms.data || []).map(form => ({ value: form.id, label: form.name })),
+    ];
+    formSlot.innerHTML = renderSubmissionFormFilter(formOptions);
+    window.initAllCrmDropdowns?.(formSlot);
   }
 
-  // Search & Filters
+  const bar = document.getElementById('subs-fb');
   const searchInput = document.getElementById('ups-reports-search');
-  const typeFilter = document.getElementById('ups-reports-filter-type');
-  const statusFilter = document.getElementById('ups-reports-filter-status');
-  const dateFromInput = document.getElementById('ups-reports-filter-date-from');
-  const dateToInput = document.getElementById('ups-reports-filter-date-to');
-
-  // Initialize CustomCalendar on date inputs
-  if (window.initCustomCalendar) {
-    window.initCustomCalendar('#ups-reports-filter-date-from', { type: 'date' });
-    window.initCustomCalendar('#ups-reports-filter-date-to', { type: 'date' });
-  }
+  const valueOf = (id) => document.getElementById(id)?.value || '';
 
   const applyFilters = () => {
     const q = searchInput.value.trim().toLowerCase();
-    const t = typeFilter.value;
-    const s = statusFilter.value;
-    const dateFrom = dateFromInput?.value || '';
-    const dateTo = dateToInput?.value || '';
+    const t = valueOf('ups-reports-filter-type');
+    const s = valueOf('ups-reports-filter-status');
+    const range = fbDateRange(valueOf('ups-reports-filter-date'), valueOf('ups-reports-filter-date-from'), valueOf('ups-reports-filter-date-to'));
 
-    const clearBtn = document.getElementById('ups-reports-date-clear');
-    if (clearBtn) clearBtn.style.display = (dateFrom || dateTo) ? 'inline-block' : 'none';
-    
     const filtered = allReports.filter(r => {
-      const matchSearch = !q || 
-        r.id.toLowerCase().includes(q) || 
-        (r.titleName || '').toLowerCase().includes(q) || 
+      const matchSearch = !q ||
+        r.id.toLowerCase().includes(q) ||
+        (r.titleName || '').toLowerCase().includes(q) ||
         (r.techName || '').toLowerCase().includes(q);
       // t is either a form UUID (custom), 'UPS', 'SOLAR', or '' (all)
       const matchType = !t || r.form_id === t || r._type === t;
       const matchStatus = !s || r.manager_approval_status === s || (!r.manager_approval_status && s === 'Pending');
-
-      let matchDate = true;
-      if (dateFrom || dateTo) {
-        const reportDate = new Date(r.created_at);
-        if (dateFrom && reportDate < new Date(dateFrom)) matchDate = false;
-        if (dateTo) {
-          const toEnd = new Date(dateTo);
-          toEnd.setHours(23, 59, 59, 999);
-          if (reportDate > toEnd) matchDate = false;
-        }
-      }
-
-      return matchSearch && matchType && matchStatus && matchDate;
+      return matchSearch && matchType && matchStatus && fbInRange(range, r.created_at);
     });
     _submissionsPage = 1; // reset to first page on any filter change
     renderReportsTable(filtered, allReports);
   };
 
   searchInput.addEventListener('input', applyFilters);
-  typeFilter.addEventListener('change', applyFilters);
-  statusFilter.addEventListener('change', applyFilters);
-  dateFromInput?.addEventListener('change', applyFilters);
-  dateToInput?.addEventListener('change', applyFilters);
+  bar.addEventListener('change', applyFilters);
+  initFilterBar(bar, { onClear: applyFilters });
+}
 
-  document.getElementById('ups-reports-date-clear')?.addEventListener('click', () => {
-    if (dateFromInput) dateFromInput.value = '';
-    if (dateToInput) dateToInput.value = '';
-    applyFilters();
+function renderSubmissionFormFilter(options) {
+  return fbSelect({
+    id: 'ups-reports-filter-type',
+    label: 'Form',
+    options: [{ value: '', label: 'Any form' }, ...options],
+    value: '',
+    searchable: options.length > 8,
   });
 }
 
 function renderReportsTable(reports, allReports) {
   _submissionsFiltered = reports;
   const container = document.getElementById('ups-reports-container');
+  const countEl = document.getElementById('ups-reports-count');
+  if (countEl) countEl.textContent = `${reports.length} submission${reports.length === 1 ? '' : 's'}`;
 
   if (reports.length === 0) {
     container.innerHTML = `<div class="ups-reports-empty">No reports found.</div>`;

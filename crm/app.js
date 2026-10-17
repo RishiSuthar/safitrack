@@ -209,7 +209,6 @@ window.renderLeaderboard = lazyLoad('./modules/features/team-dashboard.js', 'ren
 window.getRelativeTime = lazyLoad('./modules/features/team-dashboard.js', 'getRelativeTime');
 window.initVisitsHub = lazyLoad('./modules/features/team-dashboard.js', 'initVisitsHub');
 window.switchVisitsView = lazyLoad('./modules/features/team-dashboard.js', 'switchVisitsView');
-window.updateFilterCountBadge = lazyLoad('./modules/features/team-dashboard.js', 'updateFilterCountBadge');
 window.updateFilterState = lazyLoad('./modules/features/team-dashboard.js', 'updateFilterState');
 window.applyVisitsFilters = lazyLoad('./modules/features/team-dashboard.js', 'applyVisitsFilters');
 window.clearAllFilters = lazyLoad('./modules/features/team-dashboard.js', 'clearAllFilters');
