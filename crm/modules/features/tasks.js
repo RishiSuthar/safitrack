@@ -25,7 +25,6 @@ const TL_ICONS = {
   chevron: '<path d="m6 9 6 6 6-6"/>',
   task: '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="m8 12 3 3 5-6"/>',
   due: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
-  record: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
   assignee: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.2 18.4a7 7 0 0 1 11.6 0"/>',
   deal: '<circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2.1 0 2.9 6 1.5 6 4.3 0 1.2-1.3 2.1-3 2.1-1.4 0-2.6-.6-3-1.6M12 6.5v1.5M12 16v1.5"/>',
   flag: '<path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.33 2q2 0 3.07-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.53"/>',
@@ -115,7 +114,7 @@ async function renderTasksView() {
         <div class="tl-head" role="row">
           <div class="tl-col tl-col--task" role="columnheader">${tlIcon('task')}Task</div>
           <div class="tl-col tl-col--due" role="columnheader">${tlIcon('due')}Due date</div>
-          <div class="tl-col tl-col--record" role="columnheader">${tlIcon('record')}Record</div>
+          <div class="tl-col tl-col--record" role="columnheader">${tlIcon('deal')}Opportunity</div>
           <div class="tl-col tl-col--assignee" role="columnheader">${tlIcon('assignee')}Assigned to</div>
         </div>
         <div class="tl-body" id="tl-body"></div>
