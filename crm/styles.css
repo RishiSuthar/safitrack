@@ -5600,6 +5600,34 @@ body.modal-active {
   gap: var(--space-5);
 }
 
+/* List pages (Tasks, Calls) run edge to edge: the main area drops its side and
+   top padding and the page lines its toolbar and rows up on --page-gutter. */
+.main-content:has(> .tl-page),
+.main-content:has(> .calls-page) {
+  padding-top: 0;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.tl-page,
+.calls-page {
+  --page-gutter: 2rem;
+}
+
+@media (max-width: 1023px) {
+  .tl-page,
+  .calls-page {
+    --page-gutter: var(--space-5);
+  }
+}
+
+@media (max-width: 768px) {
+  .tl-page,
+  .calls-page {
+    --page-gutter: var(--mobile-padding, 0.875rem);
+  }
+}
+
 .crm-page-head {
   display: flex;
   justify-content: space-between;

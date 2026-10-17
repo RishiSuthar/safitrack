@@ -1,13 +1,13 @@
 /* ═══════════════════════════════════════════════════════════
    Calls: page, call detail modal, log / schedule modal
    Markup: modules/features/call-logs.js and #call-log-modal in index.html
+   The toolbar and lists run edge to edge, lined up on --page-gutter.
    ═══════════════════════════════════════════════════════════ */
 
 .calls-page {
   --calls-control-h: 32px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-5);
 }
 
 .visually-hidden {
@@ -26,6 +26,8 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
+  padding: var(--space-3) var(--page-gutter);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .calls-toolbar-row {
@@ -210,7 +212,6 @@
 .calls-results {
   display: flex;
   flex-direction: column;
-  gap: var(--space-6);
   transition: opacity var(--transition-base);
 }
 
@@ -222,7 +223,6 @@
 .calls-section {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
 }
 
 .calls-section-title {
@@ -230,6 +230,8 @@
   align-items: center;
   gap: var(--space-2);
   margin: 0;
+  padding: var(--space-5) var(--page-gutter) var(--space-2);
+  border-bottom: 1px solid var(--border-color);
   font-size: var(--type-sm);
   font-weight: 600;
   color: var(--text-primary);
@@ -245,10 +247,8 @@
   margin: 0;
   padding: 0;
   list-style: none;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-bottom: 1px solid var(--border-color);
   background: var(--bg-secondary);
-  overflow: hidden;
 }
 
 .calls-group + .calls-group {
@@ -260,7 +260,7 @@
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-3);
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--page-gutter);
   background: var(--bg-tertiary);
   border-bottom: 1px solid var(--border-color);
 }
@@ -292,7 +292,7 @@
   align-items: center;
   column-gap: var(--space-4);
   min-height: 52px;
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--page-gutter);
   cursor: pointer;
   transition: background var(--transition-fast);
 }
@@ -459,6 +459,7 @@
 
 .calls-more {
   align-self: center;
+  margin: var(--space-4) 0;
 }
 
 /* Outcome tag: dot + label, colour carried by the dot */
@@ -501,9 +502,7 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-9) var(--space-5);
-  border: 1px dashed var(--border-color);
-  border-radius: var(--radius-md);
+  padding: var(--space-9) var(--page-gutter);
   text-align: center;
 }
 
@@ -893,7 +892,6 @@ textarea.calls-input {
 @media (max-width: 767px) {
   .calls-page {
     --calls-control-h: 36px;
-    gap: var(--space-4);
   }
 
   .calls-toolbar-row:first-child {
@@ -919,8 +917,8 @@ textarea.calls-input {
   .calls-filters {
     flex-wrap: nowrap;
     overflow-x: auto;
-    margin: 0 calc(-1 * var(--space-3));
-    padding: 0 var(--space-3) 2px;
+    margin: 0 calc(-1 * var(--page-gutter));
+    padding: 0 var(--page-gutter) 2px;
     scrollbar-width: none;
   }
 
@@ -937,7 +935,7 @@ textarea.calls-input {
   }
 
   .calls-group-head {
-    padding: var(--space-2) var(--space-3);
+    padding: var(--space-2) var(--page-gutter);
   }
 
   /* Row collapses to: icon | name over company | time over status */
@@ -952,7 +950,7 @@ textarea.calls-input {
       "dir who status";
     column-gap: var(--space-3);
     row-gap: 4px;
-    padding: var(--space-3);
+    padding: var(--space-3) var(--page-gutter);
   }
 
   .calls-dir { grid-area: dir; align-self: start; }
