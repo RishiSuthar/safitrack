@@ -1,81 +1,69 @@
 // modules/features/tasks.js
-// Task management: kanban + list views, modals.
+// Tasks: one list grouped by when things are due, the task detail panel and the task form.
+// A task is either to do (status 'pending') or done ('completed').
 import { state, supabaseClient, loadPersistedState as _loadPersistedState, saveViewState } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
-import { renderSkeletonCards, renderError, getLeadScoreBadge } from '../utils/helpers.js';
+import { renderError } from '../utils/helpers.js';
 import { fetchAllPages } from '../utils/analytics.js';
-import { isPastDue, daysUntilDue, formatDue, dueDay, dueFieldsFromPicker, duePickerValue } from '../utils/due-dates.js';
+import { isPastDue, daysUntilDue, formatDue, dueStart, dueFieldsFromPicker, duePickerValue } from '../utils/due-dates.js';
+import { memberColor } from '../ui/member-color.js';
 
-function renderKanbanEmptyState(status, isVisible = true) {
-  let iconSvg, text, subtext;
-  if (status === 'pending' || status === 'todo') {
-    iconSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>`;
-    text = 'No tasks to do';
-    subtext = 'Drag tasks here or click + to add';
-  } else if (status === 'in_progress') {
-    iconSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>`;
-    text = 'Nothing in progress';
-    subtext = 'Active work lands here';
-  } else {
-    iconSvg = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>`;
-    text = 'No completed tasks';
-    subtext = 'Finished tasks appear here';
-  }
+const TASK_SELECT = `
+  *,
+  assigned_to_profile:profiles!tasks_assigned_to_fkey(first_name, last_name, email),
+  created_by_profile:profiles!tasks_created_by_fkey(first_name, last_name, email),
+  opportunity:opportunities!tasks_opportunity_id_fkey(id, name, company_name, stage)
+`;
 
-  return `
-    <div class="kanban-empty-state" style="display: ${isVisible ? 'flex' : 'none'};">
-      <div class="kanban-empty-icon">${iconSvg}</div>
-      <div class="kanban-empty-text">${text}</div>
-      <div class="kanban-empty-subtext">${subtext}</div>
-    </div>`;
+// The list on screen: every task loaded, and how it is sorted and filtered
+let taskList = null;
+
+const TL_ICONS = {
+  search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
+  sort: '<path d="M3 6h13M3 12h9M3 18h5"/><path d="m17 15 3 3 3-3M20 18V6"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  chevron: '<path d="m6 9 6 6 6-6"/>',
+  task: '<rect x="3" y="3" width="18" height="18" rx="4"/><path d="m8 12 3 3 5-6"/>',
+  due: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+  assignee: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="10" r="3"/><path d="M6.2 18.4a7 7 0 0 1 11.6 0"/>',
+  deal: '<circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2.1 0 2.9 6 1.5 6 4.3 0 1.2-1.3 2.1-3 2.1-1.4 0-2.6-.6-3-1.6M12 6.5v1.5M12 16v1.5"/>',
+  flag: '<path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.33 2q2 0 3.07-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.53"/>',
+};
+const tlIcon = (key, cls = 'tl-icon') => `<svg class="${cls}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${TL_ICONS[key]}</svg>`;
+
+const TL_SORTS = [
+  { value: 'due', label: 'Due date' },
+  { value: 'created', label: 'Recently added' },
+];
+
+// Group headers start open except the ones the user folded (kept per browser)
+const COLLAPSED_KEY = 'safitrack_tasks_collapsed';
+function loadCollapsed() {
+  try { return new Set(JSON.parse(localStorage.getItem(COLLAPSED_KEY) || '[]')); } catch { return new Set(); }
+}
+function saveCollapsed(set) {
+  try { localStorage.setItem(COLLAPSED_KEY, JSON.stringify([...set])); } catch { /* storage unavailable */ }
+}
+
+async function fetchTasks() {
+  let q = supabaseClient.from('tasks').select(TASK_SELECT).order('created_at', { ascending: false });
+  // Reps see tasks assigned to them or created by them (RLS agrees)
+  if (!state.isManager) q = q.or(`assigned_to.eq.${state.currentUser.id},created_by.eq.${state.currentUser.id}`);
+  if (state.currentOrganization?.id) q = q.eq('organization_id', state.currentOrganization.id);
+  return fetchAllPages(q);
 }
 
 async function renderTasksView() {
-  // Fetch tasks based on user role
-  let tasks;
-  let error;
-
-  if (state.isManager) {
-    let tasksQ = supabaseClient
-      .from('tasks')
-      .select(`
-        *,
-        assigned_to_profile:profiles!tasks_assigned_to_fkey(first_name, last_name, email),
-        created_by_profile:profiles!tasks_created_by_fkey(first_name, last_name, email),
-        opportunity:opportunities!tasks_opportunity_id_fkey(id, name, company_name, stage)
-      `)
-      .order('created_at', { ascending: false });
-    if (state.currentOrganization?.id) tasksQ = tasksQ.eq('organization_id', state.currentOrganization.id);
-    const result = await fetchAllPages(tasksQ);
-    tasks = result.data;
-    error = result.error;
-  } else {
-    let tasksQ = supabaseClient
-      .from('tasks')
-      .select(`
-        *,
-        assigned_to_profile:profiles!tasks_assigned_to_fkey(first_name, last_name, email),
-        created_by_profile:profiles!tasks_created_by_fkey(first_name, last_name, email),
-        opportunity:opportunities!tasks_opportunity_id_fkey(id, name, company_name, stage)
-      `)
-      .or(`assigned_to.eq.${state.currentUser.id},created_by.eq.${state.currentUser.id}`)
-      .order('created_at', { ascending: false });
-    if (state.currentOrganization?.id) tasksQ = tasksQ.eq('organization_id', state.currentOrganization.id);
-    const result = await fetchAllPages(tasksQ);
-    tasks = result.data;
-    error = result.error;
-  }
-
+  const { data: tasks, error } = await fetchTasks();
   if (error) {
     viewContainer.innerHTML = renderError(error.message);
     return;
   }
 
-  // Store tasks globally for edit/delete access
-  window.allTasksData = tasks;
+  // Shared with the detail panel, notifications and the task form
+  window.allTasksData = tasks || [];
 
-  // Fetch sales reps for assignment dropdown (managers only)
   let salesReps = [];
   if (state.isManager) {
     let repsQ = supabaseClient.from('profiles').select('id, first_name, last_name, email').order('first_name', { ascending: true });
@@ -83,474 +71,311 @@ async function renderTasksView() {
     const { data: reps } = await repsQ;
     salesReps = reps || [];
   }
-  // Store globally for editTask access
   window.salesRepsData = salesReps;
 
-  // Group tasks by status
-  const todoTasks = tasks.filter(t => t.status === 'pending');
-  const inProgressTasks = tasks.filter(t => t.status === 'in_progress');
-  const doneTasks = tasks.filter(t => t.status === 'completed');
+  const saved = _loadPersistedState().tasks || {};
+  taskList = {
+    tasks: window.allTasksData,
+    sort: TL_SORTS.some(s => s.value === saved.sort) ? saved.sort : 'due',
+    assignee: state.isManager ? (saved.assignee || 'all') : 'all',
+    priority: saved.priority || 'all',
+    query: saved.search || '',
+    collapsed: loadCollapsed(),
+  };
 
-  let html = `
-    <div class="crm-page-shell tasks-page-shell">
-      <div class="tasks-toolbar-wrapper">
-        <div class="tasks-toolbar-left">
-          <div class="tasks-search-bar">
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            <input type="text" id="task-search-input" placeholder="Search tasks...">
-          </div>
+  const assigneeOptions = [
+    { value: 'all', label: 'Anyone' },
+    { value: state.currentUser.id, label: 'Me' },
+    { value: 'none', label: 'Unassigned' },
+    ...salesReps
+      .filter(r => r.id !== state.currentUser.id)
+      .map(r => ({ value: r.id, label: [r.first_name, r.last_name].filter(Boolean).join(' ') || r.email || 'Teammate' })),
+  ];
+  if (!assigneeOptions.some(o => o.value === taskList.assignee)) taskList.assignee = 'all';
 
-          <div class="tasks-priority-segmented">
-            <button class="tasks-segmented-btn active" data-task-filter-priority="all">All</button>
-            <button class="tasks-segmented-btn" data-task-filter-priority="high">
-              <span class="task-status-dot dot-high"></span> High
-            </button>
-            <button class="tasks-segmented-btn" data-task-filter-priority="medium">
-              <span class="task-status-dot dot-medium"></span> Medium
-            </button>
-            <button class="tasks-segmented-btn" data-task-filter-priority="low">
-              <span class="task-status-dot dot-low"></span> Low
-            </button>
-          </div>
+  viewContainer.innerHTML = `
+    <div class="crm-page-shell tl-page">
+      <div class="tl-toolbar">
+        <div class="tl-toolbar-left">
+          ${window.buildCrmDropdown({ id: 'tl-sort', options: TL_SORTS.map(s => ({ value: s.value, label: `Sorted by ${s.label}` })), value: taskList.sort, variant: 'filter', className: 'tl-dd' })}
+          ${state.isManager ? window.buildCrmDropdown({ id: 'tl-assignee', options: assigneeOptions.map(o => ({ value: o.value, label: o.value === 'all' ? 'Assigned to anyone' : `Assigned to ${o.label}` })), value: taskList.assignee, variant: 'filter', className: 'tl-dd', searchable: assigneeOptions.length > 8, searchPlaceholder: 'Search team…' }) : ''}
+          ${window.buildCrmDropdown({ id: 'tl-priority', options: [{ value: 'all', label: 'Any priority' }, { value: 'high', label: 'High priority' }, { value: 'medium', label: 'Medium priority' }, { value: 'low', label: 'Low priority' }], value: taskList.priority, variant: 'filter', className: 'tl-dd' })}
+          <button type="button" class="tl-clear" id="tl-clear" hidden>Clear</button>
         </div>
-
-        <div class="tasks-toolbar-right">
-          <div class="tasks-date-range">
-            <span class="tasks-date-range-label">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-              Due:
-            </span>
-            <input type="date" class="crm-date-input" id="task-filter-date-from" placeholder="From">
-            <span class="tasks-date-range-sep">to</span>
-            <input type="date" class="crm-date-input" id="task-filter-date-to" placeholder="To">
-            <button class="crm-filter-clear" id="task-date-clear" style="display:none;">✕ Clear</button>
-          </div>
-
-          ${state.isManager ? `
-            <div class="crm-dd crm-dd--filter crm-dd--right tasks-assignee-dd" data-dd-id="task-filter-assignee">
-              <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                <span class="crm-dd-label">All Assignees</span>
-                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-              </button>
-              <div class="crm-dd-panel" role="listbox">
-                <ul class="crm-dd-list">
-                  <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="all" data-label="All Assignees" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Assignees</li>
-                  <li class="crm-dd-option" role="option" data-value="${state.currentUser.id}" data-label="Me" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Me</li>
-                  ${salesReps.map(rep => `<li class="crm-dd-option" role="option" data-value="${rep.id}" data-label="${escapeHtml(rep.first_name + ' ' + rep.last_name)}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${escapeHtml(rep.first_name + ' ' + rep.last_name)}</li>`).join('')}
-                </ul>
-              </div>
-              <input class="crm-dd-value-input" type="hidden" id="task-filter-assignee" value="all">
-            </div>
-          ` : ''}
-
-          <button class="crm-filter-clear" id="task-filter-clear" style="display:none;">✕ Clear</button>
-
-          <button class="btn btn-primary pipeline-add-btn tasks-add-btn" id="add-task-btn">
-            <i data-lucide="plus" class="u-icon-16"></i> New Task
-          </button>
+        <div class="tl-toolbar-right">
+          <label class="tl-search">
+            ${tlIcon('search')}
+            <input type="search" id="tl-search" placeholder="Search tasks" value="${escapeHtml(taskList.query)}" autocomplete="off" aria-label="Search tasks">
+          </label>
+          <button type="button" class="btn btn-primary" id="add-task-btn">${tlIcon('plus')}<span>New Task</span></button>
         </div>
       </div>
 
-      <div class="tasks-kanban-container">
-        <!-- To Do Column -->
-        <div class="kanban-column" data-status="pending">
-          <div class="kanban-column-header">
-            <div class="kanban-column-title">
-              <span class="kanban-stage-dot stage-pending"></span>
-              <span>To Do</span>
-              <span class="kanban-column-count">${todoTasks.length}</span>
-            </div>
-            <button class="kanban-add-btn" data-status="pending" title="Add task to To Do">
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-            </button>
-          </div>
-          <div class="kanban-cards-container" id="kanban-todo">
-            ${todoTasks.map(task => renderKanbanTaskCard(task, state.isManager)).join('')}
-            ${renderKanbanEmptyState('pending', todoTasks.length === 0)}
-          </div>
+      <div class="tl-table" role="table" aria-label="Tasks">
+        <div class="tl-head" role="row">
+          <div class="tl-col tl-col--task" role="columnheader">${tlIcon('task')}Task</div>
+          <div class="tl-col tl-col--due" role="columnheader">${tlIcon('due')}Due date</div>
+          <div class="tl-col tl-col--record" role="columnheader">${tlIcon('deal')}Opportunity</div>
+          <div class="tl-col tl-col--assignee" role="columnheader">${tlIcon('assignee')}Assigned to</div>
         </div>
-
-        <!-- In Progress Column -->
-        <div class="kanban-column" data-status="in_progress">
-          <div class="kanban-column-header">
-            <div class="kanban-column-title">
-              <span class="kanban-stage-dot stage-in_progress"></span>
-              <span>In Progress</span>
-              <span class="kanban-column-count">${inProgressTasks.length}</span>
-            </div>
-            <button class="kanban-add-btn" data-status="in_progress" title="Add task to In Progress">
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-            </button>
-          </div>
-          <div class="kanban-cards-container" id="kanban-in-progress">
-            ${inProgressTasks.map(task => renderKanbanTaskCard(task, state.isManager)).join('')}
-            ${renderKanbanEmptyState('in_progress', inProgressTasks.length === 0)}
-          </div>
-        </div>
-
-        <!-- Done Column -->
-        <div class="kanban-column" data-status="completed">
-          <div class="kanban-column-header">
-            <div class="kanban-column-title">
-              <span class="kanban-stage-dot stage-completed"></span>
-              <span>Done</span>
-              <span class="kanban-column-count">${doneTasks.length}</span>
-            </div>
-            <button class="kanban-add-btn" data-status="completed" title="Add task to Done">
-              <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
-            </button>
-          </div>
-          <div class="kanban-cards-container" id="kanban-completed">
-            ${doneTasks.map(task => renderKanbanTaskCard(task, state.isManager)).join('')}
-            ${renderKanbanEmptyState('completed', doneTasks.length === 0)}
-          </div>
-        </div>
+        <div class="tl-body" id="tl-body"></div>
       </div>
     </div>
   `;
 
-  viewContainer.innerHTML = html;
-
-  if (window.lucide) {
-    lucide.createIcons();
-  }
-
-  // Initialize functionality
-  initKanbanBoard(tasks, salesReps);
-  updateColumnCounts();
-
-  // Common listeners setup (Search, Add Task)
-  // ... (Listeners are set up below in existing code)
+  window.initAllCrmDropdowns?.(viewContainer);
+  bindTaskList();
+  renderTaskList();
 }
 
-function renderKanbanTaskCard(task, isManager) {
-  // A date with no time is due all day, so it isn't overdue until the day ends
-  const isOverdue = task.due_date && isPastDue(task.due_date, task.due_all_day) && task.status !== 'completed';
+/** Tasks that pass the toolbar filters */
+function visibleTasks() {
+  const { tasks, assignee, priority, query } = taskList;
+  const q = query.trim().toLowerCase();
+  return tasks.filter(t => {
+    if (assignee === 'none' ? t.assigned_to : (assignee !== 'all' && t.assigned_to !== assignee)) return false;
+    if (priority !== 'all' && (t.priority || 'medium') !== priority) return false;
+    if (q) {
+      const haystack = [t.title, t.description, t.opportunity?.name, t.opportunity?.company_name, tdFullName(t.assigned_to_profile)]
+        .filter(Boolean).join(' ').toLowerCase();
+      if (!haystack.includes(q)) return false;
+    }
+    return true;
+  });
+}
 
-  // Robust Assignee Logic
-  let assigneeHtml = '<span class="task-card-unassigned">Unassigned</span>';
-  let assigneeName = 'Unassigned';
+const dueTime = (t) => dueStart(t.due_date, t.due_all_day)?.getTime() ?? Infinity;
+const createdTime = (t) => new Date(t.created_at).getTime() || 0;
+const doneTime = (t) => new Date(t.updated_at || t.created_at).getTime() || 0;
 
-  if (task.assigned_to_profile) {
-    assigneeName = `${task.assigned_to_profile.first_name} ${task.assigned_to_profile.last_name}`;
-    const initials = (task.assigned_to_profile.first_name?.[0] || '') + (task.assigned_to_profile.last_name?.[0] || '');
-    assigneeHtml = `
-      <div class="task-card-assignee" title="${escapeHtml(assigneeName)}">
-        ${escapeHtml(initials)}
-      </div>
-      <span class="task-card-assignee-name">${escapeHtml(task.assigned_to_profile.first_name)}</span>
-    `;
-  } else if (task.assigned_to === state.currentUser.id) {
-    assigneeName = 'Me';
-    assigneeHtml = `
-      <div class="task-card-assignee is-me" title="Assigned to Me">
-        Me
-      </div>
-      <span class="task-card-assignee-name">Me</span>
-    `;
+/** The groups to show, each { key, label, tasks } */
+function groupTasks(tasks) {
+  const open = tasks.filter(t => t.status !== 'completed');
+  const done = tasks.filter(t => t.status === 'completed').sort((a, b) => doneTime(b) - doneTime(a));
+
+  let groups;
+  if (taskList.sort === 'created') {
+    groups = [{ key: 'todo', label: 'To do', tasks: open.sort((a, b) => createdTime(b) - createdTime(a)) }];
+  } else {
+    // Overdue work counts as today's, like Attio: it still needs doing now
+    const today = [];
+    const upcoming = [];
+    const undated = [];
+    open.forEach(t => {
+      const days = t.due_date ? daysUntilDue(t.due_date, t.due_all_day) : null;
+      if (days === null) undated.push(t);
+      else if (days <= 0) today.push(t);
+      else upcoming.push(t);
+    });
+    const byDue = (a, b) => dueTime(a) - dueTime(b) || createdTime(b) - createdTime(a);
+    groups = [
+      { key: 'today', label: 'Today', tasks: today.sort(byDue) },
+      { key: 'upcoming', label: 'Upcoming', tasks: upcoming.sort(byDue) },
+      { key: 'undated', label: 'No due date', tasks: undated.sort((a, b) => createdTime(b) - createdTime(a)) },
+    ];
   }
+  groups.push({ key: 'done', label: 'Completed', tasks: done });
+  return groups.filter(g => g.tasks.length);
+}
 
-  const priorityClass = task.priority || 'medium';
-  const priorityLabel = priorityClass.charAt(0).toUpperCase() + priorityClass.slice(1);
+/** "Due 2 days ago", "Due today", "Due tomorrow, 3:00 PM", "Due Fri 24 Oct" */
+function dueLabel(task) {
+  if (!task.due_date) return '';
+  const days = daysUntilDue(task.due_date, task.due_all_day);
+  if (days === null) return '';
+  const isDone = task.status === 'completed';
+  if (days < 0 && !isDone) return days === -1 ? 'Due yesterday' : `Due ${-days} days ago`;
+  const label = formatDue(task.due_date, task.due_all_day);
+  return `Due ${days >= -1 && days <= 1 ? label.charAt(0).toLowerCase() + label.slice(1) : label}`;
+}
+
+function renderTaskRow(task) {
+  const isDone = task.status === 'completed';
+  const overdue = !isDone && task.due_date && isPastDue(task.due_date, task.due_all_day);
+  const dueToday = !isDone && !overdue && task.due_date && daysUntilDue(task.due_date, task.due_all_day) === 0;
+  const canComplete = canCompleteTask(task);
+  const title = escapeHtml(task.title || 'Untitled task');
+
+  const deal = task.opportunity;
+  const record = deal
+    ? `<button type="button" class="tl-chip tl-chip--record" data-action="open-deal" title="Open ${escapeHtml(deal.name || 'deal')}">${tlIcon('deal', 'tl-chip-icon')}<span>${escapeHtml(deal.name || 'Untitled deal')}</span></button>`
+    : '';
+
+  let assignee = '';
+  if (task.assigned_to) {
+    const name = task.assigned_to === state.currentUser.id
+      ? 'You'
+      : (tdFullName(task.assigned_to_profile) || task.assigned_to_profile?.email || 'Teammate');
+    const avatarName = task.assigned_to === state.currentUser.id ? (tdFullName(state.currentUserProfile) || 'You') : name;
+    assignee = `<span class="tl-chip tl-chip--person" title="${escapeHtml(name)}"><span class="tl-avatar" style="background:${memberColor(task.assigned_to)}">${escapeHtml(getInitials(avatarName).charAt(0))}</span><span>${escapeHtml(name)}</span></span>`;
+  }
 
   return `
-    <div class="kanban-task-card priority-${priorityClass}" data-task-id="${task.id}" data-status="${task.status}">
-      <div class="task-card-header">
-        <div class="task-card-tags">
-          <span class="task-tag priority-${priorityClass}">
-            <span class="task-status-dot dot-${priorityClass}"></span>
-            ${priorityLabel}
-          </span>
-        </div>
+    <div class="tl-row${isDone ? ' is-done' : ''}" role="row" data-task-id="${task.id}" tabindex="0">
+      <div class="tl-cell tl-col--task" role="cell">
+        ${canComplete
+          ? `<button type="button" class="tl-check${isDone ? ' is-checked' : ''}" data-action="toggle" aria-pressed="${isDone}" aria-label="${isDone ? 'Mark as to do' : 'Mark as done'}" title="${isDone ? 'Mark as to do' : 'Mark as done'}"></button>`
+          : `<span class="tl-check${isDone ? ' is-checked' : ''} is-static" aria-hidden="true"></span>`}
+        <span class="tl-title">${title}</span>
+        ${task.priority === 'high' && !isDone ? `<span class="tl-flag" title="High priority">${tlIcon('flag')}</span>` : ''}
       </div>
-      <div class="task-card-title">${escapeHtml(task.title)}</div>
-      ${task.opportunity ? `
-        <div class="task-card-deal" title="From the deal ${escapeHtml(task.opportunity.name || '')}">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 9.5c-.5-1-1.6-1.5-3-1.5-1.7 0-3 .9-3 2.1 0 2.9 6 1.5 6 4.3 0 1.2-1.3 2.1-3 2.1-1.4 0-2.6-.6-3-1.6M12 6.5v1.5M12 16v1.5"/></svg>
-          <span>${escapeHtml(task.opportunity.name || 'Deal')}</span>
-        </div>
-      ` : ''}
-      ${task.description && !DEAL_DESCRIPTION.test(task.description) ? `
-        <div class="task-card-description">${escapeHtml(task.description)}</div>
-      ` : ''}
-      <div class="task-card-footer">
-        <div class="task-card-due-date ${isOverdue ? 'overdue' : (!task.due_date ? 'no-date' : '')}">
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-          <span>${task.due_date ? escapeHtml(formatDue(task.due_date, task.due_all_day)) : 'No due date'}</span>
-          ${isOverdue ? '<span class="task-overdue-badge">Overdue</span>' : ''}
-        </div>
-        <div class="task-card-meta">
-          <div class="task-card-assignee-wrapper" title="${escapeHtml(assigneeName)}">
-            ${assigneeHtml}
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
+      <div class="tl-cell tl-col--due${overdue ? ' is-overdue' : ''}${dueToday ? ' is-today' : ''}" role="cell">${escapeHtml(dueLabel(task))}</div>
+      <div class="tl-cell tl-col--record" role="cell">${record}</div>
+      <div class="tl-cell tl-col--assignee" role="cell">${assignee}</div>
+    </div>`;
 }
 
-function initKanbanBoard(tasks, salesReps) {
-  // Initialize drag-and-drop for each column
-  const columns = ['todo', 'in-progress', 'completed'];
-  const statusMap = {
-    'todo': 'pending',
-    'in-progress': 'in_progress',
-    'completed': 'completed'
+/** Redraw the rows from taskList (the toolbar stays) */
+function renderTaskList() {
+  const body = document.getElementById('tl-body');
+  if (!body || !taskList) return;
+
+  const shown = visibleTasks();
+  const filtered = taskList.assignee !== 'all' || taskList.priority !== 'all' || taskList.query.trim() !== '';
+  const clearBtn = document.getElementById('tl-clear');
+  if (clearBtn) clearBtn.hidden = !filtered;
+
+  if (!shown.length) {
+    body.innerHTML = `
+      <div class="tl-empty">
+        <div class="tl-empty-title">${filtered ? 'No tasks match' : 'No tasks yet'}</div>
+        <div class="tl-empty-text">${filtered ? 'Try a different search or filter.' : 'Add follow-ups for yourself or your team, or add them from a deal.'}</div>
+        ${filtered
+          ? '<button type="button" class="btn btn-secondary" data-action="clear-filters">Clear filters</button>'
+          : `<button type="button" class="btn btn-primary" data-action="new-task">${tlIcon('plus')}New Task</button>`}
+      </div>`;
+    return;
+  }
+
+  body.innerHTML = groupTasks(shown).map(group => {
+    const collapsed = taskList.collapsed.has(group.key);
+    return `
+      <section class="tl-group${collapsed ? ' is-collapsed' : ''}" data-group="${group.key}">
+        <button type="button" class="tl-group-head" data-action="toggle-group" aria-expanded="${!collapsed}">
+          ${tlIcon('chevron', 'tl-group-chevron')}
+          <span class="tl-group-label">${group.label}</span>
+          <span class="tl-group-count">${group.tasks.length}</span>
+        </button>
+        ${collapsed ? '' : group.tasks.map(renderTaskRow).join('')}
+      </section>`;
+  }).join('');
+}
+
+function persistTaskList() {
+  saveViewState({ tasks: { sort: taskList.sort, assignee: taskList.assignee, priority: taskList.priority, search: taskList.query } });
+}
+
+function bindTaskList() {
+  const root = viewContainer.querySelector('.tl-page');
+  if (!root) return;
+
+  document.getElementById('add-task-btn')?.addEventListener('click', () => openTaskModal(null));
+
+  const onFilter = (key) => (e) => {
+    taskList[key] = e.target.value;
+    persistTaskList();
+    renderTaskList();
   };
+  document.getElementById('tl-sort')?.addEventListener('change', onFilter('sort'));
+  document.getElementById('tl-assignee')?.addEventListener('change', onFilter('assignee'));
+  document.getElementById('tl-priority')?.addEventListener('change', onFilter('priority'));
 
-  columns.forEach(columnId => {
-    const container = document.getElementById(`kanban-${columnId}`);
-    if (!container) return;
-
-    new Sortable(container, {
-      group: 'kanban',
-      draggable: '.kanban-task-card',
-      filter: '.kanban-empty-state',
-      preventOnFilter: false,
-      animation: 120,
-      easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)',
-      delayOnTouchOnly: true,
-      touchStartThreshold: 4,
-      ghostClass: 'sortable-ghost',
-      chosenClass: 'sortable-chosen',
-      dragClass: 'sortable-drag',
-      onStart: function () {
-        document.body.classList.add('is-dragging');
-      },
-      onAdd: function () {
-        updateColumnCounts();
-      },
-      onRemove: function () {
-        updateColumnCounts();
-      },
-      onEnd: async function (evt) {
-        document.body.classList.remove('is-dragging');
-        const taskId = evt.item.dataset.taskId;
-        const newStatus = statusMap[evt.to.id.replace('kanban-', '')];
-        const oldStatus = evt.item.dataset.status;
-
-        if (newStatus && newStatus !== oldStatus) {
-          // Update task status in database
-          const { error } = await supabaseClient
-            .from('tasks')
-            .update({ status: newStatus })
-            .eq('id', taskId);
-
-          if (error) {
-            showToast('Error updating task status', 'error');
-            // Revert will be tricky without reload, so we reload
-            renderTasksView();
-          } else {
-            // Update local data immediate to prevent stale state issues
-            if (window.allTasksData) {
-              const taskIndex = window.allTasksData.findIndex(t => t.id === taskId);
-              if (taskIndex !== -1) {
-                window.allTasksData[taskIndex].status = newStatus;
-              }
-            }
-
-            // Update DOM attributes
-            evt.item.dataset.status = newStatus;
-            showInlineSuccess(evt.item);
-            const movedTask = window.allTasksData?.find(t => t.id === taskId);
-            if (movedTask?.opportunity_id) window.refreshDealNextStep?.(movedTask.opportunity_id);
-            document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: newStatus === 'completed' ? 'complete' : 'update', id: taskId } }));
-
-            // If the card has a status badge/text that needs updating, we can do it here
-            // But currently the column implies status. 
-            // We might want to update the "detail view" if it's open, but it shouldn't be open during drag.
-          }
-        }
-      }
-    });
+  let searchTimer;
+  document.getElementById('tl-search')?.addEventListener('input', (e) => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(() => {
+      taskList.query = e.target.value;
+      persistTaskList();
+      renderTaskList();
+    }, 120);
   });
 
-  // Column add buttons
-  document.querySelectorAll('.kanban-add-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const status = btn.dataset.status;
-      openTaskModal(null, salesReps, status);
+  const clearFilters = () => {
+    taskList.assignee = 'all';
+    taskList.priority = 'all';
+    taskList.query = '';
+    const search = document.getElementById('tl-search');
+    if (search) search.value = '';
+    ['tl-assignee', 'tl-priority'].forEach(id => {
+      const input = document.getElementById(id);
+      if (input) window.setCrmDropdownValue ? window.setCrmDropdownValue(input, 'all') : (input.value = 'all');
     });
-  });
+    persistTaskList();
+    renderTaskList();
+  };
+  document.getElementById('tl-clear')?.addEventListener('click', clearFilters);
 
-  // Task card click to view details
-  document.querySelectorAll('.kanban-task-card').forEach(card => {
-    card.addEventListener('click', (e) => {
-      // Don't trigger if clicking menu button, though we hid it for now as per design tweak
-      if (e.target.closest('.task-card-menu')) return;
-      const taskId = card.dataset.taskId;
-      const task = tasks.find(t => t.id === taskId);
-      if (task) {
-        showTaskDetail(task, salesReps);
-      }
-    });
-  });
-
-  // Header Search functionality
-  const searchInput = document.getElementById('task-search-input');
-  if (searchInput) {
-    // Restore saved search
-    const persistedSearch = _loadPersistedState().tasks?.search || '';
-    if (persistedSearch) {
-      searchInput.value = persistedSearch;
-      // Trigger initial filter
-      setTimeout(() => searchInput.dispatchEvent(new Event('input')), 50);
+  const body = document.getElementById('tl-body');
+  body?.addEventListener('click', (e) => {
+    const actionEl = e.target.closest('[data-action]');
+    const action = actionEl?.dataset.action;
+    if (action === 'clear-filters') return clearFilters();
+    if (action === 'new-task') return openTaskModal(null);
+    if (action === 'toggle-group') {
+      const key = actionEl.closest('.tl-group')?.dataset.group;
+      if (!key) return;
+      taskList.collapsed.has(key) ? taskList.collapsed.delete(key) : taskList.collapsed.add(key);
+      saveCollapsed(taskList.collapsed);
+      renderTaskList();
+      return;
     }
 
-    searchInput.addEventListener('input', (e) => {
-      const query = e.target.value.toLowerCase();
-      saveViewState({ tasks: { search: query } });
-      applyTaskFilters();
-    });
-  }
-
-  // Header Add Task button
-  const addTaskBtn = document.getElementById('add-task-btn');
-  if (addTaskBtn) {
-    addTaskBtn.addEventListener('click', () => {
-      openTaskModal(null, salesReps);
-    });
-  }
-
-
-
-  // Initialize CustomCalendar on date inputs
-  if (window.initCustomCalendar) {
-    window.initCustomCalendar('#task-filter-date-from', { type: 'date' });
-    window.initCustomCalendar('#task-filter-date-to', { type: 'date' });
-  }
-
-  // Task filter logic
-  const applyTaskFilters = () => {
-    const priorityBtn = document.querySelector('[data-task-filter-priority].active');
-    const activePriority = priorityBtn?.dataset.taskFilterPriority || 'all';
-    const dateFrom = document.getElementById('task-filter-date-from')?.value || '';
-    const dateTo = document.getElementById('task-filter-date-to')?.value || '';
-    const assignee = document.getElementById('task-filter-assignee')?.value || 'all';
-    const query = (document.getElementById('task-search-input')?.value || '').toLowerCase();
-    const clearBtn = document.getElementById('task-filter-clear');
-
-    const hasFilters = activePriority !== 'all' || dateFrom || dateTo || assignee !== 'all';
-    if (clearBtn) clearBtn.style.display = hasFilters ? 'inline-flex' : 'none';
-
-    const dateClearBtn = document.getElementById('task-date-clear');
-    if (dateClearBtn) dateClearBtn.style.display = (dateFrom || dateTo) ? 'inline-flex' : 'none';
-
-    document.querySelectorAll('.kanban-task-card').forEach(card => {
-      const taskId = card.dataset.taskId;
-      const task = tasks.find(t => t.id === taskId);
-      if (!task) { card.style.display = 'none'; return; }
-
-      let show = true;
-
-      // Priority filter
-      if (activePriority !== 'all' && task.priority !== activePriority) show = false;
-
-      // Date range filter, by due day ("2026-10-20" strings compare in date order)
-      if (show && (dateFrom || dateTo) && task.due_date) {
-        const day = dueDay(task.due_date, task.due_all_day);
-        if (dateFrom && day < dateFrom) show = false;
-        if (dateTo && day > dateTo) show = false;
-      } else if (show && (dateFrom || dateTo) && !task.due_date) {
-        show = false; // no due date, but date filter is active
-      }
-
-      // Assignee filter
-      if (show && assignee !== 'all' && task.assigned_to !== assignee) show = false;
-
-      // Search filter
-      if (show && query) {
-        const title = (task.title || '').toLowerCase();
-        const description = (task.description || '').toLowerCase();
-        show = title.includes(query) || description.includes(query);
-      }
-
-      card.style.display = show ? '' : 'none';
-    });
-
-    updateColumnCounts();
-  };
-
-  // Priority pill clicks
-  document.querySelectorAll('[data-task-filter-priority]').forEach(pill => {
-    pill.addEventListener('click', () => {
-      document.querySelectorAll('[data-task-filter-priority]').forEach(p => p.classList.remove('active'));
-      pill.classList.add('active');
-      applyTaskFilters();
-    });
-  });
-
-  // Date filter changes
-  document.getElementById('task-filter-date-from')?.addEventListener('change', applyTaskFilters);
-  document.getElementById('task-filter-date-to')?.addEventListener('change', applyTaskFilters);
-  document.getElementById('task-filter-assignee')?.addEventListener('change', applyTaskFilters);
-
-  // Clear filters
-  document.getElementById('task-filter-clear')?.addEventListener('click', () => {
-    document.querySelectorAll('[data-task-filter-priority]').forEach(p => p.classList.remove('active'));
-    document.querySelector('[data-task-filter-priority="all"]')?.classList.add('active');
-    const dfrom = document.getElementById('task-filter-date-from');
-    const dto = document.getElementById('task-filter-date-to');
-    if (dfrom) dfrom.value = '';
-    if (dto) dto.value = '';
-    const assigneeEl = document.getElementById('task-filter-assignee');
-    if (assigneeEl) {
-      if (window.setCrmDropdownValue) {
-        window.setCrmDropdownValue(assigneeEl, 'all');
-      } else {
-        assigneeEl.value = 'all';
-      }
+    const row = e.target.closest('.tl-row');
+    const task = row && taskList.tasks.find(t => String(t.id) === row.dataset.taskId);
+    if (!task) return;
+    if (action === 'toggle') {
+      e.stopPropagation();
+      toggleTaskDone(task);
+    } else if (action === 'open-deal') {
+      e.stopPropagation();
+      window.openOpportunityById?.(task.opportunity_id);
+    } else {
+      showTaskDetail(task);
     }
-    applyTaskFilters();
   });
-
-  document.getElementById('task-date-clear')?.addEventListener('click', () => {
-    const dfrom = document.getElementById('task-filter-date-from');
-    const dto = document.getElementById('task-filter-date-to');
-    if (dfrom) dfrom.value = '';
-    if (dto) dto.value = '';
-    applyTaskFilters();
+  body?.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' || !e.target.classList?.contains('tl-row')) return;
+    const task = taskList.tasks.find(t => String(t.id) === e.target.dataset.taskId);
+    if (task) showTaskDetail(task);
   });
 }
 
-function updateColumnCounts() {
-  const colConfigs = [
-    { id: 'kanban-todo', status: 'pending' },
-    { id: 'kanban-in-progress', status: 'in_progress' },
-    { id: 'kanban-completed', status: 'completed' }
-  ];
+/** Tick or untick a task from the list. The row moves at once; a failed save puts it back. */
+async function toggleTaskDone(task) {
+  if (!canCompleteTask(task)) return;
+  const previous = { status: task.status, updated_at: task.updated_at };
+  const updates = { status: task.status === 'completed' ? 'pending' : 'completed', updated_at: new Date().toISOString() };
+  Object.assign(task, updates);
+  renderTaskList();
 
-  let totalVisible = 0;
-  const counts = {};
+  const { data, error } = await supabaseClient.from('tasks').update(updates).eq('id', task.id).select('id');
+  if (error || !data?.length) {
+    Object.assign(task, previous);
+    renderTaskList();
+    showToast(error ? `Couldn't update the task: ${error.message}` : "You can't change this task.", 'error');
+    return;
+  }
+  afterTaskChange(task, updates);
+}
 
-  colConfigs.forEach(({ id, status }) => {
-    const container = document.getElementById(id);
-    if (!container) return;
+/** Tell the rest of the app a task changed */
+function afterTaskChange(task, patch) {
+  document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: patch.status === 'completed' ? 'complete' : 'update', id: task.id } }));
+  document.dispatchEvent(new CustomEvent('safitrack:notification-refresh'));
+  // A deal's next step is its earliest open task
+  if (task.opportunity_id && ('status' in patch || 'title' in patch || 'due_date' in patch)) {
+    window.refreshDealNextStep?.(task.opportunity_id);
+  }
+}
 
-    const visibleCards = container.querySelectorAll('.kanban-task-card:not([style*="display: none"])');
-    counts[status] = visibleCards.length;
-    totalVisible += visibleCards.length;
-
-    const countBadge = document.querySelector(`[data-status="${status}"] .kanban-column-count`);
-    if (countBadge) countBadge.textContent = visibleCards.length;
-
-    const emptyState = container.querySelector('.kanban-empty-state');
-    if (emptyState) {
-      emptyState.style.display = visibleCards.length === 0 ? 'flex' : 'none';
-    }
-  });
-
-  // Header stats summary
-  const statTotal = document.getElementById('task-stat-total');
-  const statPending = document.getElementById('task-stat-pending');
-  const statProgress = document.getElementById('task-stat-progress');
-  const statDone = document.getElementById('task-stat-done');
-
-  if (statTotal) statTotal.textContent = `${totalVisible} ${totalVisible === 1 ? 'task' : 'tasks'}`;
-  if (statPending) statPending.textContent = `${counts.pending || 0} to do`;
-  if (statProgress) statProgress.textContent = `${counts.in_progress || 0} in progress`;
-  if (statDone) statDone.textContent = `${counts.completed || 0} done`;
+/** Redraw the list after a change made elsewhere (detail panel, form) */
+function refreshTaskList({ refetch = false } = {}) {
+  if (state.currentView !== 'tasks' || !document.getElementById('tl-body')) return;
+  if (refetch) {
+    renderTasksView();
+  } else {
+    renderTaskList();
+  }
 }
 
 // ── Task detail ───────────────────────────────────────────────────────────────
@@ -561,12 +386,6 @@ function updateColumnCounts() {
 // The task on screen and listeners removed when another task opens
 let taskDetail = null;
 
-const TASK_STATUSES = [
-  { value: 'pending', label: 'To Do', color: '#94a3b8' },
-  { value: 'in_progress', label: 'In Progress', color: '#2f5fd0' },
-  { value: 'completed', label: 'Done', color: '#16a34a' },
-];
-
 const TASK_PRIORITIES = [
   { value: 'high', label: 'High', color: '#dc2626' },
   { value: 'medium', label: 'Medium', color: '#d97706' },
@@ -576,7 +395,6 @@ const TASK_PRIORITIES = [
 const tdIcon = (paths) => `<svg class="od-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
 
 const TD_ICONS = {
-  status: '<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/>',
   priority: '<path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.33 2q2 0 3.07-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.53"/>',
   due: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
   assignee: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
@@ -596,15 +414,8 @@ function tdFullName(profile) {
   return profile ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') : '';
 }
 
-function tdColor(userId) {
-  const palette = ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#06b6d4', '#ef4444', '#84cc16', '#f97316', '#6366f1'];
-  let hash = 0;
-  for (const ch of String(userId || '')) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-  return palette[hash % palette.length];
-}
-
 function tdPerson(userId, name) {
-  return `<span class="od-person"><span class="od-person-avatar" style="background:${tdColor(userId)}">${escapeHtml(getInitials(name))}</span>${escapeHtml(name)}</span>`;
+  return `<span class="od-person"><span class="od-person-avatar" style="background:${memberColor(userId)}">${escapeHtml(getInitials(name))}</span>${escapeHtml(name)}</span>`;
 }
 
 /** The task's due label, and whether it's overdue or due today (an all-day task is due all day) */
@@ -647,7 +458,6 @@ function showTaskDetail(task) {
 
   panel.addEventListener('click', onTaskDetailClick, { signal });
   panel.addEventListener('change', (e) => {
-    if (e.target.id === 'td-status') saveTaskPatch({ status: e.target.value });
     if (e.target.id === 'td-priority') saveTaskPatch({ priority: e.target.value });
     if (e.target.id === 'td-assignee') saveTaskAssignee(e.target.value);
     if (e.target.id === 'td-due-input') {
@@ -810,7 +620,6 @@ function renderTaskDetail() {
 
     <div class="od-body">
       <dl class="od-props">
-        ${prop('status', 'Status', 'status', pill('td-status', TASK_STATUSES, task.status, canComplete))}
         ${prop('priority', 'Priority', 'priority', pill('td-priority', TASK_PRIORITIES, task.priority || 'medium', canEdit))}
         ${prop('due', 'Due', 'due', dueHtml)}
         ${prop('assignee', 'Assignee', 'assignee', assigneeHtml)}
@@ -854,7 +663,7 @@ function onTaskDetailClick(e) {
     setTimeout(() => window.openOpportunityById(task.opportunity_id), 120);
   } else if (action === 'edit') {
     window.closeTaskDetail();
-    openTaskModal(task, window.salesRepsData || []);
+    openTaskModal(task);
   } else if (action === 'delete') {
     deleteTaskFromDetail();
   }
@@ -926,15 +735,10 @@ async function saveTaskPatch(patch) {
   if (cached && cached !== task) Object.assign(cached, updates);
 
   if ('status' in patch) {
-    showToast(patch.status === 'completed' ? 'Task done' : `Moved to ${TASK_STATUSES.find(s => s.value === patch.status)?.label || 'To Do'}`, 'success');
+    showToast(patch.status === 'completed' ? 'Task done' : 'Marked as to do', 'success');
   }
-  document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: patch.status === 'completed' ? 'complete' : 'update', id: task.id } }));
-  document.dispatchEvent(new CustomEvent('safitrack:notification-refresh'));
-  // A deal's next step is its earliest open task
-  if (task.opportunity_id && ('status' in patch || 'title' in patch || 'due_date' in patch)) {
-    window.refreshDealNextStep?.(task.opportunity_id);
-  }
-  if (state.currentView === 'tasks') renderTasksView();
+  afterTaskChange(task, patch);
+  refreshTaskList();
   renderTaskDetail();
   return true;
 }
@@ -962,7 +766,9 @@ async function deleteTaskFromDetail() {
   document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: 'delete', id: task.id } }));
   document.dispatchEvent(new CustomEvent('safitrack:notification-refresh'));
   if (task.opportunity_id) window.refreshDealNextStep?.(task.opportunity_id);
-  if (state.currentView === 'tasks') renderTasksView();
+  if (window.allTasksData) window.allTasksData = window.allTasksData.filter(t => t.id !== task.id);
+  if (taskList) taskList.tasks = taskList.tasks.filter(t => t.id !== task.id);
+  refreshTaskList();
 }
 
 window.closeTaskDetail = function () {
@@ -976,353 +782,148 @@ window.closeTaskDetail = function () {
   }
 };
 
-function renderTaskCard(task, isManager) {
-  const isAssignedToMe = task.assigned_to === state.currentUser.id;
-  const isCreatedByMe = task.created_by === state.currentUser.id;
-  const isCreatedByManager = state.isManager && task.created_by !== state.currentUser.id;
+// ── Task form ─────────────────────────────────────────────────────────────────
+// New tasks start as to do; ticking them off happens in the list or the panel.
 
-  // Permissions:
-  // - Managers can edit any task.
-  // - Sales reps can only edit tasks they created themselves (not tasks assigned to them by a manager).
-  const canEdit = state.isManager || isCreatedByMe;
-
-  // Completion permission:
-  // - Managers can mark any task complete.
-  // - Sales reps can mark a task complete if it is assigned to them or if they created it.
-  const canComplete = state.isManager || isAssignedToMe || isCreatedByMe;
-
-  const isOverdue = task.due_date && isPastDue(task.due_date, task.due_all_day) && task.status !== 'completed';
-  const dueDateStr = task.due_date ? formatDue(task.due_date, task.due_all_day) : '';
-
-  // Get assigned to name
-  let assignedToName = 'Unassigned';
-  if (task.assigned_to_profile) {
-    assignedToName = `${task.assigned_to_profile.first_name} ${task.assigned_to_profile.last_name}`;
-  } else if (task.assigned_to === state.currentUser.id) {
-    assignedToName = 'Me';
-  }
-
-  // Get created by name
-  let createdByName = 'Unknown';
-  if (task.created_by_profile) {
-    createdByName = `${task.created_by_profile.first_name} ${task.created_by_profile.last_name}`;
-  } else if (task.created_by === state.currentUser.id) {
-    createdByName = 'Me';
-  }
-
-  return `
-    <div class="task-card" data-id="${task.id}" data-status="${task.status}" data-overdue="${isOverdue}">
-      <div class="task-header">
-        <div class="task-title">${escapeHtml(task.title)}</div>
-        <div class="task-status ${task.status}">${getStatusLabel(task.status)}</div>
-      </div>
-      
-      ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
-      
-      <div class="task-meta">
-        ${task.due_date ? `
-          <div class="task-meta-item ${isOverdue ? 'task-overdue' : ''}">
-            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-icon lucide-calendar"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/></svg>
-            <span>Due: ${dueDateStr}</span>
-            ${isOverdue ? '<i class="fas fa-exclamation-triangle"></i>' : ''}
-          </div>
-        ` : ''}
-        
-        <div class="task-meta-item">
-          <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-flag-icon lucide-flag"><path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528"/></svg>
-          <span>Priority: ${task.priority || 'medium'}</span>
-        </div>
-        
-        ${state.isManager || task.assigned_to ? `
-          <div class="task-meta-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-user-icon lucide-user"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-            <span>Assigned to: ${escapeHtml(assignedToName)}</span>
-          </div>
-        ` : ''}
-      </div>
-      
-      <div class="task-actions">
-        <div class="task-priority ${task.priority || 'medium'}">${(task.priority || 'medium').charAt(0).toUpperCase() + (task.priority || 'medium').slice(1)}</div>
-        <div class="task-action-buttons">
-          ${canEdit ? `
-            <button class="task-action-btn edit-task" data-id="${task.id}">
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-square-pen-icon lucide-square-pen"><path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.375 2.625a1 1 0 0 1 3 3l-9.013 9.014a2 2 0 0 1-.853.505l-2.873.84a.5.5 0 0 1-.62-.62l.84-2.873a2 2 0 0 1 .506-.852z"/></svg>
-            </button>
-          ` : ''}
-          ${canComplete && task.status !== 'completed' ? `
-            <button class="task-action-btn complete-task" data-id="${task.id}">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-icon lucide-check"><path d="M20 6 9 17l-5-5"/></svg>
-            </button>
-          ` : ''}
-          ${state.isManager || isCreatedByMe ? `
-            <button class="task-action-btn delete-task" data-id="${task.id}">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"/></svg>
-            </button>
-          ` : ''}
-        </div>
-      </div>
-      
-      ${!state.isManager && isCreatedByManager ? `
-        <div class="task-creator">
-          <i class="fas fa-info-circle"></i>
-          <span>This task was assigned to you by a manager</span>
-        </div>
-      ` : ''}
-    </div>
-  `;
+/** Deals the user can link a task to, newest first (cached per org for the session) */
+async function loadDealOptions() {
+  const orgId = state.currentOrganization?.id;
+  if (window._taskDealOptions && window._taskDealOptionsOrgId === orgId) return window._taskDealOptions;
+  let q = supabaseClient.from('opportunities').select('id, name, company_name').order('created_at', { ascending: false });
+  if (orgId) q = q.eq('organization_id', orgId);
+  const { data, error } = await fetchAllPages(q);
+  if (error) return [];
+  window._taskDealOptions = data || [];
+  window._taskDealOptionsOrgId = orgId;
+  return window._taskDealOptions;
 }
 
-function getStatusLabel(status) {
-  switch (status) {
-    case 'pending': return 'Pending';
-    case 'in_progress': return 'In Progress';
-    case 'completed': return 'Completed';
-    default: return status;
-  }
+function renderDealPicker(deals, value) {
+  const slot = document.getElementById('task-deal-slot');
+  if (!slot) return;
+  const options = [{ value: '', label: 'No deal' }, ...deals.map(d => ({
+    value: d.id,
+    label: d.company_name && d.company_name !== d.name ? `${d.name || 'Untitled deal'} · ${d.company_name}` : (d.name || 'Untitled deal'),
+  }))];
+  // A linked deal the user can't list any more still shows as selected
+  if (value && !deals.some(d => d.id === value)) options.splice(1, 0, { value, label: 'Linked deal' });
+  slot.innerHTML = window.buildCrmDropdown({ id: 'task-deal', options, value: value || '', placeholder: 'No deal', variant: 'form', searchable: options.length > 6, searchPlaceholder: 'Search deals…' });
+  window.initAllCrmDropdowns?.(slot);
 }
 
-function initTaskFilters(tasks) {
-  const filterButtons = document.querySelectorAll('.task-filter');
-
-  filterButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-      // Update active state
-      filterButtons.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-
-      const filter = btn.dataset.filter;
-
-      // Apply filter
-      document.querySelectorAll('.task-card').forEach(card => {
-        let show = true;
-
-        if (filter === 'assigned') {
-          // Only show tasks created by current user
-          const taskId = card.dataset.id;
-          const task = tasks.find(t => t.id === taskId);
-          show = task && task.created_by === state.currentUser.id;
-        } else if (filter === 'overdue') {
-          const isOverdue = card.dataset.overdue === 'true';
-          show = isOverdue;
-        } else {
-          const status = card.dataset.status;
-          show = status === filter;
-        }
-
-        card.style.display = show ? 'block' : 'none';
-      });
-    });
-  });
-}
-
-function initTaskActionButtons(tasks, salesReps) {
-  // Edit task buttons
-  document.querySelectorAll('.edit-task').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      const taskId = btn.dataset.id;
-      const task = tasks.find(t => t.id === taskId);
-      if (task) {
-        openTaskModal(task, salesReps);
-      }
-    });
-  });
-
-  // Complete task buttons
-  document.querySelectorAll('.complete-task').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      const taskId = btn.dataset.id;
-
-      const { error } = await supabaseClient
-        .from('tasks')
-        .update({ status: 'completed', updated_at: new Date().toISOString() })
-        .eq('id', taskId);
-
-      if (error) {
-        showToast('Error completing task: ' + error.message, 'error');
-        return;
-      }
-
-      showToast('Task completed successfully', 'success');
-      document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: 'complete', id: taskId } }));
-      const completedTask = tasks.find(t => t.id === taskId);
-      if (completedTask?.opportunity_id) window.refreshDealNextStep?.(completedTask.opportunity_id);
-      renderTasksView();
-    });
-  });
-
-  // Delete task buttons
-  document.querySelectorAll('.delete-task').forEach(btn => {
-    btn.addEventListener('click', async (e) => {
-      e.stopPropagation();
-      const taskId = btn.dataset.id;
-
-      const confirmed = await showConfirmDialog(
-        'Delete Task',
-        'Are you sure you want to delete this task?'
-      );
-
-      if (!confirmed) return;
-
-      const { error } = await supabaseClient
-        .from('tasks')
-        .delete()
-        .eq('id', taskId);
-
-      if (error) {
-        showToast('Error deleting task: ' + error.message, 'error');
-        return;
-      }
-
-      showToast('Task deleted successfully', 'success');
-      const deletedTask = tasks.find(t => t.id === taskId);
-      if (deletedTask?.opportunity_id) window.refreshDealNextStep?.(deletedTask.opportunity_id);
-      renderTasksView();
-    });
-  });
-}
-
-function openTaskModal(task = null, salesReps = [], initialStatus = 'pending') {
+async function openTaskModal(task = null, salesReps = window.salesRepsData || []) {
   const modal = document.getElementById('task-modal');
   const modalTitle = document.getElementById('task-modal-title');
-  const saveBtn = document.getElementById('save-task-btn');
   const assignField = document.getElementById('task-assign-field');
   const assignSelect = document.getElementById('task-assign-to');
+  if (!modal) return;
 
-  // Reset form
-  document.getElementById('task-title').value = '';
-  document.getElementById('task-description').value = '';
-  document.getElementById('task-due-date').value = '';
-  document.getElementById('task-priority').value = 'medium';
-  document.getElementById('task-status').value = initialStatus;
+  document.getElementById('task-title').value = task?.title || '';
+  const description = task?.description || '';
+  document.getElementById('task-description').value = DEAL_DESCRIPTION.test(description) ? '' : description;
+  // "2026-10-20" for an all-day task, "2026-10-20T15:00" (local time) for a timed one
+  document.getElementById('task-due-date').value = task ? duePickerValue(task.due_date, task.due_all_day) : '';
+  const priorityInput = document.getElementById('task-priority');
+  window.setCrmDropdownValue ? window.setCrmDropdownValue(priorityInput, task?.priority || 'medium') : (priorityInput.value = task?.priority || 'medium');
 
-  // Populate sales reps dropdown for managers
-  if (state.isManager && salesReps.length > 0) {
-    assignField.style.display = 'block';
+  // Managers pick who it's for; everyone else adds tasks for themselves
+  if (state.isManager) {
+    let reps = salesReps;
+    if (!reps.length) reps = await loadTaskTeam();
+    assignField.style.display = '';
     const assignList = document.getElementById('task-assign-to-list');
     if (assignList) {
-      let listHtml = `<li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="Select a team member" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Select a team member</li>`;
-      listHtml += `<li class="crm-dd-option" role="option" data-value="${state.currentUser.id}" data-label="Me" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Me</li>`;
-
-      salesReps.forEach(rep => {
-        listHtml += `<li class="crm-dd-option" role="option" data-value="${rep.id}" data-label="${escapeHtml(rep.first_name)} ${escapeHtml(rep.last_name)}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${escapeHtml(rep.first_name)} ${escapeHtml(rep.last_name)}</li>`;
-      });
-      assignList.innerHTML = listHtml;
+      const check = '<svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+      const option = (value, label) => `<li class="crm-dd-option" role="option" data-value="${escapeHtml(value)}" data-label="${escapeHtml(label)}" tabindex="-1">${check}${escapeHtml(label)}</li>`;
+      assignList.innerHTML = option('', 'Unassigned')
+        + option(state.currentUser.id, 'Me')
+        + reps.filter(r => r.id !== state.currentUser.id)
+          .map(r => option(r.id, [r.first_name, r.last_name].filter(Boolean).join(' ') || r.email || 'Teammate')).join('');
     }
-
-    // Reset value
-    if (window.setCrmDropdownValue) {
-      window.setCrmDropdownValue(assignSelect, '');
-    } else {
-      assignSelect.value = '';
-    }
+    const assignTo = task ? (task.assigned_to || '') : state.currentUser.id;
+    window.setCrmDropdownValue ? window.setCrmDropdownValue(assignSelect, assignTo) : (assignSelect.value = assignTo);
   } else {
     assignField.style.display = 'none';
   }
+  // Without the assignee beside it, the deal picker takes the whole row
+  document.getElementById('task-deal-field').style.gridColumn = state.isManager ? '' : '1 / -1';
 
-  // Set modal title
-  if (task) {
-    modalTitle.innerHTML = 'Edit Task';
+  modalTitle.textContent = task ? 'Edit task' : 'New task';
 
-    // Fill form with task data
-    document.getElementById('task-title').value = task.title || '';
-    document.getElementById('task-description').value = task.description || '';
-
-    // "2026-10-20" for an all-day task, "2026-10-20T15:00" (local time) for a timed one
-    document.getElementById('task-due-date').value = duePickerValue(task.due_date, task.due_all_day);
-
-    document.getElementById('task-priority').value = task.priority || 'medium';
-    document.getElementById('task-status').value = task.status || 'pending';
-
-    if (state.isManager && task.assigned_to) {
-      if (window.setCrmDropdownValue) {
-        window.setCrmDropdownValue(assignSelect, task.assigned_to);
-      } else {
-        assignSelect.value = task.assigned_to;
-      }
+  // The deal list loads after the form shows
+  const dealId = task?.opportunity_id || '';
+  renderDealPicker([], dealId);
+  loadDealOptions().then(deals => {
+    if (modal.style.display !== 'none' && modal.dataset.taskId === String(task?.id || '')) {
+      renderDealPicker(deals, document.getElementById('task-deal')?.value ?? dealId);
     }
-  } else {
-    modalTitle.innerHTML = 'New Task';
-  }
+  });
 
-  // Show modal
+  modal.dataset.taskId = String(task?.id || '');
   modal.style.display = 'flex';
   document.body.classList.add('modal-active');
+  setTimeout(() => document.getElementById('task-title')?.focus(), 50);
 
-  // Initialize event listeners
   initTaskModalListeners(task);
 }
 
 function initTaskModalListeners(task) {
-  // Save task
   const saveBtn = document.getElementById('save-task-btn');
+  const titleInput = document.getElementById('task-title');
+  if (titleInput) {
+    titleInput.onkeydown = (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        saveBtn.click();
+      }
+    };
+  }
 
   saveBtn.onclick = async () => {
-    const title = document.getElementById('task-title').value.trim();
-    const description = document.getElementById('task-description').value.trim();
-    const dueDate = document.getElementById('task-due-date').value;
-    const priority = document.getElementById('task-priority').value;
-    const status = document.getElementById('task-status').value;
-
-    // Get assigned to
-    let assignedTo = null;
-    if (state.isManager) {
-      assignedTo = document.getElementById('task-assign-to').value || null;
-    } else {
-      // Non-managers can only create tasks for themselves
-      assignedTo = state.currentUser.id;
-    }
-
-    // Validate
+    const title = titleInput.value.trim();
     if (!title) {
-      showToast('Please enter a task title', 'error');
+      showToast('Give the task a title', 'error');
+      titleInput.focus();
       return;
     }
 
+    const opportunityId = document.getElementById('task-deal')?.value || null;
+    const taskData = {
+      title,
+      description: document.getElementById('task-description').value.trim() || null,
+      ...dueFieldsFromPicker(document.getElementById('task-due-date').value),
+      priority: document.getElementById('task-priority').value || 'medium',
+      // Reps can only add tasks for themselves
+      assigned_to: state.isManager ? (document.getElementById('task-assign-to').value || null) : (task ? task.assigned_to : state.currentUser.id),
+      opportunity_id: opportunityId,
+    };
+
     saveBtn.disabled = true;
-    saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-
+    saveBtn.textContent = 'Saving…';
     try {
-      const taskData = {
-        title,
-        description: description || null,
-        assigned_to: assignedTo,
-        created_by: state.currentUser.id,
-        ...dueFieldsFromPicker(dueDate),
-        priority,
-        status,
-        organization_id: state.currentOrganization?.id
-      };
-
-      let result;
-
-      if (task) {
-        // Update existing task
-        result = await supabaseClient
-          .from('tasks')
-          .update(taskData)
-          .eq('id', task.id);
-      } else {
-        // Create new task
-        result = await supabaseClient
-          .from('tasks')
-          .insert([taskData]);
-      }
-
+      const result = task
+        ? await supabaseClient.from('tasks').update({ ...taskData, updated_at: new Date().toISOString() }).eq('id', task.id).select('id')
+        : await supabaseClient.from('tasks').insert([{
+          ...taskData,
+          status: 'pending',
+          created_by: state.currentUser.id,
+          organization_id: state.currentOrganization?.id,
+        }]).select('id');
       if (result.error) throw result.error;
+      if (task && !result.data?.length) throw new Error("you can't change this task");
 
-      showToast(`Task ${task ? 'updated' : 'created'} successfully!`, 'success');
-      // A deal's next step is its earliest open task
-      if (task?.opportunity_id) window.refreshDealNextStep?.(task.opportunity_id);
+      showToast(task ? 'Task updated' : 'Task added', 'success');
       closeModal('task-modal');
+      // A deal's next step is its earliest open task: refresh the deal it left and the one it joined
+      new Set([task?.opportunity_id, opportunityId].filter(Boolean)).forEach(id => window.refreshDealNextStep?.(id));
+      document.dispatchEvent(new CustomEvent('safitrack:mutation', { detail: { table: 'tasks', action: task ? 'update' : 'insert', id: task?.id || result.data?.[0]?.id } }));
       document.dispatchEvent(new CustomEvent('safitrack:notification-refresh'));
-      renderTasksView();
+      refreshTaskList({ refetch: true });
     } catch (error) {
-      showToast(`Error ${task ? 'updating' : 'creating'} task: ${error.message}`, 'error');
+      showToast(`Couldn't ${task ? 'save' : 'add'} the task: ${error.message}`, 'error');
     } finally {
       saveBtn.disabled = false;
-      saveBtn.innerHTML = 'Save Task';
+      saveBtn.textContent = 'Save task';
     }
   };
 }
@@ -1331,14 +932,7 @@ function initTaskModalListeners(task) {
 // ── Exports ────────────────────────────────────────────────────
 export {
   renderTasksView,
-  renderKanbanTaskCard,
-  initKanbanBoard,
-  updateColumnCounts,
   showTaskDetail,
-  renderTaskCard,
-  getStatusLabel,
-  initTaskFilters,
-  initTaskActionButtons,
   openTaskModal,
   initTaskModalListeners,
 };

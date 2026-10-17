@@ -1760,7 +1760,7 @@ async function renderTechniciansDashboardView() {
           Submissions
         </h3>
         <div style="display:flex; gap:8px; flex-wrap:wrap; flex:1; justify-content:flex-end; align-items:center;">
-          <div class="crm-dd crm-dd--filter" data-dd-id="ups-reports-filter-type" id="ups-reports-filter-type-dd" style="width:150px;">
+          <div class="crm-dd crm-dd--filter" data-dd-id="ups-reports-filter-type" id="ups-reports-filter-type-dd">
             <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
               <span class="crm-dd-label">All Forms</span>
               <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
@@ -1772,7 +1772,7 @@ async function renderTechniciansDashboardView() {
             </div>
             <input class="crm-dd-value-input ups-reports-search" type="hidden" id="ups-reports-filter-type" value="">
           </div>
-          <div class="crm-dd crm-dd--filter" data-dd-id="ups-reports-filter-status" style="width:140px;">
+          <div class="crm-dd crm-dd--filter" data-dd-id="ups-reports-filter-status">
             <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
               <span class="crm-dd-label">All Statuses</span>
               <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>

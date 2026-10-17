@@ -51,6 +51,7 @@
   <link rel="stylesheet" href="mobile.css">
   <link rel="stylesheet" href="crm-dropdown.css">
   <link rel="stylesheet" href="calls.css">
+  <link rel="stylesheet" href="tasks.css">
 
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
 </head>
@@ -1570,7 +1571,7 @@
     <div class="modal-backdrop"></div>
     <div class="modal-container modal-size-md">
       <div class="modal-header">
-        <h3 id="task-modal-title">New Task</h3>
+        <h3 id="task-modal-title">New task</h3>
         <button class="modal-close" onclick="closeModal('task-modal')">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
             stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"
@@ -1586,7 +1587,7 @@
             <label for="task-title">
               Title <span class="required-indicator">(required)</span>
             </label>
-            <input type="text" id="task-title" placeholder="e.g., Follow up with client about proposal" required>
+            <input type="text" id="task-title" placeholder="e.g., Send the revised quote to Acme" required>
           </div>
 
           <div class="form-field">
@@ -1595,6 +1596,11 @@
           </div>
 
           <div class="field-group">
+            <div class="form-field">
+              <label for="task-due-date">Due date</label>
+              <input type="datetime-local" id="task-due-date">
+            </div>
+
             <div class="form-field">
               <label for="task-priority">Priority</label>
               <div class="crm-dd crm-dd--form" data-dd-id="task-priority">
@@ -1612,51 +1618,35 @@
                 <input class="crm-dd-value-input" type="hidden" id="task-priority" name="task-priority" value="medium">
               </div>
             </div>
+          </div>
 
-            <div class="form-field">
-              <label for="task-status">Status</label>
-              <div class="crm-dd crm-dd--form" data-dd-id="task-status">
-                <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
-                  <span class="crm-dd-label">Pending</span>
+          <div class="field-group">
+            <div class="form-field" id="task-assign-field" style="display:none;">
+              <label for="task-assign-to">Assigned to</label>
+              <div class="crm-dd crm-dd--form" data-dd-id="task-assign-to">
+                <button type="button" class="crm-dd-trigger" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="crm-dd-label" style="color:var(--text-muted)">Unassigned</span>
                   <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
                 </button>
                 <div class="crm-dd-panel" role="listbox">
-                  <ul class="crm-dd-list">
-                    <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="pending" data-label="Pending" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Pending</li>
-                    <li class="crm-dd-option" role="option" data-value="in_progress" data-label="In Progress" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>In Progress</li>
-                    <li class="crm-dd-option" role="option" data-value="completed" data-label="Completed" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Completed</li>
+                  <ul class="crm-dd-list" id="task-assign-to-list">
+                    <li class="crm-dd-option" role="option" data-value="" data-label="Unassigned" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Unassigned</li>
                   </ul>
                 </div>
-                <input class="crm-dd-value-input" type="hidden" id="task-status" name="task-status" value="pending">
+                <input class="crm-dd-value-input" type="hidden" id="task-assign-to" name="task-assign-to" value="">
               </div>
             </div>
-          </div>
 
-          <div class="form-field" id="task-assign-field" style="display:none;">
-            <label for="task-assign-to">Assign To</label>
-            <div class="crm-dd crm-dd--form" data-dd-id="task-assign-to">
-              <button type="button" class="crm-dd-trigger" aria-haspopup="listbox" aria-expanded="false">
-                <span class="crm-dd-label" style="color:var(--text-muted)">Select a team member</span>
-                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-              </button>
-              <div class="crm-dd-panel" role="listbox">
-                <ul class="crm-dd-list" id="task-assign-to-list">
-                  <li class="crm-dd-option" role="option" data-value="" data-label="Select a team member" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Select a team member</li>
-                </ul>
-              </div>
-              <input class="crm-dd-value-input" type="hidden" id="task-assign-to" name="task-assign-to" value="">
+            <div class="form-field" id="task-deal-field">
+              <label for="task-deal">Deal</label>
+              <div id="task-deal-slot"></div>
             </div>
-          </div>
-
-          <div class="form-field">
-            <label for="task-due-date">Due Date</label>
-            <input type="datetime-local" id="task-due-date">
           </div>
         </div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-secondary" onclick="closeModal('task-modal')">Cancel</button>
-        <button class="btn btn-primary" id="save-task-btn">Save Task</button>
+        <button class="btn btn-primary" id="save-task-btn">Save task</button>
       </div>
     </div>
   </div>
@@ -1913,17 +1903,17 @@
     </div>
   </div>
 
-  <div id="pwa-install-banner" class="install-banner" style="display: none;">
+  <div id="pwa-install-banner" class="install-banner" role="dialog" aria-label="Install SafiTrack" style="display: none;">
     <div class="install-banner-content">
-      <img src="../assets/icons/whiteblue.png" alt="SafiTrack" width="40">
+      <img class="install-banner-icon" src="../assets/icons/whiteblue.png" alt="" width="40" height="40">
       <div class="install-banner-text">
         <strong>Install SafiTrack</strong>
-        <p>Add to your home screen for the full experience</p>
+        <p>One tap from your home screen.</p>
       </div>
-      <div class="install-banner-actions">
-        <button id="pwa-banner-install-btn" class="btn btn-primary btn-sm">Install</button>
-        <button id="pwa-banner-close-btn" class="btn btn-ghost btn-sm">&times;</button>
-      </div>
+      <button type="button" id="pwa-banner-install-btn" class="install-banner-btn">Install</button>
+      <button type="button" id="pwa-banner-close-btn" class="install-banner-close" aria-label="Dismiss">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
     </div>
   </div>
 

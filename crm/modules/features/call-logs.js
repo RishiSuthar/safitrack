@@ -6,6 +6,7 @@ import { renderError, getCurrencySymbol } from '../utils/helpers.js';
 import { matchesTokenizedQuery } from '../ui/spreadsheet.js';
 import { renderCustomFieldsDisplay } from './custom-fields.js';
 import { fetchAllPages } from '../utils/analytics.js';
+import { memberAvatarStyle } from '../ui/member-color.js';
 
 const OUTCOMES = ['Connected', 'Voicemail', 'No Answer', 'Busy', 'Wrong Number', 'Call Failed'];
 const SCHEDULED = 'Scheduled';
@@ -199,7 +200,7 @@ function renderToolbar() {
         </label>
         <div class="calls-toolbar-actions">
           ${state.isManager ? seg('scope', [['my', 'My calls'], ['team', 'Team']], state.managerCallLogViewMode, 'Whose calls') : ''}
-          <button type="button" class="btn btn-primary calls-new-btn" id="log-call-btn">${ICONS.plus}<span>Log call</span></button>
+          <button type="button" class="btn btn-primary calls-new-btn" id="log-call-btn">${ICONS.plus}<span>Log Call</span></button>
         </div>
       </div>
       <div class="calls-toolbar-row calls-filters">
@@ -400,7 +401,17 @@ function renderRowCommon(log) {
       ${company ? `<span class="calls-company">${escapeHtml(company)}</span>` : ''}
     </div>
     <p class="calls-note">${escapeHtml((log.notes || '').replace(/\s+/g, ' ').trim())}</p>
-    ${isTeamMode() ? `<span class="calls-rep">${escapeHtml(repNameOf(log) || 'Former member')}</span>` : ''}`;
+    ${isTeamMode() ? renderRep(log) : ''}`;
+}
+
+/** Who logged the call, with their avatar */
+function renderRep(log) {
+  const name = repNameOf(log) || 'Former member';
+  return `
+    <span class="calls-rep">
+      <span class="calls-rep-avatar" style="${memberAvatarStyle(log.profiles ? log.user_id : null)}" aria-hidden="true">${escapeHtml(getInitials(name).charAt(0))}</span>
+      <span class="calls-rep-name">${escapeHtml(name)}</span>
+    </span>`;
 }
 
 function renderRowActions(log) {

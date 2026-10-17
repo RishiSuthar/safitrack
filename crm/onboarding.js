@@ -4,6 +4,8 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 class SafiOnboardingManager {
   constructor() {
     this.role = 'manager'; // 'manager' | 'sales_rep' | 'technician'
@@ -20,6 +22,7 @@ class SafiOnboardingManager {
 
     this.inviteRows = [];
     this.nextRowId = 1;
+    this.seatUsage = null; // { used } once loaded for the invite modal
 
     // Bound handlers for clean removal
     this.handleResize = this.handleResize.bind(this);
@@ -39,13 +42,9 @@ class SafiOnboardingManager {
     const plan = maxSeats <= 2 ? 'Free' : maxSeats <= 20 ? 'Core' : 'Pro';
     const isUnlimited = maxSeats >= 999;
     
-    // In a freshly registered workspace, the owner takes 1 seat.
-    // If existing users are present in state, use that count; otherwise 1.
-    const usedMembers = (window.state?.organizationUsers && window.state.organizationUsers.length > 0)
-      ? window.state.organizationUsers.length
-      : 1;
-    
-    const remainingSlots = isUnlimited ? 9999 : Math.max(0, maxSeats - usedMembers);
+    // Active members + pending invites, loaded by loadSeatUsage(); null until then
+    const usedMembers = this.seatUsage ? this.seatUsage.used : null;
+    const remainingSlots = isUnlimited ? 9999 : Math.max(0, maxSeats - (usedMembers ?? maxSeats));
 
     return {
       plan,
@@ -75,6 +74,10 @@ class SafiOnboardingManager {
     if (role === 'manager') return 'Co-Manager';
     if (role === 'technician') return 'Technician';
     return 'Sales Rep';
+  }
+
+  escapeHtml(value) {
+    return String(value).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
   // ── URL Parameter Detection ───────────────────────────────────────────────
@@ -241,37 +244,19 @@ class SafiOnboardingManager {
   showInvitePrompt() {
     this.currentView = 'invite';
     this.openOverlay();
+    this.seatUsage = null;
 
-    const planInfo = this.getPlanInfo();
-
-    // Initialize invite rows respecting plan limit:
-    // For Free plan (remainingSlots = 1), default to 1 row.
-    // For Core/Pro, default to 1 or 2 rows (up to remainingSlots).
     if (this.inviteRows.length === 0) {
-      const initialCount = Math.min(planInfo.remainingSlots > 0 ? 1 : 0, 1);
-      this.inviteRows = [];
-      for (let i = 0; i < initialCount; i++) {
-        this.inviteRows.push({ id: this.nextRowId++, email: '', role: 'sales_rep' });
-      }
-      if (this.inviteRows.length === 0 && planInfo.remainingSlots > 0) {
-        this.inviteRows.push({ id: this.nextRowId++, email: '', role: 'sales_rep' });
-      }
+      this.inviteRows.push({ id: this.nextRowId++, email: '', role: 'sales_rep' });
     }
 
-    const isAtLimit = !planInfo.isUnlimited && this.inviteRows.length >= planInfo.remainingSlots;
+    const orgName = this.escapeHtml(this.getOrganizationName());
 
     this.modalCard.className = 'safi-card-modal safi-invite-modal';
     this.modalCard.innerHTML = `
-      <div class="safi-card-content" style="padding: 32px 32px 24px;">
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #71717a;">
-              Team Setup
-            </span>
-            <span class="safi-plan-pill" id="safi-plan-pill">
-              ${planInfo.plan} Plan • ${planInfo.remainingSlots} seat${planInfo.remainingSlots === 1 ? '' : 's'} available
-            </span>
-          </div>
+      <div class="safi-card-content safi-invite-content">
+        <div class="safi-invite-head">
+          <span class="safi-invite-eyebrow">Team setup</span>
           <button type="button" class="safi-spotlight-close" id="safi-invite-close" title="Close" aria-label="Close">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -280,12 +265,19 @@ class SafiOnboardingManager {
           </button>
         </div>
 
-        <h2 class="safi-card-title" style="font-size: 1.45rem; margin-bottom: 8px;">Invite your team</h2>
-        <p class="safi-card-text" style="margin-bottom: 20px;">
-          Bring your field sales representatives and service technicians into SafiTrack. They'll receive instant workspace access.
+        <h2 class="safi-card-title">Invite your team</h2>
+        <p class="safi-card-text">
+          Add your sales reps and technicians. Each person gets an email invite to join ${orgName}.
         </p>
 
-        <!-- Invites Table with Native Site Role Dropdown -->
+        <div class="safi-seat-meter" id="safi-seat-meter">
+          <div class="safi-seat-meter-labels">
+            <span id="safi-seat-plan">Checking seats…</span>
+            <span id="safi-seat-count"></span>
+          </div>
+          <div class="safi-seat-meter-track"><div class="safi-seat-meter-fill" id="safi-seat-fill"></div></div>
+        </div>
+
         <div class="safi-invite-table" id="safi-invite-table">
           ${this.renderInviteRows()}
         </div>
@@ -296,33 +288,24 @@ class SafiOnboardingManager {
               <line x1="12" y1="5" x2="12" y2="19"></line>
               <line x1="5" y1="12" x2="19" y2="12"></line>
             </svg>
-            Add another member
+            Add another
           </button>
-          <span style="font-size: 0.78rem; color: #71717a;">
-            ${planInfo.isUnlimited ? 'Unlimited team seats' : `${this.inviteRows.length} of ${planInfo.remainingSlots} invite slot${planInfo.remainingSlots === 1 ? '' : 's'} used`}
-          </span>
+          <span class="safi-invite-count" id="safi-invite-count"></span>
         </div>
 
-        <!-- Plan Limit Notification Banner -->
-        <div id="safi-plan-limit-banner" class="safi-plan-limit-banner" style="${isAtLimit ? 'display: flex;' : 'display: none;'}">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;">
+        <div id="safi-plan-limit-banner" class="safi-plan-limit-banner" style="display: none;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;">
             <circle cx="12" cy="12" r="10"></circle>
             <line x1="12" y1="8" x2="12" y2="12"></line>
             <line x1="12" y1="16" x2="12.01" y2="16"></line>
           </svg>
           <div>
-            <span id="safi-plan-limit-msg">
-              ${planInfo.plan === 'Free'
-                ? 'Free Plan limit reached (max 2 seats: 1 owner + 1 teammate). Upgrade to invite more members.'
-                : `Plan seat limit reached (${planInfo.maxSeats} maximum). Upgrade to add more members.`}
-            </span>
-            <a href="https://safitrack.netlify.app/pages/pricing" target="_blank" class="safi-plan-upgrade-link">
-              Upgrade Plan →
-            </a>
+            <span id="safi-plan-limit-msg"></span>
+            <a href="/pages/pricing.html" target="_blank" rel="noopener" class="safi-plan-upgrade-link">Upgrade plan →</a>
           </div>
         </div>
 
-        <div id="safi-invite-feedback" style="display: none; font-size: 0.82rem; padding: 9px 12px; border-radius: 8px; margin-top: 14px;"></div>
+        <div id="safi-invite-feedback" class="safi-invite-feedback" style="display: none;"></div>
 
         <div class="safi-card-divider"></div>
 
@@ -331,34 +314,142 @@ class SafiOnboardingManager {
             Skip for now
           </button>
           <button type="button" class="safi-btn-action" id="safi-invite-submit-btn">
-            Send Invites &amp; Continue →
+            Continue →
           </button>
         </div>
       </div>
     `;
 
     this.bindInviteEvents();
+    this.refreshInviteMeta();
+
+    this.loadSeatUsage().then(() => {
+      if (this.currentView !== 'invite') return;
+      // A full workspace has no seats to fill: drop the empty starter row
+      const { remainingSlots, isUnlimited } = this.getPlanInfo();
+      if (!isUnlimited && this.inviteRows.length > remainingSlots) {
+        this.inviteRows = this.inviteRows.filter(r => r.email).slice(0, remainingSlots);
+        this.rerenderInviteRows();
+      }
+      this.refreshInviteMeta();
+    });
+  }
+
+  // Seats are taken by active members plus pending invitations, the same
+  // count the send-invite function enforces.
+  async loadSeatUsage() {
+    const orgId = window.state?.currentOrganization?.id;
+    const client = window.supabaseClient;
+    if (!orgId || !client) {
+      this.seatUsage = { used: 1 };
+      return;
+    }
+    try {
+      const [members, pending] = await Promise.all([
+        client.from('profiles').select('id', { count: 'exact', head: true })
+          .eq('organization_id', orgId).neq('status', 'suspended'),
+        client.from('invitations').select('id', { count: 'exact', head: true })
+          .eq('organization_id', orgId).eq('status', 'pending'),
+      ]);
+      if (members.error) throw members.error;
+      this.seatUsage = { used: (members.count ?? 1) + (pending.error ? 0 : (pending.count ?? 0)) };
+    } catch (_e) {
+      this.seatUsage = { used: 1, failed: true };
+    }
+  }
+
+  getValidInviteRows() {
+    return this.inviteRows.filter(r => r.email && EMAIL_PATTERN.test(r.email));
+  }
+
+  // Updates the seat meter, counter, limit banner and submit label in place
+  refreshInviteMeta() {
+    if (this.currentView !== 'invite' || !this.modalCard) return;
+    const q = (sel) => this.modalCard.querySelector(sel);
+    const planInfo = this.getPlanInfo();
+    const loaded = planInfo.usedMembers !== null;
+    const queued = this.getValidInviteRows().length;
+
+    const planEl = q('#safi-seat-plan');
+    const countEl = q('#safi-seat-count');
+    const fillEl = q('#safi-seat-fill');
+    const meterEl = q('#safi-seat-meter');
+    if (planEl && countEl && fillEl) {
+      if (planInfo.isUnlimited) {
+        planEl.textContent = `${planInfo.plan} plan`;
+        countEl.textContent = 'Unlimited seats';
+        meterEl?.classList.add('is-unlimited');
+      } else if (!loaded) {
+        planEl.textContent = `${planInfo.plan} plan`;
+        countEl.textContent = 'Checking seats…';
+        fillEl.style.width = '0%';
+      } else {
+        const used = Math.min(planInfo.maxSeats, planInfo.usedMembers);
+        planEl.textContent = `${planInfo.plan} plan`;
+        countEl.textContent = `${used} of ${planInfo.maxSeats} seats used`;
+        fillEl.style.width = `${Math.round((used / planInfo.maxSeats) * 100)}%`;
+        meterEl?.classList.toggle('is-full', used >= planInfo.maxSeats);
+      }
+    }
+
+    const counterEl = q('#safi-invite-count');
+    if (counterEl) {
+      if (planInfo.isUnlimited) {
+        counterEl.textContent = queued ? `${queued} invite${queued === 1 ? '' : 's'} ready` : '';
+      } else if (!loaded) {
+        counterEl.textContent = '';
+      } else {
+        const left = Math.max(0, planInfo.remainingSlots - queued);
+        const leftText = `${left} seat${left === 1 ? '' : 's'} left`;
+        counterEl.textContent = queued ? `${queued} invite${queued === 1 ? '' : 's'} · ${leftText}` : leftText;
+      }
+    }
+
+    const atLimit = loaded && !planInfo.isUnlimited && this.inviteRows.length >= planInfo.remainingSlots;
+    const noRows = this.inviteRows.length === 0;
+    q('#safi-invite-table')?.toggleAttribute('hidden', noRows);
+    q('.safi-invite-actions-row')?.toggleAttribute('hidden', noRows);
+    const addBtn = q('#safi-invite-add-row');
+    if (addBtn) addBtn.disabled = !loaded || atLimit;
+
+    const banner = q('#safi-plan-limit-banner');
+    const bannerMsg = q('#safi-plan-limit-msg');
+    if (banner && bannerMsg) {
+      banner.style.display = atLimit ? 'flex' : 'none';
+      bannerMsg.textContent = planInfo.remainingSlots === 0
+        ? `All ${planInfo.maxSeats} seats on your ${planInfo.plan} plan are taken.`
+        : `That uses every seat left on your ${planInfo.plan} plan (${planInfo.maxSeats} total).`;
+    }
+
+    const submitBtn = q('#safi-invite-submit-btn');
+    if (submitBtn && !submitBtn.disabled) {
+      submitBtn.textContent = queued ? `Send ${queued} invite${queued === 1 ? '' : 's'} →` : 'Continue →';
+    }
+  }
+
+  rerenderInviteRows() {
+    const table = this.modalCard.querySelector('#safi-invite-table');
+    if (!table) return;
+    table.innerHTML = this.renderInviteRows();
+    this.bindInviteInputListeners();
   }
 
   renderInviteRows() {
-    if (this.inviteRows.length === 0) {
-      return `
-        <div style="padding: 20px; text-align: center; color: #71717a; font-size: 0.85rem;">
-          No team members added yet. Click "Add another member" below.
-        </div>
-      `;
-    }
+    // No seats left: the limit banner says so, the empty table would repeat it
+    if (this.inviteRows.length === 0) return '';
 
+    const single = this.inviteRows.length === 1;
     return this.inviteRows.map(row => `
-      <div class="safi-invite-row" data-row-id="${row.id}">
+      <div class="safi-invite-row${row.error ? ' has-error' : ''}" data-row-id="${row.id}">
         <input 
           type="email" 
           class="safi-invite-input" 
-          placeholder="colleague@company.com" 
-          value="${row.email || ''}"
+          placeholder="name@company.com" 
+          value="${this.escapeHtml(row.email || '')}"
           data-field="email"
           autocomplete="off"
           spellcheck="false"
+          aria-label="Email address"
         />
         
         <!-- Native Site Design Custom Role Selector -->
@@ -387,57 +478,32 @@ class SafiOnboardingManager {
           </div>
         </div>
 
-        <button type="button" class="safi-invite-del" data-del-id="${row.id}" title="Remove member">
+        <button type="button" class="safi-invite-del" data-del-id="${row.id}" title="Remove" aria-label="Remove"${single ? ' hidden' : ''}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="18" y1="6" x2="6" y2="18"></line>
             <line x1="6" y1="6" x2="18" y2="18"></line>
           </svg>
         </button>
+        ${row.error ? `<div class="safi-invite-row-error">${this.escapeHtml(row.error)}</div>` : ''}
       </div>
     `).join('');
   }
 
   bindInviteEvents() {
-    const table = this.modalCard.querySelector('#safi-invite-table');
     const addBtn = this.modalCard.querySelector('#safi-invite-add-row');
     const skipBtn = this.modalCard.querySelector('#safi-invite-skip-btn');
     const submitBtn = this.modalCard.querySelector('#safi-invite-submit-btn');
     const closeBtn = this.modalCard.querySelector('#safi-invite-close');
-    const limitBanner = this.modalCard.querySelector('#safi-plan-limit-banner');
-    const limitMsg = this.modalCard.querySelector('#safi-plan-limit-msg');
 
-    // Add Row with Plan Limit Verification
     addBtn?.addEventListener('click', () => {
       const planInfo = this.getPlanInfo();
-      const currentCount = this.inviteRows.length;
-
-      if (!planInfo.isUnlimited && currentCount >= planInfo.remainingSlots) {
-        if (limitBanner) {
-          limitBanner.style.display = 'flex';
-          if (limitMsg) {
-            if (planInfo.plan === 'Free') {
-              limitMsg.textContent = 'Free Plan limit reached (2 seats maximum: 1 owner + 1 teammate). Upgrade to invite more members.';
-            } else {
-              limitMsg.textContent = `Plan seat limit reached (${planInfo.maxSeats} maximum). Upgrade to add more members.`;
-            }
-          }
-          // Subtle pulse to indicate attention
-          limitBanner.style.transition = 'transform 0.15s ease';
-          limitBanner.style.transform = 'scale(1.02)';
-          setTimeout(() => { limitBanner.style.transform = 'scale(1)'; }, 160);
-        }
-        return;
-      }
+      if (!planInfo.isUnlimited && this.inviteRows.length >= planInfo.remainingSlots) return;
 
       this.inviteRows.push({ id: this.nextRowId++, email: '', role: 'sales_rep' });
-      table.innerHTML = this.renderInviteRows();
-      this.bindInviteInputListeners();
-
-      // Check if now at limit
-      const nowAtLimit = !planInfo.isUnlimited && this.inviteRows.length >= planInfo.remainingSlots;
-      if (limitBanner) {
-        limitBanner.style.display = nowAtLimit ? 'flex' : 'none';
-      }
+      this.rerenderInviteRows();
+      this.refreshInviteMeta();
+      const inputs = this.modalCard.querySelectorAll('.safi-invite-input');
+      inputs[inputs.length - 1]?.focus();
     });
 
     this.bindInviteInputListeners();
@@ -460,7 +526,6 @@ class SafiOnboardingManager {
 
   bindInviteInputListeners() {
     const table = this.modalCard.querySelector('#safi-invite-table');
-    const limitBanner = this.modalCard.querySelector('#safi-plan-limit-banner');
     if (!table) return;
 
     table.querySelectorAll('.safi-invite-row').forEach(rowEl => {
@@ -474,7 +539,23 @@ class SafiOnboardingManager {
       // Email input typing
       emailInput?.addEventListener('input', (e) => {
         const item = this.inviteRows.find(r => r.id === rowId);
-        if (item) item.email = e.target.value.trim();
+        if (item) {
+          item.email = e.target.value.trim();
+          if (item.error) {
+            item.error = null;
+            rowEl.classList.remove('has-error');
+            rowEl.querySelector('.safi-invite-row-error')?.remove();
+          }
+        }
+        this.refreshInviteMeta();
+      });
+
+      // Enter sends, like the primary button
+      emailInput?.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          this.handleSendInvites();
+        }
       });
 
       // Role chip click -> Toggle custom dropdown
@@ -512,31 +593,38 @@ class SafiOnboardingManager {
 
       // Delete Row
       delBtn?.addEventListener('click', () => {
-        if (this.inviteRows.length <= 1) {
-          const item = this.inviteRows.find(r => r.id === rowId);
-          if (item) item.email = '';
-          if (emailInput) emailInput.value = '';
-          return;
-        }
+        if (this.inviteRows.length <= 1) return;
         this.inviteRows = this.inviteRows.filter(r => r.id !== rowId);
-        table.innerHTML = this.renderInviteRows();
-        this.bindInviteInputListeners();
-
-        // Update limit banner visibility
-        const planInfo = this.getPlanInfo();
-        if (limitBanner) {
-          const isAtLimit = !planInfo.isUnlimited && this.inviteRows.length >= planInfo.remainingSlots;
-          limitBanner.style.display = isAtLimit ? 'flex' : 'none';
-        }
+        this.rerenderInviteRows();
+        this.refreshInviteMeta();
       });
     });
   }
 
-  async handleSendInvites() {
-    const validRows = this.inviteRows.filter(r => r.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r.email));
+  showInviteFeedback(message, tone) {
     const feedback = this.modalCard.querySelector('#safi-invite-feedback');
-    const submitBtn = this.modalCard.querySelector('#safi-invite-submit-btn');
+    if (!feedback) return;
+    feedback.className = `safi-invite-feedback is-${tone}`;
+    feedback.textContent = message;
+    feedback.style.display = 'block';
+  }
 
+  async handleSendInvites() {
+    const submitBtn = this.modalCard.querySelector('#safi-invite-submit-btn');
+    if (submitBtn?.disabled) return;
+
+    // Flag typed-but-invalid emails instead of silently dropping them
+    let hasInvalid = false;
+    this.inviteRows.forEach(r => {
+      r.error = r.email && !EMAIL_PATTERN.test(r.email) ? 'Enter a valid email address' : null;
+      if (r.error) hasInvalid = true;
+    });
+    if (hasInvalid) {
+      this.rerenderInviteRows();
+      return;
+    }
+
+    const validRows = this.getValidInviteRows();
     if (validRows.length === 0) {
       this.showTourPrompt();
       return;
@@ -544,53 +632,67 @@ class SafiOnboardingManager {
 
     if (submitBtn) {
       submitBtn.disabled = true;
-      submitBtn.textContent = 'Sending invites…';
+      submitBtn.textContent = 'Sending…';
     }
 
     if (this.isTest) {
       setTimeout(() => {
-        if (feedback) {
-          feedback.style.display = 'block';
-          feedback.style.background = 'rgba(22, 163, 74, 0.08)';
-          feedback.style.color = '#16a34a';
-          feedback.textContent = `[Test Mode] ${validRows.length} invite${validRows.length > 1 ? 's' : ''} sent. Proceeding…`;
-        }
+        this.showInviteFeedback(`[Test Mode] ${validRows.length} invite${validRows.length > 1 ? 's' : ''} sent.`, 'success');
         setTimeout(() => this.showTourPrompt(), 600);
       }, 500);
       return;
     }
 
+    const SUPABASE_URL = (window.APP_CONFIG || {}).SUPABASE_URL;
+    let accessToken;
     try {
-      const SUPABASE_URL = (window.APP_CONFIG || {}).SUPABASE_URL;
       const session = (await window.supabaseClient?.auth?.getSession())?.data?.session;
-      const accessToken = session?.access_token;
+      accessToken = session?.access_token;
+    } catch (_e) { /* handled per request below */ }
 
-      let successCount = 0;
-      for (const row of validRows) {
-        try {
-          const res = await fetch(`${SUPABASE_URL}/functions/v1/send-invite`, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${accessToken}`,
-              'apikey': (window.APP_CONFIG || {}).SUPABASE_KEY
-            },
-            body: JSON.stringify({ email: row.email, role: row.role })
-          });
-          if (res.ok) successCount++;
-        } catch (_e) { /* non-blocking */ }
+    let sent = 0;
+    for (const row of validRows) {
+      try {
+        const res = await fetch(`${SUPABASE_URL}/functions/v1/send-invite`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+            'apikey': (window.APP_CONFIG || {}).SUPABASE_KEY
+          },
+          body: JSON.stringify({ email: row.email, role: row.role })
+        });
+        const body = await res.json().catch(() => ({}));
+        if (res.ok) {
+          sent++;
+          row.sent = true;
+        } else {
+          row.error = body.error || 'Could not send this invite';
+        }
+      } catch (_e) {
+        row.error = 'Network error — try again';
       }
-
-      if (feedback) {
-        feedback.style.display = 'block';
-        feedback.style.background = 'rgba(22, 163, 74, 0.08)';
-        feedback.style.color = '#16a34a';
-        feedback.textContent = `Dispatched ${successCount} invitation${successCount > 1 ? 's' : ''}. Proceeding…`;
-      }
-      setTimeout(() => this.showTourPrompt(), 700);
-    } catch (_err) {
-      this.showTourPrompt();
     }
+
+    // Sent rows leave the list; failed ones stay with their reason
+    const failed = this.inviteRows.filter(r => r.error);
+    if (!failed.length) {
+      this.showInviteFeedback(`Sent ${sent} invite${sent === 1 ? '' : 's'}.`, 'success');
+      setTimeout(() => this.showTourPrompt(), 700);
+      return;
+    }
+
+    this.inviteRows = failed;
+    this.rerenderInviteRows();
+    if (submitBtn) submitBtn.disabled = false;
+    await this.loadSeatUsage();
+    this.refreshInviteMeta();
+    this.showInviteFeedback(
+      sent
+        ? `Sent ${sent} invite${sent === 1 ? '' : 's'}. ${failed.length} couldn't be sent — see below.`
+        : `${failed.length === 1 ? "That invite" : 'Those invites'} couldn't be sent — see below.`,
+      'error'
+    );
   }
 
   // ═════════════════════════════════════════════════════════════════════════

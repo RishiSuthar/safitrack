@@ -8,6 +8,7 @@ import { getCompanyLogoUrl } from '../ui/spreadsheet.js';
 import { getDefaultSalesStages, LEGACY_STAGE_TO_CANONICAL } from '../utils/pipeline-stages.js';
 import { fetchAllPages } from '../utils/analytics.js';
 import { allDayDueFields, dueDay, dueStart } from '../utils/due-dates.js';
+import { memberColor } from '../ui/member-color.js';
 
 // ── Pipeline helpers ──────────────────────────────────────────────────────────
 
@@ -2837,19 +2838,9 @@ function getProbabilityColor(probability) {
 
 // ── Assignees: helpers ─────────────────────────────────────────────────────────
 
-/** Deterministic color from a user ID string — palette of accessible hues */
+/** The member's avatar colour, the same on every page */
 function getAssigneeColor(userId) {
-  const palette = [
-    '#3b82f6', '#8b5cf6', '#ec4899', '#10b981',
-    '#f59e0b', '#06b6d4', '#ef4444', '#84cc16',
-    '#f97316', '#6366f1',
-  ];
-  if (!userId) return palette[0];
-  let hash = 0;
-  for (let i = 0; i < userId.length; i++) {
-    hash = (hash * 31 + userId.charCodeAt(i)) >>> 0;
-  }
-  return palette[hash % palette.length];
+  return memberColor(userId);
 }
 
 /** Fetch (and cache) all active profiles in the current org for the picker */

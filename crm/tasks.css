@@ -1,0 +1,504 @@
+/* ═══════════════════════════════════════════════════════════
+   Tasks: one list grouped by due date (Today, Upcoming,
+   No due date, Completed) with Task · Due date · Record ·
+   Assigned to columns, edge to edge under the toolbar.
+   Markup: modules/features/tasks.js and #task-modal in index.html
+   ═══════════════════════════════════════════════════════════ */
+
+.tl-page {
+  --tl-control-h: var(--control-height-md);
+  --tl-cols: minmax(0, 2.4fr) minmax(130px, 1fr) minmax(150px, 1.1fr) minmax(150px, 1fr);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.tl-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* ── Toolbar ───────────────────────────────────────────── */
+
+.tl-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  padding: var(--space-3) var(--page-gutter);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.tl-toolbar-left,
+.tl-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.tl-dd .crm-dd-trigger {
+  height: var(--tl-control-h);
+  min-width: 0;
+  border-radius: var(--btn-radius);
+  font-size: var(--type-sm);
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.tl-clear {
+  height: var(--tl-control-h);
+  padding: 0 var(--space-2);
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: var(--type-sm);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.tl-clear:hover {
+  color: var(--text-primary);
+}
+
+.tl-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 240px;
+  max-width: 100%;
+}
+
+.tl-search .tl-icon {
+  position: absolute;
+  left: 10px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.tl-search input {
+  width: 100%;
+  height: var(--tl-control-h);
+  padding: 0 var(--space-3) 0 30px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--btn-radius);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--type-sm);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.tl-search input::placeholder {
+  color: var(--text-muted);
+}
+
+.tl-search input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary-bg);
+}
+
+/* ── Table ─────────────────────────────────────────────── */
+
+.tl-table {
+  background: var(--bg-secondary);
+}
+
+.tl-head,
+.tl-row {
+  display: grid;
+  grid-template-columns: var(--tl-cols);
+  align-items: center;
+}
+
+.tl-head {
+  min-height: 38px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-muted);
+  font-size: var(--type-sm);
+  font-weight: 500;
+}
+
+.tl-col {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 0 var(--space-4);
+}
+
+.tl-col + .tl-col {
+  border-left: 1px solid var(--border-color-light);
+  align-self: stretch;
+}
+
+/* The first and last columns line up with the toolbar */
+.tl-head > :first-child,
+.tl-row > :first-child {
+  padding-left: var(--page-gutter);
+}
+
+.tl-head > :last-child,
+.tl-row > :last-child {
+  padding-right: var(--page-gutter);
+}
+
+/* Group header: a full-width band with a chevron and a count */
+.tl-group-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-height: 36px;
+  padding: 0 var(--page-gutter);
+  border: 0;
+  border-bottom: 1px solid var(--border-color-light);
+  background: var(--bg-tertiary);
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: var(--type-sm);
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.tl-group-head:hover {
+  color: var(--text-primary);
+}
+
+.tl-group-head:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.tl-group-chevron {
+  width: 14px;
+  height: 14px;
+  color: var(--text-muted);
+  transition: transform var(--transition-fast);
+}
+
+.tl-group.is-collapsed .tl-group-chevron {
+  transform: rotate(-90deg);
+}
+
+.tl-group-count {
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-xs);
+  background: var(--bg-gray);
+  color: var(--text-secondary);
+  font-size: var(--type-xxs);
+  font-weight: 600;
+  line-height: 18px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rows */
+.tl-row {
+  min-height: 52px;
+  border-bottom: 1px solid var(--border-color-light);
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.tl-row:hover {
+  background: var(--bg-hover);
+}
+
+.tl-row:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.tl-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--type-md);
+  color: var(--text-primary);
+}
+
+.tl-title {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tl-flag {
+  display: inline-flex;
+  color: var(--color-danger);
+}
+
+.tl-flag .tl-icon {
+  width: 13px;
+  height: 13px;
+}
+
+/* Due date */
+.tl-col--due.tl-cell {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.tl-col--due.is-today {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.tl-col--due.is-overdue {
+  color: var(--color-danger);
+}
+
+/* Done rows fade back */
+.tl-row.is-done .tl-title,
+.tl-row.is-done .tl-cell {
+  color: var(--text-muted);
+}
+
+.tl-row.is-done .tl-chip {
+  opacity: 0.6;
+}
+
+/* The round done checkbox */
+.tl-check {
+  position: relative;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1.5px solid var(--text-muted);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: border-color var(--transition-fast), background var(--transition-fast), opacity var(--transition-fast);
+}
+
+.tl-check::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid #ffffff;
+  border-width: 0 1.75px 1.75px 0;
+  transform: rotate(45deg);
+  opacity: 0;
+}
+
+.tl-check:not(.is-static):hover {
+  border-color: var(--color-primary);
+  opacity: 1;
+}
+
+.tl-check:not(.is-static):not(.is-checked):hover::after {
+  border-color: var(--color-primary);
+  opacity: 0.5;
+}
+
+.tl-check.is-checked {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  opacity: 1;
+}
+
+.tl-check.is-checked::after {
+  opacity: 1;
+}
+
+.tl-check.is-static {
+  cursor: default;
+}
+
+.tl-check:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Record and person chips */
+.tl-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  min-width: 0;
+  height: 26px;
+  padding: 0 var(--space-2);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  font: inherit;
+  font-size: var(--type-sm);
+  font-weight: 500;
+}
+
+.tl-chip > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+button.tl-chip {
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+button.tl-chip:hover {
+  border-color: var(--text-muted);
+  background: var(--bg-hover);
+}
+
+.tl-chip-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: var(--color-warning);
+}
+
+.tl-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* Empty */
+.tl-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-9) var(--space-4);
+  text-align: center;
+}
+
+.tl-empty-title {
+  font-size: var(--type-md);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.tl-empty-text {
+  max-width: 320px;
+  margin-bottom: var(--space-2);
+  font-size: var(--type-sm);
+  color: var(--text-muted);
+}
+
+.tl-empty .btn {
+  gap: 6px;
+}
+
+/* ── Narrow screens: the columns fold under the title ──── */
+
+@media (max-width: 900px) {
+  .tl-page {
+    --tl-cols: minmax(0, 2fr) minmax(110px, 1fr) minmax(120px, 1fr);
+  }
+
+  .tl-col--assignee {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .tl-toolbar-left,
+  .tl-toolbar-right {
+    width: 100%;
+  }
+
+  /* Filters scroll sideways instead of stacking */
+  .tl-toolbar-left {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .tl-toolbar-left::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tl-dd {
+    flex-shrink: 0;
+  }
+
+  .tl-search {
+    flex: 1;
+    width: auto;
+  }
+
+  .tl-head {
+    display: none;
+  }
+
+  /* Title on top; due date, deal and assignee wrap on the line under it */
+  .tl-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px var(--space-2);
+    padding: var(--space-3) var(--page-gutter) var(--space-3) calc(var(--page-gutter) + 18px + var(--space-2));
+  }
+
+  .tl-row .tl-cell,
+  .tl-row > :first-child,
+  .tl-row > :last-child {
+    padding: 0;
+    font-size: var(--type-sm);
+  }
+
+  .tl-row .tl-col--task {
+    flex: 1 0 100%;
+    margin-left: calc(-18px - var(--space-2));
+    font-size: var(--type-md);
+  }
+
+  .tl-row .tl-col--due:empty,
+  .tl-row .tl-col--record:empty,
+  .tl-row .tl-col--assignee:empty {
+    display: none;
+  }
+
+  .tl-row .tl-col--record {
+    flex: 0 1 auto;
+    max-width: 60%;
+  }
+
+  .tl-row .tl-col--assignee {
+    display: flex;
+  }
+
+  /* Just the avatar for the assignee */
+  .tl-chip--person {
+    padding: 0;
+    border: 0;
+    background: transparent;
+  }
+
+  .tl-chip--person > span:last-child {
+    display: none;
+  }
+
+  .tl-chip {
+    height: 22px;
+    font-size: var(--type-xs);
+  }
+}

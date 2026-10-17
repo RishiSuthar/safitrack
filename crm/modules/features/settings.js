@@ -8,6 +8,7 @@ import { navigateView } from '../core/router.js';
 import { showChangelogModal } from '../ui/changelog.js';
 import { fetchCustomFieldDefinitions, invalidateCustomFieldCache, generateFieldKey } from './custom-fields.js';
 import { notificationStore } from './notifications.js';
+import { memberAvatarStyle } from '../ui/member-color.js';
 
 async function renderSettingsView() {
   const dateFormatPref = (typeof getUserDateFormat === 'function') ? getUserDateFormat() : (localStorage.getItem('safitrack_date_format') || 'DD/MM/YYYY');
@@ -131,7 +132,7 @@ async function renderSettingsView() {
               </div>
               <div class="sv-field-control">
                 <div class="sv-avatar-wrap">
-                  <div class="sv-avatar-circle" id="sv-settings-avatar-circle">
+                  <div class="sv-avatar-circle" id="sv-settings-avatar-circle" style="${memberAvatarStyle(state.currentUser?.id)}">
                     ${state.currentUserProfile?.avatar_url
                       ? `<img src="${state.currentUserProfile.avatar_url}" alt="" class="sv-avatar-img">`
                       : initials}
@@ -1731,12 +1732,6 @@ async function renderSettingsView() {
         flex-shrink: 0;
         letter-spacing: -0.02em;
       }
-      .sv-member-avatar[data-color="0"] { background: #3b82f6; }
-      .sv-member-avatar[data-color="1"] { background: #0d9488; }
-      .sv-member-avatar[data-color="2"] { background: #f59e0b; }
-      .sv-member-avatar[data-color="3"] { background: #ec4899; }
-      .sv-member-avatar[data-color="4"] { background: #8b5cf6; }
-      .sv-member-avatar[data-color="5"] { background: #10b981; }
       .sv-member-info { display: flex; flex-direction: column; gap: 2px; }
       .sv-member-name { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); letter-spacing: -0.01em; }
       .sv-member-email { font-size: 0.82rem; color: var(--text-muted); }
@@ -3328,7 +3323,6 @@ async function renderSettingsView() {
 
     const roleLabel = r => r === 'manager' ? 'Manager' : r === 'sales_rep' ? 'Sales Rep' : r === 'technician' ? 'Technician' : 'Member';
     const roleChip = r => `<span class="sv-role-chip" data-role="${r || 'member'}">${roleLabel(r)}</span>`;
-    const nameColor = s => { let h = 0; for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return h % 6; };
 
     const canEdit = (u) => state.isManager && u.id !== state.currentUser?.id && u.role !== 'manager';
 
@@ -3366,7 +3360,7 @@ async function renderSettingsView() {
       return `
         <tr>
           <td><div class="sv-member-cell">
-            <div class="sv-member-avatar" data-color="${nameColor(uFullName)}">${escH(uInitials)}</div>
+            <div class="sv-member-avatar" style="${memberAvatarStyle(u.id)}">${escH(uInitials)}</div>
             <div class="sv-member-info">
               <div class="sv-member-name">${escH(uFullName)}${isMe ? '<span class="sv-you-badge">You</span>' : ''}</div>
               <div class="sv-member-email">${escH(u.email || '')}</div>
@@ -3388,7 +3382,7 @@ async function renderSettingsView() {
       return `
         <tr style="opacity:0.65;">
           <td><div class="sv-member-cell">
-            <div class="sv-member-avatar" data-color="${nameColor(inv.email || '?')}">${escH(initials)}</div>
+            <div class="sv-member-avatar" style="${memberAvatarStyle(null)}">${escH(initials)}</div>
             <div class="sv-member-info">
               <div class="sv-member-name">${escH(inv.email)}</div>
               <div class="sv-member-email">Invite sent · expires ${new Date(inv.expires_at).toLocaleDateString()}</div>

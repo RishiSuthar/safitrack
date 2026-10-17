@@ -3,6 +3,7 @@
 import { state, supabaseClient } from '../state.js';
 import { viewContainer } from '../ui/dom.js';
 import { showToast, escapeHtml } from '../ui/toast.js';
+import { memberAvatarStyle } from '../ui/member-color.js';
 
 // ======================
 
@@ -47,7 +48,7 @@ async function renderUserManagementView() {
 
     html += `
       <div class="card user-card">
-        <div class="user-avatar" style="width: 48px; height: 48px; font-size: 1rem;">${escapeHtml(initials)}</div>
+        <div class="user-avatar" style="width: 48px; height: 48px; font-size: 1rem; ${memberAvatarStyle(user.id)}">${escapeHtml(initials)}</div>
         <div class="user-card-info">
           <div class="user-card-name">${escapeHtml(fullName)}</div>
           <div class="user-card-email">${escapeHtml(user.email)}</div>

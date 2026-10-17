@@ -16,6 +16,7 @@ import {
   parseDate, addDays, startOfDay, calendarDaysFrom,
   readStoredChoice, storeChoice, fetchAllRows,
 } from '../utils/analytics.js';
+import { memberAvatarStyle } from '../ui/member-color.js';
 
 // ── Constants ───────────────────────────────────────────────────
 
@@ -371,7 +372,7 @@ function renderReps(m) {
             <tbody>
               ${m.reps.map((r) => `
                 <tr>
-                  <td><span class="db-person"><span class="db-avatar" aria-hidden="true">${esc(r.initials)}</span><span class="db-cell-title">${esc(r.name)}</span></span></td>
+                  <td><span class="db-person"><span class="db-avatar" aria-hidden="true" style="${memberAvatarStyle(r.id)}">${esc(r.initials)}</span><span class="db-cell-title">${esc(r.name)}</span></span></td>
                   <td class="db-num">${r.created}</td>
                   <td class="db-num sf-col-reached">
                     <span class="db-bar-cell">
