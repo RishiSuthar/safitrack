@@ -8,6 +8,7 @@ import { renderError } from '../utils/helpers.js';
 import { fetchAllPages } from '../utils/analytics.js';
 import { isPastDue, daysUntilDue, formatDue, dueStart, dueFieldsFromPicker, duePickerValue } from '../utils/due-dates.js';
 import { memberColor } from '../ui/member-color.js';
+import { fbSearch, fbSelect, fbClear, initFilterBar, resetFilterBar } from '../ui/filter-bar.js';
 
 const TASK_SELECT = `
   *,
@@ -96,18 +97,17 @@ async function renderTasksView() {
   viewContainer.innerHTML = `
     <div class="crm-page-shell tl-page">
       <div class="tl-toolbar">
-        <div class="tl-toolbar-left">
-          ${window.buildCrmDropdown({ id: 'tl-sort', options: TL_SORTS.map(s => ({ value: s.value, label: `Sorted by ${s.label}` })), value: taskList.sort, variant: 'filter', className: 'tl-dd' })}
-          ${state.isManager ? window.buildCrmDropdown({ id: 'tl-assignee', options: assigneeOptions.map(o => ({ value: o.value, label: o.value === 'all' ? 'Assigned to anyone' : `Assigned to ${o.label}` })), value: taskList.assignee, variant: 'filter', className: 'tl-dd', searchable: assigneeOptions.length > 8, searchPlaceholder: 'Search team…' }) : ''}
-          ${window.buildCrmDropdown({ id: 'tl-priority', options: [{ value: 'all', label: 'Any priority' }, { value: 'high', label: 'High priority' }, { value: 'medium', label: 'Medium priority' }, { value: 'low', label: 'Low priority' }], value: taskList.priority, variant: 'filter', className: 'tl-dd' })}
-          <button type="button" class="tl-clear" id="tl-clear" hidden>Clear</button>
-        </div>
-        <div class="tl-toolbar-right">
-          <label class="tl-search">
-            ${tlIcon('search')}
-            <input type="search" id="tl-search" placeholder="Search tasks" value="${escapeHtml(taskList.query)}" autocomplete="off" aria-label="Search tasks">
-          </label>
-          <button type="button" class="btn btn-primary" id="add-task-btn">${tlIcon('plus')}<span>New Task</span></button>
+        <div class="fb" id="tl-fb">
+          ${fbSearch({ id: 'tl-search', placeholder: 'Search tasks', value: taskList.query })}
+          <div class="fb-filters">
+            ${state.isManager ? fbSelect({ id: 'tl-assignee', label: 'Assigned to', options: assigneeOptions, value: taskList.assignee, searchable: assigneeOptions.length > 8 }) : ''}
+            ${fbSelect({ id: 'tl-priority', label: 'Priority', options: [{ value: 'all', label: 'Any priority' }, { value: 'high', label: 'High' }, { value: 'medium', label: 'Medium' }, { value: 'low', label: 'Low' }], value: taskList.priority })}
+            ${fbClear('tl-clear')}
+          </div>
+          <div class="fb-actions">
+            ${fbSelect({ id: 'tl-sort', label: 'Sort', kind: 'sort', options: TL_SORTS, value: taskList.sort })}
+            <button type="button" class="btn btn-primary" id="add-task-btn">${tlIcon('plus')}<span>New Task</span></button>
+          </div>
         </div>
       </div>
 
@@ -123,7 +123,6 @@ async function renderTasksView() {
     </div>
   `;
 
-  window.initAllCrmDropdowns?.(viewContainer);
   bindTaskList();
   renderTaskList();
 }
@@ -232,8 +231,6 @@ function renderTaskList() {
 
   const shown = visibleTasks();
   const filtered = taskList.assignee !== 'all' || taskList.priority !== 'all' || taskList.query.trim() !== '';
-  const clearBtn = document.getElementById('tl-clear');
-  if (clearBtn) clearBtn.hidden = !filtered;
 
   if (!shown.length) {
     body.innerHTML = `
@@ -290,20 +287,16 @@ function bindTaskList() {
     }, 120);
   });
 
+  const bar = document.getElementById('tl-fb');
   const clearFilters = () => {
+    resetFilterBar(bar);
     taskList.assignee = 'all';
     taskList.priority = 'all';
     taskList.query = '';
-    const search = document.getElementById('tl-search');
-    if (search) search.value = '';
-    ['tl-assignee', 'tl-priority'].forEach(id => {
-      const input = document.getElementById(id);
-      if (input) window.setCrmDropdownValue ? window.setCrmDropdownValue(input, 'all') : (input.value = 'all');
-    });
     persistTaskList();
     renderTaskList();
   };
-  document.getElementById('tl-clear')?.addEventListener('click', clearFilters);
+  initFilterBar(bar, { onClear: clearFilters });
 
   const body = document.getElementById('tl-body');
   body?.addEventListener('click', (e) => {

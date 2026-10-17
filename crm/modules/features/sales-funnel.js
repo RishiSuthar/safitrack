@@ -17,6 +17,7 @@ import {
   readStoredChoice, storeChoice, fetchAllRows,
 } from '../utils/analytics.js';
 import { memberAvatarStyle } from '../ui/member-color.js';
+import { fbSelect } from '../ui/filter-bar.js';
 
 // ── Constants ───────────────────────────────────────────────────
 
@@ -208,13 +209,11 @@ function renderHeader(m) {
       <div class="db-head-actions">
         ${state.isManager && reps.length ? `
           <div class="sf-owner" data-owner>
-            ${window.buildCrmDropdown({
+            ${fbSelect({
               id: 'sf-owner-filter',
-              variant: 'filter',
-              className: 'crm-dd--right',
+              label: 'Rep',
               value: ui.owner,
               searchable: reps.length > 8,
-              searchPlaceholder: 'Search reps...',
               options: [
                 { value: 'all', label: 'All reps' },
                 ...reps.map((p) => ({ value: p.id, label: fullName(p) })),

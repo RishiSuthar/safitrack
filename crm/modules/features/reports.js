@@ -10,6 +10,7 @@ import { isPastDue, dueStart } from '../utils/due-dates.js';
 import { showToast } from '../ui/toast.js';
 import { renderError, getCurrencySymbol } from '../utils/helpers.js';
 import { fetchAllPages } from '../utils/analytics.js';
+import { fbSelect, fbClear, initFilterBar } from '../ui/filter-bar.js';
 
 // ── State & Registry ─────────────────────────────────────────────────────────
 
@@ -447,81 +448,50 @@ export async function renderReportsView() {
 
   const isManager = Boolean(state.isManager || state.isOrgOwner);
 
-  // Native site design dropdown for Date filter
-  const dateDdHtml = window.buildCrmDropdown ? window.buildCrmDropdown({
+  const dateHtml = fbSelect({
     id: 'reports-date-filter',
-    variant: 'filter',
+    label: 'Date',
     value: _dateFilter,
-    placeholder: 'All Time',
     options: [
-      { value: 'all', label: 'All Time' },
+      { value: 'all', label: 'All time' },
       { value: 'today', label: 'Today' },
-      { value: '7d', label: 'Last 7 Days' },
-      { value: '30d', label: 'Last 30 Days' },
-      { value: 'month', label: 'This Month' },
-      { value: 'quarter', label: 'This Quarter' },
-      { value: 'year', label: 'This Year' },
-    ]
-  }) : `
-    <select id="reports-date-filter" class="reports-select">
-      <option value="all">All Time</option>
-      <option value="today">Today</option>
-      <option value="7d">Last 7 Days</option>
-      <option value="30d">Last 30 Days</option>
-      <option value="month">This Month</option>
-      <option value="quarter">This Quarter</option>
-      <option value="year">This Year</option>
-    </select>
-  `;
+      { value: '7d', label: 'Last 7 days' },
+      { value: '30d', label: 'Last 30 days' },
+      { value: 'month', label: 'This month' },
+      { value: 'quarter', label: 'This quarter' },
+      { value: 'year', label: 'This year' },
+    ],
+  });
 
-  // Native site design dropdown with LIVE SEARCH for Team Members
-  const repOptions = [{ value: 'all', label: 'All Team Members' }];
+  const repOptions = [{ value: 'all', label: 'Everyone' }];
   const teamProfiles = _cachedData.profiles.filter(p => p.role === 'sales_rep' || p.role === 'manager' || p.role === 'technician');
   teamProfiles.forEach(p => {
     const name = `${p.first_name || ''} ${p.last_name || ''}`.trim() || p.email;
-    repOptions.push({
-      value: p.id,
-      label: `${name} (${p.role || 'Member'})`
-    });
+    repOptions.push({ value: p.id, label: name });
   });
 
-  const repDdHtml = isManager ? (window.buildCrmDropdown ? window.buildCrmDropdown({
+  const repHtml = isManager ? fbSelect({
     id: 'reports-rep-filter',
-    variant: 'filter',
+    label: 'Team member',
     value: _selectedRepId,
-    placeholder: 'All Team Members',
-    searchable: true,
-    searchPlaceholder: 'Search team members...',
     options: repOptions,
-  }) : `
-    <select id="reports-rep-filter" class="reports-select">
-      <option value="all">All Team Members</option>
-      ${teamProfiles.map(p => `<option value="${p.id}">${esc(p.first_name)} ${esc(p.last_name)}</option>`).join('')}
-    </select>
-  `) : '';
+    searchable: true,
+  }) : '';
 
   container.innerHTML = `
     <div class="reports-container">
       <!-- Top Toolbar -->
       <header class="reports-header">
-        <div class="reports-toolbar">
-          <div class="reports-toolbar-filters">
-            <!-- Date Range Filter (Native Dropdown) -->
-            <div class="reports-toolbar-item" id="wrap-reports-date-filter">
-              ${dateDdHtml}
-            </div>
-
-            <!-- Sales Rep Filter (Native Dropdown with Live Search) -->
-            ${isManager ? `
-              <div class="reports-toolbar-item" id="wrap-reports-rep-filter">
-                ${repDdHtml}
-              </div>
-            ` : ''}
+        <div class="fb reports-toolbar" id="reports-fb">
+          <div class="fb-filters">
+            ${dateHtml}
+            ${repHtml}
+            ${fbClear('reports-clear')}
           </div>
 
-          <div class="reports-toolbar-actions">
+          <div class="fb-actions">
             <!-- Export CSV -->
-            <button id="reports-export-btn" class="reports-btn reports-btn-secondary" title="Export current view data to CSV">
+            <button id="reports-export-btn" class="btn btn-secondary" title="Export current view data to CSV">
               <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Export CSV
             </button>
@@ -573,10 +543,13 @@ export async function renderReportsView() {
     </div>
   `;
 
-  // Init native dropdowns
-  if (window.initAllCrmDropdowns) {
-    window.initAllCrmDropdowns(container);
-  }
+  initFilterBar(document.getElementById('reports-fb'), {
+    onClear: () => {
+      _dateFilter = 'all';
+      _selectedRepId = 'all';
+      renderCurrentTab();
+    },
+  });
 
   // Attach Header Events to the hidden inputs of the custom dropdowns (which fire change events)
   const dateInput = document.getElementById('reports-date-filter');

@@ -9,6 +9,7 @@ import { getCompanyLogoUrl } from '../ui/spreadsheet.js';
 import { rpIcon, rpProp, rpList, rpColor, rpAgo, openRecordModal } from '../ui/record-panel.js';
 import { renderDealRow, dealStage } from './record-views.js';
 import { memberAvatarStyle } from '../ui/member-color.js';
+import { fbSearch, fbSelect, fbDate, fbClear, fbDateRange, fbInRange, initFilterBar, resetFilterBar, PAST_DATE_PRESETS } from '../ui/filter-bar.js';
 
 // VISITS HUB - PREMIUM MANAGER VIEW
 // ======================
@@ -53,6 +54,7 @@ let visitsHubState = {
     search: '',
     rep: '',
     type: '',
+    datePreset: '',
     dateFrom: '',
     dateTo: '',
     scoreMin: ''
@@ -132,145 +134,82 @@ async function renderTeamDashboardView() {
   // Render the hub
   viewContainer.innerHTML = `
     <div class="visits-hub">
-      <!-- Command Bar -->
+      <!-- Filter bar -->
       <div class="visits-command-bar">
-        <div class="visits-search-box">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-          <input type="text" id="visits-search" placeholder="Search visits by company, rep, or notes...">
-        </div>
-        
-        <div class="visits-view-toggle">
-          <button class="visits-view-btn active" data-view="cards" title="Card View">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
-          </button>
-          <button class="visits-view-btn" data-view="timeline" title="Timeline View">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="18" y2="18"/></svg>
-          </button>
-          <button class="visits-view-btn" data-view="map" title="Map View">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg>
-          </button>
-        </div>
-
-        <button class="visits-filters-toggle" id="toggle-filters">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sliders-horizontal-icon lucide-sliders-horizontal"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg>
-          Filters
-          <span class="visits-filters-count" id="filters-count" style="display: none;">0</span>
-        </button>
-        
-        <div class="visits-actions-group">
-          <button class="btn btn-secondary btn-sm" onclick="exportVisitsToCSV()">
+        <div class="fb" id="visits-fb">
+          ${fbSearch({ id: 'visits-search', placeholder: 'Search visits', value: visitsHubState.filters.search })}
+          <div class="fb-filters">
+            ${fbSelect({
+              id: 'filter-rep',
+              label: 'Rep',
+              options: [{ value: '', label: 'Everyone' }, ...salesReps.map(rep => ({ value: rep.id, label: `${rep.first_name || ''} ${rep.last_name || ''}`.trim() || 'Teammate' }))],
+              value: visitsHubState.filters.rep,
+              searchable: salesReps.length > 8,
+            })}
+            ${fbSelect({
+              id: 'filter-type',
+              label: 'Type',
+              options: [
+                { value: '', label: 'Any type' },
+                { value: 'new_lead', label: 'New Lead' },
+                { value: 'follow_up', label: 'Follow-up' },
+                { value: 'demo', label: 'Product Demo' },
+                { value: 'closing', label: 'Closing' },
+                { value: 'support', label: 'Customer Support' },
+              ],
+              value: visitsHubState.filters.type,
+            })}
+            ${fbSelect({
+              id: 'filter-score',
+              label: 'Lead score',
+              options: [
+                { value: '', label: 'Any score' },
+                { value: '70', label: 'High (70%+)' },
+                { value: '40', label: 'Medium (40–69%)' },
+                { value: '0', label: 'Low (under 40%)' },
+              ],
+              value: visitsHubState.filters.scoreMin,
+            })}
+            ${fbDate({ id: 'filter-date', label: 'Date', presets: PAST_DATE_PRESETS, value: { preset: visitDatePreset(), from: visitsHubState.filters.dateFrom, to: visitsHubState.filters.dateTo } })}
+            ${fbClear('visits-clear')}
+          </div>
+          <div class="fb-actions">
+            ${fbSelect({
+              id: 'visits-sort',
+              label: 'Sort',
+              kind: 'sort',
+              options: [
+                { value: 'newest', label: 'Newest first' },
+                { value: 'oldest', label: 'Oldest first' },
+                { value: 'score-high', label: 'Highest score' },
+                { value: 'score-low', label: 'Lowest score' },
+                { value: 'company', label: 'Company A–Z' },
+              ],
+              value: visitsHubState.sortBy,
+            })}
+            <span class="fb-count" id="visits-count">${visitsWithProfiles.length} visits</span>
+            <div class="visits-view-toggle">
+              <button class="visits-view-btn active" data-view="cards" title="Card View">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
+              </button>
+              <button class="visits-view-btn" data-view="timeline" title="Timeline View">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" x2="21" y1="6" y2="6"/><line x1="3" x2="21" y1="12" y2="12"/><line x1="3" x2="21" y1="18" y2="18"/></svg>
+              </button>
+              <button class="visits-view-btn" data-view="map" title="Map View">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.106 5.553a2 2 0 0 0 1.788 0l3.659-1.83A1 1 0 0 1 21 4.619v12.764a1 1 0 0 1-.553.894l-4.553 2.277a2 2 0 0 1-1.788 0l-4.212-2.106a2 2 0 0 0-1.788 0l-3.659 1.83A1 1 0 0 1 3 19.381V6.618a1 1 0 0 1 .553-.894l4.553-2.277a2 2 0 0 1 1.788 0z"/><path d="M15 5.764v15"/><path d="M9 3.236v15"/></svg>
+              </button>
+            </div>
+            <button class="btn btn-secondary" onclick="exportVisitsToCSV()">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
             Export
           </button>
-        </div>
-      </div>
-
-      <!-- Filters Panel -->
-      <div class="visits-filters-panel" id="filters-panel">
-        <div class="visits-filters-grid">
-          <div class="visits-filter-group">
-            <label class="visits-filter-label">Sales Rep</label>
-            <div class="crm-dd crm-dd--form" data-dd-id="filter-rep">
-              <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
-                <span class="crm-dd-label">All Reps</span>
-                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-              </button>
-              <div class="crm-dd-panel" role="listbox">
-                <ul class="crm-dd-list">
-                  <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="All Reps" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Reps</li>
-                  ${salesReps.map(rep => `<li class="crm-dd-option" role="option" data-value="${rep.id}" data-label="${escapeHtml(rep.first_name)} ${escapeHtml(rep.last_name)}" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>${escapeHtml(rep.first_name)} ${escapeHtml(rep.last_name)}</li>`).join('')}
-                </ul>
-              </div>
-              <input class="crm-dd-value-input" type="hidden" id="filter-rep" value="">
-            </div>
           </div>
-          
-          <div class="visits-filter-group">
-            <label class="visits-filter-label">Visit Type</label>
-            <div class="crm-dd crm-dd--form" data-dd-id="filter-type">
-              <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
-                <span class="crm-dd-label">All Types</span>
-                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-              </button>
-              <div class="crm-dd-panel" role="listbox">
-                <ul class="crm-dd-list">
-                  <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="All Types" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>All Types</li>
-                  <li class="crm-dd-option" role="option" data-value="new_lead" data-label="New Lead" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>New Lead</li>
-                  <li class="crm-dd-option" role="option" data-value="follow_up" data-label="Follow-up" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Follow-up</li>
-                  <li class="crm-dd-option" role="option" data-value="demo" data-label="Product Demo" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Product Demo</li>
-                  <li class="crm-dd-option" role="option" data-value="closing" data-label="Closing" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Closing</li>
-                  <li class="crm-dd-option" role="option" data-value="support" data-label="Customer Support" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Customer Support</li>
-                </ul>
-              </div>
-              <input class="crm-dd-value-input" type="hidden" id="filter-type" value="">
-            </div>
-          </div>
-          
-          <div class="visits-filter-group">
-            <label class="visits-filter-label">Lead Score</label>
-            <div class="crm-dd crm-dd--form" data-dd-id="filter-score">
-              <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
-                <span class="crm-dd-label">Any Score</span>
-                <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-              </button>
-              <div class="crm-dd-panel" role="listbox">
-                <ul class="crm-dd-list">
-                  <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="" data-label="Any Score" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Any Score</li>
-                  <li class="crm-dd-option" role="option" data-value="70" data-label="High (70%+)" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>High (70%+)</li>
-                  <li class="crm-dd-option" role="option" data-value="40" data-label="Medium (40-69%)" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Medium (40-69%)</li>
-                  <li class="crm-dd-option" role="option" data-value="0" data-label="Low (&lt; 40%)" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Low (&lt; 40%)</li>
-                </ul>
-              </div>
-              <input class="crm-dd-value-input" type="hidden" id="filter-score" value="">
-            </div>
-          </div>
-          
-          <div class="visits-filter-group span-2">
-            <label class="visits-filter-label">Date Range</label>
-            <div class="visits-date-range">
-              <input type="date" id="filter-date-from">
-              <span>to</span>
-              <input type="date" id="filter-date-to">
-              <button class="crm-filter-clear" id="visits-date-clear" style="display:none; padding:4px 8px; font-size:0.75rem; border:none; background:transparent;">✕ Clear dates</button>
-            </div>
-          </div>
-        </div>
-        
-        <div class="visits-filters-footer">
-          <button class="btn btn-ghost btn-sm" id="clear-all-filters">Clear All</button>
-          <button class="btn btn-primary btn-sm" id="apply-filters">Apply Filters</button>
         </div>
       </div>
 
       <!-- Main Content -->
       <div class="visits-main-content">
         <div class="visits-list-section">
-          <div class="visits-list-header">
-            <div>
-              <span class="visits-list-title">All Visits</span>
-              <span class="visits-list-count" id="visits-count">${visitsWithProfiles.length} visits</span>
-            </div>
-            <div class="visits-list-sort">
-              <label>Sort by:</label>
-              <div class="crm-dd crm-dd--filter" data-dd-id="visits-sort">
-                <button type="button" class="crm-dd-trigger has-value" aria-haspopup="listbox" aria-expanded="false">
-                  <span class="crm-dd-label">Newest First</span>
-                  <span class="crm-dd-chevron"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
-                </button>
-                <div class="crm-dd-panel" role="listbox">
-                  <ul class="crm-dd-list">
-                    <li class="crm-dd-option is-selected" role="option" aria-selected="true" data-value="newest" data-label="Newest First" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Newest First</li>
-                    <li class="crm-dd-option" role="option" data-value="oldest" data-label="Oldest First" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Oldest First</li>
-                    <li class="crm-dd-option" role="option" data-value="score-high" data-label="Highest Score" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Highest Score</li>
-                    <li class="crm-dd-option" role="option" data-value="score-low" data-label="Lowest Score" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Lowest Score</li>
-                    <li class="crm-dd-option" role="option" data-value="company" data-label="Company A-Z" tabindex="-1"><svg class="crm-dd-check" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>Company A-Z</li>
-                  </ul>
-                </div>
-                <input class="crm-dd-value-input" type="hidden" id="visits-sort" value="newest">
-              </div>
-            </div>
-          </div>
-          
           <!-- Cards View -->
           <div class="visits-list-container" id="visits-cards-view">
             ${renderVisitsCards(visitsWithProfiles)}
@@ -619,20 +558,9 @@ function initVisitsHub() {
     }, 300));
   }
 
-  // Restore other filter elements
-  if (visitsHubState.filters.rep) document.getElementById('filter-rep').value = visitsHubState.filters.rep;
-  if (visitsHubState.filters.type) document.getElementById('filter-type').value = visitsHubState.filters.type;
-  if (visitsHubState.filters.scoreMin) document.getElementById('filter-score').value = visitsHubState.filters.scoreMin;
-  if (visitsHubState.filters.dateFrom) document.getElementById('filter-date-from').value = visitsHubState.filters.dateFrom;
-  if (visitsHubState.filters.dateTo) document.getElementById('filter-date-to').value = visitsHubState.filters.dateTo;
-
-  // Update filter count badge
-  updateFilterCountBadge();
-
   // Initialize Sort Select
   const sortSelect = document.getElementById('visits-sort');
   if (sortSelect) {
-    sortSelect.value = visitsHubState.sortBy;
     sortSelect.addEventListener('change', (e) => {
       visitsHubState.sortBy = e.target.value;
       saveViewState({ teamDashboard: { currentView: visitsHubState.currentView, filters: visitsHubState.filters, sortBy: visitsHubState.sortBy } });
@@ -648,60 +576,22 @@ function initVisitsHub() {
     });
   });
 
-  // Filters toggle
-  const filtersToggle = document.getElementById('toggle-filters');
-  const filtersPanel = document.getElementById('filters-panel');
-  if (filtersToggle && filtersPanel) {
-    filtersToggle.addEventListener('click', () => {
-      filtersPanel.classList.toggle('open');
-      filtersToggle.classList.toggle('has-filters', filtersPanel.classList.contains('open'));
-    });
-  }
-
-  // Initialize CustomCalendar on date inputs (replaces native browser date picker)
-  if (window.initCustomCalendar) {
-    window.initCustomCalendar('#filter-date-from', { type: 'date' });
-    window.initCustomCalendar('#filter-date-to', { type: 'date' });
-  }
-
-  // Filter controls
+  // Filters apply as soon as they change
   ['filter-rep', 'filter-type', 'filter-score', 'filter-date-from', 'filter-date-to'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.addEventListener('change', () => {
-        updateFilterState();
-      });
-    }
-  });
-
-  // Apply filters button
-  const applyBtn = document.getElementById('apply-filters');
-  if (applyBtn) {
-    applyBtn.addEventListener('click', () => {
-      applyVisitsFilters();
-      document.getElementById('filters-panel').classList.remove('open');
-    });
-  }
-
-  // Clear filters
-  const clearBtn = document.getElementById('clear-all-filters');
-  if (clearBtn) {
-    clearBtn.addEventListener('click', () => {
-      clearAllFilters();
-    });
-  }
-
-  const clearDatesBtn = document.getElementById('visits-date-clear');
-  if (clearDatesBtn) {
-    clearDatesBtn.addEventListener('click', () => {
-      document.getElementById('filter-date-from').value = '';
-      document.getElementById('filter-date-to').value = '';
+    document.getElementById(id)?.addEventListener('change', () => {
       updateFilterState();
       applyVisitsFilters();
     });
-  }
-
-
+  });
+  document.getElementById('filter-date')?.addEventListener('change', () => {
+    if (document.getElementById('filter-date').value !== 'custom') {
+      document.getElementById('filter-date-from').value = '';
+      document.getElementById('filter-date-to').value = '';
+    }
+    updateFilterState();
+    applyVisitsFilters();
+  });
+  initFilterBar(document.getElementById('visits-fb'), { onClear: clearAllFilters });
 
   // Activity tabs
   document.querySelectorAll('.activity-tab').forEach(tab => {
@@ -743,23 +633,19 @@ function switchVisitsView(view, save = true) {
   }
 }
 
-function updateFilterCountBadge() {
-  const activeFilters = Object.values(visitsHubState.filters).filter(v => v).length;
-  const countEl = document.getElementById('filters-count');
-  if (countEl) {
-    countEl.textContent = activeFilters;
-    countEl.style.display = activeFilters > 0 ? 'inline-flex' : 'none';
-  }
+// Filters saved before the date presets had only from/to: they become a custom range
+function visitDatePreset() {
+  const f = visitsHubState.filters;
+  return f.datePreset || (f.dateFrom || f.dateTo ? 'custom' : '');
 }
 
 function updateFilterState() {
   visitsHubState.filters.rep = document.getElementById('filter-rep')?.value || '';
   visitsHubState.filters.type = document.getElementById('filter-type')?.value || '';
   visitsHubState.filters.scoreMin = document.getElementById('filter-score')?.value || '';
+  visitsHubState.filters.datePreset = document.getElementById('filter-date')?.value || '';
   visitsHubState.filters.dateFrom = document.getElementById('filter-date-from')?.value || '';
   visitsHubState.filters.dateTo = document.getElementById('filter-date-to')?.value || '';
-
-  updateFilterCountBadge();
 
   saveViewState({ teamDashboard: { currentView: visitsHubState.currentView, filters: visitsHubState.filters, sortBy: visitsHubState.sortBy } });
 }
@@ -767,6 +653,7 @@ function updateFilterState() {
 function applyVisitsFilters() {
   let filtered = [...visitsHubState.visits];
   const { search, rep, type, scoreMin, dateFrom, dateTo } = visitsHubState.filters;
+  const dateRange = fbDateRange(visitDatePreset(), dateFrom, dateTo);
 
   // Search filter
   if (search) {
@@ -801,15 +688,7 @@ function applyVisitsFilters() {
   }
 
   // Date filter
-  if (dateFrom) {
-    const fromDate = new Date(dateFrom);
-    filtered = filtered.filter(v => new Date(v.created_at) >= fromDate);
-  }
-  if (dateTo) {
-    const toDate = new Date(dateTo);
-    toDate.setHours(23, 59, 59, 999);
-    filtered = filtered.filter(v => new Date(v.created_at) <= toDate);
-  }
+  filtered = filtered.filter(v => fbInRange(dateRange, v.created_at));
 
   // Sort
   switch (visitsHubState.sortBy) {
@@ -857,26 +736,9 @@ function _renderVisitsPage() {
 }
 
 function clearAllFilters() {
-  visitsHubState.filters = {
-    search: '',
-    rep: '',
-    type: '',
-    dateFrom: '',
-    dateTo: '',
-    scoreMin: ''
-  };
-
-  // Reset form elements
-  document.getElementById('visits-search').value = '';
-  document.getElementById('filter-rep').value = '';
-  document.getElementById('filter-type').value = '';
-  document.getElementById('filter-score').value = '';
-  document.getElementById('filter-date-from').value = '';
-  document.getElementById('filter-date-to').value = '';
-  
-  const clearDatesBtn = document.getElementById('visits-date-clear');
-  if (clearDatesBtn) clearDatesBtn.style.display = 'none';
-
+  const bar = document.getElementById('visits-fb');
+  if (bar) resetFilterBar(bar);
+  visitsHubState.filters = { search: '', rep: '', type: '', datePreset: '', dateFrom: '', dateTo: '', scoreMin: '' };
   updateFilterState();
   applyVisitsFilters();
 }
@@ -1726,7 +1588,6 @@ export {
   getRelativeTime,
   initVisitsHub,
   switchVisitsView,
-  updateFilterCountBadge,
   updateFilterState,
   applyVisitsFilters,
   clearAllFilters,

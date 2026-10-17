@@ -9,6 +9,7 @@ import { getDefaultSalesStages, LEGACY_STAGE_TO_CANONICAL } from '../utils/pipel
 import { fetchAllPages } from '../utils/analytics.js';
 import { allDayDueFields, dueDay, dueStart } from '../utils/due-dates.js';
 import { memberColor } from '../ui/member-color.js';
+import { fbSearch, fbSelect, fbDate, fbClear, fbDateRange, fbInRange, initFilterBar, FUTURE_DATE_PRESETS } from '../ui/filter-bar.js';
 
 // ── Pipeline helpers ──────────────────────────────────────────────────────────
 
@@ -672,22 +673,25 @@ async function renderOpportunityPipelineView({ preserveView = false } = {}) {
     : [];
 
   const quickFilterOptions = [
-    { value: 'all', label: 'All Deals' },
-    { value: 'high-value', label: 'High Value (top 20%)' },
-    { value: 'high-probability', label: 'High Probability (70%+)' },
-    { value: 'next-step-due', label: 'Next Step Due or Overdue' },
-    ...(state.isManager ? [{ value: 'my-reps', label: 'Sales Reps' }] : []),
+    { value: 'all', label: 'All deals' },
+    { value: 'high-value', label: 'High value (top 20%)' },
+    { value: 'high-probability', label: 'High probability (70%+)' },
+    { value: 'next-step-due', label: 'Next step due or overdue' },
+    ...(state.isManager ? [{ value: 'my-reps', label: 'Sales reps’ deals' }] : []),
   ];
 
   const sortOptions = [
-    { value: 'recent', label: 'Sort: Recently Updated' },
-    { value: 'newest', label: 'Sort: Newest' },
-    { value: 'oldest', label: 'Sort: Oldest' },
-    { value: 'value-desc', label: 'Sort: Highest Value' },
-    { value: 'value-asc', label: 'Sort: Lowest Value' },
-    { value: 'probability-desc', label: 'Sort: Highest Probability' },
-    { value: 'next-step', label: 'Sort: Next Step Due' },
+    { value: 'recent', label: 'Recently updated' },
+    { value: 'newest', label: 'Newest' },
+    { value: 'oldest', label: 'Oldest' },
+    { value: 'value-desc', label: 'Highest value' },
+    { value: 'value-asc', label: 'Lowest value' },
+    { value: 'probability-desc', label: 'Highest probability' },
+    { value: 'next-step', label: 'Next step due' },
   ];
+
+  // The bar opens with the filters this browser last used
+  const savedControls = _loadPersistedState().pipeline || {};
 
   let html = `
     <div class="pipeline-toolbar" style="flex-direction: column; align-items: stretch; gap: 8px;">
@@ -708,52 +712,29 @@ async function renderOpportunityPipelineView({ preserveView = false } = {}) {
         ` : ''}
       </div>
 
-      <div class="pipeline-controls pipeline-controls-primary" style="width: 100%;">
-        <div class="pipeline-search">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-          <input type="text" id="pipeline-search" placeholder="Search company, deal, notes...">
+      <div class="fb pipeline-fb" id="pipeline-fb">
+        ${fbSearch({ id: 'pipeline-search', placeholder: 'Search deals', value: savedControls.search || '' })}
+        <div class="fb-filters">
+          ${fbSelect({ id: 'pipeline-quick-filter', label: 'Show', options: quickFilterOptions, value: savedControls.quickFilter || 'all' })}
+          ${state.isManager ? fbSelect({ id: 'pipeline-owner-filter', label: 'Owner', options: [{ value: 'all', label: 'Anyone' }, ...ownerOptions], value: savedControls.owner || 'all', searchable: ownerOptions.length > 8 }) : ''}
+          ${fbDate({ id: 'pipeline-next-step', label: 'Next step', presets: FUTURE_DATE_PRESETS, value: { preset: savedControls.nextStep || '', from: savedControls.nextStepFrom || '', to: savedControls.nextStepTo || '' } })}
+          ${fbClear('pipeline-reset-controls')}
         </div>
-
-        <button class="btn btn-secondary crm-filter-toggle-btn" id="pipeline-advanced-toggle" aria-expanded="false">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sliders-horizontal-icon lucide-sliders-horizontal"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg> Filters
-        </button>
-
-        <button class="btn btn-primary pipeline-add-btn" id="add-opportunity-btn">
-          <i data-lucide="plus" class="u-icon-16"></i> New Opportunity
-        </button>
-      </div>
-
-      <div class="crm-filter-panel" id="pipeline-advanced-controls">
-        <div class="crm-filter-bar" style="padding-top: 0;">
-          ${renderFilterDropdown('pipeline-quick-filter', quickFilterOptions, 'all')}
-
-          <span class="crm-filter-divider"></span>
-
-          <div class="crm-date-range">
-            <span class="crm-date-range-label">Next Step:</span>
-            <input type="date" class="crm-date-input" id="pipeline-filter-date-from" placeholder="From">
-            <span class="crm-date-range-label">to</span>
-            <input type="date" class="crm-date-input" id="pipeline-filter-date-to" placeholder="To">
-            <button class="crm-filter-clear" id="pipeline-date-clear" style="display:none; padding:4px 8px; font-size:0.75rem;">✕ Clear dates</button>
-          </div>
-
-          ${state.isManager ? `
-            <span class="crm-filter-divider"></span>
-            ${renderFilterDropdown('pipeline-owner-filter', [{ value: 'all', label: 'All Owners' }, ...ownerOptions], 'all')}
-          ` : ''}
-
-          <span class="crm-filter-divider"></span>
-          ${renderFilterDropdown('pipeline-sort', sortOptions, DEFAULT_SORT)}
-
-          ${hasClosedStages ? `
-            <span class="crm-filter-divider"></span>
-            ${renderFilterDropdown('pipeline-closed-range', [
-              { value: 'recent', label: `Closed: Last ${CLOSED_RECENT_DAYS} Days` },
-              { value: 'all', label: 'Closed: All Time' },
-            ], closedRange)}
-          ` : ''}
-
-          <button class="crm-filter-clear" id="pipeline-reset-controls" style="display:none;">✕ Clear</button>
+        <div class="fb-actions">
+          ${fbSelect({ id: 'pipeline-sort', label: 'Sort', kind: 'sort', options: sortOptions, value: savedControls.sort || DEFAULT_SORT })}
+          ${hasClosedStages ? fbSelect({
+            id: 'pipeline-closed-range',
+            label: 'Closed',
+            kind: 'setting',
+            options: [
+              { value: 'recent', label: `Last ${CLOSED_RECENT_DAYS} days` },
+              { value: 'all', label: 'All time' },
+            ],
+            value: closedRange,
+          }) : ''}
+          <button class="btn btn-primary pipeline-add-btn" id="add-opportunity-btn">
+            <i data-lucide="plus" class="u-icon-16"></i> New Opportunity
+          </button>
         </div>
       </div>
     </div>
@@ -1074,39 +1055,16 @@ function updatePipelineStageCounts() {
 }
 
 function initPipelineFilters() {
+  const bar = document.getElementById('pipeline-fb');
   const quickFilterSelect = document.getElementById('pipeline-quick-filter');
   const searchInput = document.getElementById('pipeline-search');
   const ownerSelect = document.getElementById('pipeline-owner-filter');
   const sortSelect = document.getElementById('pipeline-sort');
   const closedRangeSelect = document.getElementById('pipeline-closed-range');
-  const advancedToggle = document.getElementById('pipeline-advanced-toggle');
-  const advancedControls = document.getElementById('pipeline-advanced-controls');
-  const resetBtn = document.getElementById('pipeline-reset-controls');
-  const dateFromInput = document.getElementById('pipeline-filter-date-from');
-  const dateToInput = document.getElementById('pipeline-filter-date-to');
-  const dateClearBtn = document.getElementById('pipeline-date-clear');
-
-  // Load persisted state
+  const nextStepSelect = document.getElementById('pipeline-next-step');
+  const nextStepFrom = document.getElementById('pipeline-next-step-from');
+  const nextStepTo = document.getElementById('pipeline-next-step-to');
   const persistedState = _loadPersistedState().pipeline || {};
-  const setDropdown = (id, el, value) => {
-    if (!el || !value) return;
-    window.setCrmDropdownValue?.(id, value);
-    el.value = value;
-  };
-  if (searchInput && persistedState.search) searchInput.value = persistedState.search;
-  setDropdown('pipeline-quick-filter', quickFilterSelect, persistedState.quickFilter);
-  setDropdown('pipeline-owner-filter', ownerSelect, persistedState.owner);
-  setDropdown('pipeline-sort', sortSelect, persistedState.sort);
-  if (persistedState.advancedOpen && advancedToggle && advancedControls) {
-    advancedControls.classList.add('open');
-    advancedToggle.classList.add('is-active');
-    advancedToggle.setAttribute('aria-expanded', 'true');
-  }
-
-  if (window.initCustomCalendar) {
-    window.initCustomCalendar('#pipeline-filter-date-from', { type: 'date' });
-    window.initCustomCalendar('#pipeline-filter-date-to', { type: 'date' });
-  }
 
   const compareBySort = (a, b, sort) => {
     const aValue = Number(a.dataset.value || 0);
@@ -1134,11 +1092,13 @@ function initPipelineFilters() {
     search: searchInput?.value || '',
     owner: ownerSelect?.value || 'all',
     sort: sortSelect?.value || DEFAULT_SORT,
-    advancedOpen: advancedToggle?.classList.contains('is-active') || false,
+    nextStep: nextStepSelect?.value || '',
+    nextStepFrom: nextStepFrom?.value || '',
+    nextStepTo: nextStepTo?.value || '',
     closedRange: closedRangeSelect?.value || persistedState.closedRange || 'recent',
   });
 
-  const matchesFilters = (opp, controls, tokens, dateFrom, dateTo) => {
+  const matchesFilters = (opp, controls, tokens, nextStepRange) => {
     if (controls.quickFilter === 'my-reps' && opp.profiles?.role !== 'sales_rep') return false;
     if (controls.quickFilter === 'high-value' && dealValue(opp) < board.highValueThreshold) return false;
     if (controls.quickFilter === 'high-probability' && dealProbability(opp) < 70) return false;
@@ -1146,12 +1106,7 @@ function initPipelineFilters() {
 
     if (controls.owner !== 'all' && (opp.user_id || NO_OWNER) !== controls.owner) return false;
 
-    if (dateFrom || dateTo) {
-      const nextDate = toLocalDay(opp.next_step_date);
-      if (!nextDate) return false;
-      if (dateFrom && nextDate < dateFrom) return false;
-      if (dateTo && nextDate > dateTo) return false;
-    }
+    if (controls.nextStep && !fbInRange(nextStepRange, opp.next_step_date ? String(opp.next_step_date).slice(0, 10) : null)) return false;
 
     if (tokens.length > 0) {
       const text = board.searchText.get(opp.id) || '';
@@ -1163,23 +1118,19 @@ function initPipelineFilters() {
   const applyPipelineControls = () => {
     const controls = getControls();
     const tokens = controls.search.trim().toLowerCase().split(/\s+/).filter(Boolean);
-    const dateFrom = toLocalDay(dateFromInput?.value);
-    const dateTo = toLocalDay(dateToInput?.value);
+    const nextStepRange = fbDateRange(controls.nextStep, controls.nextStepFrom, controls.nextStepTo);
 
     saveViewState({ pipeline: controls });
 
     const hasFilters = controls.quickFilter !== 'all' || controls.owner !== 'all' || controls.sort !== DEFAULT_SORT
-      || dateFrom || dateTo || tokens.length > 0;
+      || controls.nextStep || tokens.length > 0;
 
     // Filtering and sorting work on every deal, not just the first page of each column
     if (hasFilters) expandAllStages();
 
-    if (resetBtn) resetBtn.style.display = hasFilters ? 'inline-flex' : 'none';
-    if (dateClearBtn) dateClearBtn.style.display = (dateFrom || dateTo) ? 'inline-flex' : 'none';
-
     document.querySelectorAll('.opportunity-card').forEach(card => {
       const opp = board?.opportunitiesById.get(card.dataset.id);
-      const show = !opp || matchesFilters(opp, controls, tokens, dateFrom, dateTo);
+      const show = !opp || matchesFilters(opp, controls, tokens, nextStepRange);
       card.classList.toggle('is-filtered-out', !show);
     });
 
@@ -1192,32 +1143,6 @@ function initPipelineFilters() {
     updatePipelineStageCounts();
   };
 
-  advancedToggle?.addEventListener('click', () => {
-    const isOpen = advancedControls?.classList.toggle('open');
-    advancedToggle.classList.toggle('is-active', isOpen);
-    advancedToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-    applyPipelineControls();
-  });
-
-  const clearDates = () => {
-    if (dateFromInput) dateFromInput.value = '';
-    if (dateToInput) dateToInput.value = '';
-  };
-
-  resetBtn?.addEventListener('click', () => {
-    if (searchInput) searchInput.value = '';
-    setDropdown('pipeline-quick-filter', quickFilterSelect, 'all');
-    setDropdown('pipeline-owner-filter', ownerSelect, 'all');
-    setDropdown('pipeline-sort', sortSelect, DEFAULT_SORT);
-    clearDates();
-    applyPipelineControls();
-  });
-
-  dateClearBtn?.addEventListener('click', () => {
-    clearDates();
-    applyPipelineControls();
-  });
-
   // The closed range decides which deals are loaded into the columns, so it re-renders
   closedRangeSelect?.addEventListener('change', () => {
     saveViewState({ pipeline: getControls() });
@@ -1228,8 +1153,16 @@ function initPipelineFilters() {
   searchInput?.addEventListener('input', applyPipelineControls);
   ownerSelect?.addEventListener('change', applyPipelineControls);
   sortSelect?.addEventListener('change', applyPipelineControls);
-  dateFromInput?.addEventListener('change', applyPipelineControls);
-  dateToInput?.addEventListener('change', applyPipelineControls);
+  nextStepSelect?.addEventListener('change', () => {
+    if (nextStepSelect.value !== 'custom') {
+      if (nextStepFrom) nextStepFrom.value = '';
+      if (nextStepTo) nextStepTo.value = '';
+    }
+    applyPipelineControls();
+  });
+  nextStepFrom?.addEventListener('change', applyPipelineControls);
+  nextStepTo?.addEventListener('change', applyPipelineControls);
+  initFilterBar(bar, { onClear: applyPipelineControls });
 
   applyPipelineControls();
 }
