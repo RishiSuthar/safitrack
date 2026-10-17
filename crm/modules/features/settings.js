@@ -632,7 +632,7 @@ async function renderSettingsView() {
           <div class="sv-members-toolbar">
             <div class="sv-members-search-bar">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"/></svg>
-              <input type="text" placeholder="Search by name or email…" id="sv-member-search">
+              <input type="text" placeholder="Search members…" aria-label="Search by name or email" id="sv-member-search">
             </div>
             ${state.isManager ? '<button class="sv-primary-btn" id="invite-member-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px;margin-right:6px;"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Invite member</button>' : ''}
           </div>
@@ -2081,6 +2081,40 @@ async function renderSettingsView() {
         .sv-input-pair .sv-input { max-width: 100%; }
         .sv-theme-grid { flex-direction: column; }
         .sv-stat-row { flex-direction: column; }
+      }
+
+      /* Touch screens: no hover, so the remove button always shows, and the
+         role chip keeps its size (buttons there get a 40px minimum height) */
+      @media (hover: none) {
+        .sv-member-remove-btn { opacity: 1; }
+      }
+      .sv-role-chip { min-height: 0; }
+
+      /* Phones: each member is a card (name and email on top, role and
+         status underneath) instead of a table wider than the screen */
+      @media (max-width: 640px) {
+        .sv-content { padding: 20px 16px; }
+        .sv-members-search-bar { min-width: 0; max-width: none; }
+        .sv-members-toolbar .sv-primary-btn { flex-shrink: 0; }
+        .sv-members-table, .sv-members-table tbody { display: block; }
+        .sv-members-table thead { display: none; }
+        .sv-members-table tbody tr {
+          display: grid;
+          grid-template-columns: auto minmax(0, 1fr) auto;
+          align-items: center;
+          gap: 8px 12px;
+          padding: 12px 14px;
+          border-bottom: 1px solid var(--border-color);
+        }
+        .sv-members-table tbody tr:last-child { border-bottom: none; }
+        .sv-members-table td { padding: 0; border-bottom: none; }
+        .sv-members-table td:nth-child(1) { grid-column: 1 / 3; grid-row: 1; min-width: 0; }
+        .sv-members-table td:nth-child(2) { grid-column: 1; grid-row: 2; margin-left: 42px; }
+        .sv-members-table td:nth-child(3) { grid-column: 2; grid-row: 2; }
+        .sv-members-table td.sv-member-actions-cell { grid-column: 3; grid-row: 1; width: auto; }
+        .sv-members-table td.sv-table-empty { grid-column: 1 / -1; padding: 32px 0; }
+        .sv-member-info { min-width: 0; }
+        .sv-member-name, .sv-member-email { overflow-wrap: anywhere; }
       }
     `;
     document.head.appendChild(style);

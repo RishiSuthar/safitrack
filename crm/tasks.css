@@ -197,6 +197,10 @@
   flex-shrink: 0;
   width: 18px;
   height: 18px;
+  /* Touch screens give every button a 40px minimum height, which would
+     stretch the circle; ::before gives it a larger tap area instead */
+  min-width: 0;
+  min-height: 0;
   padding: 0;
   border: 1.5px solid var(--text-muted);
   border-radius: 50%;
@@ -204,6 +208,12 @@
   cursor: pointer;
   opacity: 0.7;
   transition: border-color var(--transition-fast), background var(--transition-fast), opacity var(--transition-fast);
+}
+
+.tl-check:not(.is-static)::before {
+  content: '';
+  position: absolute;
+  inset: -10px;
 }
 
 .tl-check::after {
@@ -343,6 +353,36 @@ button.tl-chip:hover {
 }
 
 @media (max-width: 640px) {
+  /* Toolbar: search and New Task share the top line; the filters scroll
+     sideways on the second, with Sort pinned at its end */
+  #tl-fb {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2);
+  }
+
+  #tl-fb .fb-actions {
+    display: contents;
+  }
+
+  #tl-fb .fb-search {
+    grid-area: 1 / 1;
+  }
+
+  #tl-fb #add-task-btn {
+    grid-area: 1 / 2;
+    height: 36px;
+    min-height: 0;
+  }
+
+  #tl-fb .fb-filters {
+    grid-area: 2 / 1;
+  }
+
+  #tl-fb .fb-dd[data-dd-id="tl-sort"] {
+    grid-area: 2 / 2;
+  }
+
   .tl-head {
     display: none;
   }
@@ -397,6 +437,7 @@ button.tl-chip:hover {
 
   .tl-chip {
     height: 22px;
+    min-height: 0;
     font-size: var(--type-xs);
   }
 }

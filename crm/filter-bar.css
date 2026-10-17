@@ -196,12 +196,14 @@
     width: auto;
   }
 
-  /* Bigger tap targets */
+  /* Bigger tap targets, all one height (touch screens' 40px button
+     minimum would otherwise make the dropdowns taller than the search) */
   .fb-search input,
   .fb-dd .crm-dd-trigger,
   .fb-range,
   .fb-clear {
     height: 36px;
+    min-height: 0;
   }
 
   .fb-filters {

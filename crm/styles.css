@@ -20896,6 +20896,7 @@ button svg {
   .od-panel {
     width: 100%;
     max-height: 92vh;
+    max-height: 92dvh;
     border-bottom: 0;
     border-radius: 16px 16px 0 0;
   }
@@ -21518,6 +21519,7 @@ a.od-link:hover {
 /* Touch screens give every button a 40px minimum height; inline controls in
    these panels keep their size (the checkbox gets a larger invisible tap area) */
 .td-check,
+.od-check,
 .od-subtitle button,
 .od-subtitle a,
 .od-panel .od-link,
@@ -21527,7 +21529,8 @@ a.od-link:hover {
   min-width: 0;
 }
 
-.td-check::before {
+.td-check::before,
+.od-check::before {
   content: '';
   position: absolute;
   inset: -8px;
