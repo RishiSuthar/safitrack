@@ -107,7 +107,7 @@ async function renderTasksView() {
             ${tlIcon('search')}
             <input type="search" id="tl-search" placeholder="Search tasks" value="${escapeHtml(taskList.query)}" autocomplete="off" aria-label="Search tasks">
           </label>
-          <button type="button" class="btn btn-primary tl-new" id="add-task-btn">${tlIcon('plus')}<span>New task</span></button>
+          <button type="button" class="btn btn-primary" id="add-task-btn">${tlIcon('plus')}<span>New Task</span></button>
         </div>
       </div>
 
@@ -241,8 +241,8 @@ function renderTaskList() {
         <div class="tl-empty-title">${filtered ? 'No tasks match' : 'No tasks yet'}</div>
         <div class="tl-empty-text">${filtered ? 'Try a different search or filter.' : 'Add follow-ups for yourself or your team, or add them from a deal.'}</div>
         ${filtered
-          ? '<button type="button" class="btn btn-secondary btn-sm" data-action="clear-filters">Clear filters</button>'
-          : `<button type="button" class="btn btn-primary btn-sm" data-action="new-task">${tlIcon('plus')}New task</button>`}
+          ? '<button type="button" class="btn btn-secondary" data-action="clear-filters">Clear filters</button>'
+          : `<button type="button" class="btn btn-primary" data-action="new-task">${tlIcon('plus')}New Task</button>`}
       </div>`;
     return;
   }

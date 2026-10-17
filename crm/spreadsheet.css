@@ -218,6 +218,13 @@
     font-size: 0.9rem;
 }
 
+/* The same 14px icon as every other primary button (New Opportunity, New Task…) */
+.toolbar-btn-primary svg,
+.toolbar-btn-primary i {
+    width: var(--icon-sm);
+    height: var(--icon-sm);
+}
+
 /* Toolbar Search Input */
 .view-toolbar .search-container {
     position: relative;

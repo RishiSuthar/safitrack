@@ -131,7 +131,7 @@ function renderListPage() {
           <p class="wf-page-subtitle">${allWorkflows.length} workflow${allWorkflows.length !== 1 ? 's' : ''} · ${activeCount} active</p>
         </div>
         <button class="btn btn-primary" data-wf-action="new-workflow">
-          <i data-lucide="plus" style="width:16px;height:16px;"></i>
+          <i data-lucide="plus"></i>
           New Workflow
         </button>
       </div>

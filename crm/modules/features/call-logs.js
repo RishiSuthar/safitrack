@@ -200,7 +200,7 @@ function renderToolbar() {
         </label>
         <div class="calls-toolbar-actions">
           ${state.isManager ? seg('scope', [['my', 'My calls'], ['team', 'Team']], state.managerCallLogViewMode, 'Whose calls') : ''}
-          <button type="button" class="btn btn-primary calls-new-btn" id="log-call-btn">${ICONS.plus}<span>Log call</span></button>
+          <button type="button" class="btn btn-primary calls-new-btn" id="log-call-btn">${ICONS.plus}<span>Log Call</span></button>
         </div>
       </div>
       <div class="calls-toolbar-row calls-filters">
