@@ -5600,30 +5600,40 @@ body.modal-active {
   gap: var(--space-5);
 }
 
-/* List pages (Tasks, Calls) run edge to edge: the main area drops its side and
-   top padding and the page lines its toolbar and rows up on --page-gutter. */
+/* List pages (Tasks, Calls, Workflows, Submissions) run edge to edge: the main
+   area drops its side and top padding and the page lines its toolbar and rows
+   up on --page-gutter. The workflow editor fills the area the same way. */
 .main-content:has(> .tl-page),
-.main-content:has(> .calls-page) {
+.main-content:has(> .calls-page),
+.main-content:has(> .wf-page),
+.main-content:has(> .wf-builder),
+.main-content:has(> .ups-reports-section) {
   padding-top: 0;
   padding-left: 0;
   padding-right: 0;
 }
 
 .tl-page,
-.calls-page {
+.calls-page,
+.wf-page,
+.ups-reports-section {
   --page-gutter: 2rem;
 }
 
 @media (max-width: 1023px) {
   .tl-page,
-  .calls-page {
+  .calls-page,
+  .wf-page,
+  .ups-reports-section {
     --page-gutter: var(--space-5);
   }
 }
 
 @media (max-width: 768px) {
   .tl-page,
-  .calls-page {
+  .calls-page,
+  .wf-page,
+  .ups-reports-section {
     --page-gutter: var(--mobile-padding, 0.875rem);
   }
 }
@@ -22780,15 +22790,14 @@ a.od-link:hover {
 
 /* ── Page ──────────────────────────────────────────────────────────────────── */
 .wf-page {
-  max-width: 960px;
-  margin: 0 auto;
-  padding: var(--space-6) var(--space-5);
+  display: flex;
+  flex-direction: column;
 }
 .wf-page-header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  margin-bottom: var(--space-5);
+  padding: var(--space-5) var(--page-gutter) var(--space-4);
   gap: var(--space-3);
 }
 .wf-page-title {
@@ -22807,8 +22816,8 @@ a.od-link:hover {
 .wf-tabs {
   display: flex;
   gap: var(--space-1);
+  padding: 0 var(--page-gutter);
   border-bottom: 1px solid var(--border-color);
-  margin-bottom: var(--space-5);
 }
 .wf-tab {
   display: flex;
@@ -22870,21 +22879,20 @@ a.od-link:hover {
 .wf-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
 }
 .wf-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: var(--space-3) var(--space-4);
+  min-height: 60px;
+  padding: var(--space-3) var(--page-gutter);
   background: var(--bg-secondary);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
+  border-bottom: 1px solid var(--border-color-light);
   cursor: pointer;
-  transition: border-color var(--transition-fast);
+  transition: background var(--transition-fast);
 }
 .wf-card:hover {
-  border-color: var(--color-primary-light);
+  background: var(--bg-hover);
 }
 .wf-card-left {
   display: flex;
@@ -23388,14 +23396,12 @@ a.od-link:hover {
 
 /* ── Run History ──────────────────────────────────────────────────────────── */
 .wf-history-table {
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  overflow: hidden;
+  border-bottom: 1px solid var(--border-color);
 }
 .wf-history-header {
   display: flex;
   align-items: center;
-  padding: var(--space-2) var(--space-4);
+  padding: var(--space-2) var(--page-gutter);
   background: var(--bg-tertiary);
   border-bottom: 1px solid var(--border-color);
   font-size: var(--type-xs);
@@ -23407,8 +23413,8 @@ a.od-link:hover {
 .wf-history-row {
   display: flex;
   align-items: center;
-  padding: var(--space-3) var(--space-4);
-  border-bottom: 1px solid var(--border-color);
+  padding: var(--space-3) var(--page-gutter);
+  border-bottom: 1px solid var(--border-color-light);
   font-size: var(--type-sm);
   transition: background var(--transition-fast);
 }
@@ -23425,9 +23431,9 @@ a.od-link:hover {
   min-width: 0;
 }
 .wf-history-col-status {
-  width: 36px;
+  width: 64px;
   flex-shrink: 0;
-  justify-content: center;
+  justify-content: flex-start;
 }
 .wf-history-col-workflow {
   flex: 2;
@@ -23779,9 +23785,6 @@ textarea.wf-field-input {
    WORKFLOW — MOBILE
    ═══════════════════════════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
-  .wf-page {
-    padding: var(--space-4) var(--space-3);
-  }
   .wf-page-header {
     flex-direction: column;
     gap: var(--space-3);
@@ -24372,6 +24375,31 @@ textarea.ups-input {
   gap: 12px;
   margin-bottom: 16px;
   flex-wrap: wrap;
+}
+
+/* The managers' Submissions page runs edge to edge: a header band, then the table */
+.main-content > .ups-reports-section .ups-reports-header {
+  margin-bottom: 0;
+  padding: var(--space-3) var(--page-gutter);
+  border-bottom: 1px solid var(--border-color);
+}
+.main-content > .ups-reports-section .ups-reports-table-wrap {
+  border: 0;
+  border-radius: 0;
+  border-bottom: 1px solid var(--border-color);
+}
+.main-content > .ups-reports-section .ups-reports-table th:first-child,
+.main-content > .ups-reports-section .ups-reports-table td:first-child {
+  padding-left: var(--page-gutter);
+}
+.main-content > .ups-reports-section .ups-reports-table th:last-child,
+.main-content > .ups-reports-section .ups-reports-table td:last-child {
+  padding-right: var(--page-gutter);
+}
+.main-content > .ups-reports-section .pagination-container {
+  margin-top: 0;
+  padding: var(--space-3) var(--page-gutter);
+  border-top: 0;
 }
 .ups-reports-title {
   font-size: 18px;
