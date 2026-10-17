@@ -6,6 +6,7 @@ import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderSkeletonCards, renderError } from '../utils/helpers.js';
 import { matchesTokenizedQuery } from '../ui/spreadsheet.js';
 import { fetchAllPages } from '../utils/analytics.js';
+import { memberAvatarStyle } from '../ui/member-color.js';
 
 function groupRoutesByLocations(routes, routeLocations) {
   // Create a map of route_id to its location signature (sorted company IDs)
@@ -293,7 +294,7 @@ async function renderRoutePlanningView() {
                     ? '<span class="ri-unassigned">Unassigned</span>'
                     : group.assignees.map(a => `
                         <span class="ri-assignee">
-                          <span class="ri-assignee-av">${escapeHtml(a.first_name.charAt(0))}${escapeHtml(a.last_name.charAt(0))}</span>
+                          <span class="ri-assignee-av" style="${memberAvatarStyle(a.id)}">${escapeHtml(a.first_name.charAt(0))}${escapeHtml(a.last_name.charAt(0))}</span>
                           <span class="ri-assignee-name">${escapeHtml(a.first_name)} ${escapeHtml(a.last_name)}</span>
                         </span>`).join('')}
                 </div>
@@ -995,7 +996,7 @@ function openAISafiPlanModal(companies, salesReps) {
                 ${salesReps.map(rep => `
                   <label class="auto-plan-row" data-rep-id="${rep.id}">
                     <input type="checkbox" value="${rep.id}">
-                    <span class="auto-plan-row-avatar">${escapeHtml(rep.first_name.charAt(0))}${escapeHtml(rep.last_name.charAt(0))}</span>
+                    <span class="auto-plan-row-avatar" style="${memberAvatarStyle(rep.id)}">${escapeHtml(rep.first_name.charAt(0))}${escapeHtml(rep.last_name.charAt(0))}</span>
                     <span class="auto-plan-row-info">
                       <span class="auto-plan-row-name">${escapeHtml(rep.first_name)} ${escapeHtml(rep.last_name)}</span>
                       <span class="auto-plan-row-sub">${escapeHtml(rep.email || '')}</span>
@@ -1465,7 +1466,7 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
 
               <div class="rv-card-rep-section">
                 <div class="rv-rep-display" data-route-index="${ri}">
-                  <span class="rv-rep-avatar" style="background:${route.color}">${escapeHtml(repInitials)}</span>
+                  <span class="rv-rep-avatar" style="${memberAvatarStyle(rep?.id)}">${escapeHtml(repInitials)}</span>
                   <span class="rv-rep-name">${escapeHtml(repName)}</span>
                   ${extraReps > 0 ? `<span class="rv-rep-extra">+${extraReps}</span>` : ''}
                   <svg class="rv-rep-chevron" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
@@ -1478,7 +1479,7 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
                       if (!r) return '';
                       return `
                       <div class="rv-rep-dropdown-row assigned" data-rep-id="${repId}">
-                        <span class="rv-rep-avatar-sm" style="background:${route.color}">${escapeHtml(r.first_name.charAt(0))}${escapeHtml(r.last_name.charAt(0))}</span>
+                        <span class="rv-rep-avatar-sm" style="${memberAvatarStyle(r.id)}">${escapeHtml(r.first_name.charAt(0))}${escapeHtml(r.last_name.charAt(0))}</span>
                         <span>${escapeHtml(r.first_name)} ${escapeHtml(r.last_name)}</span>
                         ${route.assignedReps.length > 1 ? `<button class="rv-rep-remove" data-rep-id="${repId}" data-route-index="${ri}" title="Remove">&times;</button>` : ''}
                       </div>`;
@@ -1489,7 +1490,7 @@ function initAISafiPlanLogic(modal, companies, salesReps) {
                     <span class="rv-rep-dropdown-label">Add or switch</span>
                     ${allReps.filter(r => !route.assignedReps.includes(r.id)).map(r => `
                       <div class="rv-rep-dropdown-row available" data-rep-id="${r.id}" data-route-index="${ri}">
-                        <span class="rv-rep-avatar-sm">${escapeHtml(r.first_name.charAt(0))}${escapeHtml(r.last_name.charAt(0))}</span>
+                        <span class="rv-rep-avatar-sm" style="${memberAvatarStyle(r.id)}">${escapeHtml(r.first_name.charAt(0))}${escapeHtml(r.last_name.charAt(0))}</span>
                         <span>${escapeHtml(r.first_name)} ${escapeHtml(r.last_name)}</span>
                         <span class="rv-rep-actions">
                           ${route.assignedReps.length === 1 ? `<button class="rv-rep-action-btn rv-switch-btn" data-action="switch" title="Replace current rep">Switch</button>` : ''}

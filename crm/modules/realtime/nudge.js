@@ -3,6 +3,7 @@
 import { state, supabaseClient, SAFI_NUDGE_EVENT, SAFI_NUDGE_CHANNEL, SAFI_NUDGE_BOT_GIF } from '../state.js';
 import { escapeHtml, showToast, getInitials } from '../ui/toast.js';
 import { notificationService } from '../notifications/index.js';
+import { memberAvatarStyle } from '../ui/member-color.js';
 
 
 function clearSafiNudgeTimers() {
@@ -70,7 +71,7 @@ function renderNextSafiNudge() {
   
   container.innerHTML = `
     <div class="nudge-toast-card" role="status" aria-live="polite">
-      <div class="nudge-toast-avatar">${initials}</div>
+      <div class="nudge-toast-avatar" style="${memberAvatarStyle(nudge.fromUserId)}">${initials}</div>
       <div class="nudge-toast-content">
         <div class="nudge-toast-title">Nudge from ${fromName}</div>
         <div class="nudge-toast-message">${message}</div>

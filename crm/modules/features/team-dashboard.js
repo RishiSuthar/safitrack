@@ -8,6 +8,7 @@ import { fetchAllPages } from '../utils/analytics.js';
 import { getCompanyLogoUrl } from '../ui/spreadsheet.js';
 import { rpIcon, rpProp, rpList, rpColor, rpAgo, openRecordModal } from '../ui/record-panel.js';
 import { renderDealRow, dealStage } from './record-views.js';
+import { memberAvatarStyle } from '../ui/member-color.js';
 
 // VISITS HUB - PREMIUM MANAGER VIEW
 // ======================
@@ -430,7 +431,7 @@ function renderVisitsCards(visits) {
     return `
       <div class="visit-card-premium" data-visit-id="${visit.id}" data-type="${escapeHtml(visitType)}" onclick="openVisitDetail('${visit.id}')">
         <div class="visit-card-layout">
-          <div class="visit-card-avatar" aria-hidden="true">${escapeHtml(initials)}</div>
+          <div class="visit-card-avatar" aria-hidden="true" style="${memberAvatarStyle(visit.user_id)}">${escapeHtml(initials)}</div>
           <div class="visit-card-body">
             <div class="visit-card-head">
               <div class="visit-card-company" title="${escapeHtml(companyName)}">${escapeHtml(softenCaps(companyName))}</div>
@@ -549,7 +550,7 @@ function renderLeaderboard(leaderboard) {
     return `
       <div class="leaderboard-item">
         <div class="leaderboard-rank">${index + 1}</div>
-        <div class="leaderboard-avatar">${escapeHtml(initials)}</div>
+        <div class="leaderboard-avatar" style="${memberAvatarStyle(rep.id)}">${escapeHtml(initials)}</div>
         <div class="leaderboard-info">
           <div class="leaderboard-name">${escapeHtml(name)}</div>
           <div class="leaderboard-stats">${rep.visitCount} visits</div>

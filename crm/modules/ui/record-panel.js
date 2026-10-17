@@ -3,6 +3,7 @@
 // use the same .od-* styles): icons, property rows, list rows, click-to-edit
 // text, and the open / close / Escape wiring.
 import { escapeHtml, getInitials } from './toast.js';
+import { memberColor } from './member-color.js';
 
 const ICONS = {
   type: '<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
@@ -48,10 +49,7 @@ export function rpEditable(field, html, emptyText, canEdit = true) {
 }
 
 export function rpColor(id) {
-  const palette = ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#06b6d4', '#ef4444', '#84cc16', '#f97316', '#6366f1'];
-  let hash = 0;
-  for (const ch of String(id || '')) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-  return palette[hash % palette.length];
+  return memberColor(id);
 }
 
 export function rpTabs(tabs, active) {

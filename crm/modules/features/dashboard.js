@@ -12,6 +12,7 @@ import {
   readStoredChoice, storeChoice, fetchAllRows,
 } from '../utils/analytics.js';
 import { dueStart } from '../utils/due-dates.js';
+import { memberAvatarStyle } from '../ui/member-color.js';
 
 // ── Constants ───────────────────────────────────────────────────
 
@@ -346,8 +347,8 @@ function deltaHTML(metric, kind) {
   return `<span class="db-delta ${d > 0 ? 'db-delta-up' : 'db-delta-down'}">${d > 0 ? '+' : '−'}${txt}%</span>`;
 }
 
-function avatar(initials, cls = '') {
-  return `<span class="db-avatar ${cls}" aria-hidden="true">${esc(initials)}</span>`;
+function avatar(initials, cls = '', userId = null) {
+  return `<span class="db-avatar ${cls}" aria-hidden="true" style="${memberAvatarStyle(userId)}">${esc(initials)}</span>`;
 }
 
 function cardHead(title, sub, link) {
@@ -468,7 +469,7 @@ function renderDeals(m) {
                     <span class="db-cell-title">${esc(o.name || 'Untitled deal')}</span>
                     ${o.company_name ? `<span class="db-cell-sub">${esc(o.company_name)}</span>` : ''}
                   </td>
-                  <td class="db-col-owner">${owner ? `<span class="db-person">${avatar(initialsOf(owner), 'db-avatar-xs')}<span>${esc(owner.first_name || fullName(owner))}</span></span>` : '<span class="db-faint">Unassigned</span>'}</td>
+                  <td class="db-col-owner">${owner ? `<span class="db-person">${avatar(initialsOf(owner), 'db-avatar-xs', owner.id)}<span>${esc(owner.first_name || fullName(owner))}</span></span>` : '<span class="db-faint">Unassigned</span>'}</td>
                   <td class="db-col-stage"><span class="db-stage"><span class="db-dot" style="background:${stage.color}"></span>${esc(stage.label)}</span></td>
                   <td class="db-col-next">${o.nextStepAt
                     ? `<span class="${lateDays > 0 ? 'db-tone-danger' : ''}" title="${esc(o.next_step || '')}">${shortDate(o.nextStepAt)}</span>`
@@ -548,7 +549,7 @@ function renderTeam(m) {
             <tbody>
               ${rows.map((r) => `
                 <tr>
-                  <td><span class="db-person">${avatar(r.initials)}<span class="db-cell-title">${esc(r.name)}</span></span></td>
+                  <td><span class="db-person">${avatar(r.initials, '', r.id)}<span class="db-cell-title">${esc(r.name)}</span></span></td>
                   <td class="db-num db-col-visits">
                     <span class="db-bar-cell">
                       <span class="db-minibar"><span style="width:${(r.visits / maxVisits) * 100}%"></span></span>
@@ -580,7 +581,7 @@ function renderRecentVisits(m) {
             return `
             <li>
               <button type="button" class="db-row" data-visit="${esc(v.id)}">
-                ${avatar(initialsOf(rep))}
+                ${avatar(initialsOf(rep), '', v.user_id)}
                 <span class="db-row-main">
                   <span class="db-row-title">${esc(v.company_name || 'Unnamed company')}</span>
                   <span class="db-row-meta">${esc(fullName(rep))} · ${esc(titleCase(v.visit_type || 'visit'))}</span>

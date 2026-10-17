@@ -380,8 +380,29 @@
 }
 
 .calls-rep {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   color: var(--text-secondary);
   font-size: var(--type-sm);
+}
+
+.calls-rep-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.calls-rep-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .calls-duration,

@@ -11,6 +11,7 @@ import { attemptShowPWABanner } from '../ui/pwa.js';
 import { showToast } from '../ui/toast.js';
 import { checkAndShowChangelog } from '../ui/changelog.js';
 import { updateWelcomeName, dismissWelcomeScreen } from '../ui/welcome.js';
+import { memberColor } from '../ui/member-color.js';
 
 // ======================
 // APP INITIALIZATION
@@ -366,6 +367,7 @@ function updateUserDisplay(profile) {
   // Update header avatar – show photo if available, otherwise initials
   const avatarEl = document.getElementById('user-avatar');
   if (avatarEl) {
+    avatarEl.style.background = memberColor(state.currentUser.id);
     if (profile.avatar_url) {
       avatarEl.innerHTML = `<img src="${profile.avatar_url}" alt="" class="user-avatar-img">`;
     } else {

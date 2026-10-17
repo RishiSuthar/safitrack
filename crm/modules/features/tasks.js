@@ -7,6 +7,7 @@ import { showToast, escapeHtml, getInitials } from '../ui/toast.js';
 import { renderError } from '../utils/helpers.js';
 import { fetchAllPages } from '../utils/analytics.js';
 import { isPastDue, daysUntilDue, formatDue, dueStart, dueFieldsFromPicker, duePickerValue } from '../utils/due-dates.js';
+import { memberColor } from '../ui/member-color.js';
 
 const TASK_SELECT = `
   *,
@@ -206,7 +207,7 @@ function renderTaskRow(task) {
       ? 'You'
       : (tdFullName(task.assigned_to_profile) || task.assigned_to_profile?.email || 'Teammate');
     const avatarName = task.assigned_to === state.currentUser.id ? (tdFullName(state.currentUserProfile) || 'You') : name;
-    assignee = `<span class="tl-chip tl-chip--person" title="${escapeHtml(name)}"><span class="tl-avatar" style="background:${tdColor(task.assigned_to)}">${escapeHtml(getInitials(avatarName).charAt(0))}</span><span>${escapeHtml(name)}</span></span>`;
+    assignee = `<span class="tl-chip tl-chip--person" title="${escapeHtml(name)}"><span class="tl-avatar" style="background:${memberColor(task.assigned_to)}">${escapeHtml(getInitials(avatarName).charAt(0))}</span><span>${escapeHtml(name)}</span></span>`;
   }
 
   return `
@@ -413,15 +414,8 @@ function tdFullName(profile) {
   return profile ? [profile.first_name, profile.last_name].filter(Boolean).join(' ') : '';
 }
 
-function tdColor(userId) {
-  const palette = ['#3b82f6', '#8b5cf6', '#ec4899', '#10b981', '#f59e0b', '#06b6d4', '#ef4444', '#84cc16', '#f97316', '#6366f1'];
-  let hash = 0;
-  for (const ch of String(userId || '')) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-  return palette[hash % palette.length];
-}
-
 function tdPerson(userId, name) {
-  return `<span class="od-person"><span class="od-person-avatar" style="background:${tdColor(userId)}">${escapeHtml(getInitials(name))}</span>${escapeHtml(name)}</span>`;
+  return `<span class="od-person"><span class="od-person-avatar" style="background:${memberColor(userId)}">${escapeHtml(getInitials(name))}</span>${escapeHtml(name)}</span>`;
 }
 
 /** The task's due label, and whether it's overdue or due today (an all-day task is due all day) */
