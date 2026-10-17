@@ -496,7 +496,7 @@ function renderVisitsTimeline(visits) {
               <div class="visit-card-top">
                 <div class="visit-card-main">
                   <div class="visit-card-company">${escapeHtml(visit.company_name || 'Unknown')}</div>
-                  <div class="visit-card-rep">${escapeHtml(userName)} at ${time}</div>
+                  <div class="visit-card-rep"><span class="visit-card-rep-avatar" style="${memberAvatarStyle(visit.user_id)}" aria-hidden="true">${escapeHtml(getInitials(userName).charAt(0))}</span>${escapeHtml(userName)} at ${time}</div>
                 </div>
               </div>
               <div class="visit-card-meta" style="margin-top: 0.4rem;">

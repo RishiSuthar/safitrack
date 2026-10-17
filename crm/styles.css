@@ -18434,6 +18434,18 @@ button svg {
   color: var(--text-muted);
 }
 
+.visit-card-rep-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: 600;
+}
+
 .visit-card-meta {
   display: flex;
   flex-wrap: wrap;
