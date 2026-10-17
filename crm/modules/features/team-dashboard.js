@@ -935,6 +935,8 @@ function renderVisitPanel() {
 
   const logoUrl = company?.domain ? getCompanyLogoUrl(company.domain) : '';
   const notes = String(visit.notes || '').trim();
+  // The AI sometimes returns an empty bullet ("*"); show a summary only if it has words
+  const aiSummary = /[\p{L}\p{N}]/u.test(visit.ai_summary || '') ? visit.ai_summary : '';
 
   const dealsSection = String(visit.company_name || '').trim() ? `
     <section class="td-section">
@@ -986,10 +988,10 @@ function renderVisitPanel() {
 
       ${fareOnTop ? '' : fareSection}
 
-      ${visit.ai_summary ? `
+      ${aiSummary ? `
         <section class="td-section">
           <h3 class="td-section-title">AI summary</h3>
-          <div class="vd-ai">${parseMarkdown(visit.ai_summary)}</div>
+          <div class="vd-ai">${parseMarkdown(aiSummary)}</div>
         </section>` : ''}
 
       ${displayTags.length ? `

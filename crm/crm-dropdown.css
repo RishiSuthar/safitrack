@@ -52,6 +52,8 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   text-align: left;
+  /* The trigger's line-height of 1 would clip descenders (g, y) */
+  line-height: 1.3;
 }
 
 /* Chevron */

@@ -1866,6 +1866,8 @@
     width: 100% !important;
     max-width: 100% !important;
     max-height: 92vh;
+    /* dvh: the screen as shown, so the sheet's top isn't hidden behind the browser bars */
+    max-height: 92dvh;
     margin: 0 !important;
     border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
     animation: mobileSheetUp 0.32s cubic-bezier(0.32, 0.72, 0, 1) !important;
@@ -1916,6 +1918,7 @@
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: contain;
     max-height: calc(92vh - 140px);
+    max-height: calc(92dvh - 140px);
   }
 
   .modal-footer {
@@ -1946,11 +1949,13 @@
   /* Task & Reminder modals */
   #task-modal .modal-container {
     max-height: 88vh;
+    max-height: 88dvh;
   }
 
   /* Confirm dialog */
   #confirm-dialog .modal-container {
     max-height: 50vh;
+    max-height: 50dvh;
     border-radius: var(--radius-xl) var(--radius-xl) 0 0 !important;
   }
 
@@ -1959,6 +1964,7 @@
     width: 100% !important;
     max-width: 100% !important;
     height: 92vh;
+    height: 92dvh;
     border-radius: var(--radius-xl) var(--radius-xl) 0 0;
     position: fixed;
     bottom: 0;
