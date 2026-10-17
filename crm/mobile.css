@@ -4986,6 +4986,10 @@
     grid-template-columns: 1fr 125px 32px;
   }
 
+  .safi-invite-content {
+    padding: 20px 18px 16px;
+  }
+
   .safi-invite-input {
     font-size: 0.8rem;
     padding: 8px 10px;

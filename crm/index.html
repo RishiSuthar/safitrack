@@ -1913,17 +1913,17 @@
     </div>
   </div>
 
-  <div id="pwa-install-banner" class="install-banner" style="display: none;">
+  <div id="pwa-install-banner" class="install-banner" role="dialog" aria-label="Install SafiTrack" style="display: none;">
     <div class="install-banner-content">
-      <img src="../assets/icons/whiteblue.png" alt="SafiTrack" width="40">
+      <img class="install-banner-icon" src="../assets/icons/whiteblue.png" alt="" width="40" height="40">
       <div class="install-banner-text">
         <strong>Install SafiTrack</strong>
-        <p>Add to your home screen for the full experience</p>
+        <p>One tap from your home screen.</p>
       </div>
-      <div class="install-banner-actions">
-        <button id="pwa-banner-install-btn" class="btn btn-primary btn-sm">Install</button>
-        <button id="pwa-banner-close-btn" class="btn btn-ghost btn-sm">&times;</button>
-      </div>
+      <button type="button" id="pwa-banner-install-btn" class="install-banner-btn">Install</button>
+      <button type="button" id="pwa-banner-close-btn" class="install-banner-close" aria-label="Dismiss">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+      </button>
     </div>
   </div>
 

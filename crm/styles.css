@@ -17358,14 +17358,132 @@ button svg {
 
 /* ── Invite Prompt Form Table ────────────────────────────────────── */
 .safi-invite-modal {
-  max-width: 580px;
+  max-width: 560px;
+}
+
+.safi-invite-content {
+  padding: 26px 28px 22px;
+}
+
+.safi-invite-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: -4px -6px 10px 0;
+}
+
+.safi-invite-eyebrow {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #71717a;
+}
+
+.safi-invite-modal .safi-card-title {
+  margin-bottom: 6px;
+}
+
+/* Seat usage meter */
+.safi-seat-meter {
+  margin: 18px 0 0;
+}
+
+.safi-seat-meter-labels {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.78rem;
+  margin-bottom: 6px;
+}
+
+.safi-seat-meter-labels span:first-child {
+  font-weight: 600;
+  color: #09090b;
+}
+
+.safi-seat-meter-labels span:last-child {
+  color: #71717a;
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="dark"] .safi-seat-meter-labels span:first-child {
+  color: #ffffff;
+}
+
+[data-theme="dark"] .safi-seat-meter-labels span:last-child {
+  color: #a1a1aa;
+}
+
+.safi-seat-meter-track {
+  height: 4px;
+  border-radius: 999px;
+  background: #f4f4f5;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .safi-seat-meter-track {
+  background: #27272a;
+}
+
+.safi-seat-meter-fill {
+  height: 100%;
+  width: 0;
+  border-radius: inherit;
+  background: #09090b;
+  transition: width 0.3s ease;
+}
+
+[data-theme="dark"] .safi-seat-meter-fill {
+  background: #ffffff;
+}
+
+.safi-seat-meter.is-full .safi-seat-meter-fill {
+  background: #f59e0b;
+}
+
+.safi-seat-meter.is-unlimited .safi-seat-meter-track {
+  display: none;
+}
+
+.safi-invite-count {
+  font-size: 0.78rem;
+  color: #71717a;
+  font-variant-numeric: tabular-nums;
+}
+
+[data-theme="dark"] .safi-invite-count {
+  color: #a1a1aa;
+}
+
+.safi-invite-table[hidden],
+.safi-invite-actions-row[hidden] {
+  display: none;
+}
+
+.safi-invite-feedback {
+  font-size: 0.82rem;
+  padding: 9px 12px;
+  border-radius: 8px;
+  margin-top: 12px;
+}
+
+.safi-invite-feedback.is-success {
+  background: rgba(22, 163, 74, 0.08);
+  color: #16a34a;
+}
+
+.safi-invite-feedback.is-error {
+  background: rgba(220, 38, 38, 0.08);
+  color: #dc2626;
 }
 
 .safi-invite-table {
   border: 1px solid #e4e4e7;
   border-radius: 10px;
   background: #fafafa;
-  margin: 18px 0 12px;
+  margin: 14px 0 12px;
 }
 
 [data-theme="dark"] .safi-invite-table {
@@ -17402,11 +17520,31 @@ button svg {
 .safi-invite-input {
   border: none;
   background: transparent;
-  padding: 11px 14px;
+  padding: 12px 14px;
   font-size: 0.875rem;
   color: inherit;
   outline: none;
   width: 100%;
+  min-width: 0;
+}
+
+.safi-invite-input::placeholder {
+  color: #a1a1aa;
+}
+
+[data-theme="dark"] .safi-invite-input::placeholder {
+  color: #52525b;
+}
+
+.safi-invite-row.has-error .safi-invite-input {
+  color: #dc2626;
+}
+
+.safi-invite-row-error {
+  grid-column: 1 / -1;
+  padding: 0 14px 9px;
+  font-size: 0.75rem;
+  color: #dc2626;
 }
 
 /* ── Native Site Design Role Picker (No browser select) ────────── */
@@ -17574,6 +17712,16 @@ button svg {
   color: inherit;
 }
 
+.safi-seat-meter + .safi-invite-table[hidden] ~ .safi-plan-limit-banner {
+  margin-top: 16px;
+}
+
+.safi-plan-limit-banner > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 6px;
+}
+
 .safi-plan-upgrade-link {
   display: inline-flex;
   align-items: center;
@@ -17582,7 +17730,6 @@ button svg {
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 2px;
-  margin-left: 6px;
   cursor: pointer;
 }
 
@@ -17600,6 +17747,12 @@ button svg {
 
 .safi-invite-del:hover {
   color: #dc2626;
+}
+
+/* Hidden on the only row, but keeps its grid column */
+.safi-invite-del[hidden] {
+  display: flex;
+  visibility: hidden;
 }
 
 .safi-invite-actions-row {
@@ -17624,15 +17777,20 @@ button svg {
   transition: all 0.12s;
 }
 
-.safi-invite-add-btn:hover {
+.safi-invite-add-btn:hover:not(:disabled) {
   background: #f4f4f5;
+}
+
+.safi-invite-add-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 [data-theme="dark"] .safi-invite-add-btn {
   border-color: #27272a;
 }
 
-[data-theme="dark"] .safi-invite-add-btn:hover {
+[data-theme="dark"] .safi-invite-add-btn:hover:not(:disabled) {
   background: #27272a;
 }
 
@@ -17848,18 +18006,18 @@ button svg {
 /* ===== PWA INSTALL BANNER ===== */
 .install-banner {
   position: fixed;
-  bottom: calc(var(--bottom-nav-height) + 16px);
+  bottom: calc(var(--bottom-nav-height) + 12px + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
-  width: 90%;
-  max-width: 400px;
-  background: var(--bg-secondary);
+  width: calc(100% - 24px);
+  max-width: 420px;
+  background: var(--bg-elevated);
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-xl);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px -8px rgba(0, 0, 0, 0.18), 0 2px 6px rgba(0, 0, 0, 0.04);
   z-index: var(--z-fixed);
-  padding: 12px;
-  animation: slideUp 0.4s ease-out;
+  padding: 10px 10px 10px 12px;
+  animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @media (min-width: 901px) {
@@ -17874,26 +18032,72 @@ button svg {
   gap: 12px;
 }
 
+.install-banner-icon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
 .install-banner-text {
   flex: 1;
+  min-width: 0;
 }
 
 .install-banner-text strong {
   display: block;
   font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
   color: var(--text-primary);
 }
 
 .install-banner-text p {
-  font-size: 12px;
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  line-height: 1.35;
   color: var(--text-muted);
-  margin: 0;
 }
 
-.install-banner-actions {
+.install-banner-btn {
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-primary);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.install-banner-btn:hover {
+  background: var(--color-primary-dark);
+}
+
+.install-banner-close {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  margin-left: -4px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.install-banner-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 @keyframes slideUp {
